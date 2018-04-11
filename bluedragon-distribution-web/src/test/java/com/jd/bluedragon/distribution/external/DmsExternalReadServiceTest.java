@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.external;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
+import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrdersDetailEntity;
@@ -17,7 +15,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.util.Assert;
 
-import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 public class DmsExternalReadServiceTest {
 
@@ -66,7 +66,19 @@ public class DmsExternalReadServiceTest {
         }
 
     }
+    @Test
+    public void testGetBoxInfoByCode(){
+        BoxResponse response=dmsExternalService.getBoxInfoByCode("TC029F001851F00200006001");
+        System.out.println("code is " + response.getCode());
+        System.out.println("message is " + response.getMessage());
+        System.out.println("box code are " + response.getBoxCode());
+        System.out.println("routinfo are " + response.getRouterInfo());
+        if(response.getRouterFullId()!=null)
+            for(String s:response.getRouterFullId()){
+                System.out.println(s);
+            }
 
+    }
     @Test
     public void testGetSealsByCode() {
         SealVehicleSummaryDto svsd = dmsExternalService.findSealByCodeSummary("89098789C");

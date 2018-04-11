@@ -269,4 +269,8 @@
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
     </jsf:consumer>
+    <!-- router-->
+    <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
+                  protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
 </beans>
