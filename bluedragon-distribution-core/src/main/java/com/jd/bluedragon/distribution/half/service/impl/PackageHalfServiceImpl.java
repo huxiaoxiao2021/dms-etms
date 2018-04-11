@@ -151,7 +151,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	 */
 	@Override
 	public void deleteOfSaveFail(String waybillCode){
-		packageHalfDao.deleteOfSaveFail(waybillCode);
+		//packageHalfDao.deleteOfSaveFail(waybillCode); 操作日志保留
 		packageHalfDetailDao.deleteOfSaveFail(waybillCode);
 	}
 }

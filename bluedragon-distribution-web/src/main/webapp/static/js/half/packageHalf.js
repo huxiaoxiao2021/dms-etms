@@ -247,6 +247,8 @@ $(function() {
  * 加载包裹信息
  */
 function loadPackage(){
+    enableBtn();
+    $("#load-message-p").html("请输入运单号");
     var waybillCode = $("#add-waybill-code").val().trim();
     if(waybillCode!=null && waybillCode != ""){
         //查询运单数据
@@ -255,8 +257,10 @@ function loadPackage(){
         $.post(getWaybillUrl,{waybillCode:addWaybillCodeTemp},function (data) {
             //组装页面
 			if(data.code == 200){
+				//按钮权限控制
+                btnRule(data.data.canDelievered,data.data.canReject);
 				//包裹操作列表
-                makeTableHtml(data.data);
+                makeTableHtml(data.data.packageList);
 				//提示语
                 $("#load-message-p").html(data.message);
 			}else{
@@ -273,11 +277,22 @@ function loadPackage(){
     }
 }
 
+function btnRule(canDelievered,canReject){
+	if(!canDelievered){
+        $('#add-delievered-btn').attr("disabled",true);
+	}
+	if(!canReject){
+        $('#add-reject-btn').attr("disabled",true);
+	}
+    if(!canDelievered && !canReject){
+        $('#add-submit-btn').attr("disabled",true);
+	}
+}
 
 
 function makeTableHtml(data){
 	if(data==null || data.length == 0){
-		alert("无包裹信息");
+		return;
 	}
     var myRowHtml = "";
     for(var i in data){
