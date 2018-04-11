@@ -344,7 +344,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		if(!BusinessHelper.isBoxcode(receive.getBoxCode())){
 			saveCenConfirmAndSendTrack(taskContext, false);
 		}
-		List<SendDetail> sendDetails = deliveryService.getSendDetailsByBoxCode(receive
+		List<SendDetail> sendDetails = deliveryService.getCancelSendByBox(receive
 				.getBoxCode());
 		if (sendDetails == null || sendDetails.isEmpty()) {
 			log.error("根据[boxCode="
