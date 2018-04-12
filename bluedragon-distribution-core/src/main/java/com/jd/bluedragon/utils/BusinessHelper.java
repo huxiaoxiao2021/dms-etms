@@ -590,4 +590,30 @@ public class BusinessHelper {
 		return isSignInChars(waybillSign, 27,'2');
 	}
 
+	/**
+	 *  支持协商再投
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isConsultationTo(String waybillSign){
+		return isSignInChars(waybillSign, 5,'3');
+	}
+
+	/**
+	 *  到付运费或COD  TopayTotalReceivable > 0
+	 * @param bigWaybillDto
+	 * @return
+	 */
+	public static boolean isCODOrFreightCollect(BigWaybillDto bigWaybillDto){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getTopayTotalReceivable() !=null){
+			if(bigWaybillDto.getWaybill().getTopayTotalReceivable().compareTo(new Double(0))>0){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
 }

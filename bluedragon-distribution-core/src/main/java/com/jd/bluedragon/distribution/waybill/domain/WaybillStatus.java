@@ -132,6 +132,11 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7100;
 
+    /**
+     * 审核完成状态
+     */
+    public static final Integer WAYBILL_STATUS_CONSULT = -760;
+
     private Long id;
 
     private String sendCode;
