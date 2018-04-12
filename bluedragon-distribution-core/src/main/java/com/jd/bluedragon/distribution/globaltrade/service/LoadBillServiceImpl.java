@@ -98,6 +98,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @JProfiler(jKey = "DMSWEB.LoadBillServiceImpl.initialLoadBill",mState = JProEnum.TP)
     public int initialLoadBill(String sendCode, Integer userId, String userCode, String userName) {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
         if (StringUtils.isBlank(loadBillConfigStr)) {
@@ -148,6 +149,7 @@ public class LoadBillServiceImpl implements LoadBillService {
      * @return
      */
     private int doInitial(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.LoadBillServiceImpl.doInitial", false, true);
         long start = System.currentTimeMillis();
         List<LoadBill> addList = new ArrayList<LoadBill>();
         // 站点信息缓存Cache
@@ -159,7 +161,7 @@ public class LoadBillServiceImpl implements LoadBillService {
             // 判断该包裹是否已初始化过， 若已初始化则无需处理
             if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
                 // 判断包裹数据量 若一单一件则无需判断是否已预装载过 仅一单多件时需要判断
-                if (lb.getPackageAmount() != 1) {
+                if (sendDetail.getPackageNum() != 1) {
                     LoadBill loadBill = loadBillCacheMap.get(lb.getOrderId());
                     if (loadBill == null) {
                         // 根据订单号查询 该订单号下是否有其他包裹已预装载
@@ -180,6 +182,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         start = System.currentTimeMillis();
         this.batchAdd(addList);
         logger.info("[全球购]-[初始化]-执行入库共" + addList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
+        Profiler.registerInfoEnd(info);
         return addList.size();
     }
 
