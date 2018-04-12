@@ -3,11 +3,14 @@ package com.jd.bluedragon.distribution.consumer.packagehalf;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfApprove;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDetailDto;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDto;
+import com.jd.bluedragon.distribution.half.service.PackageHalfApproveService;
 import com.jd.bluedragon.distribution.half.service.PackageHalfRedeliveryService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -34,6 +37,9 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
     @Autowired
     private PackageHalfRedeliveryService packageHalfRedeliveryService;
 
+    @Autowired
+    private PackageHalfApproveService packageHalfApproveService;
+
     @JProfiler(jKey = "DMSCORE.PackageHalfRedeliveryConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
@@ -43,7 +49,7 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
         }
         logger.info("[B网半收]消费协商再投MQ-消息体：" + message.getText());
         PackageHalfRedeliveryDto dto = JSON.parseObject(message.getText(), PackageHalfRedeliveryDto.class);
-        List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackageSyncPartParameterList();
+        List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackagePartMsgDTOList();
         if(packageList == null || packageList.isEmpty()){
             logger.warn("[B网半收]消费协商再投MQ-包裹明细为空：" + message.getText());
             return;
@@ -53,6 +59,7 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             logger.warn("协商再投运单已消费，不再重复落库：" + message.getText());
             return;
         }
+        repairInfo(dto);
         BaseStaffSiteOrgDto user = baseMajorManager.getBaseStaffByStaffId(dto.getOperatorId());
         String erp = "";
         if(user != null){
@@ -71,7 +78,7 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
      * @return
      */
     private List<PackageHalfRedelivery> getPackageHalfRedeliveryList(PackageHalfRedeliveryDto dto, String userErp){
-        List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackageSyncPartParameterList();
+        List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackagePartMsgDTOList();
         List<PackageHalfRedelivery> packageHalfRedeliveryList = new ArrayList<PackageHalfRedelivery>(packageList.size());
         for (PackageHalfRedeliveryDetailDto packageDto : packageList){
             PackageHalfRedelivery redelivery = new PackageHalfRedelivery();
@@ -90,5 +97,27 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             packageHalfRedeliveryList.add(redelivery);
         }
         return packageHalfRedeliveryList;
+    }
+
+    /**
+     * 补齐相关终端信息
+     * @param dto
+     */
+    private void repairInfo(PackageHalfRedeliveryDto dto){
+        PackageHalfApprove packageHalfApprove = packageHalfApproveService.queryOneByWaybillCode(dto.getWaybillCode(), dto.getOperateSiteId());
+        if(packageHalfApprove != null){
+            if(NumberHelper.isPositiveNumber(packageHalfApprove.getDmsSiteCode())){
+                dto.setOperateSiteId(packageHalfApprove.getDmsSiteCode());
+            }
+            if(NumberHelper.isPositiveNumber(packageHalfApprove.getCreateUserCode())){
+                dto.setOperatorId(packageHalfApprove.getCreateUserCode());
+            }
+            if(StringUtils.isNotBlank(packageHalfApprove.getDmsSiteName())){
+                dto.setOperateSiteName(packageHalfApprove.getDmsSiteName());
+            }
+            if(StringUtils.isNotBlank(packageHalfApprove.getCreateUserName())){
+                dto.setOperatorName(packageHalfApprove.getCreateUserName());
+            }
+        }
     }
 }

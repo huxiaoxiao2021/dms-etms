@@ -244,5 +244,6 @@
         <mapper resource="mappers/mysql/half/PackageHalfMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
+        <mapper resource="mappers/mysql/half/PackageHalfApproveMapper.xml"/>
     </mappers>
 </configuration>

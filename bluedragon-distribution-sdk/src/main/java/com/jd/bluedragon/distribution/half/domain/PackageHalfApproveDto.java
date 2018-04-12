@@ -4,12 +4,15 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-/**
- * 包裹半收协商再投之运单状态
- */
-public class PackageHalfRedeliveryDto implements Serializable {
+public class PackageHalfApproveDto  implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    /** 京东订单号 */
+    private String orderId;
+
+    /** 运单标识 */
+    private String waybillSign;
 
     /**
      * 运单号
@@ -42,16 +45,9 @@ public class PackageHalfRedeliveryDto implements Serializable {
     private String operatorName;
 
     /**
-     * 运单状态（妥投150拒收160再投待审核550再投审核完成560部分签收600）
-     */
-    private Integer waybillState;
-
-    /**
      * 部分签收运单包裹同步参数集合
      */
-    private List<PackageHalfRedeliveryDetailDto> packagePartMsgDTOList;
-
-    private Date redeliverTime;//再投时间
+    private List<PackageHalfApproveDetailDto> packagePartMsgDTOList;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -101,27 +97,27 @@ public class PackageHalfRedeliveryDto implements Serializable {
         this.operatorName = operatorName;
     }
 
-    public Integer getWaybillState() {
-        return waybillState;
+    public String getOrderId() {
+        return orderId;
     }
 
-    public void setWaybillState(Integer waybillState) {
-        this.waybillState = waybillState;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
-    public Date getRedeliverTime() {
-        return redeliverTime;
+    public String getWaybillSign() {
+        return waybillSign;
     }
 
-    public void setRedeliverTime(Date redeliverTime) {
-        this.redeliverTime = redeliverTime;
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
     }
 
-    public List<PackageHalfRedeliveryDetailDto> getPackagePartMsgDTOList() {
+    public List<PackageHalfApproveDetailDto> getPackagePartMsgDTOList() {
         return packagePartMsgDTOList;
     }
 
-    public void setPackagePartMsgDTOList(List<PackageHalfRedeliveryDetailDto> packagePartMsgDTOList) {
+    public void setPackagePartMsgDTOList(List<PackageHalfApproveDetailDto> packagePartMsgDTOList) {
         this.packagePartMsgDTOList = packagePartMsgDTOList;
     }
 }

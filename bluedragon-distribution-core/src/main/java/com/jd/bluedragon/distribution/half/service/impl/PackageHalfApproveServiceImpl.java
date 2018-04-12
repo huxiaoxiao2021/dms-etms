@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.half.service.impl;
 
+import com.jd.bluedragon.distribution.half.domain.PackageHalfApproveCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfApprove;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfApproveDao;
 import com.jd.bluedragon.distribution.half.service.PackageHalfApproveService;
+
+import java.util.List;
 
 /**
  *
@@ -31,4 +34,27 @@ public class PackageHalfApproveServiceImpl extends BaseService<PackageHalfApprov
 		return this.packageHalfApproveDao;
 	}
 
+    /**
+     * 根据条件查询终端提交的协商再投
+     * @param wayBillCode
+     * @param siteCode
+     * @return
+     */
+	@Override
+	public PackageHalfApprove queryOneByWaybillCode(String wayBillCode, Integer siteCode) {
+        PackageHalfApproveCondition condition = new PackageHalfApproveCondition();
+        condition.setWaybillCode(wayBillCode);
+        condition.setDmsSiteCode(siteCode);
+		return packageHalfApproveDao.queryOneByWaybillCode(condition);
+	}
+
+    /**
+     * 根据条件查询终端提交的协商再投列表
+     * @param wayBillCodes
+     * @return
+     */
+    @Override
+    public List<PackageHalfApprove> queryListByWaybillCode(List<String> wayBillCodes) {
+        return packageHalfApproveDao.queryListByWaybillCode(wayBillCodes);
+    }
 }

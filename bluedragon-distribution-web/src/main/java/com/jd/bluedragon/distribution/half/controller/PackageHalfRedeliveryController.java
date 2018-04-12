@@ -2,11 +2,13 @@ package com.jd.bluedragon.distribution.half.controller;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDetailDto;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryDto;
+import com.jd.bluedragon.distribution.half.domain.*;
+import com.jd.bluedragon.distribution.half.service.PackageHalfApproveService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
-import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryCondition;
 import com.jd.bluedragon.distribution.half.service.PackageHalfRedeliveryService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -42,6 +42,9 @@ public class PackageHalfRedeliveryController {
 
 	@Autowired
 	private PackageHalfRedeliveryService packageHalfRedeliveryService;
+
+	@Autowired
+	private PackageHalfApproveService packageHalfApproveService;
 
 	/**
 	 * 返回主页面
@@ -101,9 +104,33 @@ public class PackageHalfRedeliveryController {
 	 */
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackageHalfRedelivery> listData(@RequestBody PackageHalfRedeliveryCondition packageHalfRedeliveryCondition) {
-		JdResponse<PagerResult<PackageHalfRedelivery>> rest = new JdResponse<PagerResult<PackageHalfRedelivery>>();
-		rest.setData(packageHalfRedeliveryService.queryByPagerCondition(packageHalfRedeliveryCondition));
-		return rest.getData();
+
+        PagerResult<PackageHalfRedelivery> data = packageHalfRedeliveryService.queryByPagerCondition(packageHalfRedeliveryCondition);
+        List<String> wayBillCodes = new ArrayList<String>();
+        for(PackageHalfRedelivery vo : data.getRows()){
+            if(StringUtils.isBlank(vo.getDmsSiteName()) || StringUtils.isBlank(vo.getCreateUser())){
+                wayBillCodes.add(vo.getWaybillCode());
+            }
+        }
+        if(!wayBillCodes.isEmpty()){
+            List<PackageHalfApprove> approves = packageHalfApproveService.queryListByWaybillCode(wayBillCodes);
+            Map<String, PackageHalfApprove> approveMap = new HashMap<String, PackageHalfApprove>();
+            for (PackageHalfApprove vo : approves){
+                approveMap.put(vo.getWaybillCode(), vo);
+            }
+            for(PackageHalfRedelivery vo : data.getRows()){
+                PackageHalfApprove approve = approveMap.get(vo.getWaybillCode());
+                if(approve != null){
+                    vo.setDmsSiteCode(approve.getDmsSiteCode());
+                    vo.setDmsSiteName(approve.getDmsSiteName());
+                    vo.setCreateUser(approve.getCreateUser());
+                    vo.setCreateUserName(approve.getCreateUserName());
+                    vo.setCreateUserCode(approve.getCreateUserCode());
+                }
+            }
+        }
+
+		return data;
 	}
 
 }
