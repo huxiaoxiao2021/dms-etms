@@ -135,7 +135,7 @@ public class WaybillStatus {
     /**
      * 审核完成状态
      */
-    public static final Integer WAYBILL_STATUS_CONSULT = -760;
+    public static final Integer WAYBILL_STATUS_CONSULT = 135;
 
     private Long id;
 
