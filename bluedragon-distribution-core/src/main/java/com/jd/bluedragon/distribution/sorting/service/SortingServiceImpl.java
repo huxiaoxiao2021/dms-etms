@@ -461,7 +461,12 @@ public class SortingServiceImpl implements SortingService {
 		return null;
 	}
 
-	private void addSortingAdditionalTask(Sorting sorting) {
+	/**
+	 * 添加回传分拣的运单状态
+	 * @param sorting
+	 */
+	@Override
+	public void addSortingAdditionalTask(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
 

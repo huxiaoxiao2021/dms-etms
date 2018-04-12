@@ -1,26 +1,25 @@
 package com.jd.bluedragon.distribution.rest.box;
 
+import com.jd.bluedragon.distribution.api.request.BoxRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import org.junit.Test;
+import org.springframework.web.client.RestTemplate;
+
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-
-import org.junit.Test;
-import org.springframework.web.client.RestTemplate;
-
-import com.jd.bluedragon.distribution.api.request.BoxRequest;
-import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import java.util.Date;
 
 public class BoxResourceTestCase {
 
     private final RestTemplate template = new RestTemplate();
 
 //    String urlRoot = "http://192.168.226.157:8080/services/";
-//    String urlRoot = "http://localhost:8080/worder/services/";
-    String urlRoot = "http://dms1.etms.360buy.com/services/";
-    
-    @Test
+    String urlRoot = "http://localhost:8081/services/";
+//    String urlRoot = "http://dms1.etms.360buy.com/services/";
+@Test
     public void test_add_box() {
         String url = urlRoot+"boxes";
         // String url = "http://localhost/services/boxes";
@@ -30,12 +29,13 @@ public class BoxResourceTestCase {
         request.setType("TC");
         request.setUserCode(99);
         request.setUserName("王治澎");
-        request.setCreateSiteCode(910);
-        request.setCreateSiteName("北京大鲁店分拣中心");
-        request.setReceiveSiteCode(22);
-        request.setReceiveSiteName("北京一号库");
+        request.setCreateSiteCode(233957);
+        request.setCreateSiteName("西安分拣中心");
+        request.setReceiveSiteCode(1008);
+        request.setReceiveSiteName("贵阳亚一分拨中心");
         request.setQuantity(1);
         request.setTransportType(2);
+        request.setPredictSendTime(new Date());
 
         BoxResponse response = this.template.postForObject(url, request, BoxResponse.class);
 
@@ -49,7 +49,7 @@ public class BoxResourceTestCase {
 	        }
     }
 
-    @Test
+
     public void test_getRouterInfo() {
         String url = urlRoot+"boxes/getRouterInfo";
         // String url = "http://localhost/services/boxes";
@@ -74,7 +74,7 @@ public class BoxResourceTestCase {
     
     @Test
     public void test_get_boxbyboxcode() {
-    	String url = urlRoot+"boxes/BC010Y001021F00300001006";
+    	String url = urlRoot+"boxes/TC029F001851F00200006001";
 
         BoxResponse response = this.template.getForObject(url, BoxResponse.class);
 
