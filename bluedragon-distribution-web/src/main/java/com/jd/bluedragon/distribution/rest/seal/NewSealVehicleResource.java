@@ -264,7 +264,7 @@ public class NewSealVehicleResource {
                 List<String>  unsealCarOutArea = newsealVehicleService.isSealCarInArea(request.getData());
                 if(unsealCarOutArea != null && !unsealCarOutArea.isEmpty()){
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_UNSEAL_CAR_OUT_CHECK);
-                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_CAR_OUT_CHECK+JsonHelper.toJson(unsealCarOutArea));
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_UNSEAL_CAR_OUT_CHECK+unsealCarOutArea.toString());
                 }
             }
         } catch (Exception e) {
