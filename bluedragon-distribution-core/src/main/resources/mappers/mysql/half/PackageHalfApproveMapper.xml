@@ -145,9 +145,9 @@
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					now(),
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
