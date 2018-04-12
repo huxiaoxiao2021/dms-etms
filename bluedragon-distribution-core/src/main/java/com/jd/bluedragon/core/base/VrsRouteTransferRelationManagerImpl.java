@@ -41,6 +41,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 logger.warn("查询远程路由中转信息失败，返回消息：" + commonDto.getMessage());
                 return null;
             }else{
+                logger.info("查询远程路由成功："+commonDto.getData().getRecommendRouting()+",参数：startNode:"+startNode+",endNodeCode:"+endNodeCode+",predictSendTime:"+predictSendTime.getTime()+",routeProduct:"+routeProduct);
                 return commonDto.getData().getRecommendRouting();
             }
         } catch (Exception e) {

@@ -314,7 +314,7 @@ function getNum(str) {
 }
 
 function getDateString(millis) {
-	if (null == millis) {
+	if (null == millis || millis == "") {
 		return "";
 	}
 	var date = new Date();

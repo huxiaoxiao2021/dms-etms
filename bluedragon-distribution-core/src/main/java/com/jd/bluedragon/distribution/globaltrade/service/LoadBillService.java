@@ -89,4 +89,12 @@ public interface LoadBillService {
      */
     Integer preLoadBill(List<Long> id, String userCode, String trunkNo) throws Exception;
 
+    /**
+     * 根据订单ID获取已成功预装载一条记录信息
+     *
+     * @param orderId
+     * @return
+     */
+    LoadBill getSuccessPreByOrderId(String orderId);
+
 }

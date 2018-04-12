@@ -17,19 +17,19 @@ public class BusinessHelper {
 
 	private final static Logger logger = Logger.getLogger(BusinessHelper.class);
 
-	private static final String PACKAGE_SEPARATOR = "-";
-	private static final String PACKAGE_IDENTIFIER_SUM = "S";
-	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
-	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
-	private static final String PACKAGE_WAIDAN = "V";
+	public static final String PACKAGE_SEPARATOR = "-";
+	public static final String PACKAGE_IDENTIFIER_SUM = "S";
+	public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+	public static final String PACKAGE_IDENTIFIER_PICKUP = "W";
+	public static final String PACKAGE_WAIDAN = "V";
 
-    private static final String AO_BATCH_CODE_PREFIX="Y";
-	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
-	private static final String SOURCE_CODE_ECLP = "ECLP";
-	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-	private static final String BUSI_ORDER_CODE_QWD = "QWD";
-	private static final String SOURCE_CODE_CLPS = "CLPS";
-	private static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+	public static final String AO_BATCH_CODE_PREFIX="Y";
+	public static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
+	public static final String SOURCE_CODE_ECLP = "ECLP";
+	public static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
+	public static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String SOURCE_CODE_CLPS = "CLPS";
+	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	static{
 		init();
 	}
