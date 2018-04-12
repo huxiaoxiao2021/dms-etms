@@ -19,7 +19,7 @@ public class NewSealVehicleResponse<T> extends JdResponse {
 	public static final String TIPS_RECEIVESITE_DIFF_ERROR = "批次号与运力编码目的地不一致，请核准后重新操作!";
 
 	public static final Integer CODE_UNSEAL_CAR_OUT_CHECK = 30001;
-	public static final String MESSAGE_UNSEAL_CAR_OUT_CHECK = "以下车辆定位不在电子围栏，是否强制解封：";
+	public static final String MESSAGE_UNSEAL_CAR_OUT_CHECK = "车辆不在围栏，是否强制解封：";
 
 	public NewSealVehicleResponse(){
 

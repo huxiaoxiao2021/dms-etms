@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.seal.service;
 
-import IceInternal.Ex;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
