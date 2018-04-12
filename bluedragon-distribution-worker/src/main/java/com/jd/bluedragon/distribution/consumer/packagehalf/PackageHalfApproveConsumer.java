@@ -69,6 +69,8 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
         for (PackageHalfApproveDetailDto packageDto : packageList){
             PackageHalfApprove approve = new PackageHalfApprove();
             approve.setWaybillCode(dto.getWaybillCode());
+            approve.setOrderId(dto.getOrderId());
+            approve.setWaybillSign(dto.getWaybillSign());
             approve.setOperatetime(dto.getOperateTime());
             approve.setDmsSiteCode(dto.getOperateSiteId());
             approve.setDmsSiteName(dto.getOperateSiteName());
