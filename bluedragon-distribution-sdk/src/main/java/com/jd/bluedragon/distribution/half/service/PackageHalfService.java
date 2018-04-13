@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.half.service;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.Date;
@@ -29,7 +30,7 @@ public interface PackageHalfService extends Service<PackageHalf> {
      * @param packageCount 拒收包裹数量
      * @return
      */
-    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount,Integer orgId,Integer createSiteCode);
+    boolean save(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails , Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer packageCount,Integer orgId,Integer createSiteCode,JdResponse<Boolean> rest);
 
 
     void deleteOfSaveFail(String waybillCode);

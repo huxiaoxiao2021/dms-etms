@@ -5,6 +5,7 @@ import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
@@ -28,7 +29,7 @@ public class LDOPManagerImpl implements LDOPManager {
      * @param waybillReverseDTO
      * @return
      */
-    public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO){
+    public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO,JdResponse<Boolean> rest){
 
         CallerInfo info = null;
         try{
@@ -37,6 +38,7 @@ public class LDOPManagerImpl implements LDOPManager {
             ResponseDTO responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
             if(!responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
                 //失败
+                rest.setMessage("外单自动换单接口失败 "+responseDTO.getStatusMessage());
                 logger.error("触发逆向换单失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
                 return false;
             }
