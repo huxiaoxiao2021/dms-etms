@@ -44,6 +44,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Override
+    //FIXME: 线上日志表明targetSiteCode传入为0
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
     	log.info("获取时效信息1"+JsonHelper.toJson(waybill));
     	log.info("获取时效信息2"+dmsCode);
@@ -86,7 +87,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
         		}
         		
                 BaseStaffSiteOrgDto startSite=baseMajorManager.getBaseSiteBySiteId(dmsCode);
-                BaseStaffSiteOrgDto toSite=baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
+                BaseStaffSiteOrgDto toSite=baseMajorManager.getBaseSiteBySiteId(waybill.getPrepareSiteCode());
                 String routeTimeText = null;
                 if(startSite!=null&&toSite!=null)
                 	routeTimeText = vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType, startSite.getCityId().toString(), toSite.getCityId().toString(), new Date());
