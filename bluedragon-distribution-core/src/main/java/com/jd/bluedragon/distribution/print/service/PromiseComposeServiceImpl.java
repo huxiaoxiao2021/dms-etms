@@ -8,25 +8,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 /**
  * Created by wangtingwei on 2016/1/25.
+ * 
+ * promise 路由将合并，因此两者对时效的处理也一并放在此处
  */
 @Service("promiseComposeService")
 public class PromiseComposeServiceImpl implements  ComposeService {
 
     private static final Log log= LogFactory.getLog(PromiseComposeServiceImpl.class);
 
+    
+    
     @Autowired
     private OrderMarkingService orderMarkingService;
+    
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
@@ -51,7 +66,32 @@ public class PromiseComposeServiceImpl implements  ComposeService {
         }
 
         try {
-            if (SerialRuleUtil.isMatchReceiveWaybillNo(waybill.getWaybillCode())
+        	//如果是B网订单取路由时效数据,否则取promise数据
+        	//40位不为0是快运0默认、1整车、2是纯配快运零担
+        	//http://cf.jd.com/pages/viewpage.action?pageId=31916460
+        	if(BusinessHelper.isB2b(waybill.getWaybillSign())&&"true".equals(PropertiesHelper.newInstance().getValue("isRoutePredictDateEnabled"))){
+        		
+        		 Integer configType = Constants.ROUTE_INTER_CONFIG_TYPE_QUAN_LIUCHENG_LVYUELV;//路由接口配置类型
+        		 Integer bizzType = Constants.ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B;
+        		if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 40, '2', '5')){//纯外（纯配）
+        			bizzType = Constants.ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B;
+        		}else if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 40, '3')){//仓配零担
+        			bizzType = Constants.ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B;
+        		}else{//1,4 整车
+        			bizzType = Constants.ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B;
+        		}
+        		
+                BaseStaffSiteOrgDto startSite=baseMajorManager.getBaseSiteBySiteId(dmsCode);
+                BaseStaffSiteOrgDto toSite=baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
+                String routeTimeText = null;
+                if(startSite!=null&&toSite!=null)
+                	routeTimeText = vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType, startSite.getDmsSiteCode(), toSite.getDmsSiteCode(), new Date());
+                if(StringHelper.isNotEmpty(routeTimeText)){
+                	waybill.setPromiseText(routeTimeText);
+                }else{
+                	waybill.setPromiseText("");
+                }
+        	}else if (SerialRuleUtil.isMatchReceiveWaybillNo(waybill.getWaybillCode())
                     && ((Constants.WAYBILL_SIGN_B!=waybill.getWaybillSign().charAt(1)&& NumberHelper.isNumber(waybill.getOrderCode()))||Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))) {
 
                 log.debug("调用promise获取外单时效开始");

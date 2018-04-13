@@ -617,6 +617,6 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isB2b(String waybillSign){
-		return isSignInChars(waybillSign, 40,'1','2','3');
+		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
 	}
 }

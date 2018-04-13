@@ -12,13 +12,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.response.SendMeasureResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -34,6 +37,10 @@ public class CenterServiceResource {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+	@Autowired
+	@Qualifier("promiseComposeService") 
+	private ComposeService promiseComposeService;
 	
 	@Autowired
 	private BaseService baseService;
@@ -113,5 +120,14 @@ public class CenterServiceResource {
 			logger.error(errorMsg, e);
 		}
 		return result;
+	}
+
+	@GET
+	@Path("/centerService/test/{waybillsign}/{startsiteCode}/{tositeCode}")
+	public String getDmsBaseSiteByCode(@PathParam("waybillsign") String waybillsign,@PathParam("startsiteCode") Integer startsiteCode,@PathParam("tositeCode") Integer tositeCode ) {
+		PrintWaybill waybill = new PrintWaybill();
+		waybill.setWaybillSign(waybillsign);
+		promiseComposeService.handle(waybill, startsiteCode, tositeCode);
+		return waybill.getPromiseText();
 	}
 }
