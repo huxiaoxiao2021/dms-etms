@@ -145,19 +145,19 @@ public class WeightServiceImpl implements WeightService {
                 for (OpeObject ope : opeDetails) {
                 	boolean weightIsEffect = false;
                 	boolean volumeIsEffect = false;
-                	//重量值<=0则记为无效，对象设置为null
                 	if(NumberHelper.gt0(ope.getpWeight())){
                 		weightIsEffect = true;
                 	}else{
+                		//重量值<=0则记为无效，对象设置为null
                 		ope.setpWeight(null);
                 		logger.warn("doWeightTrack-weight:称重上传重量值无效，设置为null，packageCode="+ope.getPackageCode());
                 	}
-                	//长宽高有一个<=0则记为无效，对象设置为null
                 	if(NumberHelper.gt0(ope.getpLength())
                 		&&NumberHelper.gt0(ope.getpWidth())
                 		&&NumberHelper.gt0(ope.getpHigh())){
                 		volumeIsEffect = true;
                 	}else{
+                		//长宽高有一个<=0则记为无效，对象设置为null
                 		ope.setpLength(null);
                 		ope.setpWidth(null);
                 		ope.setpHigh(null);
@@ -175,7 +175,7 @@ public class WeightServiceImpl implements WeightService {
                 }
             }
         }catch (Exception e){
-            this.logger.error("处理长宽高重量为空或小于0置为0时异常", e);
+            this.logger.error("处理称重数据异常", e);
         }
         return null;
     }
