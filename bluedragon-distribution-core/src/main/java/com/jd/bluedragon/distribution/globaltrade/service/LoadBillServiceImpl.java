@@ -154,28 +154,30 @@ public class LoadBillServiceImpl implements LoadBillService {
         List<LoadBill> addList = new ArrayList<LoadBill>();
         // 站点信息缓存Cache
         Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
-        // 全球购预装载信息缓存Cache
-        Map<String, LoadBill> loadBillCacheMap = new HashMap<String, LoadBill>();
+        // 预装载信息缓存订单号Cache
+        Map<String, Boolean> preOrderIdCache = new HashMap<String, Boolean>();
         for (SendDetail sendDetail : sendDetailList) {
             LoadBill lb = this.resolveLoadBill(sendDetail, loadBillConfig, userId, userName, dmsCacheMap);
             // 判断该包裹是否已初始化过， 若已初始化则无需处理
             if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
                 // 判断包裹数据量 若一单一件则无需判断是否已预装载过 仅一单多件时需要判断
-                if (sendDetail.getPackageNum() != 1) {
-                    LoadBill loadBill = loadBillCacheMap.get(lb.getOrderId());
-                    if (loadBill == null) {
+                if (sendDetail.getPackageNum() != 1) { //一单多件
+                    // 已预装载缓存 不存在时查库确认是否已装载 存在时直接剔除
+                    Boolean isPre = preOrderIdCache.get(lb.getOrderId());
+                    if (isPre == null) { // 不存在时需要查库
                         // 根据订单号查询 该订单号下是否有其他包裹已预装载
-                        loadBill = this.getSuccessPreByOrderId(lb.getOrderId());
-                        if (loadBill != null) {
-                            this.buildDoAddLoadBill(loadBill, lb);
-                            // 加入缓存
-                            loadBillCacheMap.put(lb.getOrderId(), loadBill);
+                        if (this.getSuccessPreByOrderId(lb.getOrderId()) == null) { //未装载
+                            preOrderIdCache.put(lb.getOrderId(), Boolean.FALSE);
+                            addList.add(lb);
+                        } else { // 已装载 剔除
+                            preOrderIdCache.put(lb.getOrderId(), Boolean.TRUE);
                         }
-                    } else {
-                        this.buildDoAddLoadBill(loadBill, lb);
+                    } else if (isPre == Boolean.FALSE) {
+                        addList.add(lb);
                     }
+                } else { // 一单一件
+                    addList.add(lb);
                 }
-                addList.add(lb);
             }
         }
         logger.info("[全球购]-[初始化]-构建可新增loadBill对象共" + sendDetailList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
@@ -207,22 +209,9 @@ public class LoadBillServiceImpl implements LoadBillService {
                 }
                 loadBillDao.batchAdd(loadBillList.subList(start, end));
             }
+        } else {
+            loadBillDao.batchAdd(loadBillList);
         }
-    }
-
-    /**
-     * 复制已完成预装载的包裹信息
-     *
-     * @param baseLoadBill
-     * @param addLoadBill
-     */
-    private void buildDoAddLoadBill(LoadBill baseLoadBill, LoadBill addLoadBill) {
-        addLoadBill.setLoadId(baseLoadBill.getLoadId());
-        addLoadBill.setTruckNo(baseLoadBill.getTruckNo());
-        addLoadBill.setApprovalCode(baseLoadBill.getApprovalCode());
-        addLoadBill.setApprovalTime(baseLoadBill.getApprovalTime());
-        addLoadBill.setCustBillNo(baseLoadBill.getCustBillNo());
-        addLoadBill.setCiqCheckFlag(baseLoadBill.getCiqCheckFlag());
     }
 
     private LoadBill resolveLoadBill(SendDetail sd, LoadBillConfig loadBillConfig, Integer userId, String userName, Map<Integer, String> dmsMap) {
