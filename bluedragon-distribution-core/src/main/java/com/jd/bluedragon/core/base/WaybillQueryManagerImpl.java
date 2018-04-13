@@ -257,11 +257,4 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public Map<String, Object> uploadOpe(String packOpeJson){
     	return waybillPackageApiJsf.uploadOpe(packOpeJson);
     }
-	public static void main(String [] args){
-//		WaybillQueryManagerImpl manager = new WaybillQueryManagerImpl();
-//		Integer changedWaybill = manager.checkReDispatchtest("1460638776");
-//		
-//		
-//		System.out.println(changedWaybill);
-	}
 }
