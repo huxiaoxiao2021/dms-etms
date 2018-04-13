@@ -643,7 +643,7 @@ public class SortingServiceImpl implements SortingService {
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
-							if( waybill.getWaybillSign().charAt(33) == '2'){
+							if(BusinessHelper.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
 								return;
@@ -1022,7 +1022,7 @@ public class SortingServiceImpl implements SortingService {
 					if (waybill != null) {
 						String waybillsign = waybill.getWaybillSign();
 						if (waybillsign != null && waybillsign.length() > 0) {
-							if( waybill.getWaybillSign().charAt(33) == '2'){
+							if(BusinessHelper.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
 								return;

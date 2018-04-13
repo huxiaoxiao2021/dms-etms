@@ -731,11 +731,28 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
             return null;
         }
-        //只需要用原单号去获取病单拦截指令即可，不去取运单的waybillsign
-        Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
-        if(featureType!=null){
-            isSickWaybill = Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType);
+
+        if(wayBillCode!=null && tWayBillCode!=null && !wayBillCode.equals(tWayBillCode)){
+            sendTwaybill = tBaseService.getWaybillByOrderCode(tWayBillCode);//根据T单号获取运单信息 operCodeMap.get(wayBillCode)
         }
+
+        if (sendTwaybill != null ) {
+            //发生换单
+            isSickWaybill = BusinessHelper.isSick(sendTwaybill.getWaybillSign());//waybillSign第34位为2则视为病单
+        }else{
+            //未发生换单
+            //先去取原单病单标志
+            isSickWaybill = BusinessHelper.isSick(send.getWaybillSign());
+            if(!isSickWaybill){
+                //原单不是病单   再去通过JSF服务返回的featureType=30判定病单标识  这样做可以避免 现场为操作异常处理
+                Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
+                if(featureType!=null){
+                    isSickWaybill = Constants.FEATURE_TYPCANCEE_SICKL.equals(featureType);
+                }
+            }
+
+        }
+
 
         send.setSickWaybill(isSickWaybill);
 
