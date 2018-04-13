@@ -1,6 +1,26 @@
 package com.jd.bluedragon.distribution.weight.service;
 
+import java.lang.reflect.Type;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.jackson.type.JavaType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -10,26 +30,9 @@ import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.codehaus.jackson.type.JavaType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.lang.reflect.Type;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Service("weightService")
 public class WeightServiceImpl implements WeightService {
@@ -41,7 +44,7 @@ public class WeightServiceImpl implements WeightService {
     private DefaultJMQProducer dmsWeightSendMQ;
 
     @Autowired
-    private WaybillPackageApi waybillPackageApiJsf;
+    private WaybillQueryManager waybillQueryManager;
 
     @Resource(name = "goddessService")
     private GoddessService goddessService;
@@ -60,9 +63,11 @@ public class WeightServiceImpl implements WeightService {
             String newBody = dealMinusVolume(body);
             if(StringUtils.isNotEmpty(newBody)){
                 body = newBody;
+            }else{
+            	logger.error("doWeightTrack-fail:无效的称重数据！消息体："+body);
+            	return false;
             }
-
-            Map<String, Object> map = waybillPackageApiJsf.uploadOpe(body.substring(1, body.length() - 1));
+            Map<String, Object> map = waybillQueryManager.uploadOpe(body.substring(1, body.length() - 1));
             goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
             this.sendMQ(body);
 
@@ -121,7 +126,10 @@ public class WeightServiceImpl implements WeightService {
         }
     }
     /**
-     * 处理长宽高重量为空或小于0 置为0
+     * 处理称重数据
+     * 1、重量值<=0则记为无效，上传的重量值设置为空
+     * 2、长宽高有一个值<=0则记为无效，上传的长宽高值设置为空
+     * 3、重量或体积有一个有效值，则上传称重
      * @param body 数据内容
      * @return
      */
@@ -133,30 +141,38 @@ public class WeightServiceImpl implements WeightService {
 
             List<OpeObject> opeDetails = opeEntity.getOpeDetails();
             if (opeDetails != null && opeDetails.size() > 0) {
-                boolean update = false;
+            	List<OpeObject> newOpeDetails = new ArrayList<OpeObject>();
                 for (OpeObject ope : opeDetails) {
-                    if(ope.getpWeight() == null || ope.getpWeight() < 0){
-                        ope.setpWeight(0f);
-                        update = true;
-                    }
-                    if(ope.getpLength() == null || ope.getpLength() < 0){
-                        ope.setpLength(0f);
-                        update = true;
-                    }
-                    if(ope.getpWidth() == null || ope.getpWidth() < 0){
-                        ope.setpWidth(0f);
-                        update = true;
-                    }
-                    if(ope.getpHigh() == null || ope.getpHigh() < 0){
-                        ope.setpHigh(0f);
-                        update = true;
-                    }
+                	boolean weightIsEffect = false;
+                	boolean volumeIsEffect = false;
+                	//重量值<=0则记为无效，对象设置为null
+                	if(NumberHelper.gt0(ope.getpWeight())){
+                		weightIsEffect = true;
+                	}else{
+                		ope.setpWeight(null);
+                		logger.warn("doWeightTrack-weight:称重上传重量值无效，设置为null，packageCode="+ope.getPackageCode());
+                	}
+                	//长宽高有一个<=0则记为无效，对象设置为null
+                	if(NumberHelper.gt0(ope.getpLength())
+                		&&NumberHelper.gt0(ope.getpWidth())
+                		&&NumberHelper.gt0(ope.getpHigh())){
+                		volumeIsEffect = true;
+                	}else{
+                		ope.setpLength(null);
+                		ope.setpWidth(null);
+                		ope.setpHigh(null);
+                		logger.warn("doWeightTrack-volume:称重上传体积无效，设置为null，packageCode="+ope.getPackageCode());
+                	}
+                	//重量或体积有一个有效,加入到newOpeDetails中
+                	if(weightIsEffect || volumeIsEffect){
+                		newOpeDetails.add(ope);
+                	}
                 }
-                //如果有修改，才重新生成json格式数据
-                if(update){
-                    return   JsonHelper.toJson(opeEntities);
+                //存在有效数据则返回json
+                if(newOpeDetails.size()>0){
+                	opeEntity.setOpeDetails(newOpeDetails);
+                    return  JsonHelper.toJson(opeEntities);
                 }
-
             }
         }catch (Exception e){
             this.logger.error("处理长宽高重量为空或小于0置为0时异常", e);

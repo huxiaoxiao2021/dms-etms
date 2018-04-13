@@ -2,11 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.bluedragon.utils.BusinessHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -42,6 +41,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
+	
+    @Autowired
+    private WaybillPackageApi waybillPackageApiJsf;
 	
 	@Override
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -244,7 +246,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}
 		return null;
 	}
-
+    /**
+     * 包裹称重和体积测量数据上传
+     * 来源 PackOpeController
+     *
+     * @param packOpeJson 称重和体积测量信息
+     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
+     */
+	@JProfiler(jKey = "DMS.BASE.Jsf.WaybillPackageApi.uploadOpe", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Map<String, Object> uploadOpe(String packOpeJson){
+    	return waybillPackageApiJsf.uploadOpe(packOpeJson);
+    }
 	public static void main(String [] args){
 //		WaybillQueryManagerImpl manager = new WaybillQueryManagerImpl();
 //		Integer changedWaybill = manager.checkReDispatchtest("1460638776");
