@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.half.service.impl;
 
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -57,10 +58,10 @@ public class PackageHalfRedeliveryServiceImpl extends BaseService<PackageHalfRed
      */
     @Override
     public String queryExistsByWaybillCodeAndSiteCode(String waybillCode, Integer siteCode) {
-        PackageHalfRedelivery param = new PackageHalfRedelivery();
-        param.setWaybillCode(waybillCode);
-        param.setDmsSiteCode(siteCode);
-        return packageHalfRedeliveryDao.queryExistsByPagerCondition(param);
+        PackageHalfRedeliveryCondition condition = new PackageHalfRedeliveryCondition();
+        condition.setWaybillCode(waybillCode);
+        condition.setDmsSiteCode(siteCode);
+        return packageHalfRedeliveryDao.queryExistsByPagerCondition(condition);
     }
 
 }

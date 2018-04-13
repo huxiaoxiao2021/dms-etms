@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.half.dao.impl;
 
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryCondition;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
@@ -23,7 +24,7 @@ public class PackageHalfRedeliveryDaoImpl extends BaseDao<PackageHalfRedelivery>
     }
 
     @Override
-    public String queryExistsByPagerCondition(PackageHalfRedelivery packageHalfRedelivery) {
-        return sqlSession.selectOne(this.nameSpace+".queryExistsByCondition", packageHalfRedelivery);
+    public String queryExistsByPagerCondition(PackageHalfRedeliveryCondition condition) {
+        return sqlSession.selectOne(this.nameSpace+".queryExistsByCondition", condition);
     }
 }

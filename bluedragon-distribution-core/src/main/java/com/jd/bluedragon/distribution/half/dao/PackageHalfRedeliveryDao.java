@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.half.dao;
 
 import com.jd.bluedragon.distribution.half.domain.PackageHalfRedelivery;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfRedeliveryCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 /**
@@ -22,8 +23,8 @@ public interface PackageHalfRedeliveryDao extends Dao<PackageHalfRedelivery> {
 
     /**
      * 根据条件查询运单是否已经存在
-     * @param packageHalfRedelivery
+     * @param condition
      * @return
      */
-    public String queryExistsByPagerCondition(PackageHalfRedelivery packageHalfRedelivery);
+    public String queryExistsByPagerCondition(PackageHalfRedeliveryCondition condition);
 }
