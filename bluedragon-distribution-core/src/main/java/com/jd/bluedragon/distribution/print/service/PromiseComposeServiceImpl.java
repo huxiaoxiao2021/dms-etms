@@ -85,7 +85,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 BaseStaffSiteOrgDto toSite=baseMajorManager.getBaseSiteBySiteId(targetSiteCode);
                 String routeTimeText = null;
                 if(startSite!=null&&toSite!=null)
-                	routeTimeText = vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType, startSite.getDmsSiteCode(), toSite.getDmsSiteCode(), new Date());
+                	routeTimeText = vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType, startSite.getCityId().toString(), toSite.getCityId().toString(), new Date());
                 if(StringHelper.isNotEmpty(routeTimeText)){
                 	waybill.setPromiseText(routeTimeText);
                 }else{

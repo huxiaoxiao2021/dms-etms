@@ -29,6 +29,8 @@ import com.jd.ump.annotation.JProfiler;
 public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRelationManager {
     private static final Logger logger = Logger.getLogger(VrsRouteTransferRelationManagerImpl.class);
     
+    private static final Integer ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA= 0;
+    
     private static final Integer ROUTE_INTER_NODE_TYPE_WANG_DIAN_BIAN_MA= 1;
     
     @Autowired
@@ -77,7 +79,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
              * @param pickUpEndTime 预约揽收截止时间
              * @return 应履约时效
              */
-            CommonDto<String> commonDto = vrsBNetQueryApi.queryPerformanceTime(vrsRouteTransferRelationApiToken, configType, bizzType, ROUTE_INTER_NODE_TYPE_WANG_DIAN_BIAN_MA, startSiteNode, toSiteNode, pickUpEndTime );
+            CommonDto<String> commonDto = vrsBNetQueryApi.queryPerformanceTime(vrsRouteTransferRelationApiToken, configType, bizzType, ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA, startSiteNode, toSiteNode, pickUpEndTime );
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData())) {
                 logger.warn("查询远程路由时效信息失败,参数列表：configType:"+configType+",bizzType:"+bizzType+",startSiteNode:"+startSiteNode+",toSiteNode:"+toSiteNode);
                 logger.warn("查询远程路由时效信息失败，返回消息：" + commonDto.getMessage());
