@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.rest.center;
 
+import java.util.Date;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -12,16 +14,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.api.response.SendMeasureResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -39,8 +39,7 @@ public class CenterServiceResource {
 	private BaseMajorManager baseMajorManager;
 	
 	@Autowired
-	@Qualifier("promiseComposeService") 
-	private ComposeService promiseComposeService;
+	private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 	
 	@Autowired
 	private BaseService baseService;
@@ -123,11 +122,13 @@ public class CenterServiceResource {
 	}
 
 	@GET
-	@Path("/centerService/test/{waybillsign}/{startsiteCode}/{tositeCode}")
-	public String getDmsBaseSiteByCode(@PathParam("waybillsign") String waybillsign,@PathParam("startsiteCode") Integer startsiteCode,@PathParam("tositeCode") Integer tositeCode ) {
+	@Path("/centerService/test/{configType}/{bizzType}/{startsiteCode}/{tositeCode}")
+	public PrintWaybill getDmsBaseSiteByCode(@PathParam("configType") Integer configType,
+			@PathParam("bizzType") Integer bizzType, @PathParam("startsiteCode") String startsiteCode,
+			@PathParam("tositeCode") String tositeCode) {
 		PrintWaybill waybill = new PrintWaybill();
-		waybill.setWaybillSign(waybillsign);
-		promiseComposeService.handle(waybill, startsiteCode, tositeCode);
-		return waybill.getPromiseText();
+		waybill.setPromiseText(vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType,
+				startsiteCode, tositeCode, new Date()));
+		return waybill;
 	}
 }
