@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 
 import java.util.List;
 
@@ -14,5 +15,5 @@ public interface LDOPManager {
      * @param waybillReverseDTO
      * @return
      */
-    boolean waybillReverse(WaybillReverseDTO waybillReverseDTO);
+    boolean waybillReverse(WaybillReverseDTO waybillReverseDTO,JdResponse<Boolean> rest);
 }

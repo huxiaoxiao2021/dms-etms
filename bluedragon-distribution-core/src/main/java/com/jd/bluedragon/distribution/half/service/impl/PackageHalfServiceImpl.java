@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.transport.domain.ArBookingSpace;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillStatusService;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -60,7 +61,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	public PackageHalfRedeliveryService packageHalfRedeliveryService;
 
 	@Override
-	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode) {
+	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode,JdResponse<Boolean> rest) {
 
 		getDao().insert(packageHalf);
 
@@ -97,7 +98,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 
 		}
 		if(isNeedToLDOP && waybillReverseDTO!=null){
-			if(!ldopManager.waybillReverse(waybillReverseDTO)){
+			if(!ldopManager.waybillReverse(waybillReverseDTO,rest)){
 				return false;
 			}
 		}
