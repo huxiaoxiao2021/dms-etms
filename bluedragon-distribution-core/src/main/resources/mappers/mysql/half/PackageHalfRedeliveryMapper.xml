@@ -176,7 +176,7 @@
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
-                    #{redeliverTime,jdbcType=TIMESTAMP},
+                    #{item.redeliverTime,jdbcType=TIMESTAMP},
 					now(),
 					0,
 					now()
