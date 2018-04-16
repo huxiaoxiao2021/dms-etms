@@ -193,6 +193,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
         baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
         baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
+        baseStaffSiteOrgDto.setSitePhone(trader.getTelephone());
+        baseStaffSiteOrgDto.setPhone(trader.getContactMobile());
         return baseStaffSiteOrgDto;
     }
 

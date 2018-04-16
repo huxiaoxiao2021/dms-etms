@@ -134,7 +134,14 @@
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
-				now(),
+				<choose>
+					<when test="createTime != null">
+						#{createTime,jdbcType=TIMESTAMP},
+					</when>
+					<otherwise>
+						now(),
+					</otherwise>
+				</choose>
 				0,
 				now()
 
@@ -178,6 +185,26 @@
 				)
 			</foreach>
 	</insert>
+	<update id="updateResult" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp">
+		update dms_abnormal_eclp
+		<set>
+			<if test="receiptTime != null">
+				receipt_time = #{receiptTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="receiptType != null">
+				receipt_type = #{receiptType,jdbcType=INTEGER},
+			</if>
+			<if test="receiptValue != null">
+				receipt_value = #{receiptValue,jdbcType=VARCHAR},
+			</if>
+			<if test="receiptMark != null">
+				receipt_mark = #{receiptMark,jdbcType=VARCHAR},
+			</if>
+			update_time=now(),
+			isReceipt=1
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
 
 	<update id="update" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp">
 		update dms_abnormal_eclp

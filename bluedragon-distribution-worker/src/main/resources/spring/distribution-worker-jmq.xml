@@ -157,6 +157,9 @@
     <jmq:consumer id="jmq.arAirFlightRealTimeConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="tms_air_flight_realtime_status" listener="arAirFlightRealTimeConsumer"/>
     </jmq:consumer>
-
+    <!-- 库房拒收 外呼返回消费-->
+    <jmq:consumer id="jmq.abnormalWarehouseRejectReceiveConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="dms_ext_abnormal_warehouse_reject_receive" listener="dmsAbnormalEclpConsumer"/>
+    </jmq:consumer>
 </beans>
 
