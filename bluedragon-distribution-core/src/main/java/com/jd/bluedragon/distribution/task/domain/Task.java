@@ -140,6 +140,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
 
+    /**
+     * 组板相关
+     */
+    public static final Integer TASK_TYPE_BOARD_COMBINATION = 1260;
+
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
     public static final String TABLE_NAME_REVERSE = "task_reverse";
@@ -168,6 +173,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
     
     public static final String TABLE_NAME_AR_RECEIVE = "task_ar_receive";
+
+    public static final String TABLE_NAME_BOARD_COMBINATION = "task_board_combination";
 
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
@@ -511,6 +518,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH;
         }else if(Task.TASK_TYPE_AR_RECEIVE.equals(type)){
             return Task.TABLE_NAME_AR_RECEIVE;
+        }else if(Task.TASK_TYPE_BOARD_COMBINATION.equals(type)){
+            return Task.TABLE_NAME_BOARD_COMBINATION;
         }
         
         return Task.TABLE_NAME_SORTING;

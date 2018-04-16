@@ -462,6 +462,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      */
     private void packageSend(SendM domain){
+        //操作过组板的，取消组板任务
+        this.boardCombinationCancelTask(domain);
+
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
@@ -639,6 +642,31 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setKeyword1("7");// 7 组板发货任务
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
         logger.info("组板发货任务推送成功：" + JsonHelper.toJson(tTask));
+        tTaskService.add(tTask, true);
+        return true;
+    }
+
+    /**
+     * 取消组板任务
+     *
+     * @return
+     */
+    private boolean boardCombinationCancelTask(SendM domain){
+        Task tTask = new Task();
+        tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+
+        tTask.setBoxCode(domain.getBoardCode());
+        tTask.setCreateSiteCode(domain.getCreateSiteCode());
+        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
+        tTask.setKeyword1("7");// 7 组板发货任务
+        tTask.setKeyword2(String.valueOf(domain.getSendType()));
+
+        tTask.setOwnSign(BusinessHelper.getOwnSign());
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
+        tTask.setBody(JsonHelper.toJson(domain));
+        logger.info("取消组板任务推送成功：" + JsonHelper.toJson(tTask));
         tTaskService.add(tTask, true);
         return true;
     }

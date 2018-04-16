@@ -157,6 +157,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         String boardCode = request.getBoardCode();
         String boxOrPackageCode = request.getBoxOrPackageCode();
+        String logInfo = "";
 
         //数量限制校验，每次的数量记录的redis中
         Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
@@ -180,10 +181,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         List<SendM> sendMList = this.selectBySendSiteCode(sendM);
 
         if (null != sendMList && sendMList.size() > 0) {
-            logger.error("箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货");
+            logInfo = "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点："+request.getSiteCode();
+
+            logger.error(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
 
-            addSystemLog(boardResponse);
+            addSystemLog(request,logInfo);
             return JdResponse.CODE_FAIL;
         }
 
@@ -218,25 +221,31 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         if (tcResponse.getCode() == 500) {
-            this.logger.error("板号" + boardCode + "已绑定到其他板号下.");
+            logInfo = "箱号/包裹号" + request.getBoxOrPackageCode() + "已绑定到其他板号下，站点：" + request.getSiteCode();
+
+            this.logger.error(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, tcResponse.getMesseage());
-            addSystemLog(boardResponse);
+            addSystemLog(request,logInfo);
 
             return JdResponse.CODE_FAIL;
         }
 
         if (tcResponse.getCode() == 501) {
-            this.logger.error("板号" + boardCode + "已完结,请更换板号.");
+            logInfo = "板号" + boardCode + "已完结,站点：" + request.getSiteCode();
+
+            this.logger.error(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
-            addSystemLog(boardResponse);
+            addSystemLog(request,logInfo);
 
             return JdResponse.CODE_FAIL;
         }
 
         if (tcResponse.getCode() != 200) {
-            this.logger.error("组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
+            logInfo = "组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
+
+            this.logger.error(logInfo);
             boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
-            addSystemLog(boardResponse);
+            addSystemLog(request,logInfo);
 
             return JdResponse.CODE_FAIL;
         }
@@ -254,7 +263,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
         try {
             //发送全称跟踪
-            WaybillStatus waybillStatus = this.getWaybillStatus(request);
+            WaybillStatus waybillStatus = this.getWaybillStatus(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 
@@ -313,22 +322,38 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     }
 
     /**
+     * 取消组板操作
+     * 调用TC接口取消组板
+     * 记录操作日志
+     * 发送取消组板的全称跟踪
+     * @param addBoardBox
+     */
+    public Integer boardCombinationCancel(AddBoardBox addBoardBox){
+        //调用TC接口取消组板
+
+
+        //记录操作日志
+
+
+        //发送取消组板的全称跟踪
+    }
+
+    /**
      * 记录组板操作日志
      *
      * @param
      * @param
      */
-    public void addSystemLog(BoardResponse response) {
-        if (response == null || response.getBoxCode() == null || response.getBoardCode() == null) {
+    public void addSystemLog(BoardCombinationRequest request,String log) {
+        if (request == null || request.getBoxOrPackageCode() == null || request.getBoardCode() == null) {
             return;
         }
-
         Goddess goddess = new Goddess();
-        goddess.setHead(response.getBoardCode() + "-" + response.getBoxCode());
+        goddess.setHead(request.getBoardCode() + "-" + request.getBoxOrPackageCode());
+        goddess.setKey( request.getBoxOrPackageCode());
         goddess.setDateTime(new Date());
-        goddess.setKey(response.getBoxCode());
-        goddess.setBody(JsonHelper.toJson(response));
 
+        goddess.setBody(JsonHelper.toJson(log));
         goddessService.save(goddess);
     }
 
@@ -344,7 +369,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         task.setTableName(Task.TABLE_NAME_POP);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(waybillStatus.getPackageCode());
-        task.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION));
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
         task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
         task.setBody(com.jd.bluedragon.utils.JsonHelper.toJson(waybillStatus));
         task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
@@ -358,7 +383,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @param request
      * @return
      */
-    private WaybillStatus getWaybillStatus(BoardCombinationRequest request) {
+    private WaybillStatus getWaybillStatus(BoardCombinationRequest request, Integer operateType) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
         tWaybillStatus.setPackageCode(request.getBoxOrPackageCode());
@@ -369,7 +394,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         tWaybillStatus.setOperatorId(request.getUserCode());
         tWaybillStatus.setOperator(request.getUserName());
         tWaybillStatus.setOperateTime(new Date());
-        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+        tWaybillStatus.setOperateType(operateType);
 
 
         tWaybillStatus.setRemark("包裹号：" + tWaybillStatus.getPackageCode() + "已进行组板，板号" + request.getBoardCode());

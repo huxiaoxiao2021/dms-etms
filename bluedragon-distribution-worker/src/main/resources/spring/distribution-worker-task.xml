@@ -505,5 +505,16 @@
         <property name="type" value="1300"/>
         <property name="keyType" value="7"/>
         <property name="desc" value="组板发货"/>
-    </bean>    
+    </bean>
+
+    <!-- 取消组板 -->
+    <bean id="boardCombinationCancelTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="BoardCombinationCancelTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1260"/>
+        <property name="desc" value="取消组板"/>
+    </bean>
 </beans>
