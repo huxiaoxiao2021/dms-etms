@@ -14,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
@@ -36,8 +37,19 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
         // 处理消息体
         this.logger.info("DmsAbnormalEclpConsumer consume --> 消息Body为【"
                 + message.getText() + "】");
-
+        if (message == null || "".equals(message.getText()) || null == message.getText()) {
+            this.logger.error("DmsAbnormalEclpConsumer consume -->消息为空");
+            return;
+        }
+        if (!JsonHelper.isJsonString(message.getText())) {
+            logger.warn(MessageFormat.format("DmsAbnormalEclpConsumer consume -->消息体非JSON格式，内容为【{0}】", message.getText()));
+            return;
+        }
         DmsAbnormalEclpResponse dmsAbnormalEclpResponse = JsonHelper.fromJson(message.getText(), DmsAbnormalEclpResponse.class);
+        if (dmsAbnormalEclpResponse == null) {
+            this.logger.error("DmsAbnormalEclpConsumer consume -->消息转换对象失败：" + message.getText());
+            return;
+        }
         if (dmsAbnormalEclpResponse.getWaybillCode() == null) {
             this.logger.warn("DmsAbnormalEclpConsumer consume : 运单号为空！");
             return;
