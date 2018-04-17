@@ -63,6 +63,9 @@ public class NewSealVehicleRequest extends JdRequest {
 	/**批次基本信息*/
 	private List<SealCarDto> data;
 
+	/**批次号查询条件*/
+	private String batchCode;
+
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
@@ -146,4 +149,12 @@ public class NewSealVehicleRequest extends JdRequest {
 	public void setData(List<SealCarDto> data) {
 		this.data = data;
 	}
+
+    public String getBatchCode() {
+        return batchCode;
+    }
+
+    public void setBatchCode(String batchCode) {
+        this.batchCode = batchCode;
+    }
 }

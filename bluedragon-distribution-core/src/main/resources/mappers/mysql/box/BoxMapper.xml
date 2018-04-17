@@ -24,6 +24,9 @@
         <result column="width" property="width" />
         <result column="height" property="height" />
 		<result column="yn" property="yn" />
+		<result column="predict_send_time" property="predictSendTime" />
+		<result column="router" property="router" />
+		<result column="router_name" property="routerName" />
 	</resultMap>
 	
 	<insert id="add" parameterType="box" >
@@ -31,7 +34,7 @@
 			box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, create_user,
 			update_user_code, update_user, transport_type,mix_box_type,
-			create_time, update_time, times, box_status, yn)
+			create_time, update_time, times, box_status, yn,predict_send_time,router,router_name)
 		VALUES (
 			#{id,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
 			#{createSiteCode,jdbcType=INTEGER}, #{createSiteName,jdbcType=VARCHAR},
@@ -39,14 +42,14 @@
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{transportType,jdbcType=INTEGER}, #{mixBoxType,jdbcType=INTEGER},
-			 NOW(), NOW(), 1, 1, 1)
+			 NOW(), NOW(), 1, 1, 1,#{predictSendTime,jdbcType=TIMESTAMP}, #{router,jdbcType=VARCHAR},#{routerName,jdbcType=VARCHAR})
 	</insert>
 
 	<select id="findBoxByCode" resultMap="box" parameterType="String" >
 
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
-			transport_type,mix_box_type,length,width,height
+			transport_type,mix_box_type,length,width,height,predict_send_time,router,router_name
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code}
 		 LIMIT 1
@@ -56,7 +59,7 @@
 	<select id="findBoxByBoxCode" resultMap="box" parameterType="box" >
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,
 			receive_site_code, receive_site_name, create_user_code, box_status,
-			transport_type,mix_box_type
+			transport_type,mix_box_type,predict_send_time,router,router_name
 		FROM Box
 		WHERE yn = 1 AND box_code = #{code} AND create_site_code = #{createSiteCode}
 		 LIMIT 1
