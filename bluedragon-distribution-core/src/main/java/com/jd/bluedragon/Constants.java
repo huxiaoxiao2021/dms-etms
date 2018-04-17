@@ -500,4 +500,13 @@ public class Constants {
      */
     public static final String SEND_DETAIL_SOUCRE_AR = "AR";
     public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
+    
+    /**
+     * 查询B网应履约时效接口相关
+     * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
+     */
+    public static final Integer ROUTE_INTER_CONFIG_TYPE_QUAN_LIUCHENG_LVYUELV = 1;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
 }

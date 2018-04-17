@@ -13,12 +13,12 @@
 
 
     <!-- 共用 client 区 -->
-    <!-- 财务接口 邓志容  -->
+    <!-- 财务接口 王建磊  -->
     <jsf:consumer id="waybillServiceJSF" interface="com.jd.etms.finance.wss.WaybillDataServiceWS"
                   protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="0">
     </jsf:consumer>
 
-    <!-- 外单快速生产运单信息接口 路超 -->
+    <!-- 外单快速生产运单信息接口 王建磊 -->
     <jsf:consumer id="getOrderMsgServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf"
                   protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="10000" retries="0">
         <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
@@ -265,5 +265,13 @@
     <!-- TC jsf 接口-->
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
+    </jsf:consumer>
+
+    <!-- 路由 谭杨-->
+    <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
+                  protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
+    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.vrs.ws.VrsBNetQueryApi"
+                  protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="3">
     </jsf:consumer>
 </beans>

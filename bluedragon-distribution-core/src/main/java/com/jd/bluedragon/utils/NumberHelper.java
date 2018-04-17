@@ -86,7 +86,7 @@ public class NumberHelper {
     }
     /**
      * 返回结果a是否大于0
-     * @param a
+     * @param a 数字类型的对象
      * @return
      */
     public static boolean gt0(Number a) {

@@ -47,12 +47,19 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	}
 
 	public LoadBill findByPackageBarcode(String packageBarcode) {
-		logger.info("LoadBillDao.getLoadBill with packageBarcode is " + packageBarcode);
+		logger.info("LoadBillDao.findByPackageBarcode with packageBarcode is " + packageBarcode);
 		return (LoadBill) this.getSqlSession().selectOne(LoadBillDao.namespace + ".findByPackageBarcode", packageBarcode);
 	}
 
 	public int add(LoadBill lb) {
 		return this.getSqlSession().insert(LoadBillDao.namespace + ".add", lb);
+	}
+
+	public int batchAdd(List<LoadBill> loadBills) {
+		if (loadBills != null && loadBills.size() > 0) {
+			return this.getSqlSession().insert(LoadBillDao.namespace + ".batchAdd", loadBills);
+		}
+		return 0;
 	}
 
 	public int update(LoadBill lb) {
@@ -75,8 +82,9 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	public Integer findCountLoadBill(Map<String, Object> params) {
 		return (Integer) super.getSqlSession().selectOne(LoadBillDao.namespace + ".findCount", params);
 	}
-    @SuppressWarnings("unchecked")
-    public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
-        return super.getSqlSession().selectList(LoadBillDao.namespace + ".findWaybillinLoadBill", params);
-    }
+
+	public LoadBill findOneByParameter(Map<String, Object> params) {
+		return super.getSqlSession().selectOne(LoadBillDao.namespace + ".findOneByParameter", params);
+	}
+
 }
