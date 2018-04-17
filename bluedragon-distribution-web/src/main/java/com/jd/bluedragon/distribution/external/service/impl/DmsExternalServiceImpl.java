@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalService;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
@@ -64,7 +65,7 @@ public class DmsExternalServiceImpl implements DmsExternalService {
      * @return
      */
 	@Override
-	@JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.executeJsonCommand", mState = {JProEnum.TP})
+	@JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.executeJsonCommand",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public String executeJsonCommand(String jsonCommand) {
 		return jdCommandService.execute(jsonCommand);
 	}

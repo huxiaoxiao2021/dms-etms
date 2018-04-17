@@ -48,6 +48,8 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -150,7 +152,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
-
+    @JProfiler(jKey = "DMSWEB.SimpleWaybillPrintServiceImpl.getPrintWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
