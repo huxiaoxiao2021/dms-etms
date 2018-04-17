@@ -250,10 +250,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
 
-    @Value("#{'${crouter.verify.allowed}'.split(',')}")
-    private List<Integer> CRouterVerifyAllowedDmsCodes;
+    private static final  String KEY_CROUTER_OPEN_DMS = "crouter.verify.allowed";
 
-    /**
+     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
      * （1）若原包发货，则补写分拣任务；若箱号发货则更新SEND_D状态及批次号
      * （2）写SEND_M表
@@ -268,7 +267,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
-        logger.info("一车一单发货，当前支持做C网路由校验的分拣中心有" + CRouterVerifyAllowedDmsCodes.size() + "个，分别为：" + CRouterVerifyAllowedDmsCodes);
+        logger.info("一车一单发货，当前支持做C网路由校验的分拣中心有" + SerialRuleUtil.getCRouterAllowedList(KEY_CROUTER_OPEN_DMS).size() +
+                "个，分别为：" + SerialRuleUtil.getCRouterAllowedList(KEY_CROUTER_OPEN_DMS));
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
@@ -295,7 +295,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
-            if(domain.getCreateSiteCode()!= null && CRouterVerifyAllowedDmsCodes.contains(domain.getCreateSiteCode())) {
+            if(domain.getCreateSiteCode()!= null && SerialRuleUtil.getCRouterAllowedList(KEY_CROUTER_OPEN_DMS).contains(domain.getCreateSiteCode())) {
                 sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
             }else{
                 sortingCheck.setOperateType(1);
@@ -332,7 +332,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-        } else if(CRouterVerifyAllowedDmsCodes.contains(domain.getCreateSiteCode())){
+        } else if(SerialRuleUtil.getCRouterAllowedList(KEY_CROUTER_OPEN_DMS).contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
             if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
