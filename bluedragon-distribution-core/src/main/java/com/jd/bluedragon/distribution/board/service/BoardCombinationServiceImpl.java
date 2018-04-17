@@ -380,14 +380,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         addOperationLog(request,OperationLog.BOARD_COMBINATITON_CANCEL);
 
-//        //缓存+1
-//        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
-
+        //缓存-1
+        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
+        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count - 1);
 
         //发送取消组板的全称跟踪
         try {
             //发送全称跟踪
-            //// TODO: 2018/4/16 修改WaybillStatus里取消组板的常量
             WaybillStatus waybillStatus = this.getWaybillStatus(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
             // 添加到task表
             taskService.add(toTask(waybillStatus));

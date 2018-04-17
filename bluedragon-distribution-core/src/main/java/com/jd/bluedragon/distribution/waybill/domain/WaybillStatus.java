@@ -128,7 +128,7 @@ public class WaybillStatus {
     /**
      * 全称跟踪-取消组板
      */
-    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION_CANCEL = 7000;
+    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION_CANCEL = 7600;
 
 
     /**
