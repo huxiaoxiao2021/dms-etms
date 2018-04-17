@@ -264,6 +264,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
+        logger.info("一车一单发货，当前支持做C网路由校验的分拣中心有" + siteService.getCRouterAllowedList().size() +
+                "个，分别为：" + siteService.getCRouterAllowedList());
+
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
@@ -289,8 +292,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
-            //1609 武汉外单分拣中心，如果是武汉外单分拣中心则走新的逻辑，为了业务完场验证
-            if(domain.getCreateSiteCode()!= null && domain.getCreateSiteCode() == 1609) {
+            if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
                 sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
             }else{
                 sortingCheck.setOperateType(1);
@@ -327,7 +329,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-        } else if(domain.getCreateSiteCode()==1609){
+        } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
             if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
