@@ -567,10 +567,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
                 }else{
                     goodsPaymentText = "￥"+ waybill.getCodMoney();
-                    if(waybill.getPayment()!=null){
-                        if(waybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
-                            goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
-                        }
+                    if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
+                        goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
                     }
                 }
             } else{
