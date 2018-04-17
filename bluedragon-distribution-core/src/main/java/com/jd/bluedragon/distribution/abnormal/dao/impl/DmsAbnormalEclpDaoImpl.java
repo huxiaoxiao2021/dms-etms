@@ -14,10 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository("dmsAbnormalEclpDao")
 public class DmsAbnormalEclpDaoImpl extends BaseDao<DmsAbnormalEclp> implements DmsAbnormalEclpDao {
 
-    public static final String namespace = DmsAbnormalEclpDaoImpl.class.getName();
-
     @Override
     public int updateResult(DmsAbnormalEclp dmsAbnormalEclp) {
-        return super.getSqlSession().update(namespace + ".updateResult", dmsAbnormalEclp);
+        return super.getSqlSession().update(this.getNameSpace()+".updateResult", dmsAbnormalEclp);
     }
 }
