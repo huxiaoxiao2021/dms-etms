@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.utils.SpringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -258,5 +258,24 @@ public class SiteServiceImpl implements SiteService {
 			}
 		}
 		return bjDmsSiteCodes;
+	}
+
+	/**
+	 * 从sysconfig表里查出来开放C网路由校验的分拣中心列表
+	 * @return
+	 */
+	@Cache(key = "SiteServiceImpl.getCRouterAllowedList",memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Override
+	public Set<Integer> getCRouterAllowedList(){
+		Set<Integer> CRouterVerifyOpenDms = new TreeSet<Integer>();
+		List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_CROUTER_OPEN_DMS_CODES);
+		if(sysConfigs != null && !sysConfigs.isEmpty()){
+			String contents = sysConfigs.get(0).getConfigContent();
+			Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
+			for(String site:sites){
+				CRouterVerifyOpenDms.add(Integer.valueOf(site));
+			}
+		}
+		return CRouterVerifyOpenDms;
 	}
 }

@@ -7,7 +7,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -612,25 +611,4 @@ public class SerialRuleUtil {
         return false;
     }
 
-    /**
-     * 从sysconfig表里查出来开放C网路由校验的分拣中心列表
-     * @param key
-     * @return
-     */
-    public static final List<String> getCRouterAllowedList(String  key){
-        BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
-        List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
-
-        if(configs == null || configs.size() != 1 || StringUtils.isBlank(configs.get(0).getConfigContent())
-                || !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
-            return null;
-        }
-
-        String content = configs.get(0).getConfigContent();
-        if(StringHelper.isNotEmpty(content)){
-            return Arrays.asList(content.split(","));
-
-        }
-        return null;
-    }
 }
