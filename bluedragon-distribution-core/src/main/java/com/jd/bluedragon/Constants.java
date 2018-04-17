@@ -512,4 +512,7 @@ public class Constants {
     public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
+    
+    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
 }
