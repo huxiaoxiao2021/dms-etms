@@ -174,7 +174,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
 
     @Override
     public int updateResult(DmsAbnormalEclp dmsAbnormalEclp) {
-        int i = updateResult(dmsAbnormalEclp);
+        int i = dmsAbnormalEclpDao.updateResult(dmsAbnormalEclp);
         if (i > 0) {
             logger.info("外呼结果写入完成：" + JsonHelper.toJson(dmsAbnormalEclp));
         }
