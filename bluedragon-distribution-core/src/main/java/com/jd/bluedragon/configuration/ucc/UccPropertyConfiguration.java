@@ -11,17 +11,27 @@ public class UccPropertyConfiguration {
     /** cassandra服务的全局开关 **/
     private boolean cassandraGlobalSwitch;
 
-    /** cassandra服务的全局开关 **/
+    /** 使用异步缓冲组件时生产者的类型,
+     * 多级缓冲的动态生产者的生产者类型配置项，支持'JMQ‘，’TBSCHEDULE‘和’FAILOVER‘三个可选值。
+     * JMQ 直接存入JMQ
+     * TBSCHEDULE 直接存入DB或者Redis
+     * FAILOVER 在JMQ、TBSCHEDULE按顺序failover
+     * **/
     private String asynBufferDynamicProducerProducerType;
 
+    /** 不开启jmq模式的task类型,配置规则：taskType-keyword1；taskType-keyword1 */
     private String asynBufferNotenabledTaskKeyword1;
 
+    /** 异步缓冲组件JMQ方式消费成功后是否落库开关 */
     private boolean asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled;
 
+    /** 在去O项目时数据库双写时是否忽略复制异常 */
     private boolean migrationDbBackupReplicateIgnoreExp;
 
+    /** 在去O项目时数据库写完主库后，是否写从库（是否双写） */
     private boolean migrationDbBackupReplicateEnable;
 
+    /** 配置哪些任务失败后不再重复抓取的 */
     private String workerFetchWithoutFailedTable;
 
     public String getAsynbufferEnabledTaskType() {
