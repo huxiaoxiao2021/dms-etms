@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -150,8 +151,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
-
-
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -270,7 +269,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
-            commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
@@ -284,8 +283,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 		roadCode = transbillM.getTruckSpot();
                 	}
                 }
-                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
-                commonWaybill.setRemark(str + scheduleCode);
+//                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
+                commonWaybill.appendRemark(scheduleCode);
+            }
+            //sendpay的第153位为“1”，remark追加【合并送】
+            if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
+                commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
         	//路区-为空尝试从运单里获取
         	if(StringHelper.isEmpty(roadCode)){
