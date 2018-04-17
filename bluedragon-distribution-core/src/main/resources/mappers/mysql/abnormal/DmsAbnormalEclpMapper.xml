@@ -201,7 +201,7 @@
 				receipt_mark = #{receiptMark,jdbcType=VARCHAR},
 			</if>
 			update_time=now(),
-			isReceipt=1
+			is_receipt=1
 		</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
