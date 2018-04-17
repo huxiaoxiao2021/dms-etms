@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.transboard.api.dto.AddBoardBox;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,28 +117,13 @@ public class BoardCombinationResource {
         }
 
         try {
-            //取消组板，组织参数，必备参数：板号、箱号/包裹号、操作单位信息、操作人信息
-            AddBoardBox addBoardBox = new AddBoardBox();
-            addBoardBox.setBoardCode(request.getBoardCode());
-            addBoardBox.setBoxCode(request.getBoxOrPackageCode());
-            addBoardBox.setOperatorErp(request.getUserCode()+"");
-            addBoardBox.setOperatorName(request.getUserName());
-            addBoardBox.setSiteCode(request.getSiteCode());
-            addBoardBox.setSiteName(request.getSiteName());
-            addBoardBox.setSiteType(0);
-
-            //取消组板，返回状态码
-            Integer statusCode = boardCombinationService.boardCombinationCancel(addBoardBox);
-
-            if(statusCode == JdResponse.CODE_FAIL){
+            boardResponse = boardCombinationService.boardCombinationCancel(request);
+            if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
                 result.toFail(boardResponse.buildStatusMessages());
-            }else if(statusCode == JdResponse.CODE_CONFIRM){
-                result.toConfirm(boardResponse.buildStatusMessages());
-            }else if(statusCode == JdResponse.CODE_SUCCESS){
-                return result;
             }
+            result.setData(boardResponse);
         } catch (Exception e) {
-            logger.error("取消组板失败!", e);
+            logger.error("取消组板失败!",e);
             boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"取消组板失败，系统异常！");
             result.toError("取消组板失败，系统异常！");
         }

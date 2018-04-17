@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -250,15 +251,17 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             return JdResponse.CODE_FAIL;
         }
 
+        logInfo = "组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         //组板成功
-        logger.info("组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode);
+        logger.info(logInfo);
 
         //缓存+1
         redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
         //记录操作日志
-        addSystemLog(boardResponse);
-        addOperationLog(request);
+        addSystemLog(request,logInfo);
+
+        addOperationLog(request,OperationLog.BOARD_COMBINATITON);
 
         CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
         try {
@@ -269,7 +272,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         } catch (Exception e){
             Profiler.functionError(infoTrace);
-            logger.error("发送全称跟踪失败.",e);
+            logger.error("组板操作发送全称跟踪失败.",e);
         } finally {
             Profiler.registerInfoEnd(infoTrace);
         }
@@ -326,16 +329,74 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * 调用TC接口取消组板
      * 记录操作日志
      * 发送取消组板的全称跟踪
-     * @param addBoardBox
+     * @param request
      */
-    public Integer boardCombinationCancel(AddBoardBox addBoardBox){
-        //调用TC接口取消组板
+    public BoardResponse boardCombinationCancel(BoardCombinationRequest request){
+        BoardResponse boardResponse = new BoardResponse();
 
+        String boardCode =  request.getBoardCode();
+        String boxOrPackageCode = request.getBoxOrPackageCode();
+        String logInfo = "";
+
+        //取消组板，组织参数，必备参数：板号、箱号/包裹号、操作单位信息、操作人信息
+        AddBoardBox addBoardBox = new AddBoardBox();
+        addBoardBox.setBoardCode(request.getBoardCode());
+        addBoardBox.setBoxCode(request.getBoxOrPackageCode());
+        addBoardBox.setOperatorErp(request.getUserCode()+"");
+        addBoardBox.setOperatorName(request.getUserName());
+        addBoardBox.setSiteCode(request.getSiteCode());
+        addBoardBox.setSiteName(request.getSiteName());
+        addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+
+        long l = System.currentTimeMillis();
+        int s = (int)( l % 3 );
+
+
+        switch(s){
+            case 0:
+                logInfo = "取消组板失败. 箱号/包裹号" + boxOrPackageCode +"未进行组板.";
+                this.logger.error(logInfo);
+                boardResponse.addStatusInfo(500, logInfo);
+                return boardResponse;
+            case 1:
+                logInfo = "取消组板失败. 板号" + boardCode +"已经完结.";
+                this.logger.error(logInfo);
+                boardResponse.addStatusInfo(501, logInfo);
+                return boardResponse;
+            case 2:
+                logInfo = "取消组板成功. 板号:" + boardCode +",箱号/包裹号：" + boxOrPackageCode;
+                this.logger.info(logInfo);
+        }
+        //调用TC接口取消组板
+        //情况1 没有绑定
+
+        //情况2 已经关板的不能取消
+
+        //取消组板成功
 
         //记录操作日志
+        logInfo = "取消组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
+        addSystemLog(request,logInfo);
+
+        addOperationLog(request,OperationLog.BOARD_COMBINATITON_CANCEL);
+
+//        //缓存+1
+//        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
 
 
         //发送取消组板的全称跟踪
+        try {
+            //发送全称跟踪
+            //// TODO: 2018/4/16 修改WaybillStatus里取消组板的常量
+            WaybillStatus waybillStatus = this.getWaybillStatus(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e){
+            logger.error("取消组板发送全称跟踪失败.",e);
+        }
+
+        return boardResponse;
     }
 
     /**
@@ -406,7 +467,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      *
      * @param request
      */
-    public void addOperationLog(BoardCombinationRequest request) {
+    public void addOperationLog(BoardCombinationRequest request, Integer logType) {
         OperationLog operationLog = new OperationLog();
         if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
             operationLog.setBoxCode(request.getBoxOrPackageCode());
@@ -421,7 +482,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setCreateUserCode(request.getUserCode());
         operationLog.setCreateTime(new Date());
         operationLog.setOperateTime(new Date());
-        operationLog.setLogType(OperationLog.BOARD_COMBINATITON);
+        operationLog.setLogType(logType);
 
         this.operationLogService.add(operationLog);
     }

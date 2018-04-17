@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.board.service;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
@@ -51,7 +50,7 @@ public interface BoardCombinationService {
      */
     public boolean clearBoardCache(String boardCode);
 
-    public Integer boardCombinationCancel(AddBoardBox addBoardBox);
+    public BoardResponse boardCombinationCancel(BoardCombinationRequest request);
 
 
 }
