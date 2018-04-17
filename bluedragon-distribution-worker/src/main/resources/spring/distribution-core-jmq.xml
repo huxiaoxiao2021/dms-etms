@@ -267,4 +267,9 @@
         <property name="topic" value="${jmq.topic.dmsArSendDetail}"/>
         <property name="timeout" value="10000"/>
     </bean>
+    <!-- 库房拒收 发送外呼-->
+    <bean id="abnormalEclpSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalEclpSend}"/>
+    </bean>
 </beans>
