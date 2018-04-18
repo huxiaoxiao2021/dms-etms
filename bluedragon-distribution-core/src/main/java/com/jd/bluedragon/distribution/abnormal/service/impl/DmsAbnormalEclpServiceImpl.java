@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsAbnormalEclpService;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.web.LoginContext;
@@ -28,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -158,8 +159,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         dmsAbnormalEclpRequest.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
         dmsAbnormalEclpRequest.setDeptCode(userDto.getOrgId().toString());
         dmsAbnormalEclpRequest.setDeptName(userDto.getOrgName());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dmsAbnormalEclpRequest.setExptCreateTime(sdf.format(dmsAbnormalEclp.getCreateTime()));
+        dmsAbnormalEclpRequest.setExptCreateTime(DateHelper.formatDate(dmsAbnormalEclp.getCreateTime(), Constants.DATE_TIME_FORMAT));
         dmsAbnormalEclpRequest.setExptTwoLevel(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_CODE);
         dmsAbnormalEclpRequest.setExptTwoLevelName(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_NAME);
         dmsAbnormalEclpRequest.setExptThreeLevel(convertExptThreeLevel(dmsAbnormalEclp.getConsultType()));
