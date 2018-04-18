@@ -770,7 +770,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     /***
      * 发货写入任务表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void addTaskSend(SendM sendM) {
         SendTaskBody body = new SendTaskBody();
         body.setHandleCategory(1);
@@ -877,7 +876,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
         Collections.sort(sendMList);
         // 加send_code幂
-        boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
+
+        boolean sendCodeIdempotence = false;/*判断当前批次号是否已经发货*/
+        if(sendMList.size() > 1){
+            sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
+        }else{
+            String oldSendCode = getSendedCode(sendMList.get(0));
+            if (StringUtils.isNotBlank(oldSendCode)) {
+                sendCodeIdempotence = true;
+            }
+        }
 
         if (sendCodeIdempotence) {
             return new DeliveryResponse(JdResponse.CODE_OK,
@@ -931,7 +939,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList 待发货列表
      * @param list      已发货的箱号列表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {
         //操作过取消发货的箱子查询  result结果集
         List<SendM>[] sendArray = splitSendMList(sendMList);
