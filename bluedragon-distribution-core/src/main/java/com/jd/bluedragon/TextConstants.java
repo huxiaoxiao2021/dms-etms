@@ -12,6 +12,11 @@ public class TextConstants {
      * 运费-到付现结
      */
     public static final String FREIGHT_PAY_CASH = "到付现结";
+
+    /**
+     * 运费-寄付现结
+     */
+    public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
     /**
      * 货款-货到付款
      */
