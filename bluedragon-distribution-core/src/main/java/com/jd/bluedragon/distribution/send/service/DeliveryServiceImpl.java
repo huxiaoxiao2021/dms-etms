@@ -878,9 +878,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 加send_code幂
 
         boolean sendCodeIdempotence = false;/*判断当前批次号是否已经发货*/
-        if(sendMList.size() > 1){
+        if(sendMList == null ){
+            sendCodeIdempotence = true;
+        }else if(sendMList.size() > 1){
             sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
-        }else{
+        }else {//空铁提货并发货离线任务，发货sendMList长度为1，单独处理
             String oldSendCode = getSendedCode(sendMList.get(0));
             if (StringUtils.isNotBlank(oldSendCode)) {
                 sendCodeIdempotence = true;
