@@ -264,9 +264,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
-        logger.info("一车一单发货，当前支持做C网路由校验的分拣中心有" + siteService.getCRouterAllowedList().size() +
-                "个，分别为：" + siteService.getCRouterAllowedList());
-
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
