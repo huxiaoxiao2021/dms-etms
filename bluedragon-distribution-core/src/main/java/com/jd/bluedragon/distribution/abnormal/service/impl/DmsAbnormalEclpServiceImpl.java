@@ -120,26 +120,26 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
         if (org == null) {
             rest.toFail("所在站点未找到：" + userDto.getSiteName());
-            logger.error("所在站点未找到：" + userDto.getSiteName());
+            logger.warn("所在站点未找到：" + userDto.getSiteName());
             return rest;
         }
         try {
             ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
             if (province == null) {
                 rest.toFail("站点所在省份获取失败：" + org.getProvinceId());
-                logger.error("站点所在省份获取失败：" + org.getProvinceId());
+                logger.warn("站点所在省份获取失败：" + org.getProvinceId());
                 return rest;
             }
             AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
             if (areaNode == null) {
                 rest.toFail("站点所在区域获取失败：" + province.getId());
-                logger.error("站点所在区域获取失败：" + province.getId());
+                logger.warn("站点所在区域获取失败：" + province.getId());
                 return rest;
             }
             dmsAbnormalEclpRequest.setOrgNo(areaNode.getName());
         } catch (Exception e) {
             rest.toFail("站点所在区域获取失败：" + org.getAreaId());
-            logger.error("站点所在区域获取失败：" + org.getAreaId(), e);
+            logger.warn("站点所在区域获取失败：" + org.getAreaId(), e);
             return rest;
         }
         if (!saveOrUpdate(dmsAbnormalEclp)) {
@@ -149,7 +149,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         }
         //发mq 给异常系统
         abnormalEclpSendProducer.sendOnFailPersistent(dmsAbnormalEclp.getWaybillCode(), JsonHelper.toJson(dmsAbnormalEclpRequest));
-        logger.info("库房拒收申请：" + JsonHelper.toJson(dmsAbnormalEclpRequest));
+        logger.debug("库房拒收申请：" + JsonHelper.toJson(dmsAbnormalEclpRequest));
         rest.toSucceed();
         return rest;
     }
