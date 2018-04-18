@@ -1,14 +1,10 @@
 package com.jd.bluedragon.distribution.task.asynBuffer;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ql.framework.asynBuffer.producer.AbstractProducer;
 import com.jd.ql.framework.asynBuffer.producer.DynamicProducer;
 import com.jd.ql.framework.asynBuffer.producer.ProducerType;
-
 import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,18 +12,8 @@ import java.util.Set;
 /**
  * dms系统的动态消息生产者扩展，支持动态配置更新。
  * @author yangwubing
- * @param <M>
  */
 public class DmsDynamicProducer extends DynamicProducer<Task> {
-	
-	public static final String PRODUCER_TYPE_KEY = "asynBuffer.dynamicProducer.producerType";
-
-	public static final String PRODUCER_TYPE_KEY_TEST = "asynBuffer.dynamicProducer.producerType.test";
-
-	public static final String NOT_ENBALED_KEY_WORD1 = "asynBuffer.notenabled.task.keyword1";
-
-	@Autowired
-	private ConfigManager configManager;
 
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;
@@ -47,7 +33,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 	 * @return
      */
 	public Set<String> getNotEnabledKeyWord(){
-		String [] notEnabledKeyWords = configManager.getProperty(NOT_ENBALED_KEY_WORD1).trim().split(";");
+		String [] notEnabledKeyWords = uccPropertyConfiguration.getAsynBufferNotenabledTaskKeyword1().trim().split(";");
 		Set<String> type_keyword = new HashSet<String>();
 		for(String s : notEnabledKeyWords){
 			type_keyword.add(s);
@@ -57,7 +43,7 @@ public class DmsDynamicProducer extends DynamicProducer<Task> {
 
 	@Override
 	public ProducerType getProducerType() {
-		ProducerType producerType = ProducerType.valueOf(configManager.getProperty(PRODUCER_TYPE_KEY));
+		ProducerType producerType = ProducerType.valueOf(uccPropertyConfiguration.getAsynBufferDynamicProducerProducerType());
 		this.setProducerType(producerType);
 		return producerType;
 	}
