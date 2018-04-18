@@ -47,4 +47,10 @@ public interface SiteService {
      * @return
      */
     Set<Integer> getBjDmsSiteCodes();
+
+	/**
+	 * 从sysconfig表里查出来开放C网路由校验的分拣中心列表
+	 * @return
+	 */
+	Set<Integer> getCRouterAllowedList();
 }
