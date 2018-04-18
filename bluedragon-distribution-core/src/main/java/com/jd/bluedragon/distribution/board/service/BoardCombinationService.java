@@ -56,7 +56,7 @@ public interface BoardCombinationService {
      * @param request
      * @return
      */
-    public BoardResponse boardCombinationCancel(BoardCombinationRequest request);
+    public BoardResponse boardCombinationCancel(BoardCombinationRequest request) throws Exception;
 
 
 }

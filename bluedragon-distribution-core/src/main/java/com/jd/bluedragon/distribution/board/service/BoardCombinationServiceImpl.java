@@ -20,6 +20,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardBoxRequest;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -166,7 +167,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //超上限提示
         if (count >= boardBindingsMaxCount) {
-            logger.error("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count + "达到上限.");
+            logger.warn("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count + "达到上限.");
             boardResponse.addStatusInfo(BoardResponse.CODE_BOXORPACKAGE_REACH_LIMIT, BoardResponse.MESSAGE_BOXORPACKAGE_REACH_LIMIT);
 
             return JdResponse.CODE_FAIL;
@@ -184,7 +185,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         if (null != sendMList && sendMList.size() > 0) {
             logInfo = "箱号/包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点："+request.getSiteCode();
 
-            logger.error(logInfo);
+            logger.warn(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_SENDED, BoardResponse.MESSAGE_BOX_PACKAGE_SENDED);
 
             addSystemLog(request,logInfo);
@@ -224,7 +225,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         if (tcResponse.getCode() == 500) {
             logInfo = "箱号/包裹号" + request.getBoxOrPackageCode() + "已绑定到其他板号下，站点：" + request.getSiteCode();
 
-            this.logger.error(logInfo);
+            this.logger.warn(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, tcResponse.getMesseage());
             addSystemLog(request,logInfo);
 
@@ -234,7 +235,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         if (tcResponse.getCode() == 501) {
             logInfo = "板号" + boardCode + "已完结,站点：" + request.getSiteCode();
 
-            this.logger.error(logInfo);
+            this.logger.warn(logInfo);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
             addSystemLog(request,logInfo);
 
@@ -244,7 +245,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         if (tcResponse.getCode() != 200) {
             logInfo = "组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
 
-            this.logger.error(logInfo);
+            this.logger.warn(logInfo);
             boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
             addSystemLog(request,logInfo);
 
@@ -331,7 +332,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * 发送取消组板的全称跟踪
      * @param request
      */
-    public BoardResponse boardCombinationCancel(BoardCombinationRequest request){
+    public BoardResponse boardCombinationCancel(BoardCombinationRequest request) throws Exception{
         BoardResponse boardResponse = new BoardResponse();
 
         String boardCode =  request.getBoardCode();
@@ -339,45 +340,61 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         String logInfo = "";
 
         //取消组板，组织参数，必备参数：板号、箱号/包裹号、操作单位信息、操作人信息
-        AddBoardBox addBoardBox = new AddBoardBox();
-        addBoardBox.setBoardCode(request.getBoardCode());
-        addBoardBox.setBoxCode(request.getBoxOrPackageCode());
-        addBoardBox.setOperatorErp(request.getUserCode()+"");
-        addBoardBox.setOperatorName(request.getUserName());
-        addBoardBox.setSiteCode(request.getSiteCode());
-        addBoardBox.setSiteName(request.getSiteName());
-        addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+        BoardBoxRequest boardBox = new BoardBoxRequest();
+        boardBox.setBoardCode(request.getBoardCode());
+        boardBox.setBoxCode(request.getBoxOrPackageCode());
+        boardBox.setOperatorErp(request.getUserCode()+"");
+        boardBox.setOperatorName(request.getUserName());
+        boardBox.setSiteCode(request.getSiteCode());
 
-        long l = System.currentTimeMillis();
-        int s = (int)( l % 3 );
-
-
-        switch(s){
-            case 0:
-                logInfo = "取消组板失败. 箱号/包裹号" + boxOrPackageCode +"未进行组板.";
-                this.logger.error(logInfo);
-                boardResponse.addStatusInfo(500, logInfo);
-                return boardResponse;
-            case 1:
-                logInfo = "取消组板失败. 板号" + boardCode +"已经完结.";
-                this.logger.error(logInfo);
-                boardResponse.addStatusInfo(501, logInfo);
-                return boardResponse;
-            case 2:
-                logInfo = "取消组板成功. 板号:" + boardCode +",箱号/包裹号：" + boxOrPackageCode;
-                this.logger.info(logInfo);
-        }
         //调用TC接口取消组板
+        Response<Integer> tcResponse = null;
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
+        try {
+            tcResponse = groupBoardService.removeBoxFromBoard(boardBox);
+        }catch (Exception e){
+            Profiler.functionError(info);
+            throw e;
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+
         //情况1 没有绑定
+        if (tcResponse.getCode() == 500) {
+            logInfo = "箱号/包裹号" + request.getBoxOrPackageCode() + "不在板号"+request.getBoardCode()+"下，站点：" + request.getSiteCode();
+            this.logger.warn(logInfo);
+            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+            addSystemLog(request,logInfo);
+
+            return boardResponse;
+        }
 
         //情况2 已经关板的不能取消
+        if (tcResponse.getCode() == 501) {
+            logInfo = "板号" + boardCode + "已完结,站点：" + request.getSiteCode();
+            this.logger.warn(logInfo);
+            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+            addSystemLog(request,logInfo);
+
+            return boardResponse;
+        }
+
+        //其他情况
+        if (tcResponse.getCode() != 200) {
+            logInfo = "取消组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
+
+            this.logger.warn(logInfo);
+            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+            addSystemLog(request,logInfo);
+
+            return boardResponse;
+        }
+
 
         //取消组板成功
-
         //记录操作日志
         logInfo = "取消组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         addSystemLog(request,logInfo);
-
         addOperationLog(request,OperationLog.BOARD_COMBINATITON_CANCEL);
 
         //缓存-1
