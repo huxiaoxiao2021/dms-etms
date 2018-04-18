@@ -39,20 +39,42 @@
 	
 	<insert id="add" parameterType="LoadBill">
 		INSERT INTO load_bill ( 
-			load_id, warehouse_id, waybill_code, package_barcode,
+			load_id,
+			<if test="custBillNo != null and custBillNo != ''">
+				cust_billno,
+			</if>
+			warehouse_id, waybill_code, package_barcode,
 		    package_amount, order_id, box_code, dms_code, dms_name,
-			send_time, send_code, truck_no, approval_code, approval_time,
+			send_time, send_code,
+			<if test="ciqCheckFlag != null">
+				ciq_check_flag,
+			</if>
+			truck_no, approval_code, approval_time,
 			ctno, gjno, tpl, weight, create_time, update_time, gen_time,
 			create_user_code, create_user, package_user_code, package_user,
 			package_time, remark, yn
 		) VALUES (
-			#{loadId,jdbcType=VARCHAR}, #{warehouseId,jdbcType=VARCHAR}, 
+			#{loadId,jdbcType=VARCHAR},
+			<if test="custBillNo != null and custBillNo != ''">
+				#{custBillNo,jdbcType=VARCHAR},
+			</if>
+			#{warehouseId,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR}, #{packageBarcode,jdbcType=VARCHAR},
 			#{packageAmount,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR},
 			#{boxCode,jdbcType=VARCHAR}, #{dmsCode,jdbcType=INTEGER},
 			#{dmsName,jdbcType=VARCHAR}, #{sendTime,jdbcType=TIMESTAMP},
-			#{sendCode,jdbcType=VARCHAR}, #{truckNo,jdbcType=VARCHAR},
-			#{approvalCode,jdbcType=VARCHAR}, NOW(),
+			#{sendCode,jdbcType=VARCHAR},
+			<if test="ciqCheckFlag != null">
+				#{ciqCheckFlag,jdbcType=INTEGER},
+			</if>
+			#{truckNo,jdbcType=VARCHAR},
+			#{approvalCode,jdbcType=VARCHAR},
+			<if test="approvalTime != null">
+				#{approvalTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="approvalTime == null">
+				NOW(),
+			</if>
 			#{ctno,jdbcType=VARCHAR}, #{gjno,jdbcType=VARCHAR}, 
 			#{tpl,jdbcType=VARCHAR}, #{weight,jdbcType=DOUBLE},
 			NOW(), NOW(), NOW(),
@@ -61,7 +83,80 @@
 			#{packageTime,jdbcType=TIMESTAMP}, #{remark,jdbcType=VARCHAR}, 1
 		)
 	</insert>
-	
+
+	<insert id="batchAdd" parameterType="LoadBill">
+		INSERT INTO load_bill (
+		load_id,
+		cust_billno,
+		warehouse_id,
+		waybill_code,
+		package_barcode,
+		package_amount,
+		order_id,
+		box_code,
+		dms_code,
+		dms_name,
+		send_time,
+		send_code,
+		ciq_check_flag,
+		truck_no,
+		approval_code,
+		approval_time,
+		ctno,
+		gjno,
+		tpl,
+		weight,
+		create_time,
+		update_time,
+		gen_time,
+		create_user_code,
+		create_user,
+		package_user_code,
+		package_user,
+		package_time,
+		remark,
+		yn
+		) VALUES
+		<foreach collection="list" item="item" index="index"
+				 separator=",">
+		(
+			#{item.loadId,jdbcType=VARCHAR},
+			#{item.custBillNo,jdbcType=VARCHAR},
+			#{item.warehouseId,jdbcType=VARCHAR},
+			#{item.waybillCode,jdbcType=VARCHAR},
+			#{item.packageBarcode,jdbcType=VARCHAR},
+			#{item.packageAmount,jdbcType=INTEGER},
+			#{item.orderId,jdbcType=VARCHAR},
+			#{item.boxCode,jdbcType=VARCHAR},
+			#{item.dmsCode,jdbcType=INTEGER},
+			#{item.dmsName,jdbcType=VARCHAR},
+			#{item.sendTime,jdbcType=TIMESTAMP},
+			#{item.sendCode,jdbcType=VARCHAR},
+			#{item.ciqCheckFlag,jdbcType=INTEGER},
+			#{item.truckNo,jdbcType=VARCHAR},
+			#{item.approvalCode,jdbcType=VARCHAR},
+			<if test="item.approvalTime != null">
+				#{item.approvalTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="item.approvalTime == null">
+				NOW(),
+			</if>
+			#{item.ctno,jdbcType=VARCHAR},
+			#{item.gjno,jdbcType=VARCHAR},
+			#{item.tpl,jdbcType=VARCHAR},
+			#{item.weight,jdbcType=DOUBLE},
+			NOW(), NOW(), NOW(),
+			#{item.createUserCode,jdbcType=INTEGER},
+			#{item.createUser,jdbcType=VARCHAR},
+			#{item.packageUserCode,jdbcType=INTEGER},
+			#{item.packageUser,jdbcType=VARCHAR},
+			#{item.packageTime,jdbcType=TIMESTAMP},
+			#{item.remark,jdbcType=VARCHAR},
+			1
+			)
+		</foreach>
+	</insert>
+
 	<update id="update" parameterType="LoadBill">
 		UPDATE 
 			load_bill
@@ -105,7 +200,7 @@
 
     <update id="updateLoadBillById" parameterType="java.util.Map">
         UPDATE load_bill
-          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode},approval_time = NOW()
+          SET load_id = #{loadId}, truck_no = #{trunkNo}, approval_code = #{approvalCode}, approval_time = NOW()
         WHERE yn = 1 AND id IN
         <foreach collection="data" item="item" index="index" open="(" close=")" separator=",">
             #{item}
@@ -228,18 +323,35 @@
 		<include refid="Base_Where_List" />
 	</select>
 
+	<select id="findOneByParameter" resultMap="loadBill" parameterType="map">
+		SELECT
+		id, cust_billno, load_id, warehouse_id, waybill_code,
+		package_barcode, package_amount, order_id, box_code,
+		dms_code, dms_name, send_time, send_code,
+		ciq_check_flag, truck_no, ctno, gjno, approval_code,
+		approval_time, tpl, weight, gen_time,
+		package_time, package_user, package_user_code, remark
+		FROM load_bill
+		<where>
+			yn = 1
+			<if test="approvalCodes != null">
+				AND approval_code IN
+				<foreach collection="approvalCodes" item="item" index="index" open="(" close=")" separator=",">
+					#{item}
+				</foreach>
+			</if>
+			<if test="orderId != null">
+				AND order_id = #{orderId,jdbcType=VARCHAR}
+			</if>
+			<if test="packageBarcode != null">
+				AND package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		ORDER BY CREATE_TIME DESC
+		LIMIT 1
+	</select>
 
-
-    <select id="findWaybillinLoadBill" resultMap="loadBill"  parameterType="java.util.Map" >
-        SELECT waybill_code,box_code,approval_code,dms_code
-        FROM load_bill
-        WHERE
-          yn=1
-        <if test="waybillCode != null">
-            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
-        </if>
-        <if test="boxCode != null">
-            AND box_code = #{boxCode,jdbcType=VARCHAR}
-        </if>
-    </select>
 </mapper>

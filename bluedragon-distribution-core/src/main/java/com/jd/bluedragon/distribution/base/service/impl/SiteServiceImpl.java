@@ -259,4 +259,23 @@ public class SiteServiceImpl implements SiteService {
 		}
 		return bjDmsSiteCodes;
 	}
+
+	/**
+	 * 从sysconfig表里查出来开放C网路由校验的分拣中心列表
+	 * @return
+	 */
+	@Cache(key = "SiteServiceImpl.getCRouterAllowedList",memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Override
+	public Set<Integer> getCRouterAllowedList(){
+		Set<Integer> CRouterVerifyOpenDms = new TreeSet<Integer>();
+		List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_CROUTER_OPEN_DMS_CODES);
+		if(sysConfigs != null && !sysConfigs.isEmpty()){
+			String contents = sysConfigs.get(0).getConfigContent();
+			Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
+			for(String site:sites){
+				CRouterVerifyOpenDms.add(Integer.valueOf(site));
+			}
+		}
+		return CRouterVerifyOpenDms;
+	}
 }

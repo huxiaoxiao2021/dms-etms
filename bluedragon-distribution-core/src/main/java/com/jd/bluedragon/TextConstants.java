@@ -20,4 +20,9 @@ public class TextConstants {
      * 货款-在线支付
      */
     public static final String GOODS_PAYMENT_ONLINE = "在线支付";
+    
+    /**
+     * 备注-【合并送】
+     */
+    public static final String REMARK_SEND_GATHER_TOGETHER ="【合并送】";
 }

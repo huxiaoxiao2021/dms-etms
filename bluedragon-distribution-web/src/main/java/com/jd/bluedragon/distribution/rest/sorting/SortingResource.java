@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -173,7 +174,7 @@ public class SortingResource {
 	/**
 	 * 亚一取消分拣
 	 * 
-	 * @param request
+	 * @param sortingRequest
 	 * @return
 	 */
 	@POST
@@ -318,8 +319,7 @@ public class SortingResource {
 	/**
 	 * 处理分拣退货的业务
 	 * 
-	 * @param waybillcode
-	 * @param packagecode
+	 * @param request
 	 * @return
 	 */
 	// @POST
@@ -438,5 +438,13 @@ public class SortingResource {
 	private SortingResponse ok() {
 		return new SortingResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 	}
+
+    @POST
+    @Path("/sorting/pushStatusTask")
+    public InvokeResult<Boolean> pushSortingTask(Sorting sorting) {
+        InvokeResult<Boolean> res = new InvokeResult<Boolean>();
+        sortingService.addSortingAdditionalTask(sorting);
+        return res;
+    }
 
 }

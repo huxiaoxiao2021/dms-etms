@@ -84,44 +84,23 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
 
 
     /**
-     * 设置接收站点和批次号
+     * 设置目的站点
      * @param request
      * @return
      */
     private boolean checkReceiveSiteCode(OfflineLogRequest request) {
         Integer receiveSiteCode = null;
         Boolean result = Boolean.TRUE;
-        String boxCode = request.getBoxCode();
         String sendCode = request.getBatchCode();
-        if (checkBaseSite(request.getReceiveSiteCode())) {
-            receiveSiteCode = request.getReceiveSiteCode();
-        }
-        if(receiveSiteCode == null && StringUtils.isNotBlank(sendCode)){
+
+        if(StringUtils.isNotBlank(sendCode)){
             receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
         }
-        if (receiveSiteCode == null) {
-            // 设置目的站点
-            if (BusinessHelper.isPackageCode(boxCode)) { // 目的站点不存在，获取预分拣站点
-                BigWaybillDto bigWaybillDto = this.waybillService.getWaybill(BusinessHelper.getWaybillCode(boxCode));
-                if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getOldSiteId() != null
-                        && !bigWaybillDto.getWaybill().getOldSiteId().equals(0)) {
-                    receiveSiteCode = bigWaybillDto.getWaybill().getOldSiteId();
-                } else {
-                    this.logger.error("参数有误--原包【" + boxCode + "】预分拣站点问题！");
-                    result = Boolean.FALSE;
-                }
-            } else { // 正常箱号，根据箱号获取目的站点信息
-                Box box = this.boxService.findBoxByCode(boxCode);
-                if (box == null) {
-                    this.logger.error("参数有误--箱号【" + boxCode + "】不存在！");
-                    result = Boolean.FALSE;
-                } else { // 设置目的站点
-                    receiveSiteCode = box.getReceiveSiteCode();
-                }
-            }
-            if (result) {
-                request.setReceiveSiteCode(receiveSiteCode);
-            }
+        if (checkBaseSite(receiveSiteCode)) {
+            request.setReceiveSiteCode(receiveSiteCode);
+        }else{
+            logger.warn("一车一单离线发货获取目的站点失败：" + JsonHelper.toJson(request));
+            result = Boolean.FALSE;
         }
         return result;
     }
