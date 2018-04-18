@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.consumer.abnormalEclp;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclpCondition;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclpResponse;
 import com.jd.bluedragon.distribution.abnormal.service.DmsAbnormalEclpService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
@@ -15,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -35,10 +36,10 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         // 处理消息体
-        this.logger.info("DmsAbnormalEclpConsumer consume --> 消息Body为【"
+        this.logger.debug("DmsAbnormalEclpConsumer consume --> 消息Body为【"
                 + message.getText() + "】");
         if (message == null || "".equals(message.getText()) || null == message.getText()) {
-            this.logger.error("DmsAbnormalEclpConsumer consume -->消息为空");
+            this.logger.warn("DmsAbnormalEclpConsumer consume -->消息为空");
             return;
         }
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -54,9 +55,10 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
             this.logger.warn("DmsAbnormalEclpConsumer consume : 运单号为空！");
             return;
         }
+        //查出要回写的外呼申请
         DmsAbnormalEclpCondition condition = new DmsAbnormalEclpCondition();
         condition.setWaybillCode(dmsAbnormalEclpResponse.getWaybillCode());
-        condition.setIsReceipt(0);
+        condition.setIsReceipt(DmsAbnormalEclp.DMSABNORMALECLP_RECEIPT_NO);
         PagerResult result = dmsAbnormalEclpService.queryByPagerCondition(condition);
         if (result.getTotal() == 0) {
             this.logger.warn("DmsAbnormalEclpConsumer consume : 未查到外呼申请！运单号：" + dmsAbnormalEclpResponse.getWaybillCode());
@@ -67,8 +69,7 @@ public class DmsAbnormalEclpConsumer extends MessageBaseConsumer {
             try {
                 dmsAbnormalEclp.setReceiptMark(dmsAbnormalEclpResponse.getReceiptMark());
                 if (StringHelper.isNotEmpty(dmsAbnormalEclpResponse.getReceiptTime())) {
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    dmsAbnormalEclp.setReceiptTime(sdf.parse(dmsAbnormalEclpResponse.getReceiptTime()));
+                    dmsAbnormalEclp.setReceiptTime(DateHelper.parseDate(dmsAbnormalEclpResponse.getReceiptTime(), Constants.DATE_TIME_FORMAT));
                 }
                 dmsAbnormalEclp.setReceiptValue(dmsAbnormalEclpResponse.getReceiptValue());
                 dmsAbnormalEclpService.updateResult(dmsAbnormalEclp);
