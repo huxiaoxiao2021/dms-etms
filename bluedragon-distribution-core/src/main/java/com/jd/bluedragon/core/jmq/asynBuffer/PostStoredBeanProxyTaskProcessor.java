@@ -1,15 +1,15 @@
 package com.jd.bluedragon.core.jmq.asynBuffer;
 
 import java.util.List;
-
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ql.framework.asynBuffer.comsumer.BeanProxyTaskProcessor;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import javax.annotation.Resource;
 
 
 /**
@@ -19,17 +19,12 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Task> {
 
-	public final static String STOER_TASK_ENBALED_KEY = "asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled";
-
-	private ConfigManager configManager;
-
 	private TaskService taskService;
 
-	private final Log logger = LogFactory.getLog(this.getClass());
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
-	public void setConfigManager(ConfigManager configManager) {
-		this.configManager = configManager;
-	}
+	private final Log logger = LogFactory.getLog(this.getClass());
 
 	public void setTaskService(TaskService taskService) {
 		this.taskService = taskService;
@@ -41,11 +36,11 @@ public class PostStoredBeanProxyTaskProcessor extends BeanProxyTaskProcessor<Tas
 	 * @return
 	 */
 	public boolean isStoreSucessTask(){
-		String enabled = configManager.getProperty(STOER_TASK_ENBALED_KEY);
-		if(enabled==null || enabled.length()==0){
-			return true;
+		Boolean enabled = uccPropertyConfiguration.getAsynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled();
+		if(enabled==null ){
+            enabled = true;
 		}
-		return Boolean.parseBoolean(enabled);
+		return enabled;
 	}
 
 	public PostStoredBeanProxyTaskProcessor(Object target, String methodName) {

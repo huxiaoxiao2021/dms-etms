@@ -477,6 +477,9 @@ public class Constants {
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+
+
+    public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
      * 封车批次号缓存前缀
      */
@@ -509,4 +512,7 @@ public class Constants {
     public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
+    
+    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
 }

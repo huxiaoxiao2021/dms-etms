@@ -619,4 +619,12 @@ public class BusinessHelper {
 	public static boolean isB2b(String waybillSign){
 		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
 	}
+	/**
+	 * 根据waybillSign判断是否病单（34位标识为 2）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSick(String waybillSign){
+		return isSignInChars(waybillSign, 34,'2');
+	}
 }

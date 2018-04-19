@@ -536,19 +536,45 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //设置运费及货款信息
         String freightText = "";
         String goodsPaymentText = "";
+
+        //读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
         if(BusinessHelper.isB2b(waybill.getWaybillSign())){
+            //B网运费和货款
         	//读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
         	if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '2')){
         		freightText = TextConstants.FREIGHT_PAY_CASH;
         	}
         	//货款字段金额等于0时，则货款位置显示为【在线支付】
         	//货款字段金额大于0时，则货款位置显示为【货到付款】
-        	if(NumberHelper.gt0(waybill.getRecMoney())){
+        	if(NumberHelper.gt0(waybill.getCodMoney())){
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
         	}else{
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
         	}
-        	target.setTemplateName("dms-nopaper-b2b-m");
+            target.setTemplateName("dms-nopaper-b2b-m");
+        }else{
+            //C网运费和货款
+            //运费：waybillSign 25位为2时【到付现结】；25位为3时【寄付现结】
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '2')){
+                freightText = TextConstants.FREIGHT_PAY_CASH;
+            } else if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 25, '3')){
+                freightText = TextConstants.FREIGHT_CONSIGER_CLEAR;
+            }
+
+            //货款：waybillSign 货款大于0时，25位为2或3时显示【货到付款】，25位不为2且不为3时显示应收金额，
+            //货款等于0时，显示【在线支付】
+            if(NumberHelper.gt0(waybill.getCodMoney())){
+                if(BusinessHelper.isSignInChars(waybill.getWaybillSign(),25,'2','3')){
+                    goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
+                }else{
+                    goodsPaymentText = "￥"+ waybill.getCodMoney();
+                    if (ComposeService.ONLINE_PAYMENT_SIGN.equals(waybill.getPayment())) {
+                        goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+                    }
+                }
+            } else{
+                goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+            }
         }
         target.setFreightText(freightText);
         target.setGoodsPaymentText(goodsPaymentText);

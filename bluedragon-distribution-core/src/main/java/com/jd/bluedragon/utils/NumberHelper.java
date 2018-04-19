@@ -85,6 +85,18 @@ public class NumberHelper {
         return false;
     }
     /**
+     * 返回结果a是否大于等于b,返回 a>=b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean gte(Number a,Number b) {
+        if (a != null && b != null) {
+            return a.doubleValue() >= b.doubleValue();
+        }
+        return false;
+    }
+    /**
      * 返回结果a是否大于0
      * @param a 数字类型的对象
      * @return
@@ -107,7 +119,7 @@ public class NumberHelper {
         return false;
     }
     /**
-     * 返回结果a是否大于b,返回 a<b 的值
+     * 返回结果a是否小于b,返回 a<b 的值
      * @param a
      * @param b
      * @return
@@ -115,6 +127,18 @@ public class NumberHelper {
     public static boolean lt(Number a,Number b) {
     	if (a != null && b != null) {
             return a.doubleValue() < b.doubleValue();
+        }
+        return false;
+    }
+    /**
+     * 返回结果a是否小于等于b,返回 a<=b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean lte(Number a,Number b) {
+    	if (a != null && b != null) {
+            return a.doubleValue() <= b.doubleValue();
         }
         return false;
     }
