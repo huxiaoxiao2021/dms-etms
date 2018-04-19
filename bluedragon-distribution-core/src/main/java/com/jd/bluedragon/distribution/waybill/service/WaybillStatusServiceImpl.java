@@ -659,7 +659,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		return null;
 	}
 
-}
 	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime){
 		CallerInfo info = null;
 		try{
