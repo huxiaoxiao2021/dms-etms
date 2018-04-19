@@ -316,7 +316,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/send")
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
-        this.logger.info("开始写入发货信息");
+        this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);

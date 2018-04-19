@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.inspection;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -11,39 +13,35 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
-import com.jd.bluedragon.distribution.api.request.*;
-import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
-import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
-import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.InspectionECRequest;
+import com.jd.bluedragon.distribution.api.request.InspectionFCRequest;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.request.TurnoverBoxRequest;
 import com.jd.bluedragon.distribution.api.response.HandoverDetailResponse;
 import com.jd.bluedragon.distribution.api.response.HandoverResponse;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.PackageResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.inspection.service.impl.InspectionExceptionServiceImpl;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -551,7 +549,7 @@ public class InspectionResource {
 
 		String hintMessage = "";
 		try{
-			hintMessage = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode);
+			hintMessage = dmsOperateHintService.getInspectHintMessageByWaybillCode(waybillCode);
 			inspectionResult.setHintMessage(hintMessage);
 			logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
 		}catch (Exception e){

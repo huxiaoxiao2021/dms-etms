@@ -390,8 +390,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             originalOrderInfo.setPackageCode(waybill.getPackList().get(0).getPackCode());
             originalOrderInfo.setOriginalStationId(waybill.getSiteCode());
             originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
-            //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
-            originalOrderInfo.setSystemCode("DMS");
             logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
             JdResult<com.jd.preseparate.vo.BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo  = preseparateWaybillManager.getMediumStation(originalOrderInfo);
             logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(mediumStationOrderInfo));

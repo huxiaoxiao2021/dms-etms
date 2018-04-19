@@ -1,7 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,6 +28,10 @@ public class BusinessHelper {
 	public static final String BUSI_ORDER_CODE_QWD = "QWD";
 	public static final String SOURCE_CODE_CLPS = "CLPS";
 	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+	/**
+	 * hash格式分页存储时，分页大小
+	 */
+	public static final int HASH_KEY_PAGESIZE = 200;
 	static{
 		init();
 	}
@@ -618,5 +620,51 @@ public class BusinessHelper {
 	 */
 	public static boolean isB2b(String waybillSign){
 		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
+	}
+	/**
+	 * 获取包裹号的hash存储key,Key:运单号-页码	keyFiled:包裹号，页码=（包裹序号-1)/200+1
+	 * @param packageCode 支持72945262907N4S5H30和72945262907-4-5-
+	 * @return
+	 */
+	public static String[] getHashKeysByPackageCode(String packageCode) {
+		if(StringHelper.isEmpty(packageCode)){
+			return null;
+		}
+		try {
+			int packageIndex = 0;
+			String waybillCode = null;
+			if (packageCode.indexOf(PACKAGE_SEPARATOR) != -1) {
+				String[] strs = packageCode.split(PACKAGE_SEPARATOR);
+				if(strs.length>=3){
+					waybillCode = strs[0];
+					packageIndex = Integer.parseInt(strs[1]);
+				}
+			} else if (packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER) != -1
+					&& packageCode.indexOf(PACKAGE_IDENTIFIER_SUM) != -1) {
+				waybillCode = packageCode.substring(0, packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER));
+				packageIndex = Integer.parseInt(packageCode.substring(
+						packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER)+1, 
+						packageCode.indexOf(PACKAGE_IDENTIFIER_SUM)));
+			}
+			if(packageIndex > 0){
+				String key = waybillCode + PACKAGE_SEPARATOR + (packageIndex>HASH_KEY_PAGESIZE?(packageIndex-1)/HASH_KEY_PAGESIZE+1:1);
+				return new String[]{key,packageCode};
+			}
+		} catch (Exception e) {
+			logger.error(packageCode+"获取hashKey发生错误， 错误信息为：" + e.getMessage(), e);
+		}
+		return null;
+	}
+	/**
+	 * 获取hashKey
+	 * @param key 键
+	 * @param pageIndex 页码
+	 * @return key+"-"+ pageIndex
+	 */
+	public static String getHashKey(String key,int pageIndex) {
+		if(StringHelper.isNotEmpty(key)){
+			return key + PACKAGE_SEPARATOR + pageIndex;
+		}
+		return null;
 	}
 }

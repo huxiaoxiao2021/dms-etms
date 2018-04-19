@@ -512,7 +512,16 @@ public class Constants {
     public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
-    
+    /**
+     * UMP监控应用名-dms.etms
+     */
     public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    /**
+     * UMP监控应用名-bluedragon-distribution-worker
+     */
     public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+    /**
+     * 分拣系统标识-DMS，调用外部系统接口需要传递
+     */
+    public static final String SYSTEM_CODE_OWON= "DMS";
 }

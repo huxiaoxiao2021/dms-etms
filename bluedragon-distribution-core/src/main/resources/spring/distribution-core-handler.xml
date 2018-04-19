@@ -56,6 +56,8 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
+				<!-- C网操作B2B传站业务，预分拣站点变更拦截服务 -->
+				<ref bean="presiteChangeInterceptHandler"/>
 				<ref bean="signTextWaybillHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>

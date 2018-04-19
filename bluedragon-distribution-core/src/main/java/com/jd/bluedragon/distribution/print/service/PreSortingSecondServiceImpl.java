@@ -93,8 +93,6 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             originalOrderInfo.setPackageCode(commonWaybill.getPackList().get(0).getPackageCode());
             originalOrderInfo.setOriginalStationId(commonWaybill.getPrepareSiteCode());
             originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
-            //originalOrderInfo.setOriginalRoad(commonWaybill.getRoad());    //commonWaybill.getRoad()查不到时可能设置为"0",接口非必要字段，这里不传该参数
-            originalOrderInfo.setSystemCode("DMS");
             JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
             //接口调用失败/返回站点为空，直接通过不强制拦截
             if(!mediumStationOrderInfo.isSucceed()

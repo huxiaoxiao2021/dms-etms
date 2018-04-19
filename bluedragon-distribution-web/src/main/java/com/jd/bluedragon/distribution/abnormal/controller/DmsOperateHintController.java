@@ -103,7 +103,6 @@ public class DmsOperateHintController {
                 }
                 if(rest.isSucceed()){
                     rest.setData(dmsOperateHintService.saveOrUpdate(dmsOperateHint));
-                    setCache(dmsOperateHint);
                 }
             } else{
                 rest.toFail("运单号非法：" + dmsOperateHint.getWaybillCode());
@@ -141,21 +140,4 @@ public class DmsOperateHintController {
 		rest.setData(dmsOperateHintService.queryByPagerCondition(dmsOperateHintCondition));
 		return rest.getData();
 	}
-
-    /**
-     * PDA 提示语加入redis缓存
-     * @param dmsOperateHint
-     */
-    private void setCache(DmsOperateHint dmsOperateHint){
-        try{
-            String msg = "";
-            if(Constants.INTEGER_FLG_TRUE.equals(dmsOperateHint.getIsEnable())){
-                msg = dmsOperateHint.getHintMessage();
-            }
-            redisManager.setex(Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode(), Constants.TIME_SECONDS_ONE_MONTH, msg);
-            logger.info("PDA提示语加redis缓存成功，运单号：" + dmsOperateHint.getWaybillCode() + ", 提示语：" + msg);
-        }catch (Exception e){
-            logger.error("PDA提示语加缓存失败："+JsonHelper.toJson(dmsOperateHint), e);
-        }
-    }
 }

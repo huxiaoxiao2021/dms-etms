@@ -13,5 +13,8 @@ public class CacheKeyConstants {
 	 * 板号绑定的包裹号/箱号个数 key=前缀-板号
 	 */
 	public static final String REDIS_PREFIX_BOARD_BINDINGS_COUNT = "board.combination.bindings.count";
-
+	/**
+	 * 称重流水
+	 */
+	public static final String REDIS_KEY_DMS_WEIGHT_FLOW = "DmsWeightFlow";
 }
