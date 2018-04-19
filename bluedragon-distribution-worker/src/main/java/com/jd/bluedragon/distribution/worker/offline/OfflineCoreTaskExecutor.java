@@ -172,7 +172,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(),Constants.DATE_TIME_MS_FORMAT);
                 	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds),Constants.DATE_TIME_MS_FORMAT);
                 	offlineLogRequest.setOperateTime(operateTimeStr);
-                	resultCode = offlineDeliveryService.parseToTask(offlineLogRequest);
+                	resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
                 }
                 if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
                         || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {
