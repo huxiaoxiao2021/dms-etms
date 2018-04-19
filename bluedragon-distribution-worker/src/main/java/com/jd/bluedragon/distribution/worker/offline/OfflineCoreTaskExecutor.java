@@ -74,9 +74,9 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     @Autowired
     private ArSendRegisterService arSendRegisterService;
     /**
-     * 复合任务多个任务同时插入时，延迟的秒数，默认5s
+     * 复合任务多个任务同时插入时，延迟的秒数，默认30s
      */
-    private int delaySeconds = 5;
+    private int delaySeconds = 30;
     
 	@Override
 	public Task parse(Task task, String ownSign) {
@@ -168,7 +168,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
                 	//空铁提货并发货
                 	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
-                	//先加入一个提货worker，操作时间延后5s然后加入一个一车一单发货任务
+                	//发货操作时间 +30
                 	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(),Constants.DATE_TIME_MS_FORMAT);
                 	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds),Constants.DATE_TIME_MS_FORMAT);
                 	offlineLogRequest.setOperateTime(operateTimeStr);
