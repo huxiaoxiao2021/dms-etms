@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.dao.DmsAbnormalEclpDao;
@@ -18,6 +20,7 @@ import com.jd.common.web.LoginContext;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -27,8 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -58,25 +59,27 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
 
     @Autowired
     private WaybillQueryApi waybillQueryApi;
+
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    BaseMinorManager baseMinorManager;
 
     @Override
     public JdResponse<Boolean> save(DmsAbnormalEclp dmsAbnormalEclp) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
-        //1.2个月内该运单只能发起一次库房拒收外呼申请
+        //有未回复过的申请，也不让再次申请
         DmsAbnormalEclpCondition condition = new DmsAbnormalEclpCondition();
         condition.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
-        // 不限制该运单是否在进行外呼中，即，只能发起一次
-        condition.setStartTime(DateHelper.add(new Date(), Calendar.MONTH, -2));
-        //有未回复过的申请，也不让再次申请
-        condition.setIsReceipt(0);
+        condition.setIsReceipt(DmsAbnormalEclp.DMSABNORMALECLP_RECEIPT_NO);
         PagerResult result = queryByPagerCondition(condition);
         //判断当前运单是否有未进行完毕的外呼
         if (result.getTotal() > 0) {
             rest.toFail("运单已发起过库房拒收的外呼申请：" + dmsAbnormalEclp.getWaybillCode());
             return rest;
         }
+        //获取操作人信息
         LoginContext loginContext = LoginContext.getLoginContext();
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
         dmsAbnormalEclp.setCreateUser(userDto.getAccountNumber());
@@ -89,26 +92,26 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         BaseEntity<Waybill> waybillRes = waybillQueryApi.getWaybillByWaybillCode(dmsAbnormalEclp.getWaybillCode());
         if (waybillRes == null || waybillRes.getResultCode() != 1 || waybillRes.getData() == null) {
             rest.toFail("运单不存在。");
-            logger.error("运单不存在：" + JsonHelper.toJson(dmsAbnormalEclp));
+            logger.warn("运单不存在：" + JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         Waybill waybill1 = waybillRes.getData();
         if (waybill1.getBusiId() == null) {
             rest.toFail("商家信息没找到");
-            logger.error("商家信息没找到" + JsonHelper.toJson(dmsAbnormalEclp));
+            logger.warn("商家信息没找到" + JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         //获取运单中的商家信息
-        BaseStaffSiteOrgDto trader = this.baseMajorManager.getBaseSiteBySiteId(waybill1.getBusiId());
+        BasicTraderInfoDTO trader = this.baseMinorManager.getBaseTraderById(waybill1.getBusiId());
         if (trader == null) {
             rest.toFail("运单未找到商家");
-            logger.error("运单" + waybill1.getWaybillCode() + "未找到商家" + waybill1.getBusiId() + "：" + JsonHelper.toJson(dmsAbnormalEclp));
+            logger.warn("运单" + waybill1.getWaybillCode() + "未找到商家" + waybill1.getBusiId() + "：" + JsonHelper.toJson(dmsAbnormalEclp));
             return rest;
         }
         //判断商家的联系方式
-        if (StringHelper.isEmpty(trader.getSitePhone()) && StringHelper.isEmpty(trader.getPhone())) {
+        if (StringHelper.isEmpty(trader.getTelephone()) && StringHelper.isEmpty(trader.getContactMobile())) {
             rest.toFail("未查到商家联系方式");
-            logger.error("未查到商家联系方式：" + JsonHelper.toJson(trader));
+            logger.warn("未查到商家联系方式：" + JsonHelper.toJson(trader));
             return rest;
         }
         //转换成mp的格式
@@ -117,26 +120,26 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
         if (org == null) {
             rest.toFail("所在站点未找到：" + userDto.getSiteName());
-            logger.error("所在站点未找到：" + userDto.getSiteName());
+            logger.warn("所在站点未找到：" + userDto.getSiteName());
             return rest;
         }
         try {
             ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
             if (province == null) {
                 rest.toFail("站点所在省份获取失败：" + org.getProvinceId());
-                logger.error("站点所在省份获取失败：" + org.getProvinceId());
+                logger.warn("站点所在省份获取失败：" + org.getProvinceId());
                 return rest;
             }
             AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
             if (areaNode == null) {
                 rest.toFail("站点所在区域获取失败：" + province.getId());
-                logger.error("站点所在区域获取失败：" + province.getId());
+                logger.warn("站点所在区域获取失败：" + province.getId());
                 return rest;
             }
             dmsAbnormalEclpRequest.setOrgNo(areaNode.getName());
         } catch (Exception e) {
             rest.toFail("站点所在区域获取失败：" + org.getAreaId());
-            logger.error("站点所在区域获取失败：" + org.getAreaId(), e);
+            logger.warn("站点所在区域获取失败：" + org.getAreaId(), e);
             return rest;
         }
         if (!saveOrUpdate(dmsAbnormalEclp)) {
@@ -146,18 +149,17 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         }
         //发mq 给异常系统
         abnormalEclpSendProducer.sendOnFailPersistent(dmsAbnormalEclp.getWaybillCode(), JsonHelper.toJson(dmsAbnormalEclpRequest));
-        logger.info("库房拒收申请：" + JsonHelper.toJson(dmsAbnormalEclpRequest));
+        logger.debug("库房拒收申请：" + JsonHelper.toJson(dmsAbnormalEclpRequest));
         rest.toSucceed();
         return rest;
     }
 
-    private DmsAbnormalEclpRequest convertDmsAbnormalEclpRequest(DmsAbnormalEclp dmsAbnormalEclp, BaseStaffSiteOrgDto userDto, BaseStaffSiteOrgDto trader) {
+    private DmsAbnormalEclpRequest convertDmsAbnormalEclpRequest(DmsAbnormalEclp dmsAbnormalEclp, BaseStaffSiteOrgDto userDto, BasicTraderInfoDTO trader) {
         DmsAbnormalEclpRequest dmsAbnormalEclpRequest = new DmsAbnormalEclpRequest();
         dmsAbnormalEclpRequest.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
         dmsAbnormalEclpRequest.setDeptCode(userDto.getOrgId().toString());
         dmsAbnormalEclpRequest.setDeptName(userDto.getOrgName());
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        dmsAbnormalEclpRequest.setExptCreateTime(sdf.format(dmsAbnormalEclp.getCreateTime()));
+        dmsAbnormalEclpRequest.setExptCreateTime(DateHelper.formatDate(dmsAbnormalEclp.getCreateTime(), Constants.DATE_TIME_FORMAT));
         dmsAbnormalEclpRequest.setExptTwoLevel(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_CODE);
         dmsAbnormalEclpRequest.setExptTwoLevelName(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_NAME);
         dmsAbnormalEclpRequest.setExptThreeLevel(convertExptThreeLevel(dmsAbnormalEclp.getConsultType()));
@@ -165,9 +167,9 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         dmsAbnormalEclpRequest.setExpName(dmsAbnormalEclp.getConsultReason());
         dmsAbnormalEclpRequest.setCreateUserCode(dmsAbnormalEclp.getCreateUser());
         dmsAbnormalEclpRequest.setCreateUserName(dmsAbnormalEclp.getCreateUserName());
-        dmsAbnormalEclpRequest.setBusiId(trader.getSiteCode().toString());
-        dmsAbnormalEclpRequest.setBusiName(trader.getSiteName());
-        dmsAbnormalEclpRequest.setTelephone(StringHelper.isEmpty(trader.getSitePhone()) ? trader.getPhone() : trader.getSitePhone());
+        dmsAbnormalEclpRequest.setBusiId(trader.getId().toString());
+        dmsAbnormalEclpRequest.setBusiName(trader.getTraderName());
+        dmsAbnormalEclpRequest.setTelephone(StringHelper.isEmpty(trader.getTelephone()) ? trader.getContactMobile() : trader.getTelephone());
         dmsAbnormalEclpRequest.setConsultMark(dmsAbnormalEclp.getConsultMark());
         return dmsAbnormalEclpRequest;
     }
