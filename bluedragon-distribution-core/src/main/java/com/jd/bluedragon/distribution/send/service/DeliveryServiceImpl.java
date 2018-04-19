@@ -876,19 +876,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
         Collections.sort(sendMList);
         // 加send_code幂
-
-        boolean sendCodeIdempotence = false;/*判断当前批次号是否已经发货*/
-        if(sendMList == null ){
-            sendCodeIdempotence = true;
-        }else if(sendMList.size() > 1){
-            sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
-        }else {//空铁提货并发货离线任务，发货sendMList长度为1，单独处理
-            String oldSendCode = getSendedCode(sendMList.get(0));
-            if (StringUtils.isNotBlank(oldSendCode)) {
-                sendCodeIdempotence = true;
-            }
-        }
-
+        boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
         if (sendCodeIdempotence) {
             return new DeliveryResponse(JdResponse.CODE_OK,
                     JdResponse.MESSAGE_OK);
