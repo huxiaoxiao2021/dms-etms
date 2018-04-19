@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.packagehalf;
 
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.half.domain.*;
@@ -54,7 +55,10 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
         if(StringUtils.isBlank(erp)){
             erp = dto.getOperatorName();  //查不到时取名字字段，保证页面显示的有信息
         }
-        packageHalfApproveService.batchAdd(getPackageHalfRedeliveryList(dto, erp));
+        List<PackageHalfApprove> packageHalfRedeliveryList = getPackageHalfRedeliveryList(dto, erp);
+        if(packageHalfRedeliveryList != null && !packageHalfRedeliveryList.isEmpty()){
+            packageHalfApproveService.batchAdd(packageHalfRedeliveryList);
+        }
     }
 
     /**
@@ -67,20 +71,23 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
         List<PackageHalfApproveDetailDto> packageList = dto.getPackagePartMsgDTOList();
         List<PackageHalfApprove> packageHalfRedeliveryList = new ArrayList<PackageHalfApprove>(packageList.size());
         for (PackageHalfApproveDetailDto packageDto : packageList){
-            PackageHalfApprove approve = new PackageHalfApprove();
-            approve.setWaybillCode(dto.getWaybillCode());
-            approve.setOrderId(dto.getOrderId());
-            approve.setWaybillSign(dto.getWaybillSign());
-            approve.setOperatetime(dto.getOperateTime());
-            approve.setDmsSiteCode(dto.getOperateSiteId());
-            approve.setDmsSiteName(dto.getOperateSiteName());
-            approve.setCreateUserCode(dto.getOperatorId());
-            approve.setCreateUserName(dto.getOperatorName());
-            approve.setCreateUser(userErp);
-            approve.setPackageCode(packageDto.getPackageCode());
-            approve.setPackageState(packageDto.getPackageState());
-            approve.setPackageRemark(packageDto.getRemark());
-            packageHalfRedeliveryList.add(approve);
+            //终端提交的MQ包裹状态是“再投待审核”时才落库
+            if(Constants.PACKAGE_REDELIVERY_CODE.equals(packageDto.getPackageState())){
+                PackageHalfApprove approve = new PackageHalfApprove();
+                approve.setWaybillCode(dto.getWaybillCode());
+                approve.setOrderId(dto.getOrderId());
+                approve.setWaybillSign(dto.getWaybillSign());
+                approve.setOperatetime(dto.getOperateTime());
+                approve.setDmsSiteCode(dto.getOperateSiteId());
+                approve.setDmsSiteName(dto.getOperateSiteName());
+                approve.setCreateUserCode(dto.getOperatorId());
+                approve.setCreateUserName(dto.getOperatorName());
+                approve.setCreateUser(userErp);
+                approve.setPackageCode(packageDto.getPackageCode());
+                approve.setPackageState(packageDto.getPackageState());
+                approve.setPackageRemark(packageDto.getRemark());
+                packageHalfRedeliveryList.add(approve);
+            }
         }
         return packageHalfRedeliveryList;
     }

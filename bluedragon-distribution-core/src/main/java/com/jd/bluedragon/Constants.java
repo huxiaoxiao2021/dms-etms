@@ -394,6 +394,7 @@ public class Constants {
 
     public static final Integer WAYBILL_DELIVERED_CODE = 150;  //订单妥投状态编码
     public static final Integer WAYBILL_REJECT_CODE = 160;  //订单拒收状态编码
+    public static final Integer PACKAGE_REDELIVERY_CODE = 133;  //订单拒收状态编码
     /**
      * 字符类型yn标识,1-是
      */
