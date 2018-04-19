@@ -11,9 +11,9 @@
 		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="shuttle_bus_type" property="shuttleBusType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
 		<result column="shuttle_bus_num" property="shuttleBusNum" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_type" property="receiveType" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="boxing_type" property="boxingType" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="receive_status" property="receiveStatus" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="receive_type" property="receiveType" javaType="java.lang.Short" jdbcType="BIGINT" />
+		<result column="boxing_type" property="boxingType" javaType="java.lang.Short" jdbcType="BIGINT" />
+		<result column="receive_status" property="receiveStatus" javaType="java.lang.Short" jdbcType="BIGINT" />
 		<result column="task_exe_count" property="taskExeCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user_code" property="createUserCode" javaType="java.lang.Long" jdbcType="BIGINT" />
