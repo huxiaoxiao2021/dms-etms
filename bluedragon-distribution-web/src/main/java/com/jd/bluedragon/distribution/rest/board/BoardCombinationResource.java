@@ -107,6 +107,7 @@ public class BoardCombinationResource {
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
         result.setData(new BoardResponse());
         BoardResponse boardResponse = result.getData();
+        result.toSucceed("取消组板成功");
 
         //参数校验
         String errStr = this.combinationVertify(request);

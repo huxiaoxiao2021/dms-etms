@@ -2306,6 +2306,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         //获取运单对应的路由
         String routerStr = null;
+        String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
                 //获取路由信息
@@ -2313,6 +2314,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
+                    waybillCodeForVerify = waybillCode;
                     break;
                 }
             }
@@ -2321,6 +2323,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(StringHelper.isEmpty(routerStr)){
             return response;
         }
+
+        logger.warn("C网路由校验按箱发货取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
 
         //路由校验逻辑
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
