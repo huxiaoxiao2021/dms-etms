@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -349,7 +350,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //调用TC接口取消组板
         Response<Integer> tcResponse = null;
-        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoard.TCJSF", false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardCombinationCancel.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             tcResponse = groupBoardService.removeBoxFromBoard(boardBox);
         }catch (Exception e){
@@ -359,27 +360,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             Profiler.registerInfoEnd(info);
         }
 
-        //情况1 没有绑定
-        if (tcResponse.getCode() == 500) {
-            logInfo = "箱号/包裹号" + request.getBoxOrPackageCode() + "不在板号"+request.getBoardCode()+"下，站点：" + request.getSiteCode();
-            this.logger.warn(logInfo);
-            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
-            addSystemLog(request,logInfo);
-
-            return boardResponse;
-        }
-
-        //情况2 已经关板的不能取消
-        if (tcResponse.getCode() == 501) {
-            logInfo = "板号" + boardCode + "已完结,站点：" + request.getSiteCode();
-            this.logger.warn(logInfo);
-            boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
-            addSystemLog(request,logInfo);
-
-            return boardResponse;
-        }
-
-        //其他情况
+        //组板失败
         if (tcResponse.getCode() != 200) {
             logInfo = "取消组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
 
@@ -397,7 +378,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addSystemLog(request,logInfo);
         addOperationLog(request,OperationLog.BOARD_COMBINATITON_CANCEL);
 
-        //缓存-1
+        //缓存-1 // // FIXME: 2018/4/19 decr
         Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
         redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count - 1);
 
