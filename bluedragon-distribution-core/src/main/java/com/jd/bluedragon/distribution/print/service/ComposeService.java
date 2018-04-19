@@ -51,7 +51,7 @@ public interface ComposeService {
     int LOCAL_SCHEDULE = 1;
 
     static String ONLINE_PAYMENT="在线支付";
-    static int ONLINE_PAYMENT_SIGN = 4;
+    static Integer ONLINE_PAYMENT_SIGN = 4;
 
     //自提点标示
     static int ARAYACAK_SIGN = 64;

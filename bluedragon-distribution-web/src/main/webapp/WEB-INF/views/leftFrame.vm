@@ -17,7 +17,7 @@
         <dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
         <dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
         <dt><a href="#" class="curr">分拣中心相关查询</a></dt>
-
+		<dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
         <dd><a href="#springUrl('/base/crossbox/index')" target="mainFrame">跨箱号中转</a></dd>
         <dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
 #*
@@ -36,6 +36,7 @@
         <dd><a href="#springUrl('/sortMachineAutoSend/index')" target="mainFrame">分拣机自动发货</a></dd>
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
+        <dd><a href="#springUrl('/base/dmsStorageArea/toIndex')" target="mainFrame">流向库位配置表</a></dd>
         <dd><a href="#springUrl('/half/packageHalfRedelivery/toIndex')" target="mainFrame">快运协商再投</a></dd>
         <dd><a href="#springUrl('/half/packageHalf/toIndex')" target="mainFrame">部分签收操作</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
@@ -51,6 +52,7 @@
         <dd><a href="#springUrl('/areaDestPlan/index')" target="mainFrame">龙门架发货关系维护</a></dd>
         <dd><a href="$!{mixedConfigUrl}?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
         <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
+        <dd><a href="#springUrl('/abnormal/dmsOperateHint/toIndex')" target="mainFrame">PDA验货提示语</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
         <dt><a href="#" class="curr">离线管理</a></dt>

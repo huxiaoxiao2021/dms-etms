@@ -264,6 +264,10 @@ public class Constants {
      */
     public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
     /**
+     * 时间：一月的秒数
+     */
+    public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -473,10 +477,18 @@ public class Constants {
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+
+
+    public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
      * 封车批次号缓存前缀
      */
     public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+
+    /**
+     * PDA 提示语缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_PDA_HINT ="CACHE_PDA_HINT-";
     /**
      * 字典名称-WaybillSign打标配置标识
      */
@@ -491,4 +503,16 @@ public class Constants {
      */
     public static final String SEND_DETAIL_SOUCRE_AR = "AR";
     public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
+    
+    /**
+     * 查询B网应履约时效接口相关
+     * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
+     */
+    public static final Integer ROUTE_INTER_CONFIG_TYPE_QUAN_LIUCHENG_LVYUELV = 1;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
+    
+    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
 }

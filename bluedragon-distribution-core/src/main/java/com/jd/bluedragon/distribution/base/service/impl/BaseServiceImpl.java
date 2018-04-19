@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -175,6 +176,8 @@ public class BaseServiceImpl implements BaseService {
         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
         basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
         basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
+        basePdaUserDto.setSiteType(baseStaffDto.getSiteType());
+        basePdaUserDto.setSubType(baseStaffDto.getSubType());
     }
 
     @Override
@@ -226,6 +229,10 @@ public class BaseServiceImpl implements BaseService {
 				result.setOrganizationName(pdadata.getOrganizationName());
 				// DMS编码
 				result.setDmsCod(pdadata.getDmsCode());
+				// 站点类型
+                result.setSiteType(pdadata.getSiteType());
+                // 站点子类型
+                result.setSubType(pdadata.getSubType());
 				// 返回结果
 				return result;
 			default:

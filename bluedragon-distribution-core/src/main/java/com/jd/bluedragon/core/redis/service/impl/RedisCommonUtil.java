@@ -50,4 +50,17 @@ public class RedisCommonUtil extends RedisCommonAbstractUtil<Integer> {
             return null;
         }
     }
+
+    /**
+     * 删除数据
+     * @param key
+     * @return
+     */
+    public void del(String key){
+        try {
+            redisClient.del(key);
+        } catch (Exception e) {
+            logger.error("从Redis中删除数据出错,key = "+key+" 错误信息为:"+e.getMessage());
+        }
+    }
 }

@@ -40,7 +40,8 @@ public class PdaStaff {
 	
 	private Integer organizationId;//机构号
 	private String organizationName;//机构名称
-	
+	private Integer siteType;   //站点类型
+	private Integer subType;    //站点子类型
 	public Integer getOrganizationId() {
 		return organizationId;
 	}
@@ -115,6 +116,20 @@ public class PdaStaff {
 	public void setDmsCod(java.lang.String dmsCod) {
 		this.dmsCod = dmsCod;
 	}
-	
-	
+
+	public Integer getSiteType() {
+		return siteType;
+	}
+
+	public void setSiteType(Integer siteType) {
+		this.siteType = siteType;
+	}
+
+	public Integer getSubType() {
+		return subType;
+	}
+
+	public void setSubType(Integer subType) {
+		this.subType = subType;
+	}
 }

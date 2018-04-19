@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.seal.service;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.vos.dto.SealCarInAreaDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 
@@ -71,5 +72,12 @@ public interface NewSealVehicleService {
      * @throws Exception
      */
     public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception;
+
+    /**
+     * 查询相关车辆是否在分拣中心的电子围栏内,返回不在围栏的车牌号
+     * @param sealCars 待解的封车任务
+     * @return
+     */
+    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
 }

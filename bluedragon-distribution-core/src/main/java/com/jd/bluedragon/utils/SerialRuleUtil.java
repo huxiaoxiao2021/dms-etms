@@ -106,6 +106,14 @@ public class SerialRuleUtil {
     private static final Pattern RULE_SLIPNO_OWN_REGEX = Pattern.compile("^W?\\d{10}$");
 
     /**
+     * 逆向箱号正则表达式:
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     */
+    private static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
+
+    /**
      * 箱号正则表达式
      */
     private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
@@ -127,6 +135,11 @@ public class SerialRuleUtil {
      * 库房号正则
      */
     private static final Pattern RULE_STORE_CODE_REGEX = Pattern.compile("^([A-z]{1,})-(\\d+)-(\\d+)$");
+
+    /**
+     * 板号正则表达式
+     */
+    private static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
 
     /**
      *对龙门架扫描到的运单号进行简单的正则过滤。
@@ -568,4 +581,34 @@ public class SerialRuleUtil {
         }
         return null;
     }
+
+    /**
+     * 判断是否板号
+     * @param boardCode
+     * @return
+     */
+    public static final boolean isBoardCode(String boardCode){
+        if (StringUtils.isNotBlank(boardCode) && RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
+
+
+    /**
+     * 判断是否逆向箱号（TC\TS\TW)
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     * @param boxCode
+     * @return
+     */
+    public static final boolean isReverseBoxCode(String boxCode){
+        if (StringUtils.isNotBlank(boxCode) && RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
 }

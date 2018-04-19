@@ -47,5 +47,6 @@ public class SendTaskBody extends SendM{
         this.setExcuteCount(domain.getExcuteCount());
         this.setExcuteTime(domain.getExcuteTime());
         this.setTransporttype(domain.getTransporttype());
+        this.setBoardCode(domain.getBoardCode());
     }
 }

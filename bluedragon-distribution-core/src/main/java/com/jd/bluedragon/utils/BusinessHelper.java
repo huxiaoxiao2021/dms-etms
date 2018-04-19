@@ -17,17 +17,19 @@ public class BusinessHelper {
 
 	private final static Logger logger = Logger.getLogger(BusinessHelper.class);
 
-	private static final String PACKAGE_SEPARATOR = "-";
-	private static final String PACKAGE_IDENTIFIER_SUM = "S";
-	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
-	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
-	private static final String PACKAGE_WAIDAN = "V";
+	public static final String PACKAGE_SEPARATOR = "-";
+	public static final String PACKAGE_IDENTIFIER_SUM = "S";
+	public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+	public static final String PACKAGE_IDENTIFIER_PICKUP = "W";
+	public static final String PACKAGE_WAIDAN = "V";
 
-    private static final String AO_BATCH_CODE_PREFIX="Y";
-	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
-	private static final String SOURCE_CODE_ECLP = "ECLP";
-	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-	private static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String AO_BATCH_CODE_PREFIX="Y";
+	public static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
+	public static final String SOURCE_CODE_ECLP = "ECLP";
+	public static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
+	public static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String SOURCE_CODE_CLPS = "CLPS";
+	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	static{
 		init();
 	}
@@ -324,6 +326,43 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的BusiOrderCode字段,判断它是不是CSL开头单号
+	 * @return
+	 */
+	public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
+		if (StringHelper.isEmpty(busiOrderCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的sourceCode字段 是CLPS
+	 * @return
+	 */
+	public static Boolean isCLPSBySoucreCode(String soucreCode) {
+		if (StringHelper.isEmpty(soucreCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (soucreCode.toUpperCase().equals(SOURCE_CODE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
 	/**
 	 * “QWD”开头的单子 返回true
 	 * @param
@@ -578,7 +617,15 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isB2b(String waybillSign){
-		return isSignInChars(waybillSign, 40,'1','2','3');
+		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
+	}
+	/**
+	 * 根据waybillSign判断是否病单（34位标识为 2）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSick(String waybillSign){
+		return isSignInChars(waybillSign, 34,'2');
 	}
 
 	/**

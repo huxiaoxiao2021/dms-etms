@@ -54,6 +54,17 @@
             and create_site_code = #{createSiteCode,jdbcType=INTEGER}
         </if>
 	</select>
+
+	<select id="getWaybillCodesByBoxCodeAndFetchNum" parameterType="java.util.Map"
+			resultType="String">
+		select distinct waybill_code
+		from send_d
+		where box_code=#{boxCode} and yn=1
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+		limit #{fetchNum}
+	</select>
 	
 	<select id="findSendBoxByWaybillCode" parameterType="java.util.Map" resultMap="SendDetail">
 		select send_code,box_code,package_barcode,create_site_code,receive_site_code,operate_time,create_time
@@ -120,5 +131,40 @@
 			</foreach>
 		</if>
 	</select>
-
+	<select id="queryBySendCodeAndSiteCode" parameterType="map" resultMap="SendDetail">
+		SELECT
+		send_d_id,
+		send_code,
+		box_code,
+		package_barcode,
+		package_num,
+		waybill_code,
+		pickup_code,
+		create_site_code,
+		receive_site_code,
+		send_type,
+		create_time,
+		operate_time,
+		create_user,
+		create_user_code,
+		sendd_status,
+		weight,
+		is_cancel,
+		update_time,
+		excute_count,
+		excute_time,
+		yn,
+		spare_reason,
+		is_loss,
+		feature_type
+		FROM
+		send_d
+		WHERE
+		yn = 1 AND send_code = #{sendCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		<if test="senddStatus !=  null">
+			AND sendd_status = #{senddStatus, jdbcType=INTEGER}
+		</if>
+	</select>
 </mapper>

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 
-import javax.print.DocFlavor;
+import java.util.Date;
 
 public class BoxResponse extends JdResponse {
 
@@ -21,6 +21,9 @@ public class BoxResponse extends JdResponse {
 
     public static final Integer CODE_SITE_SENDED = 20105;
     public static final String MESSAGE_SITE_SENDED = "此箱号对应站点异常";
+
+    public static final Integer CODE_BOX_ROUTER = 20106;
+    public static final String MESSAGE_BOX_ROUTER = "获取路由信息异常";
 
 
 
@@ -56,10 +59,43 @@ public class BoxResponse extends JdResponse {
 	/** 箱子的路由信息 */
 	private String[] routerInfo;
 
+	/** 箱子路由信息 汉字描述，超过5个站点，打印系统直接用他打印*/
+	private String routerText;
+
+	/** 箱子路由信息 站点id */
+	private String[] routerFullId;
+
     /** 站点类型**/
     private Integer siteType;
 
-    public Integer getSiteType() {
+	/** 预计发货时间*/
+	private Date predictSendTime ;
+
+	public String getRouterText() {
+		return routerText;
+	}
+
+	public void setRouterText(String routerText) {
+		this.routerText = routerText;
+	}
+
+	public Date getPredictSendTime() {
+		return predictSendTime;
+	}
+
+	public void setPredictSendTime(Date predictSendTime) {
+		this.predictSendTime = predictSendTime;
+	}
+
+	public String[] getRouterFullId() {
+		return routerFullId;
+	}
+
+	public void setRouterFullId(String[] routerFullId) {
+		this.routerFullId = routerFullId;
+	}
+
+	public Integer getSiteType() {
         return siteType;
     }
 

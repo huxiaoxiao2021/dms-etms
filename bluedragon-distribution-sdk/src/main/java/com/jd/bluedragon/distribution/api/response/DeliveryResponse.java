@@ -40,6 +40,10 @@ public class DeliveryResponse extends JdResponse {
     
     public static final Integer CODE_Delivery_IS_SITE = 40006;
     public static final String MESSAGE_Delivery_IS_SITE = "箱号与目的地不一致";
+
+    //
+    public static final Integer CODE_CROUTER_ERROR =40007;
+    public static final String MESSAGE_CROUTER_ERROR="发货批次号目的地与运单路由的下一网点不一致，是否继续操作？";
     
     public static final Integer CODE_Delivery_NO_SORTING = 30002;
     public static final String MESSAGE_Delivery_NO_SORTING = "包裹没有分拣记录，是否发货？";

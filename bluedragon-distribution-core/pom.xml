@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
-		<jmq.version>2.1.1</jmq.version>
+		<jmq.version>2.1.4</jmq.version>
 	</properties>
 
 	<dependencies>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.25</version>
+            <version>1.2.46</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -143,6 +143,12 @@
 			<groupId>org.scannotation</groupId>
 			<artifactId>scannotation</artifactId>
 			<version>1.0.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>javassist</artifactId>
+					<groupId>javassist</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -365,7 +371,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.5.5</version>
+			<version>1.6.5</version>
 		</dependency>
 		
 		<dependency>	
@@ -697,9 +703,9 @@
 
 		<!-- 增加JSS的依赖包 -->
 		<dependency>
-			<groupId>com.jcloud</groupId>
+			<groupId>com.ipd</groupId>
 			<artifactId>jss-sdk-java</artifactId>
-			<version>1.2.0-SNAPSHOT</version>
+			<version>1.3.0</version>
 		</dependency>
 
         <!-- 用户组接口 -->
@@ -734,7 +740,21 @@
 		<dependency>
 			<groupId>com.jd.coo</groupId>
 			<artifactId>ucc-client</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
+		<!-- TC -->
+		<dependency>
+			<groupId>com.jd.transboard</groupId>
+			<artifactId>transboard-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<!--路由系统-->
+		<dependency>
+			<groupId>com.jd.etms.vrs</groupId>
+			<artifactId>etms-vrs-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.external.service;
 
 
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
@@ -8,8 +10,6 @@ import com.jd.bluedragon.distribution.wss.dto.*;
 
 import java.util.Date;
 import java.util.List;
-
-import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 
 public interface DmsExternalReadService {
 
@@ -59,14 +59,14 @@ public interface DmsExternalReadService {
 	 * @param 参数 （int siteid,Date startTime,Date endTime）
 	 * @return
 	 */
-	public List<WaybillCodeSummatyDto> findDeliveryPackageBySiteSummary(int siteid,Date startTime,Date endTime);
+	public List<WaybillCodeSummatyDto> findDeliveryPackageBySiteSummary(int siteid, Date startTime, Date endTime);
 
 	/**
 	 * 根据运单号获取发货包裹数
 	 * @param 参数 （int siteid,String waybillCode）
 	 * @return
 	 */
-	public List<WaybillCodeSummatyDto> findDeliveryPackageByCodeSummary(int siteid,String waybillCode);
+	public List<WaybillCodeSummatyDto> findDeliveryPackageByCodeSummary(int siteid, String waybillCode);
 
 
 	/**
@@ -96,8 +96,8 @@ public interface DmsExternalReadService {
 	 * @return
 	 * */
 	public OrderDetailEntityResponse getOrdersDetails(String boxCode,
-													  String startTime, String endTime, String createSiteCode,
-													  String receiveSiteCode);
+                                                      String startTime, String endTime, String createSiteCode,
+                                                      String receiveSiteCode);
 
 	///////////////////////////WaybillSafService/////////////////////
 	/**
@@ -118,5 +118,10 @@ public interface DmsExternalReadService {
 //
 //	public WaybillSafResponse<List<WaybillResponse>> getPackageCodesBySendCode(String sendCode);
 
-
+	/**
+	 * 根据箱号 查询箱子信息
+	 * @param BoxCode
+	 * @return
+	 */
+	public BoxResponse getBoxInfoByCode(String boxCode);
 }
