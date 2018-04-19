@@ -203,11 +203,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.sendPay = sendPay;
     }
 
-    /**
-    * 
-    */
-    private String remark ;
-
     private String comment ;
 
     /**
@@ -467,14 +462,6 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setCustomerContacts(String customerContacts) {
         this.customerContacts = customerContacts;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
     }
 
     public String getComment() {

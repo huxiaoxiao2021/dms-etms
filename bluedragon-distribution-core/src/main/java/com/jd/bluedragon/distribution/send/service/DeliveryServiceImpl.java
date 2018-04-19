@@ -289,8 +289,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
-            //1609 武汉外单分拣中心，如果是武汉外单分拣中心则走新的逻辑，为了业务完场验证
-            if(domain.getCreateSiteCode()!= null && domain.getCreateSiteCode() == 1609) {
+            if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
                 sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
             }else{
                 sortingCheck.setOperateType(1);
@@ -327,7 +326,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-        } else if(domain.getCreateSiteCode()==1609){
+        } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
             if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
@@ -771,7 +770,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     /***
      * 发货写入任务表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void addTaskSend(SendM sendM) {
         SendTaskBody body = new SendTaskBody();
         body.setHandleCategory(1);
@@ -878,7 +876,18 @@ public class DeliveryServiceImpl implements DeliveryService {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
         Collections.sort(sendMList);
         // 加send_code幂
-        boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
+
+        boolean sendCodeIdempotence = false;/*判断当前批次号是否已经发货*/
+        if(sendMList == null ){
+            sendCodeIdempotence = true;
+        }else if(sendMList.size() > 1){
+            sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
+        }else {//空铁提货并发货离线任务，发货sendMList长度为1，单独处理
+            String oldSendCode = getSendedCode(sendMList.get(0));
+            if (StringUtils.isNotBlank(oldSendCode)) {
+                sendCodeIdempotence = true;
+            }
+        }
 
         if (sendCodeIdempotence) {
             return new DeliveryResponse(JdResponse.CODE_OK,
@@ -932,7 +941,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList 待发货列表
      * @param list      已发货的箱号列表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {
         //操作过取消发货的箱子查询  result结果集
         List<SendM>[] sendArray = splitSendMList(sendMList);
@@ -3626,7 +3634,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList = null;
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
-                    if(waybill.getWaybillSign().charAt(33) == '2'){//病单则直接返回0 不验证包裹是否集齐
+                    if(BusinessHelper.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
                         return 0;
                     }
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());

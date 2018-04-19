@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 面单打印信息
  * @ClassName: BasePrintWaybill
- * @Description: TODO
+ * @Description: 面单打印信息
  * @author: wuyoude
  * @date: 2017年8月24日 下午3:13:49
  *
@@ -135,6 +135,14 @@ public class BasePrintWaybill implements Serializable {
 	 * 货款
 	 */
 	private String goodsPaymentText;
+	/**
+	 * 条码号-orderCode不为空取orderCode，否则取WaybillCode，都为空则NO-DATA
+	 */
+	private String barCode;
+	/**
+	 * 备注
+	 */
+	private String remark;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -521,4 +529,44 @@ public class BasePrintWaybill implements Serializable {
 		this.goodsPaymentText = goodsPaymentText;
 	}
 
+	/**
+	 * @return the remark
+	 */
+	public String getRemark() {
+		return remark;
+	}
+
+	/**
+	 * @param remark the remark to set
+	 */
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	/**
+	 * 追加备注信息
+	 * @param str
+	 */
+	public void appendRemark(String str) {
+		if(str != null){
+			if(this.remark == null){
+				this.remark = str;
+	    	}else{
+	    		this.remark += str;
+	    	}
+		}
+	}
+
+	/**
+	 * @return the barCode
+	 */
+	public String getBarCode() {
+		return barCode;
+	}
+
+	/**
+	 * @param barCode the barCode to set
+	 */
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
+	}
 }

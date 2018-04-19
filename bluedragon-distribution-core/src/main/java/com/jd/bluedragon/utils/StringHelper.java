@@ -331,5 +331,38 @@ public class StringHelper {
         src = remove(src, "\n");
         return src;
     }
-
+    /**
+     * 将str内容追加到字符串targetStr中，2个参数有一个为null，则返回不为null的字符串
+     * @param targetStr 目标字符串
+     * @param str 待追加的字符串
+     * @return 
+     */
+    public static String append(String targetStr, String str) {
+    	if(targetStr == null){
+    		return str;
+    	}else if(str == null){
+    		return targetStr;
+    	}else{
+    		StringBuffer buffer = new StringBuffer(targetStr);
+    		buffer.append(str);
+    		return buffer.toString();
+    	}
+    }
+    /**
+     * 目标字符串不存在str内容时，将str内容追加到字符串targetStr中，2个参数有一个为null，则返回不为null的字符串
+     * @param targetStr 目标字符串
+     * @param str 待追加的字符串
+     * @return 
+     */
+    public static String appendIfNotExist(String targetStr, String str) {
+    	if(targetStr == null){
+    		return str;
+    	}else if(str == null || targetStr.contains(str)){
+    		return targetStr;
+    	}else{
+    		StringBuffer buffer = new StringBuffer(targetStr);
+    		buffer.append(str);
+    		return buffer.toString();
+    	}
+    }
 }
