@@ -2332,7 +2332,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
 
-        logger.warn("C网路由校验按箱发货取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
+        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
 
         //路由校验逻辑
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);

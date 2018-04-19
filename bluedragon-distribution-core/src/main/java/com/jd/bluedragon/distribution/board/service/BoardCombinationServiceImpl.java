@@ -37,7 +37,6 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -223,28 +222,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             Profiler.registerInfoEnd(info);
         }
 
-        if (tcResponse.getCode() == 500) {
-            logInfo = "箱号/包裹号" + request.getBoxOrPackageCode() + "已绑定到其他板号下，站点：" + request.getSiteCode();
-
-            this.logger.warn(logInfo);
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGE_BINDINGED, tcResponse.getMesseage());
-            addSystemLog(request,logInfo);
-
-            return JdResponse.CODE_FAIL;
-        }
-
-        if (tcResponse.getCode() == 501) {
-            logInfo = "板号" + boardCode + "已完结,站点：" + request.getSiteCode();
-
-            this.logger.warn(logInfo);
-            boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
-            addSystemLog(request,logInfo);
-
-            return JdResponse.CODE_FAIL;
-        }
-
         if (tcResponse.getCode() != 200) {
-            logInfo = "组板数据推送给TC失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
+            logInfo = "组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                    ",站点：" + request.getSiteCode() + ".失败原因:"+ tcResponse.getMesseage();
 
             this.logger.warn(logInfo);
             boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
@@ -258,7 +238,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         logger.info(logInfo);
 
         //缓存+1
-        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count + 1);
+        redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT);
 
         //记录操作日志
         addSystemLog(request,logInfo);
@@ -362,7 +342,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         //组板失败
         if (tcResponse.getCode() != 200) {
-            logInfo = "取消组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
+            logInfo = "取消组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                    ",站点：" + request.getSiteCode() + ".失败原因:"+ tcResponse.getMesseage();
 
             this.logger.warn(logInfo);
             boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
@@ -378,9 +359,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addSystemLog(request,logInfo);
         addOperationLog(request,OperationLog.BOARD_COMBINATITON_CANCEL);
 
-        //缓存-1 // // FIXME: 2018/4/19 decr
-        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
-        redisCommonUtil.cacheData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode, count - 1);
+        //缓存-1 //
+        redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
 
         //发送取消组板的全称跟踪
         try {
