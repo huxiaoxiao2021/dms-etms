@@ -142,7 +142,7 @@ public class WaybillStatus {
     /**
      * 部分签收 操作码
      */
-    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7100;
+    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7500;
 
     /**
      * 审核完成状态

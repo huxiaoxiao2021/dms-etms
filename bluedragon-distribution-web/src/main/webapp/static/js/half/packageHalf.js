@@ -416,9 +416,9 @@ function addSubmit(){
 			if(loopIndex == 1){
                 waybillOpeType = $(this).attr("package-ope-type");
 			}else{
-                waybillOpeType = $(this).attr("package-ope-type") == waybillOpeType ? waybillOpeType : "7100";
+                waybillOpeType = $(this).attr("package-ope-type") == waybillOpeType ? waybillOpeType : "7500";
 			}
-			if(waybillOpeType == "7100"){
+			if(waybillOpeType == "7500"){
 				return false;
 			}
             loopIndex++;
