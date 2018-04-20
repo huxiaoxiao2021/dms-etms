@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
 import com.jd.ump.profiler.CallerInfo;
@@ -659,7 +660,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		return null;
 	}
 
-	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime){
+	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime,Integer orgId){
 		CallerInfo info = null;
 		try{
 			info = Profiler.registerInfo( "DMSWEB.waybillStatusService.batchUpdateWaybillPartByOperateType",false, true);
@@ -713,12 +714,25 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
 				WaybillParameter waybillParameter = new WaybillParameter();
 				waybillParameter.setWaybillCode(packageHalf.getWaybillCode());
+				waybillParameter.setOrgId(orgId);
+				waybillParameter.setPsyId(operatorId);
+				waybillParameter.setZdName(packageHalf.getOperateSiteName());
+				waybillParameter.setZdId(packageHalf.getOperateSiteCode().intValue());
 				waybillParameter.setOperatorId(operatorId);
 				waybillParameter.setOperatorName(operatorName);
 				waybillParameter.setOperatorType(waybillOpeType);
 				waybillParameter.setOperateTime(operateTime);
 				waybillParameters.add(waybillParameter);
 
+				/*OrderShipsDto orderShipDto = new OrderShipsDto();
+				orderShipDto.setAmount(0);
+				orderShipDto.setDistanceType(0);
+				orderShipDto.setLocalTimeState(operateTime);
+				orderShipDto.setPayWayId(1);
+				orderShipDto.setType(0);
+				waybillParameter.setOrderShipsDto(orderShipDto);*/
+
+				logger.info("运单同步老接口入参："+JsonHelper.toJson(waybillParameters));
 
 				//老同步接口
 				BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);

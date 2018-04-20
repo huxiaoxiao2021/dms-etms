@@ -77,6 +77,7 @@ public class PackageHalfController {
 			Integer createSiteCode = new Integer(-1);
 			String createSiteName = "";
 			Integer orgId  = new Integer(-1);
+			Integer OperatorId = new Integer(-1);
 			if(erpUser!=null){
 				userCode = erpUser.getUserCode();
 				BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
@@ -84,6 +85,7 @@ public class PackageHalfController {
 					createSiteCode = bssod.getSiteCode();
 					createSiteName = bssod.getSiteName();
 					orgId = bssod.getOrgId();
+					OperatorId = bssod.getsId();
 				}else{
 					//当前登录人无所属分拣中心  不允许操作  外单接口必须
 					rest.toError("保存失败！当前登录人无所属分拣中心，不可操作！");
@@ -96,7 +98,6 @@ public class PackageHalfController {
 			List<PackageHalfDetail> packageHalfDetails = new ArrayList<PackageHalfDetail>();
 			makeSavePOJO(packageHalfVO,packageHalf,packageHalfDetails,userCode,createSiteCode,createSiteName);
 			Integer waybillOpeType = packageHalfVO.getWaybillOpeType();
-			Integer OperatorId = erpUser==null?-1:erpUser.getUserId();
 			String OperatorName = erpUser==null?"":erpUser.getUserName();
 			Date operateTime = packageHalfVO.getOperateTime();
 

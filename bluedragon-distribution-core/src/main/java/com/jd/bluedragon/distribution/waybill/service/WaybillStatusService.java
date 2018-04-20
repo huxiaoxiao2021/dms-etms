@@ -25,6 +25,6 @@ public interface WaybillStatusService {
 	 * @param operateTime
 	 * @return
 	 */
-	boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf,List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime);
+	boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf,List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime,Integer orgId);
 
 }

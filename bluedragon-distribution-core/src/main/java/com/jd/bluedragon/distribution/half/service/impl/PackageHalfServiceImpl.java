@@ -104,7 +104,7 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		}
 
 		//包裹半收时 同步运单状态
-		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime);
+		boolean waybillResult = waybillStatusService.batchUpdateWaybillPartByOperateType( packageHalf,packageHalfDetails, waybillOpeType,  OperatorId,  OperatorName, operateTime,orgId);
 		if(!waybillResult){
 			return false;
 		}
