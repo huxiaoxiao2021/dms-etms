@@ -118,6 +118,10 @@
 					<!-- 运单状态-全程跟踪-6666 -->
 					<entry key="task_pop_6666_DMS" value="${jmq.task.topic.waybill.track.dms}"/>
 					<entry key="task_pop_6666_PRE" value="${jmq.task.topic.waybill.track.pre}"/>
+
+					<!-- 离线任务 -->
+					<entry key="task_offline_1800_DMS" value="${jmq.task.topic.offline.dms}"/>
+					<entry key="task_offline_1800_PRE" value="${jmq.task.topic.offline.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>

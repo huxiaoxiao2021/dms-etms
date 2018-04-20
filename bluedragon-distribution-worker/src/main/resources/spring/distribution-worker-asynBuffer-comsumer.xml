@@ -445,6 +445,23 @@
                         <constructor-arg name="methodName" value="doWaybillTraceTask"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 离线任务 -->
+                <entry key="${jmq.task.topic.offline.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="offlineTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <entry key="${jmq.task.topic.offline.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="offlineTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>

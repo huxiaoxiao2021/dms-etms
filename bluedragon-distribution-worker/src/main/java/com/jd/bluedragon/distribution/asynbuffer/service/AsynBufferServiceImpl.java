@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -267,4 +268,25 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
         return false;
     }
+
+    @Autowired
+    private DmsTaskExecutor offlineCoreTaskExecutor;
+
+    /**
+     * 离线任务
+     *
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    public boolean offlineTaskProcess(Task task) throws Exception {
+        try {
+            offlineCoreTaskExecutor.execute(task, "");
+        } catch (Exception e) {
+            logger.error("处理离线任务[offline]失败[taskId=" + task.getId() + "]异常信息为：" + e.getMessage(), e);
+            return false;
+        }
+        return true;
+    }
+
 }
