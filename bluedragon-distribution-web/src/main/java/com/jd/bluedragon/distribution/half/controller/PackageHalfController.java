@@ -85,7 +85,7 @@ public class PackageHalfController {
 					createSiteCode = bssod.getSiteCode();
 					createSiteName = bssod.getSiteName();
 					orgId = bssod.getOrgId();
-					OperatorId = bssod.getsId();
+					OperatorId = bssod.getStaffNo();
 				}else{
 					//当前登录人无所属分拣中心  不允许操作  外单接口必须
 					rest.toError("保存失败！当前登录人无所属分拣中心，不可操作！");
