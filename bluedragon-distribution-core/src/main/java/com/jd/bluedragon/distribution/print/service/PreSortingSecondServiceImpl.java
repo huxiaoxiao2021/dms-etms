@@ -137,12 +137,13 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setOperatorSiteId(context.getRequest().getSiteCode());
         siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+        //记录操作日志
+        SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
+                siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
         try {
-            waybillSiteChangeProducer.send(commonWaybill.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+            waybillSiteChangeProducer.send(siteChangeMqDto.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
             logger.info("发送外单中小件预分拣站点变更mq消息成功："+JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (JMQException e) {
-            SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
-                    siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
             logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
         }
     }

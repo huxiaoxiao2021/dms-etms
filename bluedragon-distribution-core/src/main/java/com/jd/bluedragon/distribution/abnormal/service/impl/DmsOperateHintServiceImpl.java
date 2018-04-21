@@ -1,17 +1,18 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
-import com.jd.ql.dms.common.web.mvc.api.Dao;
-import com.jd.ql.dms.common.web.mvc.BaseService;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.dao.DmsOperateHintDao;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.web.mvc.BaseService;
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 /**
  *
@@ -41,6 +42,9 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 		boolean saveFlg = super.saveOrUpdate(dmsOperateHint);
 		if(saveFlg){
 			String redisKey = Constants.CACHE_KEY_PRE_PDA_HINT + dmsOperateHint.getWaybillCode();
+			if(DmsOperateHint.HINT_CODE_NEED_REPRINT.equals(dmsOperateHint.getHintCode())){
+				redisKey = CacheKeyConstants.CACHE_KEY_HINT_MSG_NEED_REPRINT + dmsOperateHint.getWaybillCode();
+			}
 			if(Constants.INTEGER_FLG_FALSE.equals(dmsOperateHint.getIsEnable())){
 				redisManager.del(redisKey);
             }else{
@@ -52,22 +56,37 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 
 	@Override
 	public String getInspectHintMessageByWaybillCode(String waybillCode) {
-		String redisKey = Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode;
-		String msg = redisManager.getCache(redisKey);
-		if(msg==null){
-			return "";
+		if(StringHelper.isNotEmpty(waybillCode)){
+			String redisKey = CacheKeyConstants.CACHE_KEY_HINT_MSG_NEED_REPRINT + waybillCode;
+			String msg = redisManager.getCache(redisKey);
+			if(msg==null){
+				redisKey = Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode;
+				msg = redisManager.getCache(redisKey);
+				if(msg!=null){
+					return msg;
+				}
+			}else{
+				return msg;
+			}
 		}
-		return msg;
+		return "";
 	}
 
 	@Override
 	public String getDeliveryHintMessageByWaybillCode(String waybillCode) {
-		String redisKey = Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode;
-		String msg = redisManager.getCache(redisKey);
-		if(msg==null){
-			return "";
+		return getInspectHintMessageByWaybillCode(waybillCode);
+	}
+
+	@Override
+	public boolean hasNeedReprintHintMsg(String waybillCode) {
+		if(StringHelper.isNotEmpty(waybillCode)){
+			String redisKey = CacheKeyConstants.CACHE_KEY_HINT_MSG_NEED_REPRINT + waybillCode;
+			String msg = redisManager.getCache(redisKey);
+			if(msg!=null){
+				return true;
+			}
 		}
-		return msg;
+		return false;
 	}
 
 }

@@ -13,6 +13,14 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 public class DmsOperateHint extends DbEntity {
 
 	private static final long serialVersionUID = 1L;
+	/**
+	 * 编码-需要包裹补打（101）
+	 */
+	public static final Integer HINT_CODE_NEED_REPRINT = 101;
+	/**
+	 * 名称-需要包裹补打（包裹补打）
+	 */
+	public static final String HINT_NAME_NEED_REPRINT = "包裹补打";
 
 	 /** 分拣中心编号 */
 	private Integer dmsSiteCode;
@@ -22,7 +30,8 @@ public class DmsOperateHint extends DbEntity {
 
 	 /** 运单号 */
 	private String waybillCode;
-
+	 /** 提示语类型 */
+	private Integer hintType;
 	 /** 提示语编码 */
 	private Integer hintCode;
 

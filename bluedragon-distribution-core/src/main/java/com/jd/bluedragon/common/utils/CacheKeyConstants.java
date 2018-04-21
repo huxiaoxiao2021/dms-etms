@@ -16,5 +16,9 @@ public class CacheKeyConstants {
 	/**
 	 * 称重流水
 	 */
-	public static final String REDIS_KEY_DMS_WEIGHT_FLOW = "DmsWeightFlow";
+	public static final String CACHE_KEY_DMS_WEIGHT_INFO = "DmsWeightInfo";
+    /**
+     * 提示语缓存key-需要包裹补打（hintMsgNeedReprint）
+     */
+    public static final String CACHE_KEY_HINT_MSG_NEED_REPRINT ="hintMsgNeedReprint";
 }
