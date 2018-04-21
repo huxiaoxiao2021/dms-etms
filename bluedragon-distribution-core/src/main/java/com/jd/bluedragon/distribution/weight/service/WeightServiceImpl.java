@@ -32,7 +32,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
@@ -179,7 +178,7 @@ public class WeightServiceImpl implements WeightService {
             List<OpeObject> opeDetails = opeEntity.getOpeDetails();
             if (opeDetails != null && opeDetails.size() > 0) {
             	List<OpeObject> newOpeDetails = new ArrayList<OpeObject>();
-            	List<DmsWeightFlow> weightFlowList = new ArrayList<DmsWeightFlow>();
+            	List<WeightOperFlow> weightFlowList = new ArrayList<WeightOperFlow>();
                 for (OpeObject ope : opeDetails) {
                 	boolean weightIsEffect = false;
                 	boolean volumeIsEffect = false;
@@ -204,17 +203,17 @@ public class WeightServiceImpl implements WeightService {
                 	//重量或体积有一个有效,加入到newOpeDetails中
                 	if(weightIsEffect || volumeIsEffect){
                 		newOpeDetails.add(ope);
-                		DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();
-                		dmsWeightFlow.setPackageCode(ope.getPackageCode());
+                		WeightOperFlow dmsWeightFlow = new WeightOperFlow();
+                		dmsWeightFlow.setBarcode(ope.getPackageCode());
                 		if(weightIsEffect){
                 			dmsWeightFlow.setWeight(ope.getpWeight().doubleValue());
                 		}
                 		if(volumeIsEffect){
-                			dmsWeightFlow.setLenght(ope.getpLength().doubleValue());
+                			dmsWeightFlow.setLength(ope.getpLength().doubleValue());
                 			dmsWeightFlow.setWidth(ope.getpWidth().doubleValue());
                 			dmsWeightFlow.setHigh(ope.getpHigh().doubleValue());
                 			dmsWeightFlow.setVolume(
-                					dmsWeightFlow.getLenght()
+                					dmsWeightFlow.getLength()
                 					*dmsWeightFlow.getWidth()
                 					*dmsWeightFlow.getHigh());
                 		}
