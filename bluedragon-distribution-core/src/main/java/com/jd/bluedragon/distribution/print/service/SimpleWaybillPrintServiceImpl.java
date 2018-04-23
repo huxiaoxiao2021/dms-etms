@@ -372,6 +372,8 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 for (int i = 0; i < printWaybill.getPackList().size(); i++) {
                     if (popPrint.getPackageBarcode().equals(printWaybill.getPackList().get(i).getPackageCode())) {
                         printWaybill.getPackList().get(i).setIsPrintPack(Boolean.TRUE);
+                    }else{
+                    	printWaybill.getPackList().get(i).setIsPrintPack(Boolean.FALSE);
                     }
                 }
             } else if (Constants.PRINT_INVOICE_TYPE.equals(popPrint.getOperateType())) {
