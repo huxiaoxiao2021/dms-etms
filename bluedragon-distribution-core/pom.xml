@@ -364,7 +364,7 @@
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
-		    <version>1.6.9-SNAPSHOT</version>
+		    <version>1.9.5-SNAPSHOT</version>
 		</dependency>
 
 		<!--jsf  -->

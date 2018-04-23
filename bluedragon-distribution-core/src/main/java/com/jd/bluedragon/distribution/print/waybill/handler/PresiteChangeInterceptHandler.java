@@ -110,11 +110,11 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 	            originalOrderInfo.setPackageCode(printInfo.getPackList().get(0).getPackageCode());
 	            originalOrderInfo.setOriginalStationId(printInfo.getPrepareSiteCode());
 	            originalOrderInfo.setOriginalStationName(baseStaffSiteOrgDto.getSiteName());
+	            originalOrderInfo.setProvinceId(context.getBigWaybillDto().getWaybill().getProvinceId());
+	            originalOrderInfo.setCityId(context.getBigWaybillDto().getWaybill().getCityId());
+	            originalOrderInfo.setCountyId(context.getBigWaybillDto().getWaybill().getCountryId());
+	            originalOrderInfo.setTownId(context.getBigWaybillDto().getWaybill().getTownId());
 	            JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
-	            MediumStationOrderInfo tmp = new MediumStationOrderInfo();
-	            tmp.setMediumStationId(39);
-	            tmp.setMediumStationName("石景山站");
-	            mediumStationOrderInfo.getData().setData(tmp);
 	            //接口调用失败/返回站点为空，直接通过不强制拦截
 	            if(!mediumStationOrderInfo.isSucceed()
 	            		|| mediumStationOrderInfo.getData() == null
