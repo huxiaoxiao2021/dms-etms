@@ -63,27 +63,6 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	@Override
 	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode,JdResponse<Boolean> rest) {
 
-		getDao().insert(packageHalf);
-
-		//批量保存 半收操作明细
-		List<PackageHalfDetail> bufferList = new ArrayList<PackageHalfDetail>();
-		for(PackageHalfDetail packageHalfDetail :packageHalfDetails){
-			bufferList.add(packageHalfDetail);
-			if(bufferList.size()==10){
-				if(packageHalfDetailDao.batchInsert(bufferList)){
-					bufferList.clear();
-				}else{
-					return false;
-				}
-			}
-		}
-		if(bufferList.size() > 0){
-			if(!packageHalfDetailDao.batchInsert(bufferList)){
-				return false;
-			}
-		}
-
-
 		boolean isNeedToLDOP = false;
 		WaybillReverseDTO waybillReverseDTO = null;
 		//拒收触发换单
@@ -108,6 +87,27 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		if(!waybillResult){
 			return false;
 		}
+
+		getDao().insert(packageHalf);
+
+		//批量保存 半收操作明细
+		List<PackageHalfDetail> bufferList = new ArrayList<PackageHalfDetail>();
+		for(PackageHalfDetail packageHalfDetail :packageHalfDetails){
+			bufferList.add(packageHalfDetail);
+			if(bufferList.size()==500){
+				if(packageHalfDetailDao.batchInsert(bufferList)){
+					bufferList.clear();
+				}else{
+					return false;
+				}
+			}
+		}
+		if(bufferList.size() > 0){
+			if(!packageHalfDetailDao.batchInsert(bufferList)){
+				return false;
+			}
+		}
+
 
 		//同步包裹半收协商再投状态
 		packageHalfRedeliveryService.updateDealStateByWaybillCode(packageHalf.getWaybillCode(),OperatorId,"",OperatorName);
@@ -155,6 +155,6 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	@Override
 	public void deleteOfSaveFail(String waybillCode){
 		//packageHalfDao.deleteOfSaveFail(waybillCode); 操作日志保留
-		packageHalfDetailDao.deleteOfSaveFail(waybillCode);
+		//packageHalfDetailDao.deleteOfSaveFail(waybillCode);
 	}
 }

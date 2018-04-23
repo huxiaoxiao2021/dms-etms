@@ -760,7 +760,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.11-test-SNAPSHOT</version>
+			<version>1.2.18-SNAPSHOT</version>
 		</dependency>
     </dependencies>
 

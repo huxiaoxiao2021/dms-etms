@@ -24,7 +24,7 @@ public class WaybillStatus {
 
     public static final Integer WAYBILL_TRACK_FC = 150;
     public static final Integer WAYBILL_TRACK_RCD = 160;
-    
+    public static final Integer WAYBILL_TRACK_PACKAGE_HALF = 600; //包裹半收完成
     public static final Integer WAYBILL_TRACK_SH = 400;
     public static final Integer WAYBILL_TRACK_REVERSE_SH = 500;
     

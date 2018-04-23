@@ -390,6 +390,9 @@ function addSubmit(){
 
 	//校验是否所有包裹都有状态
     if(checkAllPackageHasResult()){
+        if(!confirm("是否确定提交？")){
+            return;
+        }
         disableBtn();
 		//显示一下拒收的包裹数，方便现场人员确认
         //组装对象

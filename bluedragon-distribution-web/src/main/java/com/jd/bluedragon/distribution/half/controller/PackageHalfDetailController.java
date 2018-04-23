@@ -146,7 +146,12 @@ public class PackageHalfDetailController {
 				//判断包裹信息是否为半收包裹
 				if (BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
 					//是半收包裹
-
+                    //终端或分拣已经操作过
+                    Integer waybillState = bigWaybillDto.getWaybillState().getWaybillState();
+                    if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) || WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
+                        result.setMessage("此运单已完成操作！");
+                        return result;
+                    }
 					//判断是否是COD 或者 运费到付
 					if(BusinessHelper.isCODOrFreightCollect(bigWaybillDto) ) {
 						//不允许操作
@@ -231,6 +236,7 @@ public class PackageHalfDetailController {
 			return result;
 
 		} catch (Exception e) {
+            logger.error("half/packageHalfDetail/getPackageStatus接口调用失败"+e.getMessage());
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("获取运单信息失败"+e.getMessage());
 			return result;

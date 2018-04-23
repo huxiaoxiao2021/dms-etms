@@ -106,14 +106,15 @@ public class PackageHalfController {
 			rest.setData(saveResult);
 			if(!saveResult){
 				//保存失败
-				packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
+				logger.error("half/packageHalf/save  fail to save！"+rest.getMessage());
+				//packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
 				rest.toError("保存失败！失败原因:"+rest.getMessage());
 			}
 
 
 		} catch (Exception e) {
-			logger.error("half/packageHalf/save  fail to save！"+e.getMessage(),e);
-			packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
+			logger.error("half/packageHalf/save  fail to save！"+e.getMessage());
+			//packageHalfService.deleteOfSaveFail(packageHalfVO.getWaybillCode());
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;

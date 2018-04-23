@@ -634,7 +634,7 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isPackageHalf(String waybillSign){
-		return isSignInChars(waybillSign, 27,'2');
+		return isSignChar(waybillSign, 27,'2');
 	}
 
 	/**
@@ -643,7 +643,7 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isConsultationTo(String waybillSign){
-		return isSignInChars(waybillSign, 5,'3');
+		return isSignChar(waybillSign, 5,'3');
 	}
 
 	/**
