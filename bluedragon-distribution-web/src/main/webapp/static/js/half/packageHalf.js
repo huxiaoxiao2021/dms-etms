@@ -403,7 +403,7 @@ function addSubmit(){
         var packageList = [];
         param["halfType"] = 1; //先默认包裹半收
 		//拒收包裹数量
-        param["rejectPackageCount"] = $("#package-list-tbody tr[package-ope-type='"+waybillOpeTypeReject+"]").length;
+        param["rejectPackageCount"] = $("#package-list-tbody tr[package-ope-type='"+waybillOpeTypeReject+"']").length;
 
         $("#package-list-tbody .need-submit").each(function(){
             var packageVo = {};
