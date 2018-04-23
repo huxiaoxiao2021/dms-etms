@@ -157,7 +157,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
     private DmsAbnormalEclpRequest convertDmsAbnormalEclpRequest(DmsAbnormalEclp dmsAbnormalEclp, BaseStaffSiteOrgDto userDto, BasicTraderInfoDTO trader) {
         DmsAbnormalEclpRequest dmsAbnormalEclpRequest = new DmsAbnormalEclpRequest();
         dmsAbnormalEclpRequest.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
-        dmsAbnormalEclpRequest.setDeptCode(userDto.getDmsSiteCode());
+        dmsAbnormalEclpRequest.setDeptCode(userDto.getSiteCode().toString());
         dmsAbnormalEclpRequest.setDeptName(userDto.getSiteName());
         dmsAbnormalEclpRequest.setExptCreateTime(DateHelper.formatDate(dmsAbnormalEclp.getCreateTime(), Constants.DATE_TIME_FORMAT));
         dmsAbnormalEclpRequest.setExptTwoLevel(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_CODE);
