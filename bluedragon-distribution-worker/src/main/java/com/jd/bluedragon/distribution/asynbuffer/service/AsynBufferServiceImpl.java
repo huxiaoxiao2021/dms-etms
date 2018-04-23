@@ -50,16 +50,14 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     public boolean receiveTaskProcess(Task task)
             throws Exception {
-
         try {
-        	receiveTaskExecutor.execute(task, "");
+        	return receiveTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
             logger.error(
                     "处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
                             + e.getMessage(), e);
             return false;
         }
-        return true;
     }
 
     //分拣中心验货
@@ -270,7 +268,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     }
 
     @Autowired
-    private DmsTaskExecutor offlineCoreTaskExecutor;
+    private DmsTaskExecutor<Task> offlineCoreTaskExecutor;
 
     /**
      * 离线任务
@@ -281,12 +279,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
      */
     public boolean offlineTaskProcess(Task task) throws Exception {
         try {
-            offlineCoreTaskExecutor.execute(task, "");
+           return offlineCoreTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
             logger.error("处理离线任务[offline]失败[taskId=" + task.getId() + "]异常信息为：" + e.getMessage(), e);
             return false;
         }
-        return true;
     }
 
 }
