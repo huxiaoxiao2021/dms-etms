@@ -146,12 +146,6 @@ public class PackageHalfDetailController {
 				//判断包裹信息是否为半收包裹
 				if (BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
 					//是半收包裹
-                    //终端或分拣已经操作过
-                    Integer waybillState = bigWaybillDto.getWaybillState().getWaybillState();
-                    if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) || WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
-                        result.setMessage("此运单已完成操作！");
-                        return result;
-                    }
 					//判断是否是COD 或者 运费到付
 					if(BusinessHelper.isCODOrFreightCollect(bigWaybillDto) ) {
 						//不允许操作
@@ -176,6 +170,14 @@ public class PackageHalfDetailController {
 							resultMessageTemp = "\n此运单完成协商再投审核,只允许操作拒收";
 						}
 
+					}
+
+					//终端或分拣已经操作过
+					Integer waybillState = bigWaybillDto.getWaybillState().getWaybillState();
+					if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) || WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
+						packageHalfDetailResponseVO.setCanDelievered(false);
+						packageHalfDetailResponseVO.setCanReject(false);
+						resultMessageTemp = "\n此运单已完成操作！不可在此操作";
 					}
 
 					//获取操作记录合并
