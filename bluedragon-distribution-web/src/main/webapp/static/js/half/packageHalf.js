@@ -423,6 +423,11 @@ function addSubmit(){
 			}
             loopIndex++;
 		});
+		if(waybillOpeType=="19"){
+			alert("分拣中心不允许操作整单拒收，请在终端一体机上操作！");
+            loadPackage();
+			return;
+		}
         param["waybillOpeType"] = waybillOpeType;
 
         $.ajaxHelper.doPostAsync(submitUrl,JSON.stringify(param),function(data){
@@ -433,7 +438,6 @@ function addSubmit(){
 			}else{
                 alert(data.message?data.message:"提交失败");
 			}
-            enableBtn();
         	loadPackage();
         });
 

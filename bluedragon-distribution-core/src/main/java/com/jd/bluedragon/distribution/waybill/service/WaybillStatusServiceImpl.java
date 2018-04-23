@@ -723,17 +723,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				waybillParameter.setOperatorType(waybillOpeType);
 				waybillParameter.setOperateTime(operateTime);
 				waybillParameters.add(waybillParameter);
-
-				/*OrderShipsDto orderShipDto = new OrderShipsDto();
-				orderShipDto.setAmount(0);
-				orderShipDto.setDistanceType(0);
-				orderShipDto.setLocalTimeState(operateTime);
-				orderShipDto.setPayWayId(1);
-				orderShipDto.setType(0);
-				waybillParameter.setOrderShipsDto(orderShipDto);*/
-
-				logger.info("运单同步老接口入参："+JsonHelper.toJson(waybillParameters));
-
+				OrderShipsDto orderShipDto = new OrderShipsDto();
+				waybillParameter.setOrderShipsDto(orderShipDto);
+				//妥投 分拣中心 现阶段 只能操作整单妥投  不可以操作整单拒收。
+				if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_DELIVERED)){
+					orderShipDto.setAmount(0);
+					orderShipDto.setDistanceType(0);
+					orderShipDto.setLocalTimeState(operateTime);
+					orderShipDto.setPayWayId(-2); //在线支付
+					orderShipDto.setType(0);
+				}
+				logger.debug("运单同步老接口入参："+JsonHelper.toJson(waybillParameters));
 				//老同步接口
 				BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
 				if (result.getResultCode() == 1) {
