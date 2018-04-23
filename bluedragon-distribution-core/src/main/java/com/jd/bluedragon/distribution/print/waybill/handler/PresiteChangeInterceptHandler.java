@@ -141,10 +141,11 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 		                		+newPreSiteInfo.getMediumStationName());
 		                context.appendMessage(siteChangeMsg);
 		                result.toWeakSuccess(JdResult.CODE_SUC, siteChangeMsg);
-		                sendSiteChangeHitMsg(printInfo,siteChangeMsg);
 		                //包裹补打-发送mq并且标记打印记录,所有包裹打印完毕，清除提醒信息
 		                if(isPackageReprint){
 		                	dealPackageReprint(context, newPreSiteInfo);
+		                }else{
+		                	sendSiteChangeHitMsg(printInfo,siteChangeMsg);
 		                }
 	                }
 	            }
@@ -164,15 +165,11 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 		String waybillCode = printInfo.getWaybillCode();
 		//判断是否按运单补打
 		boolean isPrintByWaybill = waybillCode.equals(barCode);
-		boolean needSendMq = false;
 		//按运单补打,则关闭提醒信息
 		boolean needCloseHintMsg = isPrintByWaybill;
 		String reprintRecordsKey = "reprintRecordsKey"+waybillCode;
 		Map<String,String> reprintRecords = redisManager.hgetall(reprintRecordsKey);
-		if(reprintRecords == null || reprintRecords.isEmpty()){
-			//没有补打记录，需要发送换站mq
-			needSendMq = true;
-		}else if(!isPrintByWaybill){
+		if(!isPrintByWaybill){
 			//按包裹补打，不包含本次补打，存储一条补打记录
 			if(!reprintRecords.containsKey(barCode)){
 				redisManager.hset(reprintRecordsKey, barCode, Constants.STRING_FLG_TRUE);
@@ -182,10 +179,8 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 				}
 			}
 		}
-		if(needSendMq){
-			sendSiteChangeMQ(context, newPreSiteInfo);
-		}
 		if(needCloseHintMsg){
+			sendSiteChangeMQ(context, newPreSiteInfo);
 			DmsOperateHint siteChangeHit = new DmsOperateHint();
 			siteChangeHit.setDmsSiteCode(printInfo.getOriginalDmsCode());
 			siteChangeHit.setDmsSiteName(printInfo.getOriginalDmsName());
@@ -241,7 +236,7 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 				if(isPrintByWaybill){
 					packageCode = context.getResponse().getPackList().get(packageNum-1).getPackageCode();
 					for(PrintPackage printPackage:context.getResponse().getPackList()){
-						if(!printPackage.getIsPrintPack()){
+						if(printPackage.getIsPrintPack() != null && !printPackage.getIsPrintPack()){
 							packageCode = printPackage.getPackageCode();
 							break;
 						}
@@ -290,7 +285,7 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
         } catch (Exception e) {
             logger.error("发送预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
         }finally{
-        	SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
+        	SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
         }
     }
