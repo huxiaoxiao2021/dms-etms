@@ -586,7 +586,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			/**
 			 * 全程跟踪:组板
 			 */
-			if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())) {
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())
+					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
 
 				String boxOrPackageCode = tWaybillStatus.getPackageCode();
 				if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
@@ -598,7 +600,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 						toWaybillStatus(tWaybillStatus, bdTraceDto);
 						bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 						waybillQueryManager.sendBdTrace(bdTraceDto);
-						task.setYn(0);
 					}
 
 				} else {
@@ -607,8 +608,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					toWaybillStatus(tWaybillStatus, bdTraceDto);
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
-					task.setYn(0);
+
 				}
+				task.setYn(0);
 			}
 		}
 

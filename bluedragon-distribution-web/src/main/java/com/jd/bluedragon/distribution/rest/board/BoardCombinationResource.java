@@ -97,6 +97,42 @@ public class BoardCombinationResource {
     }
 
     /**
+     * 取消组板
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/boardCombination/combination/cancel")
+    public JdResponse<BoardResponse> cancel(BoardCombinationRequest request){
+        JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
+        result.setData(new BoardResponse());
+        BoardResponse boardResponse = result.getData();
+        result.toSucceed("取消组板成功");
+
+        //参数校验
+        String errStr = this.combinationVertify(request);
+        if(StringHelper.isNotEmpty(errStr)){
+            result.toFail(errStr);
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
+            return result;
+        }
+
+        try {
+            boardResponse = boardCombinationService.boardCombinationCancel(request);
+            if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
+                result.toFail(boardResponse.buildStatusMessages());
+            }
+            result.setData(boardResponse);
+        } catch (Exception e) {
+            logger.error("取消组板失败!",e);
+            boardResponse.addStatusInfo(JdResponse.CODE_ERROR,"取消组板失败，系统异常！");
+            result.toError("取消组板失败，系统异常！");
+        }
+
+        return result;
+    }
+
+    /**
      * 组板操作参数校验
      * @param request
      * @return
