@@ -178,6 +178,8 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 					needCloseHintMsg = true;
 				}
 			}
+		}else{
+			needCloseHintMsg = true;
 		}
 		if(needCloseHintMsg){
 			sendSiteChangeMQ(context, newPreSiteInfo);
@@ -186,7 +188,7 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 			siteChangeHit.setDmsSiteName(printInfo.getOriginalDmsName());
 			siteChangeHit.setWaybillCode(printInfo.getWaybillCode());
 			siteChangeHit.setHintCode(DmsOperateHint.HINT_CODE_NEED_REPRINT);
-			siteChangeHit.setIsEnable(Constants.INTEGER_FLG_TRUE);
+			siteChangeHit.setIsEnable(Constants.INTEGER_FLG_FALSE);
 			logger.warn("关闭包裹补打提醒："+siteChangeHit.getWaybillCode());
 			dmsOperateHintService.saveOrUpdate(siteChangeHit);
 		}
