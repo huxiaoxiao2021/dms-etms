@@ -1,13 +1,8 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.distribution.print.domain.SignConfig;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -21,11 +16,6 @@ public interface WaybillPrintService {
      * @return
      */
     InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode,String waybillCode,Integer targetSiteCode);
-    /**
-     * 加载运单基础信息
-     * @param context
-     */
-    InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context);
     /**
      * 处理打标信息
      * @param signStr 打标字段
