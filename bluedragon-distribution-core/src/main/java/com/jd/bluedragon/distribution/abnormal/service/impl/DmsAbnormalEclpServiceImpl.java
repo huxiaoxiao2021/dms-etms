@@ -136,7 +136,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
                 logger.warn("站点所在区域获取失败：" + province.getId());
                 return rest;
             }
-            dmsAbnormalEclpRequest.setOrgNo(areaNode.getName());
+            dmsAbnormalEclpRequest.setOrgNo(areaNode.getId().toString());
         } catch (Exception e) {
             rest.toFail("站点所在区域获取失败：" + org.getAreaId());
             logger.warn("站点所在区域获取失败：" + org.getAreaId(), e);
@@ -157,8 +157,8 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
     private DmsAbnormalEclpRequest convertDmsAbnormalEclpRequest(DmsAbnormalEclp dmsAbnormalEclp, BaseStaffSiteOrgDto userDto, BasicTraderInfoDTO trader) {
         DmsAbnormalEclpRequest dmsAbnormalEclpRequest = new DmsAbnormalEclpRequest();
         dmsAbnormalEclpRequest.setWaybillCode(dmsAbnormalEclp.getWaybillCode());
-        dmsAbnormalEclpRequest.setDeptCode(userDto.getOrgId().toString());
-        dmsAbnormalEclpRequest.setDeptName(userDto.getOrgName());
+        dmsAbnormalEclpRequest.setDeptCode(userDto.getDmsSiteCode());
+        dmsAbnormalEclpRequest.setDeptName(userDto.getSiteName());
         dmsAbnormalEclpRequest.setExptCreateTime(DateHelper.formatDate(dmsAbnormalEclp.getCreateTime(), Constants.DATE_TIME_FORMAT));
         dmsAbnormalEclpRequest.setExptTwoLevel(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_CODE);
         dmsAbnormalEclpRequest.setExptTwoLevelName(dmsAbnormalEclpRequest.DMSABNORMALECLP_EXPTTWOLEVEL_NAME);
