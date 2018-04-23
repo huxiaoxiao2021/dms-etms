@@ -300,11 +300,11 @@ function makeTableHtml(data){
 
         if( myRow.resultType == 1){
         	//妥投
-            myRowHtml += "<tr class='success' id='tr-"+myRow.packageCode+"' package-ope-type='8'>";
+            myRowHtml += "<tr class='success' id='tr-"+myRow.packageCode+"' package-ope-type='"+waybillOpeTypeDelievered+"'>";
             myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td >妥投</td><td ></td>";
         }else if ( myRow.resultType == 2){
         	//拒收
-            myRowHtml += "<tr class='danger' id='tr-"+myRow.packageCode+"' package-ope-type='19'>";
+            myRowHtml += "<tr class='danger' id='tr-"+myRow.packageCode+"' package-ope-type='"+waybillOpeTypeReject+"'>";
             myRowHtml += "<td></td><td>"+myRow.waybillCode+"</td><td >"+myRow.packageCode+"</td><td>拒收</td>";
             if(myRow.reasonType && rejectReasonData[myRow.reasonType]){
                 myRowHtml += "<td>"+rejectReasonData[myRow.reasonType]+"</td>";
@@ -340,7 +340,7 @@ function delievered(){
         $("#"+packageCode+"-result").attr("submit-value","1");
         $("#"+packageCode+"-reason").html("");
         $("#"+packageCode+"-reason").attr("submit-value","");
-        $("#tr-"+packageCode).attr("package-ope-type","8");
+        $("#tr-"+packageCode).attr("package-ope-type",waybillOpeTypeDelievered);
 
     });
 }
@@ -357,6 +357,9 @@ var rejectReasonData = {
 	4:"客户原因",
 	5:"其他"
 }
+var waybillOpeTypeReject = 19;  //拒收操作码
+var waybillOpeTypeDelievered = 8;  //妥投操作码
+var waybillOpeTypePackageHalf = 7500; //半收操作码
 /**
  * 拒收
  * @param type
@@ -371,7 +374,7 @@ function rejectReason(type){
         $("#"+packageCode+"-result").attr("submit-value","2");
         $("#"+packageCode+"-reason").html(reasonName);
         $("#"+packageCode+"-reason").attr("submit-value",type);
-        $("#tr-"+packageCode).attr("package-ope-type","19");
+        $("#tr-"+packageCode).attr("package-ope-type",waybillOpeTypeReject);
     });
 }
 
@@ -400,7 +403,7 @@ function addSubmit(){
         var packageList = [];
         param["halfType"] = 1; //先默认包裹半收
 		//拒收包裹数量
-        param["rejectPackageCount"] = $("#package-list-tbody tr[package-ope-type='19']").length;
+        param["rejectPackageCount"] = $("#package-list-tbody tr[package-ope-type='"+waybillOpeTypeReject+"]").length;
 
         $("#package-list-tbody .need-submit").each(function(){
             var packageVo = {};
@@ -419,14 +422,14 @@ function addSubmit(){
 			if(loopIndex == 1){
                 waybillOpeType = $(this).attr("package-ope-type");
 			}else{
-                waybillOpeType = $(this).attr("package-ope-type") == waybillOpeType ? waybillOpeType : "7500";
+                waybillOpeType = $(this).attr("package-ope-type") == waybillOpeType ? waybillOpeType : waybillOpeTypePackageHalf;
 			}
-			if(waybillOpeType == "7500"){
+			if(waybillOpeType == waybillOpeTypePackageHalf){
 				return false;
 			}
             loopIndex++;
 		});
-		if(waybillOpeType=="19"){
+		if(waybillOpeType==waybillOpeTypeReject){
 			alert("分拣中心不允许操作整单拒收，请在终端一体机上操作！");
             loadPackage();
 			return;
