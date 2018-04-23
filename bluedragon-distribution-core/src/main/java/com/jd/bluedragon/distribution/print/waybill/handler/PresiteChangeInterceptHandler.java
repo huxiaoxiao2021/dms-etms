@@ -238,7 +238,7 @@ public class PresiteChangeInterceptHandler implements InterceptHandler<WaybillPr
 				if(isPrintByWaybill){
 					packageCode = context.getResponse().getPackList().get(packageNum-1).getPackageCode();
 					for(PrintPackage printPackage:context.getResponse().getPackList()){
-						if(printPackage.getIsPrintPack() != null && !printPackage.getIsPrintPack()){
+						if(printPackage.getIsPrintPack() == null || !printPackage.getIsPrintPack()){
 							packageCode = printPackage.getPackageCode();
 							break;
 						}
