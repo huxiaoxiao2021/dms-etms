@@ -1177,7 +1177,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     SendDetail queryDetail = new SendDetail();
                     queryDetail.setBoxCode(tSendM.getBoxCode());
                     queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
-                    List<SendDetail> sendDatails = sendDatailDao.querySendDatailsByBoxCode(queryDetail);
+                    List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
