@@ -1178,7 +1178,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDatail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
-                    sendMessage(sendDatails, tSendM, needSendMQ);
+                    sendMessage(sendDatails, getLastSendDate(sendMList), needSendMQ);
                     // 更新箱子状态为正常
 //                    List<String> boxCodes = new ArrayList<String>();
 //                    boxCodes.add(tSendM.getBoxCode());
@@ -1227,13 +1227,16 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (senddetail == null || senddetail.isEmpty()) {
                 return;
             }
+            //记录已经发过MQ的包裹号，用于去重
+            Set<String> pakageSet = new HashSet<String>(senddetail.size());
             //按照包裹
             for (SendDetail model : senddetail) {
                 // 发送全程跟踪任务
                 send(model, tSendM);
-                if (needSendMQ){
+                if (needSendMQ && !pakageSet.contains(model.getPackageBarcode())){
                     // 发送取消发货MQ
                     sendMQ(model, tSendM);
+                    pakageSet.add(model.getPackageBarcode());
                 }
             }
         } catch (Exception ex) {
@@ -1249,7 +1252,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryCancelSendMQBody body = new DeliveryCancelSendMQBody();
             body.setPackageBarcode(sendDetail.getPackageBarcode());
             body.setWaybillCode(sendDetail.getWaybillCode());
-            body.setSendCode(sendDetail.getSendCode());
+            body.setSendCode(sendM.getSendCode());
             body.setOperateTime(sendM.getUpdateTime());
             Integer userCode = sendM.getUpdateUserCode();
             if (userCode != null) {
