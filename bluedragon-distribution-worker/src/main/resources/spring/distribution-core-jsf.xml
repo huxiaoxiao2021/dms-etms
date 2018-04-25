@@ -274,4 +274,8 @@
     <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.vrs.ws.VrsBNetQueryApi"
                   protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="3">
     </jsf:consumer>
+    <!-- 外单逆向换单接口-->
+    <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
+                  protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
 </beans>

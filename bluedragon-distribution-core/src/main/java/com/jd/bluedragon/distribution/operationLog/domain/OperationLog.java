@@ -64,6 +64,9 @@ public class OperationLog implements java.io.Serializable {
     /** 分拣中心组板 **/
     public static final Integer BOARD_COMBINATITON = 166; // 分拣中心组板日志
 
+    /** 分拣中心取消组板 **/
+    public static final Integer BOARD_COMBINATITON_CANCEL = 167; // 分拣中心取消组板日志
+
 
     /**
      * 数据异常

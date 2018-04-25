@@ -505,5 +505,5 @@
         <property name="type" value="1300"/>
         <property name="keyType" value="7"/>
         <property name="desc" value="组板发货"/>
-    </bean>    
+    </bean>
 </beans>

@@ -619,4 +619,48 @@ public class BusinessHelper {
 	public static boolean isB2b(String waybillSign){
 		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
 	}
+	/**
+	 * 根据waybillSign判断是否病单（34位标识为 2）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSick(String waybillSign){
+		return isSignInChars(waybillSign, 34,'2');
+	}
+
+	/**
+	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPackageHalf(String waybillSign){
+		return isSignChar(waybillSign, 27,'2');
+	}
+
+	/**
+	 *  支持协商再投
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isConsultationTo(String waybillSign){
+		return isSignChar(waybillSign, 5,'3');
+	}
+
+	/**
+	 *  到付运费或COD  TopayTotalReceivable > 0
+	 * @param bigWaybillDto
+	 * @return
+	 */
+	public static boolean isCODOrFreightCollect(BigWaybillDto bigWaybillDto){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getTopayTotalReceivable() !=null){
+			if(bigWaybillDto.getWaybill().getTopayTotalReceivable().compareTo(new Double(0))>0){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
 }

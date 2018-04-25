@@ -51,4 +51,12 @@ public interface BoardCombinationService {
     public boolean clearBoardCache(String boardCode);
 
 
+    /**
+     * 取消组板
+     * @param request
+     * @return
+     */
+    public BoardResponse boardCombinationCancel(BoardCombinationRequest request) throws Exception;
+
+
 }

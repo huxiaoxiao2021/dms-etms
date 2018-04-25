@@ -25,7 +25,7 @@
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
     <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
-    <import resource="classpath:spring/distribution-core-dcam.xml"/>
+    <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
 	<import resource="classpath:spring/distribution-core-ucc.xml"/>

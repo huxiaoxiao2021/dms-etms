@@ -72,6 +72,35 @@ public abstract class RedisCommonAbstractUtil<T> {
     }
 
     /**
+     * 缓存数据的值-1
+     * @param key
+     * @return
+     */
+    public boolean decr(String key){
+        try{
+            redisClient.decr(key.getBytes());
+            return true;
+        }catch (Exception e){
+            logger.error("缓存数据减一出错,key = "+key+" 错误信息为："+e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 缓存数据的值+1
+     * @param key
+     * @return
+     */
+    public boolean incr(String key){
+        try{
+            redisClient.incr(key.getBytes());
+            return true;
+        }catch (Exception e){
+            logger.error("缓存数据加一出错,key = "+key+" 错误信息为："+e.getMessage());
+            return false;
+        }
+    }
+    /**
      *
      * @param key
      * @return
