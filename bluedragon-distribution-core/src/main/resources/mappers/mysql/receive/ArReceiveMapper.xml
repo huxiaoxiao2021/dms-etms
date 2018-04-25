@@ -11,20 +11,20 @@
 		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="shuttle_bus_type" property="shuttleBusType" javaType="java.lang.Integer" jdbcType="SMALLINT" />
 		<result column="shuttle_bus_num" property="shuttleBusNum" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_type" property="receiveType" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="boxing_type" property="boxingType" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="receive_type" property="receiveType" javaType="java.lang.Short" jdbcType="BIGINT" />
+		<result column="boxing_type" property="boxingType" javaType="java.lang.Short" jdbcType="BIGINT" />
 		<result column="receive_status" property="receiveStatus" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="task_exe_count" property="taskExeCount" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="create_user_code" property="createUserCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="yn" property="yn" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="turnoverbox_code" property="turnoverBoxCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="queueno" property="queueNo" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="departure_car_id" property="departureCarId" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="departure_car_id" property="departureCarId" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="shields_car_time" property="shieldsCarTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />

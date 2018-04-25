@@ -876,19 +876,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
         Collections.sort(sendMList);
         // 加send_code幂
-
-        boolean sendCodeIdempotence = false;/*判断当前批次号是否已经发货*/
-        if(sendMList == null ){
-            sendCodeIdempotence = true;
-        }else if(sendMList.size() > 1){
-            sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
-        }else {//空铁提货并发货离线任务，发货sendMList长度为1，单独处理
-            String oldSendCode = getSendedCode(sendMList.get(0));
-            if (StringUtils.isNotBlank(oldSendCode)) {
-                sendCodeIdempotence = true;
-            }
-        }
-
+        boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
         if (sendCodeIdempotence) {
             return new DeliveryResponse(JdResponse.CODE_OK,
                     JdResponse.MESSAGE_OK);
@@ -1184,17 +1172,14 @@ public class DeliveryServiceImpl implements DeliveryService {
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
-                SendDetail queryDetail = new SendDetail();
-                queryDetail.setBoxCode(tSendM.getBoxCode());
-                List<SendDetail> sendDatails = sendDatailDao.querySendDatailsByBoxCode(queryDetail);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDatail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
+                    SendDetail queryDetail = new SendDetail();
+                    queryDetail.setBoxCode(tSendM.getBoxCode());
+                    queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     sendMessage(sendDatails, tSendM, needSendMQ);
-                    // 更新箱子状态为正常
-//                    List<String> boxCodes = new ArrayList<String>();
-//                    boxCodes.add(tSendM.getBoxCode());
-//                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
                 }
                 return threeDeliveryResponse;
             }
@@ -1241,11 +1226,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             //按照包裹
             for (SendDetail model : senddetail) {
-                // 发送全程跟踪任务
-                send(model, tSendM);
-                if (needSendMQ){
-                    // 发送取消发货MQ
-                    sendMQ(model, tSendM);
+                if(StringHelper.isNotEmpty(model.getSendCode())){
+                    // 发送全程跟踪任务
+                    send(model, tSendM);
+                    if (needSendMQ){
+                        // 发送取消发货MQ
+                        sendMQ(model, tSendM);
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -1408,7 +1395,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendDetail mSendDetail = new SendDetail();
         mSendDetail.setBoxCode(tSendM.getBoxCode());
         mSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
-        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+//        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
         mSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
         List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
         Collections.sort(tlist);
@@ -2314,6 +2301,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         //获取运单对应的路由
         String routerStr = null;
+        String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
                 //获取路由信息
@@ -2321,6 +2309,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
+                    waybillCodeForVerify = waybillCode;
                     break;
                 }
             }
@@ -2329,6 +2318,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(StringHelper.isEmpty(routerStr)){
             return response;
         }
+
+        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
 
         //路由校验逻辑
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);

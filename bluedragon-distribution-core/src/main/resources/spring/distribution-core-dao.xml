@@ -415,6 +415,18 @@
     <bean id="dmsOperateHintDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsOperateHintDaoImpl"/>
 
+    <bean id="packageHalfDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDaoImpl"/>
+
+    <bean id="packageHalfDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDetailDaoImpl"/>
+
+    <bean id="packageHalfRedeliveryDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfRedeliveryDaoImpl"/>
+
+    <bean id="packageHalfApproveDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfApproveDaoImpl"/>
+
     <bean id="dmsAbnormalEclpDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
 </beans>
