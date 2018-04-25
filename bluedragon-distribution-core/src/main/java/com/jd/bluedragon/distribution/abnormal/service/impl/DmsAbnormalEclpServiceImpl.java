@@ -186,7 +186,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
     /**
      * 异常类型 转换为MQ编码
      *
-     * @param exptThreeLevelName
+     * @param consultType
      * @return
      */
     private String convertExptThreeLevel(Integer consultType) {
