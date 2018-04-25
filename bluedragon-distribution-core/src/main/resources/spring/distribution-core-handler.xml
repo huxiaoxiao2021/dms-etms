@@ -24,7 +24,7 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100101"  value-ref="platePrint"/>
 				<entry key="100102"  value-ref="sitePlatePrint"/>
-				<entry key="100103"  value-ref="packageReprint"/>
+				<entry key="100103"  value-ref="basicPrint"/>
 				<entry key="100104"  value-ref="basicPrint"/>
 				<entry key="100105"  value-ref="basicPrint"/>
 				<entry key="100106"  value-ref="basicPrint"/>
@@ -56,26 +56,6 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
-				<!-- C网操作B2B传站业务，预分拣站点变更拦截服务 -->
-				<ref bean="presiteChangeInterceptHandler"/>
-				<ref bean="signTextWaybillHandler"/>
-				<ref bean="interceptWaybillHandler"/>
-				<ref bean="scheduleWaybillHandler"/>
-				<ref bean="specialMarkWaybillHandler"/>
-				<ref bean="specialTextWaybillHandler"/>
-				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
-				<ref bean="templateSelectorWaybillHandler"/>
-			</list>
-		</property>
-	</bean>
-	<!-- 包裹标签打印-包裹补打 -->
-	<bean id="packageReprint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
-		<property name="handlers">
-			<list>
-				<ref bean="basicWaybillPrintHandler"/>
-				<!-- C网操作B2B传站业务，预分拣站点变更拦截服务 -->
-				<ref bean="presiteChangeInterceptHandler"/>
 				<ref bean="signTextWaybillHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>

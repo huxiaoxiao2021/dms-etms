@@ -21,4 +21,8 @@ public class CacheKeyConstants {
      * 提示语缓存key-需要包裹补打（hintMsgNeedReprint）
      */
     public static final String CACHE_KEY_HINT_MSG_NEED_REPRINT ="hintMsgNeedReprint";
+    /**
+     * 缓存key-包裹补打记录（reprintRecords）
+     */
+    public static final String CACHE_KEY_REPRINT_RECORDS ="reprintRecords";
 }

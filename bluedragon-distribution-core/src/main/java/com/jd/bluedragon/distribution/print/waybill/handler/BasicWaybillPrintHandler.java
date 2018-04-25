@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -158,11 +159,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             	}
             	//获取运单数据正常，设置打印基础信息
                 context.setBigWaybillDto(baseEntity.getData());
-                context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true));
+                context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false));
                 loadWaybillInfo(context);
-                interceptResult = preSortingSecondService.preSortingAgain(context, context.getResponse());//处理是否触发2次预分拣
+                interceptResult = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
                 loadWaybillPackageWeight(context, context.getResponse());
-                loadPrintedData(context.getResponse());
+                loadPrintedData(context);
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
@@ -350,21 +351,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * 加载已打印记录【标签打印与发票打印】
      * @param printWaybill
      */
-    private final void loadPrintedData(final PrintWaybill printWaybill){
-        List<PopPrint> popPrintList = this.popPrintService.findAllByWaybillCode(printWaybill.getWaybillCode());
-        if(null==popPrintList||popPrintList.size()==0){
-            return;
-        }
-        for (PopPrint popPrint : popPrintList) {
-            if (Constants.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
-                for (int i = 0; i < printWaybill.getPackList().size(); i++) {
-                    if (popPrint.getPackageBarcode().equals(printWaybill.getPackList().get(i).getPackageCode())) {
-                        printWaybill.getPackList().get(i).setIsPrintPack(Boolean.TRUE);
-                    }
-                }
-            } else if (Constants.PRINT_INVOICE_TYPE.equals(popPrint.getOperateType())) {
-                printWaybill.setPrintInvoice(Boolean.TRUE);
-            }
+    private final void loadPrintedData(WaybillPrintContext context){
+    	WaybillPrintResponse printWaybill = context.getResponse();
+    	printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
+        for (int i = 0; i < printWaybill.getPackList().size(); i++) {
+        	printWaybill.getPackList().get(i).setIsPrintPack(
+        			context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);
         }
     }
     /**

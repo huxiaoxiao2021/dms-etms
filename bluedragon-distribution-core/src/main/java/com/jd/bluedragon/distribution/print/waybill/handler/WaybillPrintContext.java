@@ -37,7 +37,7 @@ public class WaybillPrintContext implements Context{
 	 */
 	private BigWaybillDto bigWaybillDto;
 	/**
-	 * 冗余的运单信息
+	 * 封装后的运单信息
 	 */
 	private Waybill waybill;
 

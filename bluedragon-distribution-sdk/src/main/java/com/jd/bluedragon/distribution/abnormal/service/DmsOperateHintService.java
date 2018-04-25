@@ -25,9 +25,21 @@ public interface DmsOperateHintService extends Service<DmsOperateHint> {
 	 */
 	String getDeliveryHintMessageByWaybillCode(String waybillCode);
 	/**
-	 * 是否包含包裹补打提示信息
+	 * 获取包裹需要补打的提示信息
 	 * @param waybillCode
 	 * @return
 	 */
-	boolean hasNeedReprintHintMsg(String waybillCode);
+	DmsOperateHint getNeedReprintHintMsg(String waybillCode);
+	/**
+	 * 保存包裹需要补打的提示信息
+	 * @param dmsOperateHint
+	 * @return
+	 */
+	DmsOperateHint saveNeedReprintHintMsg(DmsOperateHint dmsOperateHint);
+	/**
+	 * 保存包裹需要补打的提示信息
+	 * @param dmsOperateHint
+	 * @return
+	 */
+	boolean closeNeedReprintHintMsg(String waybillCode);
 }

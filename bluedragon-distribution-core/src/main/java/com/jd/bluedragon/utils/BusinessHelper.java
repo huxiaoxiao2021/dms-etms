@@ -549,17 +549,17 @@ public class BusinessHelper {
 
     /**
      * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
-     * @param context 请求上下文
+     * @param waybillPrintRequest 打印请求参数
      * @return 是否上传体积或重量
      */
     public static boolean hasWeightOrVolume(WaybillPrintRequest waybillPrintRequest){
     	if(waybillPrintRequest.getWeightOperFlow()==null){
     		return false;
     	}
-        if(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWeight()) 
-        	||(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWidth())
-        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getLength())
-        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getHigh()))){
+        if(NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getWeight()) 
+        	||(NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getWidth())
+        		&&NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getLength())
+        		&&NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getHigh()))){
             return true;
         }
         return false;

@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.dao.DmsOperateHintDao;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -78,14 +79,24 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 	}
 
 	@Override
-	public boolean hasNeedReprintHintMsg(String waybillCode) {
+	public DmsOperateHint getNeedReprintHintMsg(String waybillCode) {
 		if(StringHelper.isNotEmpty(waybillCode)){
 			String redisKey = CacheKeyConstants.CACHE_KEY_HINT_MSG_NEED_REPRINT + waybillCode;
 			String msg = redisManager.getCache(redisKey);
 			if(msg!=null){
-				return true;
+				return JsonHelper.fromJson(msg, DmsOperateHint.class);
 			}
 		}
+		return null;
+	}
+
+	@Override
+	public DmsOperateHint saveNeedReprintHintMsg(DmsOperateHint dmsOperateHint) {
+		return null;
+	}
+
+	@Override
+	public boolean closeNeedReprintHintMsg(String waybillCode) {
 		return false;
 	}
 
