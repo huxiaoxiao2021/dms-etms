@@ -17,19 +17,19 @@ public class BusinessHelper {
 
 	private final static Logger logger = Logger.getLogger(BusinessHelper.class);
 
-	private static final String PACKAGE_SEPARATOR = "-";
-	private static final String PACKAGE_IDENTIFIER_SUM = "S";
-	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
-	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
-	private static final String PACKAGE_WAIDAN = "V";
+	public static final String PACKAGE_SEPARATOR = "-";
+	public static final String PACKAGE_IDENTIFIER_SUM = "S";
+	public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+	public static final String PACKAGE_IDENTIFIER_PICKUP = "W";
+	public static final String PACKAGE_WAIDAN = "V";
 
-    private static final String AO_BATCH_CODE_PREFIX="Y";
-	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
-	private static final String SOURCE_CODE_ECLP = "ECLP";
-	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-	private static final String BUSI_ORDER_CODE_QWD = "QWD";
-	private static final String SOURCE_CODE_CLPS = "CLPS";
-	private static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+	public static final String AO_BATCH_CODE_PREFIX="Y";
+	public static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
+	public static final String SOURCE_CODE_ECLP = "ECLP";
+	public static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
+	public static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String SOURCE_CODE_CLPS = "CLPS";
+	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	static{
 		init();
 	}
@@ -617,8 +617,52 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isB2b(String waybillSign){
-		return isSignInChars(waybillSign, 40,'1','2','3');
+		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
 	}
+	/**
+	 * 根据waybillSign判断是否病单（34位标识为 2）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSick(String waybillSign){
+		return isSignInChars(waybillSign, 34,'2');
+	}
+
+	/**
+	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPackageHalf(String waybillSign){
+		return isSignChar(waybillSign, 27,'2');
+	}
+
+	/**
+	 *  支持协商再投
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isConsultationTo(String waybillSign){
+		return isSignChar(waybillSign, 5,'3');
+	}
+
+	/**
+	 *  到付运费或COD  TopayTotalReceivable > 0
+	 * @param bigWaybillDto
+	 * @return
+	 */
+	public static boolean isCODOrFreightCollect(BigWaybillDto bigWaybillDto){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getTopayTotalReceivable() !=null){
+			if(bigWaybillDto.getWaybill().getTopayTotalReceivable().compareTo(new Double(0))>0){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
 
 	/**
 	 * 校验运单总体积和总重量重泡比

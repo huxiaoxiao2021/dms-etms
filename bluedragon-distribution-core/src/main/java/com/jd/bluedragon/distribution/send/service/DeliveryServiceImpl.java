@@ -289,8 +289,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
-            //1609 武汉外单分拣中心，如果是武汉外单分拣中心则走新的逻辑，为了业务完场验证
-            if(domain.getCreateSiteCode()!= null && domain.getCreateSiteCode() == 1609) {
+            if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
                 sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
             }else{
                 sortingCheck.setOperateType(1);
@@ -327,7 +326,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-        } else if(domain.getCreateSiteCode()==1609){
+        } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
             if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
@@ -771,7 +770,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     /***
      * 发货写入任务表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void addTaskSend(SendM sendM) {
         SendTaskBody body = new SendTaskBody();
         body.setHandleCategory(1);
@@ -879,7 +877,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         Collections.sort(sendMList);
         // 加send_code幂
         boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
-
         if (sendCodeIdempotence) {
             return new DeliveryResponse(JdResponse.CODE_OK,
                     JdResponse.MESSAGE_OK);
@@ -932,7 +929,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList 待发货列表
      * @param list      已发货的箱号列表
      */
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {
         //操作过取消发货的箱子查询  result结果集
         List<SendM>[] sendArray = splitSendMList(sendMList);
@@ -1176,17 +1172,14 @@ public class DeliveryServiceImpl implements DeliveryService {
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
-                SendDetail queryDetail = new SendDetail();
-                queryDetail.setBoxCode(tSendM.getBoxCode());
-                List<SendDetail> sendDatails = sendDatailDao.querySendDatailsByBoxCode(queryDetail);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDatail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
+                    SendDetail queryDetail = new SendDetail();
+                    queryDetail.setBoxCode(tSendM.getBoxCode());
+                    queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     sendMessage(sendDatails, tSendM, needSendMQ);
-                    // 更新箱子状态为正常
-//                    List<String> boxCodes = new ArrayList<String>();
-//                    boxCodes.add(tSendM.getBoxCode());
-//                    boxService.batchUpdateStatus(boxCodes, Box.STATUS_PRINT);
                 }
                 return threeDeliveryResponse;
             }
@@ -1233,11 +1226,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             //按照包裹
             for (SendDetail model : senddetail) {
-                // 发送全程跟踪任务
-                send(model, tSendM);
-                if (needSendMQ){
-                    // 发送取消发货MQ
-                    sendMQ(model, tSendM);
+                if(StringHelper.isNotEmpty(model.getSendCode())){
+                    // 发送全程跟踪任务
+                    send(model, tSendM);
+                    if (needSendMQ){
+                        // 发送取消发货MQ
+                        sendMQ(model, tSendM);
+                    }
                 }
             }
         } catch (Exception ex) {
@@ -1400,7 +1395,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendDetail mSendDetail = new SendDetail();
         mSendDetail.setBoxCode(tSendM.getBoxCode());
         mSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
-        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+//        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
         mSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
         List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
         Collections.sort(tlist);
@@ -2306,6 +2301,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         //获取运单对应的路由
         String routerStr = null;
+        String waybillCodeForVerify = null;
         if (waybillCodes != null && !waybillCodes.isEmpty()) {
             for(String  waybillCode : waybillCodes){
                 //获取路由信息
@@ -2313,6 +2309,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 //如果路由为空，则取下一单
                 if(StringHelper.isNotEmpty(routerStr)){
+                    waybillCodeForVerify = waybillCode;
                     break;
                 }
             }
@@ -2321,6 +2318,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(StringHelper.isEmpty(routerStr)){
             return response;
         }
+
+        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
 
         //路由校验逻辑
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
@@ -3622,7 +3621,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList = null;
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
-                    if(waybill.getWaybillSign().charAt(33) == '2'){//病单则直接返回0 不验证包裹是否集齐
+                    if(BusinessHelper.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
                         return 0;
                     }
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());

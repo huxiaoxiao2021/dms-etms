@@ -398,6 +398,7 @@ public class Constants {
 
     public static final Integer WAYBILL_DELIVERED_CODE = 150;  //订单妥投状态编码
     public static final Integer WAYBILL_REJECT_CODE = 160;  //订单拒收状态编码
+    public static final Integer PACKAGE_REDELIVERY_CODE = 133;  //订单拒收状态编码
     /**
      * 字符类型yn标识,1-是
      */
@@ -477,6 +478,9 @@ public class Constants {
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+
+
+    public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
      * 封车批次号缓存前缀
      */
@@ -500,6 +504,18 @@ public class Constants {
      */
     public static final String SEND_DETAIL_SOUCRE_AR = "AR";
     public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
+
+    /**
+     * 查询B网应履约时效接口相关
+     * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
+     */
+    public static final Integer ROUTE_INTER_CONFIG_TYPE_QUAN_LIUCHENG_LVYUELV = 1;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
+
+    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
 
     /**
      *  重泡比超过正常范围168:1到330:1

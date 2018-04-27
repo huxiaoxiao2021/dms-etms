@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.command;
 
 public interface JdCommandService {
 	/**
-	 * 执行命令
-	 * @param command
+	 * 执行json格式的命令
+	 * @param jsonCommand
 	 * @return
 	 */
-	String execute(String command);
+	String execute(String jsonCommand);
 }

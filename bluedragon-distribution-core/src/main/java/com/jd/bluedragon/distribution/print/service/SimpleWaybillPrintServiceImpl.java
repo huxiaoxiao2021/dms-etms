@@ -16,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -47,6 +48,8 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -149,9 +152,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
-
-
-
+    @JProfiler(jKey = "DMSWEB.SimpleWaybillPrintServiceImpl.getPrintWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -270,7 +271,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
-            commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
@@ -284,8 +285,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 		roadCode = transbillM.getTruckSpot();
                 	}
                 }
-                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
-                commonWaybill.setRemark(str + scheduleCode);
+//                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
+                commonWaybill.appendRemark(scheduleCode);
+            }
+            //sendpay的第153位为“1”，remark追加【合并送】
+            if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
+                commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
         	//路区-为空尝试从运单里获取
         	if(StringHelper.isEmpty(roadCode)){
