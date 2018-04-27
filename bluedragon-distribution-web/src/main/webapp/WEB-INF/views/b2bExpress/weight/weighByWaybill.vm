@@ -21,7 +21,8 @@
     <script type="text/javascript" src="/static/lib/easyui/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="/static/lib/easyui/locale/easyui-lang-zh_CN.js"></script>
 
-    <script type="text/javascript" src="#springUrl('/static/js/b2bExpress/weight/weighByWaybill.js')"></script>
+
+
 
     <style  type="text/css">
         #waybill-weight-form-wrapper{
@@ -38,11 +39,19 @@
             float: left;
             margin-left:30px;
         }
+        #waybill-weight-improt-btn-wrapper{
+            float: left;
+            margin-left:30px;
+        }
 
         #waybill-weight-success-datagrid-wrapper{
             clear: both;
             margin-top:100px;
         }
+        #waybill-weight-import-form{
+            margin:20px;
+        }
+
     </style>
 </head>
 <body>
@@ -66,10 +75,49 @@
             <div id="waybill-weight-btn-wrapper">
                 <a id="waybill-weight-btn" href="#">录入运单总重量体积</a>
             </div>
+            <div id="waybill-weight-improt-btn-wrapper">
+                <a id="waybill-weight-import-btn" href="#">批量导入</a>
+            </div>
+
         </form>
     </div>
     <div id="waybill-weight-success-datagrid-wrapper">
         <table id="waybill-weight-success-datagrid"></table>
     </div>
+    <div id="waybill-weight-import-dialog" class="easyui-dialog" style="width:300px;height:200px" closed="true"
+         data-options="title:'批量导入',buttons:'#waybill-weight-improt-btn-group-wrapper',modal:true">
+        <form id="waybill-weight-import-form" method="post" enctype="multipart/form-data" >
+            <div>
+                <input class="easyui-validatebox" type="file" name="importExcelFile" data-options="required:true" style="height: 22px"/>
+            </div>
+            <div>
+                <a href="#springUrl('')/static/importFileModel/waybillWeight.xls" type="application/vnd.ms-excel">下载excel模版</a>
+            </div>
+        </form>
+    </div>
+    <div id="waybill-weight-improt-btn-group-wrapper">
+        <a href="#" id="waybill-weight-import-form-submit" class="easyui-linkbutton">导入</a>
+        <a href="#" id="waybill-weight-import-form-close" class="easyui-linkbutton">关闭</a>
+    </div>
+
+    <div id="waybill-weight-import-fail-dialog" class="easyui-dialog" style="width:800px;height:600px" closed="true"
+         data-options="title:'导入失败数据',buttons:'#waybill-weight-import-fail-btn-group-wrapper',modal:true">
+        <p id="waybill-weight-fail-message"></p>
+        <p id="waybill-weight-fail-submit-message"></p>
+        <table id="waybill-weight-fail-datagrid">
+           #* <thead>
+                <tr><th>运单号</th><th>重量</th><th>体积</th><th>失败原因</th><th>操作</th></tr>
+            </thead>
+            <tbody id="waybill-weight-fail-datagrid-tbody">
+
+            </tbody>*#
+        </table>
+    </div>
+    <div id="waybill-weight-import-fail-btn-group-wrapper">
+        <a href="#" id="waybill-weight-export" class="easyui-linkbutton">导出</a>
+        <a href="#" id="waybill-weight-export-close" class="easyui-linkbutton">关闭</a>
+    </div>
+
+    <script type="text/javascript" src="#springUrl('/static/js/b2bExpress/weight/weighByWaybill.js')"></script>
 </body>
 </html>
