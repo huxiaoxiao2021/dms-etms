@@ -3719,7 +3719,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(isForceSend){
                 Integer sendSiteCode = domain.getReceiveSiteCode();
 
-                domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+                //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+                if(uploadData.getBoxSiteCode() != null){
+                    domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+                }else{
+                    domain.setReceiveSiteCode(sendSiteCode);
+                }
+
                 if(SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushInspection(domain,uploadData.getPackageCode());
                     pushAtuoSorting(domain,uploadData.getPackageCode());
