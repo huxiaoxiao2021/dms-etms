@@ -101,16 +101,10 @@
     </div>
 
     <div id="waybill-weight-import-fail-dialog" class="easyui-dialog" style="width:800px;height:600px" closed="true"
-         data-options="title:'导入失败数据',buttons:'#waybill-weight-import-fail-btn-group-wrapper',modal:true">
+         data-options="title:'导入失败数据',buttons:'#waybill-weight-import-fail-btn-group-wrapper',modal:true,closable: false">
         <p id="waybill-weight-fail-message"></p>
         <p id="waybill-weight-fail-submit-message"></p>
         <table id="waybill-weight-fail-datagrid">
-           #* <thead>
-                <tr><th>运单号</th><th>重量</th><th>体积</th><th>失败原因</th><th>操作</th></tr>
-            </thead>
-            <tbody id="waybill-weight-fail-datagrid-tbody">
-
-            </tbody>*#
         </table>
     </div>
     <div id="waybill-weight-import-fail-btn-group-wrapper">

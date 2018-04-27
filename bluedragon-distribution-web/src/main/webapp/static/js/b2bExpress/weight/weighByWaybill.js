@@ -411,14 +411,20 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
     /*确定导入按钮*/
     $("#waybill-weight-import-form-submit").click(function () {
+
+        $("#waybill-weight-import-form-submit").linkbutton('disable'); //锁住导入按钮
+        $("#waybill-weight-fail-message").html("");
+        $("#waybill-weight-fail-submit-message").html("");
         $('#waybill-weight-import-form').form('submit', {
             url:waybill_weight_improt_url,
             success:function(data){
+                $("#waybill-weight-import-form-submit").linkbutton('enable'); //解锁导入按钮
+
                 var data = eval('('+data+')');
 
 
                 if(data.code==SERVER_SUCCESS_CODE){
-                   alert('全部导入成功,本次导入'+data.data.successCount+'条数据！');
+                    $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
                 }else if(data.code==ERROR_HALF_RESULT_CODE){
                    //部分成功
                    $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
@@ -471,7 +477,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             status:status
         };
 
-        var messageBodyStr = "运单号："+waybillCode+"重量："+weight+"体积："+volume;
+        var messageBodyStr = "运单号："+waybillCode+" 重量："+weight+" 体积："+volume;
         $.messager.confirm('请您仔细确认',messageBodyStr
             ,function(confirmFlag){
                 if(confirmFlag == true){
