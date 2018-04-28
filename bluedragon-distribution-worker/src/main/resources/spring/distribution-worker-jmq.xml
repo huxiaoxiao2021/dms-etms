@@ -158,5 +158,14 @@
         <jmq:listener topic="tms_air_flight_realtime_status" listener="arAirFlightRealTimeConsumer"/>
     </jmq:consumer>
 
+    <!-- B网半收协商再投MQ -->
+    <jmq:consumer id="jmq.packageHalfRedeliveryConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="redeliver_checked_part" listener="packageHalfRedeliveryConsumer"/>
+    </jmq:consumer>
+
+    <!-- B网半收终端提交协商再投MQ -->
+    <jmq:consumer id="jmq.packageHalfApproveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_waybill_w_check" listener="packageHalfApproveConsumer"/>
+    </jmq:consumer>
 </beans>
 

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.half.dao.PackageHalfDao">
+
+	<resultMap id="PackageHalf" type="com.jd.bluedragon.distribution.half.domain.PackageHalf" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="half_type" property="halfType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="operate_site_code" property="operateSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="operate_site_name" property="operateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,half_type,operate_site_code,operate_site_name,create_user,update_user,create_time,
+		update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalf">
+		insert into package_half
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="halfType != null">
+					half_type,
+				</if>
+				<if test="operateSiteCode != null">
+					operate_site_code,
+				</if>
+				<if test="operateSiteName != null">
+					operate_site_name,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+
+					create_time,
+
+					update_time,
+
+					is_delete,
+
+					ts
+
+
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="halfType != null">
+					#{halfType,jdbcType=TINYINT},
+				</if>
+				<if test="operateSiteCode != null">
+					#{operateSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="operateSiteName != null">
+					#{operateSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+
+					now(),
+
+					now(),
+
+					0,
+
+					now()
+
+
+			</trim>
+			)
+	</insert>
+
+
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalf">
+		update package_half
+			<set>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="halfType != null">
+					half_type = #{halfType,jdbcType=TINYINT},
+				</if>
+				<if test="operateSiteCode != null">
+					operate_site_code = #{operateSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="operateSiteName != null">
+					operate_site_name = #{operateSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update package_half
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update package_half
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="PackageHalf">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  package_half 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.half.domain.PackageHalf" resultMap="PackageHalf">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  package_half 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<sql id="Query_Params_Condition_Sql">
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="createTimeGE != null and createTimeLE !=null">
+			and create_time BETWEEN #{createTimeGE} and #{createTimeLE}
+		</if>
+		<if test="createTimeGE != null and createTimeLE ==null">
+			and  <![CDATA[   create_time >= #{createTimeGE}  ]]>
+		</if>
+		<if test="createTimeGE == null and createTimeLE !=null">
+			and  <![CDATA[   create_time <= #{createTimeLE}  ]]>
+		</if>
+
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  package_half 
+		where 1=1
+		<include refid="Query_Params_Condition_Sql" />
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="PackageHalf">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  package_half 
+		where 1=1
+		<include refid="Query_Params_Condition_Sql" />
+		<include refid="Base_Condition_Sql"/>
+		order by create_time desc
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<delete id="deleteOfSaveFail" parameterType="String">
+		delete from package_half where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</delete>
+</mapper>

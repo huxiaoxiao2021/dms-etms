@@ -37,6 +37,8 @@
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
         <dd><a href="#springUrl('/base/dmsStorageArea/toIndex')" target="mainFrame">流向库位配置表</a></dd>
+        <dd><a href="#springUrl('/half/packageHalfRedelivery/toIndex')" target="mainFrame">快运协商再投</a></dd>
+        <dd><a href="#springUrl('/half/packageHalf/toIndex')" target="mainFrame">部分签收操作</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
         <dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
         <dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>

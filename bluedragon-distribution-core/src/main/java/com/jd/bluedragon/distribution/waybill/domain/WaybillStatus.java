@@ -19,36 +19,36 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING_RETURN = 60;
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION_THIRDPARTY = 80;
-
+    
     public static final Integer WAYBILL_STATUS_CODE_DEPARTURE_THIRDPARTY = 300;
 
     public static final Integer WAYBILL_TRACK_FC = 150;
     public static final Integer WAYBILL_TRACK_RCD = 160;
-
+    public static final Integer WAYBILL_TRACK_PACKAGE_HALF = 600; //包裹半收完成
     public static final Integer WAYBILL_TRACK_SH = 400;
     public static final Integer WAYBILL_TRACK_REVERSE_SH = 500;
-
-    /**仓储收货驳回**/
+    
+    /**仓储收货驳回**/ 
     public static final Integer WAYBILL_TRACK_BH = 900;
-    /**仓储驳回分拣中心收货**/
+    /**仓储驳回分拣中心收货**/ 
     public static final Integer WAYBILL_TRACK_BHS = 1100;
-    /**仓储收货确认**/
+    /**仓储收货确认**/ 
     public static final Integer WAYBILL_TRACK_SHREVERSE = 800;
-
-    /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/
+    
+    /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/ 
     public static final Integer WAYBILL_STATUS_SHREVERSE = 4300;
     /**仓储 备件库 售后收货确认修改为，回传退货完成状态 16-1-7**/
     public static final Integer WAYBILL_STATUS_JJREVERSE = 4400;
-
-    /**备件库售后取件交接拆包--驳回**/
+    
+    /**备件库售后取件交接拆包--驳回**/ 
     public static final Integer WAYBILL_TRACK_AMS_BH = 901;
-    /**备件库售后取件交接拆包--确认**/
+    /**备件库售后取件交接拆包--确认**/ 
     public static final Integer WAYBILL_TRACK_AMS_SHREVERSE = 1901;
-
-
-    /**新发车全称跟踪类型-运输车辆出发**/
+    
+    
+    /**新发车全称跟踪类型-运输车辆出发**/ 
     public static final Integer WAYBILL_TRACK_XFC = 1800;
-    /**发车收货全称跟踪类型-运输车辆到达**/
+    /**发车收货全称跟踪类型-运输车辆到达**/ 
     public static final Integer WAYBILL_TRACK_FCS = 1900;
 
     /**配送异常节点全程跟踪类型*/
@@ -79,22 +79,22 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_REVERSE_PRINT=1700;
 
     public static final Integer WAYBILL_TRACK_SITE_LABEL_PRINT=2900;
-
+    
     /**
      * 封车
      */
     public static final Integer WAYBILL_TRACK_SEAL_VEHICLE = 2200;
-
+    
     /**
      * 解封车
      */
     public static final Integer WAYBILL_TRACK_UNSEAL_VEHICLE = 2300;
-
+    
     /**
      * 撤销封车
      */
     public static final Integer WAYBILL_TRACK_CANCEL_VEHICLE = 4200;
-
+    
     /**
      * 全程跟踪消息类型mstType-仓储收货确认
      **/
@@ -147,7 +147,12 @@ public class WaybillStatus {
     /**
      * 部分签收 操作码
      */
-    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7100;
+    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7500;
+
+    /**
+     * 审核完成状态
+     */
+    public static final Integer WAYBILL_STATUS_CONSULT = 135;
 
     private Long id;
 
