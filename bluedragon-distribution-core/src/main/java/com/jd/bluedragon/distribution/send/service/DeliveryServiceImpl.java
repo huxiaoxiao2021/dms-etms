@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.utils.*;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
@@ -45,6 +46,8 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
@@ -52,6 +55,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -156,6 +160,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SupportServiceInterface supportProxy;
+
+    @Autowired
+    private GoddessService goddessService;
 
     @Autowired
     @Qualifier("batchSendDao")
@@ -2319,7 +2326,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
 
-        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
+        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，运单正确路由为:" + routerStr);
 
         //路由校验逻辑
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
@@ -2328,13 +2335,27 @@ public class DeliveryServiceImpl implements DeliveryService {
             int nexNode = Integer.parseInt(routerNodes[i+1]);
             if(curNode == createSiteCode){
                 if(nexNode == receiveSiteCode){
-                    break;
-                }else {
-                    response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
-                    response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
+                    return response;
                 }
             }
         }
+
+        response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
+        response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
+                "取到的运单号：" + waybillCodeForVerify + "，运单正确路由:" + routerStr);
+
+        //记录cassandra日志
+        Goddess goddess = new Goddess();
+        goddess.setHead(boxCode);
+        goddess.setKey(boxCode);
+        goddess.setDateTime(new Date());
+
+        goddess.setBody("C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
+                waybillCodes + ",进行校验的运单号为：" + waybillCodeForVerify +
+                ",运单正确路由为:" + routerStr +  ",操作站点为：" + createSiteCode +
+                ",批次号的目的地为：" + receiveSiteCode);
+
+        goddessService.save(goddess);
 
         return response;
     }
