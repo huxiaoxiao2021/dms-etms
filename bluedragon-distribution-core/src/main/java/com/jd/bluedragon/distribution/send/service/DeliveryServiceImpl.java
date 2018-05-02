@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.api.utils.*;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -193,6 +194,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
+
+    @Autowired
+    private BaseService baseService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -2303,6 +2307,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer createSiteCode = queryPara.getCreateSiteCode();
         Integer receiveSiteCode = queryPara.getReceiveSiteCode();
 
+        //批次号目的地类型为64的进行路由校验，否则走原来的逻辑
+        BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(receiveSiteCode+"");
+        if(siteInfo == null){
+            logger.warn("checkRouterForCBox获取到的站点信息为空.站点：" + receiveSiteCode);
+            return response;
+        }
+        if(siteInfo.getSiteType() != 64){
+            logger.info("checkRouterForCBox 批次号目的地["+receiveSiteCode + "]的站点类型为：" + siteInfo.getSiteType()+"不进行路由校验");
+            return response;
+        }
+
         // 获取箱中的运单号
         List<String> waybillCodes = getWaybillCodesByBoxCodeAndFetchNum(boxCode,3);
 
@@ -2329,15 +2344,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，运单正确路由为:" + routerStr);
 
         //路由校验逻辑
+        boolean getCurNodeFlag = false;
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
         for(int i=0 ;i< routerNodes.length-1; i++){
             int curNode = Integer.parseInt(routerNodes[i]);
             int nexNode = Integer.parseInt(routerNodes[i+1]);
             if(curNode == createSiteCode){
+                getCurNodeFlag = true;
                 if(nexNode == receiveSiteCode){
                     return response;
                 }
             }
+        }
+
+        //运单的路由上不包含当前操作的分拣中心，则无法确定下一站，直接返回
+        if(!getCurNodeFlag){
+            return response;
         }
 
         response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
