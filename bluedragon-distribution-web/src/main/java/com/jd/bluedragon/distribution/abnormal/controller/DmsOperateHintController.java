@@ -1,17 +1,7 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
-import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.common.web.LoginContext;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +11,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.List;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 /**
  *
@@ -33,7 +35,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("abnormal/dmsOperateHint")
-public class DmsOperateHintController {
+public class DmsOperateHintController extends DmsBaseController{
 
 	private static final Log logger = LogFactory.getLog(DmsOperateHintController.class);
 
@@ -75,13 +77,12 @@ public class DmsOperateHintController {
 		try {
         //根据ID判断，如果是新增，则把updateuser也设置为创建人
             if(SerialRuleUtil.isMatchCommonWaybillCode(dmsOperateHint.getWaybillCode())){
-                LoginContext loginContext = LoginContext.getLoginContext();
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-                dmsOperateHint.setUpdateUser(loginContext.getPin());
-                dmsOperateHint.setUpdateUserCode(dto.getStaffNo());
-                dmsOperateHint.setUpdateUserName(loginContext.getNick());
-                dmsOperateHint.setDmsSiteCode(dto.getSiteCode());
-                dmsOperateHint.setDmsSiteName(dto.getSiteName());
+                LoginUser loginUser = super.getLoginUser();
+                dmsOperateHint.setUpdateUser(loginUser.getUserErp());
+                dmsOperateHint.setUpdateUserCode(loginUser.getStaffNo());
+                dmsOperateHint.setUpdateUserName(loginUser.getUserName());
+                dmsOperateHint.setDmsSiteCode(loginUser.getSiteCode());
+                dmsOperateHint.setDmsSiteName(loginUser.getSiteName());
                 if(dmsOperateHint.getId() != null && dmsOperateHint.getId() > 0){//修改时
                     DmsOperateHint temp = dmsOperateHintService.findById(dmsOperateHint.getId());
                     if(temp == null){
@@ -92,13 +93,14 @@ public class DmsOperateHintController {
                 }else{//新增时
                     DmsOperateHintCondition condition = new DmsOperateHintCondition();
                     condition.setWaybillCode(dmsOperateHint.getWaybillCode());
+                    condition.setHintType(DmsOperateHint.HINT_TYPE_USER);
                     PagerResult list = dmsOperateHintService.queryByPagerCondition(condition);
                     if(list != null && list.getTotal() > 0){
                         rest.toFail("运单号已存在提示语：" + dmsOperateHint.getWaybillCode());
                     }else {
-                    dmsOperateHint.setCreateUser(loginContext.getPin());
-                    dmsOperateHint.setCreateUserCode(dto.getStaffNo());
-                    dmsOperateHint.setCreateUserName(loginContext.getNick());
+                    dmsOperateHint.setCreateUser(loginUser.getUserErp());
+                    dmsOperateHint.setCreateUserCode(loginUser.getStaffNo());
+                    dmsOperateHint.setCreateUserName(loginUser.getUserName());
                     }
                 }
                 if(rest.isSucceed()){

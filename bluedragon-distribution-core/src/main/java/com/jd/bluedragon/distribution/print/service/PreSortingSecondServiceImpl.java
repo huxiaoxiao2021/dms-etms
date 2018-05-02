@@ -18,15 +18,11 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
@@ -40,6 +36,7 @@ import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 
 /**
  * 纯外单中小件二次预分拣服务
@@ -67,7 +64,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     private WeightService weightService;
     
     @Autowired
-    private RedisManager redisManager;
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
     /**
      * 2次预分拣变更提示信息
      */
@@ -86,7 +84,6 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         InterceptResult<String> interceptResult = context.getResult();
         Waybill waybill = context.getWaybill();
 		InterceptResult<String> result = context.getResult();
-		WaybillPrintResponse printInfo = context.getResponse();
 		String waybillCode = waybill.getWaybillCode();
 		String waybillSign = waybill.getWaybillSign();
 		
@@ -186,7 +183,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 			                context.appendMessage(siteChangeMsg);
 			                context.setStatus(InterceptResult.STATUS_WEAK_PASSED);
 			                result.toWeakSuccess(siteChangeMsg);
-			                //包裹补打-发送mq并且标记打印记录,所有包裹打印完毕，清除提醒信息
+			                //发送包裹补打提醒信息
 			                this.sendSiteChangeHitMsg(context,siteChangeMsg,newPreSiteInfo);
 		                }
 		            }
@@ -196,7 +193,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         return interceptResult;
     }
     /**
-     * 重新设置预分拣站点
+     * 根据新预分拣站点重新设置waybill及response预分拣站点
      * @param context
      * @param newPreSiteInfo
      */
@@ -204,6 +201,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     	context.getResponse().setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
     	context.getResponse().setPrepareSiteName(newPreSiteInfo.getMediumStationName());
     	context.getResponse().setRoad(newPreSiteInfo.getMediumStationRoad());
+    	
     	context.getWaybill().setSiteCode(newPreSiteInfo.getMediumStationId());
     	context.getWaybill().setSiteName(newPreSiteInfo.getMediumStationName());
     	context.getWaybill().setRoad(newPreSiteInfo.getMediumStationRoad());
@@ -244,20 +242,21 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		Waybill waybill = context.getWaybill();
 		String barCode = context.getRequest().getBarCode();
 		String waybillCode = waybill.getWaybillCode();
-		DmsOperateHint dmsOperateHint = this.dmsOperateHintService.getNeedReprintHintMsg(waybillCode);
+		DmsOperateHint dmsOperateHint = this.dmsOperateHintService.getNeedReprintHint(waybillCode);
 		if(dmsOperateHint != null){
-			MediumStationOrderInfo newPreSiteInfo = new MediumStationOrderInfo();
+			MediumStationOrderInfo newPreSiteInfo = JsonHelper.fromJson(
+					dmsOperateHint.getHintContent(), MediumStationOrderInfo.class);
 			//判断是否按运单补打
 			boolean isPrintByWaybill = waybillCode.equals(barCode);
 			//按运单补打,则关闭提醒信息
 			boolean needCloseHintMsg = isPrintByWaybill;
 			boolean needSendMq = false;
 			String reprintRecordsKey = CacheKeyConstants.CACHE_KEY_REPRINT_RECORDS + waybillCode;
-			Map<String,String> reprintRecords = redisManager.hgetall(reprintRecordsKey);
+			Map<String,String> reprintRecords = jimdbCacheService.hGetAll(reprintRecordsKey);
 			if(!isPrintByWaybill){
 				//按包裹补打，不包含本次补打，存储一条补打记录
 				if(reprintRecords == null || !reprintRecords.containsKey(barCode)){
-					redisManager.hset(reprintRecordsKey, barCode, Constants.STRING_FLG_TRUE);
+					jimdbCacheService.hSet(reprintRecordsKey, barCode, Constants.STRING_FLG_TRUE);
 					//判断是否已补打完所有包裹
 					if(reprintRecords.size()==(waybill.getPackageNum()-1)){
 						needCloseHintMsg = true;
@@ -271,11 +270,13 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 			}
 			if(needCloseHintMsg){
 				logger.warn("关闭包裹补打提醒："+waybill.getWaybillCode());
-				dmsOperateHintService.closeNeedReprintHintMsg(waybill.getWaybillCode());
+				dmsOperateHint.setIsEnable(Constants.INTEGER_FLG_FALSE);
+				dmsOperateHintService.saveOrUpdate(dmsOperateHint);
+				jimdbCacheService.del(reprintRecordsKey);
 			}
 			//发送站点变更的mq给运单
 			if(needSendMq){
-				logger.warn("发送站点变更的mq："+waybill.getWaybillCode());
+				logger.warn("包裹补打-发送站点变更的mq："+waybill.getWaybillCode());
 				sendSiteChangeMQ(context, newPreSiteInfo);
 			}
 			this.resetPresiteInfo(context, newPreSiteInfo);
@@ -292,9 +293,11 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 		siteChangeHit.setDmsSiteCode(context.getRequest().getDmsSiteCode());
 		siteChangeHit.setDmsSiteName(context.getRequest().getSiteName());
 		siteChangeHit.setWaybillCode(context.getWaybill().getWaybillCode());
+		siteChangeHit.setHintType(DmsOperateHint.HINT_TYPE_SYS);
 		siteChangeHit.setHintCode(DmsOperateHint.HINT_CODE_NEED_REPRINT);
 		siteChangeHit.setHintName(DmsOperateHint.HINT_NAME_NEED_REPRINT);
 		siteChangeHit.setHintMessage(msg);
+		siteChangeHit.setHintContent(JsonHelper.toJson(newPreSiteInfo));
 		siteChangeHit.setIsEnable(Constants.INTEGER_FLG_TRUE);
 		logger.warn("新增一条包裹补打提醒信息："+siteChangeHit.getWaybillCode());
 		dmsOperateHintService.saveOrUpdate(siteChangeHit);

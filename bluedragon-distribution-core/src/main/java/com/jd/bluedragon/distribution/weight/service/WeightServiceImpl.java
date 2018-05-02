@@ -25,7 +25,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -38,9 +37,9 @@ import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.common.cache.CacheKeyGenerator;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.proxy.Profiler;
 
 @Service("weightService")
@@ -69,8 +68,9 @@ public class WeightServiceImpl implements WeightService {
 	@Qualifier("cacheKeyGenerator")
 	private CacheKeyGenerator cacheKeyGenerator;
 	
-	@Autowired
-	private RedisManager redisManager;
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
     
     private static final Type WAYBILL_WEIGHT=new TypeToken<List<OpeEntity>>(){}.getType();
 
@@ -277,10 +277,8 @@ public class WeightServiceImpl implements WeightService {
 		if(hashKey != null){
 			String key = this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey[0]);
 			String keyField = hashKey[1];
-			boolean rest = redisManager.hset(key, keyField, JsonHelper.toJson(weightOperFlow));
-			if(rest){
-				redisManager.expire(key, Constants.TIME_SECONDS_ONE_MONTH);
-			}
+			boolean rest = jimdbCacheService.hSetEx(key, keyField,weightOperFlow,Constants.TIME_SECONDS_ONE_MONTH);
+			Map<String,WeightOperFlow> map1 = jimdbCacheService.hGetAll(key, WeightOperFlow.class);
 			return rest;
 		}
 		return false;
@@ -290,10 +288,7 @@ public class WeightServiceImpl implements WeightService {
 		if(hashKey != null){
 			String key = this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey[0]);
 			String keyField = hashKey[1];
-			String value = this.redisManager.hget(key, keyField);
-			if(StringHelper.isNotEmpty(value)){
-				return JsonHelper.fromJson(value, WeightOperFlow.class);
-			}
+			return this.jimdbCacheService.hGet(key, keyField, WeightOperFlow.class);
 		}
 		return null;
 	}
@@ -302,18 +297,19 @@ public class WeightServiceImpl implements WeightService {
 		String hashKey = BusinessHelper.getHashKey(waybillCode,pageIndex);
 		if(hashKey != null){
 			Map<String,WeightOperFlow> result = new HashMap<String,WeightOperFlow>();
-			Map<String,String> values = this.redisManager.hgetall(
-					this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey));
+			Map<String,WeightOperFlow> values = this.jimdbCacheService.hGetAll(
+					this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey),
+					WeightOperFlow.class
+					);
 			//循环所有分页获取数据
-			while(!values.isEmpty()){
-				for(String packageCode:values.keySet()){
-					result.put(packageCode,
-							JsonHelper.fromJson(values.get(packageCode), WeightOperFlow.class));
-				}
+			while(values!=null && !values.isEmpty()){
+					result.putAll(values);
 				++ pageIndex;
 				hashKey = BusinessHelper.getHashKey(waybillCode,pageIndex);
-				values = this.redisManager.hgetall(
-						this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey));
+				values = this.jimdbCacheService.hGetAll(
+						this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey),
+						WeightOperFlow.class
+						);
 			}
 			return result;
 		}

@@ -18,9 +18,13 @@ public class CacheKeyConstants {
 	 */
 	public static final String CACHE_KEY_DMS_WEIGHT_INFO = "DmsWeightInfo";
     /**
-     * 提示语缓存key-需要包裹补打（hintMsgNeedReprint）
+     * 提示语缓存key-用户创建的提示（userHintMsg）
      */
-    public static final String CACHE_KEY_HINT_MSG_NEED_REPRINT ="hintMsgNeedReprint";
+    public static final String CACHE_KEY_USER_HINT_MSG ="userHintMsg";
+    /**
+     * 提示语缓存key-系统提示（sysHintMsg）
+     */
+    public static final String CACHE_KEY_SYS_HINT_MSG ="sysHintMsg";
     /**
      * 缓存key-包裹补打记录（reprintRecords）
      */

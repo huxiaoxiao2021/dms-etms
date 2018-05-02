@@ -12,6 +12,10 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  *
  */
 public interface DmsOperateHintDao extends Dao<DmsOperateHint> {
-
-
+	/**
+	 * 根据运单号查询，补打提示信息
+	 * @param waybillCode
+	 * @return
+	 */
+	DmsOperateHint queryNeedReprintHintByWaybillCode(String waybillCode);
 }

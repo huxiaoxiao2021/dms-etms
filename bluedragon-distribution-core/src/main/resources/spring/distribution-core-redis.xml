@@ -55,4 +55,7 @@
     <bean id="cacheKeyGenerator" class="com.jd.ql.dms.common.cache.CacheKeyGenerator">
     	<property name="keyForamt" value="${beans.cacheKeyGenerator.keyForamt}"></property>
     </bean>
+    <bean id="jimdbCacheService" class="com.jd.bluedragon.common.service.JimdbCacheServiceImpl">
+    	<constructor-arg index="0" ref="redisClient"></constructor-arg>
+    </bean>
 </beans>
