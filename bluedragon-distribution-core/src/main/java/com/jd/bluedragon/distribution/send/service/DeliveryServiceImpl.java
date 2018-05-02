@@ -301,7 +301,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
             if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
-                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
+                BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode()+"");
+                if(siteInfo == null || siteInfo.getSiteType() != 64){
+                    sortingCheck.setOperateType(1);
+                }else {
+                    sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                }
             }else{
                 sortingCheck.setOperateType(1);
             }
