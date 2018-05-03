@@ -959,13 +959,8 @@ public class BaseServiceImpl implements BaseService {
 			return "";
 		}
 		//截取分拣中心、分拨中心、中转场
-		if (siteName.indexOf(Constants.SUFFIX_DMS_ONE)!=-1){
-			return siteName.replace(Constants.SUFFIX_DMS_ONE,"");
-		}else if (siteName.indexOf(Constants.SUFFIX_DMS_TWO)!=-1){
-			return siteName.replace(Constants.SUFFIX_DMS_TWO,"");
-		}else if (siteName.indexOf(Constants.SUFFIX_TRANSIT)!=-1){
-			return siteName.replace(Constants.SUFFIX_TRANSIT,"");
-		}
-		return siteName;
+		return siteName.replace(Constants.SUFFIX_DMS_ONE,"")
+				.replace(Constants.SUFFIX_DMS_TWO,"")
+				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
 }
