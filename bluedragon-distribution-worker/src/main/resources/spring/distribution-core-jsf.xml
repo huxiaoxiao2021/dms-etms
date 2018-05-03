@@ -268,9 +268,12 @@
     </jsf:consumer>
 
     <!-- 路由 谭杨-->
+    <bean id="vrsRedisCacheSdk" class=" com.jd.etms.sdk.util.RedisCache">
+        <property name="jimClient" ref="redisClient"/>
+    </bean>
     <bean id="routeComputeUtil" class="com.jd.etms.sdk.compute.RouteComputeUtil">
         <property name="routeComputeQueryAPI" ref="routeComputeQueryAPI"/>
-        <property name="redisCache" ref="redisClient"/>
+        <property name="redisCache" ref="vrsRedisCacheSdk"/>
     </bean>
     <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="3">
