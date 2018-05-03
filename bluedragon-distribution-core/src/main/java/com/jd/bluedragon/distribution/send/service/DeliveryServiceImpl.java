@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -45,6 +46,8 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
@@ -52,6 +55,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -158,6 +162,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private SupportServiceInterface supportProxy;
 
     @Autowired
+    private GoddessService goddessService;
+
+    @Autowired
     @Qualifier("batchSendDao")
     private BatchSendDao batchSendDao;
 
@@ -186,6 +193,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
+
+    @Autowired
+    private BaseService baseService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -290,7 +300,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
             if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
-                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
+                BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode()+"");
+                if(siteInfo == null || siteInfo.getSiteType() != 64){
+                    sortingCheck.setOperateType(1);
+                }else {
+                    sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+                }
             }else{
                 sortingCheck.setOperateType(1);
             }
@@ -2296,6 +2312,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer createSiteCode = queryPara.getCreateSiteCode();
         Integer receiveSiteCode = queryPara.getReceiveSiteCode();
 
+        //批次号目的地类型为64的进行路由校验，否则走原来的逻辑
+        BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(receiveSiteCode+"");
+        if(siteInfo == null){
+            logger.warn("checkRouterForCBox获取到的站点信息为空.站点：" + receiveSiteCode);
+            return response;
+        }
+        if(siteInfo.getSiteType() != 64){
+            logger.info("checkRouterForCBox 批次号目的地["+receiveSiteCode + "]的站点类型为：" + siteInfo.getSiteType()+"不进行路由校验");
+            return response;
+        }
+
         // 获取箱中的运单号
         List<String> waybillCodes = getWaybillCodesByBoxCodeAndFetchNum(boxCode,3);
 
@@ -2319,24 +2346,90 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
 
-        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，对应的路由为:" + routerStr);
+        logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，运单正确路由为:" + routerStr);
+
+        String  logInfo = "";
 
         //路由校验逻辑
+        boolean getCurNodeFlag = false;  //路由中是否包含当前分拣中心标识
+
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
+
+        //当前分拣中心可以到达的下一网点集合
+        List<Integer> routerShow = new ArrayList<Integer>();
+
         for(int i=0 ;i< routerNodes.length-1; i++){
             int curNode = Integer.parseInt(routerNodes[i]);
             int nexNode = Integer.parseInt(routerNodes[i+1]);
             if(curNode == createSiteCode){
+                getCurNodeFlag = true;
+                routerShow.add(nexNode);
                 if(nexNode == receiveSiteCode){
-                    break;
-                }else {
-                    response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
-                    response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR);
+                    //校验成功增加cassandra日志
+                    logInfo = "C网路由校验按箱发货校验通过.箱号:"+ boxCode  + ",取到的运单号："+
+                            waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
+                            ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
+                            ",批次号的目的地：" + receiveSiteCode;
+                    logger.info(logInfo);
+                    addCassandraLog(boxCode,boxCode,logInfo);
+                    return response;
                 }
             }
         }
 
+        //运单的路由上不包含当前操作的分拣中心，则无法确定下一站，直接返回
+        if(!getCurNodeFlag){
+            logInfo="C网路由校验按箱发货，路由中不包含当前分拣中心.箱号:"+ boxCode  + ",取到的运单号："+
+                    waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
+                    ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
+                    ",批次号的目的地：" + receiveSiteCode;
+            addCassandraLog(boxCode,boxCode,logInfo);
+            return response;
+        }
+
+        //将下一站由编码转换成名称，并进行截取，供pda提示
+        String routerShortNames="";
+        for(Integer dmsCode : routerShow){
+            if(StringHelper.isEmpty(baseService.getDmsShortNameByCode(dmsCode))){
+                continue;
+            }
+            routerShortNames +=  baseService.getDmsShortNameByCode(dmsCode) + Constants.SEPARATOR_COMMA;
+        }
+        
+        if(StringHelper.isNotEmpty(routerShortNames)){
+            routerShortNames = routerShortNames.substring(0,routerShortNames.length()-1);
+        }
+
+        response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
+        response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
+                "取到运单：" + waybillCodeForVerify + "，路由下一站:" + routerShortNames);
+
+        logInfo = "C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
+                waybillCodes + ",进行校验的运单号为：" + waybillCodeForVerify +
+                ",运单正确路由为:" + routerStr +  ",操作站点为：" + createSiteCode +
+                ",批次号的目的地为：" + receiveSiteCode;
+
+        addCassandraLog(boxCode,boxCode,logInfo);
+
         return response;
+    }
+
+    /**
+     * 记录cassandra日志
+     * @param head
+     * @param key
+     * @param body
+     */
+    private void addCassandraLog(String head,String key, String body){
+        //记录cassandra日志
+        Goddess goddess = new Goddess();
+        goddess.setHead(head);
+        goddess.setKey(key);
+        goddess.setDateTime(new Date());
+
+        goddess.setBody(body);
+
+        goddessService.save(goddess);
     }
     /**
      * 快运发货校验路由信息
