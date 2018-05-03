@@ -38,7 +38,7 @@ public class JimdbCacheServiceImpl implements CacheService{
     private static Cache<String, Byte> hasSetExpireTimeKeySet
             = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.HOURS)
-            .maximumSize(51200)
+            .maximumSize(10240)
             .concurrencyLevel(8)
             .initialCapacity(1024)
             .build();
