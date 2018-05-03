@@ -56,7 +56,7 @@ public class DefaultDataChange implements DataChange {
 		if(val == null || "".equals(val.trim())){
 			throw new IllegalArgumentException("第" + row.getRowNum() + "行,第" + (columnIndex+1) + "列," + field.getName() + "字段为空");
 		}
-		if(val.trim().matches("^(-|)\\d+(\\.|)\\d+$")){
+		if(val.trim().matches("^(-|)\\d+(\\.\\d+|)$")){
 			t = Double.valueOf(val.trim());
 		}else{
 			throw new IllegalArgumentException("第" + row.getRowNum() + "行,第" + (columnIndex+1) + "列," + field.getName() + "字段类型不匹配，应为数字类型");

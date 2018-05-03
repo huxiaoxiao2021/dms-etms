@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormal.dao.DmsAbnormalEclpDao">
+
+	<resultMap id="DmsAbnormalEclp" type="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consult_type" property="consultType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="consult_reason" property="consultReason" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consult_mark" property="consultMark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="is_receipt" property="isReceipt" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="receipt_time" property="receiptTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="receipt_type" property="receiptType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="receipt_value" property="receiptValue" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receipt_mark" property="receiptMark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_code" property="updateUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,dms_site_code,dms_site_name,waybill_code,consult_type,consult_reason,
+		consult_mark,is_receipt,receipt_time,receipt_type,receipt_value,
+		receipt_mark,create_user_code,create_user,create_user_name,create_time,
+		update_user_code,update_user,update_user_name,update_time,is_delete,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp">
+		insert into dms_abnormal_eclp
+			(
+			<trim suffixOverrides=",">
+				<if test="dmsSiteCode != null">
+					dms_site_code,
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="consultType != null">
+					consult_type,
+				</if>
+				<if test="consultReason != null">
+					consult_reason,
+				</if>
+				<if test="consultMark != null">
+					consult_mark,
+				</if>
+				<if test="isReceipt != null">
+					is_receipt,
+				</if>
+				<if test="receiptTime != null">
+					receipt_time,
+				</if>
+				<if test="receiptType != null">
+					receipt_type,
+				</if>
+				<if test="receiptValue != null">
+					receipt_value,
+				</if>
+				<if test="receiptMark != null">
+					receipt_mark,
+				</if>
+				<if test="createUserCode != null">
+					create_user_code,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="createUserName != null">
+					create_user_name,
+				</if>
+					create_time,
+					is_delete,
+					ts
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="dmsSiteCode != null">
+					#{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					#{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="consultType != null">
+					#{consultType,jdbcType=INTEGER},
+				</if>
+				<if test="consultReason != null">
+					#{consultReason,jdbcType=VARCHAR},
+				</if>
+				<if test="consultMark != null">
+					#{consultMark,jdbcType=VARCHAR},
+				</if>
+				<if test="isReceipt != null">
+					#{isReceipt,jdbcType=TINYINT},
+				</if>
+				<if test="receiptTime != null">
+					#{receiptTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="receiptType != null">
+					#{receiptType,jdbcType=INTEGER},
+				</if>
+				<if test="receiptValue != null">
+					#{receiptValue,jdbcType=VARCHAR},
+				</if>
+				<if test="receiptMark != null">
+					#{receiptMark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					#{createUserCode,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<choose>
+					<when test="createTime != null">
+						#{createTime,jdbcType=TIMESTAMP},
+					</when>
+					<otherwise>
+						now(),
+					</otherwise>
+				</choose>
+				0,
+				now()
+
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into dms_abnormal_eclp
+			(
+				dms_site_code,dms_site_name,waybill_code,consult_type,
+				consult_reason,consult_mark,is_receipt,receipt_time,receipt_type,
+				receipt_value,receipt_mark,create_user_code,create_user,create_user_name,
+				create_time,update_user_code,update_user,update_user_name,update_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.dmsSiteCode,jdbcType=INTEGER},
+					#{item.dmsSiteName,jdbcType=VARCHAR},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.consultType,jdbcType=INTEGER},
+					#{item.consultReason,jdbcType=VARCHAR},
+					#{item.consultMark,jdbcType=VARCHAR},
+					#{item.isReceipt,jdbcType=TINYINT},
+					#{item.receiptTime,jdbcType=TIMESTAMP},
+					#{item.receiptType,jdbcType=INTEGER},
+					#{item.receiptValue,jdbcType=VARCHAR},
+					#{item.receiptMark,jdbcType=VARCHAR},
+					#{item.createUserCode,jdbcType=INTEGER},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.createUserName,jdbcType=VARCHAR},
+					now(),
+					#{item.updateUserCode,jdbcType=INTEGER},
+					#{item.updateUser,jdbcType=VARCHAR},
+					#{item.updateUserName,jdbcType=VARCHAR},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					0,
+					now()
+				)
+			</foreach>
+	</insert>
+	<update id="updateResult" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp">
+		update dms_abnormal_eclp
+		<set>
+			<if test="receiptTime != null">
+				receipt_time = #{receiptTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="receiptType != null">
+				receipt_type = #{receiptType,jdbcType=INTEGER},
+			</if>
+			<if test="receiptValue != null">
+				receipt_value = #{receiptValue,jdbcType=VARCHAR},
+			</if>
+			<if test="receiptMark != null">
+				receipt_mark = #{receiptMark,jdbcType=VARCHAR},
+			</if>
+			update_time=now(),
+			is_receipt=1
+		</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp">
+		update dms_abnormal_eclp
+			<set>
+				<if test="dmsSiteCode != null">
+					dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name = #{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="consultType != null">
+					consult_type = #{consultType,jdbcType=INTEGER},
+				</if>
+				<if test="consultReason != null">
+					consult_reason = #{consultReason,jdbcType=VARCHAR},
+				</if>
+				<if test="consultMark != null">
+					consult_mark = #{consultMark,jdbcType=VARCHAR},
+				</if>
+				<if test="isReceipt != null">
+					is_receipt = #{isReceipt,jdbcType=TINYINT},
+				</if>
+				<if test="receiptTime != null">
+					receipt_time = #{receiptTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="receiptType != null">
+					receipt_type = #{receiptType,jdbcType=INTEGER},
+				</if>
+				<if test="receiptValue != null">
+					receipt_value = #{receiptValue,jdbcType=VARCHAR},
+				</if>
+				<if test="receiptMark != null">
+					receipt_mark = #{receiptMark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					create_user_code = #{createUserCode,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUserCode != null">
+					update_user_code = #{updateUserCode,jdbcType=INTEGER},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update dms_abnormal_eclp
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update dms_abnormal_eclp
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="DmsAbnormalEclp">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_abnormal_eclp 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp" resultMap="DmsAbnormalEclp">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_abnormal_eclp 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="where_condition">
+		<where>
+			is_delete = 0
+            <if test="dmsSiteCode != null">
+                AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
+            </if>
+            <if test="waybillCode != null">
+                AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            </if>
+            <if test="startTime != null">
+                AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="endTime != null">
+                AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="isReceipt != null">
+                AND is_receipt = #{isReceipt,jdbcType=TINYINT}
+            </if>
+		</where>
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  dms_abnormal_eclp
+        <include refid="where_condition"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsAbnormalEclp">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_abnormal_eclp
+        <include refid="where_condition"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>

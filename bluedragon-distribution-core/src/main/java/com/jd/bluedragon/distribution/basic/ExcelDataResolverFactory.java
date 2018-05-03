@@ -16,4 +16,15 @@ public class ExcelDataResolverFactory {
 		}
 		return dataResolver;
 	}
+
+
+	public static DataResolver getDataResolver(String fileName){
+		int type = 0;
+		if (fileName.endsWith("xls") || fileName.endsWith("XLS")) {
+			type = 1;
+		} else if(fileName.endsWith("xlsx") || fileName.endsWith("XLSX")){
+			type = 2;
+		}
+		return getDataResolver(type);
+	}
 }

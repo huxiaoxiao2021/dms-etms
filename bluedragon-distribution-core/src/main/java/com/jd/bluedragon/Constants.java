@@ -504,7 +504,7 @@ public class Constants {
      */
     public static final String SEND_DETAIL_SOUCRE_AR = "AR";
     public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
-    
+
     /**
      * 查询B网应履约时效接口相关
      * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
@@ -513,7 +513,14 @@ public class Constants {
     public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
-    
+
     public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
     public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+
+    /**
+     *  重泡比超过正常范围168:1到330:1
+     */
+    public static final double CBM_DIV_KG_MIN_LIMIT = 168.0;
+    public static final double CBM_DIV_KG_MAX_LIMIT = 330.0;
+    public static final String CBM_DIV_KG_MESSAGE = "重泡比超过正常范围168:1到330:1";
 }

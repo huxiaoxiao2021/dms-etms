@@ -1788,7 +1788,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @JProfiler(jKey = "DMSWORKER.DeliveryService.updatewaybillCodeMessage", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean updatewaybillCodeMessage(Task task) {
+    public boolean  updatewaybillCodeMessage(Task task) {
         logger.info("发货状态开始处理" + JsonHelper.toJson(task) + "是否JSON字符串" + JsonHelper.isJsonString(task.getBody()));
         logger.info(task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null);
         if (task == null || task.getBoxCode() == null
