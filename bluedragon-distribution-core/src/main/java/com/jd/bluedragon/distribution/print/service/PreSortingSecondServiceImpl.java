@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
@@ -66,6 +66,9 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+    
+    @Autowired
+    private PrintRecordService printRecordService;
     /**
      * 2次预分拣变更提示信息
      */
@@ -201,7 +204,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     	context.getResponse().setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
     	context.getResponse().setPrepareSiteName(newPreSiteInfo.getMediumStationName());
     	context.getResponse().setRoad(newPreSiteInfo.getMediumStationRoad());
-    	
+    	//站点平台及驻场打印
     	context.getWaybill().setSiteCode(newPreSiteInfo.getMediumStationId());
     	context.getWaybill().setSiteName(newPreSiteInfo.getMediumStationName());
     	context.getWaybill().setRoad(newPreSiteInfo.getMediumStationRoad());
@@ -251,12 +254,11 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 			//按运单补打,则关闭提醒信息
 			boolean needCloseHintMsg = isPrintByWaybill;
 			boolean needSendMq = false;
-			String reprintRecordsKey = CacheKeyConstants.CACHE_KEY_REPRINT_RECORDS + waybillCode;
-			Map<String,String> reprintRecords = jimdbCacheService.hGetAll(reprintRecordsKey);
+			Set<String> reprintRecords = this.printRecordService.getHasReprintPackageCodes(waybillCode);
 			if(!isPrintByWaybill){
 				//按包裹补打，不包含本次补打，存储一条补打记录
-				if(reprintRecords == null || !reprintRecords.containsKey(barCode)){
-					jimdbCacheService.hSet(reprintRecordsKey, barCode, Constants.STRING_FLG_TRUE);
+				if(reprintRecords == null || !reprintRecords.contains(barCode)){
+					this.printRecordService.saveReprintRecord(barCode);
 					//判断是否已补打完所有包裹
 					if(reprintRecords.size()==(waybill.getPackageNum()-1)){
 						needCloseHintMsg = true;
@@ -272,7 +274,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 				logger.warn("关闭包裹补打提醒："+waybill.getWaybillCode());
 				dmsOperateHint.setIsEnable(Constants.INTEGER_FLG_FALSE);
 				dmsOperateHintService.saveOrUpdate(dmsOperateHint);
-				jimdbCacheService.del(reprintRecordsKey);
+				logger.warn("清除包裹补打记录："+waybill.getWaybillCode());
+				this.printRecordService.deleteReprintRecordsByWaybillCode(waybillCode);
 			}
 			//发送站点变更的mq给运单
 			if(needSendMq){

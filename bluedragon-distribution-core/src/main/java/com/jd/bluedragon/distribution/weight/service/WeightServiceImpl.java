@@ -278,7 +278,6 @@ public class WeightServiceImpl implements WeightService {
 			String key = this.cacheKeyGenerator.getCacheKey(CacheKeyConstants.CACHE_KEY_DMS_WEIGHT_INFO, hashKey[0]);
 			String keyField = hashKey[1];
 			boolean rest = jimdbCacheService.hSetEx(key, keyField,weightOperFlow,Constants.TIME_SECONDS_ONE_MONTH);
-			Map<String,WeightOperFlow> map1 = jimdbCacheService.hGetAll(key, WeightOperFlow.class);
 			return rest;
 		}
 		return false;

@@ -60,9 +60,10 @@ public class CacheServiceTest{
     	cache.set("muliList", muliList);
     	cache.set("muliMap", muliMap);
     	cache.set("testEntity", EntityUtil.getInstance(TestEntity.class));
-    	cache.hSet("dms.etms:DmsWeightInfo:VA66699599416-1", "VA66699599416-1-2-", EntityUtil.getInstance(WeightOperFlow.class));
-    	cache.hSet("dms.etms:DmsWeightInfo:VA66699599416-1", "VA66699599416-2-2-", EntityUtil.getInstance(WeightOperFlow.class));
-    	Map<String,String> tmp0 = cache.hGetAll("dms.etms:DmsWeightInfo:VA66699599416-1");
+//    	cache.hSet("dms.etms:DmsWeightInfo:VA66699599416-1", "VA66699599416-1-2-", EntityUtil.getInstance(WeightOperFlow.class));
+//    	cache.hSet("dms.etms:DmsWeightInfo:VA66699599416-1", "VA66699599416-2-2-", EntityUtil.getInstance(WeightOperFlow.class));
+    	Map<String,String> tmp0 = cache.hGetAll("dms.etms:DmsWeightInfo:VA66616673591-1");
+    	String tmp1 = cache.get("dms.etms:DmsWeightInfo:VA66616673591-1");
     	muliList = cache.get("muliList",List.class);
     	muliMap = cache.get("muliMap",Map.class);
     	TestEntity testEntity = cache.get("testEntity",TestEntity.class);
