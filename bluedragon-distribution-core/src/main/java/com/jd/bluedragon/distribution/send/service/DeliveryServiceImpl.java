@@ -2349,9 +2349,14 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         logger.warn("C网路由校验按箱发货,箱号为:"+ boxCode +"取到的运单号为：" + waybillCodeForVerify + "，运单正确路由为:" + routerStr);
 
+        String  logInfo = "";
+
         //路由校验逻辑
-        boolean getCurNodeFlag = false;
+        boolean getCurNodeFlag = false;  //路由中是否包含当前分拣中心标识
+
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
+
+        //当前分拣中心可以到达的下一网点集合
         List<Integer> routerShow = new ArrayList<Integer>();
 
         for(int i=0 ;i< routerNodes.length-1; i++){
@@ -2361,6 +2366,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                 getCurNodeFlag = true;
                 routerShow.add(nexNode);
                 if(nexNode == receiveSiteCode){
+                    //校验成功增加cassandra日志
+                    logInfo = "C网路由校验按箱发货校验通过.箱号:"+ boxCode  + ",取到的运单号："+
+                            waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
+                            ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
+                            ",批次号的目的地：" + receiveSiteCode;
+                    logger.info(logInfo);
+                    addCassandraLog(boxCode,boxCode,logInfo);
                     return response;
                 }
             }
@@ -2368,6 +2380,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         //运单的路由上不包含当前操作的分拣中心，则无法确定下一站，直接返回
         if(!getCurNodeFlag){
+            logInfo="C网路由校验按箱发货，路由中不包含当前分拣中心.箱号:"+ boxCode  + ",取到的运单号："+
+                    waybillCodes + ",进行校验的运单号：" + waybillCodeForVerify +
+                    ",运单正确路由:" + routerStr +  ",操作站点：" + createSiteCode +
+                    ",批次号的目的地：" + receiveSiteCode;
+            addCassandraLog(boxCode,boxCode,logInfo);
             return response;
         }
 
@@ -2388,20 +2405,32 @@ public class DeliveryServiceImpl implements DeliveryService {
         response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
                 "取到运单：" + waybillCodeForVerify + "，路由下一站:" + routerShortNames);
 
-        //记录cassandra日志
-        Goddess goddess = new Goddess();
-        goddess.setHead(boxCode);
-        goddess.setKey(boxCode);
-        goddess.setDateTime(new Date());
-
-        goddess.setBody("C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
+        logInfo = "C网路由校验按箱发货,箱号为:"+ boxCode  + ",取到的运单号为："+
                 waybillCodes + ",进行校验的运单号为：" + waybillCodeForVerify +
                 ",运单正确路由为:" + routerStr +  ",操作站点为：" + createSiteCode +
-                ",批次号的目的地为：" + receiveSiteCode);
+                ",批次号的目的地为：" + receiveSiteCode;
 
-        goddessService.save(goddess);
+        addCassandraLog(boxCode,boxCode,logInfo);
 
         return response;
+    }
+
+    /**
+     * 记录cassandra日志
+     * @param head
+     * @param key
+     * @param body
+     */
+    private void addCassandraLog(String head,String key, String body){
+        //记录cassandra日志
+        Goddess goddess = new Goddess();
+        goddess.setHead(head);
+        goddess.setKey(key);
+        goddess.setDateTime(new Date());
+
+        goddess.setBody(body);
+
+        goddessService.save(goddess);
     }
     /**
      * 快运发货校验路由信息
