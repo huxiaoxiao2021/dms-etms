@@ -2352,11 +2352,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         //路由校验逻辑
         boolean getCurNodeFlag = false;
         String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLITER);
+        List<Integer> routerShow = new ArrayList<Integer>();
+
         for(int i=0 ;i< routerNodes.length-1; i++){
             int curNode = Integer.parseInt(routerNodes[i]);
             int nexNode = Integer.parseInt(routerNodes[i+1]);
             if(curNode == createSiteCode){
                 getCurNodeFlag = true;
+                routerShow.add(nexNode);
                 if(nexNode == receiveSiteCode){
                     return response;
                 }
@@ -2368,9 +2371,22 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }
 
+        //将下一站由编码转换成名称，并进行截取，供pda提示
+        String routerShortNames="";
+        for(Integer dmsCode : routerShow){
+            if(StringHelper.isEmpty(baseService.getDmsShortNameByCode(dmsCode))){
+                continue;
+            }
+            routerShortNames +=  baseService.getDmsShortNameByCode(dmsCode) + Constants.SEPARATOR_COMMA;
+        }
+        
+        if(StringHelper.isNotEmpty(routerShortNames)){
+            routerShortNames = routerShortNames.substring(0,routerShortNames.length()-1);
+        }
+
         response.setCode(DeliveryResponse.CODE_CROUTER_ERROR);
         response.setMessage(DeliveryResponse.MESSAGE_CROUTER_ERROR +
-                "取到的运单号：" + waybillCodeForVerify + "，运单正确路由:" + routerStr);
+                "取到运单：" + waybillCodeForVerify + "，路由下一站:" + routerShortNames);
 
         //记录cassandra日志
         Goddess goddess = new Goddess();

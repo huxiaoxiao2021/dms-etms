@@ -516,4 +516,18 @@ public class Constants {
     
     public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
     public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+
+    /**
+     * 一级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_ONE="分拣中心";
+    /**
+     * 二级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_TWO="分拨中心";
+    /**
+     * 中转场名称后缀
+     */
+    public static final String SUFFIX_TRANSIT="中转场";
+
 }
