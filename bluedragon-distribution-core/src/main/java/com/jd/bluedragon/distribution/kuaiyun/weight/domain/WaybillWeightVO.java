@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.domain;
 
-public class WaybillWeightVO
+import java.io.Serializable;
+
+public class WaybillWeightVO implements Serializable
 {
+    private static final long serialVersionUID = 1L;
+
     /*运单号或运单下包裹号*/
     private String codeStr;
 
@@ -28,6 +32,13 @@ public class WaybillWeightVO
 
     /*操作时间*/
     private long operateTimeMillis;
+    /**
+     * 错误信息
+     */
+    private String errorMessage;
+
+    /*是否可强制提交 0否 1是*/
+    private Integer canSubmit;
 
     @Override
     public String toString()
@@ -133,6 +144,22 @@ public class WaybillWeightVO
     public void setOperateTimeMillis(long operateTimeMillis)
     {
         this.operateTimeMillis = operateTimeMillis;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public Integer getCanSubmit() {
+        return canSubmit;
+    }
+
+    public void setCanSubmit(Integer canSubmit) {
+        this.canSubmit = canSubmit;
     }
 
     public WaybillWeightVO(String codeStr, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)

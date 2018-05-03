@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ql.dms.common.domain.JdResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -21,6 +23,10 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 	
 	@Override
 	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory) throws Exception {
+		return resolver(in, cls,metaDataFactory,false,new ArrayList<String>());
+	}
+	@Override
+	public <T> List<T> resolver(InputStream in, Class<T> cls, MetaDataFactory metaDataFactory,boolean validateIsContinue,List<String> resultMessages) throws Exception{
 		List<T> ret = new ArrayList<T>();
 		long startTime = System.currentTimeMillis();
 		Workbook workbook = this.createWorkbook(in);
@@ -43,21 +49,25 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		}
 		int cellNum = sheet.getRow(0).getLastCellNum();
 		Map<String, MetaData> metaMap = metaDataFactory.getMetaDataMap();
-		
+
 		for (int i = 1; i <= sheet.getLastRowNum(); i++) {
 			Row row = sheet.getRow(i);
 			ExcelContext.setCurrentRow(row);
+			String resultMessage = "";
 			T t = this.newObject(cls);
 			for (int j = 0; j < cellNum; j++) {
 				Cell cell = row.getCell(j);
 				MetaData metaData = metaMap.get(String.valueOf(j));
 				if(metaData != null){
-					this.setObjectValue(t, cell, metaData);
+					String ownResult = this.setObjectValue(t, cell, metaData,validateIsContinue);
+					if(!StringUtils.isBlank(ownResult)){
+                        resultMessage += ownResult;
+                    }
 				}else{
 					throw new IllegalArgumentException("[导入excel列数与预设规则不一致],column:" + j);
 				}
-				
 			}
+			resultMessages.add(StringUtils.isBlank(resultMessage)? JdResponse.CODE_SUCCESS.toString() :resultMessage);
 			if(rowFilter != null){
 				if(!rowFilter.isFilter(t)){
 					ret.add(t);
@@ -71,30 +81,48 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		return ret;
 	}
 
-	protected void setObjectValue(Object t, Cell cell, MetaData metaData) throws Exception {
+	protected String setObjectValue(Object t, Cell cell, MetaData metaData,boolean validateIsContinue) throws Exception {
+		String resultMessage = null;
 		Field field = this.getField(t, metaData.getFieldName());
 		if(field != null){
 			Object value = null;
 			if(cell != null){
-				value = metaData.getDataChange().getValue(field, cell, metaData);
+				try{
+					value = metaData.getDataChange().getValue(field, cell, metaData);
+				}catch (Exception e){
+					String eMessage = e.getMessage();
+					if(validateIsContinue){
+						return eMessage;
+					}else{
+						throw new IllegalArgumentException(eMessage);
+					}
+				}
+
 			}
-			this.validate(value, metaData);
+			resultMessage = this.validate(value, metaData,validateIsContinue);
 			this.setValue(field, t, value);
 		}else{
 			throw new IllegalArgumentException("没有找到属性" + metaData.getFieldName());
 		}
+		return resultMessage;
 	}
 	
-	protected void validate(Object value, MetaData metaData){
-		List<CellValidate> validates = metaData.getValidates();	
+	protected String validate(Object value, MetaData metaData,boolean validateIsContinue){
+		List<CellValidate> validates = metaData.getValidates();
 		if(validates != null){
 			for(CellValidate cellValidate:validates){
 				String msg = cellValidate.validate(value, metaData) ;
 				if(msg != null && !"".equals(msg)){
-					throw new IllegalArgumentException("验证错误：" + msg);
+					if(validateIsContinue){
+						return msg;
+					}else{
+						throw new IllegalArgumentException("验证错误：" + msg);
+
+					}
 				}
 			}
 		}
+		return null;
 	}
 	
 	private void setValue(Field field, Object t, Object value){

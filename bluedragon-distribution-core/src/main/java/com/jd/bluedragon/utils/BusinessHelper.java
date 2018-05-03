@@ -663,4 +663,22 @@ public class BusinessHelper {
 		}
 	}
 
+
+	/**
+	 * 校验运单总体积和总重量重泡比
+	 * 重泡比超过正常范围168:1到330:1
+	 * @param weight
+	 * @param volume
+	 * @return
+	 */
+	public static boolean checkWaybillWeightAndVolume(Double weight,Double volume){
+		if(weight == null || volume == null || weight.compareTo(0.0)<0 ||  volume.compareTo(0.0)<0 ){
+			return false;
+		}
+		if( (weight/volume < Constants.CBM_DIV_KG_MIN_LIMIT) || (weight/volume > Constants.CBM_DIV_KG_MAX_LIMIT) ) {
+			return false;
+		}
+		return true;
+	}
+
 }

@@ -426,4 +426,7 @@
 
     <bean id="packageHalfApproveDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfApproveDaoImpl"/>
+
+    <bean id="dmsAbnormalEclpDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
 </beans>
