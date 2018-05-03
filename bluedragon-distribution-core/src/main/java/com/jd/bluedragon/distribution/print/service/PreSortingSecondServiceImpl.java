@@ -201,9 +201,11 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
      * @param newPreSiteInfo
      */
     private void resetPresiteInfo(WaybillPrintContext context, MediumStationOrderInfo newPreSiteInfo){
-    	context.getResponse().setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
-    	context.getResponse().setPrepareSiteName(newPreSiteInfo.getMediumStationName());
-    	context.getResponse().setRoad(newPreSiteInfo.getMediumStationRoad());
+    	if(context.getResponse()!=null){
+    		context.getResponse().setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
+        	context.getResponse().setPrepareSiteName(newPreSiteInfo.getMediumStationName());
+        	context.getResponse().setRoad(newPreSiteInfo.getMediumStationRoad());
+    	}
     	//站点平台及驻场打印
     	context.getWaybill().setSiteCode(newPreSiteInfo.getMediumStationId());
     	context.getWaybill().setSiteName(newPreSiteInfo.getMediumStationName());
@@ -227,7 +229,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         siteChangeMqDto.setOperatorSiteName(context.getRequest().getSiteName());
         siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
         try {
-            waybillSiteChangeProducer.sendOnFailPersistent(context.getResponse().getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+            waybillSiteChangeProducer.sendOnFailPersistent(context.getWaybill().getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
             logger.warn("发送预分拣站点变更mq消息成功："+JsonHelper.toJsonUseGson(siteChangeMqDto));
         } catch (Exception e) {
             logger.error("发送预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
