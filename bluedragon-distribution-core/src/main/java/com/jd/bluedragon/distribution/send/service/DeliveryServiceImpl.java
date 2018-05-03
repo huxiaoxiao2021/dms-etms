@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -76,6 +77,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -87,6 +89,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
@@ -160,7 +163,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SupportServiceInterface supportProxy;
-
+    
+    @Autowired
+    private DmsOperateHintService dmsOperateHintService;
     @Autowired
     private GoddessService goddessService;
 
@@ -386,7 +391,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         String msg = "";
         try {
             if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
-                msg = redisManager.getCache(Constants.CACHE_KEY_PRE_PDA_HINT + BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
+                msg = dmsOperateHintService.getDeliveryHintMessageByWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
             }
             logger.info("redis取PDA提示语结果："+msg);
         }catch (Throwable e){

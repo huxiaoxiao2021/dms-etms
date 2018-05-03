@@ -12,6 +12,22 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  *
  */
 public interface DmsOperateHintService extends Service<DmsOperateHint> {
-
-
+	/**
+	 * 根据运单号获取验货提示信息
+	 * @param waybillCode
+	 * @return
+	 */
+	String getInspectHintMessageByWaybillCode(String waybillCode);
+	/**
+	 * 根据运单号获取发货提示信息
+	 * @param waybillCode
+	 * @return
+	 */
+	String getDeliveryHintMessageByWaybillCode(String waybillCode);
+	/**
+	 * 获取包裹需要补打的提示信息
+	 * @param waybillCode
+	 * @return
+	 */
+	DmsOperateHint getNeedReprintHint(String waybillCode);
 }

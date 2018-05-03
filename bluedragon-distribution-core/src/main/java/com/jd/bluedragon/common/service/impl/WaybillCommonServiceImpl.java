@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.service.impl;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,6 +25,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.product.domain.Product;
@@ -78,6 +81,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private SiteService siteService;
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+    @Autowired
+    private PopPrintService popPrintService;
     
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -248,29 +253,28 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         return waybill;
     }
-
     /**
      * 转换运单基本信息
      *
      * @param
      * @return
      */
-    public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack) {
-        if (bigWaybillDto == null) {
-            this.logger.debug("转换运单基本信息 --> 原始运单数据集bigWaybillDto为空");
+    public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack){
+    	return this.convWaybillWS(bigWaybillDto, isSetName, isSetPack,false,false);
+    }
+    /**
+     * 转换运单基本信息
+     *
+     * @param
+     * @return
+     */
+    public Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack,
+			boolean loadPrintInfo,boolean loadPweight){
+        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
             return null;
         }
         com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto.getWaybill();
-
-        if (waybillWS == null) {
-            this.logger.debug("转换运单基本信息 --> 原始运单数据集waybillWS为空");
-            return null;
-        }
-//        WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
-//        if (manageDomain == null) {
-//            this.logger.debug("转换运单基本信息 --> 原始运单数据集manageDomain为空");
-//            return null;
-//        }
+        String waybillCode = waybillWS.getWaybillCode();
         Waybill waybill = new Waybill();
         waybill.setWaybillCode(waybillWS.getWaybillCode());
         waybill.setPopSupId(waybillWS.getConsignerId());
@@ -298,13 +302,33 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setWaybillSign(waybillWS.getWaybillSign());
         waybill.setImportantHint(waybillWS.getImportantHint());
 
-//        PickupTask pick = bigWaybillDto.getPickupTask();
-//        if (pick != null) {
-//            waybill.setServiceCode(pick.getServiceCode());
-//        }
-
-
         if (isSetPack) {
+        	//存放包裹的复重及打印信息
+        	Map<String,PackOpeFlowDto> packOpeFlows = null;
+        	Map<String,PopPrint> popPrints = null;
+        	//获取该运单号的打印记录
+        	if(loadPrintInfo){
+        		popPrints = new HashMap<String,PopPrint>();
+                try {
+                	List<PopPrint> popPrintList = this.popPrintService.findAllByWaybillCode(waybillCode);
+                    if(popPrintList != null){
+                    	for (PopPrint popPrint : popPrintList) {
+                    		popPrints.put(popPrint.getPackageBarcode(), popPrint);
+                        }
+                    }
+                }catch(Exception ex){
+                	logger.error("加载运单包裹打印信息失败！waybillCode="+waybillCode,ex);
+                }
+        	}
+        	//获取该运单号的复重信息
+        	if(loadPweight){
+        		packOpeFlows = new HashMap<String,PackOpeFlowDto>();
+                try {
+                	packOpeFlows = this.getPackOpeFlowsByOpeType(waybillCode, Constants.PACK_OPE_FLOW_TYPE_PSY_REC);
+                }catch(Exception ex){
+                	logger.error("加载运单包裹打印信息失败！waybillCode="+waybillCode,ex);
+                }
+        	}
             List<DeliveryPackageD> ds = bigWaybillDto.getPackageList();
             if (ds == null || ds.size() <= 0) {
                 this.logger.warn("转换包裹信息 --> 运单号【" + waybill.getWaybillCode() + "】,原始运单数据集bigWaybillDto为空或size为空");
@@ -313,6 +337,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 this.logger.debug("转换包裹信息 --> 运单号：" + waybill.getWaybillCode()
                         + "转换包裹信息, 包裹数量为:" + ds.size());
                 if (BusinessHelper.checkIntNumRange(ds.size())) {
+                	waybill.setPackageNum(ds.size());
                     List<Pack> packList = new ArrayList<Pack>();
                     for (DeliveryPackageD d : ds) {
                         Pack pack = new Pack();
@@ -329,6 +354,22 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                                     + waybill.getWaybillCode() + "生成包裹号,包裹号为空");
                         }
                         pack.setPackId(d.getPackageId());
+                        //设置打印信息
+                        if(loadPrintInfo && popPrints.containsKey(d.getPackageBarcode())){
+                        	PopPrint popPrint = popPrints.get(d.getPackageBarcode());
+                            if (Constants.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
+                            	pack.setIsPrintPack(Waybill.IS_PRINT_PACK);
+                            } else if (Constants.PRINT_INVOICE_TYPE.equals(popPrint.getOperateType())) {
+                                waybill.setIsPrintInvoice(Waybill.IS_PRINT_INVOICE);
+                            }
+                        }
+                        //设置复重信息
+                        if(loadPweight && packOpeFlows.containsKey(d.getPackageBarcode())){
+                        	PackOpeFlowDto packOpeFlowDto = packOpeFlows.get(d.getPackageBarcode());
+                            if(packOpeFlowDto.getpWeight()!=null){
+                                pack.setpWeight(String.valueOf(packOpeFlowDto.getpWeight()));
+                            }
+                        }
                         packList.add(pack);
                     }
                     waybill.setPackList(packList);

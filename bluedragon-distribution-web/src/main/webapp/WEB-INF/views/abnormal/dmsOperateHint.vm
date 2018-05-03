@@ -28,7 +28,7 @@
                                 <label class="control-label col-xs-4 " for="startDate">操作时间</label>
                                 <div class=" col-xs-8">
                                     <input type="text" id="startTime" name="startTime" class="form-control search-param ">
-
+                                    <input type="hidden" id="hintType" name="hintType" value="1" class="form-control search-param ">
                                 </div>
                             </div>
                         </div>

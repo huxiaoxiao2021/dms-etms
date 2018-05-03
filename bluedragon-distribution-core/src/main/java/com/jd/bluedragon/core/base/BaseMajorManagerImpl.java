@@ -382,7 +382,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
-        // TODO Auto-generated method stub
         return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid, 2);
     }
 
