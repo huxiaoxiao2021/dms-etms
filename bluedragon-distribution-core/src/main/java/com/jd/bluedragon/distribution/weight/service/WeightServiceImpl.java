@@ -94,7 +94,11 @@ public class WeightServiceImpl implements WeightService {
                 	return true;
                 }
                 weightFlowList = (List<WeightOperFlow>)weightInfo.getData().get(KEY_LIST_WEIGHT_OBJECT_FOR_SAVE);
-                batchSaveDmsWeight(weightFlowList);
+                try {
+					batchSaveDmsWeight(weightFlowList);
+				} catch (Exception e) {
+					logger.error("doWeightTrack-fail:保存运单称重记录到redis失败！"+weightInfo.getMessage()+"消息体："+taskBody,e);
+				}
             }else{
             	logger.error("doWeightTrack-fail:"+weightInfo.getMessage()+"消息体："+taskBody);
             	return false;
