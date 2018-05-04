@@ -135,8 +135,10 @@ public class Waybill implements Serializable {
 	
 	/**oldCode*/
 	private Integer oldCode;
-
-
+	/**
+	 * 包裹数量
+	 */
+	private int packageNum;
 	/**
 	 * 包裹集合
 	 */
@@ -751,6 +753,20 @@ public class Waybill implements Serializable {
 				+ this.paymentType + "】, 地址【" + this.address + "】, 特殊属性【"
 				+ this.sendPay + "】, 包裹数量【" + this.quantity + "】, POP商家ID【"
 				+ this.popSupId + "】,POP商家名称【" + this.popSupName + "】";
+	}
+
+	/**
+	 * @return the packageNum
+	 */
+	public int getPackageNum() {
+		return packageNum;
+	}
+
+	/**
+	 * @param packageNum the packageNum to set
+	 */
+	public void setPackageNum(int packageNum) {
+		this.packageNum = packageNum;
 	}
 
 }

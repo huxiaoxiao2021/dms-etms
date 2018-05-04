@@ -41,6 +41,8 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -937,5 +939,28 @@ public class BaseServiceImpl implements BaseService {
 			return baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
 		else
 			return baseMajorManager.getBaseSiteByDmsCode(siteCode);
+	}
+
+
+	@Override
+	@Cache(key = "baseMajorManagerImpl.getDmsShortNameByCode@args0", memoryEnable = false,
+			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsShortNameByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public String getDmsShortNameByCode(Integer dmsCode){
+		BaseStaffSiteOrgDto dto = queryDmsBaseSiteByCode(dmsCode+"");
+		if(dto == null){
+			return null;
+		}
+
+		//读取站点名称
+		String siteName = dto.getSiteName();
+
+		if (StringHelper.isEmpty(siteName)){
+			return "";
+		}
+		//截取分拣中心、分拨中心、中转场
+		return siteName.replace(Constants.SUFFIX_DMS_ONE,"")
+				.replace(Constants.SUFFIX_DMS_TWO,"")
+				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
 }

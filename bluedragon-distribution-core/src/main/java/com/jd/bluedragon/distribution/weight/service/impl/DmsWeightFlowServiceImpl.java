@@ -1,18 +1,26 @@
 package com.jd.bluedragon.distribution.weight.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.weight.dao.DmsWeightFlowDao;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlowCondition;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.cache.CacheKeyGenerator;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 /**
  *
@@ -28,7 +36,7 @@ public class DmsWeightFlowServiceImpl extends BaseService<DmsWeightFlow> impleme
 	@Autowired
 	@Qualifier("dmsWeightFlowDao")
 	private DmsWeightFlowDao dmsWeightFlowDao;
-
+	
 	@Override
 	public Dao<DmsWeightFlow> getDao() {
 		return this.dmsWeightFlowDao;

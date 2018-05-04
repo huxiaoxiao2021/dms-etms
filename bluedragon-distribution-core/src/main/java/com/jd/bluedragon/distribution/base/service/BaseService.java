@@ -263,4 +263,11 @@ public interface BaseService {
 	 * @return
 	 */
 	public Assort getOneAssortById(int assId);
+
+	/**
+	 * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+	 * @param dmsCode
+	 * @return
+     */
+	public String getDmsShortNameByCode(Integer dmsCode);
 }

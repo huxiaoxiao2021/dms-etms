@@ -24,7 +24,10 @@ public class DmsOperateHintCondition extends BasePagerCondition {
 
 	 /** 运单号 */
 	private String waybillCode;
-
+	
+	 /** 提示语类型 */
+	private Integer hintType;
+	
 	 /** 提示语编码 */
 	private Integer hintCode;
 
@@ -283,4 +286,18 @@ public class DmsOperateHintCondition extends BasePagerCondition {
     public void setStartTime(Date startTime) {
         this.startTime = startTime;
     }
+
+	/**
+	 * @return the hintType
+	 */
+	public Integer getHintType() {
+		return hintType;
+	}
+
+	/**
+	 * @param hintType the hintType to set
+	 */
+	public void setHintType(Integer hintType) {
+		this.hintType = hintType;
+	}
 }
