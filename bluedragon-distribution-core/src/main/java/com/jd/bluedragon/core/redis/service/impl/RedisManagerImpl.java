@@ -10,6 +10,7 @@ import com.jd.tbschedule.dto.ScheduleQueue;
 import com.jd.tbschedule.redis.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,12 +18,22 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * 
+ * @ClassName: RedisManagerImpl
+ * @Description: 只限于worker任务存储使用，该类引用了2个不同的Cluster容易造成调用混乱，数据存储推荐使用CacheService
+ * @author: wuyoude
+ * @date: 2018年5月4日 上午9:15:36
+ *
+ */
 @Service("redisManager")
 public class RedisManagerImpl implements RedisManager {
 
 	private static final Logger logger = Logger.getLogger(RedisManagerImpl.class);
 	
+	/**
+	 * redis-worker专用
+	 */
 	@Autowired
 	@Qualifier("redisClient")
 	private Cluster redisClient;
@@ -170,6 +181,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @return
 	 * 
 	 */
+	@Deprecated
 	public void setex(String key, int timeout ,String body) {
 		this.redisClientCache.setEx(key,body,timeout, TimeUnit.SECONDS);
 	}
@@ -180,6 +192,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @return
 	 * 
 	 */
+	@Deprecated
 	public String getCache(String key) {
 		return this.redisClientCache.get(key);
 	}
@@ -190,6 +203,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @return
 	 * 
 	 */
+	@Deprecated
 	public Long del(String key) {
 		// TODO Auto-generated method stub
 		return redisClientCache.del(key);
@@ -200,6 +214,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @param key key
 	 * @return
 	 * */
+	@Deprecated
 	public Boolean exists(String key){
 		return redisClientCache.exists(key);
 	}
@@ -210,6 +225,7 @@ public class RedisManagerImpl implements RedisManager {
 	 * @param key key
 	 * @param seconds expire seconds
 	 * */
+	@Deprecated
 	public Boolean expire(String key, Integer seconds){
 		return redisClientCache.expire(key,seconds,TimeUnit.SECONDS);
 	}
@@ -217,6 +233,7 @@ public class RedisManagerImpl implements RedisManager {
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lpushCache", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	@Override
+	@Deprecated
 	public Long lpushCache(String key, String body) {
 		return redisClientCache.lPush(key, body);
 	}
@@ -224,6 +241,7 @@ public class RedisManagerImpl implements RedisManager {
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.redisManager.lrangeCache", mState = {
 			JProEnum.TP, JProEnum.FunctionError })
 	@Override
+	@Deprecated
 	public List<String> lrangeCache(String key, long start, long end) throws Exception {
 		if(key==null || key.length() < 1){
 			logger.warn("lrangeCache: parameter is empty,return 0!");

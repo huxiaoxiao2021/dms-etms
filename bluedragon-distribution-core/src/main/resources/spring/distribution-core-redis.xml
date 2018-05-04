@@ -56,6 +56,6 @@
     	<property name="keyForamt" value="${beans.cacheKeyGenerator.keyForamt}"></property>
     </bean>
     <bean id="jimdbCacheService" class="com.jd.bluedragon.common.service.JimdbCacheServiceImpl">
-    	<constructor-arg index="0" ref="redisClient"></constructor-arg>
+    	<constructor-arg index="0" ref="redisClientCache"></constructor-arg>
     </bean>
 </beans>
