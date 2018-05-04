@@ -54,7 +54,10 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 				jimdbCacheService.del(oldRedisKey);
 				jimdbCacheService.del(redisKey);
             }else{
-            	jimdbCacheService.setEx(oldRedisKey, dmsOperateHint.getHintMessage(), Constants.TIME_SECONDS_ONE_MONTH);
+            	//wuyde-del 兼容之前的缓存，非系统级别的提示，设置旧的缓存key
+            	if(!DmsOperateHint.HINT_TYPE_SYS.equals(dmsOperateHint.getHintType())){
+            		jimdbCacheService.setEx(oldRedisKey, dmsOperateHint.getHintMessage(), Constants.TIME_SECONDS_ONE_MONTH);
+            	}
             	jimdbCacheService.setEx(redisKey, dmsOperateHint.getHintMessage(), Constants.TIME_SECONDS_ONE_MONTH);
             }
 		}
