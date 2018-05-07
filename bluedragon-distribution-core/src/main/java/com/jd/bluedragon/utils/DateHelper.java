@@ -228,4 +228,11 @@ public class DateHelper {
     public static int compare(Date date,Date date1) {
     	return ObjectHelper.compare(date, date1);
     }
+
+    public static int compareAdjustDate(final Date date, Integer days) {
+
+        Date adjustDate = DateHelper.addDate(new Date(), days);
+
+        return DateHelper.compare(date, adjustDate);
+    }
 }
