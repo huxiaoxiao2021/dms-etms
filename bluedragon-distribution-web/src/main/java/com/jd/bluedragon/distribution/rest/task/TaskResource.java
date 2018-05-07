@@ -321,16 +321,6 @@ public class TaskResource {
                 result.customMessage(UploadData.MAX_BARCODE_LENGTH_CODE, UploadData.MAX_BARCODE_LENGTH_MESSAGE);
                 return result;
             }
-            if (this.addTask(domain) <= 0) {
-                result.customMessage(0, "保存数据失败");
-            }
-
-            /**
-             * 扫描成功之后发出mq消息 用来计算龙门架流速
-             */
-            //edited by hanjiaxing3 2018.05.04
-//            domain.setScannerTime(new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime())));
-
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
@@ -351,9 +341,17 @@ public class TaskResource {
                 gantryExceptionService.addGantryException(gantryException);
                 logger.error("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
             }
+
             domain.setScannerTime(scannerTime);
             //added end
+            if (this.addTask(domain) <= 0) {
+                result.customMessage(0, "保存数据失败");
+            }
 
+            /**
+             * 扫描成功之后发出mq消息 用来计算龙门架流速
+             */
+            domain.setScannerTime(new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime())));
             gantryScanPackageMQ.sendOnFailPersistent(domain.getBarCode(), JsonHelper.toJsonUseGson(domain));
 
         } catch (Throwable throwable) {
