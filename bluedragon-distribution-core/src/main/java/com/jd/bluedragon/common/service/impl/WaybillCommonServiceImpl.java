@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import jd.oom.client.orderfile.Business;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -622,6 +623,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
+        }
+        //waybil_sign标识位，第五十五位为1，打鲜字标（c网操作的外单）
+        if(!BusinessHelper.isB2b(waybill.getWaybillSign()) && waybill.getWaybillCode().length() >= 55 &&
+                BusinessHelper.isSignChar(waybill.getWaybillSign(),55,'1')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_FRESH);
+            //一体化面单，显示生鲜专送
+            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
+        }
+        //waybill_sign标识位，第五十七位为1，打优字标
+        if(waybill.getWaybillCode().length() >= 57 &&
+                BusinessHelper.isSignChar(waybill.getWaybillSign(),57,'1')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_FIRST);
         }
         return target;
     }

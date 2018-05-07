@@ -19,6 +19,8 @@ public interface ComposeService {
     Integer PREPARE_SITE_CODE_EMS_DIRECT = 999999999;
     String PREPARE_SITE_NAME_EMS_DIRECT = "EMS全国直发";
 
+    String PREPARE_SITE_NAME_FRESH_SEND = "生鲜专送";
+
     String SPECIAL_MARK_AIRTRANSPORT ="航";
     String SPECIAL_MARK_SENIOR ="尊";
     String SPECIAL_MARK_ARAYACAK_CABINET = "柜";
@@ -27,6 +29,8 @@ public interface ComposeService {
     String SPECIAL_MARK_CROWD_SOURCING = "众";
     String SPECIAL_MARK_VALUABLE="安";
     String SPECIAL_MARK_PUBLIC_WELFARE="益";
+    String SPECIAL_MARK_FRESH = "鲜";
+    String SPECIAL_MARK_FIRST = "优";
 
     /**
      * 全球售合包订单标识
