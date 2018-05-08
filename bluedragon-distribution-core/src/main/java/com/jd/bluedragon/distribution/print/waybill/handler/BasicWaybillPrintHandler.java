@@ -184,7 +184,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private final void loadWaybillInfo(WaybillPrintContext context){
     		Integer dmsCode = context.getRequest().getDmsSiteCode();
     		WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
-    		context.setResponse(commonWaybill);
+
     		BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
@@ -332,6 +332,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
             }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
+        context.setResponse(commonWaybill);
     }
     private final String concatPhone(String mobile,String phone){
         StringBuilder sb=new StringBuilder();
