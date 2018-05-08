@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormal.dao.AbnormalUnknownWaybillDao">
+
+	<resultMap id="AbnormalUnknownWaybill" type="com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="order_number" property="orderNumber" javaType="java.lang.Integer" jdbcType="SMALLINT" />
+		<result column="trader_id" property="traderId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="trader_name" property="traderName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_id" property="areaId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receipt_time" property="receiptTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_receipt" property="isReceipt" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="receipt_content" property="receiptContent" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,order_number,trader_id,trader_name,dms_site_code,
+		dms_site_name,area_id,area_name,receipt_time,is_receipt,
+		receipt_content,create_user_code,create_user,create_user_name,create_time,
+		update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill">
+		insert into abnormal_unknown_waybill
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="orderNumber != null">
+					order_number,
+				</if>
+				<if test="traderId != null">
+					trader_id,
+				</if>
+				<if test="traderName != null">
+					trader_name,
+				</if>
+				<if test="dmsSiteCode != null">
+					dms_site_code,
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name,
+				</if>
+				<if test="areaId != null">
+					area_id,
+				</if>
+				<if test="areaName != null">
+					area_name,
+				</if>
+				<if test="receiptTime != null">
+					receipt_time,
+				</if>
+				<if test="isReceipt != null">
+					is_receipt,
+				</if>
+				<if test="receiptContent != null">
+					receipt_content,
+				</if>
+				<if test="createUserCode != null">
+					create_user_code,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="createUserName != null">
+					create_user_name,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orderNumber != null">
+					#{orderNumber,jdbcType=SMALLINT},
+				</if>
+				<if test="traderId != null">
+					#{traderId,jdbcType=INTEGER},
+				</if>
+				<if test="traderName != null">
+					#{traderName,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteCode != null">
+					#{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					#{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="areaId != null">
+					#{areaId,jdbcType=INTEGER},
+				</if>
+				<if test="areaName != null">
+					#{areaName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiptTime != null">
+					#{receiptTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isReceipt != null">
+					#{isReceipt,jdbcType=TINYINT},
+				</if>
+				<if test="receiptContent != null">
+					#{receiptContent,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					#{createUserCode,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into abnormal_unknown_waybill
+			(
+				waybill_code,order_number,trader_id,trader_name,
+				dms_site_code,dms_site_name,area_id,area_name,receipt_time,
+				is_receipt,receipt_content,create_user_code,create_user,create_user_name,
+				create_time,update_time,is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.orderNumber,jdbcType=SMALLINT},
+					#{item.traderId,jdbcType=INTEGER},
+					#{item.traderName,jdbcType=VARCHAR},
+					#{item.dmsSiteCode,jdbcType=INTEGER},
+					#{item.dmsSiteName,jdbcType=VARCHAR},
+					#{item.areaId,jdbcType=INTEGER},
+					#{item.areaName,jdbcType=VARCHAR},
+					#{item.receiptTime,jdbcType=TIMESTAMP},
+					#{item.isReceipt,jdbcType=TINYINT},
+					#{item.receiptContent,jdbcType=VARCHAR},
+					#{item.createUserCode,jdbcType=INTEGER},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.createUserName,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill">
+		update abnormal_unknown_waybill
+			<set>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orderNumber != null">
+					order_number = #{orderNumber,jdbcType=SMALLINT},
+				</if>
+				<if test="traderId != null">
+					trader_id = #{traderId,jdbcType=INTEGER},
+				</if>
+				<if test="traderName != null">
+					trader_name = #{traderName,jdbcType=VARCHAR},
+				</if>
+				<if test="dmsSiteCode != null">
+					dms_site_code = #{dmsSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="dmsSiteName != null">
+					dms_site_name = #{dmsSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="areaId != null">
+					area_id = #{areaId,jdbcType=INTEGER},
+				</if>
+				<if test="areaName != null">
+					area_name = #{areaName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiptTime != null">
+					receipt_time = #{receiptTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isReceipt != null">
+					is_receipt = #{isReceipt,jdbcType=TINYINT},
+				</if>
+				<if test="receiptContent != null">
+					receipt_content = #{receiptContent,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserCode != null">
+					create_user_code = #{createUserCode,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update abnormal_unknown_waybill
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update abnormal_unknown_waybill
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="AbnormalUnknownWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  abnormal_unknown_waybill 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill" resultMap="AbnormalUnknownWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  abnormal_unknown_waybill 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  abnormal_unknown_waybill 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="AbnormalUnknownWaybill">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  abnormal_unknown_waybill 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
