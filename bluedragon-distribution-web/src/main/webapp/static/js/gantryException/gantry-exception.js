@@ -133,6 +133,8 @@ function doQuery(params) {
                     reason = "龙门架未绑该站点";
                 else if (dataList[i].type == 6)
                     reason = "无启用方案信息";
+                else if (dataList[i].type == 7)
+                    reason = "上传操作时间异常";
                 else if (dataList[i].type == 21)
                     reason = "发货始发地站点无效";
                 else if (dataList[i].type == 22)
