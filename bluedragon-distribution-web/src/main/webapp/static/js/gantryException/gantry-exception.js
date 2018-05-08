@@ -143,6 +143,7 @@ function doQuery(params) {
                     reason = "无落格时间";
                 temp += "<td>" + reason + "</td>";
                 temp += "<td>" + (getDateString(dataList[i].operateTime)) + "</td>";
+                temp += "<td>" + (getDateString(dataList[i].createTime)) + "</td>";
                 temp += "<td>" + (dataList[i].sendStatus ? "已发货" : "未发货") + "</td>";
                 temp += "</tr>";
             }

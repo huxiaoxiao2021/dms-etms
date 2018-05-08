@@ -416,34 +416,8 @@ public class TaskServiceImpl implements TaskService {
 
 		Object operateTime = map.get("operateTime");
 		if(null != operateTime){
-			//edited by hanjiaxing3 2018.05.04
-//			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
-//					.getSeverTime(operateTime.toString()) : new Date());
-
-			//added by hanjiaxing3 2018.05.04
-			Date scannerTime = new Date();
-			if (StringUtils.isNotBlank(operateTime.toString())) {
-				scannerTime = DateHelper.getSeverTime(operateTime.toString());
-				String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
-				Integer days = -30;
-				if (StringHelper.isNotEmpty(daysStr)) {
-					try {
-						days = Integer.parseInt(daysStr);
-					}
-					catch (Exception e) {
-						logger.error("验货时间校验常量转换失败！daysStr:" + daysStr);
-					}
-
-				}
-				//比调整后的时间还早，说明上传时间有问题
-				if (DateHelper.compareAdjustDate(scannerTime, days) < 0) {
-					scannerTime = new Date();
-					logger.error("验货时间早于调整后的时间！时间调整数为：" + days.toString() + jsonVal);
-				}
-			}
-
-			task.setOperateTime(scannerTime);
-			//added end
+			task.setOperateTime(StringUtils.isNotBlank(operateTime.toString()) ? DateHelper
+					.getSeverTime(operateTime.toString()) : new Date());
 		}
 
 		if (Task.TASK_TYPE_INSPECTION.equals(task.getType())

@@ -421,9 +421,11 @@ public class TaskResource {
             gantryException.setPackageCode(barCode);
             gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
         }
+
+        gantryException.setCreateSiteCode(domain.getDistributeId() == null ? 0 : domain.getDistributeId().longValue());
         gantryException.setOperateTime(domain.getScannerTime());
+        //操作时间异常：7
         gantryException.setType(7);
-        gantryException.setChuteCode(domain.getChuteCode());
         return gantryException;
     }
 
