@@ -625,7 +625,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
         }
         //waybil_sign标识位，第五十五位为1，打鲜字标（c网操作的外单）
-        if(!BusinessHelper.isB2b(waybill.getWaybillSign()) && waybill.getWaybillCode().length() >= 55 &&
+        if(!BusinessHelper.isB2b(waybill.getWaybillSign()) &&
                 BusinessHelper.isSignChar(waybill.getWaybillSign(),55,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_FRESH);
             //一体化面单，显示生鲜专送
