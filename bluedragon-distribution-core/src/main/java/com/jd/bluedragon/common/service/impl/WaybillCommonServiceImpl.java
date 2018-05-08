@@ -632,8 +632,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
         //waybill_sign标识位，第五十七位为1，打优字标
-        if(waybill.getWaybillCode().length() >= 57 &&
-                BusinessHelper.isSignChar(waybill.getWaybillSign(),57,'1')){
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),57,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_FIRST);
         }
         return target;
