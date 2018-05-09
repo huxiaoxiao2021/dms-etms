@@ -324,7 +324,7 @@ public class TaskResource {
             //added by hanjiaxing3 2018.05.04
             Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
             String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
-            Integer days = -30;
+            Integer days = Constants.GANTRY_CHECK_DAYS;
             if (StringHelper.isNotEmpty(daysStr)) {
                 try {
                     days = Integer.parseInt(daysStr);
@@ -339,7 +339,7 @@ public class TaskResource {
                 scannerTime = new Date();
                 GantryException gantryException = this.convert2GantryException(domain);
                 gantryExceptionService.addGantryException(gantryException);
-                logger.error("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+                logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
             }
 
             domain.setScannerTime(scannerTime);
