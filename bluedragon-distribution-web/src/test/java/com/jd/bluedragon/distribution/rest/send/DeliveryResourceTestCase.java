@@ -1,12 +1,19 @@
 package com.jd.bluedragon.distribution.rest.send;
 
 import com.jd.bluedragon.distribution.test.AbstractTestCase;
+
+import java.util.Date;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.DateHelper;
 
 public class DeliveryResourceTestCase extends AbstractTestCase {
@@ -55,4 +62,23 @@ public class DeliveryResourceTestCase extends AbstractTestCase {
 		}
 	}
 
+	@Test
+	public void testTransitTask() {
+		Task task = new Task();
+		task.setId(31935491l);
+		task.setKeyword1("5");
+		task.setKeyword2("10");
+		task.setCreateSiteCode(364605);
+		task.setReceiveSiteCode(39);
+		task.setBoxCode("BC010F002010F01600003001");
+		task.setBody("364605-39-20180424170158010");
+		task.setType(1300);
+		task.setCreateTime(new Date());
+
+		try {
+//			deliveryService.findTransitSend(task);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

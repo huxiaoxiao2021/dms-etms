@@ -3239,17 +3239,23 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (list != null && !list.isEmpty()) {
             for (SendDetail tsendDatail : list) {
-                tsendDatail.setSendDId(null);//把主键置空，避免后面新增时报主键冲突
+                tsendDatail.setSendDId(null);//把主键置空，避免后面新增时报主键冲突 组织数据将原数据状态清空
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
                 tsendDatail.setSendType(type);
+                tsendDatail.setStatus(0);
+                tsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                tsendDatail.setExcuteTime(new Date());
+                tsendDatail.setExcuteCount(0);
+                tsendDatail.setOperateTime(task.getCreateTime());
+                
                 if ((!tsendDatail.getBoxCode().equals(task.getBody()))
                         && (!StringHelper.isEmpty(task.getBody()))
                         && task.getBody().contains("-")) {
                     tsendDatail.setSendCode(task.getBody());
                     tsendDatail.setYn(1);
                 }
-                this.saveOrUpdateCancel(tsendDatail, task.getCreateTime());
+                this.saveOrUpdateCancel(tsendDatail);
                 if ((!tsendDatail.getBoxCode().equals(task.getBody()))
                         && (!StringHelper.isEmpty(task.getBody()))
                         && task.getBody().contains("-")) {
@@ -3281,16 +3287,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void saveOrUpdateCancel(SendDetail sendDetail, Date createTime) {
+    private void saveOrUpdateCancel(SendDetail sendDetail) {
         logger.info("WORKER处理中转发货-插入SEND—D表" + JsonHelper.toJson(sendDetail));
-        sendDetail.setOperateTime(createTime);
         if (Constants.NO_MATCH_DATA == this.update(sendDetail).intValue()) {
             this.add(sendDetail);
         }
-//		注释掉是因为：数据插入的时候就已经是初使状态了，如果已经有数据的话，再刷一次没有作用。另外之前也做过update了，
-//		else {
-//			this.updateCancel(sendDetail);
-//		}
     }
 
     public List<SendDetail> getCancelSendByBox(String boxCode) {

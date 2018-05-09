@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
@@ -98,6 +99,14 @@ public class WaybillResource {
 	private WeighByWaybillController weighByWaybillController;
 
 	public static final Integer DMSTYPE = 10; // 建包
+
+	@Autowired
+	private JsfSortingResourceService jsfSortingResourceService;
+
+	/**
+	 * 运单路由字段使用的分隔符
+	 */
+	private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
 
 
 
@@ -1071,6 +1080,61 @@ public class WaybillResource {
 			//校验没通过
 			return checkResult;
 		}
+	}
+
+	/**
+	 * 获得预分拣站点和路由下一节点
+	 * @param siteCode 当前站点
+	 * @param packageCode 包裹号
+	 * @return
+	 */
+	@GET
+	@Path("/preSortingSiteCodeAndNextRouter/{siteCode}/{packageCode}")
+	public InvokeResult<String> getPreSortingSiteCodeAndNextRouter(@PathParam("siteCode") Integer siteCode,
+																   @PathParam("packageCode") String packageCode) {
+		InvokeResult invokeResult =new InvokeResult();
+		String result = "";
+		Integer preSortingSiteCode = null;
+		Integer nextRouterSiteCode = null;
+		try{
+			if(StringHelper.isNotEmpty(packageCode) && siteCode != null){
+				//获得运单的预分拣站点
+				Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(packageCode), true, false, false, false);
+				if(waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode())){
+					preSortingSiteCode = waybill.getSiteCode();
+					//获得路由中的下一节点
+					String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybill.getWaybillCode());
+					String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+					if(routers != null && routers.length > 0) {
+						for (int i = 0; i < routers.length - 1; i++) {
+							if(siteCode.equals(Integer.valueOf(routers[i]))){
+								nextRouterSiteCode = Integer.valueOf(routers[i+1]);
+								break;
+							}
+						}
+					}
+				}
+			}else {
+				invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				invokeResult.setMessage("传入的参数不能为空");
+				return invokeResult;
+			}
+		}catch (Exception e){
+			this.logger.error("批量一车一单发货获取预分拣站点或路由信息异常" + packageCode,e);
+		}
+		if(preSortingSiteCode == null){
+			invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			invokeResult.setMessage("根据包裹号获取预分拣站点失败");
+			return invokeResult;
+		}else if(nextRouterSiteCode == null){
+			result = result + preSortingSiteCode ;
+		}else {
+			result = result + preSortingSiteCode + "," + nextRouterSiteCode ;
+		}
+		invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		invokeResult.setData(result);
+		return invokeResult;
 	}
 
 }
