@@ -7,9 +7,11 @@
 		<result column="dms_site_code" property="dmsSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="hint_type" property="hintType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="hint_code" property="hintCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="hint_name" property="hintName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="hint_message" property="hintMessage" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="hint_content" property="hintContent" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="is_enable" property="isEnable" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -24,10 +26,10 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,dms_site_code,dms_site_name,waybill_code,hint_code,hint_name,
-		hint_message,is_enable,create_user_code,create_user,create_user_name,
-		create_time,update_user_code,update_user,update_user_name,update_time,
-		is_delete,ts
+		id,dms_site_code,dms_site_name,waybill_code,hint_type,hint_code,
+		hint_name,hint_message,hint_content,is_enable,create_user_code,
+		create_user,create_user_name,create_time,update_user_code,update_user,
+		update_user_name,update_time,is_delete,ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint">
@@ -43,6 +45,9 @@
 				<if test="waybillCode != null">
 					waybill_code,
 				</if>
+				<if test="hintType != null">
+					hint_type,
+				</if>
 				<if test="hintCode != null">
 					hint_code,
 				</if>
@@ -52,6 +57,9 @@
 				<if test="hintMessage != null">
 					hint_message,
 				</if>
+				<if test="hintContent != null">
+					hint_content,
+				</if>				
 				<if test="isEnable != null">
 					is_enable,
 				</if>
@@ -91,6 +99,9 @@
 				<if test="waybillCode != null">
 					#{waybillCode,jdbcType=VARCHAR},
 				</if>
+				<if test="hintType != null">
+					#{hintType,jdbcType=INTEGER},
+				</if>				
 				<if test="hintCode != null">
 					#{hintCode,jdbcType=INTEGER},
 				</if>
@@ -100,6 +111,9 @@
 				<if test="hintMessage != null">
 					#{hintMessage,jdbcType=VARCHAR},
 				</if>
+				<if test="hintContent != null">
+					#{hintContent,jdbcType=VARCHAR},
+				</if>				
 				<if test="isEnable != null">
 					#{isEnable,jdbcType=TINYINT},
 				</if>
@@ -132,10 +146,10 @@
 	<insert id="batchInsert" parameterType="List">
 		insert into dms_operate_hint
 			(
-				dms_site_code,dms_site_name,waybill_code,hint_code,
-				hint_name,hint_message,is_enable,create_user_code,create_user,
-				create_user_name,create_time,update_user_code,update_user,update_user_name,
-				update_time,is_delete,ts
+				dms_site_code,dms_site_name,waybill_code,hint_type,
+				hint_code,hint_name,hint_message,hint_content,is_enable,
+				create_user_code,create_user,create_user_name,create_time,update_user_code,
+				update_user,update_user_name,update_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -143,9 +157,11 @@
 					#{item.dmsSiteCode,jdbcType=INTEGER},
 					#{item.dmsSiteName,jdbcType=VARCHAR},
 					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.hintType,jdbcType=INTEGER},
 					#{item.hintCode,jdbcType=INTEGER},
 					#{item.hintName,jdbcType=VARCHAR},
 					#{item.hintMessage,jdbcType=VARCHAR},
+					#{item.hintContent,jdbcType=VARCHAR},
 					#{item.isEnable,jdbcType=TINYINT},
 					#{item.createUserCode,jdbcType=INTEGER},
 					#{item.createUser,jdbcType=VARCHAR},
@@ -173,6 +189,9 @@
 				<if test="waybillCode != null">
 					waybill_code = #{waybillCode,jdbcType=VARCHAR},
 				</if>
+				<if test="hintType != null">
+					hint_type = #{hintType,jdbcType=INTEGER},
+				</if>				
 				<if test="hintCode != null">
 					hint_code = #{hintCode,jdbcType=INTEGER},
 				</if>
@@ -182,6 +201,9 @@
 				<if test="hintMessage != null">
 					hint_message = #{hintMessage,jdbcType=VARCHAR},
 				</if>
+				<if test="hintContent != null">
+					hint_content = #{hintContent,jdbcType=VARCHAR},
+				</if>				
 				<if test="isEnable != null">
 					is_enable = #{isEnable,jdbcType=TINYINT},
 				</if>
@@ -238,6 +260,9 @@
             <if test="dmsSiteCode != null">
                 AND dms_site_code = #{dmsSiteCode,jdbcType=INTEGER}
             </if>
+            <if test="hintType != null">
+                AND hint_type = #{hintType,jdbcType=INTEGER}
+            </if>            
             <if test="waybillCode != null">
                 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
             </if>
@@ -270,5 +295,14 @@
          ORDER BY create_time DESC
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
-
+	<select id="queryNeedReprintHintByWaybillCode" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition" resultMap="DmsOperateHint">
+		select 
+		 <include refid="Base_Column_List"/>
+		from dms_operate_hint
+          where hint_type = #{hintType,jdbcType=INTEGER}
+           AND hint_code = #{hintCode,jdbcType=INTEGER}
+           AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+         ORDER BY ts DESC
+		 limit 1
+	</select>
 </mapper>

@@ -114,6 +114,18 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack);
+	
+	/**
+	 * 将运单数据包装成自己的waybill数据
+	 * @param bigWaybillDto
+	 * @param isSetName 设置站点信息
+	 * @param isSetPack 设置包裹信息
+	 * @param loadPrintInfo 是否加载包裹打印信息
+	 * @param loadPweight 是否加载复重
+	 * @return
+	 */
+	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack,
+			boolean loadPrintInfo,boolean loadPweight);
 
 	/**
 	 * 获取包裹称重数据

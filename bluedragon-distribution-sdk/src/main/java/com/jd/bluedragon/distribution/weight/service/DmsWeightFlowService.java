@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.weight.service;
 
+import java.util.List;
+import java.util.Map;
+
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 

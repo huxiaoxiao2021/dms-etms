@@ -46,9 +46,6 @@ public class PromiseComposeServiceImpl implements  ComposeService {
     @Override
     //FIXME: 线上日志表明targetSiteCode传入为0
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
-    	log.info("获取时效信息1"+JsonHelper.toJson(waybill));
-    	log.info("获取时效信息2"+dmsCode);
-    	log.info("获取时效信息3"+targetSiteCode);
         // 外单多时效打标
         if(StringHelper.isNotEmpty(waybill.getWaybillSign())) {
             if(waybill.getWaybillSign().charAt(15)=='0')

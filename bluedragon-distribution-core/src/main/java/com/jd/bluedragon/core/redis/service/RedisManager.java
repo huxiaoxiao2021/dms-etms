@@ -5,7 +5,13 @@ import java.util.Map;
 import java.util.Set;
 
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
-
+/**
+ * @ClassName: RedisManager
+ * @Description: 只限于worker任务存储使用，该类引用了2个不同的Cluster容易造成调用混乱，数据存储推荐使用CacheService
+ * @author: wuyoude
+ * @date: 2018年5月4日 上午9:17:23
+ *
+ */
 public interface RedisManager {
 
 	/**
