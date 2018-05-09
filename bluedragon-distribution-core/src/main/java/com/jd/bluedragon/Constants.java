@@ -546,4 +546,9 @@ public class Constants {
      * 分拣系统标识-DMS，调用外部系统接口需要传递
      */
     public static final String SYSTEM_CODE_OWON= "DMS";
+
+    /**
+     * 龙门架校验调整天数
+     */
+    public static final Integer GANTRY_CHECK_DAYS= -30;
 }

@@ -228,4 +228,17 @@ public class DateHelper {
     public static int compare(Date date,Date date1) {
     	return ObjectHelper.compare(date, date1);
     }
+
+    /**
+     * 比较参数时间 和 当前时间按days参数调整的后的时间
+     * @param date 比较时间
+     * @param days 调整天数（正数往前调整、负数往后调整）
+     * @return
+     */
+    public static int compareAdjustDate(final Date date, Integer days) {
+
+        Date adjustDate = DateHelper.addDate(new Date(), days);
+
+        return DateHelper.compare(date, adjustDate);
+    }
 }
