@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.external.service.DmsExternalReadService;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.saf.EmsOrderJosSafService;
 import com.jd.bluedragon.distribution.saf.OrdersResourceSafService;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
@@ -47,8 +49,13 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 	@Autowired
 	private OrdersResourceSafService ordersResourceSafService;
+
 	@Autowired
 	private CrossBoxService crossBoxService;
+
+	@Autowired
+	private ReversePrintService reversePrintService;
+
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
 	 */
@@ -140,6 +147,24 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	public BoxResponse getBoxInfoByCode(String boxCode) {
 		return crossBoxService.getCrossDmsBoxByBoxCode(boxCode);
 	}
+
+	@Override
+	public InvokeResult<String> getNewWaybillCode(String oldWaybillCode) {
+		InvokeResult<String> invokeResult = new InvokeResult<String>();
+		try {
+			com.jd.bluedragon.distribution.base.domain.InvokeResult<String> result = reversePrintService.getNewWaybillCode(oldWaybillCode, true);
+			if (result != null) {
+				invokeResult.setCode(result.getCode());
+				invokeResult.setMessage(result.getMessage());
+				invokeResult.setData(result.getData());
+			}
+		} catch (Throwable e) {
+			logger.error("[分拣中心外部JSF服务][逆向换单获取新单号]，旧单号：" + oldWaybillCode, e);
+			invokeResult.error(e);
+		}
+		return invokeResult;
+	}
+
 //
 //	@Override
 //	public WaybillSafResponse<List<WaybillResponse>> getOrdersDetailsByBoxcode(String boxCode) {
@@ -150,6 +175,5 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 //	public WaybillSafResponse<List<WaybillResponse>> getPackageCodesBySendCode(String sendCode) {
 //		return getWaybillSafService.getPackageCodesBySendCode(sendCode);
 //	}
-
 
 }
