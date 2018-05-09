@@ -1,5 +1,19 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -16,25 +30,19 @@ import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ioms.jsf.export.domain.Order;
-import com.jd.iwmss.stock.client.StockWebServiceSoap;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-
-import java.math.BigDecimal;
-import java.util.*;
 
 
 /**
@@ -60,8 +68,6 @@ public class ReverseReceiveNotifyStockService {
 	private static final Integer STOCK_TYPE_1602 = 1602; // 逆向物流-虚出
 	private static final Integer STOCK_TYPE_1603 = 1603; // 逆向物流先款退货-虚入
 
-	private final static String MQ_KEY_STOCK = "wms_stock_chuguanmsg";
-
 	private static final List<Integer> needRetunWaybillTypes = Lists.newArrayList(11, 13, 15, 16, 18, 19, 42, 56, 61);
 
 	@Autowired
@@ -69,9 +75,6 @@ public class ReverseReceiveNotifyStockService {
 
 	@Autowired
 	private ProductService productService;
-
-	@Autowired
-	private StockWebServiceSoap stockWebService;
 
 	@Autowired
 	private OrderBankService orderBankService;

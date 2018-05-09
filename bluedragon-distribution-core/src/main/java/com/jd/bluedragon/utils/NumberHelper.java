@@ -36,7 +36,11 @@ public class NumberHelper {
         }
         return false;
     }
-
+    /**
+     * 判断是否正整数
+     * @param number
+     * @return
+     */
     public static boolean isNumber(String number) {
         if(null==number){
             return false;

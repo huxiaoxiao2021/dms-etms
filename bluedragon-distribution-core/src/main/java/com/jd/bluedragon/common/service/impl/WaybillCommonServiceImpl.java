@@ -663,9 +663,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             Profiler.functionError(info);
         }finally{
             Profiler.registerInfoEnd(info);
-            return result;
         }
-
+        return result;
     }
     /**
      * 先校验运单是否已录入总重量,否则查询分拣是否存在录入重量记录
