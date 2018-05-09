@@ -330,7 +330,7 @@ public class TaskResource {
                     days = Integer.parseInt(daysStr);
                 }
                 catch (Exception e) {
-                    logger.error("验货时间校验常量转换失败！daysStr:" + daysStr);
+                    logger.error("验货时间校验常量转换失败！daysStr:" + daysStr, e);
                 }
 
             }
