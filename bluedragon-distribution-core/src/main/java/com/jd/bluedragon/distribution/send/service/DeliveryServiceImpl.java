@@ -920,6 +920,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 写入发货表数据
         this.insertSendM(sendMList, list);
 
+        //判断是否操作过组板，如果操作过，则从板上取消
+        this.boardCombinationCancelBatch(sendMList, list);
+
         for (SendM domain : sendMList) {
             this.transitSend(domain);//插入中转任务
         }
@@ -3931,6 +3934,20 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 		return true;
 	}
+
+
+    /**
+     * 批量取消组板，老发货用
+     * @param sendMlist
+     * @param list
+     */
+    private void boardCombinationCancelBatch(List<SendM> sendMlist, List<String> list){
+        for (SendM dSendM : sendMlist) {
+            if (!list.contains(dSendM.getBoxCode())) {
+                boardCombinationCancel(dSendM);
+            }
+        }
+    }
 
     /**
      * 取消组板
