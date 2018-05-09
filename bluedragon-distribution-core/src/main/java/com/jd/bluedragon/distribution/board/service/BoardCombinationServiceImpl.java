@@ -20,11 +20,9 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.BoardBoxRequest;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -179,7 +177,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //查询发货记录判断是否已经发货
-        //// FIXME: 2018/3/31 优化点：发货放在缓存--->组件1   校验流程组装--->组件2
         SendM sendM = new SendM();
         sendM.setBoxCode(request.getBoxOrPackageCode());
         sendM.setCreateSiteCode(request.getSiteCode());
@@ -262,6 +259,38 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         if (tcResponse.getCode() != 200) {
+            //如果返回值的code是500，表示已经组过板，则提示是否转移，如果确定转移，则从原来的板上取消，移动到新板上
+            if(tcResponse.getCode() == 500 ){
+                //提示是否组到新板
+                if(!request.getIsForceCombination()){
+                    boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CHANGE, tcResponse.getMesseage() + BoardResponse.Message_BOARD_CHANGE);
+                    return JdResponse.CODE_CONFIRM;
+                }
+                //确定转移,调用TC的板号转移接口
+                Response<String> boardMoveResponse = boardMove(request);
+
+                if( boardMoveResponse.getCode()!=200){
+                    //重新组板失败
+                    logInfo = "组板转移失败,原板号：" + boardMoveResponse.getData() +",新板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                            ",站点：" + request.getSiteCode() + ".失败原因:"+ tcResponse.getMesseage();
+
+                    this.logger.warn(logInfo);
+                    boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+                    addSystemLog(request,logInfo);
+
+                    return JdResponse.CODE_FAIL;
+                }
+
+                logInfo = "组板转移成功.原板号:" + boardMoveResponse.getData() +",新板号:" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                        ",站点：" + request.getSiteCode();
+                if(logger.isInfoEnabled()){
+                    logger.info(logInfo);
+                }
+                addSystemLog(request,logInfo);
+                addOperationLog(request,OperationLog.BOARD_COMBINATITON);
+                return JdResponse.CODE_SUCCESS;
+            }
+
             logInfo = "组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                     ",站点：" + request.getSiteCode() + ".失败原因:"+ tcResponse.getMesseage();
 
@@ -284,19 +313,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         addOperationLog(request,OperationLog.BOARD_COMBINATITON);
 
-        CallerInfo infoTrace = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", false, true);
-        try {
-            //发送全称跟踪
-            WaybillStatus waybillStatus = this.getWaybillStatus(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-            // 添加到task表
-            taskService.add(toTask(waybillStatus));
-
-        } catch (Exception e){
-            Profiler.functionError(infoTrace);
-            logger.error("组板操作发送全称跟踪失败.",e);
-        } finally {
-            Profiler.registerInfoEnd(infoTrace);
-        }
+        //发送全称跟踪
+        sendWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
         return JdResponse.CODE_SUCCESS;
     }
@@ -368,7 +386,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardBox.setSiteCode(request.getSiteCode());
 
         //调用TC接口取消组板
-        Response<Integer> tcResponse = null;
+        Response<String> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardCombinationCancel.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             tcResponse = groupBoardService.removeBoxFromBoard(boardBox);
@@ -379,7 +397,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             Profiler.registerInfoEnd(info);
         }
 
-        //组板失败
+        //调用TC接口返回值，更新下板号
+        if(tcResponse != null && StringHelper.isNotEmpty(tcResponse.getData())) {
+            boardCode = tcResponse.getData();
+            request.setBoardCode(boardCode);
+        }
+
+        //取消组板失败
         if (tcResponse.getCode() != 200) {
             logInfo = "取消组板失败,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                     ",站点：" + request.getSiteCode() + ".失败原因:"+ tcResponse.getMesseage();
@@ -402,15 +426,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
 
         //发送取消组板的全称跟踪
-        try {
-            //发送全称跟踪
-            WaybillStatus waybillStatus = this.getWaybillStatus(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
-            // 添加到task表
-            taskService.add(toTask(waybillStatus));
-
-        } catch (Exception e){
-            logger.error("取消组板发送全称跟踪失败.",e);
-        }
+        sendWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
 
         return boardResponse;
     }
@@ -483,6 +499,23 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     }
 
     /**
+     * 发送全称跟踪
+     * @param request
+     * @param operateType
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardSendTrace",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
+    private void sendWaybillTrace(BoardCombinationRequest request, Integer operateType){
+        try {
+            WaybillStatus waybillStatus = this.getWaybillStatus(request,operateType);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e){
+            logger.error("组板操作发送全称跟踪失败.",e);
+        }
+    }
+
+    /**
      * 增加分拣中心操作日志
      *
      * @param request
@@ -505,5 +538,40 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         operationLog.setLogType(logType);
 
         this.operationLogService.add(operationLog);
+    }
+
+
+    /**
+     * 组板转移，将包裹号/箱号从原来的板上取消，绑定到新板
+     * 调用TC的接口实现转移，发送取消旧板的全称跟踪和组到新板的全称跟踪
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardMove",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
+    private Response<String> boardMove(BoardCombinationRequest request){
+        MoveBoxRequest moveBoxRequest = new MoveBoxRequest();
+        //新板标m
+        moveBoxRequest.setBoardCode(request.getBoardCode());
+        moveBoxRequest.setBoxCode(request.getBoxOrPackageCode());
+        moveBoxRequest.setSiteCode(request.getSiteCode());
+        moveBoxRequest.setOperatorErp(request.getUserCode()+"");
+        moveBoxRequest.setOperatorName(request.getUserName());
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.moveBoxToNewBoard.TCJSF", false, true);
+        Response<String> tcResponse = groupBoardService.moveBoxToNewBoard(moveBoxRequest);
+        Profiler.registerInfoEnd(info);
+        //组新板成功
+        if(tcResponse != null && tcResponse.getCode() == 200 ){
+            String boardOld = tcResponse.getData();
+            String boardNew = request.getBoardCode();
+            //取消组板的全称跟踪 -- 旧板号
+            request.setBoardCode(boardOld);
+            sendWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+
+            //组板的全称跟踪 -- 新板号
+            request.setBoardCode(boardNew);
+            sendWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+        }
+        return tcResponse;
     }
 }
