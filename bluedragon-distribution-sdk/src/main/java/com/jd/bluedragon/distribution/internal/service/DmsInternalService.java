@@ -62,6 +62,15 @@ public interface DmsInternalService {
      */
     public BaseResponse getBelongSiteCode(Integer code);
 
+    /**
+     *  根据三方-合作站点获取三方-合作站点所属自营站点
+     * @see Ver DmsWebBaseClient#getThreePartnerD
+     * @see Web BaseResource#getThreePartnerD
+     *  @param code 三方-合作站点ID
+     *  @return 三方-合作站点所属自营站点信息
+     */
+    public BaseResponse getThreePartnerBelongSiteCode(Integer code);
+
     /***
      * 获取大全表里面站点对应的分拣中心
      * @see Ver DmsWebBaseClient#getTargetDmsCenter
