@@ -36,7 +36,11 @@ public class NumberHelper {
         }
         return false;
     }
-
+    /**
+     * 判断是否正整数
+     * @param number
+     * @return
+     */
     public static boolean isNumber(String number) {
         if(null==number){
             return false;
@@ -98,7 +102,7 @@ public class NumberHelper {
     }
     /**
      * 返回结果a是否大于0
-     * @param a 数字类型的对象
+     * @param a 数字类型的对象，支持 Byte,Double,Float,Integer,Long,Short
      * @return
      */
     public static boolean gt0(Number a) {
