@@ -283,9 +283,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
                 logInfo = "组板转移成功.原板号:" + boardMoveResponse.getData() +",新板号:" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",站点：" + request.getSiteCode();
-                if(logger.isInfoEnabled()){
-                    logger.info(logInfo);
-                }
+                logger.info(logInfo);
+
                 addSystemLog(request,logInfo);
                 addOperationLog(request,OperationLog.BOARD_COMBINATITON);
                 return JdResponse.CODE_SUCCESS;
@@ -306,7 +305,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         logger.info(logInfo);
 
         //缓存+1
-        redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT);
+        redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT+ "-" + boardCode);
 
         //记录操作日志
         addSystemLog(request,logInfo);
@@ -550,14 +549,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardMove",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = { JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError })
     private Response<String> boardMove(BoardCombinationRequest request){
         MoveBoxRequest moveBoxRequest = new MoveBoxRequest();
-        //新板标m
+        //新板标
         moveBoxRequest.setBoardCode(request.getBoardCode());
         moveBoxRequest.setBoxCode(request.getBoxOrPackageCode());
         moveBoxRequest.setSiteCode(request.getSiteCode());
         moveBoxRequest.setOperatorErp(request.getUserCode()+"");
         moveBoxRequest.setOperatorName(request.getUserName());
 
-        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.moveBoxToNewBoard.TCJSF", false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.moveBoxToNewBoard.TCJSF", Constants.UMP_APP_NAME_DMSWEB,false, true);
         Response<String> tcResponse = groupBoardService.moveBoxToNewBoard(moveBoxRequest);
         Profiler.registerInfoEnd(info);
         //组新板成功

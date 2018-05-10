@@ -280,6 +280,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
             JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
+        logger.info("packageSend-箱号/包裹号:" + domain.getBoxCode() +
+                ",批次号：" + domain.getSendCode() + ",操作站点："+ domain.getCreateSiteCode()+
+                ",是否强制操作："+ isForceSend);
+
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
@@ -368,10 +372,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
-        CallerInfo boardComCancel_info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.boardCombinationCancel",Constants.UMP_APP_NAME_DMSWEB, false, true);
         this.boardCombinationCancel(domain);
-        Profiler.registerInfoEnd(boardComCancel_info);
-
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         packageSend(domain);
@@ -916,12 +917,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 取消发货在发货状态位回执
         this.cancelStatusReceipt(sendMList, list);
 
-        CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2", false, true);
+        CallerInfo info2 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send2",Constants.UMP_APP_NAME_DMSWEB, false, true);
         // 写入发货表数据
         this.insertSendM(sendMList, list);
 
-        //判断是否操作过组板，如果操作过，则从板上取消
-        this.boardCombinationCancelBatch(sendMList, list);
+//        //判断是否操作过组板，如果操作过，则从板上取消
+//        this.boardCombinationCancelBatch(sendMList, list);
 
         for (SendM domain : sendMList) {
             this.transitSend(domain);//插入中转任务
@@ -3956,6 +3957,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 此处为了减少性能损耗，直接掉用取消组板的接口，组过板的直接取消
      * @param domain
      */
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.boardCombinationCancel", jAppName=Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     private void boardCombinationCancel(SendM domain){
         BoardCombinationRequest request = new BoardCombinationRequest();
         request.setBoxOrPackageCode(domain.getBoxCode());
