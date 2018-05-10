@@ -486,4 +486,24 @@
         <property name="desc" value="第三方发货数据推送财务批处理" />
     </bean>
 
+    <bean id="sendDetailMQTask" class="com.jd.bluedragon.distribution.worker.delivery.SendDetailMQTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="SendDetailMQTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="6"/>
+        <property name="desc" value="发货明细发送MQ"/>
+    </bean>
+    <bean id="boardDeliveryTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="BoardDeliveryTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="7"/>
+        <property name="desc" value="组板发货"/>
+    </bean>
 </beans>

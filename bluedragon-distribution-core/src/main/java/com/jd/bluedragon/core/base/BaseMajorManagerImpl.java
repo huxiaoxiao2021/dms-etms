@@ -155,7 +155,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Cache(key = "baseMajorManagerImpl.getBaseSiteByOrgIdSubType@args0@args1", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Deprecated
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSubType(Integer orgId, Integer targetType) {
 		return basicPrimaryWSProxy.getBaseSiteByOrgIdSubType(orgId,targetType);
     }
@@ -194,6 +193,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         baseStaffSiteOrgDto.setTraderTypeEbs(trader.getTraderTypeEbs());
         baseStaffSiteOrgDto.setAccountingOrg(trader.getAccountingOrg());
         baseStaffSiteOrgDto.setAirTransport(trader.getAirTransport());
+        baseStaffSiteOrgDto.setSitePhone(trader.getTelephone());
+        baseStaffSiteOrgDto.setPhone(trader.getContactMobile());
         return baseStaffSiteOrgDto;
     }
 
@@ -381,7 +382,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Cache(key = "baseMajorManagerImpl.getBaseStaffListByOrgId@args02", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid, int num) {
-        // TODO Auto-generated method stub
         return basicPrimaryWSProxy.getBaseStaffListByOrgId(orgid, 2);
     }
 
@@ -556,5 +556,19 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return traderList;
     }
 
+    @Cache(key = "baseMajorManagerImpl.getBaseAllStore", memoryEnable = false,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseAllStore", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseStaffSiteOrgDto> getBaseAllStore() {
+        List<BaseStaffSiteOrgDto> allSite = new ArrayList<BaseStaffSiteOrgDto>();
+
+        //库房站点
+        List<BaseStoreInfoDto> baseStore = basicPrimaryWSProxy.getBaseAllStore();
+        for (BaseStoreInfoDto dto : baseStore) {
+            allSite.add(getBaseStaffSiteOrgDtoFromStore(dto));
+        }
+
+        return allSite;
+    }
 
 }

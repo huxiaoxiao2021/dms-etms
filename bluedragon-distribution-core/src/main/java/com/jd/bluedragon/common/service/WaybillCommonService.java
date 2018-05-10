@@ -19,28 +19,6 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
  * 获取运单信息公共服务
  */
 public interface WaybillCommonService {
-	//b2b快运 运输产品类型
-	enum ExpressTypeEnum{
-		EXPRESS_PART_LOAD('2',"快运零担"),
-		WAREHOUSE_PART_LOAD('3',"仓配零担"),
-		CAR_LOAD('1',"整车");
-		private char code;
-		private String name;
-
-		ExpressTypeEnum(char code, String name) {
-			this.code = code;
-			this.name = name;
-		}
-		public static String getNameByCode(char code){
-			for(ExpressTypeEnum et : ExpressTypeEnum.values()){
-				if(et.code == code){
-					return et.name;
-				}
-			}
-			return "";
-		}
-	}
-
 	/**
      * 根据运单号查询运单明细
      * 	先调用运单，运单获取不到数据，调用订单中间件
@@ -136,6 +114,18 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack);
+	
+	/**
+	 * 将运单数据包装成自己的waybill数据
+	 * @param bigWaybillDto
+	 * @param isSetName 设置站点信息
+	 * @param isSetPack 设置包裹信息
+	 * @param loadPrintInfo 是否加载包裹打印信息
+	 * @param loadPweight 是否加载复重
+	 * @return
+	 */
+	Waybill convWaybillWS(BigWaybillDto bigWaybillDto, boolean isSetName, boolean isSetPack,
+			boolean loadPrintInfo,boolean loadPweight);
 
 	/**
 	 * 获取包裹称重数据
@@ -143,4 +133,10 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	InvokeResult<List<PackageWeigh>> getPackListByCode(String waybillCode);
+	/**
+	 * 校验运单是否录入运单总重量
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	boolean hasTotalWeight(String waybillCode);
 }

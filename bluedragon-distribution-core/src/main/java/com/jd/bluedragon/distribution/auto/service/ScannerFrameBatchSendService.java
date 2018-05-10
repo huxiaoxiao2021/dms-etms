@@ -23,6 +23,17 @@ public interface ScannerFrameBatchSendService {
     ScannerFrameBatchSend getAndGenerate(Date operateTime,Integer receiveSiteCode,GantryDeviceConfig config);
 
     /**
+     * 获取并生成发货批次对象(单个批次最长使用期限是24小时，超过后自动生成新批次)
+     * 如果批次号已经封车则生产新批次
+     * @param operateTime       龙门架扫描时间
+     * @param receiveSiteCode   发货接收站点
+     * @param config            龙门驾状态配置
+     * @return
+     */
+    ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config);
+
+
+    /**
      * 生成发货批次
      * @param domain    DOMAIN对象
      *

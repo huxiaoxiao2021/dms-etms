@@ -94,6 +94,9 @@
         <typeAlias type="com.jd.bluedragon.distribution.carSchedule.domain.SendCodeToCarCode" alias="sendCodeToCarCode"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.urban.domain.TransbillM" alias="TransbillM"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter" alias="B2BRouter" />
+        <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode" alias="B2BRouterNode"/>
     </typeAliases>
 
     <plugins>
@@ -225,13 +228,25 @@
         <!--jinjingcheng -->
         <mapper resource="mappers/mysql/sendGroup/SortMachineSendGroupMapper.xml"/>
         <mapper resource="mappers/mysql/sendGroup/SortMachineGroupConfigMapper.xml"/>
-        <!-- �����±� -->
+        <!-- 锟斤拷锟斤拷锟铰憋拷 -->
         <mapper resource="mappers/mysql/base/DmsBaseDictMapper.xml"/>
-        <!-- ����ҵ��� -->
+        <mapper resource="mappers/mysql/base/DmsStorageAreaMapper.xml"/>
+        <!-- 锟斤拷锟斤拷业锟斤拷锟� -->
         <mapper resource="mappers/mysql/transport/ArBookingSpaceMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArExcpRegisterMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendCodeMapper.xml"/>
         <mapper resource="mappers/mysql/transport/ArSendRegisterMapper.xml"/>
         <mapper resource="mappers/mysql/receive/ArReceiveMapper.xml"/>
+
+        <mapper resource="mappers/mysql/b2bRouter/B2BRouterMapper.xml"/>
+        <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
+        <mapper resource="mappers/mysql/weight/DmsWeightFlowMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormal/DmsOperateHintMapper.xml"/>
+
+        <mapper resource="mappers/mysql/half/PackageHalfMapper.xml"/>
+        <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
+        <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
+        <mapper resource="mappers/mysql/half/PackageHalfApproveMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
     </mappers>
 </configuration>

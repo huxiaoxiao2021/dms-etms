@@ -16,6 +16,9 @@ public class Box {
 	public static final String BOX_TYPE_WEARHOUSE = "Y";// 亚洲一号中间仓批次号作为箱号
 
 	public static final Integer BOX_TRANSPORT_TYPE_AIR = 1; // 航空
+	public static final Integer BOX_TRANSPORT_TYPE_HIGHWAY = 2; // 公路
+	public static final Integer BOX_TRANSPORT_TYPE_RAILWAY = 3; // 铁路
+	public static final Integer BOX_TRANSPORT_TYPE_CITY = 4; // 同城四小时
 
 	public static final Integer STATUS_DEFALUT = 0; // 未使用
 	public static final Integer STATUS_PRINT = 1; // 已经打印
@@ -25,6 +28,7 @@ public class Box {
 	public static final Integer BOX_STATUS_SEND = 5; // 发货完成
 	public static final Integer BOX_STATUS_DEPARTURE_PROCESSING = 6; // 发车处理中
 	public static final Integer BOX_STATUS_DEPARTURE = 7; // 发车完成
+
 
 	/** 全局唯一ID */
 	private Long id;
@@ -104,7 +108,40 @@ public class Box {
     /**高*/
     private Float height;
 
-    public Integer getSiteType() {
+	/** 预计发货时间*/
+	private Date predictSendTime ;
+
+	/** 路由信息 站点数字ID*/
+	private String router;
+
+	/** 箱子路由信息 站点名称 */
+	private String routerName;
+
+	public Date getPredictSendTime() {
+		return predictSendTime;
+	}
+
+	public void setPredictSendTime(Date predictSendTime) {
+		this.predictSendTime = predictSendTime;
+	}
+
+	public String getRouterName() {
+		return routerName;
+	}
+
+	public void setRouterName(String routerName) {
+		this.routerName = routerName;
+	}
+
+	public String getRouter() {
+		return router;
+	}
+
+	public void setRouter(String router) {
+		this.router = router;
+	}
+
+	public Integer getSiteType() {
         return siteType;
     }
 

@@ -203,11 +203,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.sendPay = sendPay;
     }
 
-    /**
-    * 
-    */
-    private String remark ;
-
     private String comment ;
 
     /**
@@ -229,6 +224,10 @@ public class PrintWaybill extends BasePrintWaybill {
     */
     private List<PrintPackage> packList ;
 
+    /**
+     * 运单状态
+     */
+    private Integer waybillStatus ;
 
     public PrintWaybill(){
         this.isAir=false;
@@ -469,14 +468,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.customerContacts = customerContacts;
     }
 
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
     public String getComment() {
         return comment;
     }
@@ -595,5 +586,13 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setMobileFirst(String mobileFirst) {
         this.mobileFirst = mobileFirst;
+    }
+
+    public Integer getWaybillStatus() {
+        return waybillStatus;
+    }
+
+    public void setWaybillStatus(Integer waybillStatus) {
+        this.waybillStatus = waybillStatus;
     }
 }

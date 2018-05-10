@@ -1,16 +1,13 @@
 package com.jd.bluedragon.distribution.globaltrade.dao;
 
+import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 
 public class LoadBillDao extends BaseDao<LoadBill> {
 
@@ -31,21 +28,38 @@ public class LoadBillDao extends BaseDao<LoadBill> {
         return (Long) this.getSqlSession().selectOne(LoadBillDao.namespace + ".selectPreLoadBillId");
     }
 
-    public int updatePreLoadBillById(List<Long> billId,String trunkNo,String loadId,Integer approvalCode){
-        Map<String,Object> map = new HashMap<String, Object>();
-        map.put("data",billId);
-        map.put("loadId",loadId);
-        map.put("trunkNo", trunkNo);
-        map.put("approvalCode", approvalCode);
-        return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillById", map);
-    }
+	public int updatePreLoadBillById(List<Long> billId, String trunkNo, String loadId, Integer approvalCode) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", billId);
+		map.put("loadId", loadId);
+		map.put("trunkNo", trunkNo);
+		map.put("approvalCode", approvalCode);
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillById", map);
+	}
+
+	public int updatePreLoadBillByOrderIds(List<String> orderIds, String trunkNo, String loadId, Integer approvalCode) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", orderIds);
+		map.put("loadId", loadId);
+		map.put("trunkNo", trunkNo);
+		map.put("approvalCode", approvalCode);
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillByOrderIds", map);
+	}
+
 	public LoadBill findByPackageBarcode(String packageBarcode) {
-		logger.info("LoadBillDao.getLoadBill with packageBarcode is " + packageBarcode);
+		logger.info("LoadBillDao.findByPackageBarcode with packageBarcode is " + packageBarcode);
 		return (LoadBill) this.getSqlSession().selectOne(LoadBillDao.namespace + ".findByPackageBarcode", packageBarcode);
 	}
 
 	public int add(LoadBill lb) {
 		return this.getSqlSession().insert(LoadBillDao.namespace + ".add", lb);
+	}
+
+	public int batchAdd(List<LoadBill> loadBills) {
+		if (loadBills != null && loadBills.size() > 0) {
+			return this.getSqlSession().insert(LoadBillDao.namespace + ".batchAdd", loadBills);
+		}
+		return 0;
 	}
 
 	public int update(LoadBill lb) {
@@ -68,8 +82,9 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 	public Integer findCountLoadBill(Map<String, Object> params) {
 		return (Integer) super.getSqlSession().selectOne(LoadBillDao.namespace + ".findCount", params);
 	}
-    @SuppressWarnings("unchecked")
-    public List<LoadBill> findWaybillInLoadBill(Map<String, Object> params) {
-        return super.getSqlSession().selectList(LoadBillDao.namespace + ".findWaybillinLoadBill", params);
-    }
+
+	public LoadBill findOneByParameter(Map<String, Object> params) {
+		return super.getSqlSession().selectOne(LoadBillDao.namespace + ".findOneByParameter", params);
+	}
+
 }

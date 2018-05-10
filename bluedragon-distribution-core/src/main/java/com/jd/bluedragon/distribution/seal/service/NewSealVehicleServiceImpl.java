@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.seal.service;
 
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -14,6 +16,7 @@ import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.etms.vos.dto.SealCarInAreaDto;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
@@ -61,6 +64,13 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Qualifier("unsealCarProducer")
     private DefaultJMQProducer unsealCarProducer;
 
+    @Autowired
+    private RedisManager redisManager;
+
+    private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
+
+    private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
+
     private final Log logger = LogFactory.getLog(this.getClass());
 
 	@Override
@@ -78,6 +88,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(paramList);
+                addRedisCache(paramList);
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -111,6 +122,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 msg = MESSAGE_OFFLINE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 sealCarMQ(paramList);
+                addRedisCache(paramList);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -123,12 +135,56 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
     }
 
+    /**
+     * 查询带解任务
+     * @param request
+     * @param pageDto
+     * @return
+     */
     @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.findSealInfo", mState = {JProEnum.TP})
 	public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto) {
 		CommonDto<PageDto<SealCarDto>> sealCarInfo = vosQueryWS.querySealCarPage(request,pageDto);
 		return sealCarInfo;
 	}
+
+    /**
+     * 查询相关车辆是否在分拣中心的电子围栏内
+     * @param sealCars 待解的封车任务
+     * @return
+     * @throws Exception
+     */
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isSealCarInArea", mState = {JProEnum.TP})
+    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars){
+        List<String> sealCarCodes = new ArrayList<String>(sealCars.size());
+        for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sealCars) {
+            sealCarCodes.add(sourceSealDto.getSealCarCode());
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("查询待解任务的车辆是否在围栏参数：" + JsonHelper.toJson(sealCarCodes));
+        }
+        List<String> unsealCarOutArea = new ArrayList<String>(sealCarCodes.size());//这里已经控制最大20个
+        try {
+            CommonDto<List<SealCarInAreaDto>> sealCarInfo = vosQueryWS.isSealCarInArea(sealCarCodes, UNSEAL_CAR_IN_RECIVE_AREA);
+            logger.info("查询待解任务的车辆是否在围栏结果:" + JsonHelper.toJson(sealCarInfo));
+
+            //由于一车可有多个封车编码，所以针对车牌号去重
+            if(Constants.RESULT_SUCCESS == sealCarInfo.getCode() && sealCarInfo.getData() != null){//接口调用成功且有数据时
+                for(SealCarInAreaDto dto : sealCarInfo.getData()){
+                    //车辆不在围栏且前面没有标识过该车辆，将车牌号加入结果unsealCarOutArea中
+                    if(IN_AREA_FLAG.equals(dto.getInAreaFlag()) && !unsealCarOutArea.contains(dto.getVehicleNumber())){
+                        unsealCarOutArea.add(dto.getVehicleNumber());
+                    }
+                }
+            }else{
+                logger.warn("查询待解任务的车辆是否在围栏失败，参数：" + JsonHelper.toJson(sealCarCodes) +";结果:" + JsonHelper.toJson(sealCarInfo));
+            }
+        }catch (Exception e){
+            logger.error("查询待解任务的车辆是否在围栏异常：" + JsonHelper.toJson(sealCarCodes) , e);
+        }
+        return unsealCarOutArea;
+    }
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal", mState = {JProEnum.TP})
@@ -181,6 +237,27 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		return sendM != null;
 	}
+
+
+    /**
+     * 将封车的批次号缓存到Redis里
+     * @param paramList
+     */
+    private void addRedisCache(List<SealCarDto> paramList) {
+        if(paramList == null || paramList.size() == 0){
+            return;
+        }
+        for(SealCarDto dto : paramList){
+            for(String sendCode : dto.getBatchCodes()){
+                try{
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode, Constants.TIME_SECONDS_ONE_WEEK, Constants.STRING_FLG_TRUE);
+                    logger.info("已封车批次号存入缓存成功:"+sendCode);
+                }catch (Throwable e){
+                    logger.warn("已封车批次号存入缓存失败:"+sendCode+";异常："+e.getMessage());
+                }
+            }
+        }
+    }
 
     /**
      * 记录封车解封车操作日志

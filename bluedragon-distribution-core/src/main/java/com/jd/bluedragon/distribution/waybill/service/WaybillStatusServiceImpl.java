@@ -3,8 +3,22 @@ package com.jd.bluedragon.distribution.waybill.service;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.distribution.half.domain.PackageHalf;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
+import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
+import com.jd.etms.waybill.dto.OrderShipsDto;
+import com.jd.etms.waybill.handler.PackageSyncPartParameter;
+import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +62,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
     
     @Autowired
     private SendDatailDao sendDatailDao;
+
+	@Autowired
+	private BoxService boxService;
+
+	@Autowired
+	private SortingService sortingService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -316,6 +336,20 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
+
+			//包裹补打 发全程跟踪 新增节点2400
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
+				//单独发送全程跟踪消息，供其给前台消费
+				waybillQueryManager.sendOrderTrace(tWaybillStatus.getWaybillCode(),
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE,
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_MSG,
+						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
+						tWaybillStatus.getOperator(), null);
+//				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
 			//备件库售后 交接拆包
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_AMS_BH))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
@@ -549,6 +583,35 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				task.setYn(0); //设置他的原因是 不去调用 waybillSyncApi.batchUpdateStateByCode 这个方法
 			}
 
+			/**
+			 * 全程跟踪:组板
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())
+					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
+
+				String boxOrPackageCode = tWaybillStatus.getPackageCode();
+				if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+					//先取出box表的始发，然后查sorting表
+					List<Sorting> sortingList = getPackagesByBoxCode(boxOrPackageCode);
+					for (Sorting sorting : sortingList) {
+						tWaybillStatus.setWaybillCode(sorting.getWaybillCode());
+						tWaybillStatus.setPackageCode(sorting.getPackageCode());
+						toWaybillStatus(tWaybillStatus, bdTraceDto);
+						bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+						waybillQueryManager.sendBdTrace(bdTraceDto);
+					}
+
+				} else {
+					tWaybillStatus.setPackageCode(boxOrPackageCode);
+					tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(boxOrPackageCode));
+					toWaybillStatus(tWaybillStatus, bdTraceDto);
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+					waybillQueryManager.sendBdTrace(bdTraceDto);
+
+				}
+				task.setYn(0);
+			}
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
@@ -583,4 +646,130 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		}
 	}
 
+	/**
+	 * 根据箱号获取箱内的包裹信息
+	 * @param boxCode
+	 * @return
+	 */
+	private List<Sorting> getPackagesByBoxCode(String boxCode) {
+		Box box = boxService.findBoxByCode(boxCode);
+		if (box != null) {
+			Sorting sorting = new Sorting();
+			sorting.setBoxCode(boxCode);
+			sorting.setCreateSiteCode(box.getCreateSiteCode());
+			return sortingService.findByBoxCode(sorting);
+		}
+		return null;
+	}
+
+	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime,Integer orgId){
+		CallerInfo info = null;
+		try{
+			info = Profiler.registerInfo( "DMSWEB.waybillStatusService.batchUpdateWaybillPartByOperateType",false, true);
+
+			//妥投或者拒收 走老同步接口
+			if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)) {
+
+				//组装更新对象
+				List<WaybillSyncPartParameter> waybillSyncPartParameterList = new ArrayList<WaybillSyncPartParameter>();
+				WaybillSyncPartParameter waybillSyncPartParameter = new WaybillSyncPartParameter();
+				waybillSyncPartParameterList.add(waybillSyncPartParameter);
+				List<PackageSyncPartParameter> packageSyncPartParameterList = new ArrayList<PackageSyncPartParameter>();
+				waybillSyncPartParameter.setPackageSyncPartParameterList(packageSyncPartParameterList);
+				waybillSyncPartParameter.setWaybillOperateType(waybillOpeType);
+				//组装包裹 并且 获取运单的最终状态， 如果有拒收则按部分签收更新运单状态
+
+				for (PackageHalfDetail packageHalfDetail : packageHalfDetails) {
+
+					if (packageSyncPartParameterList.size() == 0) {
+						waybillSyncPartParameter.setWaybillCode(packageHalfDetail.getWaybillCode());
+						waybillSyncPartParameter.setOperateSiteName(packageHalfDetail.getOperateSiteName());
+						waybillSyncPartParameter.setOperateSiteId(packageHalfDetail.getOperateSiteCode().intValue());
+						waybillSyncPartParameter.setOperatorId(operatorId);
+						waybillSyncPartParameter.setOperatorName(operatorName);
+						waybillSyncPartParameter.setOperateTime(operateTime);
+					}
+
+					PackageSyncPartParameter packageSyncPartParameter = new PackageSyncPartParameter();
+					packageSyncPartParameter.setPackageCode(packageHalfDetail.getPackageCode());
+					packageSyncPartParameter.setPackageOperateType(getPackageOperateTypeByResultType(packageHalfDetail.getResultType()));
+					packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
+
+					packageSyncPartParameterList.add(packageSyncPartParameter);
+				}
+
+
+				BaseEntity<Map<String, String>> result = this.waybillSyncApi.batchUpdateWaybillPartByOperateType(waybillSyncPartParameterList);
+				if (result.getResultCode() == 1) {
+					//成功
+					return true;
+				} else {
+					//失败的包裹号
+					Set<Map.Entry<String, String>> mapSet = result.getData().entrySet();
+					for (Map.Entry<String, String> entry : mapSet) {
+						entry.getKey();
+						entry.getValue();
+					}
+					return false;
+				}
+			}else{
+				List<WaybillParameter> waybillParameters = new ArrayList<WaybillParameter>();
+				WaybillParameter waybillParameter = new WaybillParameter();
+				waybillParameter.setWaybillCode(packageHalf.getWaybillCode());
+				waybillParameter.setOrgId(orgId);
+				waybillParameter.setPsyId(operatorId);
+				waybillParameter.setZdName(packageHalf.getOperateSiteName());
+				waybillParameter.setZdId(packageHalf.getOperateSiteCode().intValue());
+				waybillParameter.setOperatorId(operatorId);
+				waybillParameter.setOperatorName(operatorName);
+				waybillParameter.setOperatorType(waybillOpeType);
+				waybillParameter.setOperateTime(operateTime);
+				waybillParameters.add(waybillParameter);
+				OrderShipsDto orderShipDto = new OrderShipsDto();
+				waybillParameter.setOrderShipsDto(orderShipDto);
+				//妥投 分拣中心 现阶段 只能操作整单妥投  不可以操作整单拒收。
+				if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_DELIVERED)){
+					orderShipDto.setAmount(0);
+					orderShipDto.setDistanceType(0);
+					orderShipDto.setLocalTimeState(operateTime);
+					orderShipDto.setPayWayId(-2); //在线支付
+					orderShipDto.setType(0);
+				}
+				logger.debug("运单同步老接口入参："+JsonHelper.toJson(waybillParameters));
+				//老同步接口
+				BaseEntity<Boolean> result = this.waybillSyncApi.batchUpdateWaybillByWaybillCode(waybillParameters, waybillOpeType);
+				if (result.getResultCode() == 1) {
+					//成功
+					return true;
+				} else {
+					return false;
+				}
+			}
+		}catch (Exception e){
+			logger.error("包裹半收运单接口调用失败，"+packageHalf.getWaybillCode()+" 操作码 "+waybillOpeType+" 失败原因："+e.getMessage());
+			Profiler.functionError(info);
+			return false;
+		}finally{
+			Profiler.registerInfoEnd(info);
+		}
+
+	}
+
+	/**
+	 * 根据配送类型 获取相应运单操作码
+	 * @param resultType
+	 * @return
+	 */
+	private Integer getPackageOperateTypeByResultType(Integer resultType){
+		Integer result = new Integer(0);
+		if(PackageHalfResultTypeEnum.DELIVERED_1.getCode().equals(resultType.toString())){
+			result = WaybillStatus.WAYBILL_OPE_TYPE_DELIVERED;
+		}else if(PackageHalfResultTypeEnum.REJECT_2.getCode().equals(resultType.toString())){
+			result = WaybillStatus.WAYBILL_OPE_TYPE_REJECT;
+		}else{
+			throw new RuntimeException("未识别配送结果类型 "+ resultType);
+		}
+		return result;
+	}
 }
+

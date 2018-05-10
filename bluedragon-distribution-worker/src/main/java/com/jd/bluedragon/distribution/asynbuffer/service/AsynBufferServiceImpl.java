@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,16 +50,14 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     public boolean receiveTaskProcess(Task task)
             throws Exception {
-
         try {
-        	receiveTaskExecutor.execute(task, "");
+        	return receiveTaskExecutor.execute(task, task.getOwnSign());
         } catch (Exception e) {
             logger.error(
                     "处理收货任务失败[taskId=" + task.getId() + "]异常信息为："
                             + e.getMessage(), e);
             return false;
         }
-        return true;
     }
 
     //分拣中心验货
@@ -254,10 +253,37 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             //中转发货补全任务
             return deliveryService.findTransitSend(task);
 
-        } else {
+        } else if (keyword1.equals("6")) {
+            //发送发货明细MQ任务
+            return deliveryService.sendDetailMQ(task);
+
+        } else if (keyword1.equals("7")) {
+            //组板任务处理
+            return deliveryService.doBoardDelivery(task);
+        }else {
             //没有找到对应的方法，提供报错信息
             this.logger.error("task id is " + task.getId()+"can not find process method");
         }
         return false;
     }
+
+    @Autowired
+    private DmsTaskExecutor<Task> offlineCoreTaskExecutor;
+
+    /**
+     * 离线任务
+     *
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    public boolean offlineTaskProcess(Task task) throws Exception {
+        try {
+           return offlineCoreTaskExecutor.execute(task, task.getOwnSign());
+        } catch (Exception e) {
+            logger.error("处理离线任务[offline]失败[taskId=" + task.getId() + "]异常信息为：" + e.getMessage(), e);
+            return false;
+        }
+    }
+
 }

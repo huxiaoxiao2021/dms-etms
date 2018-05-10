@@ -20,7 +20,8 @@ public class BasePdaUserDto implements Serializable {
     private String organizationName;//机构名称
     private String password;//用户密码
     private String dmsCode;    //7位站点编码
-
+    private Integer siteType;   //站点类型
+    private Integer subType;    //站点子类型
     public String getDmsCode() {
         return dmsCode;
     }
@@ -107,5 +108,21 @@ public class BasePdaUserDto implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(Integer siteType) {
+        this.siteType = siteType;
+    }
+
+    public Integer getSubType() {
+        return subType;
+    }
+
+    public void setSubType(Integer subType) {
+        this.subType = subType;
     }
 }

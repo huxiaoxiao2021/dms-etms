@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>库房拒收外呼申请</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/abnormal/dmsAbnormalEclpValidator.js"></script>
+    <script src="/static/js/abnormal/dmsAbnormalEclp.js"></script>
+
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" >
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">库房拒收外呼申请</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-3">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="startDate">发起时间</label>
+                                <div class=" col-xs-8">
+                                    <input type="text" id="startTime" name="startTime" class="form-control search-param ">
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group">
+                                <label class="control-label col-xs-1 " for="startDate" style="text-align: center" >—</label>
+                                <div class=" col-xs-8">
+                                    <input type="text" id="endTime" name="endTime" class="form-control search-param " >
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group" >
+                                <label class="control-label col-xs-4" for="box-code-input"> 运单号 </label>
+                                <div class="col-xs-8 ">
+                                    <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param " >
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group">
+                                <label class="control-label col-xs-6 " for="startDate"> 客服是否反馈 </label>
+                                <div class=" col-xs-6">
+                                    <select type="text" class="form-control " id="isReceiptSelect" name="isReceiptSelect">
+                                        <option value="2" selected >全部</option>
+                                        <option value="1">是</option>
+                                        <option value="0">否</option>
+                                    </select>
+                                    <input type="hidden" id="isReceipt" class="form-control  search-param " name="isReceipt">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        </button>
+
+    </div>
+    <table id="dataTable"></table>
+</div>
+<div id="dataEditDiv" class="main" style="display: true">
+    <ol class="breadcrumb">
+        <li><a href="#">库房拒收外呼申请</a></li>
+        <li class="active">新增</li>
+    </ol>
+
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-3">
+                    </div>
+                    <div class="col-xs-6">
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">运单号 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" class="form-control edit-param" id="waybillCode" name="waybillCode"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>待协商原因 ：</label>
+                            <div class="col-xs-9">
+                                <select  class="form-control " id="excpTypeEdit" name="excpTypeEdit"></select>
+                                <input type="hidden" class="form-control edit-param" id="consultType" name="consultType" />
+                                <input type="hidden" class="form-control edit-param" id="consultReason" name="consultReason" />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">待协商说明 ：</label>
+                            <div class="col-xs-9">
+                                <textarea type="text" class="form-control edit-param" style="height: 80px;" id="consultMark" name="consultMark"></textarea>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <hr/>
+
+                <div class="form-group " style="text-align:center;">
+                    <button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">发起外呼申请</button>
+                    <button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">取消</button>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+</div>
+
+
+</body>
+</html>

@@ -63,7 +63,7 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
                 && keyword1.equals("5")){
             if(StringHelper.isNotEmpty(task.getBody())){
                 String [] data = task.getBody().split(DELIMITER);
-                return data[data.length-1];
+                return data[data.length-1];//批次号最后的串 334044-908-20180309142625076
             }
         }
         //task_send:1400

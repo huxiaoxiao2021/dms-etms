@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -40,6 +41,8 @@ import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ssa.domain.UserInfo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -175,6 +178,8 @@ public class BaseServiceImpl implements BaseService {
         basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_SUCCESS_MSG);
         basePdaUserDto.setOrganizationId(baseStaffDto.getOrgId());
         basePdaUserDto.setOrganizationName(baseStaffDto.getOrgName());
+        basePdaUserDto.setSiteType(baseStaffDto.getSiteType());
+        basePdaUserDto.setSubType(baseStaffDto.getSubType());
     }
 
     @Override
@@ -226,6 +231,10 @@ public class BaseServiceImpl implements BaseService {
 				result.setOrganizationName(pdadata.getOrganizationName());
 				// DMS编码
 				result.setDmsCod(pdadata.getDmsCode());
+				// 站点类型
+                result.setSiteType(pdadata.getSiteType());
+                // 站点子类型
+                result.setSubType(pdadata.getSubType());
 				// 返回结果
 				return result;
 			default:
@@ -930,5 +939,28 @@ public class BaseServiceImpl implements BaseService {
 			return baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
 		else
 			return baseMajorManager.getBaseSiteByDmsCode(siteCode);
+	}
+
+
+	@Override
+	@Cache(key = "baseMajorManagerImpl.getDmsShortNameByCode@args0", memoryEnable = false,
+			redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsShortNameByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public String getDmsShortNameByCode(Integer dmsCode){
+		BaseStaffSiteOrgDto dto = queryDmsBaseSiteByCode(dmsCode+"");
+		if(dto == null){
+			return null;
+		}
+
+		//读取站点名称
+		String siteName = dto.getSiteName();
+
+		if (StringHelper.isEmpty(siteName)){
+			return "";
+		}
+		//截取分拣中心、分拨中心、中转场
+		return siteName.replace(Constants.SUFFIX_DMS_ONE,"")
+				.replace(Constants.SUFFIX_DMS_TWO,"")
+				.replace(Constants.SUFFIX_TRANSIT,"");
 	}
 }

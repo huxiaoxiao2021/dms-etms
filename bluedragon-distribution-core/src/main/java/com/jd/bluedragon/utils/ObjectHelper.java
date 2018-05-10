@@ -117,7 +117,7 @@ public class ObjectHelper {
      * @return
      */
     public static <T> int compare(T o1,T o2) {
-    	if(o1 != null && o1 != null){
+    	if(o1 != null && o2 != null){
     		if(o1 instanceof Comparable){
     			return ((Comparable)o1).compareTo(((Comparable)o2));
     		}else{
@@ -130,5 +130,99 @@ public class ObjectHelper {
     	}else{
     		return 1;
     	}
+    }
+    /**
+     * 根据属性名获取类的属性对象
+     * @param classType 类
+     * @param fieldName 属性名
+     * @return
+     */
+	public static Field getField(Class<?> classType,String fieldName){
+		return getAllFields(classType).get(fieldName);
+    }
+    /**
+     * 根据属性名获取实例对象类-属性对象
+     * @param t 类-实例
+     * @param fieldName 属性名
+     * @return
+     */
+	public static <T> Field getField(T t,String fieldName){
+		return getField(t.getClass(),fieldName);
+    }
+    /**
+     * 给指定的对象-字段 赋值
+     * @param obj 指定的对象
+     * @param field 指定的属性
+     * @throws IllegalAccessException 
+     * @throws IllegalArgumentException
+     */
+    public static <T,V> void setValue(T obj,Field field,V fieldVal) throws IllegalArgumentException, IllegalAccessException{
+    	if(obj!=null&&field!=null&&fieldVal!=null){
+    		field.setAccessible(true);
+    		field.set(obj, fieldVal);
+    	}
+    }
+    /**
+     * 获取指定对象的属性值
+     * @param obj 对象
+     * @param field 属性
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+    @SuppressWarnings("unchecked")
+	public static <T,V> V getValue(T obj,Field field) throws IllegalArgumentException, IllegalAccessException{
+    	V res = null;
+    	if(obj!=null&&field!=null){
+    		field.setAccessible(true);
+    		res = (V) field.get(obj);
+    	}
+    	return res;
+    }
+    /**
+     * 获取指定对象的属性值，对象属性值为空，返回默认值
+     * @param obj 对象
+     * @param field 属性
+     * @param defaultVal 对象属性值为空时，返回的默认值
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+	public static <T,V> V getValue(T obj,Field field,V defaultVal) throws IllegalArgumentException, IllegalAccessException{
+    	V res = getValue(obj,field);
+    	if(res!=null){
+    		return res;
+    	}
+    	return defaultVal;
+    }
+    /**
+     * 获取指定对象的属性值，对象属性值为空，返回默认值
+     * @param obj 对象
+     * @param fieldName 属性名称
+     * @param defaultVal 对象属性值为空时，返回的默认值
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+	public static <T,V> V getValue(T obj,String fieldName) throws IllegalArgumentException, IllegalAccessException{
+		if(obj!=null&&StringHelper.isNotEmpty(fieldName)){
+			return getValue(obj,getField(obj,fieldName));
+		}
+		return null;
+    }
+    /**
+     * 获取指定对象的属性值，对象属性值为空，返回默认值
+     * @param obj 对象
+     * @param fieldName 属性名称
+     * @param defaultVal 对象属性值为空时，返回的默认值
+     * @return
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     */
+	public static <T,V> V getValue(T obj,String fieldName,V defaultVal) throws IllegalArgumentException, IllegalAccessException{
+		if(obj!=null&&StringHelper.isNotEmpty(fieldName)){
+			return getValue(obj,getField(obj,fieldName),defaultVal);
+		}
+		return defaultVal;
     }
 }

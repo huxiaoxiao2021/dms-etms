@@ -1,7 +1,5 @@
 package com.jd.bluedragon.utils;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,27 +8,30 @@ import org.apache.log4j.Logger;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public class BusinessHelper {
 
 	private final static Logger logger = Logger.getLogger(BusinessHelper.class);
 
-	private static final String PACKAGE_SEPARATOR = "-";
-	private static final String PACKAGE_IDENTIFIER_SUM = "S";
-	private static final String PACKAGE_IDENTIFIER_NUMBER = "N";
-	private static final String PACKAGE_IDENTIFIER_PICKUP = "W";
-	private static final String PACKAGE_WAIDAN = "V";
+	public static final String PACKAGE_SEPARATOR = "-";
+	public static final String PACKAGE_IDENTIFIER_SUM = "S";
+	public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+	public static final String PACKAGE_IDENTIFIER_PICKUP = "W";
+	public static final String PACKAGE_WAIDAN = "V";
 
-    private static final String AO_BATCH_CODE_PREFIX="Y";
-	private static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
-	private static final String SOURCE_CODE_ECLP = "ECLP";
-	private static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-	private static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String AO_BATCH_CODE_PREFIX="Y";
+	public static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
+	public static final String SOURCE_CODE_ECLP = "ECLP";
+	public static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
+	public static final String BUSI_ORDER_CODE_QWD = "QWD";
+	public static final String SOURCE_CODE_CLPS = "CLPS";
+	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 	/**
-	 * waybillSign打标字符字典，存放打标
+	 * hash格式分页存储时，分页大小
 	 */
-	private static Map<Integer,Map<Character,String>> WAYBILL_SIGN_TEXT_DIC = new HashMap<Integer,Map<Character,String>>();
+	public static final int HASH_KEY_PAGESIZE = 200;
 	static{
 		init();
 	}
@@ -54,25 +55,6 @@ public class BusinessHelper {
 	}
 
 	private static void init() {
-		// TODO Auto-generated method stub
-		Map<Character,String> sign4 = new HashMap<Character,String>(2);
-		sign4.put('1',"签单返还");
-		Map<Character,String> sign10 = new HashMap<Character,String>(16);
-		sign10.put('1',"普通");
-		sign10.put('2',"常温");
-		sign10.put('3',"填仓");
-		sign10.put('4',"特配");
-		sign10.put('5',"鲜活");
-		sign10.put('6',"控温");
-		sign10.put('7',"冷藏");
-		sign10.put('8',"冷冻");
-		sign10.put('9',"深冷");
-		Map<Character,String> sign31 = new HashMap<Character,String>(4);
-		sign31.put('0',"特惠送");
-		sign31.put('1',"特准送");
-		WAYBILL_SIGN_TEXT_DIC.put(Constants.WAYBILL_SIGN_POSITION_SIGN_BACK, sign4);
-		WAYBILL_SIGN_TEXT_DIC.put(Constants.WAYBILL_SIGN_POSITION_DISTRIBUT_TYPE, sign10);
-		WAYBILL_SIGN_TEXT_DIC.put(Constants.WAYBILL_SIGN_POSITION_TRANSPORT_MODE, sign31);
 	}
 
 	/**
@@ -346,6 +328,43 @@ public class BusinessHelper {
 		return Boolean.FALSE;
 	}
 
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的BusiOrderCode字段,判断它是不是CSL开头单号
+	 * @return
+	 */
+	public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
+		if (StringHelper.isEmpty(busiOrderCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (busiOrderCode.startsWith(BUSI_ORDER_CODE_PRE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
+	/**
+	 * 判断是否是CLPS订单
+	 * CLPS : 云仓
+	 * @param busiOrderCode  运单中的sourceCode字段 是CLPS
+	 * @return
+	 */
+	public static Boolean isCLPSBySoucreCode(String soucreCode) {
+		if (StringHelper.isEmpty(soucreCode)) {
+			return Boolean.FALSE;
+		}
+
+		if (soucreCode.toUpperCase().equals(SOURCE_CODE_CLPS)) {
+			return Boolean.TRUE;
+		}
+
+		return Boolean.FALSE;
+	}
+
 	/**
 	 * “QWD”开头的单子 返回true
 	 * @param
@@ -427,33 +446,6 @@ public class BusinessHelper {
 		return !BusinessHelper.checkIntNumRange(intNum);
 	}
 	/**
-	 * 获取waybillSign，标识位对应的描述信息，字典中没有设置，则返回""
-	 * @param waybillSign 运单打标字符串
-	 * @param signPositions 需要获取的打标位置，从1开始
-	 * @return
-	 */
-	public static Map<Integer,String> getWaybillSignTexts(String waybillSign,Integer... signPositions){
-		Map<Integer,String> res = new HashMap<Integer,String>(8);
-		if(StringHelper.isNotEmpty(waybillSign)
-				&&signPositions!=null){
-			char[] waybillSignChars = waybillSign.toCharArray();
-			String signText = "";
-			for(Integer position:signPositions){
-				signText = null;
-				if(position>0&&position<=waybillSignChars.length){
-					if(WAYBILL_SIGN_TEXT_DIC.containsKey(position)){
-						signText = WAYBILL_SIGN_TEXT_DIC.get(position).get(waybillSignChars[position-1]);
-					}
-				}
-				if(signText==null){
-					signText = "";
-				}
-				res.put(position, signText);
-			}
-		}
-		return res;
-	}
-	/**
 	 * 判断字符串位置是否标记为1
 	 * @param signStr
 	 * @param position 标识位
@@ -476,6 +468,31 @@ public class BusinessHelper {
 		return false;
 	}
 	/**
+	 * 判断字符串指定的位置是否在指定的字符范围之内
+	 * @param signStr 目标字符串
+	 * @param position 标识位置
+	 * @param chars 字符范围
+	 * @return
+	 */
+	public static boolean isSignInChars(String signStr,int position,char... chars){
+		if(StringHelper.isNotEmpty(signStr) 
+				&& signStr.length() >= position
+				&& chars != null
+				&& chars.length > 0){
+			char positionChar = signStr.charAt(position-1);
+			if(chars.length == 1){
+				return chars[0] == positionChar;
+			}else{
+				for(char tmp:chars){
+					if(positionChar == tmp){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+	/**
 	 * 根据waybillSign和sendSign判断是否城配运单
 	 * @param waybillSign 36为1
 	 * @param sendPay 146为1
@@ -491,7 +508,6 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isYHD(String sendPay){
-//		sendPay = "00000000100000000000000002001000030000100000000000000000000036000000000000000000000000000000000000000000003400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
 		if(isSignChar(sendPay, 60, '0') && isSignChar(sendPay, 61, '3')){
 			if(isSignChar(sendPay, 62, '4')||isSignChar(sendPay, 62, '5')||isSignChar(sendPay, 62, '6')||
 					isSignChar(sendPay, 62, '7')||isSignChar(sendPay, 62, '8')||isSignChar(sendPay, 62, '9')){
@@ -533,17 +549,17 @@ public class BusinessHelper {
 
     /**
      * 判断是否上传了体积或者重量(重量不为0 或者 长宽高都不为0)
-     * @param context 请求上下文
+     * @param waybillPrintRequest 打印请求参数
      * @return 是否上传体积或重量
      */
     public static boolean hasWeightOrVolume(WaybillPrintRequest waybillPrintRequest){
     	if(waybillPrintRequest.getWeightOperFlow()==null){
     		return false;
     	}
-        if(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWeight()) 
-        	||(!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getWidth())
-        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getLength())
-        		&&!Constants.DOUBLE_ZERO.equals(waybillPrintRequest.getWeightOperFlow().getHigh()))){
+        if(NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getWeight()) 
+        	||(NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getWidth())
+        		&&NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getLength())
+        		&&NumberHelper.gt0(waybillPrintRequest.getWeightOperFlow().getHigh()))){
             return true;
         }
         return false;
@@ -574,4 +590,143 @@ public class BusinessHelper {
 				&&Constants.THIRD_SITE_TYPE.equals(baseStaffSiteOrgDto.getSiteType())
 				&&Constants.THIRD_SITE_SUB_TYPE.equals(baseStaffSiteOrgDto.getSubType());
     }
+    /**
+     * 验证运单数据是否包含-到付运费，WaybillSign40=2或3时，并且WaybillSign25=2时，freight<=0 返回false
+     * @param bigWaybillDto
+     * @return
+     */
+    public static boolean hasFreightForB2b(BigWaybillDto bigWaybillDto){
+    	if(bigWaybillDto!=null
+    			&&bigWaybillDto.getWaybill()!=null
+    			&&StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())){
+    		String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+    		//WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
+    		if((isSignChar(waybillSign, 40, '2')||isSignChar(waybillSign, 40, '3'))
+    				&&isSignChar(waybillSign, 25, '2')){
+    			String freightStr = bigWaybillDto.getWaybill().getFreight();
+    			if(NumberHelper.isStringNumber(freightStr)){
+    				return NumberHelper.getDoubleValue(freightStr).doubleValue() > 0d;
+    			}else{
+    				return false;
+    			}
+    		}
+    	}
+    	return true;
+    }
+	/**
+	 * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isB2b(String waybillSign){
+		return isSignInChars(waybillSign, 40,'1','2','3','4','5');
+	}
+	/**
+	 * 根据waybillSign判断是否病单（34位标识为 2）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isSick(String waybillSign){
+		return isSignInChars(waybillSign, 34,'2');
+	}
+
+	/**
+	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPackageHalf(String waybillSign){
+		return isSignChar(waybillSign, 27,'2');
+	}
+
+	/**
+	 *  支持协商再投
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isConsultationTo(String waybillSign){
+		return isSignChar(waybillSign, 5,'3');
+	}
+
+	/**
+	 *  到付运费或COD  TopayTotalReceivable > 0
+	 * @param bigWaybillDto
+	 * @return
+	 */
+	public static boolean isCODOrFreightCollect(BigWaybillDto bigWaybillDto){
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getTopayTotalReceivable() !=null){
+			if(bigWaybillDto.getWaybill().getTopayTotalReceivable().compareTo(new Double(0))>0){
+				return true;
+			}else{
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+
+
+	/**
+	 * 校验运单总体积和总重量重泡比
+	 * 重泡比超过正常范围168:1到330:1
+	 * @param weight
+	 * @param volume
+	 * @return
+	 */
+	public static boolean checkWaybillWeightAndVolume(Double weight,Double volume){
+		if(weight == null || volume == null || weight.compareTo(0.0)<0 ||  volume.compareTo(0.0)<0 ){
+			return false;
+		}
+		if( (weight/volume < Constants.CBM_DIV_KG_MIN_LIMIT) || (weight/volume > Constants.CBM_DIV_KG_MAX_LIMIT) ) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * 获取包裹号的hash存储key,Key:运单号-页码	keyFiled:包裹号，页码=（包裹序号-1)/200+1
+	 * @param packageCode 支持72945262907N4S5H30和72945262907-4-5-
+	 * @return
+	 */
+	public static String[] getHashKeysByPackageCode(String packageCode) {
+		if(StringHelper.isEmpty(packageCode)){
+			return null;
+		}
+		try {
+			int packageIndex = 0;
+			String waybillCode = null;
+			if (packageCode.indexOf(PACKAGE_SEPARATOR) != -1) {
+				String[] strs = packageCode.split(PACKAGE_SEPARATOR);
+				if(strs.length>=3){
+					waybillCode = strs[0];
+					packageIndex = Integer.parseInt(strs[1]);
+				}
+			} else if (packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER) != -1
+					&& packageCode.indexOf(PACKAGE_IDENTIFIER_SUM) != -1) {
+				waybillCode = packageCode.substring(0, packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER));
+				packageIndex = Integer.parseInt(packageCode.substring(
+						packageCode.indexOf(PACKAGE_IDENTIFIER_NUMBER)+1, 
+						packageCode.indexOf(PACKAGE_IDENTIFIER_SUM)));
+			}
+			if(packageIndex > 0){
+				String key = waybillCode + PACKAGE_SEPARATOR + (packageIndex>HASH_KEY_PAGESIZE?(packageIndex-1)/HASH_KEY_PAGESIZE+1:1);
+				return new String[]{key,packageCode};
+			}
+		} catch (Exception e) {
+			logger.error(packageCode+"获取hashKey发生错误， 错误信息为：" + e.getMessage(), e);
+		}
+		return null;
+	}
+	/**
+	 * 获取hashKey
+	 * @param key 键
+	 * @param pageIndex 页码
+	 * @return key+"-"+ pageIndex
+	 */
+	public static String getHashKey(String key,int pageIndex) {
+		if(StringHelper.isNotEmpty(key)){
+			return key + PACKAGE_SEPARATOR + pageIndex;
+		}
+		return null;
+	}
 }

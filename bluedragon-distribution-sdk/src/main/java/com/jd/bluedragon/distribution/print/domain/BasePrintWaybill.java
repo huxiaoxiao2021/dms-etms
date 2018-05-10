@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * 面单打印信息
  * @ClassName: BasePrintWaybill
- * @Description: TODO
+ * @Description: 面单打印信息
  * @author: wuyoude
  * @date: 2017年8月24日 下午3:13:49
  *
@@ -84,7 +84,7 @@ public class BasePrintWaybill implements Serializable {
      */
     private String consigneeCompany;
     /**
-     * 运输产品类型
+     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担、4-冷链整车、5-快运冷链
      */
     private String jZDFlag;
 
@@ -115,6 +115,34 @@ public class BasePrintWaybill implements Serializable {
 	 * 北京已验视标识
 	 */
 	private boolean bjCheckFlg;
+	/**
+	 * 清真标识-1、清真 2、易污染 3、清真 易污染
+	 */
+	private String muslimSignText;
+	/**
+	 * 模板名称
+	 */
+	private String templateName;
+	/**
+	 * 模板版本-默认为0，最后一个版本号
+	 */
+	private int templateVersion;
+	/**
+	 * 运费
+	 */
+	private String freightText;
+	/**
+	 * 货款
+	 */
+	private String goodsPaymentText;
+	/**
+	 * 条码号-orderCode不为空取orderCode，否则取WaybillCode，都为空则NO-DATA
+	 */
+	private String barCode;
+	/**
+	 * 备注
+	 */
+	private String remark;
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -429,5 +457,116 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setBjCheckFlg(boolean bjCheckFlg) {
 		this.bjCheckFlg = bjCheckFlg;
+	}
+
+	/**
+	 * @return the muslimSignText
+	 */
+	public String getMuslimSignText() {
+		return muslimSignText;
+	}
+
+	/**
+	 * @param muslimSignText the muslimSignText to set
+	 */
+	public void setMuslimSignText(String muslimSignText) {
+		this.muslimSignText = muslimSignText;
+	}
+
+	/**
+	 * @return the templateName
+	 */
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	/**
+	 * @param templateName the templateName to set
+	 */
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	/**
+	 * @return the templateVersion
+	 */
+	public int getTemplateVersion() {
+		return templateVersion;
+	}
+
+	/**
+	 * @param templateVersion the templateVersion to set
+	 */
+	public void setTemplateVersion(int templateVersion) {
+		this.templateVersion = templateVersion;
+	}
+
+	/**
+	 * @return the freightText
+	 */
+	public String getFreightText() {
+		return freightText;
+	}
+
+	/**
+	 * @param freightText the freightText to set
+	 */
+	public void setFreightText(String freightText) {
+		this.freightText = freightText;
+	}
+
+	/**
+	 * @return the goodsPaymentText
+	 */
+	public String getGoodsPaymentText() {
+		return goodsPaymentText;
+	}
+
+	/**
+	 * @param goodsPaymentText the goodsPaymentText to set
+	 */
+	public void setGoodsPaymentText(String goodsPaymentText) {
+		this.goodsPaymentText = goodsPaymentText;
+	}
+
+	/**
+	 * @return the remark
+	 */
+	public String getRemark() {
+		return remark;
+	}
+
+	/**
+	 * @param remark the remark to set
+	 */
+	public void setRemark(String remark) {
+		this.remark = remark;
+	}
+	/**
+	 * 追加备注信息
+	 * @param str
+	 */
+	public void appendRemark(String str) {
+		if(str != null){
+			if(this.remark == null){
+				this.remark = str;
+	    	}else{
+	    		this.remark += str;
+	    	}
+		}
+	}
+
+	/**
+	 * @return the barCode
+	 */
+	public String getBarCode() {
+		return barCode;
+	}
+
+	/**
+	 * @param barCode the barCode to set
+	 */
+	public void setBarCode(String barCode) {
+		this.barCode = barCode;
 	}
 }

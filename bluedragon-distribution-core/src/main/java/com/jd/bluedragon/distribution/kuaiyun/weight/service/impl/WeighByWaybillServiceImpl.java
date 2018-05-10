@@ -1,5 +1,16 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
@@ -11,21 +22,14 @@ import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
+import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.jmq.common.exception.JMQException;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 /**
@@ -60,6 +64,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     @Qualifier("weighByWaybillProducer")
     private DefaultJMQProducer weighByWaybillProducer;
 
+    @Autowired
+    @Qualifier("dmsWeightFlowService")
+    private DmsWeightFlowService dmsWeightFlowService;
     @Autowired
     private TaskDao dao;
 
@@ -188,8 +195,28 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
     {
         this.logToOperationlogCassandra(dto);
         this.sendMessageToMq(dto);
+        //保存称重流水入库
+        dmsWeightFlowService.saveOrUpdate(convertToDmsWeightFlow(dto));
     }
-
+    /**
+     * 对象转换为DmsWeightFlow
+     * @param dto
+     * @return
+     */
+    private DmsWeightFlow convertToDmsWeightFlow(WaybillWeightDTO dto){
+        DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();
+        dmsWeightFlow.setBusinessType(Constants.BUSINESS_TYPE_WEIGHT);
+        dmsWeightFlow.setOperateType(Constants.OPERATE_TYPE_WEIGHT_BY_WAYBILL);
+        dmsWeightFlow.setDmsSiteCode(dto.getOperatorSiteCode());
+        dmsWeightFlow.setDmsSiteName(dto.getOperatorSiteName());
+        dmsWeightFlow.setWaybillCode(dto.getWaybillCode());
+        dmsWeightFlow.setWeight(dto.getWeight());
+        dmsWeightFlow.setVolume(dto.getVolume());
+        dmsWeightFlow.setOperateTime(DateHelper.toDate(dto.getOperateTimeMillis()));
+        dmsWeightFlow.setOperatorCode(dto.getOperatorId());
+        dmsWeightFlow.setOperatorName(dto.getOperatorName());
+        return dmsWeightFlow;
+    }
     /**
      * 当运单经校验不存在时的流程
      *

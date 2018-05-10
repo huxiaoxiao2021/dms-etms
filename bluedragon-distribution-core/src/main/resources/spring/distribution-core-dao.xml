@@ -386,6 +386,8 @@
     <!--空铁基础字典表 -->
     <bean id="dmsBaseDictDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.base.dao.impl.DmsBaseDictDaoImpl"/>
+    <bean id="dmsStorageAreaDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.base.dao.impl.DmsStorageAreaDaoImpl"/>
     <!-- 空铁业务表Dao配置 -->
     <bean id="arBookingSpaceDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArBookingSpaceDaoImpl"/>
@@ -397,4 +399,34 @@
     	class="com.jd.bluedragon.distribution.transport.dao.impl.ArSendRegisterDaoImpl"/>
     <bean id="arReceiveDao" parent="unDivBaseDao"
     	class="com.jd.bluedragon.distribution.receive.dao.ArReceiveDaoImpl"/>
+
+    <bean id="b2bRouterDao" class = "com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="unDivSqlSessionTemplate" />
+    </bean>
+
+    <bean id="b2bRouterNodeDao" class="com.jd.bluedragon.distribution.b2bRouter.dao.B2BRouterNodeDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+        <property name="sqlSessionRead" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="dmsWeightFlowDao" parent="unDivBaseDao"
+    	class="com.jd.bluedragon.distribution.weight.dao.impl.DmsWeightFlowDaoImpl"/>
+
+    <bean id="dmsOperateHintDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsOperateHintDaoImpl"/>
+
+    <bean id="packageHalfDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDaoImpl"/>
+
+    <bean id="packageHalfDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDetailDaoImpl"/>
+
+    <bean id="packageHalfRedeliveryDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfRedeliveryDaoImpl"/>
+
+    <bean id="packageHalfApproveDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfApproveDaoImpl"/>
+
+    <bean id="dmsAbnormalEclpDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
 </beans>

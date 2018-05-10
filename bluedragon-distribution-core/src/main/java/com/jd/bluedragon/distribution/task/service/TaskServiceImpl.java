@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.task.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.redis.TaskModeAgent;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
@@ -16,13 +17,11 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dcam.config.ConfigManager;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +30,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
-
+import javax.annotation.Resource;
 import java.util.*;
 
 @Service("taskService")
@@ -41,7 +40,6 @@ public class TaskServiceImpl implements TaskService {
 
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
-	private static final String WORKER_FETCH_WITHOUT_FAILED_TABLE = "worker.fetch.without.failed.table";
 
 	@Autowired
     private TaskDao taskDao;
@@ -64,8 +62,8 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private DmsDynamicProducer dynamicProducer;
 
-    @Autowired
-    private ConfigManager configManager;
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
@@ -220,7 +218,7 @@ public class TaskServiceImpl implements TaskService {
 
     public String getFetchWithoutFailedTableName() {
 	    try {
-            return configManager.getProperty(WORKER_FETCH_WITHOUT_FAILED_TABLE);
+            return uccPropertyConfiguration.getWorkerFetchWithoutFailedTable();
         } catch (Throwable e) {
 	        return null;
         }

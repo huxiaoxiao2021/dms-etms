@@ -1,41 +1,34 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.Date;
 import java.util.List;
-import java.util.zip.DataFormatException;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.request.CrossBoxRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.basic.DataResolver;
-import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
-import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
-import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.basic.DataResolver;
+import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
+import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpace;
 import com.jd.bluedragon.distribution.transport.domain.ArBookingSpaceCondition;
 import com.jd.bluedragon.distribution.transport.service.ArBookingSpaceService;
-
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 

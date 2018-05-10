@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.send;
 
+import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Date;
@@ -20,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -103,7 +105,10 @@ public class DeliveryResource {
     
     @Autowired
     private SendDatailDao sendDatailDao;
-    
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -135,7 +140,7 @@ public class DeliveryResource {
         domain.setReceiveSiteCode(request.getReceiveSiteCode());
         domain.setSendCode(request.getSendCode());
         domain.setCreateSiteCode(request.getSiteCode());
-        domain.setBoxCode(request.getBoxCode());
+
         String turnoverBoxCode = request.getTurnoverBoxCode();
         if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
             domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
@@ -151,7 +156,14 @@ public class DeliveryResource {
         domain.setOperateTime(new Date(System.currentTimeMillis() + 30000));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+            if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+                domain.setBoardCode(request.getBoxCode());
+                logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
+                result.setData(deliveryService.boardSend(domain));
+            }else{//一车一单发货
+                domain.setBoxCode(request.getBoxCode());
+                result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+            }
         } catch (Exception ex) {
             result.error(ex);
             logger.error("一车一单发货", ex);
@@ -171,6 +183,7 @@ public class DeliveryResource {
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("请输入正确的批次号！");
         }else{
+            if (forbid(result, receiveSiteCode)) return result;
             try {
                 ServiceMessage<Boolean> data = departureService.checkSendStatusFromVOS(sendCode);
                 if (ServiceResultEnum.WRONG_STATUS.equals(data.getResult())) {//已被封车
@@ -188,6 +201,37 @@ public class DeliveryResource {
             }
         }
         return result;
+    }
+
+    /**
+     * 一车一单操作增加提示，如果操作逆向则阻断
+     * @param result 返回结果
+     * @param receiveSiteCode 目的站点号
+     * @return
+     */
+    private boolean forbid(InvokeResult<Map.Entry<Integer, String>> result, Integer receiveSiteCode) {
+        BaseStaffSiteOrgDto bDto = null;
+        try {
+            bDto = this.baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        } catch (Exception e) {
+            this.logger.error("一车一单发货通过站点ID获取基础资料失败:"+receiveSiteCode,e);
+            return false;
+        }
+        Integer siteType=0;
+        if (null != bDto) {
+            siteType = bDto.getSiteType();
+            String asm_type = PropertiesHelper.newInstance().getValue("asm_type");//售后
+            String wms_type = PropertiesHelper.newInstance().getValue("wms_type");//仓储
+            String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");//备件库退货
+            if(siteType==Integer.parseInt(asm_type)||siteType==Integer.parseInt(wms_type)||siteType==Integer.parseInt(spwms_type)){
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                result.setMessage("禁止逆向操作！");
+                return true;
+            }
+        }else{
+            this.logger.warn("一车一单发获取站点信息为空：" + receiveSiteCode);
+        }
+        return false;
     }
 
     @POST
@@ -272,7 +316,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/send")
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
-        this.logger.info("开始写入发货信息");
+        this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
         if (check(request)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
@@ -309,6 +353,27 @@ public class DeliveryResource {
         } catch (Exception ex) {
             logger.error("发货不全验证", ex);
             return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
+        }
+    }
+
+    @POST
+    @Path("/delivery/router/verification")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification", mState = {JProEnum.TP})
+    public DeliveryResponse checkThreeDelivery(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
 
@@ -495,23 +560,32 @@ public class DeliveryResource {
         List<SendM> sendMList = new ArrayList<SendM>();
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
-                SendM sendM = new SendM();
-                sendM.setBoxCode(deliveryRequest.getBoxCode());
-                sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
-                sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
-                sendM.setCreateUserCode(deliveryRequest.getUserCode());
-                sendM.setSendType(deliveryRequest.getBusinessType());
-                sendM.setCreateUser(deliveryRequest.getUserName());
-                sendM.setSendCode(deliveryRequest.getSendCode());
-                sendM.setCreateTime(new Date());
-                sendM.setOperateTime(new Date());
-                sendM.setYn(1);
-                sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
-                sendM.setTransporttype(deliveryRequest.getTransporttype());
-                sendMList.add(sendM);
+                sendMList.add(deliveryRequest2SendM(deliveryRequest));
             }
         }
         return sendMList;
+    }
+
+    /**
+     * DeliveryRequest对象转sendM
+     * @param deliveryRequest
+     * @return
+     */
+    private SendM deliveryRequest2SendM(DeliveryRequest deliveryRequest){
+        SendM sendM = new SendM();
+        sendM.setBoxCode(deliveryRequest.getBoxCode());
+        sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
+        sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
+        sendM.setCreateUserCode(deliveryRequest.getUserCode());
+        sendM.setSendType(deliveryRequest.getBusinessType());
+        sendM.setCreateUser(deliveryRequest.getUserName());
+        sendM.setSendCode(deliveryRequest.getSendCode());
+        sendM.setCreateTime(new Date());
+        sendM.setOperateTime(new Date());
+        sendM.setYn(1);
+        sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
+        sendM.setTransporttype(deliveryRequest.getTransporttype());
+        return sendM;
     }
 
 
@@ -551,6 +625,41 @@ public class DeliveryResource {
         return result;
     }
 
+    @GET
+    @Path("/delivery/updateWaybillStatus/{sendCode}/{createSiteCode}/{receiveSiteCode}/{senddStatus}")
+    public JdResponse updateWaybillStatus(@PathParam("sendCode") String sendCode,
+                                      @PathParam("createSiteCode") Integer createSiteCode,
+                                      @PathParam("receiveSiteCode") Integer receiveSiteCode,
+                                      @PathParam("senddStatus")  Integer senddStatus) {
+        JdResponse result = new JdResponse();
+        List<SendDetail> sendDetails ;
+        try {
+            sendDetails = deliveryService.queryBySendCodeAndSiteCode(sendCode, createSiteCode, receiveSiteCode, senddStatus);
+            if (sendDetails != null && !sendDetails.isEmpty()) {
+                if(deliveryService.updateWaybillStatus(sendDetails)){
+                    result.setCode(result.CODE_OK);
+                    result.setMessage(result.MESSAGE_OK);
+                }else {
+                    result.setCode(result.CODE_INTERNAL_ERROR);
+                    result.setMessage("更新运单状态失败！");
+                }
+
+            } else{
+                result.setCode(result.CODE_OK_NULL);
+                result.setMessage("未查到符合条件的sendd数据");
+                logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无符合条件的数据" +
+                                "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                        sendCode, createSiteCode, receiveSiteCode, senddStatus));
+            }
+        } catch (Exception e) {
+            result.setCode(result.CODE_SERVICE_ERROR);
+            result.setMessage("根据批次号补运单状态全程跟踪异常！");
+            this.logger.error(MessageFormat.format("queryBySendCodeAndSiteCode查询无sendd补运单信息异常" +
+                            "sendCode[{0}],createSiteCode[{1}],receiveSiteCode[{2}],senddStatus[{3}]",
+                    sendCode, createSiteCode, receiveSiteCode, senddStatus), e);
+        }
+        return result;
+    }
     @POST
     @Path("/delivery/sendBatch")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.sendBatch", mState = {JProEnum.TP})
@@ -649,7 +758,7 @@ public class DeliveryResource {
     /**
      * 手动获取设备对应的批次号
      *
-     * @param request
+     * @param config
      * @return
      */
     @POST
@@ -657,7 +766,7 @@ public class DeliveryResource {
     @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
         this.logger.info("手动获取设备对应的批次号");
-        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getAndGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
+        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
         
         if (scannerFrameBatchSend != null) {
         	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);

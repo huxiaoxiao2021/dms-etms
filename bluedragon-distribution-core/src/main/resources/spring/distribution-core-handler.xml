@@ -29,6 +29,7 @@
 				<entry key="100105"  value-ref="basicPrint"/>
 				<entry key="100106"  value-ref="basicPrint"/>
 				<entry key="100107"  value-ref="sitePlatePrint"/>
+				<entry key="100108"  value-ref="basicPrint"/>
 			</map>
 		</property>
 	</bean>
@@ -37,10 +38,11 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="signTextWaybillHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
-				<ref bean="specialSiteWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -54,10 +56,11 @@
 				<ref bean="basicWaybillPrintHandler"/>
 				<!-- 三方超限拦截 -->
 				<ref bean="thirdOverRunInterceptHandler"/>
+				<ref bean="signTextWaybillHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
-				<ref bean="specialSiteWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>

@@ -121,7 +121,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 this.update(reverseReceiveVO);
                 this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
             } 
-        }else if(source.getReceiveType()==1||source.getReceiveType()==5){
+        }else if(source.getReceiveType()==1||source.getReceiveType()==5 || source.getReceiveType()== 6){
         	String orignalPackageCode = source.getPackageCode();
         	source.setPackageCode(source.getOrderId());
             ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getPackageCode(),source.getSendCode(),source.getReceiveType());
@@ -228,7 +228,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	    	String storeName=null;
 	    	
 	    	//仓储收货回传
-	    	if(receiveType==1||source.getReceiveType()==5){
+	    	if(receiveType==1||receiveType==5 || receiveType == 6){
 	    		SendM sendM =sendMDao.selectBySendCode(source.getSendCode());
 	    		BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode());
 	    		dmsId = dto.getSiteCode().toString();

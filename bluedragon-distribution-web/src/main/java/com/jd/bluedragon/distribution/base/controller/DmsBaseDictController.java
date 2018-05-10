@@ -20,7 +20,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 /**
  * 
  * @ClassName: DmsBaseDictController
- * @Description: TODO
+ * @Description: 字典管理
  * @author: wuyoude
  * @date: 2017年12月23日 下午9:49:23
  *
@@ -98,6 +98,19 @@ public class DmsBaseDictController {
     	rest.setData(dmsBaseDictService.queryByPagerCondition(dmsBaseDictCondition));
     	return rest.getData();
     }
+
+    /**
+     * 根据typeCode获取页面选择框、业务枚举值
+     * @return
+     */
+    @RequestMapping(value = "/selectAndEnum/{typeCode}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getSelect(@PathVariable("typeCode") Integer typeCode) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        Long id = dmsBaseDictService.queryByTypeCodeAndParentId(typeCode, DmsBaseDictService.DIC_ROOT_ENUM_SELECT_TYPE_GROUPS).getId();
+        rest.setData(dmsBaseDictService.queryListByParentId(id.intValue()));
+        return rest;
+    }
+
     /**
      * 根据条件分页查询数据信息
      * @return
@@ -127,6 +140,32 @@ public class DmsBaseDictController {
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
         rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(3, typeGroup));
+        return rest;
+    }
+    /**
+     * 根据节点层级获取字典列表
+     * @param nodeLevel
+     * @return
+     */
+    @RequestMapping(value = "/getDicListByNodeLevel/{nodeLevel}")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getDicListByNodeLevel(@PathVariable("nodeLevel") Integer nodeLevel) {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        DmsBaseDictCondition dmsBaseDictCondition = new DmsBaseDictCondition();
+        dmsBaseDictCondition.setLimit(Integer.MAX_VALUE);
+        if(nodeLevel != null && nodeLevel >= 0){
+        	dmsBaseDictCondition.setNodeLevel(nodeLevel);
+        }
+        rest.setData(dmsBaseDictService.queryByCondition(dmsBaseDictCondition));
+        return rest;
+    }
+    /**
+     * 获取所有分组信息
+     * @return
+     */
+    @RequestMapping(value = "/getAllDicGroups")
+    public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
+        JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+        rest.setData(dmsBaseDictService.queryAllGroups());
         return rest;
     }
 }

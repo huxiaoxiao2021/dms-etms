@@ -66,7 +66,14 @@ public class JdResult<T> implements Serializable{
 	 * 更改状态为成功
 	 */
 	public void toSuccess(){
-		this.toSuccess(MESSAGE_SUC.getMsgCode(), MESSAGE_SUC.formatMsg());
+		this.toSuccess(CODE_SUC, MESSAGE_SUC.formatMsg());
+	}
+	/**
+	 * 更改状态为成功,并设置返回消息编码和内容
+	 * @param message
+	 */
+	public void toSuccess(String message){
+		this.toSuccess(CODE_SUC, message);
 	}
 	/**
 	 * 更改状态为成功,并设置返回消息编码和内容
@@ -82,7 +89,14 @@ public class JdResult<T> implements Serializable{
 	 * 更改状态为警告
 	 */
 	public void toWarn(){
-		this.toWarn(MESSAGE_WARN.getMsgCode(), MESSAGE_WARN.formatMsg());
+		this.toWarn(CODE_WARN, MESSAGE_WARN.formatMsg());
+	}
+	/**
+	 * 更改状态为警告,并设置返回消息编码和内容
+	 * @param message
+	 */
+	public void toWarn(String message){
+		this.toWarn(CODE_WARN, message);
 	}
 	/**
 	 * 更改状态为警告,并设置返回消息编码和内容
@@ -98,7 +112,14 @@ public class JdResult<T> implements Serializable{
 	 * 更改状态为失败
 	 */
 	public void toFail(){
-		this.toFail(MESSAGE_FAIL.getMsgCode(), MESSAGE_FAIL.formatMsg());
+		this.toFail(CODE_FAIL, MESSAGE_FAIL.formatMsg());
+	}
+	/**
+	 * 更改状态为失败,并设置返回消息内容
+	 * @param message
+	 */
+	public void toFail(String message){
+		this.toFail(CODE_FAIL, message);
 	}
 	/**
 	 * 更改状态为失败,并设置返回消息编码和内容
@@ -114,7 +135,14 @@ public class JdResult<T> implements Serializable{
 	 * 更改状态为异常
 	 */
 	public void toError(){
-		this.toError(MESSAGE_ERROR.getMsgCode(), MESSAGE_ERROR.formatMsg());
+		this.toError(CODE_ERROR, MESSAGE_ERROR.formatMsg());
+	}
+	/**
+	 * 更改状态为异常,并设置返回消息内容
+	 * @param message
+	 */
+	public void toError(String message){
+		this.toError(CODE_ERROR, message);
 	}
 	/**
 	 * 更改状态为异常,并设置返回消息编码和内容

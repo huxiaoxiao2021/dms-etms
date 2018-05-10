@@ -62,6 +62,8 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     private static final Integer SQL_IN_EXPRESS_LIMIT = 999;
 
+    private final static int BATCH_ADD_SIZE = 1000;
+
     @Autowired
     private LoadBillDao loadBillDao;
 
@@ -96,6 +98,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
+    @JProfiler(jKey = "DMSWEB.LoadBillServiceImpl.initialLoadBill",mState = JProEnum.TP)
     public int initialLoadBill(String sendCode, Integer userId, String userCode, String userName) {
         String loadBillConfigStr = PropertiesHelper.newInstance().getValue(LOAD_BILL_CONFIG);
         if (StringUtils.isBlank(loadBillConfigStr)) {
@@ -115,76 +118,147 @@ public class LoadBillServiceImpl implements LoadBillService {
                 params.put("dmsList", new Integer[]{dto.getSiteCode()});
                 List<SendDetail> sendDetailList = sendDatailReadDao.findBySendCodeAndDmsCode(params);
                 if (sendDetailList == null || sendDetailList.size() < 1) {
-                    logger.info("LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
+                    logger.info("[全球购]初始化-LoadBillServiceImpl initialLoadBill with the num of SendDetail is 0");
                     return 0;
                 }
-                List<LoadBill> loadBillList = resolveLoadBill(sendDetailList, loadBillConfig, userId, userName);
-                for (LoadBill lb : loadBillList) {
-                    // 不存在,则添加;存在,则忽略,更新会影响其他功能的更新操作
-                    if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
-                        loadBillDao.add(lb);
-                    }
-                }
-                return loadBillList.size();
+                return this.doInitial(sendDetailList, loadBillConfig, userId, userName);
             }
         }
         return 0;
     }
 
-    private List<LoadBill> resolveLoadBill(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
-        if (sendDetailList == null || sendDetailList.size() < 1) {
-            return new ArrayList<LoadBill>();
-        }
-        List<LoadBill> loadBillList = new ArrayList<LoadBill>();
-        Map<Integer, String> dmsMap = new HashMap<Integer, String>();
-        for (SendDetail sd : sendDetailList) {
-            LoadBill lb = new LoadBill();
-            // 装载单注入SendDetail的必须字段
-            lb.setWaybillCode(sd.getWaybillCode());
-            lb.setPackageBarcode(sd.getPackageBarcode());
-            lb.setPackageAmount(sd.getPackageNum());
-            lb.setOrderId(sd.getWaybillCode());
-            // 如果是ECLP订单，则获取商家订单号
-            if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
-                String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
-                if (null != vendorOrderId) {
-                    lb.setOrderId(vendorOrderId);
-                }
-            }
-            lb.setBoxCode(sd.getBoxCode());
-            lb.setDmsCode(sd.getCreateSiteCode());
-            lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
-            lb.setSendCode(sd.getSendCode());
-            lb.setWeight(sd.getWeight());
-            lb.setPackageUserCode(sd.getCreateUserCode());
-            lb.setPackageUser(sd.getCreateUser());
-            lb.setPackageTime(sd.getCreateTime());
-            lb.setApprovalCode(LoadBill.BEGINNING); // 装载单初始化状态
-            if (dmsMap.containsKey(sd.getCreateSiteCode())) {
-                lb.setDmsName(dmsMap.get(sd.getCreateSiteCode()));
-            } else {
-                BaseStaffSiteOrgDto site = siteService.getSite(sd.getCreateSiteCode());
-                if (site != null) {
-                    dmsMap.put(sd.getCreateSiteCode(), site.getSiteName());
-                    lb.setDmsName(site.getSiteName());
-                }
-            }
-            // 注入装载单其他信息
-            lb.setCreateUserCode(userId);
-            lb.setCreateUser(userName);
-            // 仓库ID
-            lb.setWarehouseId(loadBillConfig.getWarehouseId());
-            // 申报海关编码
-            lb.setCtno(loadBillConfig.getCtno());
-            // 申报国检编码
-            lb.setGjno(loadBillConfig.getGjno());
-            // 物流企业编码
-            lb.setTpl(loadBillConfig.getTpl());
-            loadBillList.add(lb);
-        }
-        return loadBillList;
+    @Override
+    public LoadBill getSuccessPreByOrderId(String orderId) {
+        Map<String, Object> parameter = new HashMap<String, Object>();
+        List<Integer> approvalCodes = new ArrayList<Integer>();
+        approvalCodes.add(LoadBill.APPLIED);
+        approvalCodes.add(LoadBill.GREENLIGHT);
+        approvalCodes.add(LoadBill.REDLIGHT);
+        parameter.put("approvalCodes", approvalCodes);
+        parameter.put("orderId", orderId);
+        return loadBillDao.findOneByParameter(parameter);
     }
 
+    /**
+     * 根据发货明细数据信息和配置信息初始化数据
+     *
+     * @param sendDetailList
+     * @param loadBillConfig
+     * @param userId
+     * @param userName
+     * @return
+     */
+    private int doInitial(List<SendDetail> sendDetailList, LoadBillConfig loadBillConfig, Integer userId, String userName) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.LoadBillServiceImpl.doInitial", false, true);
+        long start = System.currentTimeMillis();
+        List<LoadBill> addList = new ArrayList<LoadBill>();
+        // 站点信息缓存Cache
+        Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
+        // 预装载信息缓存订单号Cache
+        Map<String, Boolean> preOrderIdCache = new HashMap<String, Boolean>();
+        for (SendDetail sendDetail : sendDetailList) {
+            LoadBill lb = this.resolveLoadBill(sendDetail, loadBillConfig, userId, userName, dmsCacheMap);
+            // 判断该包裹是否已初始化过， 若已初始化则无需处理
+            if (loadBillDao.findByPackageBarcode(lb.getPackageBarcode()) == null) {
+                // 判断包裹数据量 若一单一件则无需判断是否已预装载过 仅一单多件时需要判断
+                if (sendDetail.getPackageNum() != 1) { //一单多件
+                    // 已预装载缓存 不存在时查库确认是否已装载 存在时直接剔除
+                    Boolean isPre = preOrderIdCache.get(lb.getOrderId());
+                    if (isPre == null) { // 不存在时需要查库
+                        // 根据订单号查询 该订单号下是否有其他包裹已预装载
+                        if (this.getSuccessPreByOrderId(lb.getOrderId()) == null) { //未装载
+                            preOrderIdCache.put(lb.getOrderId(), Boolean.FALSE);
+                            addList.add(lb);
+                        } else { // 已装载 剔除
+                            preOrderIdCache.put(lb.getOrderId(), Boolean.TRUE);
+                        }
+                    } else if (isPre == Boolean.FALSE) {
+                        addList.add(lb);
+                    }
+                } else { // 一单一件
+                    addList.add(lb);
+                }
+            }
+        }
+        logger.info("[全球购]-[初始化]-构建可新增loadBill对象共" + sendDetailList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
+        start = System.currentTimeMillis();
+        this.batchAdd(addList);
+        logger.info("[全球购]-[初始化]-执行入库共" + addList.size() + "条，耗时:" + (System.currentTimeMillis() - start));
+        Profiler.registerInfoEnd(info);
+        return addList.size();
+    }
+
+    /**
+     * 批量新增
+     *
+     * @param loadBillList
+     */
+    private void batchAdd(List<LoadBill> loadBillList) {
+        int size = loadBillList.size();
+        if (size > BATCH_ADD_SIZE) {
+            int mod = size % BATCH_ADD_SIZE;
+            int times = size / BATCH_ADD_SIZE;
+            if (mod > 0){
+                times ++;
+            }
+            for (int i = 0; i < times; i++) {
+                int start = i * BATCH_ADD_SIZE;
+                int end = start + BATCH_ADD_SIZE;
+                if (end > size) {
+                    end = size;
+                }
+                loadBillDao.batchAdd(loadBillList.subList(start, end));
+            }
+        } else {
+            loadBillDao.batchAdd(loadBillList);
+        }
+    }
+
+    private LoadBill resolveLoadBill(SendDetail sd, LoadBillConfig loadBillConfig, Integer userId, String userName, Map<Integer, String> dmsMap) {
+        LoadBill lb = new LoadBill();
+        // 装载单注入SendDetail的必须字段
+        lb.setWaybillCode(sd.getWaybillCode());
+        lb.setPackageBarcode(sd.getPackageBarcode());
+        lb.setPackageAmount(sd.getPackageNum());
+        lb.setOrderId(sd.getWaybillCode());
+        // 如果是ECLP订单，则获取商家订单号
+        if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
+            String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
+            if (null != vendorOrderId) {
+                lb.setOrderId(vendorOrderId);
+            }
+        }
+        lb.setBoxCode(sd.getBoxCode());
+        lb.setDmsCode(sd.getCreateSiteCode());
+        lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
+        lb.setSendCode(sd.getSendCode());
+        lb.setWeight(sd.getWeight());
+        lb.setPackageUserCode(sd.getCreateUserCode());
+        lb.setPackageUser(sd.getCreateUser());
+        lb.setPackageTime(sd.getCreateTime());
+        lb.setApprovalCode(LoadBill.BEGINNING); // 装载单初始化状态
+        if (dmsMap.containsKey(sd.getCreateSiteCode())) {
+            lb.setDmsName(dmsMap.get(sd.getCreateSiteCode()));
+        } else {
+            BaseStaffSiteOrgDto site = siteService.getSite(sd.getCreateSiteCode());
+            if (site != null) {
+                dmsMap.put(sd.getCreateSiteCode(), site.getSiteName());
+                lb.setDmsName(site.getSiteName());
+            }
+        }
+        // 注入装载单其他信息
+        lb.setCreateUserCode(userId);
+        lb.setCreateUser(userName);
+        // 仓库ID
+        lb.setWarehouseId(loadBillConfig.getWarehouseId());
+        // 申报海关编码
+        lb.setCtno(loadBillConfig.getCtno());
+        // 申报国检编码
+        lb.setGjno(loadBillConfig.getGjno());
+        // 物流企业编码
+        lb.setTpl(loadBillConfig.getTpl());
+        return lb;
+    }
 
     private String getVendorOrderId(String waybillCode) {
         try {
@@ -194,7 +268,6 @@ public class LoadBillServiceImpl implements LoadBillService {
             return null;
         }
     }
-
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -227,7 +300,6 @@ public class LoadBillServiceImpl implements LoadBillService {
         loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report, orderIdList));
         return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, orderIdList)); // 更新loadbill的approval_code
     }
-
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
@@ -262,14 +334,15 @@ public class LoadBillServiceImpl implements LoadBillService {
                     throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT + ")");
                 }
 
-                List<Long> preLoadIds = new ArrayList<Long>();
+                Set<String> orderIdSet = new HashSet<String>();
+
                 for (LoadBill loadBill : loadBIlls) {
                     if (loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
                             && loadBill.getApprovalCode() != LoadBill.FAILED) {
                         throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
-
                     }
-                    preLoadIds.add(loadBill.getId());
+                    // 通过订单号去除重复
+                    orderIdSet.add(loadBill.getOrderId());
                 }
 
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
@@ -284,8 +357,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                     if (SUCCESS == response1.getStatus().intValue()) {
                         logger.error("调用卓志接口预装载成功");
                         try {
-                            updateLoadbillStatusById(preLoadIds, trunkNo, preLoadBillId, LoadBill.APPLIED);
-
+                            this.updateLoadBillStatusByOrderIds(new ArrayList(orderIdSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
                         } catch (Exception ex) {
                             logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
                             throw new GlobalTradeException("预装载操作失败，系统异常");
@@ -573,6 +645,17 @@ public class LoadBillServiceImpl implements LoadBillService {
         return effectCount;
     }
 
+    public Integer updateLoadBillStatusByOrderIds(List<String> orderIds, String trunkNo, String preLoadId, Integer status) {
+        Integer effectCount = 0;
+        Map<Integer, List<String>> splitLoadBill = splitLoadBillByWaybillCode(orderIds);
+        for (Iterator<Integer> iterator = splitLoadBill.keySet().iterator(); iterator.hasNext(); ) {
+            Integer key = iterator.next();
+            List<String> orderIdList = splitLoadBill.get(key);
+            effectCount += loadBillDao.updatePreLoadBillByOrderIds(orderIdList, trunkNo, preLoadId, status);
+        }
+        return effectCount;
+    }
+
     /**
      * 把指定的ID列表分割成 SQL_IN_EXPRESS_LIMIT 大小，避免SQL IN语句数量限制
      *
@@ -594,6 +677,38 @@ public class LoadBillServiceImpl implements LoadBillService {
                 }
             } catch (IndexOutOfBoundsException ex) {
                 subList = id.subList(index, id.size());
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex, subList);
+                }
+                break;
+            }
+            index = index + limit;
+            arrayIndex++;
+        }
+        return splitedLoadBillid;
+    }
+
+    /**
+     * 把指定的ID列表分割成 SQL_IN_EXPRESS_LIMIT 大小，避免SQL IN语句数量限制
+     *
+     * @param waybillCodes
+     * @return
+     * @see #SQL_IN_EXPRESS_LIMIT
+     */
+    public Map<Integer, List<String>> splitLoadBillByWaybillCode(List<String> waybillCodes) {
+        Integer limit = SQL_IN_EXPRESS_LIMIT;
+        Integer index = 0;
+        Integer arrayIndex = 0;
+        List<String> subList;
+        Map<Integer, List<String>> splitedLoadBillid = new HashMap<Integer, List<String>>();
+        for (; ; ) {
+            try {
+                subList = waybillCodes.subList(index, index + limit);
+                if (!subList.isEmpty()) {
+                    splitedLoadBillid.put(arrayIndex, subList);
+                }
+            } catch (IndexOutOfBoundsException ex) {
+                subList = waybillCodes.subList(index, waybillCodes.size());
                 if (!subList.isEmpty()) {
                     splitedLoadBillid.put(arrayIndex, subList);
                 }

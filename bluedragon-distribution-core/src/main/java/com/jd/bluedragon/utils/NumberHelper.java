@@ -85,7 +85,41 @@ public class NumberHelper {
         return false;
     }
     /**
-     * 返回结果a是否大于b,返回 a<b 的值
+     * 返回结果a是否大于等于b,返回 a>=b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean gte(Number a,Number b) {
+        if (a != null && b != null) {
+            return a.doubleValue() >= b.doubleValue();
+        }
+        return false;
+    }
+    /**
+     * 返回结果a是否大于0
+     * @param a 数字类型的对象
+     * @return
+     */
+    public static boolean gt0(Number a) {
+        if (a != null) {
+            return a.doubleValue() > 0;
+        }
+        return false;
+    }
+    /**
+     * 返回结果：字符串是否大于0的数字类型
+     * @param numStr-数字型的字符串
+     * @return
+     */
+    public static boolean gt0(String numStr) {
+        if (isStringNumber(numStr)) {
+            return gt0(Double.valueOf(numStr));
+        }
+        return false;
+    }
+    /**
+     * 返回结果a是否小于b,返回 a<b 的值
      * @param a
      * @param b
      * @return
@@ -93,6 +127,18 @@ public class NumberHelper {
     public static boolean lt(Number a,Number b) {
     	if (a != null && b != null) {
             return a.doubleValue() < b.doubleValue();
+        }
+        return false;
+    }
+    /**
+     * 返回结果a是否小于等于b,返回 a<=b 的值
+     * @param a
+     * @param b
+     * @return
+     */
+    public static boolean lte(Number a,Number b) {
+    	if (a != null && b != null) {
+            return a.doubleValue() <= b.doubleValue();
         }
         return false;
     }

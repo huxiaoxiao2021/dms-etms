@@ -24,7 +24,7 @@ public class WaybillStatus {
 
     public static final Integer WAYBILL_TRACK_FC = 150;
     public static final Integer WAYBILL_TRACK_RCD = 160;
-    
+    public static final Integer WAYBILL_TRACK_PACKAGE_HALF = 600; //包裹半收完成
     public static final Integer WAYBILL_TRACK_SH = 400;
     public static final Integer WAYBILL_TRACK_REVERSE_SH = 500;
     
@@ -54,18 +54,25 @@ public class WaybillStatus {
     /**配送异常节点全程跟踪类型*/
     public static final Integer WAYBILL_TRACK_QC = 2100;
 
-	/**
-	 * 全程跟踪消息类型mstType-仓储收货确认
-	 **/
-	public static final Integer WAYBILL_TRACK_MSGTYPE_CCSHQR = 1800;
-	public static final String WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG = "仓储收货确认";
-	
-	/** 
-	 * 全程跟踪消息类型mstType-仓储收货驳回
-	 **/
-	public static final Integer WAYBILL_TRACK_MSGTYPE_CCSHBH = 1900;
-	public static final String WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG = "仓储收货驳回";
-	
+    /**
+     * 全程跟踪消息类型mstType-仓储收货确认
+     **/
+    public static final Integer WAYBILL_TRACK_MSGTYPE_CCSHQR = 1800;
+    public static final String WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG = "仓储收货确认";
+
+    /**
+     * 全程跟踪消息类型mstType-仓储收货驳回
+     **/
+    public static final Integer WAYBILL_TRACK_MSGTYPE_CCSHBH = 1900;
+    public static final String WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG = "仓储收货驳回";
+
+    /**
+     * 全程跟踪消息类型mstType-运单修改补打
+     **/
+    public static final Integer WAYBILL_TRACK_MSGTYPE_UPDATE = 2400;
+    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
+    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "您的订单因信息修改，正在重新中转";
+
     /**
      * 逆向换单打印
      */
@@ -89,14 +96,14 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_CANCEL_VEHICLE = 4200;
     
     /**
-	 * 全程跟踪消息类型mstType-仓储收货确认
-	 **/
-	public static final Integer WAYBILL_TRACK_CANCLE_LOADBILL = 2222;
-	public static final String WAYBILL_TRACK_CANCLE_LOADBILLMSG = "取消预装载全程跟踪";
+     * 全程跟踪消息类型mstType-仓储收货确认
+     **/
+    public static final Integer WAYBILL_TRACK_CANCLE_LOADBILL = 2222;
+    public static final String WAYBILL_TRACK_CANCLE_LOADBILLMSG = "取消预装载全程跟踪";
     /**
      * 全程跟踪-空铁提货
      */
-	public static final Integer WAYBILL_TRACK_AR_RECEIVE = 4900;
+    public static final Integer WAYBILL_TRACK_AR_RECEIVE = 4900;
 
     /**
      * 全程跟踪-空铁发货登记
@@ -113,11 +120,39 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_COMPLETE_DELIVERY = 5400;
 
+    /**
+     * 全称跟踪-组板
+     */
+    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION = 7000;
+
+    /**
+     * 全称跟踪-取消组板
+     */
+    public static final Integer WAYBILL_TRACK_BOARD_COMBINATION_CANCEL = 7600;
+
 
     /**
      * POP打印
      */
     public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
+
+    /**
+     * 妥投 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_DELIVERED= 8;
+    /**
+     * 拒收 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_REJECT= 19;
+    /**
+     * 部分签收 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7500;
+
+    /**
+     * 审核完成状态
+     */
+    public static final Integer WAYBILL_STATUS_CONSULT = 135;
 
     private Long id;
 
@@ -273,11 +308,11 @@ public class WaybillStatus {
     }
 
     public Date getOperateTime() {
-		return this.operateTime == null ? null : (Date) this.operateTime.clone();
+        return this.operateTime == null ? null : (Date) this.operateTime.clone();
     }
 
     public void setOperateTime(Date operateTime) {
-		this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
+        this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
     }
 
     public String getRemark() {

@@ -63,6 +63,10 @@ public class InterceptResult<T> extends JdResult<T>{
 		this.status = STATUS_PASSED;
 		super.toSuccess(messageCode, message);
 	}
+	public void toWeakSuccess(String message) {
+		this.status = STATUS_WEAK_PASSED;
+		super.toSuccess(message);
+	}
 	public void toWeakSuccess(int messageCode, String message) {
 		this.status = STATUS_WEAK_PASSED;
 		super.toSuccess(messageCode, message);

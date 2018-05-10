@@ -1,23 +1,43 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.lang.reflect.Field;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -28,16 +48,8 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -70,6 +82,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 
     @Autowired
     private PreSortingSecondService preSortingSecondService;
+    
+    @Autowired
+    private DmsBaseDictService dmsBaseDictService;
 
     private List<ComposeService> composeServiceList;
     /**
@@ -137,9 +152,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
-
-
-
+    @JProfiler(jKey = "DMSWEB.SimpleWaybillPrintServiceImpl.getPrintWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
@@ -182,9 +195,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             PrintWaybill commonWaybill=result.getData();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
-            //设置运单打印时间，取后台服务器时间
-            String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            commonWaybill.setPrintTime(printTime);
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
@@ -201,6 +211,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
             commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
+            if(bigWaybillDto.getWaybillState()!=null){
+                commonWaybill.setWaybillStatus(bigWaybillDto.getWaybillState().getWaybillState()); //增加返回运单状态
+            }
             if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
                 char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
                 commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
@@ -261,10 +274,10 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
-            commonWaybill.setRemark(tmsWaybill.getImportantHint());
+            commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
             if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
-                String scheduleCode = tmsWaybill.getImportantHint();
+                String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
                 	if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){
@@ -275,8 +288,12 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 		roadCode = transbillM.getTruckSpot();
                 	}
                 }
-                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
-                commonWaybill.setRemark(str + scheduleCode);
+//                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
+                commonWaybill.appendRemark(scheduleCode);
+            }
+            //sendpay的第153位为“1”，remark追加【合并送】
+            if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
+                commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
         	//路区-为空尝试从运单里获取
         	if(StringHelper.isEmpty(roadCode)){
@@ -429,85 +446,30 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         this.composeServiceList = composeServiceList;
     }
 
-	@Override
-	public InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context) {
-		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
-        InterceptResult<String> interceptResult = new InterceptResult<String>();
-        String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
-        try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
-            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-            	//运单数据为空，直接返回运单数据为空异常
-            	if(baseEntity.getData() == null
-            			||baseEntity.getData().getWaybill() == null){
-            		interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-            		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
-            		return interceptResult;
-            	}
-                context.setBigWaybillDto(baseEntity.getData());
-                loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
-                if (null != result.getData()) {
-                    interceptResult = preSortingSecondService.preSortingAgain(context, result.getData());//处理是否触发2次预分拣
-                    loadWaybillPackageWeight(context, result.getData());
-                    loadPrintedData(result.getData());
-                    loadBasicData(result.getData());
-                    context.setResponse(result.getData());
-                }
-            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
-                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
-            }else{
-                interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
-            }
-        }catch (Exception ex){
-            logger.error("标签打印接口异常",ex);
-            interceptResult.toError();
-        }
-        return interceptResult;
+    /**
+     * 处理打标信息
+     */
+    @Override
+	public void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName){
+		if(StringHelper.isNotEmpty(signStr)){
+			Map<Integer,SignConfig> signConfigs = dmsBaseDictService.getSignConfigsByConfigName(signConfigName);
+			String signText = "";
+			for(Integer position:signConfigs.keySet()){
+				SignConfig signConfig = signConfigs.get(position);
+				signText = null;
+				if(position>0&&position<=signStr.length()){
+					signText = signConfig.getSignTexts().get(signStr.subSequence(position - 1, position));
+				}
+				if(signText==null){
+					signText = "";
+				}
+				Field field = ObjectHelper.getField(target, signConfig.getFieldName());
+				try {
+					ObjectHelper.setValue(target, field, signText);
+				} catch (Exception e) {
+					logger.error(signConfig.getFieldName() + "属性设置异常", e);
+				}
+			}
+		}
 	}
-
-    /**
-     * 逆向换单设置终端重量
-     * @param context
-     * @param commonWaybill
-     */
-    private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
-        if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
-            String packageCode = context.getRequest().getBarCode();
-            BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
-            if(bigWaybillDto == null){
-                BaseEntity<BigWaybillDto> baseEntity  = waybillQueryManager.getDataByChoice(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
-                if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-                    bigWaybillDto = baseEntity.getData();
-                    context.setBigWaybillDto(bigWaybillDto);
-                }
-            }
-            if (bigWaybillDto != null) {
-                Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
-                for(PrintPackage pack : commonWaybill.getPackList()){
-                    DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
-                    if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getAgainWeight())){
-                        pack.setWeight(deliveryPackageD.getAgainWeight());
-                    }else if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getGoodWeight())){
-                        pack.setWeight(deliveryPackageD.getGoodWeight());
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 获取终端重量的map
-     * @param packageDList
-     * @return
-     */
-    private Map<String, DeliveryPackageD> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
-        Map<String, DeliveryPackageD> result = null;
-        if (packageDList != null && packageDList.size() > 0) {
-            result = new HashMap<String, DeliveryPackageD>(packageDList.size());
-            for (DeliveryPackageD deliveryPackageD : packageDList) {
-                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
-            }
-        }
-        return result;
-    }
 }

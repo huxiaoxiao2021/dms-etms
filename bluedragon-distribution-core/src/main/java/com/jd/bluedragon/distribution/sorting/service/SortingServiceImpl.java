@@ -461,7 +461,12 @@ public class SortingServiceImpl implements SortingService {
 		return null;
 	}
 
-	private void addSortingAdditionalTask(Sorting sorting) {
+	/**
+	 * 添加回传分拣的运单状态
+	 * @param sorting
+	 */
+	@Override
+	public void addSortingAdditionalTask(Sorting sorting) {
 		//added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSortingAdditionalTask", false, true);
 
@@ -643,7 +648,7 @@ public class SortingServiceImpl implements SortingService {
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
-							if( waybill.getWaybillSign().charAt(33) == '2'){
+							if(BusinessHelper.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
 								return;
@@ -817,6 +822,7 @@ public class SortingServiceImpl implements SortingService {
 						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
 							SendDetail sendDetail1 = this.addTransitSendDetail(sorting, sendDetail, sendM);
 							if (sendDetail1 != null) {
+								sendDetail1.setBoardCode(sendM.getBoardCode());
 								transitSendDs.add(sendDetail1);
 							}
 						}
@@ -890,6 +896,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 		sendDetail.setCreateUser(sendM.getCreateUser());
 		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
+        sendDetail.setBoardCode(sendM.getBoardCode());
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
@@ -1020,7 +1027,7 @@ public class SortingServiceImpl implements SortingService {
 					if (waybill != null) {
 						String waybillsign = waybill.getWaybillSign();
 						if (waybillsign != null && waybillsign.length() > 0) {
-							if( waybill.getWaybillSign().charAt(33) == '2'){
+							if(BusinessHelper.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
 								return;

@@ -64,6 +64,12 @@
         <!--已认证worker配置文件-->
     </bean>
 
+    <bean id="bdDmsReverseSendCLPS" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_dms_reverse_send_clps"/>
+        <property name="timeout" value="1000"/>
+        <!--已认证worker配置文件-->
+    </bean>
+
     <bean id="bdPopReceivecountMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="bd_pop_receivecount"/>
         <property name="timeout" value="1000"/>
@@ -252,4 +258,15 @@
     <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
     </bean>
+    <!-- 发货明细MQ，根据source 区分具体发货操作类型 -->
+    <bean id="arSendDetailProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.dmsArSendDetail}"/>
+    </bean>
+    <!-- 库房拒收 发送外呼-->
+    <bean id="abnormalEclpSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalEclpSend}"/>
+    </bean>
+
 </beans>

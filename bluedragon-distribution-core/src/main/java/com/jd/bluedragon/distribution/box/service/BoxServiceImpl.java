@@ -70,6 +70,9 @@ public class BoxServiceImpl implements BoxService {
                     .generateKey(param)));
             Box box = new Box();
             BeanHelper.copyProperties(box, param);
+			if (param.getPredictSendTime()!=null){
+				box.setPredictSendTime(param.getPredictSendTime());
+			}
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
 

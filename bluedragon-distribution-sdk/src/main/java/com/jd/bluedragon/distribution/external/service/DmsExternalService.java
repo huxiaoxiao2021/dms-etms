@@ -44,6 +44,10 @@ public interface DmsExternalService {
      */
     public BaseEntity<Map<String, Integer>> batchAddSealBox(
             List<SealBoxDto> sealBoxList);
-
-
+    /**
+     * 执行json格式的的指令
+     * @param jsonCommand
+     * @return
+     */
+    String executeJsonCommand(String jsonCommand);
 }

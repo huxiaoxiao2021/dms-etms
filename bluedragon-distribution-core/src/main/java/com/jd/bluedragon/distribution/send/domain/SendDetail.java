@@ -100,6 +100,9 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
 
     private String source;
 
+    /** 组板板号 */
+    private String boardCode;
+
     public String getSource() {
         return source;
     }
@@ -362,7 +365,15 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
 		this.whReverse = whReverse;
 	}
 
-	@Override
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    @Override
     public String toString() {
         return "SendDatail [sendDId=" + sendDId + ", sendCode=" + sendCode
                 + ", boxCode=" + boxCode + ", packageBarcode=" + packageBarcode

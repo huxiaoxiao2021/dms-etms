@@ -104,4 +104,10 @@ public interface SortingService {
      * @return
      */
     public List<Sorting> findByBsendCode(Sorting sorting);
+
+    /**
+     * 添加回传分拣的运单状态
+     * @param sorting
+     */
+    public void addSortingAdditionalTask(Sorting sorting);
 }

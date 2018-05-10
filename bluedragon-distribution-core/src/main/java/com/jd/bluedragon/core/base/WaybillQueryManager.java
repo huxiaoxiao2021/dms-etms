@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import java.util.Date;
+import java.util.Map;
 
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -114,5 +115,12 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BigWaybillDto getReturnWaybillByOldWaybillCode(String waybillCode, boolean queryC, boolean queryE, boolean queryM, boolean queryPackList);
-
+    /**
+     * 包裹称重和体积测量数据上传
+     * 来源 PackOpeController
+     *
+     * @param packOpeJson 称重和体积测量信息
+     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
+     */
+    public Map<String, Object> uploadOpe(String packOpeJson);
 }

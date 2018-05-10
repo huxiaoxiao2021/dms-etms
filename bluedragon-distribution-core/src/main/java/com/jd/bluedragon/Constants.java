@@ -110,6 +110,14 @@ public class Constants {
     public static final int OPERATE_TYPE_SH = 26;//收货回传全程跟踪
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
+    /**
+     * 业务类型-称重
+     */
+    public static final Integer BUSINESS_TYPE_WEIGHT = 1002;
+    /**
+     * 业务类型-按运单称重
+     */
+    public static final Integer OPERATE_TYPE_WEIGHT_BY_WAYBILL = 100201;
     /** 大件包裹标识 **/
     public static final Short BOXING_TYPE = 2;
     /* 基础资料SiteType: 16为三方，4为自营 */
@@ -245,8 +253,21 @@ public class Constants {
     /**
      * 本地缓存默认失效时间
      */
-    public static final int POLLING_INTERVAL_TIME = 1500;// 秒    
-	/**
+    public static final int POLLING_INTERVAL_TIME = 1500;// 秒
+
+    /**
+     * 时间：一天的秒数
+     */
+    public static final int TIME_SECONDS_ONE_DAY = 86400;
+    /**
+     * 时间：一周的秒数
+     */
+    public static final int TIME_SECONDS_ONE_WEEK = 7*TIME_SECONDS_ONE_DAY;
+    /**
+     * 时间：一月的秒数
+     */
+    public static final int TIME_SECONDS_ONE_MONTH = 30*TIME_SECONDS_ONE_DAY;
+    /**
 	 * 亚一站点
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
@@ -320,7 +341,14 @@ public class Constants {
      * Integer类型标识-true
      */
     public static final Integer INTEGER_FLG_TRUE = 1;
-    
+    /**
+     * String类型标识-true
+     */
+    public static final String STRING_FLG_TRUE = "1";
+    /**
+     * String类型标识-false
+     */
+    public static final String STRING_FLG_FALSE = "0";
     /**
      * 包裹称重流水-操作类型-分拣
      */
@@ -370,6 +398,7 @@ public class Constants {
 
     public static final Integer WAYBILL_DELIVERED_CODE = 150;  //订单妥投状态编码
     public static final Integer WAYBILL_REJECT_CODE = 160;  //订单拒收状态编码
+    public static final Integer PACKAGE_REDELIVERY_CODE = 133;  //订单拒收状态编码
     /**
      * 字符类型yn标识,1-是
      */
@@ -449,4 +478,72 @@ public class Constants {
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
+
+
+    public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+    /**
+     * 封车批次号缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";
+
+    /**
+     * PDA 提示语缓存前缀
+     */
+    public static final String CACHE_KEY_PRE_PDA_HINT ="CACHE_PDA_HINT-";
+    /**
+     * 字典名称-WaybillSign打标配置标识
+     */
+    public static final String DIC_NAME_WAYBILL_SIGN_CONFIG = "WaybillSign";
+    /**
+     * 字典名称-SendPay打标配置标识
+     */
+    public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
+
+    /**
+     * 发货明细MQ source类型  ar代表空铁  dms默认正常
+     */
+    public static final String SEND_DETAIL_SOUCRE_AR = "AR";
+    public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
+
+    /**
+     * 查询B网应履约时效接口相关
+     * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
+     */
+    public static final Integer ROUTE_INTER_CONFIG_TYPE_QUAN_LIUCHENG_LVYUELV = 1;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
+    public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
+
+    /**
+     * UMP监控应用名-dms.etms
+     */
+    public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    /**
+     * UMP监控应用名-bluedragon-distribution-worker
+     */
+    public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+
+    /**
+     *  重泡比超过正常范围168:1到330:1
+     */
+    public static final double CBM_DIV_KG_MIN_LIMIT = 168.0;
+    public static final double CBM_DIV_KG_MAX_LIMIT = 330.0;
+    public static final String CBM_DIV_KG_MESSAGE = "重泡比超过正常范围168:1到330:1";
+    /**
+     * 一级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_ONE="分拣中心";
+    /**
+     * 二级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_TWO="分拨中心";
+    /**
+     * 中转场名称后缀
+     */
+    public static final String SUFFIX_TRANSIT="中转场";
+
+    /**
+     * 分拣系统标识-DMS，调用外部系统接口需要传递
+     */
+    public static final String SYSTEM_CODE_OWON= "DMS";
 }

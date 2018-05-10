@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -56,9 +55,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
     private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	WaybillSyncApi waybillSyncApi;
 	
     @Autowired
     private ReversePrintService reversePrintService;
@@ -172,9 +168,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6) {
 			String sendCode = "";
-			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
+			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
 			} else if (reverseReceive.getReceiveType() == 4) {
@@ -209,7 +205,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		        	tWaybillStatus.setReceiveSiteType(bDto.getSiteType());
 		        }
 
-				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
+				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
 				} else if (reverseReceive.getReceiveType() == 4) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());

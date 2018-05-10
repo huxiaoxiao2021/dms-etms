@@ -14,7 +14,6 @@ import com.jd.etms.vts.dto.DictDto;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.dto.BasePdaUserDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 public interface BaseService {
@@ -34,7 +33,7 @@ public interface BaseService {
      * @param password
      * @return
      */
-    BasePdaUserDto pdaUserLogin(String userid, String password);
+    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password);
 
     /**
 	 * 账号密码是否存在
@@ -264,4 +263,11 @@ public interface BaseService {
 	 * @return
 	 */
 	public Assort getOneAssortById(int assId);
+
+	/**
+	 * 根据分拣中心编码获取分拣中心名称并截取掉 ”分拣中心","中转场","分拨中心"等
+	 * @param dmsCode
+	 * @return
+     */
+	public String getDmsShortNameByCode(Integer dmsCode);
 }
