@@ -84,6 +84,12 @@
 			<if test="spareReason != null">
 				spare_reason = #{spareReason,jdbcType=VARCHAR},
 			</if>
+			<if test="excuteCount != null">
+				excute_count = #{excuteCount,jdbcType=INTEGER},
+			</if>
+			<if test="excuteTime != null">
+				excute_time = #{excuteTime,jdbcType=TIMESTAMP},
+			</if>
 			update_time = #{operateTime,jdbcType=TIMESTAMP},
 			is_loss = #{isLoss,jdbcType=INTEGER},
 			feature_type = #{featureType,jdbcType=INTEGER}

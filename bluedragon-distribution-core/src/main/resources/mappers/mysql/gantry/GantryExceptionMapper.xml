@@ -97,10 +97,10 @@
                 AND MACHINE_ID = #{machineId,jdbcType=VARCHAR}
             </if>
             <if test="startTime != null and startTime != ''">
-                AND OPERATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}
+                AND CREATE_TIME <![CDATA[>=]]> #{startTime, jdbcType=TIMESTAMP}
             </if>
             <if test="endTime != null and endTime != ''" >
-                AND OPERATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
+                AND CREATE_TIME <![CDATA[<=]]> #{endTime, jdbcType=TIMESTAMP}
             </if>
             <if test="sendStatus != null">
                 AND SEND_STATUS = #{sendStatus, jdbcType=TINYINT}
