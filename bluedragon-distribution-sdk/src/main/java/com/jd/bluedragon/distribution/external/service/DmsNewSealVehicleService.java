@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.api;
+package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
-public interface DmsNewSealVehicleApi {
+public interface DmsNewSealVehicleService {
 
     /**
      * 按任务封车时：通过扫描的任务简码获取任务详细信息

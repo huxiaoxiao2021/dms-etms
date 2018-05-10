@@ -11,7 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bluedragon.distribution.external.api.DmsArReceiveApi;
+import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ import com.jd.ql.dms.common.domain.ListResponse;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class ArReceiveResource implements DmsArReceiveApi {
+public class ArReceiveResource implements DmsArReceiveService {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired

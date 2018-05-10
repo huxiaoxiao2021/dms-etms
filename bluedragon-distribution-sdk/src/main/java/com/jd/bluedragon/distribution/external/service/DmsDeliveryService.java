@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.api;
+package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -10,7 +10,7 @@ import java.util.AbstractMap;
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
-public interface DmsDeliveryApi {
+public interface DmsDeliveryService {
 
     /**
      * 校验并获取批次号信息

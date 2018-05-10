@@ -65,49 +65,49 @@
 
 
     <jsf:provider id="jsfDmsBaseApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsBaseApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsBaseService"
                   alias="${dms.jsf.alias}"
                   ref="baseResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsArReceiveApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsArReceiveApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsArReceiveService"
                   alias="${dms.jsf.alias}"
                   ref="arReceiveResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsNewSealVehicleApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsNewSealVehicleApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService"
                   alias="${dms.jsf.alias}"
                   ref="newSealVehicleResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsBoxApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsBoxApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsBoxService"
                   alias="${dms.jsf.alias}"
                   ref="boxResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsDeliveryApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsDeliveryApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsDeliveryService"
                   alias="${dms.jsf.alias}"
                   ref="deliveryResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsSendPrintApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsSendPrintApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsSendPrintService"
                   alias="${dms.jsf.alias}"
                   ref="sendPrintResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsSiteApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsSiteApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsSiteService"
                   alias="${dms.jsf.alias}"
                   ref="siteResource" server="dmsjsf">
     </jsf:provider>
 
     <jsf:provider id="jsfDmsTaskApi"
-                  interface="com.jd.bluedragon.distribution.external.api.DmsTaskApi"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsTaskService"
                   alias="${dms.jsf.alias}"
                   ref="taskResource" server="dmsjsf">
     </jsf:provider>

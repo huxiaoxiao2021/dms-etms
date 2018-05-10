@@ -25,7 +25,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
-import com.jd.bluedragon.distribution.external.api.DmsDeliveryApi;
+import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -72,7 +72,7 @@ import com.jd.ump.annotation.JProfiler;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class DeliveryResource implements DmsDeliveryApi {
+public class DeliveryResource implements DmsDeliveryService {
 
     @Autowired
     DeliveryService deliveryService;

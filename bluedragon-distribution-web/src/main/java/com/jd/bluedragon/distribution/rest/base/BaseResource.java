@@ -5,7 +5,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.VmsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -16,20 +15,16 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
-import com.jd.bluedragon.distribution.external.api.DmsBaseApi;
+import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
-import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
-import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
-import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -50,14 +45,13 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class BaseResource implements DmsBaseApi{
+public class BaseResource implements DmsBaseService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";

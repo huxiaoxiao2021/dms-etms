@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.api;
+package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
-public interface DmsTaskApi {
+public interface DmsTaskService {
 
     /**
      * 通过该接口把本地数据上传到服务端

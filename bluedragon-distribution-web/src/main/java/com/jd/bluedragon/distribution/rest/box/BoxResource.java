@@ -11,7 +11,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
-import com.jd.bluedragon.distribution.external.api.DmsBoxApi;
+import com.jd.bluedragon.distribution.external.service.DmsBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -35,7 +35,7 @@ import java.util.Map;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class BoxResource implements DmsBoxApi {
+public class BoxResource implements DmsBoxService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 

@@ -14,7 +14,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
-import com.jd.bluedragon.distribution.external.api.DmsSiteApi;
+import com.jd.bluedragon.distribution.external.service.DmsSiteService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ump.annotation.JProEnum;
@@ -39,7 +39,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SiteResource implements DmsSiteApi {
+public class SiteResource implements DmsSiteService {
 
 	@Autowired
 	private SiteService siteService;

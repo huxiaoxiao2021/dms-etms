@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.api;
+package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
@@ -10,7 +10,7 @@ import com.jd.ql.dms.common.domain.ListResponse;
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
-public interface DmsArReceiveApi {
+public interface DmsArReceiveService {
 
     /**
      * 获取箱号对应的航班号和数量

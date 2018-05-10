@@ -6,7 +6,7 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.external.api.DmsNewSealVehicleApi;
+import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -15,7 +15,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vos.dto.SealCarInAreaDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import org.apache.commons.collections.map.HashedMap;
@@ -43,7 +42,7 @@ import java.util.*;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class NewSealVehicleResource implements DmsNewSealVehicleApi {
+public class NewSealVehicleResource implements DmsNewSealVehicleService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 

@@ -4,7 +4,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
-import com.jd.bluedragon.distribution.external.api.DmsSendPrintApi;
+import com.jd.bluedragon.distribution.external.service.DmsSendPrintService;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -17,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -35,7 +34,7 @@ import java.util.Map;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SendPrintResource implements DmsSendPrintApi {
+public class SendPrintResource implements DmsSendPrintService {
 
     private static final Log logger= LogFactory.getLog(SendPrintResource.class);
 	@Autowired
@@ -309,7 +308,7 @@ public class SendPrintResource implements DmsSendPrintApi {
 	@GZIP
 	@Path("/sendprint/carrySendCarInfo")
     @Override
-	public BatchSendInfoResponse batchSendInfoPrint(List<BatchSend> batchSends) {
+	public BatchSendInfoResponse carrySendCarInfo(List<BatchSend> batchSends) {
 
 		if(batchSends==null||batchSends.size()==0){
 			BatchSendInfoResponse tSummaryPrintResultResponse = new BatchSendInfoResponse();
