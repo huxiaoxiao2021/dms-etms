@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.base.service;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 
 public interface SysConfigService {
 	
@@ -31,4 +32,11 @@ public interface SysConfigService {
 	 * @return
 	 */
 	public List<SysConfig> getListByConfigName(String configName);
+
+
+	/**
+	 * 从sysconfig表里查出来SysConfigContent对象
+	 * @return
+	 */
+	SysConfigContent getSysConfigJsonContent(String key);
 }

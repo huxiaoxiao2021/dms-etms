@@ -20,8 +20,10 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
@@ -244,6 +246,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     BoardCombinationService boardCombinationService;
 
+    @Autowired
+    SysConfigService sysConfigService;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
@@ -372,7 +377,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
-        this.boardCombinationCancel(domain);
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES);
+        if(content != null){
+            logger.info("从sysConfig表中获取key=" + Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES +
+                    "的配置为:" + content +"操作单位:" + domain.getCreateSiteCode());
+
+            if(content.getMasterSwitch() || content.getSiteCodes().contains(domain.getCreateSiteCode())) {
+                this.boardCombinationCancel(domain);
+            }
+        }
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         packageSend(domain);

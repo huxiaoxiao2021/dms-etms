@@ -388,7 +388,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         Response<String> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardCombinationCancel.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-            tcResponse = groupBoardService.removeBoxFromBoard(boardBox);
+            tcResponse = groupBoardService.removeBoardBox(boardBox);
         }catch (Exception e){
             Profiler.functionError(info);
             throw e;
