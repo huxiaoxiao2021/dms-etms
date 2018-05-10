@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionAS;
 import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
@@ -64,6 +65,8 @@ public class TaskServiceImpl implements TaskService {
 	@Resource
 	private UccPropertyConfiguration uccPropertyConfiguration;
 
+	@Autowired
+    private TBTaskQueueService tbTaskQueueService;
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void addBatch(List<Task> tasks) {
@@ -96,8 +99,12 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
-
-        if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
+        //获取当前任务类型队列数量
+		//随机生成队列数
+		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
+		int queueSize = task.getTaskQueueSize(allQueueSize);
+		task.setQueueId(new Random().nextInt(queueSize));
+        if(Task.TASK_TYPE_PDA.equals(task.getType()) ){
             logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
             return 0;
         }

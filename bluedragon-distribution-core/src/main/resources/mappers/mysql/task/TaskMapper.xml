@@ -20,6 +20,7 @@
 		<result column="body" property="body" />
 		<result column="own_sign" property="ownSign" />
 		<result column="yn" property="yn" />
+		<result column="queue_id" property="queueId" />
 	</resultMap>
 
 	<insert id="add" parameterType="task">
@@ -27,7 +28,7 @@
 		 task_type, create_site_code, receive_site_code, box_code,
 		body,
 		keyword1, keyword2, create_time, update_time, execute_count, execute_time,
-		fingerprint, task_status, yn, own_sign)
+		fingerprint, task_status, yn, own_sign ,queue_id)
 		VALUES (
 		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER},
@@ -35,7 +36,7 @@
 		#{boxCode,jdbcType=VARCHAR}, #{body,jdbcType=VARCHAR},
 		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
 		NOW(), NOW(), 0, NOW(), #{fingerprint,jdbcType=VARCHAR}, 0, 1,
-		#{ownSign,jdbcType=VARCHAR})
+		#{ownSign,jdbcType=VARCHAR},#{queueId,jdbcType=INTEGER})
 	</insert>
 
 	<insert id="addWithStatus" parameterType="task">
@@ -44,7 +45,7 @@
 		task_type, create_site_code, receive_site_code, box_code, body,
 		keyword1, keyword2, create_time, update_time, execute_count,
 		execute_time,
-		fingerprint, task_status, yn, own_sign)
+		fingerprint, task_status, yn, own_sign ,queue_id)
 		VALUES (
 		 #{type,jdbcType=INTEGER},
 		#{createSiteCode,jdbcType=INTEGER}, #{receiveSiteCode,jdbcType=INTEGER},
@@ -52,7 +53,7 @@
 		#{keyword1,jdbcType=VARCHAR}, #{keyword2,jdbcType=VARCHAR},
 		NOW(), NOW(), #{executeCount,jdbcType=INTEGER}, NOW(),
 		#{fingerprint,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, 1,
-		#{ownSign,jdbcType=VARCHAR})
+		#{ownSign,jdbcType=VARCHAR},#{queueId,jdbcType=INTEGER})
 	</insert>
 
 	<select id="findTasksByFingerprint" resultMap="task"
@@ -80,8 +81,8 @@
             SELECT task_id, task_type, box_code, create_site_code, receive_site_code, body,
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
             FROM ${tableName}
-            WHERE yn = 1 AND execute_count < 5 
-                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3) 
+            WHERE yn = 1 AND execute_count < 5
+                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)
                  LIMIT #{fetchNum}
         ]]>
 	</select>

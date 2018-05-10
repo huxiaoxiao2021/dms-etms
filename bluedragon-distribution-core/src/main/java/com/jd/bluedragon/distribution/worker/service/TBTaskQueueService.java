@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.worker.service;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskQueue;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wangtingwei on 2015/10/13.
@@ -22,4 +23,9 @@ public interface TBTaskQueueService {
      */
     int createQueues(List<TBTaskQueue> list) throws Exception;
 
+    /**
+     * 获取所有任务队列数量
+     * @return
+     */
+    Map<String,Integer> findAllQueueSize();
 }
