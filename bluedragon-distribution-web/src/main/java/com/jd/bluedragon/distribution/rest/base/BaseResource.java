@@ -1045,6 +1045,23 @@ public class BaseResource {
 		return response;
 	}
 
+	/**
+	 *  根据三方-合作站点获取三方-合作站点所属自营站点
+	 *  @param code 三方-合作站点ID
+	 *  @return 三方-合作站点所属自营站点信息
+	 * */
+	@GET
+	@Path("/bases/threePartner/{code}")
+	public BaseResponse getThreePartnerD(@PathParam("code") Integer code) {
+		this.logger.info("sitecode is " + code);
+
+		Integer sitecode = baseMajorManager.getPartnerSiteBySiteId(code);
+		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+		response.setSiteCode(sitecode);
+
+		return response;
+	}
+
 	@GET
 	@Path("/bases/cache/info")
 	public Object getCacheInfo() {

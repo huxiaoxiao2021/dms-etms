@@ -66,7 +66,7 @@ public class BoardCombinationResource {
     @Path("/boardCombination/combination")
     public JdResponse<BoardResponse> combination(BoardCombinationRequest request) {
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
-        result.setData(new BoardResponse());
+          result.setData(new BoardResponse());
         BoardResponse boardResponse = result.getData();
 
         //参数校验

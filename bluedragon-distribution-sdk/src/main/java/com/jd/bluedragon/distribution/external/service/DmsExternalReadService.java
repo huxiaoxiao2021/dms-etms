@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.wss.dto.*;
@@ -124,4 +125,18 @@ public interface DmsExternalReadService {
 	 * @return
 	 */
 	public BoxResponse getBoxInfoByCode(String boxCode);
+
+	/**
+	 * 根据原单号获取对应的新单号
+	 * 1.自营拒收：新运单规则：T+原运单号。调取运单来源：从运单处获取，调取运单新接口。
+	 * 2.外单拒收：新运单规则：生成新的V单。调取运单来源：1）从外单获得新外单单号。2）通过新外单单号从运单处调取新外单的信息。
+	 * 3.售后取件单：新运单规则：生成W单或VY单。调取运单来源：从运单处获取，调取运单新接口。
+	 * 4.配送异常类订单：新运单规则：T+原运单号,调取运单来源：从运单处获得，调取运单新接口。
+	 * 5.返单换单：1）新运单规则：F+原运单号  或  F+8位数字,调取运单来源：从运单处获得，调取运单新接口。2）分拣中心集中换单，暂时不做。
+	 *
+	 * @param oldWaybillCode 原单号
+	 * @return
+	 */
+	InvokeResult<String> getNewWaybillCode(String oldWaybillCode);
+
 }

@@ -9,6 +9,9 @@ import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.gantry.domain.GantryException;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
@@ -29,10 +32,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -53,6 +53,10 @@ public class TaskResource {
      */
     @Autowired
     private DefaultJMQProducer gantryScanPackageMQ;
+
+    @Autowired
+    private GantryExceptionService gantryExceptionService;
+
 
     @POST
     @Path("/tasks/add")
@@ -317,6 +321,29 @@ public class TaskResource {
                 result.customMessage(UploadData.MAX_BARCODE_LENGTH_CODE, UploadData.MAX_BARCODE_LENGTH_MESSAGE);
                 return result;
             }
+            //added by hanjiaxing3 2018.05.04
+            Date scannerTime = new Date(DateHelper.adjustTimestampToJava(domain.getScannerTime().getTime()));
+            String daysStr = PropertiesHelper.newInstance().getValue("GANTRY_CHECK_DAYS");
+            Integer days = Constants.GANTRY_CHECK_DAYS;
+            if (StringHelper.isNotEmpty(daysStr)) {
+                try {
+                    days = Integer.parseInt(daysStr);
+                }
+                catch (Exception e) {
+                    logger.error("验货时间校验常量转换失败！daysStr:" + daysStr, e);
+                }
+
+            }
+            //比调整后的时间还早，说明上传时间有问题
+            if (DateHelper.compareAdjustDate(scannerTime, days) < 0) {
+                scannerTime = new Date();
+                GantryException gantryException = this.convert2GantryException(domain);
+                gantryExceptionService.addGantryException(gantryException);
+                logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+            }
+
+            domain.setScannerTime(scannerTime);
+            //added end
             if (this.addTask(domain) <= 0) {
                 result.customMessage(0, "保存数据失败");
             }
@@ -374,6 +401,32 @@ public class TaskResource {
         task.setTableName(Task.getTableName(task.getType()));
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         return taskService.add(task, true);
+    }
+
+    /**
+     * 上传信息转换为异常信息
+     *
+     * @param domain
+     * @return
+     */
+    private GantryException convert2GantryException(UploadData domain) {
+        Date date = new Date();
+
+        GantryException gantryException = new GantryException();
+
+        gantryException.setMachineId(domain.getRegisterNo());
+        String barCode = domain.getBarCode();
+        gantryException.setBarCode(barCode);
+        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            gantryException.setPackageCode(barCode);
+            gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
+        }
+
+        gantryException.setCreateSiteCode(domain.getDistributeId() == null ? 0 : domain.getDistributeId().longValue());
+        gantryException.setOperateTime(domain.getScannerTime());
+        //操作时间异常：7
+        gantryException.setType(7);
+        return gantryException;
     }
 
 }

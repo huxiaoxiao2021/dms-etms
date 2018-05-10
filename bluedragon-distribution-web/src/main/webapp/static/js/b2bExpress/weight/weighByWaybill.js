@@ -1,7 +1,7 @@
 /**********************************************************/
 /* 运单称重  luyue  2017-12 */
 /**********************************************************/
-$(function () {
+/*$(function () {*/
 
 /**************************************************************************************/
 /*常量及变量*/
@@ -16,13 +16,17 @@ $(function () {
     var waybill_weight_validate_url     = '/b2b/express/weight/verifyWaybillReality';
     var waybill_weight_insert_url       = '/b2b/express/weight/insertWaybillWeight';
     var waybill_weight_convert_url      = '/b2b/express/weight/convertCodeToWaybillCode';
-
+    var waybill_weight_improt_url      = '/b2b/express/weight/uploadExcel'; //批量导入
     var SERVER_ERROR_CODE = 500;
     var ERROR_PARAM_RESULT_CODE = 400;
+    var ERROR_HALF_RESULT_CODE = 600; //部分成功
+    var SERVER_SUCCESS_CODE = 200;
 
     var VALID_EXISTS_STATUS_CODE = 10;
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
 
+    var forcedToSubmitCount = 0 ; //强制提交
+    var errorData = []; //导入失败记录
 
 /**************************************************************************************/
 /*公共方法*/
@@ -197,10 +201,17 @@ $(function () {
             volume:cbm
         };
 
-        var param = {codeStr:codeStr};
+        doWaybillWeight(insertParam,function(){});
 
+    };
+
+/**
+ * 抽取 称重逻辑供 批量使用
+ * @param insertParam
+ */
+function doWaybillWeight(insertParam,removeFailData,removeIndex){
         /*调用验证方法验证单号是否合法、是否存在*/
-        involkPostSync(waybill_weight_validate_url,param,function (res) {
+        involkPostSync(waybill_weight_validate_url,{codeStr:insertParam.codeStr},function (res) {
 
             var isExists = res.data;
 
@@ -213,52 +224,8 @@ $(function () {
 
                 insertParam.status = VALID_EXISTS_STATUS_CODE;
 
-                involkPostSync(waybill_weight_insert_url,insertParam,function(res){
-                    // console.log(res);
-                    if(res.code == ERROR_PARAM_RESULT_CODE)
-                    {
-                        $.messager.alert('错误','重量或体积参数输入有误，达到最大值，或者重量体积录入值为0！','error');
-                        $('#waybill-weight-btn').linkbutton('enable');
-                    } else if(res.data == false)
-                    {
-                        /*录入失败*/
-                        $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
-                        $('#waybill-weight-btn').linkbutton('enable');
-                    } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
-                    {
-                        /*MQ服务不可用时，转为task重试*/
-                        $.messager.alert('运单录入结果','进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入','info');
+                existSubmit(insertParam,removeFailData,removeIndex);
 
-                        insertParam.statusText = '离线录入';
-                        insertParam.memo = '进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入';
-                        involkPostSync(waybill_weight_convert_url,param,function(res){
-                            insertParam.waybillCode = res.data;
-                        });
-
-                        $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
-
-                        $('#waybill-weight-btn').linkbutton('enable');
-
-                        /*为方便输入 清空输入内容*/
-                        clearInputContentsFunc();
-                    } else
-                    {
-                        /*录入成功*/
-                        insertParam.statusText = '在线录入';
-                        insertParam.memo = '进行称重量方信息录入时存在运单信息，正常录入';
-
-                        involkPostSync(waybill_weight_convert_url,param,function(res){
-                            insertParam.waybillCode = res.data;
-                        });
-
-                        $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
-                        $.messager.alert('运单录入结果','运单称重量方记录已录入成功！','info');
-                        $('#waybill-weight-btn').linkbutton('enable');
-
-                        /*为方便输入 清空输入内容*/
-                        clearInputContentsFunc();
-                    }
-                });
                 /*******************************************************************************/
             }else
             {
@@ -279,55 +246,120 @@ $(function () {
                         if(confirmFlag)
                         {
                             insertParam.status = VALID_NOT_EXISTS_STATUS_CODE;
-                            involkPostSync(waybill_weight_insert_url,insertParam,function(res){
-                                if(res.code == ERROR_PARAM_RESULT_CODE)
-                                {
-                                    $.messager.alert('错误','重量或体积参数输入有误，超过最大值或输入的重量体积为0！','error');
-                                }
-                                else if(res.data == false || res.data == undefined)
-                                {
-                                    /*录入失败*/
-                                    $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
-                                } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
-                                {
-                                    /*MQ服务不可用时，转为task重试*/
-                                    $.messager.alert('运单录入结果','进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入','info');
+                            noExistSubmit(insertParam,removeFailData,removeIndex);
 
-                                    insertParam.statusText = '离线录入';
-                                    insertParam.memo = '进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入';
-                                    involkPostSync(waybill_weight_convert_url,param,function(res){
-                                        insertParam.waybillCode = res.data;
-                                    });
-
-                                    $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
-
-                                    $('#waybill-weight-btn').linkbutton('enable');
-
-                                    /*为方便输入 清空输入内容*/
-                                    clearInputContentsFunc();
-                                }
-                                else
-                                {
-                                    /*录入成功*/
-                                    $.messager.alert('运单录入结果','运单相关信息不存在，已转为离线录入','info');
-                                    insertParam.statusText = '离线录入';
-                                    insertParam.memo = '进行称重量方信息录入时无运单信息，转为离线录入';
-                                    involkPostSync(waybill_weight_convert_url,param,function(res){
-                                        insertParam.waybillCode = res.data;
-                                    });
-                                    $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
-
-                                    /*为方便输入 清空输入内容*/
-                                    clearInputContentsFunc();
-                                }
-                            });
                         }
                     }
                 );
                 /*******************************************************************************/
             }
         });
-    };
+    }
+/**
+ * 运单存在调用逻辑 抽象出来供批量导入使用
+ * @param insertParam
+ */
+function existSubmit(insertParam,removeFailData,removeIndex){
+
+        involkPostSync(waybill_weight_insert_url,insertParam,function(res){
+            // console.log(res);
+            if(res.code == ERROR_PARAM_RESULT_CODE)
+            {
+                $.messager.alert('错误','重量或体积参数输入有误，达到最大值，或者重量体积录入值为0！','error');
+                $('#waybill-weight-btn').linkbutton('enable');
+            } else if(res.data == false)
+            {
+                /*录入失败*/
+                $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
+                $('#waybill-weight-btn').linkbutton('enable');
+            } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
+            {
+                /*MQ服务不可用时，转为task重试*/
+                $.messager.alert('运单录入结果','进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入','info');
+
+                insertParam.statusText = '离线录入';
+                insertParam.memo = '进行称重量方信息录入时存在运单信息，但消息发送失败，已转为离线录入';
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                $('#waybill-weight-btn').linkbutton('enable');
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            } else
+            {
+                /*录入成功*/
+                insertParam.statusText = '在线录入';
+                insertParam.memo = '进行称重量方信息录入时存在运单信息，正常录入';
+
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+                $.messager.alert('运单录入结果','运单称重量方记录已录入成功！','info');
+                $('#waybill-weight-btn').linkbutton('enable');
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            }
+            removeFailData(removeIndex);
+        });
+    }
+
+    /**
+     * 不存在运单强行提交 抽取出来供批量使用
+     * @param insertParam
+     */
+    function noExistSubmit(insertParam,removeFailData,removeIndex){
+        involkPostSync(waybill_weight_insert_url,insertParam,function(res){
+            if(res.code == ERROR_PARAM_RESULT_CODE)
+            {
+                $.messager.alert('错误','重量或体积参数输入有误，超过最大值或输入的重量体积为0！','error');
+            }
+            else if(res.data == false || res.data == undefined)
+            {
+                /*录入失败*/
+                $.messager.alert('运单录入结果','称重信息录入失败,请稍后重试 （错误：' + res.message + ')','info');
+            } else if(res.code == SERVER_ERROR_CODE && res.message == "toTask")
+            {
+                /*MQ服务不可用时，转为task重试*/
+                $.messager.alert('运单录入结果','进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入','info');
+
+                insertParam.statusText = '离线录入';
+                insertParam.memo = '进行称重量方信息录入不存在运单信息，且消息发送失败，已转为离线录入';
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                $('#waybill-weight-btn').linkbutton('enable');
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            }
+            else
+            {
+                /*录入成功*/
+                $.messager.alert('运单录入结果','运单相关信息不存在，已转为离线录入','info');
+                insertParam.statusText = '离线录入';
+                insertParam.memo = '进行称重量方信息录入时无运单信息，转为离线录入';
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            }
+
+            removeFailData(removeIndex);
+        });
+    }
 
     /*提交按钮*/
     $('#waybill-weight-btn').linkbutton({
@@ -363,10 +395,183 @@ $(function () {
 
     });
 
+
+    /*批量导入按钮*/
+    $('#waybill-weight-import-btn').linkbutton({
+        iconCls: 'icon-add',
+        onClick:function(){
+            forcedToSubmitCount = 0 ; //初始化强制提交数量
+            errorData = [] ; //初始化失败记录数据
+            $("#waybill-weight-import-dialog").dialog('open');
+
+        }
+
+    });
+
+
+    /*确定导入按钮*/
+    $("#waybill-weight-import-form-submit").click(function () {
+
+        $("#waybill-weight-import-form-submit").linkbutton('disable'); //锁住导入按钮
+        $("#waybill-weight-fail-message").html("");
+        $("#waybill-weight-fail-submit-message").html("");
+        $('#waybill-weight-import-form').form('submit', {
+            url:waybill_weight_improt_url,
+            success:function(data){
+                $("#waybill-weight-import-form-submit").linkbutton('enable'); //解锁导入按钮
+
+                var data = eval('('+data+')');
+
+
+                if(data.code==SERVER_SUCCESS_CODE){
+                    $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
+                }else if(data.code==ERROR_HALF_RESULT_CODE){
+                   //部分成功
+                   $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
+                   showFailData(data.data.errorList);
+                }else{
+                    $.messager.alert('导入异常',data.message);
+                }
+                //展示成功数据
+                if(data.data.successList && data.data.successList.length >0){
+                    //
+                    var successRows = data.data.successList;
+                    for(var i in successRows){
+                        $('#waybill-weight-success-datagrid').datagrid('appendRow',{
+                            waybillCode:successRows[i].codeStr,
+                            weight:successRows[i].weight,
+                            volume:successRows[i].volume,
+                            statusText:'批量导入'
+                        });
+                    }
+
+                }
+            }
+        });
+    });
+
+
+    $("#waybill-weight-import-form-close").click(function () {
+        $("#waybill-weight-import-dialog").dialog('close');
+    });
+
 /**************************************************************************************/
 
 
 
+    /**
+     * 强制提交 批量导出失败后的触发方法
+     * @param waybillCode
+     * @param weight
+     * @param volume
+     * @param index
+     */
+    function forcedToSubmit(waybillCode,weight,volume,index,status){
+        //存在标识获取
+        var isExist = status==VALID_EXISTS_STATUS_CODE;
+        //组装提交数据
+        var insertParam = {
+            codeStr:waybillCode,
+            weight:weight,
+            volume:volume,
+            status:status
+        };
 
+        var messageBodyStr = "运单号："+waybillCode+" 重量："+weight+" 体积："+volume;
+        $.messager.confirm('请您仔细确认',messageBodyStr
+            ,function(confirmFlag){
+                if(confirmFlag == true){
+
+                    if(isExist){
+                        //此处返回的存在并不是真正意义上的存在
+                        doWaybillWeight(insertParam,removeFailDataFunc,index);
+                    }else{
+                        noExistSubmit(insertParam,removeFailDataFunc,index);
+                    }
+                    //会自动把errorData的数据移除掉一条
+
+                    /*提交业务流程*/
+                    $.messager.alert('提交成功','提交成功');
+                    return;
+                }else {
+                    return;
+                }
+            }
+        );
+
+    }
+
+
+function removeFailDataFunc(index){
+    $("#waybill-weight-fail-submit-message").html("强制提交"+(++forcedToSubmitCount)+"条数据");
+    $('#waybill-weight-fail-datagrid').datagrid('deleteRow',index);
+}
+    /**
+     * 显示导入失败的数据
+     * @param data
+     */
+    function showFailData(data){
+        $("#waybill-weight-import-dialog").dialog('close');
+        $("#waybill-weight-import-fail-dialog").dialog('open');
+        //组装展示页面
+        if(data&&data.length>0){
+
+            $('#waybill-weight-fail-datagrid').datagrid({
+                singleSelect:true,
+                columns:[[
+                    {field:'codeStr',title:'运单号',width:150},
+                    {field:'weight',title:'总重量/千克',width:100},
+                    {field:'volume',title:'总体积/立方米',width:100},
+                    {field:'errorMessage',title:'失败原因',width:330},
+                    {field:'operate',title:'操作',align:'center',width:100,
+                        formatter:function(value, row, index){
+                            var str = '';
+                            if(row.canSubmit == 1){
+                                str = '<a href="javascript:eval(\'forcedToSubmit(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+index+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton" ></a>';
+                            }
+                            return str;
+                        }
+                    }
+                ]],
+                data:data,
+                onLoadSuccess:function(data){
+                   $("a[name='opera']").linkbutton({text:'强制提交',plain:true,iconCls:'icon-save'});
+                },
+
+            });
+            errorData = data;
+        }
+
+    }
+
+
+    /**
+     * 导出
+     */
+    $("#waybill-weight-export").click(function(){
+
+        var url = "/b2b/express/weight/toExport";
+        var form = $("<form method='post'></form>"),input;
+        form.attr({"action":url});
+        input = $("<input type='hidden' name='json'>");
+        input.val(JSON.stringify(errorData));
+        form.append(input);
+        form.appendTo(document.body);
+        form.submit();
+        document.body.removeChild(form[0]);
+
+    });
+$("#waybill-weight-export-close").click(function(){
+    $.messager.confirm('提示','关闭后将无法导出数据，是否关闭？'
+        ,function(confirmFlag){
+            if(confirmFlag){
+                $("#waybill-weight-import-fail-dialog").dialog('close');
+            }
+        }
+    );
 
 });
+
+/*
+});*/
+

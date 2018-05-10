@@ -30,7 +30,11 @@ import java.util.zip.DataFormatException;
 @Service("sortSchemeDetailService")
 public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
 
+    /*异常标志*/
     private static final String EXP = "EXP";
+
+    /*特殊分拣标志*/
+    private static final String SPE = "SPE";
 
     @Autowired
     private SiteService siteService;
@@ -252,7 +256,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 if (StringUtils.isBlank(cellValue)) {
                     emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                 } else {
-                    if (!cellValue.startsWith(EXP) && !NumberHelper.isNumberUpZero(cellValue)) {
+                    if (!cellValue.startsWith(EXP) && !cellValue.startsWith(SPE)  && !NumberHelper.isNumberUpZero(cellValue)) {
                         emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}不符合规则", rowIndex + 1, i + 1, cellValue));
                     }
                 }
@@ -265,7 +269,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
                 }
             } else {
                 cellValue = StringHelper.prefixStr(ExportByPOIUtil.getCellValue(currentRow.getCell(i)), ".");
-                if (needValiSiteEmpty && !cellValue.startsWith(EXP)) {
+                if (needValiSiteEmpty && !cellValue.startsWith(EXP) && !cellValue.startsWith(SPE)) {
                     if (StringUtils.isBlank(cellValue) || !NumberHelper.isNumberUpZero(cellValue)) {
                         emptyErrorList.add(MessageFormat.format("第{0}行第{1}列的值{2}为空", rowIndex + 1, i + 1, cellValue));
                     }
@@ -321,7 +325,7 @@ public class SortSchemeDetailServiceImpl implements SortSchemeDetailService {
         // 不包含则远程获取,然后校验是否存在
         if (StringUtils.isNotBlank(cellValue) && !siteMap.containsKey(cellValue)) {
             BaseStaffSiteOrgDto site = null;
-            if (cellValue.startsWith(EXP)) {
+            if (cellValue.startsWith(EXP) || cellValue.startsWith(SPE)) {
                 BaseStaffSiteOrgDto virtualSite = new BaseStaffSiteOrgDto();
                 virtualSite.setSiteType(8);
                 site = virtualSite;

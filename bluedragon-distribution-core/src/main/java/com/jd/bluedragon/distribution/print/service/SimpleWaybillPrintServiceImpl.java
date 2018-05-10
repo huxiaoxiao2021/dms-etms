@@ -211,6 +211,9 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
             commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
+            if(bigWaybillDto.getWaybillState()!=null){
+                commonWaybill.setWaybillStatus(bigWaybillDto.getWaybillState().getWaybillState()); //增加返回运单状态
+            }
             if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
                 char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
                 commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
@@ -443,87 +446,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         this.composeServiceList = composeServiceList;
     }
 
-	@Override
-	public InterceptResult<String> loadBasicWaybillInfo(WaybillPrintContext context) {
-		InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
-        InterceptResult<String> interceptResult = new InterceptResult<String>();
-        String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
-        try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
-            if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-            	//运单数据为空，直接返回运单数据为空异常
-            	if(baseEntity.getData() == null
-            			||baseEntity.getData().getWaybill() == null){
-            		interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-            		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
-            		return interceptResult;
-            	}
-                context.setBigWaybillDto(baseEntity.getData());
-                loadWaybillInfo(result, baseEntity.getData(), context.getRequest().getDmsSiteCode(), context.getRequest().getTargetSiteCode());
-                if (null != result.getData()) {
-                    interceptResult = preSortingSecondService.preSortingAgain(context, result.getData());//处理是否触发2次预分拣
-                    loadWaybillPackageWeight(context, result.getData());
-                    loadPrintedData(result.getData());
-                    loadBasicData(result.getData());
-                    context.setResponse(result.getData());
-                }
-            }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
-                interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
-            }else{
-                interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
-            }
-        }catch (Exception ex){
-            logger.error("标签打印接口异常",ex);
-            interceptResult.toError();
-        }
-        return interceptResult;
-	}
-
-    /**
-     * 逆向换单设置终端重量
-     * @param context
-     * @param commonWaybill
-     */
-    private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
-        if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
-            String packageCode = context.getRequest().getBarCode();
-            BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
-            if(bigWaybillDto == null){
-                BaseEntity<BigWaybillDto> baseEntity  = waybillQueryManager.getDataByChoice(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
-                if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-                    bigWaybillDto = baseEntity.getData();
-                    context.setBigWaybillDto(bigWaybillDto);
-                }
-            }
-            if (bigWaybillDto != null) {
-                Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
-                for(PrintPackage pack : commonWaybill.getPackList()){
-                    DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
-                    if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getAgainWeight())){
-                        pack.setWeight(deliveryPackageD.getAgainWeight());
-                    }else if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getGoodWeight())){
-                        pack.setWeight(deliveryPackageD.getGoodWeight());
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * 获取终端重量的map
-     * @param packageDList
-     * @return
-     */
-    private Map<String, DeliveryPackageD> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
-        Map<String, DeliveryPackageD> result = null;
-        if (packageDList != null && packageDList.size() > 0) {
-            result = new HashMap<String, DeliveryPackageD>(packageDList.size());
-            for (DeliveryPackageD deliveryPackageD : packageDList) {
-                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
-            }
-        }
-        return result;
-    }
     /**
      * 处理打标信息
      */

@@ -504,7 +504,7 @@ public class Constants {
      */
     public static final String SEND_DETAIL_SOUCRE_AR = "AR";
     public static final String SEND_DETAIL_SOUCRE_NORMAL= "DMS";
-    
+
     /**
      * 查询B网应履约时效接口相关
      * com.jd.etms.vrs.ws.VrsBNetQueryApi.queryPerformanceTime()
@@ -513,7 +513,42 @@ public class Constants {
     public static final Integer ROUTE_INTER_BIZZ_TYPE_ZHENG_CHE_B2B= 4;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CHUN_WAI_B2B= 5;
     public static final Integer ROUTE_INTER_BIZZ_TYPE_CANG_PEI_B2B= 6;
-    
+
+    /**
+     * UMP监控应用名-dms.etms
+     */
     public static final String UMP_APP_NAME_DMSWEB= "dms.etms";
+    /**
+     * UMP监控应用名-bluedragon-distribution-worker
+     */
     public static final String UMP_APP_NAME_DMSWORKER= "bluedragon-distribution-worker";
+
+    /**
+     *  重泡比超过正常范围168:1到330:1
+     */
+    public static final double CBM_DIV_KG_MIN_LIMIT = 168.0;
+    public static final double CBM_DIV_KG_MAX_LIMIT = 330.0;
+    public static final String CBM_DIV_KG_MESSAGE = "重泡比超过正常范围168:1到330:1";
+    /**
+     * 一级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_ONE="分拣中心";
+    /**
+     * 二级分拣中心名称后缀
+     */
+    public static final String SUFFIX_DMS_TWO="分拨中心";
+    /**
+     * 中转场名称后缀
+     */
+    public static final String SUFFIX_TRANSIT="中转场";
+
+    /**
+     * 分拣系统标识-DMS，调用外部系统接口需要传递
+     */
+    public static final String SYSTEM_CODE_OWON= "DMS";
+
+    /**
+     * 龙门架校验调整天数
+     */
+    public static final Integer GANTRY_CHECK_DAYS= -30;
 }

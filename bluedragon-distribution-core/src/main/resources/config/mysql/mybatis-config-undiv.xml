@@ -247,5 +247,6 @@
         <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfApproveMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
     </mappers>
 </configuration>

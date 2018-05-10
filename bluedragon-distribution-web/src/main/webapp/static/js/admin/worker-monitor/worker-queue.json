@@ -169,5 +169,53 @@
                 "task_type": 1160
             }
         ]
+    },
+    {
+        "table_name": "task_ar_receive",
+        "task_type_list": [
+            {
+                "task_type": 1810
+            }
+        ]
+    },
+    {
+        "table_name": "task_scanner_frame",
+        "task_type_list": [
+            {
+                "task_type": 7779
+            }
+        ]
+    },
+    {
+        "table_name": "task_message",
+        "task_type_list": [
+            {
+                "task_type": 8000
+            }
+        ]
+    },
+    {
+        "table_name": "task_delivery_to_finance",
+        "task_type_list": [
+            {
+                "task_type": 1910
+            }
+        ]
+    },
+    {
+        "table_name": "task_delivery_to_finance_batch",
+        "task_type_list": [
+            {
+                "task_type": 1900
+            }
+        ]
+    },
+    {
+        "table_name": "task_global_trade",
+        "task_type_list": [
+            {
+                "task_type": 1340
+            }
+        ]
     }
 ]

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF;
 import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
@@ -70,6 +71,8 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 		JdResult<BaseResponseIncidental<MediumStationOrderInfo>> result = new JdResult<BaseResponseIncidental<MediumStationOrderInfo>>();
 		CallerInfo monitor = Profiler.registerInfo("dmsWeb.jsf.PresortMediumStationAPI.getMediumStation", false, true);
 		try {
+			//设置默认传递的系统标识码
+			originalOrderInfo.setSystemCode(Constants.SYSTEM_CODE_OWON);
 			logger.info("调用中小件二次预分拣JSF接口参数："+JsonHelper.toJsonUseGson(originalOrderInfo));
 			BaseResponseIncidental<MediumStationOrderInfo> apiResult = presortMediumStation.getMediumStation(originalOrderInfo);
             logger.info("调用中小件二次预分拣JSF接口返回结果："+JsonHelper.toJsonUseGson(apiResult));

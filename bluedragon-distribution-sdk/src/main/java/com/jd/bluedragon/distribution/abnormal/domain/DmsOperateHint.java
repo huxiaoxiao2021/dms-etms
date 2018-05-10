@@ -13,6 +13,22 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 public class DmsOperateHint extends DbEntity {
 
 	private static final long serialVersionUID = 1L;
+	/**
+	 * 提示语类型  1-用户创建
+	 */
+	public static final Integer HINT_TYPE_USER = 1;
+	/**
+	 * 提示语类型  2-系统创建
+	 */
+	public static final Integer HINT_TYPE_SYS = 2;
+	/**
+	 * 编码-需要包裹补打（101）
+	 */
+	public static final Integer HINT_CODE_NEED_REPRINT = 101;
+	/**
+	 * 名称-需要包裹补打（包裹补打）
+	 */
+	public static final String HINT_NAME_NEED_REPRINT = "包裹补打";
 
 	 /** 分拣中心编号 */
 	private Integer dmsSiteCode;
@@ -22,16 +38,22 @@ public class DmsOperateHint extends DbEntity {
 
 	 /** 运单号 */
 	private String waybillCode;
-
+	
+	 /** 提示语类型  1-用户创建  2-系统创建 */
+	private Integer hintType;
+	
 	 /** 提示语编码 */
 	private Integer hintCode;
 
 	 /** 提示语名称 */
 	private String hintName;
 
-	 /** 提示语内容 */
+	 /** 提示语信息 */
 	private String hintMessage;
-
+	
+	 /** 提示语内容 */
+	private String hintContent;
+	
 	 /** 启用状态，默认为1启用 */
 	private Integer isEnable;
 
@@ -259,6 +281,34 @@ public class DmsOperateHint extends DbEntity {
 	 */
 	public String getUpdateUserName() {
 		return this.updateUserName;
+	}
+
+	/**
+	 * @return the hintType
+	 */
+	public Integer getHintType() {
+		return hintType;
+	}
+
+	/**
+	 * @param hintType the hintType to set
+	 */
+	public void setHintType(Integer hintType) {
+		this.hintType = hintType;
+	}
+
+	/**
+	 * @return the hintContent
+	 */
+	public String getHintContent() {
+		return hintContent;
+	}
+
+	/**
+	 * @param hintContent the hintContent to set
+	 */
+	public void setHintContent(String hintContent) {
+		this.hintContent = hintContent;
 	}
 
 

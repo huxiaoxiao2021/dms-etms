@@ -118,7 +118,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>1.1.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -354,7 +354,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.1.10-SNAPSHOT</version>
+			<version>1.1.19-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -364,7 +364,7 @@
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
-		    <version>1.6.9-SNAPSHOT</version>
+		    <version>1.9.5-SNAPSHOT</version>
 		</dependency>
 
 		<!--jsf  -->
@@ -740,7 +740,7 @@
 		<dependency>
 			<groupId>com.jd.coo</groupId>
 			<artifactId>ucc-client</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
 
 		<!-- TC -->

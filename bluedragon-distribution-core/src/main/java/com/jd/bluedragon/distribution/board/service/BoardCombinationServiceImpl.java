@@ -6,6 +6,8 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -63,6 +65,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private OperationLogService operationLogService;
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
 
     @Autowired
@@ -199,6 +204,40 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 boardResponse.addStatusInfo(BoardResponse.CODE_PACAGES_NOT_ENOUGH, verificationResult.getMessage());
 
                 return JdResponse.CODE_CONFIRM;
+            }
+        }
+
+        //调Ver的接口进行组板拦截
+        //如果是箱号则不进行拦截
+        BoardCombinationJsfResponse response = null;
+        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
+            try {
+                response = jsfSortingResourceService.boardCombinationCheck(request);
+                logInfo = "组板校验,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
+                        ",IsForceCombination:" + request.getIsForceCombination() +
+                        ",站点：" + request.getSiteCode() + ".校验结果:"+ response.getMessage();
+
+                this.logger.info(logInfo);
+                addSystemLog(request,logInfo);
+            } catch (Exception ex) {
+                Profiler.functionError(info1);
+                logger.error("调用总部VER验证JSF服务失败", ex);
+                return JdResponse.CODE_ERROR;
+            } finally {
+                Profiler.registerInfoEnd(info1);
+            }
+
+            if (!response.getCode().equals(200)) {//如果校验不OK
+                if (response.getCode() >= 39000) {
+                    if (!request.getIsForceCombination()){
+                        boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                        return JdResponse.CODE_CONFIRM;
+                    }
+                } else{
+                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    return JdResponse.CODE_FAIL;
+                }
             }
         }
 

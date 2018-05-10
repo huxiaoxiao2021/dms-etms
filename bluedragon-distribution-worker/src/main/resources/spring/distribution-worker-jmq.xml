@@ -167,5 +167,9 @@
     <jmq:consumer id="jmq.packageHalfApproveConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_waybill_w_check" listener="packageHalfApproveConsumer"/>
     </jmq:consumer>
+    <!-- 库房拒收 外呼返回消费-->
+    <jmq:consumer id="jmq.abnormalWarehouseRejectReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_wms_reject_outbound_feedback" listener="dmsAbnormalEclpConsumer"/>
+    </jmq:consumer>
 </beans>
 
