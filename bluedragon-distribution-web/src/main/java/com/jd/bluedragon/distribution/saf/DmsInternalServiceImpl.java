@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.saf;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -125,6 +126,25 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             return baseResource.getselfD(code);
         }catch (Exception e){
             logger.error("getBelongSiteCode error ", e);
+            return null;
+        }
+    }
+
+    /**
+     *  根据三方-合作站点获取三方-合作站点所属自营站点
+     *  @param code 三方-合作站点ID
+     *  @return 三方-合作站点所属自营站点信息
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getThreePartnerBelongSiteCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
+    public BaseResponse getThreePartnerBelongSiteCode(Integer code) {
+        if(logger.isInfoEnabled()){
+            logger.info("getThreePartnerBelongSiteCode param " + code);
+        }
+        try{
+            return baseResource.getThreePartnerD(code);
+        }catch (Exception e){
+            logger.error("getThreePartnerBelongSiteCode error ", e);
             return null;
         }
     }

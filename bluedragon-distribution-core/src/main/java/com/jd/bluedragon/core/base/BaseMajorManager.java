@@ -100,4 +100,11 @@ public interface BaseMajorManager {
      */
 	public List<BaseStaffSiteOrgDto> getBaseAllStore();
 
+	/**
+	 * 根据站点ID查询站点和扩展信息，返回值包含归属站点ID和名称（belongCode,belongName）
+	 * @param sitecode 三方-合作站点ID
+	 * @return
+	 */
+	public Integer getPartnerSiteBySiteId(Integer sitecode);
+
 }
