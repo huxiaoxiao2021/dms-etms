@@ -37,10 +37,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Autowired
     private RouteComputeUtil routeComputeUtil;
 
-    public void setRouteComputeUtil(RouteComputeUtil routeComputeUtil) {
-        this.routeComputeUtil = routeComputeUtil;
-    }
-
     @Autowired
     private VrsBNetQueryAPI vrsBNetQueryApi;
 
