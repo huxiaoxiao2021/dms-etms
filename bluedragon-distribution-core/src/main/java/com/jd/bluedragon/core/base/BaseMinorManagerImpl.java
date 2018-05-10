@@ -65,20 +65,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return null;
 	}
 
-	@Cache(key = "baseMinorManagerImpl.getMainBranchScheduleByTranCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
-	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getMainBranchScheduleByTranCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public MainBranchSchedule getMainBranchScheduleByTranCode(String paramString) {
-		return basicSecondaryWS.getMainBranchScheduleByTranCode(paramString);
-	}
-
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getMainBranchScheduleList", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseResult<List<MainBranchSchedule>> getMainBranchScheduleList(
-			MainBranchSchedule mbs) {
-		return basicSecondaryWS.getMainBranchScheduleList(mbs);
-	}
-
-	@Cache(key = "baseMinorManagerImpl.getAirConfig@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
+	@Cache(key = "baseMinorManagerImpl.getAirConfig@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getAirConfig", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public AirTransport getAirConfig(Integer originalProvinceId,
@@ -141,12 +128,6 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return responseDTO.getResult();
     }
 
-	@Override
-	public BasePdaUserDto pdaUserLogin(String erpcode, String password) {
-		// TODO Auto-generated method stub
-		return basicSecondaryWS.pdaUserLogin(erpcode, password);
-	}
-
 	@Cache(key = "TbaseMinorManagerImpl.getBaseAllTrader", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseAllTrader", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -193,4 +174,14 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		return null;
 	}
 
+
+	@Override
+	public BasicTraderInfoDTO getTraderInfoByPopCode(String popCode){
+		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+		responseDTO = basicTraderAPI.getBasicTraderInfoByPopId(popCode);
+		if(responseDTO != null){
+			return responseDTO.getResult();
+		}
+		return null;
+	}
 }
