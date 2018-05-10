@@ -72,11 +72,29 @@ $(function() {
 		oTableInit.tableColums = [ {
 				checkbox : true
 			}, {
-				field : 'typeCode',
-				title : '编码'
+				field : 'waybillCode',
+				title : '运单号'
 			}, {
-				field : 'typeName',
-				title : '名称'
+				field : 'orderNumber',
+				title : '第几次'
+			} , {
+				field : 'traderName',
+				title : '商家名称'
+			} , {
+				field : 'dmsSiteName',
+				title : '机构名称'
+			} , {
+				field : 'areaName',
+				title : '区域名称'
+			} , {
+				field : 'receiptTime',
+				title : '回复时间'
+			} , {
+				field : 'isReceipt',
+				title : '是否回复'
+			} , {
+				field : 'createUser',
+				title : '提报人'
 			} ];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
