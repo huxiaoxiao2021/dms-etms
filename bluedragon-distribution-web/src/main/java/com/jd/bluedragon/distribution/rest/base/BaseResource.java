@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.client.JsonUtil;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.external.api.DmsBaseApi;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
@@ -56,7 +57,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class BaseResource {
+public class BaseResource implements DmsBaseApi{
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
@@ -296,6 +297,7 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/site/{code}")
+	@Override
 	public BaseResponse getSite(@PathParam("code") String code) {
 		this.logger.info("sitecode is " + code);
 

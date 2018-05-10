@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.external.api.DmsSiteApi;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ump.annotation.JProEnum;
@@ -38,7 +39,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SiteResource {
+public class SiteResource implements DmsSiteApi {
 
 	@Autowired
 	private SiteService siteService;
@@ -70,6 +71,7 @@ public class SiteResource {
 	 * */
 	@GET
 	@Path("/bases/capacityCode/{capacityCode}")
+	@Override
 	public RouteTypeResponse getCapacityCodeInfo(@PathParam("capacityCode") String capacityCode) {
 		this.logger.info("capacityCode is " + capacityCode);
         RouteTypeResponse response = new RouteTypeResponse();
@@ -142,7 +144,8 @@ public class SiteResource {
 	@GET
 	@GZIP
 	@Path("/site/getSitesBySendCode/{sendCode}")
-	public InvokeResult<CreateAndReceiveSiteInfo> getsitesInfoBySendCode(@PathParam("sendCode") String sendCode){
+	@Override
+	public InvokeResult<CreateAndReceiveSiteInfo> getSitesInfoBySendCode(@PathParam("sendCode") String sendCode){
 		InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
 
 		//验证sendCode

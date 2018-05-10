@@ -25,6 +25,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.external.api.DmsDeliveryApi;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -71,7 +72,7 @@ import com.jd.ump.annotation.JProfiler;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class DeliveryResource {
+public class DeliveryResource implements DmsDeliveryApi {
 
     @Autowired
     DeliveryService deliveryService;
@@ -132,6 +133,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/newpackagesend")
+    @Override
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
@@ -176,6 +178,7 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/checksendcodestatus/{sendCode}")
+    @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);

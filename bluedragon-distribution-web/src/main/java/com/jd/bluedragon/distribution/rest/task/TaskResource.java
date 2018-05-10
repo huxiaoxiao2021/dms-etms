@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.external.api.DmsTaskApi;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -38,7 +39,7 @@ import java.util.*;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class TaskResource {
+public class TaskResource implements DmsTaskApi {
 
     private final Logger logger = Logger.getLogger(TaskResource.class);
 
@@ -77,6 +78,7 @@ public class TaskResource {
     @SuppressWarnings("unchecked")
     @POST
     @Path("/tasks")
+    @Override
     public TaskResponse add(TaskRequest request) {
         //加入监控，开始
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);

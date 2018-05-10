@@ -63,4 +63,54 @@
                   interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
                     alias="${dms.jsf.alias}"/>
 
+
+    <jsf:provider id="jsfDmsBaseApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsBaseApi"
+                  alias="${dms.jsf.alias}"
+                  ref="baseResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsArReceiveApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsArReceiveApi"
+                  alias="${dms.jsf.alias}"
+                  ref="arReceiveResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsNewSealVehicleApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsNewSealVehicleApi"
+                  alias="${dms.jsf.alias}"
+                  ref="newSealVehicleResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsBoxApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsBoxApi"
+                  alias="${dms.jsf.alias}"
+                  ref="boxResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsDeliveryApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsDeliveryApi"
+                  alias="${dms.jsf.alias}"
+                  ref="deliveryResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsSendPrintApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsSendPrintApi"
+                  alias="${dms.jsf.alias}"
+                  ref="sendPrintResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsSiteApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsSiteApi"
+                  alias="${dms.jsf.alias}"
+                  ref="siteResource" server="dmsjsf">
+    </jsf:provider>
+
+    <jsf:provider id="jsfDmsTaskApi"
+                  interface="com.jd.bluedragon.distribution.external.api.DmsTaskApi"
+                  alias="${dms.jsf.alias}"
+                  ref="taskResource" server="dmsjsf">
+    </jsf:provider>
+
+
 </beans>

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.external.api.DmsNewSealVehicleApi;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -42,7 +43,7 @@ import java.util.*;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class NewSealVehicleResource {
+public class NewSealVehicleResource implements DmsNewSealVehicleApi {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -59,6 +60,7 @@ public class NewSealVehicleResource {
      */
     @GET
     @Path("/new/vehicle/seal/workitem/{simpleCode}")
+    @Override
     public TransWorkItemResponse getVehicleNumBySimpleCode(@PathParam("simpleCode")String simpleCode) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try{
@@ -96,6 +98,7 @@ public class NewSealVehicleResource {
      */
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
+    @Override
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(
             @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode,@PathParam("sealCarType")Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -142,6 +145,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/seal")
+    @Override
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -172,6 +176,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/findSealInfo")
+    @Override
     public NewSealVehicleResponse findSealInfo(NewSealVehicleRequest request) {
 
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -254,6 +259,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/unseal/check")
+    @Override
     public NewSealVehicleResponse unsealCheck(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
@@ -278,6 +284,7 @@ public class NewSealVehicleResource {
      */
     @POST
     @Path("/new/vehicle/unseal")
+    @Override
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
