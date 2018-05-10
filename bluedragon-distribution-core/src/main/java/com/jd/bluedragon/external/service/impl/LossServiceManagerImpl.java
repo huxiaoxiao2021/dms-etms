@@ -27,7 +27,7 @@ public class LossServiceManagerImpl implements LossServiceManager{
 	}
 	@JProfiler(jKey = "DmsWeb.com.jd.loss.client.BlueDragonWebService.getLossProductByOrderId",
 			jAppName = Constants.UMP_APP_NAME_DMSWEB,
-			mState = {JProEnum.TP})
+			mState = {JProEnum.TP,JProEnum.FunctionError})
 	@Override
 	public List<LossProduct> getLossProductByOrderId(String orderId) {
 		return blueDragonWebService.getLossProductByOrderId(orderId);

@@ -3303,8 +3303,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Profiler.registerInfoEnd(step2PerMonitor);
             }
             long costTime = System.currentTimeMillis() - beginTime;
-            //明细大于50或消耗时间大于500ms
-            if(list.size() > 50 || costTime>=500){
+            //消耗时间大于500ms
+            if(costTime>=500){
             	logger.warn("dofindTransitSend-cost:boxCode:"+boxCode +",size:"+ list.size()+",cost:"+costTime+"ms");
             }
         }else{
