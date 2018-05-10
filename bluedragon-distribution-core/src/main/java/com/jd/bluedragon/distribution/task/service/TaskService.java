@@ -116,5 +116,5 @@ public interface TaskService {
      * @param fetchNum
      * @return
      */
-    List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum);
+    List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum,List<String> queueIds);
 }

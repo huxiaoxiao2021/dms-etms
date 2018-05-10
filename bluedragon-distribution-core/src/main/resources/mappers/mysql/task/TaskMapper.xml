@@ -408,6 +408,12 @@
 			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
 			and execute_count<![CDATA[<]]>5
 			and create_time <![CDATA[<=]]> timestampadd(minute, -5, now())
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
 			LIMIT #{fetchNum}
 		</where>
 	</select>

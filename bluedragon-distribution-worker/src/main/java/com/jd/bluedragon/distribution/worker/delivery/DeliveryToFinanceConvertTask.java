@@ -101,7 +101,7 @@ public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findDeliveryToFinanceConvertTasks(this.type, fetchNum);
+            List<Task> Tasks = taskService.findDeliveryToFinanceConvertTasks(this.type, fetchNum,queryCondition);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;
