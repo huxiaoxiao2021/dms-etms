@@ -3829,11 +3829,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                     pushAtuoSorting(domain,uploadData.getPackageCode());
                     return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
                 }else{
+                    domain.setReceiveSiteCode(sendSiteCode);
                     pushInspection(domain,null);
                     pushSorting(domain);
                 }
 
-                domain.setReceiveSiteCode(sendSiteCode);
             }else{
                 if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushSorting(domain);//大件写TASK_SORTING
