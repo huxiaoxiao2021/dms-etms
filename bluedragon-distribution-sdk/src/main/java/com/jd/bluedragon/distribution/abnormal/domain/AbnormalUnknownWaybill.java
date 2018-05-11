@@ -17,6 +17,8 @@ public class AbnormalUnknownWaybill extends DbEntity {
     public static final String RECEIPT_FROM_WAYBILL = "W";//运单
     public static final String RECEIPT_FROM_ECLP = "E";//eclp
     public static final String RECEIPT_FROM_B = "B";//商家回复
+    public static final Integer ISRECEIPT_YES = 1;//已回复
+    public static final Integer ISRECEIPT_NO = 0;//未回复
     /**
      * 运单号
      */

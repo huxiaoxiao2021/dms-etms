@@ -14,11 +14,10 @@ import java.util.List;
 public interface AbnormalUnknownWaybillDao extends Dao<AbnormalUnknownWaybill> {
 
     /**
-     * 根据运单号查询
+     * 根据运单号查询 查询哪些运单查过明细
      *
-     * @param waybillCode
+     * @param waybillCodes
      * @return
      */
-    public List<AbnormalUnknownWaybill> queryByWaybillCode(String waybillCode);
-
+    public List<String> queryHasDetailWaybillCode(List<String> waybillCodes);
 }

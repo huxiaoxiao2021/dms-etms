@@ -763,11 +763,11 @@
 			<version>1.2.18-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
-		<dependency>
-			<groupId>com.jd.kom</groupId>
-			<artifactId>kom-ext-contract</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+        <dependency>
+            <groupId>com.jd.kom</groupId>
+            <artifactId>kom-ext-contract</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
 	<build>

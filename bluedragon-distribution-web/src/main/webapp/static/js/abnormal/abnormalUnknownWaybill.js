@@ -110,6 +110,9 @@ $(function () {
         }, {
             field: 'createUser',
             title: '提报人'
+        }, {
+            field: 'operation',
+            title: '操作'
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refresh');
@@ -189,7 +192,7 @@ $(function () {
                     });
                 }
             });
-            $('#btn_query').click(function () {
+            $('#btn_queryOnly').click(function () {
                 var params = {};
                 $('.edit-param').each(function () {
                     var _k = this.id;

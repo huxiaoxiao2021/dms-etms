@@ -2,15 +2,23 @@ package com.jd.bluedragon.distribution.abnormal.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormal.dao.AbnormalUnknownWaybillDao;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.domain.AreaNode;
+import com.jd.bluedragon.domain.ProvinceNode;
+import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -19,7 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wuyoude
@@ -41,8 +52,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
     @Autowired
     private WaybillService waybillService;
+
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 
     /**
@@ -76,51 +91,91 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             rest.toFail("无可用运单号");
             return rest;
         }
-        List<String> hasDetails = Lists.newArrayList();//查到明细的运单号
-        List<String> noDetails = Lists.newArrayList();//运单和eclp没查到明细的运单号
         List<String> noWaybills = Lists.newArrayList();//不存在的运单号
 
-        for (String waybillCode : waybillList) {
-            List<AbnormalUnknownWaybill> abnormalUnknownWaybills = abnormalUnknownWaybillDao.queryByWaybillCode(waybillCode);
-            AbnormalUnknownWaybill abnormalUnknownWaybill1WE = null;//系统回复
-            AbnormalUnknownWaybill abnormalUnknownWaybill1BLast = null;//商家回复
-            if (abnormalUnknownWaybills != null && abnormalUnknownWaybills.size() > 0) {
-                for (AbnormalUnknownWaybill unknownWaybill : abnormalUnknownWaybills) {
-                    if (AbnormalUnknownWaybill.RECEIPT_FROM_B.equals(unknownWaybill.getReceiptFrom())) {
-                        //商家回复 只记录最后一次
-                        if (abnormalUnknownWaybill1BLast == null) {
-                            abnormalUnknownWaybill1BLast = unknownWaybill;
-                        } else {
-                            if (abnormalUnknownWaybill1BLast.getOrderNumber() < unknownWaybill.getOrderNumber()) {
-                                //取最后一次上报
-                                abnormalUnknownWaybill1BLast = unknownWaybill;
-                            }
+        //查出哪些已经有明细了或发过请求了 下面就不查了
+        List<String> hasDetailWaybillCodes = abnormalUnknownWaybillDao.queryHasDetailWaybillCode(waybillList);
+        //过滤出没查过的
+        Set<String> noDetails = new HashSet<String>(waybillList);
+        if (hasDetailWaybillCodes != null && hasDetailWaybillCodes.size() > 0) {
+            for (String hasDetailWaybillCode : hasDetailWaybillCodes) {
+                noDetails.remove(hasDetailWaybillCode);
+            }
+
+        }
+        if (noDetails.size() > 0) {
+            LoginContext loginContext = LoginContext.getLoginContext();
+            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+            for (String waybillCode : noDetails) {
+                //第一步 查运单
+                BigWaybillDto waybillDto = this.waybillService.getWaybill(waybillCode);
+                if (waybillDto == null) {
+                    noWaybills.add(waybillCode);//运单号不存在
+                    continue;
+                }
+                AbnormalUnknownWaybill abnormalUnknownWaybill1Report = null;
+                try {
+                    abnormalUnknownWaybill1Report = buildAbnormalUnknownWaybill(userDto, waybillCode);
+                } catch (Exception e) {
+                    rest.toFail("站点所在省份获取失败：" + e.getMessage());
+                    logger.warn("站点所在省份获取失败：" + e.getMessage());
+                    return rest;
+                }
+                StringBuilder waybillDetail = new StringBuilder();
+                List<Goods> goods = waybillDto.getGoodsList();
+                if (goods != null && goods.size() > 0) {
+                    for (int i = 0; i < goods.size(); i++) {
+                        waybillDetail.append(goods.get(i).getGoodName() + "*" + goods.get(i).getGoodCount());
+                        if (i != goods.size() - 1) {
+                            waybillDetail.append("\\n");
                         }
-                    } else {
-                        //系统回复
-                        abnormalUnknownWaybill1WE = unknownWaybill;
                     }
+                    abnormalUnknownWaybill1Report.setReceiptFrom(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL);
+
+                } else {
+
+                }
+                Waybill waybill = waybillDto.getWaybill();
+                String busiOrderCode = waybillDto.getWaybill().getBusiOrderCode();
+
+
+                if (BusinessHelper.isECLPByBusiOrderCode(busiOrderCode)) {
+
                 }
             }
-            if (abnormalUnknownWaybill1WE != null) {
-                hasDetails.add(abnormalUnknownWaybill1WE.getWaybillCode());//之前查过，并且运单或eclp就已经查到了
-            }
-            if (abnormalUnknownWaybill1BLast != null&&abnormalUnknownWaybill1BLast.getIsReceipt()) {
-
-            }
-
-            BigWaybillDto waybillDto = this.waybillService.getWaybill(waybillCode);
-            if (waybillDto == null) {
-                errorMessage.append(waybillCode).append(",");
-                continue;
-            }
-
         }
 
 
         return rest;
     }
 
+    public AbnormalUnknownWaybill buildAbnormalUnknownWaybill(BaseStaffSiteOrgDto userDto, String waybillCode) throws Exception {
+        AbnormalUnknownWaybill abnormalUnknownWaybillReport = new AbnormalUnknownWaybill();
+        abnormalUnknownWaybillReport.setWaybillCode(waybillCode);
+        abnormalUnknownWaybillReport.setCreateUser(userDto.getAccountNumber());
+        abnormalUnknownWaybillReport.setCreateUserCode(userDto.getStaffNo());
+        abnormalUnknownWaybillReport.setCreateUserName(userDto.getStaffName());
+        abnormalUnknownWaybillReport.setDmsSiteCode(userDto.getSiteCode());
+        abnormalUnknownWaybillReport.setDmsSiteName(userDto.getSiteName());
+        abnormalUnknownWaybillReport.setCreateTime(new Date());
+        //站点区域查出来
+        BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
+        if (org == null) {
+            throw new Exception("所在站点未找到：" + userDto.getSiteName());
+        }
+        ProvinceNode province = AreaHelper.getProvince(Integer.parseInt(Long.valueOf(org.getProvinceId()).toString()));
+        if (province == null) {
+            throw new Exception("站点所在省份获取失败：" + org.getProvinceId());
+        }
+        AreaNode areaNode = AreaHelper.getAreaByProvinceId(province.getId());
+        if (areaNode == null) {
+            throw new Exception("站点所在区域获取失败：" + province.getId());
+        }
+        abnormalUnknownWaybillReport.setAreaId(areaNode.getId());
+        abnormalUnknownWaybillReport.setAreaName(areaNode.getName());
+        abnormalUnknownWaybillReport.setIsDelete(0);
+        return abnormalUnknownWaybillReport;
+    }
 
     /**
      * 从sysconfig表里查出来 上报次数限制

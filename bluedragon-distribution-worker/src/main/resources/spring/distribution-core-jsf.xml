@@ -278,4 +278,8 @@
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="5000" retries="3">
     </jsf:consumer>
+    <!--eclp查商品明细 -->
+    <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"
+                  protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="5000" retries="3">
+    </jsf:consumer>
 </beans>
