@@ -62,7 +62,7 @@ public class AbnormalUnknownWaybillController {
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody AbnormalUnknownWaybill abnormalUnknownWaybill) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
-			rest.setData(abnormalUnknownWaybillService.saveOrUpdate(abnormalUnknownWaybill));
+			return abnormalUnknownWaybillService.queryAndReport(abnormalUnknownWaybill);
 	} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);
 			rest.toError("保存失败，服务异常！");

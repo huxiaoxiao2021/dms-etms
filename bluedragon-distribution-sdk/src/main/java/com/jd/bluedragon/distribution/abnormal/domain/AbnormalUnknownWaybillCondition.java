@@ -57,6 +57,12 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 	 /** 创建人名称 */
 	private String createUserName;
 
+	/** 发起起始时间 */
+	private Date startTime;
+
+	/** 发起截止时间 */
+	private Date endTime;
+
 	/**
 	 * The set method for waybillCode.
 	 * @param waybillCode
@@ -281,5 +287,19 @@ public class AbnormalUnknownWaybillCondition extends BasePagerCondition {
 		return this.createUserName;
 	}
 
+	public Date getStartTime() {
+		return startTime;
+	}
 
+	public void setStartTime(Date startTime) {
+		this.startTime = startTime;
+	}
+
+	public Date getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Date endTime) {
+		this.endTime = endTime;
+	}
 }

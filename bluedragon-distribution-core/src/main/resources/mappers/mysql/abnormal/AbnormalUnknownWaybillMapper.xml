@@ -12,6 +12,7 @@
 		<result column="dms_site_name" property="dmsSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_id" property="areaId" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receipt_from" property="receiptFrom" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receipt_time" property="receiptTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_receipt" property="isReceipt" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="receipt_content" property="receiptContent" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -306,6 +307,16 @@
 		where 1=1 
 		 <include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="getListByWaybillCode" parameterType="java.lang.String" resultMap="AbnormalUnknownWaybill">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		abnormal_unknown_waybill
+		where 1=1
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		<include refid="Base_Condition_Sql"/>
 	</select>
 
 </mapper>

@@ -482,6 +482,10 @@ public class Constants {
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
+     * 三无寄托物核实 上报次数上限
+     */
+    public static final String SYS_ABNORMAL_UNKNOWN_REPORT_TIMES= "abnormal.unknown.report.times";
+    /**
      * 封车批次号缓存前缀
      */
     public static final String CACHE_KEY_PRE_SEAL_SENDCODE ="CACHE_SEAL_SENDCODE-";

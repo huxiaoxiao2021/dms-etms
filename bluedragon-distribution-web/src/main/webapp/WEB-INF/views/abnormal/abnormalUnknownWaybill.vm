@@ -87,7 +87,7 @@
             <li><a href="#">三无外单寄托物核实申请</a></li>
             <li class="active">新增</li>
         </ol>
-        <div id="query-condition">
+        <div id="edit-condition">
             <form id="edit-form" class="form-horizontal  col-xs-12">
                 <fieldset>
                 <input type="hidden" class="form-control edit-param" id="id" name="id"/>
@@ -106,10 +106,10 @@
                     </div>
                 </div>
                 <hr/>
-                <div class="col-xs-3">
+                <div class="col-xs-4">
                 </div>
                 <div class="form-group">
-                	<button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">查询商品名称</button>
+                	<button id="btn_query" type="button" class="btn btn-primary" data-toggle="button">查询商品名称</button>
                 	<button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">查询并上报</button>
                 	<button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
                 </div>
