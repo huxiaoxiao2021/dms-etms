@@ -289,6 +289,10 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddWithStatus(Task task) {
         TaskDao routerDao = taskDao;
+		//随机生成队列数
+		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
+		int queueSize = task.getTaskQueueSize(allQueueSize);
+		task.setQueueId(new Random().nextInt(queueSize));
         return routerDao.addWithStatus(task);
     }
 
