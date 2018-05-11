@@ -3815,21 +3815,16 @@ public class DeliveryServiceImpl implements DeliveryService {
              * */
 
             if(isForceSend){
-                Integer sendSiteCode = domain.getReceiveSiteCode();
-
-                //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
-                if(uploadData.getBoxSiteCode() != null){
-                    domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
-                }else{
-                    domain.setReceiveSiteCode(sendSiteCode);
-                }
-
                 if(SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                    //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+                    if(uploadData.getBoxSiteCode() != null){
+                        domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+                    }
+
                     pushInspection(domain,uploadData.getPackageCode());
                     pushAtuoSorting(domain,uploadData.getPackageCode());
                     return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
                 }else{
-                    domain.setReceiveSiteCode(sendSiteCode);
                     pushInspection(domain,null);
                     pushSorting(domain);
                 }
