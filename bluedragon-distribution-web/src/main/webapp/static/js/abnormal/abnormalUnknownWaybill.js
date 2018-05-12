@@ -3,6 +3,7 @@ $(function () {
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
     var queryUrl = '/abnormal/abnormalUnknownWaybill/listData';
+    var waybillCodes=null;//多运单查询用
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -45,6 +46,9 @@ $(function () {
             var temp = oTableInit.getSearchCondition();
             if (!temp) {
                 temp = {};
+            }
+            if(waybillCodes){
+                temp.waybillCode=waybillCodes;
             }
             temp.offset = params.offset;
             temp.limit = params.limit;
@@ -124,6 +128,7 @@ $(function () {
         oInit.init = function () {
             $('#dataEditDiv').hide();
             $('#btn_query').click(function () {
+                waybillCodes=null;//清空批量查询
                 tableInit().refresh();
             });
             $('#btn_add').click(function () {
@@ -201,9 +206,13 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
+                params['isReport']=false;//不上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
-                        alert('操作成功');
+                        if (res.data){
+                            //批量查询
+                            waybillCodes=res.data;
+                        }
                         tableInit().refresh();
                     } else {
                         alert('操作异常');
@@ -221,9 +230,14 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
+                params['isReport']=true;//查询并上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
                         alert('操作成功');
+                        if (res.data){
+                            //批量查询
+                            waybillCodes=res.data;
+                        }
                         tableInit().refresh();
                     } else {
                         alert('操作异常');

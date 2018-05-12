@@ -288,6 +288,22 @@
     </select>
 
     <sql id="Base_Condition_Sql">
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="waybillCodes != null">
+            and waybill_code in
+            <foreach item="item" index="index" collection="waybillCodes" open="("
+                     separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="startTime != null">
+            AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endTime != null">
+            AND create_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+        </if>
 			and is_delete=0 
 	</sql>
 
@@ -319,7 +335,7 @@
                  separator="," close=")">
             #{item}
         </foreach>
-        <include refid="Base_Condition_Sql"/>
+        and is_delete=0
         group by waybill_code
     </select>
 

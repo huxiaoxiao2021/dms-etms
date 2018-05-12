@@ -17,5 +17,5 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      *
      * @return
      */
-    public JdResponse<Boolean> queryAndReport(AbnormalUnknownWaybill abnormalUnknownWaybill);
+    public JdResponse<String> queryAndReport(AbnormalUnknownWaybill abnormalUnknownWaybill);
 }
