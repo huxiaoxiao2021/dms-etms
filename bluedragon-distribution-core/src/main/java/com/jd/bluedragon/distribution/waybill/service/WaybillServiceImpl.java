@@ -10,7 +10,6 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -57,7 +56,6 @@ public class WaybillServiceImpl implements WaybillService {
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
-        wChoice.setQueryWaybillC(true);
 
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
                 wChoice);
@@ -79,7 +77,7 @@ public class WaybillServiceImpl implements WaybillService {
     public Boolean doWaybillStatusTask(Task task) {
         try {
             // 妥投任务
-            if (null != task.getType() && task.getType().equals(Task.TASK_TYPE_WAYBILL_FINISHED)) {
+            if(null != task.getType() && task.getType().equals(Task.TASK_TYPE_WAYBILL_FINISHED)) {
                 waybillStatusService.sendModifyWaybillStatusFinished(task);
                 // 除妥投外需要改变运单状态的任务
             } else {
@@ -118,23 +116,23 @@ public class WaybillServiceImpl implements WaybillService {
 //            return getPackageByWaybillInterface(packageCode);
 //        }
 
-        if (waybillPackageDTO == null) {
+        if(waybillPackageDTO == null){
             return getPackageByWaybillInterface(packageCode);
-        } else {
+        }else{
             return waybillPackageDTO;
         }
     }
 
-    private WaybillPackageDTO getPackageByWaybillInterface(String packageCode) {
+    private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){
 
-        if (packageCode == null || packageCode.length() == 0) {
+        if(packageCode == null || packageCode.length() == 0){
             return null;
         }
 
         //判断是否为包裹号，如果不是包裹号，先从箱号里边取值
-        if (!BusinessHelper.isPackageCode(packageCode)) {
+        if(!BusinessHelper.isPackageCode(packageCode)){
             Box box = boxService.findBoxByCode(packageCode);
-            if (box == null) {
+            if(box == null){
                 return null;
             }
             double length = box.getLength() == null ? 0 : box.getLength();
@@ -146,17 +144,17 @@ public class WaybillServiceImpl implements WaybillService {
             waybillPackageDTOTemp.setLength(length);
             waybillPackageDTOTemp.setWidth(width);
             waybillPackageDTOTemp.setHeight(height);
-            waybillPackageDTOTemp.setOriginalVolume(length * width * height);
-            waybillPackageDTOTemp.setVolume(length * width * height);
+            waybillPackageDTOTemp.setOriginalVolume(length*width*height);
+            waybillPackageDTOTemp.setVolume(length*width*height);
             return waybillPackageDTOTemp;
-        } else {
+        }else{
             String waybillCode = SerialRuleUtil.getWaybillCode(packageCode);
-            BaseEntity<List<PackOpeFlowDto>> dtoList = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
-            if (dtoList != null && dtoList.getResultCode() == 1) {
+            BaseEntity<List<PackOpeFlowDto>> dtoList= waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+            if(dtoList!=null && dtoList.getResultCode()==1){
                 List<PackOpeFlowDto> dto = dtoList.getData();
-                if (dto != null && !dto.isEmpty()) {
-                    for (PackOpeFlowDto pack : dto) {
-                        if (packageCode.equals(pack.getPackageCode())) {
+                if(dto!=null && !dto.isEmpty()) {
+                    for(PackOpeFlowDto pack :dto){
+                        if(packageCode.equals(pack.getPackageCode())){
                             WaybillPackageDTO waybillPackageDTOTemp = new WaybillPackageDTO();
                             waybillPackageDTOTemp.setWaybillCode(pack.getWaybillCode());
                             waybillPackageDTOTemp.setPackageCode(pack.getPackageCode());
@@ -166,8 +164,8 @@ public class WaybillServiceImpl implements WaybillService {
                             waybillPackageDTOTemp.setWidth(pack.getpWidth());
                             waybillPackageDTOTemp.setHeight(pack.getpHigh());
 
-                            waybillPackageDTOTemp.setOriginalVolume(pack.getpLength() * pack.getpWidth() * pack.getpHigh());
-                            waybillPackageDTOTemp.setVolume(pack.getpLength() * pack.getpWidth() * pack.getpHigh());
+                            waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
+                            waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
                             waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
                             waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
                             return waybillPackageDTOTemp;
