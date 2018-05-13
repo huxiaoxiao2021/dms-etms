@@ -133,8 +133,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             List<AbnormalUnknownWaybill> addList = Lists.newArrayList();
             //获取用户信息
             LoginContext loginContext = LoginContext.getLoginContext();
-//            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjxings");
+            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
             //站点区域查出来
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
@@ -361,8 +360,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
             //获取用户信息
             LoginContext loginContext = LoginContext.getLoginContext();
-//            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjxings");
+            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
             //站点区域查出来
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
