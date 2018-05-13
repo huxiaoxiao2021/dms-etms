@@ -18,4 +18,9 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * @return
      */
     public JdResponse<String> queryAndReport(AbnormalUnknownWaybill abnormalUnknownWaybill);
+
+    /**
+     * 二次上报
+     */
+    public JdResponse<String> submitAgain(String waybillCode);
 }

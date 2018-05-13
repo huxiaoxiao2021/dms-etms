@@ -3,7 +3,6 @@ $(function () {
     var deleteUrl = '/abnormal/abnormalUnknownWaybill/deleteByIds';
     var detailUrl = '/abnormal/abnormalUnknownWaybill/detail/';
     var queryUrl = '/abnormal/abnormalUnknownWaybill/listData';
-    var waybillCodes=null;//多运单查询用
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -68,7 +67,11 @@ $(function () {
                 var _k = this.id;
                 var _v = $(this).val();
                 if (_k && (_v != null && _v != '')) {
-                    params[_k] = _v;
+                    if(_k == 'startTime' || _k =='endTime'){
+                        params[_k]=new Date(_v).getTime();;
+                    }else{
+                        params[_k]=_v;
+                    }
                 }
             });
             return params;
@@ -116,7 +119,13 @@ $(function () {
             title: '提报人'
         }, {
             field: 'operation',
-            title: '操作'
+            title: '操作',
+            formatter : function(value,row,index){
+                if (row.orderNumber>0 && row.isReceipt==1){
+                    return   "<a href='#' onclick='do_submitAgain(\""
+                        + row.waybillCode + "\")'>再次上报</a>";
+                }
+            }
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refresh');
@@ -206,20 +215,26 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
-                params['isReport']=false;//不上报
+                params['isReport']=0;//不上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
                         if (res.data){
                             //批量查询
                             waybillCodes=res.data;
+                            $("#startTime").val(null);
+                            $("#endTime").val(null);
                         }
                         tableInit().refresh();
-                    } else {
+                        $('#dataEditDiv').hide();
+                        $('#dataTableDiv').show();
+                    }else if(res){
+                        alert(res.message);
+                        $('#dataEditDiv').hide();
+                        $('#dataTableDiv').show();
+                    }else {
                         alert('操作异常');
                     }
                 });
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
             });
             $('#btn_submit').click(function () {
                 var params = {};
@@ -230,21 +245,27 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
-                params['isReport']=true;//查询并上报
+                params['isReport']=1;//查询并上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
                         alert('操作成功');
                         if (res.data){
                             //批量查询
                             waybillCodes=res.data;
+                            $("#startTime").val(null);
+                            $("#endTime").val(null);
                         }
                         tableInit().refresh();
-                    } else {
+                        $('#dataEditDiv').hide();
+                        $('#dataTableDiv').show();
+                    } else if(res){
+                        alert(res.message);
+                        $('#dataEditDiv').hide();
+                        $('#dataTableDiv').show();
+                    }else {
                         alert('操作异常');
                     }
                 });
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
             });
             $('#btn_return').click(function () {
                 $('#dataEditDiv').hide();
@@ -253,7 +274,35 @@ $(function () {
         };
         return oInit;
     };
-
+    function initDateQuery(){
+        var startTime = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
+        var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+        $("#startTime").val(startTime);
+        $("#endTime").val(endTime);
+    }
+    initDateQuery();
     tableInit().init();
     pageInit().init();
 });
+var waybillCodes=null;//多运单查询用
+//再次提报
+function  do_submitAgain (waybillCode){
+    waybillCodes=null;
+    var url= '/abnormal/abnormalUnknownWaybill/submitAgain/'+waybillCode;
+    $.ajaxHelper.doGetSync(url,null, function (res) {
+        if (res && res.succeed) {
+            if (res.data){
+                //指定查询
+                waybillCodes=res.data;
+                $("#startTime").val(null);
+                $("#endTime").val(null);
+            }
+            alert(res.message);
+            $('#dataTable').bootstrapTable('refresh');
+        }else if(res){
+            alert(res.message);
+        }else {
+            alert('操作异常');
+        }
+    });
+}

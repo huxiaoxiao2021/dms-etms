@@ -22,4 +22,8 @@ public class AbnormalUnknownWaybillDaoImpl extends BaseDao<AbnormalUnknownWaybil
         return this.getSqlSession().selectList(this.getNameSpace() + ".queryHasDetailWaybillCode", waybillCodes);
     }
 
+    @Override
+    public AbnormalUnknownWaybill findLastReportByWaybillCode(String  waybillCode) {
+        return this.getSqlSession().selectOne(this.getNameSpace() + ".findLastReportByWaybillCode", waybillCode);
+    }
 }

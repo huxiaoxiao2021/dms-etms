@@ -94,7 +94,7 @@ public class AbnormalUnknownWaybill extends DbEntity {
     /**
      * 是否上报（请求时 发过来）
      */
-    private Boolean isReport;
+    private Integer isReport;
 
     /**
      * The set method for waybillCode.
@@ -356,11 +356,11 @@ public class AbnormalUnknownWaybill extends DbEntity {
         this.receiptFrom = receiptFrom;
     }
 
-    public Boolean getReport() {
+    public Integer getIsReport() {
         return isReport;
     }
 
-    public void setReport(Boolean report) {
-        isReport = report;
+    public void setIsReport(Integer isReport) {
+        this.isReport = isReport;
     }
 }

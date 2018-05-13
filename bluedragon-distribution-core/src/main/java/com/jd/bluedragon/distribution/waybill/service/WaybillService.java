@@ -41,20 +41,7 @@ public interface WaybillService {
     public WaybillPackageDTO getWaybillPackage(String packageCode);
 
     /**
-     * 根据运单号查询商品
-     *
-     * @param waybillCode
-     * @return
-     */
-    public List<Goods> getGoodsDataByWCode(String waybillCode);
-
-    /**
      * 查询运单是否存在
      */
     public Boolean queryWaybillIsExist(String waybillCode);
-
-    /**
-     * 查询订单号
-     */
-    public String getOrderCodeByWaybillCode(String waybillCode, boolean source);
 }

@@ -27,7 +27,7 @@
 
     <sql id="Base_Column_List">
 		id,waybill_code,order_number,trader_id,trader_name,dms_site_code,
-		dms_site_name,area_id,area_name,receipt_time,is_receipt,
+		dms_site_name,area_id,area_name,receipt_time,is_receipt,receipt_from,
 		receipt_content,create_user_code,create_user,create_user_name,create_time,
 		update_time,is_delete,ts
 	</sql>
@@ -69,6 +69,9 @@
             <if test="isReceipt != null">
                 is_receipt,
             </if>
+            <if test="receiptFrom != null">
+                receipt_from,
+            </if>
             <if test="receiptContent != null">
                 receipt_content,
             </if>
@@ -87,12 +90,9 @@
             <if test="updateTime != null">
                 update_time,
             </if>
-            <if test="isDelete != null">
-                is_delete,
-            </if>
-            <if test="ts != null">
-                ts
-            </if>
+            create_time,
+            is_delete,
+            ts
         </trim>
         )
         values
@@ -131,6 +131,9 @@
             <if test="isReceipt != null">
                 #{isReceipt,jdbcType=TINYINT},
             </if>
+            <if test="receiptFrom != null">
+                #{receiptFrom,jdbcType=VARCHAR},
+            </if>
             <if test="receiptContent != null">
                 #{receiptContent,jdbcType=VARCHAR},
             </if>
@@ -149,12 +152,9 @@
             <if test="updateTime != null">
                 #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="isDelete != null">
-                #{isDelete,jdbcType=TINYINT},
-            </if>
-            <if test="ts != null">
-                #{ts,jdbcType=TIMESTAMP}
-            </if>
+            now(),
+            0,
+            now()
         </trim>
         )
     </insert>
@@ -164,7 +164,7 @@
         (
         waybill_code,order_number,trader_id,trader_name,
         dms_site_code,dms_site_name,area_id,area_name,receipt_time,
-        is_receipt,receipt_content,create_user_code,create_user,create_user_name,
+        is_receipt,receipt_from,receipt_content,create_user_code,create_user,create_user_name,
         create_time,update_time,is_delete,ts
         )
         values
@@ -180,14 +180,15 @@
             #{item.areaName,jdbcType=VARCHAR},
             #{item.receiptTime,jdbcType=TIMESTAMP},
             #{item.isReceipt,jdbcType=TINYINT},
+            #{item.receiptFrom,jdbcType=VARCHAR},
             #{item.receiptContent,jdbcType=VARCHAR},
             #{item.createUserCode,jdbcType=INTEGER},
             #{item.createUser,jdbcType=VARCHAR},
             #{item.createUserName,jdbcType=VARCHAR},
-            #{item.createTime,jdbcType=TIMESTAMP},
+            now(),
             #{item.updateTime,jdbcType=TIMESTAMP},
-            #{item.isDelete,jdbcType=TINYINT},
-            #{item.ts,jdbcType=TIMESTAMP}
+            0,
+            now()
             )
         </foreach>
     </insert>
@@ -224,6 +225,9 @@
             </if>
             <if test="isReceipt != null">
                 is_receipt = #{isReceipt,jdbcType=TINYINT},
+            </if>
+            <if test="receiptFrom != null">
+                receipt_from = #{receiptFrom,jdbcType=VARCHAR},
             </if>
             <if test="receiptContent != null">
                 receipt_content = #{receiptContent,jdbcType=VARCHAR},
@@ -286,6 +290,16 @@
         order by ts desc
         limit 1
     </select>
+    <select id="findLastReportByWaybillCode" parameterType="com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill"
+            resultMap="AbnormalUnknownWaybill">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        abnormal_unknown_waybill
+        where waybill_code = #{waybillCode,jdbcType=BIGINT}
+        order by order_number desc
+        limit 1
+    </select>
 
     <sql id="Base_Condition_Sql">
         <if test="waybillCode != null">
@@ -297,6 +311,9 @@
                      separator="," close=")">
                 #{item}
             </foreach>
+        </if>
+        <if test="isReceipt != null">
+           and is_receipt = #{isReceipt,jdbcType=TINYINT},
         </if>
         <if test="startTime != null">
             AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
@@ -328,10 +345,10 @@
         limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
-    <select id="queryHasDetailWaybillCode" parameterType="java.util.List" resultMap="java.lang.String">
+    <select id="queryHasDetailWaybillCode" parameterType="java.util.List" resultType="java.lang.String">
         select  waybill_code from  abnormal_unknown_waybill where 1=1
         and waybill_code in
-        <foreach item="item" index="index" collection="waybillCodes" open="("
+        <foreach item="item" index="index" collection="list" open="("
                  separator="," close=")">
             #{item}
         </foreach>

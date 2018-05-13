@@ -57,6 +57,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
+        wChoice.setQueryWaybillC(true);
 
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
                 wChoice);
@@ -180,32 +181,10 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     /**
-     * 根据运单号查询商品
-     *
-     * @param waybillCode
-     * @return
-     */
-    @Override
-    public List<Goods> getGoodsDataByWCode(String waybillCode) {
-        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
-        BaseEntity<List<Goods>> baseEntity = waybillQueryApi.getGoodsDataByWCode(aWaybillCode);
-        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
-    }
-
-    /**
      * 查询运单是否存在
      */
     @Override
     public Boolean queryWaybillIsExist(String waybillCode) {
         return waybillQueryApi.queryExist(waybillCode);
-    }
-
-    /**
-     * 查询订单号
-     */
-    public String getOrderCodeByWaybillCode(String waybillCode, boolean source) {
-        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
-        BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(aWaybillCode, source);
-        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
 }

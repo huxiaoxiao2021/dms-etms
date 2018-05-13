@@ -55,6 +55,14 @@ public class AbnormalUnknownWaybillController {
         rest.setData(abnormalUnknownWaybillService.findById(id));
         return rest;
     }
+    /**
+     * 二次上报
+     */
+    @RequestMapping(value = "/submitAgain/{waybillCode}")
+    public @ResponseBody
+    JdResponse<String> submitAgain(@PathVariable("waybillCode") String waybillCode) {
+        return abnormalUnknownWaybillService.submitAgain(waybillCode);
+    }
 
     /**
      * 保存数据
@@ -107,6 +115,7 @@ public class AbnormalUnknownWaybillController {
         if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(",")) {
             String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(",");
             abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
+            abnormalUnknownWaybillCondition.setWaybillCode(null);
         }
         rest.setData(abnormalUnknownWaybillService.queryByPagerCondition(abnormalUnknownWaybillCondition));
         return rest.getData();
