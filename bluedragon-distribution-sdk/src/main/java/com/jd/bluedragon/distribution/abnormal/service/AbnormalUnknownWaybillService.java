@@ -23,4 +23,14 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * 二次上报
      */
     public JdResponse<String> submitAgain(String waybillCode);
+    /**
+     * 查最后一次上报
+     */
+    public AbnormalUnknownWaybill findLastReportByWaybillCode(String waybillCode);
+    /**
+     * 回写结果
+     * @param abnormalUnknownWaybill
+     * @return
+     */
+    public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill);
 }

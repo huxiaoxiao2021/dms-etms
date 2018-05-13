@@ -406,4 +406,21 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             return rest;
         }
     }
+
+    /**
+     * 查最后一次上报
+     */
+    public AbnormalUnknownWaybill findLastReportByWaybillCode(String waybillCode) {
+        return abnormalUnknownWaybillDao.findLastReportByWaybillCode(waybillCode);
+    }
+
+    /**
+     * 回写结果
+     *
+     * @param abnormalUnknownWaybill
+     * @return
+     */
+    public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill) {
+        return abnormalUnknownWaybillDao.updateReceive(abnormalUnknownWaybill);
+    }
 }

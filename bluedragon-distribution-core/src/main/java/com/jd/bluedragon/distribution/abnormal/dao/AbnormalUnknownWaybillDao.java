@@ -25,4 +25,11 @@ public interface AbnormalUnknownWaybillDao extends Dao<AbnormalUnknownWaybill> {
      * 查最后一次上报
      */
     public AbnormalUnknownWaybill findLastReportByWaybillCode(String waybillCode);
+
+    /**
+     * 回写结果
+     * @param abnormalUnknownWaybill
+     * @return
+     */
+    public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill);
 }

@@ -23,7 +23,12 @@ public class AbnormalUnknownWaybillDaoImpl extends BaseDao<AbnormalUnknownWaybil
     }
 
     @Override
-    public AbnormalUnknownWaybill findLastReportByWaybillCode(String  waybillCode) {
+    public AbnormalUnknownWaybill findLastReportByWaybillCode(String waybillCode) {
         return this.getSqlSession().selectOne(this.getNameSpace() + ".findLastReportByWaybillCode", waybillCode);
+    }
+
+    @Override
+    public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill) {
+        return this.getSqlSession().update(this.getNameSpace() + ".updateReceive", abnormalUnknownWaybill);
     }
 }
