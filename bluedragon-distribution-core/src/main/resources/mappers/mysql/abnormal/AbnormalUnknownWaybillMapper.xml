@@ -313,7 +313,7 @@
             </foreach>
         </if>
         <if test="isReceipt != null">
-           and is_receipt = #{isReceipt,jdbcType=TINYINT},
+           and is_receipt = #{isReceipt,jdbcType=TINYINT}
         </if>
         <if test="startTime != null">
             AND create_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}

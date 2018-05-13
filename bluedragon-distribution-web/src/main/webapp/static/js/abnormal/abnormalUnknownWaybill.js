@@ -229,8 +229,6 @@ $(function () {
                         $('#dataTableDiv').show();
                     }else if(res){
                         alert(res.message);
-                        $('#dataEditDiv').hide();
-                        $('#dataTableDiv').show();
                     }else {
                         alert('操作异常');
                     }
@@ -260,8 +258,6 @@ $(function () {
                         $('#dataTableDiv').show();
                     } else if(res){
                         alert(res.message);
-                        $('#dataEditDiv').hide();
-                        $('#dataTableDiv').show();
                     }else {
                         alert('操作异常');
                     }
@@ -281,6 +277,7 @@ $(function () {
         $("#endTime").val(endTime);
     }
     initDateQuery();
+    initSelect();
     tableInit().init();
     pageInit().init();
 });
@@ -303,6 +300,24 @@ function  do_submitAgain (waybillCode){
             alert(res.message);
         }else {
             alert('操作异常');
+        }
+    });
+}
+function initSelect(){
+    $("#query-form #isReceiptSelect").select2({
+        width: '100%',
+        placeholder:'请选择',
+        allowClear:true
+
+    });
+    $("#query-form #isReceiptSelect").val(null).trigger('change');
+    //ID 冲突。。select2插件有问题
+    $("#query-form #isReceiptSelect").on('change',function(e){
+        var v = $("#query-form #isReceiptSelect").val();
+        if(v == 0 || v == 1){
+            $("#query-form #isReceipt").val(v);
+        }else{
+            $("#query-form #isReceipt").val(null);
         }
     });
 }

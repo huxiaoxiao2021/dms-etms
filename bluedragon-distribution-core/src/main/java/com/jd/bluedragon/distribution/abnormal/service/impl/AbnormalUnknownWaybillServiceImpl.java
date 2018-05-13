@@ -94,6 +94,9 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //不存在的运单号集合
         StringBuilder noExistsWaybills = new StringBuilder();
         for (String waybillCodeInput : waybillcodes) {
+            if (StringUtils.isBlank(waybillCodeInput)){
+                continue;
+            }
             String waybillCode = waybillCodeInput.trim();
             if (BusinessHelper.isWaybillCode(waybillCode)) {
                 if (waybillService.queryWaybillIsExist(waybillCode)) {
@@ -238,8 +241,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             //明细内容： 商品名称*数量
             waybillDetail.append(goods.get(i).getGoodName() + " * " + goods.get(i).getGoodCount());
             if (i != goods.size() - 1) {
-                //除了最后一个，其他拼完加个换行
-                waybillDetail.append("\\n");
+                //除了最后一个，其他拼完加个,
+                waybillDetail.append(",");
             }
         }
         //设置回复系统
@@ -267,8 +270,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             //明细内容： 商品名称*数量
             waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + itemInfos.get(i).getRealOutstoreQty());
             if (i != itemInfos.size() - 1) {
-                //除了最后一个，其他拼完加个换行
-                waybillDetail.append("\\n");
+                //除了最后一个，其他拼完加个,
+                waybillDetail.append(",");
             }
         }
         //设置回复系统
