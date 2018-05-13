@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.utils.NumberHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -57,6 +58,29 @@ public class CenterServiceResource {
 			result = baseMajorManager.getBaseSiteBySiteId(siteId);
 		} catch (Exception e) {
 			logger.error("中心服务调用基础资料getBaseSiteBySiteId出错 siteId=" + siteId, e);
+		}
+		return result;
+	}
+
+    /**
+     * 根据用户的erp或者StaffID查询用户信息
+     * @param userCode
+     * @return
+     */
+	@GET
+	@Path("/centerService/getUserInfoByCode/{userCode}")
+	@GZIP
+	public BaseStaffSiteOrgDto getUserInfoByCode(@PathParam("userCode") String userCode) {
+		BaseStaffSiteOrgDto result = null;
+		try {
+		    if(NumberHelper.isNumber(userCode)){
+                result = baseMajorManager.getBaseStaffByStaffId(Integer.valueOf(userCode));
+            }else{
+                result = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+            }
+
+		} catch (Exception e) {
+			logger.error("中心服务调用基础资料getBaseStaffByErpNoCache出错 userCode=" + userCode, e);
 		}
 		return result;
 	}

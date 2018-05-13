@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分拣实操监控</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/operateMonitor/operateMonitor.js"></script>
+
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" >
+    <ol class="breadcrumb">
+        <li><a href="#">运维工具</a></li>
+        <li class="active">分拣实操监控查询</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-3">
+                            <div class="form-group" >
+                                <label class="control-label col-xs-4" for="box-code-input"> 包裹号 </label>
+                                <div class="col-xs-8 ">
+                                    <input type="text" id="packageCode" name="packageCode" class="form-control search-param " >
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>
