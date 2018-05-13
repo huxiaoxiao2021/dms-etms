@@ -142,7 +142,7 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
             om.setPackageCode(inspection.getPackageBarcode());
             om.setWaybillCode(inspection.getWaybillCode());
             om.setBoxCode(inspection.getBoxCode());
-            om.setCreateSiteCode(inspection.getReceiveSiteCode());
+            om.setCreateSiteCode(inspection.getCreateSiteCode());
             om.setReceiveSiteCode(inspection.getReceiveSiteCode());
             om.setCreateUser(inspection.getCreateUser());
             om.setOperateTime(inspection.getOperateTime());
