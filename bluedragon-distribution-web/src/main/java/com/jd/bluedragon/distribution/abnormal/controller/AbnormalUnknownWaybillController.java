@@ -55,6 +55,7 @@ public class AbnormalUnknownWaybillController {
         rest.setData(abnormalUnknownWaybillService.findById(id));
         return rest;
     }
+
     /**
      * 二次上报
      */
@@ -112,8 +113,8 @@ public class AbnormalUnknownWaybillController {
     public @ResponseBody
     PagerResult<AbnormalUnknownWaybill> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
         JdResponse<PagerResult<AbnormalUnknownWaybill>> rest = new JdResponse<PagerResult<AbnormalUnknownWaybill>>();
-        if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(",")) {
-            String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(",");
+        if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
+            String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
             abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
             abnormalUnknownWaybillCondition.setWaybillCode(null);
         }

@@ -19,6 +19,12 @@ public class AbnormalUnknownWaybill extends DbEntity {
     public static final String RECEIPT_FROM_B = "B";//商家回复
     public static final Integer ISRECEIPT_YES = 1;//已回复
     public static final Integer ISRECEIPT_NO = 0;//未回复
+    public static final Integer ORDERNUMBER_0 = 0;//第0次
+    public static final Integer ORDERNUMBER_1 = 1;//第一次
+    public static final Integer ORDERNUMBER_DEFAULT_MAX = 1;//默认最大次数
+    public static final Integer REPORT_YES = 1;//查询并上报
+    public static final String SEPARATOR_APPEND = ",";//分隔符
+    public static final String SEPARATOR_SPLIT = "\\n";//批量运单号分割
     /**
      * 运单号
      */

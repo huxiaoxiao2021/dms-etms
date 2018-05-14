@@ -46,8 +46,8 @@ $(function () {
             if (!temp) {
                 temp = {};
             }
-            if(waybillCodes){
-                temp.waybillCode=waybillCodes;
+            if (waybillCodes) {
+                temp.waybillCode = waybillCodes;
             }
             temp.offset = params.offset;
             temp.limit = params.limit;
@@ -67,10 +67,11 @@ $(function () {
                 var _k = this.id;
                 var _v = $(this).val();
                 if (_k && (_v != null && _v != '')) {
-                    if(_k == 'startTime' || _k =='endTime'){
-                        params[_k]=new Date(_v).getTime();;
-                    }else{
-                        params[_k]=_v;
+                    if (_k == 'startTime' || _k == 'endTime') {
+                        params[_k] = new Date(_v).getTime();
+                        ;
+                    } else {
+                        params[_k] = _v;
                     }
                 }
             });
@@ -96,22 +97,22 @@ $(function () {
         }, {
             field: 'isReceipt',
             title: '是否回复',
-            formatter : function(value,row,index){
-                return value==1?'是':'否';
+            formatter: function (value, row, index) {
+                return value == 1 ? '是' : '否';
             }
         }, {
             field: 'receiptTime',
             title: '回复时间',
-            formatter : function(value,row,index){
+            formatter: function (value, row, index) {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         }, {
             field: 'receiptFrom',
             title: '回复来源',
-            formatter : function(value,row,index){
-                return value=='E'?'ECLP系统':value=='W'?'运单系统':value=='B'?'商家回复':value;
+            formatter: function (value, row, index) {
+                return value == 'E' ? 'ECLP系统' : value == 'W' ? '运单系统' : value == 'B' ? '商家回复' : value;
             }
-        },{
+        }, {
             field: 'receiptContent',
             title: '托寄物'
         }, {
@@ -120,9 +121,9 @@ $(function () {
         }, {
             field: 'operation',
             title: '操作',
-            formatter : function(value,row,index){
-                if (row.orderNumber>0 && row.isReceipt==1){
-                    return   "<a href='#' onclick='do_submitAgain(\""
+            formatter: function (value, row, index) {
+                if (row.orderNumber > 0 && row.isReceipt == 1) {
+                    return "<a href='#' onclick='do_submitAgain(\""
                         + row.waybillCode + "\")'>再次上报</a>";
                 }
             }
@@ -136,7 +137,8 @@ $(function () {
         var oInit = new Object();
         oInit.init = function () {
             $('#dataEditDiv').hide();
-            /*起始时间*/ /*截止时间*/
+            /*起始时间*/
+            /*截止时间*/
             $.datePicker.createNew({
                 elem: '#startTime',
                 theme: '#3f92ea',
@@ -144,7 +146,7 @@ $(function () {
                 min: -60,//最近30天内
                 max: 0,//最近30天内
                 btns: ['now', 'confirm'],
-                done: function(value, date, endDate){
+                done: function (value, date, endDate) {
                     /*重置表单验证状态*/
                 }
             });
@@ -155,12 +157,12 @@ $(function () {
                 min: -60,//最近30天内
                 max: 0,//最近30天内
                 btns: ['now', 'confirm'],
-                done: function(value, date, endDate){
+                done: function (value, date, endDate) {
                     /*重置表单验证状态*/
                 }
             });
             $('#btn_query').click(function () {
-                waybillCodes=null;//清空批量查询
+                waybillCodes = null;//清空批量查询
                 tableInit().refresh();
             });
             $('#btn_add').click(function () {
@@ -238,21 +240,21 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
-                params['isReport']=0;//不上报
+                params['isReport'] = 0;//不上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
-                        if (res.data){
+                        if (res.data) {
                             //批量查询
-                            waybillCodes=res.data;
+                            waybillCodes = res.data;
                             $("#startTime").val(null);
                             $("#endTime").val(null);
                         }
                         tableInit().refresh();
                         $('#dataEditDiv').hide();
                         $('#dataTableDiv').show();
-                    }else if(res){
+                    } else if (res) {
                         alert(res.message);
-                    }else {
+                    } else {
                         alert('操作异常');
                     }
                 });
@@ -266,22 +268,22 @@ $(function () {
                         params[_k] = _v;
                     }
                 });
-                params['isReport']=1;//查询并上报
+                params['isReport'] = 1;//查询并上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
                         alert('操作成功');
-                        if (res.data){
+                        if (res.data) {
                             //批量查询
-                           // waybillCodes=res.data;
+                            waybillCodes = res.data;
                             $("#startTime").val(null);
                             $("#endTime").val(null);
                         }
                         tableInit().refresh();
                         $('#dataEditDiv').hide();
                         $('#dataTableDiv').show();
-                    } else if(res){
+                    } else if (res) {
                         alert(res.message);
-                    }else {
+                    } else {
                         alert('操作异常');
                     }
                 });
@@ -293,53 +295,56 @@ $(function () {
         };
         return oInit;
     };
-    function initDateQuery(){
+
+    function initDateQuery() {
         var startTime = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
-        var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+        var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1));
         $("#startTime").val(startTime);
         $("#endTime").val(endTime);
     }
-   // initDateQuery();
+
+    // initDateQuery();
     initSelect();
     tableInit().init();
     pageInit().init();
 });
-var waybillCodes=null;//多运单查询用
+var waybillCodes = null;//多运单查询用
 //再次提报
-function  do_submitAgain (waybillCode){
-    waybillCodes=null;
-    var url= '/abnormal/abnormalUnknownWaybill/submitAgain/'+waybillCode;
-    $.ajaxHelper.doGetSync(url,null, function (res) {
+function do_submitAgain(waybillCode) {
+    waybillCodes = null;
+    var url = '/abnormal/abnormalUnknownWaybill/submitAgain/' + waybillCode;
+    $.ajaxHelper.doGetSync(url, null, function (res) {
         if (res && res.succeed) {
-            if (res.data){
+            if (res.data) {
                 //指定查询
-                //waybillCodes=res.data;
+                waybillCodes = res.data;
                 $("#startTime").val(null);
                 $("#endTime").val(null);
             }
             alert(res.message);
             $('#dataTable').bootstrapTable('refresh');
-        }else if(res){
+        } else if (res) {
             alert(res.message);
-        }else {
+        } else {
             alert('操作异常');
         }
     });
 }
-function initSelect(){
+
+function initSelect() {
     $("#query-form #isReceiptSelect").select2({
         width: '100%',
-        placeholder:'请选择',
-        allowClear:true
+        placeholder: '请选择',
+        allowClear: true
 
     });
     $("#query-form #isReceiptSelect").val(null).trigger('change');
     //ID 冲突。。select2插件有问题
-    $("#query-form #isReceiptSelect").on('change',function(e){
+    $("#query-form #isReceiptSelect").on('change', function (e) {
         var v = $("#query-form #isReceiptSelect").val();
-        if(v == 0 || v == 1){
+        if (v == 0 || v == 1) {
             $("#query-form #isReceipt").val(v);
-        }else{
+        } else {
             $("#query-form #isReceipt").val(null);
         }
     });

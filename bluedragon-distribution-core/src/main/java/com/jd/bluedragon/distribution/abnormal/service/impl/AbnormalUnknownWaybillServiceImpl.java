@@ -85,7 +85,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             return rest;
         }
         //传入的运单号处理
-        String[] waybillcodes = StringUtils.trim(request.getWaybillCode()).split("\\n");
+        String[] waybillcodes = StringUtils.trim(request.getWaybillCode()).split(AbnormalUnknownWaybill.SEPARATOR_SPLIT);
         List<String> waybillList = Lists.newArrayList();
         //不合法的运单号
         StringBuilder notWaybillCodes = new StringBuilder();
@@ -106,16 +106,16 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                     //暂存起来
                     bigWaybillDtoMap.put(waybillCode, bigWaybillDto);
                     //如果要上报  必须有商家
-                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName()) && 1 == request.getIsReport()) {
-                        noTraderWaybills.append(waybillCode).append(",");
+                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName()) && AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
+                        noTraderWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
                     } else {
                         waybillList.add(waybillCode);
                     }
                 } else {
-                    noExistsWaybills.append(waybillCode).append(",");
+                    noExistsWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
                 }
             } else {
-                notWaybillCodes.append(waybillCode).append(",");
+                notWaybillCodes.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
             }
         }
         if (notWaybillCodes.length() > 0) {
@@ -223,8 +223,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         }
         //第三步 发B商家请求
         //查询运单
-        if (1 == request.getIsReport()) {
-            queryDetailForB(waybillCode, abnormalUnknownWaybill, 1, bigWaybillDto.getWaybill());
+        if (AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
+            queryDetailForB(waybillCode, abnormalUnknownWaybill, AbnormalUnknownWaybill.ORDERNUMBER_1, bigWaybillDto.getWaybill());
             addList.add(abnormalUnknownWaybill);//后面将插入表中
             hasDetailWaybillCodes.add(waybillCode);//前台用
         }
@@ -278,7 +278,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //设置明细
         abnormalUnknownWaybill.setReceiptContent(waybillDetail.toString());
         //设计次数
-        abnormalUnknownWaybill.setOrderNumber(0);
+        abnormalUnknownWaybill.setOrderNumber(AbnormalUnknownWaybill.ORDERNUMBER_0);
         //回复时间
         abnormalUnknownWaybill.setReceiptTime(new Date());
 
@@ -293,7 +293,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     private void queryEclpDetails(List<ItemInfo> itemInfos, AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail) {
         for (int i = 0; i < itemInfos.size(); i++) {
-            //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty
+            //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty  eclp负责人宫体雷
             waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + (itemInfos.get(i).getDeptRealOutQty() == null ? itemInfos.get(i).getRealOutstoreQty() : itemInfos.get(i).getDeptRealOutQty()));
             if (i != itemInfos.size() - 1) {
                 //除了最后一个，其他拼完加个,
@@ -307,7 +307,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //设置明细
         abnormalUnknownWaybill.setReceiptContent(waybillDetail.toString());
         //设计次数
-        abnormalUnknownWaybill.setOrderNumber(0);
+        abnormalUnknownWaybill.setOrderNumber(AbnormalUnknownWaybill.ORDERNUMBER_0);
         //回复时间
         abnormalUnknownWaybill.setReceiptTime(new Date());
     }
@@ -344,7 +344,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     @Cache(key = "AbnormalUnknownWaybillServiceImpl.getReportTimes", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     public int getReportTimes() {
-        final int defaultTimes = 2;//默认是2次
+        final int defaultTimes = AbnormalUnknownWaybill.ORDERNUMBER_DEFAULT_MAX;//默认是2次
         List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_ABNORMAL_UNKNOWN_REPORT_TIMES);
         if (sysConfigs != null && !sysConfigs.isEmpty()) {
             String contents = sysConfigs.get(0).getConfigContent();
@@ -371,12 +371,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 logger.warn(waybillCode + "该运单还未上报过");
                 return rest;
             }
-            if (abnormalUnknownWaybill.getOrderNumber() == 0) {
+            if (abnormalUnknownWaybill.getOrderNumber() == AbnormalUnknownWaybill.ORDERNUMBER_0) {
                 rest.toFail(waybillCode + "已由系统回复，不允许上报");
                 logger.warn(waybillCode + "已由系统回复，不允许上报");
                 return rest;
             }
-            if (abnormalUnknownWaybill.getIsReceipt() == 0) {
+            if (abnormalUnknownWaybill.getIsReceipt() == AbnormalUnknownWaybill.ISRECEIPT_NO) {
                 rest.toFail(waybillCode + "第" + abnormalUnknownWaybill.getOrderNumber() + "次上报还未回复，不允许再次上报");
                 logger.warn(waybillCode + "第" + abnormalUnknownWaybill.getOrderNumber() + "次上报还未回复，不允许再次上报");
                 return rest;
