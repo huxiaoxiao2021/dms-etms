@@ -481,6 +481,11 @@ public class Constants {
 
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
+     */
+    public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
     /**
      * 三无寄托物核实 上报次数上限
      */
@@ -550,4 +555,9 @@ public class Constants {
      * 分拣系统标识-DMS，调用外部系统接口需要传递
      */
     public static final String SYSTEM_CODE_OWON= "DMS";
+
+    /**
+     * 龙门架校验调整天数
+     */
+    public static final Integer GANTRY_CHECK_DAYS= -30;
 }

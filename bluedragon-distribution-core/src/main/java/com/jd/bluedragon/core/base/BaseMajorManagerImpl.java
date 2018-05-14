@@ -12,15 +12,13 @@ import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ql.basic.ws.BasicSiteQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -51,6 +49,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("basicTraderAPI")
     private BasicTraderAPI basicTraderAPI;
+
+    @Autowired
+    @Qualifier("basicSiteQueryWS")
+    BasicSiteQueryWS basicSiteQueryWS;
 
 //    @Autowired
 //    @Qualifier("basicSecondaryWS")
@@ -571,4 +573,22 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return allSite;
     }
 
+    /**
+     * 根据站点ID查询站点和扩展信息，返回值包含归属站点ID和名称（belongCode,belongName）
+     * @param sitecode 三方-合作站点ID
+     * @return
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getPartnerSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getPartnerSiteBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Integer getPartnerSiteBySiteId(Integer sitecode){
+        SiteExtensionDTO result = basicSiteQueryWS.getSiteExtensionBySiteId(sitecode);
+
+        if(result == null || result.getBelongCode() == null || result.getBelongCode() <= 0){
+            return -1;
+        }
+
+        return result.getBelongCode();
+    }
 }

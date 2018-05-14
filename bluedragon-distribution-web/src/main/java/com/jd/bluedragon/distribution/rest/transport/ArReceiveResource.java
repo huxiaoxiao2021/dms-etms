@@ -11,6 +11,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import com.jd.ql.dms.common.domain.ListResponse;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class ArReceiveResource {
+public class ArReceiveResource implements DmsArReceiveService {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
@@ -47,7 +48,7 @@ public class ArReceiveResource {
     
     @Autowired
     private ArReceiveService arReceiveService;
-    
+
 
     /**
      * 空铁项目查找24小时内的待提货信息
@@ -56,6 +57,7 @@ public class ArReceiveResource {
      */
     @POST
     @Path("/arreceive/getARWaitReceive")
+    @Override
     public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
@@ -146,6 +148,7 @@ public class ArReceiveResource {
     @POST
     @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
+    @Override
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
     	JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
     	if(StringHelper.isEmpty(barcode)){
