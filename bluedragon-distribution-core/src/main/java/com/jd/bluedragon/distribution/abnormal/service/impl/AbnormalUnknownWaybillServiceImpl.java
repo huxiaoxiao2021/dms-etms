@@ -103,7 +103,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             if (BusinessHelper.isWaybillCode(waybillCode)) {
                 BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
-                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName())) {
+                    //如果要上报  必须有商家
+                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName()) && 1 == request.getIsReport()) {
                         noTraderWaybills.append(waybillCode).append(",");
                     } else {
                         waybillList.add(waybillCode);
@@ -318,7 +319,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         abnormalUnknownWaybill.setIsDelete(0);
         //商家信息
         abnormalUnknownWaybill.setTraderId(waybill.getBusiId());
-        abnormalUnknownWaybill.setTraderName(waybill.getBuyerName());
+        abnormalUnknownWaybill.setTraderName(waybill.getBusiName());
         return abnormalUnknownWaybill;
     }
 
