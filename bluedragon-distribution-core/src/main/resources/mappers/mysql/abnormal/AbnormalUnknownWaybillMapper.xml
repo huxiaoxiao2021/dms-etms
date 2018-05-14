@@ -371,7 +371,7 @@
             <if test="updateTime != null">
                 update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
-                ts =now
+                ts =now()
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
