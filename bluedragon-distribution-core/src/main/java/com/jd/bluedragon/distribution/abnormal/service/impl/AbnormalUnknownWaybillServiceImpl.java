@@ -224,7 +224,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //第三步 发B商家请求
         //查询运单
         if (1 == request.getIsReport()) {
-            queryDetailForB(waybillCode, abnormalUnknownWaybill, 1);
+            queryDetailForB(waybillCode, abnormalUnknownWaybill, 1, bigWaybillDto.getWaybill());
             addList.add(abnormalUnknownWaybill);//后面将插入表中
             hasDetailWaybillCodes.add(waybillCode);//前台用
         }
@@ -240,11 +240,13 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      * @param times
      * @return
      */
-    private boolean queryDetailForB(String waybillCode, AbnormalUnknownWaybill abnormalUnknownWaybill1Report, Integer times) {
+    private boolean queryDetailForB(String waybillCode, AbnormalUnknownWaybill abnormalUnknownWaybill1Report, Integer times, Waybill waybill) {
         //发mq 给异常系统
         AbnormalUnknownWaybillRequest abnormalUnknownWaybillRequest = new AbnormalUnknownWaybillRequest();
         abnormalUnknownWaybillRequest.setWaybillCode(waybillCode);
         abnormalUnknownWaybillRequest.setReportNumber(times);
+        abnormalUnknownWaybillRequest.setTraderName(waybill.getBusiName());
+        abnormalUnknownWaybillRequest.setTraderId(waybill.getBusiId());
         abnormalEclpSendProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(abnormalUnknownWaybillRequest));
         logger.info("三无寄托物核实B商家申请：" + JsonHelper.toJson(abnormalUnknownWaybillRequest));
         abnormalUnknownWaybill1Report.setIsReceipt(AbnormalUnknownWaybill.ISRECEIPT_NO);
@@ -412,7 +414,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             //构建实体
             AbnormalUnknownWaybill abnormalUnknownWaybill1New = buildAbnormalUnknownWaybillFactory(userDto, waybillCode, areaNode, bigWaybillDto.getWaybill());
             //发mq
-            queryDetailForB(waybillCode, abnormalUnknownWaybill1New, abnormalUnknownWaybill.getOrderNumber() + 1);
+            queryDetailForB(waybillCode, abnormalUnknownWaybill1New, abnormalUnknownWaybill.getOrderNumber() + 1, bigWaybillDto.getWaybill());
             //插入
             if (abnormalUnknownWaybillDao.insert(abnormalUnknownWaybill1New)) {
                 rest.setData(waybillCode);
