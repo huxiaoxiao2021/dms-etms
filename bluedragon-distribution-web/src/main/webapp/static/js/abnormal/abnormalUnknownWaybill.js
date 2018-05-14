@@ -272,7 +272,7 @@ $(function () {
                         alert('操作成功');
                         if (res.data){
                             //批量查询
-                            waybillCodes=res.data;
+                           // waybillCodes=res.data;
                             $("#startTime").val(null);
                             $("#endTime").val(null);
                         }
@@ -313,7 +313,7 @@ function  do_submitAgain (waybillCode){
         if (res && res.succeed) {
             if (res.data){
                 //指定查询
-                waybillCodes=res.data;
+                //waybillCodes=res.data;
                 $("#startTime").val(null);
                 $("#endTime").val(null);
             }
