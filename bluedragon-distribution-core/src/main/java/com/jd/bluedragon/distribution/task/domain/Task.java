@@ -708,7 +708,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 获取当前任务 任务类型
      * @return
      */
-	public  String getTaskNameByTaskType(){
+	public  String findTaskNameByTaskType(){
 
         if(TASK_TYPE_POP.equals(type)){
             return "PopReceiveTaskN";
@@ -839,12 +839,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 未获取到任务类型队列数量或者异常时 返回1
      * @return
      */
-    public int getTaskQueueSize(Map<String, Integer> allQueueSize){
+    public int findTaskQueueSize(Map<String, Integer> allQueueSize){
         CallerInfo info = null;
         int queueSize = 1;
 	    try{
             info = Profiler.registerInfo( "DMSWEB.Task.getTaskQueueSize",false, true);
-            String taskType = getTaskNameByTaskType();
+            String taskType = findTaskNameByTaskType();
             if(StringUtils.isNotBlank(taskType) && allQueueSize.containsKey(taskType)){
                 queueSize =  allQueueSize.get(taskType);
             }
