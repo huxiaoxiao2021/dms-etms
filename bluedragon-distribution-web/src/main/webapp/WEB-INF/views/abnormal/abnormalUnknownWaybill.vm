@@ -108,7 +108,7 @@
                 <div class="col-xs-4">
                 </div>
                 <div class="form-group">
-                	<button id="btn_queryOnly" type="button" class="btn btn-primary" data-toggle="button">查询商品名称</button>
+                	<button id="btn_queryOnly" type="button" class="btn btn-primary" data-toggle="button">查询商品明细</button>
                 	<button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">查询并上报</button>
                 	<button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
                 </div>

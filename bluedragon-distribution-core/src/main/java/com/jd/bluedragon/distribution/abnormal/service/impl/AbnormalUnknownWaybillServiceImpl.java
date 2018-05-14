@@ -93,14 +93,21 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         StringBuilder notWaybillCodes = new StringBuilder();
         //不存在的运单号集合
         StringBuilder noExistsWaybills = new StringBuilder();
+        //没商家
+        StringBuilder noTraderWaybills = new StringBuilder();
         for (String waybillCodeInput : waybillcodes) {
-            if (StringUtils.isBlank(waybillCodeInput)){
+            if (StringUtils.isBlank(waybillCodeInput)) {
                 continue;
             }
             String waybillCode = waybillCodeInput.trim();
             if (BusinessHelper.isWaybillCode(waybillCode)) {
-                if (waybillService.queryWaybillIsExist(waybillCode)) {
-                    waybillList.add(waybillCode);
+                BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+                if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
+                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName())) {
+                        noTraderWaybills.append(waybillCode).append(",");
+                    } else {
+                        waybillList.add(waybillCode);
+                    }
                 } else {
                     noExistsWaybills.append(waybillCode).append(",");
                 }
@@ -109,11 +116,15 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
         }
         if (notWaybillCodes.length() > 0) {
-            rest.toFail("以下运单号不合法" + notWaybillCodes + "请检查！");
+            rest.toFail("以下运单号不合法:" + notWaybillCodes + "请检查！");
+            return rest;
+        }
+        if (noTraderWaybills.length() > 0) {
+            rest.toFail("以下运单号未找到商家:" + notWaybillCodes + "请检查！");
             return rest;
         }
         if (noExistsWaybills.length() > 0) {
-            rest.toFail("以下运单号不存在" + noExistsWaybills + "请检查！");
+            rest.toFail("以下运单号不存在:" + noExistsWaybills + "请检查！");
             return rest;
         }
         if (waybillList.size() == 0) {
@@ -220,7 +231,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //发mq 给异常系统
         AbnormalUnknownWaybillRequest abnormalUnknownWaybillRequest = new AbnormalUnknownWaybillRequest();
         abnormalUnknownWaybillRequest.setWaybillCode(waybillCode);
-        abnormalUnknownWaybillRequest.setReportNumber(times.toString());
+        abnormalUnknownWaybillRequest.setReportNumber(times);
         abnormalEclpSendProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(abnormalUnknownWaybillRequest));
         logger.debug("三无寄托物核实申请：" + JsonHelper.toJson(abnormalUnknownWaybillRequest));
         abnormalUnknownWaybill1Report.setIsReceipt(AbnormalUnknownWaybill.ISRECEIPT_NO);

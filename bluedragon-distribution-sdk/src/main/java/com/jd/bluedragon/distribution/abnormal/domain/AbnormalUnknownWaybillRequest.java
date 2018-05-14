@@ -13,7 +13,21 @@ public class AbnormalUnknownWaybillRequest {
     /**
      * 上报次数
      */
-    private String reportNumber;
+    private Integer reportNumber;
+
+    /**
+     * 商家id
+     *
+     * @return
+     */
+    private Integer traderId;
+
+    /**
+     * 商品名称
+     *
+     * @return
+     */
+    private String traderName;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -23,11 +37,27 @@ public class AbnormalUnknownWaybillRequest {
         this.waybillCode = waybillCode;
     }
 
-    public String getReportNumber() {
+    public Integer getReportNumber() {
         return reportNumber;
     }
 
-    public void setReportNumber(String reportNumber) {
+    public void setReportNumber(Integer reportNumber) {
         this.reportNumber = reportNumber;
+    }
+
+    public Integer getTraderId() {
+        return traderId;
+    }
+
+    public void setTraderId(Integer traderId) {
+        this.traderId = traderId;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public void setTraderName(String traderName) {
+        this.traderName = traderName;
     }
 }

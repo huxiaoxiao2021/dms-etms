@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.consumer.abnormalEclp;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillResponse;
@@ -54,7 +53,7 @@ public class dmsAbnormalUnknownConsumer extends MessageBaseConsumer {
             this.logger.warn("dmsAbnormalUnknownConsumer consume : 回复内容不能为空！");
             return;
         }
-        if (StringUtils.isEmpty(abnormalUnknownWaybillResponse.getReportNumber())) {
+        if (abnormalUnknownWaybillResponse.getReportNumber() == null) {
             this.logger.warn("dmsAbnormalUnknownConsumer consume : 回复次数不能为空！");
             return;
         }
@@ -69,16 +68,16 @@ public class dmsAbnormalUnknownConsumer extends MessageBaseConsumer {
         if (abnormalUnknownWaybill.getIsReceipt() == 1) {
             logger.warn(message.getText() + "不存在未回复的上报申请");
         }
-        Date now=new Date();
-        if (abnormalUnknownWaybill.getIsReceipt() == 0 && abnormalUnknownWaybill.getOrderNumber().equals(Integer.parseInt(abnormalUnknownWaybillResponse.getReportNumber()))) {
+        Date now = new Date();
+        if (abnormalUnknownWaybill.getIsReceipt() == 0 && abnormalUnknownWaybill.getOrderNumber().equals(abnormalUnknownWaybillResponse.getReportNumber())) {
             abnormalUnknownWaybill.setReceiptTime(now);
             abnormalUnknownWaybill.setUpdateTime(now);
             abnormalUnknownWaybill.setIsReceipt(1);
             abnormalUnknownWaybill.setReceiptContent(abnormalUnknownWaybillResponse.getContent());
             try {
                 abnormalUnknownWaybillService.updateReceive(abnormalUnknownWaybill);
-            }catch (Exception e){
-                logger.error("dmsAbnormalUnknownConsumer回写失败",e);
+            } catch (Exception e) {
+                logger.error("dmsAbnormalUnknownConsumer回写失败", e);
             }
         }
 

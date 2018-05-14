@@ -17,7 +17,7 @@ public class AbnormalUnknownWaybillResponse {
     /**
      * 回复次数
      */
-    private String reportNumber;
+    private Integer reportNumber;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -35,11 +35,11 @@ public class AbnormalUnknownWaybillResponse {
         this.content = content;
     }
 
-    public String getReportNumber() {
+    public Integer getReportNumber() {
         return reportNumber;
     }
 
-    public void setReportNumber(String reportNumber) {
+    public void setReportNumber(Integer reportNumber) {
         this.reportNumber = reportNumber;
     }
 }

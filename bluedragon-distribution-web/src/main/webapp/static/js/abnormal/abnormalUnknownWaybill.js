@@ -107,13 +107,13 @@ $(function () {
             }
         }, {
             field: 'receiptFrom',
-            title: '回复系统',
+            title: '回复来源',
             formatter : function(value,row,index){
                 return value=='E'?'ECLP系统':value=='W'?'运单系统':value=='B'?'商家回复':value;
             }
         },{
             field: 'receiptContent',
-            title: '回复内容'
+            title: '托寄物'
         }, {
             field: 'createUser',
             title: '提报人'
@@ -136,6 +136,29 @@ $(function () {
         var oInit = new Object();
         oInit.init = function () {
             $('#dataEditDiv').hide();
+            /*起始时间*/ /*截止时间*/
+            $.datePicker.createNew({
+                elem: '#startTime',
+                theme: '#3f92ea',
+                type: 'datetime',
+                min: -60,//最近30天内
+                max: 0,//最近30天内
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#endTime',
+                theme: '#3f92ea',
+                type: 'datetime',
+                min: -60,//最近30天内
+                max: 0,//最近30天内
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
             $('#btn_query').click(function () {
                 waybillCodes=null;//清空批量查询
                 tableInit().refresh();
@@ -276,7 +299,7 @@ $(function () {
         $("#startTime").val(startTime);
         $("#endTime").val(endTime);
     }
-    initDateQuery();
+   // initDateQuery();
     initSelect();
     tableInit().init();
     pageInit().init();
