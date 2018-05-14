@@ -218,7 +218,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 return;
             }
             logger.info(waybillCode + "三无托寄物核实，eclp没查到");
-        }else{
+        } else {
             logger.info(waybillCode + "不是eclp运单");
         }
         //第三步 发B商家请求
@@ -291,8 +291,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     private void queryEclpDetails(List<ItemInfo> itemInfos, AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail) {
         for (int i = 0; i < itemInfos.size(); i++) {
-            //明细内容： 商品名称*数量
-            waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + itemInfos.get(i).getRealOutstoreQty());
+            //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty
+            waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + itemInfos.get(i).getDeptRealOutQty() == null ? itemInfos.get(i).getRealOutstoreQty() : itemInfos.get(i).getDeptRealOutQty() == null);
             if (i != itemInfos.size() - 1) {
                 //除了最后一个，其他拼完加个,
                 waybillDetail.append(",");
