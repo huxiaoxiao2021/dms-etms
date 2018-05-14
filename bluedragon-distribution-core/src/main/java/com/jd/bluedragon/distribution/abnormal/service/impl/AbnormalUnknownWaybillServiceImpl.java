@@ -294,7 +294,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
     private void queryEclpDetails(List<ItemInfo> itemInfos, AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail) {
         for (int i = 0; i < itemInfos.size(); i++) {
             //明细内容： 商品名称*数量 优先取deptRealOutQty，如果该字段为空取realOutstoreQty
-            waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + itemInfos.get(i).getDeptRealOutQty() == null ? itemInfos.get(i).getRealOutstoreQty() : itemInfos.get(i).getDeptRealOutQty() == null);
+            waybillDetail.append(itemInfos.get(i).getGoodsName() + " * " + (itemInfos.get(i).getDeptRealOutQty() == null ? itemInfos.get(i).getRealOutstoreQty() : itemInfos.get(i).getDeptRealOutQty()));
             if (i != itemInfos.size() - 1) {
                 //除了最后一个，其他拼完加个,
                 waybillDetail.append(",");
