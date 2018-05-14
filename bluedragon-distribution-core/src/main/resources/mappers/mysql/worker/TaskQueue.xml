@@ -25,4 +25,10 @@
     <select id="selectQueueCount" parameterType="String" resultType="int">
         SELECT count(1) FROM PAMIRS_SCHEDULE_QUEUE WHERE task_type=#{value,jdbcType=VARCHAR}
     </select>
+
+    <select id="findAllQueueSize" resultType="map">
+
+      select task_type as taskType ,count(*) as queueSize from pamirs_schedule_queue where base_task_type is null  group by task_type
+
+    </select>
 </mapper>

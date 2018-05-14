@@ -16,6 +16,11 @@ public class NumberHelperTest {
 		numbers.add(-1);
 		numbers.add(-1.0d);
 		numbers.add(-0.0d);
+		numbers.add(-0.01d);
+		numbers.add(0.01d);
+		numbers.add(new Float(1));
+		numbers.add(new Float(-0.01));
+		numbers.add(new Float(-1));
 		for(Number number:numbers){
 			boolean rest = NumberHelper.gt0(number);
 			String msg = ""+number+":"+rest;
