@@ -30,7 +30,7 @@ public class TBTaskQueueServiceImpl implements TBTaskQueueService {
     }
 
     @Override
-    @Cache(key = "TBTaskQueueServiceImpl.findAllQueueSize", memoryEnable = false,
+    @Cache(key = "TBTaskQueueServiceImpl.findAllQueueSize", memoryEnable = true,memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public Map<String,Integer> findAllQueueSize(){
         Map<String,Integer> queueSizeMap = new HashMap<String, Integer>();

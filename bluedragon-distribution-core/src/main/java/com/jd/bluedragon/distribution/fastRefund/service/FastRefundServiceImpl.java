@@ -1,5 +1,15 @@
 package com.jd.bluedragon.distribution.fastRefund.service;
 
+import java.util.Date;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.FastRefundRequest;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefund;
@@ -10,28 +20,18 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.external.service.RefundServiceManager;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.fa.orderrefund.RefundWebService;
 import com.jd.fa.orderrefund.XmlMessage;
 import com.jd.fa.refundService.CustomerRequestNew;
-import com.jd.fa.refundService.RefundServiceNewSoap;
 import com.jd.fa.refundService.ValidRequest;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Date;
 
 @Service
 public class FastRefundServiceImpl implements FastRefundService{
@@ -44,10 +44,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 	WaybillService waybillService;
 	
 	@Autowired
-	RefundWebService refundWebService;
-	
-	@Autowired
-	RefundServiceNewSoap refundServiceSoap;
+	RefundServiceManager refundServiceManager;
 	
     @Autowired
     private OperationLogService operationLogService;
@@ -61,8 +58,6 @@ public class FastRefundServiceImpl implements FastRefundService{
 	
 	private static final Log logger = LogFactory.getLog(FastRefundServiceImpl.class);
 	
-	private static final String MQ_KEY = "orbrefundRq";
-
     @JProfiler(jKey = "DMSWEB.FastRefundServiceImpl.execRefundMq.fastRefundRequest", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public String execRefund(FastRefundRequest fastRefundRequest) throws Exception{
@@ -212,7 +207,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 		
 		try{
 		
-			resultXml = refundWebService.sendXmlMessage(xmlMessage);
+			resultXml = refundServiceManager.sendXmlMessage(xmlMessage);
 
 		}catch(Exception e){
 			logger.error("FastRefundServiceImpl.fastRefundByGoods waybillCode[" + waybillCode + "] 调用财务接口，xml[" + xmlMessage + "]",e);
@@ -264,7 +259,7 @@ public class FastRefundServiceImpl implements FastRefundService{
 			
 			try{
 			
-				ValidRequest validRequest = refundServiceSoap.innerSystemApplyForCheckWithType(customer, businessType);
+				ValidRequest validRequest = refundServiceManager.innerSystemApplyForCheckWithType(customer, businessType);
 				
 				logger.info("FastRefundServiceImpl.fastRefundByMoney 调用财务接口完毕，result.getFlag() [" + validRequest.isIsValid() + "] result.getErrorCode() [" + validRequest.getMessage() + "]");
 				
@@ -363,7 +358,6 @@ public class FastRefundServiceImpl implements FastRefundService{
         try {
 			orbrefundRqMQ.send(waybillCode,json);
 		} catch (JMQException e) {
-			// TODO Auto-generated catch block
 			logger.error("orbrefundRqMQ send error", e);
 		}
     	logger.info("FastRefundServiceImpl.execRefund(mq) 调用FXM FINISH");

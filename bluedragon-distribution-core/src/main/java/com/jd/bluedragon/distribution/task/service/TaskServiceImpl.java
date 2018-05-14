@@ -99,12 +99,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Integer doAddTask(Task task, boolean ifCheckTaskMode) {
         TaskDao routerDao = taskDao;
-        //获取当前任务类型队列数量
-		//随机生成队列数
-		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
-		int queueSize = task.getTaskQueueSize(allQueueSize);
-		task.setQueueId(new Random().nextInt(queueSize));
-        if( Task.TASK_TYPE_PDA.equals(task.getType()) ){
+        if(Task.TASK_TYPE_PDA.equals(task.getType()) ){
             logger.info(" pda logs , box_code: "+task.getBoxCode()+" [body]: "+task.getBody());
             return 0;
         }
@@ -127,7 +122,11 @@ public class TaskServiceImpl implements TaskService {
                 }
             }
         }
-
+        //获取当前任务类型队列数量
+        //随机生成队列数
+        Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
+        int queueSize = task.findTaskQueueSize(allQueueSize);
+        task.setQueueId(new Random().nextInt(queueSize));
         if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType()) 
                 || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
                 || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
@@ -291,7 +290,7 @@ public class TaskServiceImpl implements TaskService {
         TaskDao routerDao = taskDao;
 		//随机生成队列数
 		Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
-		int queueSize = task.getTaskQueueSize(allQueueSize);
+		int queueSize = task.findTaskQueueSize(allQueueSize);
 		task.setQueueId(new Random().nextInt(queueSize));
         return routerDao.addWithStatus(task);
     }

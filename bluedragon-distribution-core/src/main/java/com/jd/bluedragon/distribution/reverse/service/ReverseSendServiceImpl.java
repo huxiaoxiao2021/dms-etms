@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
-import com.jd.bluedragon.distribution.reverse.domain.*;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -41,6 +40,16 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.product.domain.Product;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMCS;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToCLPS;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendMQToECLP;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendSpwmsOrder;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -49,6 +58,7 @@ import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -60,7 +70,6 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
-import com.jd.loss.client.BlueDragonWebService;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.rd.unpack.jsf.distributionReceive.in.InOrderDto;
@@ -117,7 +126,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private BaseWmsService baseWmsService;
 
     @Autowired
-    private BlueDragonWebService lossWebService;
+    private LossServiceManager lossServiceManager;
 
     @Qualifier("bdDmsReverseSendEclp")
     @Autowired
@@ -519,9 +528,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 // 报损总数
                 int lossCount = 0;
                 try {
-                    lossCount = this.lossWebService.getLossProductCountOrderId(wallBillCode);
+                    lossCount = this.lossServiceManager.getLossProductCountOrderId(wallBillCode);
                 } catch (Exception e1) {
-                    this.logger.error("调用报损订单接口失败, 运单号为" + wallBillCode);
+                    this.logger.error("调用报损订单接口失败, 运单号为" + wallBillCode,e1);
                     throw new Exception("调用报损订单接口失败, 运单号为" + wallBillCode);
                 }
 
@@ -533,7 +542,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<com.jd.bluedragon.distribution.reverse.domain.Product> sendProducts = newsend.getProList();
                     List<com.jd.bluedragon.distribution.reverse.domain.Product> sendLossProducts = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
                     // 报损系统拿出的报损明细
-                    List<LossProduct> lossProducts = this.lossWebService.getLossProductByOrderId(wallBillCode);
+                    List<LossProduct> lossProducts = this.lossServiceManager.getLossProductByOrderId(wallBillCode);
 
                     int loss_Count = 0;
                     if (sendProducts != null && !sendProducts.isEmpty()) {
@@ -652,7 +661,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 // 报损总数
                 int lossCount = 0;
                 try {
-                    lossCount = this.lossWebService
+                    lossCount = this.lossServiceManager
                             .getLossProductCountOrderId(wayBillCode);
                 } catch (Exception e1) {
                     this.logger.error("调用报损订单接口失败, 运单号为" + wayBillCode);
@@ -671,7 +680,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<com.jd.bluedragon.distribution.reverse.domain.Product> sendLossProducts = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
 
                     // 报损系统拿出的报损明细
-                    List<LossProduct> lossProducts = this.lossWebService.getLossProductByOrderId(wayBillCode);
+                    List<LossProduct> lossProducts = this.lossServiceManager.getLossProductByOrderId(wayBillCode);
 
                     int loss_Count = 0;
                     if (sendProducts != null && !sendProducts.isEmpty()) {
@@ -881,7 +890,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setIsInStore(0);
         }
         send.setPackageCodes((String) entry.getValue());
-        //FIXME:已经在获得运单时将收货仓信息赋值，不用重复赋值
+        //已经在获得运单时将收货仓信息赋值，不用重复赋值
 //		send.setOrgId(orgId);
 //		send.setCky2(Integer.valueOf(cky2.trim()));
 //		send.setStoreId(Integer.valueOf(storeId.trim()));
