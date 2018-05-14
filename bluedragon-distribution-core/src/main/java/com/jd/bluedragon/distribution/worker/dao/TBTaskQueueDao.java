@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.worker.dao;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskQueue;
 import org.mybatis.spring.SqlSessionTemplate;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wangtingwei on 2015/10/13.
@@ -14,6 +17,7 @@ public class TBTaskQueueDao {
 
     private static final String inserQueuesSQL=TBTaskQueueDao.class.getName()+".insertQueues";
 
+    private static final String findAllQueueSizeSQL = TBTaskQueueDao.class.getName()+".findAllQueueSize";
     /**
      * 获取队列数量
      * @param taskType 任务类型名称
@@ -42,5 +46,9 @@ public class TBTaskQueueDao {
 
     public void setSqlSessionTemplate(SqlSessionTemplate sqlSessionTemplate) {
         this.sqlSessionTemplate = sqlSessionTemplate;
+    }
+
+    public List<Map<String,Object>> findAllQueueSize(){
+        return  sqlSessionTemplate.selectList(findAllQueueSizeSQL);
     }
 }

@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.external.service.DmsTaskService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -22,7 +22,6 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.jboss.resteasy.annotations.Body;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
@@ -31,14 +30,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.io.InputStream;
 import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class TaskResource {
+public class TaskResource implements DmsTaskService {
 
     private final Logger logger = Logger.getLogger(TaskResource.class);
 
@@ -77,6 +75,7 @@ public class TaskResource {
     @SuppressWarnings("unchecked")
     @POST
     @Path("/tasks")
+    @Override
     public TaskResponse add(TaskRequest request) {
         //加入监控，开始
         CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.task.add", false, true);

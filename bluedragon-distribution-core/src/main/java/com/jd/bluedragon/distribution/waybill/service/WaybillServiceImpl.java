@@ -163,9 +163,10 @@ public class WaybillServiceImpl implements WaybillService {
                             waybillPackageDTOTemp.setLength(pack.getpLength());
                             waybillPackageDTOTemp.setWidth(pack.getpWidth());
                             waybillPackageDTOTemp.setHeight(pack.getpHigh());
-
-                            waybillPackageDTOTemp.setOriginalVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
-                            waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
+                            double volume = null==pack.getpLength()||null==pack.getpWidth()||null==pack.getpHigh()?
+                                    0.00 : pack.getpLength()*pack.getpWidth()*pack.getpHigh();
+                            waybillPackageDTOTemp.setOriginalVolume(volume);
+                            waybillPackageDTOTemp.setVolume(volume);
                             waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
                             waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
                             return waybillPackageDTOTemp;
