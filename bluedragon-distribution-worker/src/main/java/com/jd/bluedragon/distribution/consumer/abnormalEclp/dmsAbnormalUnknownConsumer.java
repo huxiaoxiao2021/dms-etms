@@ -61,12 +61,15 @@ public class dmsAbnormalUnknownConsumer extends MessageBaseConsumer {
         AbnormalUnknownWaybill abnormalUnknownWaybill = abnormalUnknownWaybillService.findLastReportByWaybillCode(abnormalUnknownWaybillResponse.getWaybillCode());
         if (abnormalUnknownWaybill == null) {
             logger.warn(message.getText() + "该运单还未上报过");
+            return;
         }
         if (abnormalUnknownWaybill.getOrderNumber() == 0) {
             logger.warn(message.getText() + "已由系统回复，不允许B商家回复");
+            return;
         }
         if (abnormalUnknownWaybill.getIsReceipt() == 1) {
             logger.warn(message.getText() + "不存在未回复的上报申请");
+            return;
         }
         Date now = new Date();
         if (abnormalUnknownWaybill.getIsReceipt() == 0 && abnormalUnknownWaybill.getOrderNumber().equals(abnormalUnknownWaybillResponse.getReportNumber())) {
