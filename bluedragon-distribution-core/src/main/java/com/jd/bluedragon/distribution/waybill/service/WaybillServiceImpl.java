@@ -10,6 +10,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -177,13 +178,5 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         return null;
-    }
-
-    /**
-     * 查询运单是否存在
-     */
-    @Override
-    public Boolean queryWaybillIsExist(String waybillCode) {
-        return waybillQueryApi.queryExist(waybillCode);
     }
 }
