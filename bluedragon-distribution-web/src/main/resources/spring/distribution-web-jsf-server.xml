@@ -4,14 +4,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
-
-
     <!-- 发布给外部系统读接口 -->
     <jsf:provider id="jsfDmsExternalReadService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsExternalReadService"
                   alias="${dms.jsf.alias}"
                   ref="dmsExternalReadService" server="dmsjsf">
     </jsf:provider>
+
     <!-- 发布给外部系统读接口 -->
     <jsf:provider id="jsfDmsExternalService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsExternalService"
@@ -25,6 +24,7 @@
                   alias="${dms.jsf.alias}"
                   ref="josService" server="dmsjsf">
     </jsf:provider>
+
     <!-- 对接jos平台读接口 -->
     <jsf:provider id="jsfJosReadService"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosReadService"
@@ -34,6 +34,7 @@
     
     <bean id="waybillSafService"
 		class="com.jd.bluedragon.distribution.saf.WaybillSafServiceImpl" />
+
 	<bean id="ordersResourceSafService"
 		class="com.jd.bluedragon.distribution.saf.OrdersResourceSafServiceImpl">
 		<property name="ordersResource" ref="ordersResource"></property>
@@ -63,54 +64,61 @@
                   interface="com.jd.bluedragon.distribution.alpha.jsf.JsfPrintDeviceService"
                     alias="${dms.jsf.alias}"/>
 
-    <!-- 阿尔法打印插件自动升级JSF接口 -->
+    <!-- PDA操作JSF接口 -->
+    <!-- 基础服务相关JSF接口 -->
     <jsf:provider id="jsfDmsBaseService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsBaseService"
                   alias="${dms.jsf.alias}"
                   ref="baseResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 空铁项目-提货业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsArReceiveService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsArReceiveService"
                   alias="${dms.jsf.alias}"
                   ref="arReceiveResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 新版封车解封车相关JSF接口 -->
     <jsf:provider id="jsfDmsNewSealVehicleService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService"
                   alias="${dms.jsf.alias}"
                   ref="newSealVehicleResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 箱号业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsBoxService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsBoxService"
                   alias="${dms.jsf.alias}"
                   ref="boxResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 发货业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsDeliveryService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsDeliveryService"
                   alias="${dms.jsf.alias}"
                   ref="deliveryResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 打印业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsSendPrintService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsSendPrintService"
                   alias="${dms.jsf.alias}"
                   ref="sendPrintResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 站点业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsSiteService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsSiteService"
                   alias="${dms.jsf.alias}"
                   ref="siteResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 调度任务业务相关JSF接口 -->
     <jsf:provider id="jsfDmsTaskService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsTaskService"
                   alias="${dms.jsf.alias}"
                   ref="taskResource" server="dmsjsf">
     </jsf:provider>
-
 
 </beans>
