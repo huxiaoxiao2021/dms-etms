@@ -296,7 +296,8 @@
         <include refid="Base_Column_List"/>
         from
         abnormal_unknown_waybill
-        where waybill_code = #{waybillCode,jdbcType=BIGINT}
+        where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        and is_delete=0
         order by order_number desc
         limit 1
     </select>

@@ -217,8 +217,10 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 logger.info(waybillCode + "三无托寄物核实，eclp查到了");
                 return;
             }
+            logger.info(waybillCode + "三无托寄物核实，eclp没查到");
+        }else{
+            logger.info(waybillCode + "不是eclp运单");
         }
-        logger.info(waybillCode + "三无托寄物核实，eclp没查到");
         //第三步 发B商家请求
         //查询运单
         if (1 == request.getIsReport()) {
