@@ -25,16 +25,16 @@
     <bean id="loggingOutInterceptor" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
     <bean id="loggingInInterceptor" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
     
-    <bean id="authHeaderStock" class="com.jd.common.ws.AuthHeader">
+<!--     <bean id="authHeaderStock" class="com.jd.common.ws.AuthHeader">
         <property name="key" value="AuthenticationHeader" />
         <property name="qName" value="http://360buy.com/" />
         <property name="content" value="${stock.token.content}" />
         <property name="seed" value="${stock.token.seed}" />
-    </bean>  
+    </bean>   -->
     
-    <bean id="soapHeaderIntercepterStock" class="com.jd.common.ws.SOAPHeaderIntercepter">
+<!--     <bean id="soapHeaderIntercepterStock" class="com.jd.common.ws.SOAPHeaderIntercepter">
         <property name="authHeader" ref="authHeaderStock" />
-    </bean> 
+    </bean>  -->
     
     <bean id="authHeaderFinance" class="com.jd.common.ws.AuthHeader">
         <property name="key" value="${finance.fms.key}" />
