@@ -104,6 +104,12 @@
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
 			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
 			LIMIT #{fetchNum}
 		</where>
     </select>	

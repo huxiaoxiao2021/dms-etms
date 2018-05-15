@@ -191,27 +191,27 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findTasks(type, ownSign);
     }
 
-    public List<Task> findLimitedTasks(Integer fetchNum) {
+    public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
-        return routerDao.findLimitedTasks(fetchNum);
+        return routerDao.findLimitedTasks(fetchNum,queueIds);
     }
 
-    public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
+    public List<Task> findLimitedTasks(Integer type, Integer fetchNum,List<String> queueIds) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
-        return routerDao.findLimitedTasks(type, fetchNum);
+        return routerDao.findLimitedTasks(type, fetchNum, queueIds);
     }
 
-    public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
+    public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds) {
         Assert.notNull(type, "type must not be null");
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
         if(isTableWithoutFetchFailed(type)) {
-            return routerDao.findLimitedTasksWithoutFailed(type, fetchNum, ownSign);
+            return routerDao.findLimitedTasksWithoutFailed(type, fetchNum, ownSign,queueIds);
         }
-        return routerDao.findLimitedTasks(type, fetchNum, ownSign);
+        return routerDao.findLimitedTasks(type, fetchNum, ownSign,queueIds);
     }
 
 
@@ -241,11 +241,11 @@ public class TaskServiceImpl implements TaskService {
     }
 
 
-	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
+	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign ,List<String> queueIds) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign);
+		return routerDao.findSpecifiedTasks(type, fetchNum, ownSign,queueIds);
 	}
 
     public List<Task> findTasksByFingerprint(Task task) {
@@ -329,11 +329,11 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findTasks(task);
 	}
 
-	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
+	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findSendTasks(type, fetchNum, key);
+		return routerDao.findSendTasks(type, fetchNum, key,queueIds);
 	}
 
 	public Task findReverseSendTask(String sendCode) {
@@ -722,17 +722,17 @@ public class TaskServiceImpl implements TaskService {
      * xumei
      */
     @Override
-	public List<Task> findTaskTypeByStatus(Integer type, int fetchNum) {
-		return taskDao.findTaskTypeByStatus(type, fetchNum);
+	public List<Task> findTaskTypeByStatus(Integer type, int fetchNum ,List<String> queueIds) {
+		return taskDao.findTaskTypeByStatus(type, fetchNum,queueIds);
 	}
     public Integer updateTaskStatus(Task task) {
        return taskDao.updateTaskStatus(task);
     }
 
-	public List<Task> findDeliveryToFinanceConvertTasks(Integer type,Integer fetchNum){
+	public List<Task> findDeliveryToFinanceConvertTasks(Integer type,Integer fetchNum,List<String> queueIds){
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findDeliveryToFinanceConvertTasks(type, fetchNum);
+		return routerDao.findDeliveryToFinanceConvertTasks(type, fetchNum,queueIds);
 	}
 }

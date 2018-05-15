@@ -10,6 +10,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -27,8 +28,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private WaybillStatusService waybillStatusService;
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
+    @Autowired
+    WaybillQueryApi waybillQueryApi;
     @Autowired
     private WaybillPackageApi waybillPackageApi;
     @Autowired
@@ -37,41 +38,42 @@ public class WaybillServiceImpl implements WaybillService {
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
 
-	public BigWaybillDto getWaybill(String waybillCode) {
-		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
+    public BigWaybillDto getWaybill(String waybillCode) {
+        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
 
-		WChoice wChoice = new WChoice();
-		wChoice.setQueryWaybillC(true);
-		wChoice.setQueryWaybillE(true);
-		wChoice.setQueryWaybillM(true);
-		wChoice.setQueryPackList(true);
-		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
-		        wChoice);
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryPackList(true);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+                wChoice);
 
-		return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
-	}
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
 
-	public BigWaybillDto getWaybillProduct(String waybillCode) {
-		String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
-		
-		WChoice wChoice = new WChoice();
-		wChoice.setQueryGoodList(true);
+    public BigWaybillDto getWaybillProduct(String waybillCode) {
+        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
 
-		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
-		        wChoice);
-		
-		return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
-	}
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryGoodList(true);
+        wChoice.setQueryWaybillC(true);
 
-	public BigWaybillDto getWaybillState(String waybillCode) {
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+                wChoice);
 
-		WChoice wChoice = new WChoice();
-		wChoice.setQueryWaybillM(true);
-		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode,
-		        wChoice);
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
 
-		return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
-	}
+    public BigWaybillDto getWaybillState(String waybillCode) {
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillM(true);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode,
+                wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
 
     @Override
     public Boolean doWaybillStatusTask(Task task) {
@@ -166,7 +168,7 @@ public class WaybillServiceImpl implements WaybillService {
                             double volume = null==pack.getpLength()||null==pack.getpWidth()||null==pack.getpHigh()?
                                     0.00 : pack.getpLength()*pack.getpWidth()*pack.getpHigh();
                             waybillPackageDTOTemp.setOriginalVolume(volume);
-                            waybillPackageDTOTemp.setVolume(pack.getpLength()*pack.getpWidth()*pack.getpHigh());
+                            waybillPackageDTOTemp.setVolume(volume);
                             waybillPackageDTOTemp.setCreateUserCode(pack.getWeighUserId());
                             waybillPackageDTOTemp.setCreateTime(pack.getWeighTime());
                             return waybillPackageDTOTemp;

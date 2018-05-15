@@ -40,12 +40,13 @@ public class TaskPopRecieveCountDao extends BaseDao<TaskPopRecieveCount> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
+	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign ,List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
 		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(
 		        TaskPopRecieveCountDao.namespace + ".findLimitedTasksByType", request);
 	}

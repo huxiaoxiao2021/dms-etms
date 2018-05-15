@@ -82,9 +82,15 @@
                  execute_count, execute_time, task_status, create_time,yn,keyword1,keyword2
             FROM ${tableName}
             WHERE yn = 1 AND execute_count < 5
-                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)
+                AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+            <if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
                  LIMIT #{fetchNum}
-        ]]>
+
 	</select>
 
 	<select id="findSpecifiedTasks" resultMap="task" parameterType="map">
@@ -94,7 +100,7 @@
 		create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		<where>
-			yn = 1 AND execute_count <![CDATA[<]]>
+			yn = 1  AND execute_count <![CDATA[<]]>
 			5
 			AND (execute_time <![CDATA[<]]>
 			NOW() OR execute_time IS NULL)
@@ -102,6 +108,12 @@
 			task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			 LIMIT
 			#{fetchNum}
@@ -115,13 +127,19 @@
 		execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
 		FROM ${tableName}
 		<where>
-			yn = 1 AND execute_count <![CDATA[<]]>
+			yn = 1  AND execute_count <![CDATA[<]]>
 			5
 			AND (execute_time <![CDATA[<]]>
 			NOW() OR execute_time IS NULL)
 			AND task_status IN (0, 3,4) AND task_type = #{type}
 			<if test="ownSign != null">
 				and own_sign = #{ownSign,jdbcType=VARCHAR}
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			 LIMIT
 			#{fetchNum}
@@ -136,7 +154,7 @@
         execute_count,execute_time, task_status, create_time,yn,keyword1,keyword2
         FROM ${tableName}
         <where>
-            yn = 1 AND execute_count <![CDATA[<]]>
+            yn = 1  AND execute_count <![CDATA[<]]>
             5
             AND (execute_time <![CDATA[<]]>
             NOW() OR execute_time IS NULL)
@@ -144,6 +162,12 @@
             <if test="ownSign != null">
                 and own_sign = #{ownSign,jdbcType=VARCHAR}
             </if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
             LIMIT
             #{fetchNum}
         </where>
@@ -183,7 +207,7 @@
 	<select id="findSendTasks" resultMap="task" parameterType="map">
 		SELECT task_id, task_type, box_code, create_site_code,
 		receive_site_code, body,
-		execute_count, task_status, create_time, keyword2
+		execute_count, task_status, create_time, keyword2, queue_id
 		FROM ${tableName}
 		<where>
 			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
@@ -191,6 +215,12 @@
 			<if test="key != 1">
 				and create_time <![CDATA[<=]]>
 				timestampadd(minute, -5, now()) 
+			</if>
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
 			</if>
 			LIMIT #{fetchNum}
 		</where>
@@ -353,6 +383,12 @@
 		${tableName}
 		<where>
 			yn = 1 AND task_status = 0
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
 		</where>
 	</select>
 
@@ -372,6 +408,12 @@
 			yn = 1 AND (task_status = 0 or task_status=4) AND task_type = #{type}
 			and execute_count<![CDATA[<]]>5
 			and create_time <![CDATA[<=]]> timestampadd(minute, -5, now())
+			<if test="queueIds != null">
+				AND queue_id in
+				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+					#{queueId}
+				</foreach>
+			</if>
 			LIMIT #{fetchNum}
 		</where>
 	</select>
