@@ -1,14 +1,18 @@
 package com.jd.bluedragon.distribution.operateMonitor.service.impl;
 
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
+import com.jd.bluedragon.distribution.base.service.KvIndexService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.operateMonitor.domain.OperateMonitor;
 import com.jd.bluedragon.distribution.operateMonitor.service.OperateMonitorService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,16 +28,16 @@ import java.util.List;
 public class OperateMonitorServiceImpl implements OperateMonitorService {
 
     @Autowired
-    private KvIndexDao kvIndexDao;
+    private KvIndexService KvIndexService;
 
     @Autowired
-    private InspectionDao inspectionDao;
+    private InspectionService inspectionService;
 
     @Autowired
-    private SortingDao sortingDao;
+    private SortingService sortingService;
 
     @Autowired
-    private SendDatailReadDao sendDatailReadDao;
+    private SendDetailService sendDetailService;
 
     /**
      * 根据包裹号查询包裹的相关数据
@@ -73,7 +77,7 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
 
         for (Integer createSite : createSites) {
             condition.setCreateSiteCode(createSite);
-            result.addAll(inspectionDao.queryByCondition(condition));
+            result.addAll(inspectionService.queryByCondition(condition));
         }
 
         return result;
@@ -87,12 +91,9 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
      */
     private List<Sorting> getSortingByPackageCode(String packageCode, List<Integer> createSites){
         List<Sorting> result = new ArrayList<Sorting>();
-        Sorting condition = new Sorting();
-        condition.setPackageCode(packageCode);
 
         for (Integer createSite : createSites) {
-            condition.setCreateSiteCode(createSite);
-            result.addAll(sortingDao.findByPackageCode(condition));
+            result.addAll(sortingService.findByPackageCode(createSite, packageCode));
         }
 
         return result;
@@ -111,7 +112,7 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
 
         for (Integer createSite : createSites) {
             condition.setCreateSiteCode(createSite);
-            result.addAll(sendDatailReadDao.findSendByPackageCode(packageCode, createSite));
+            result.addAll(sendDetailService.findSendByPackageCodeFromReadDao(packageCode, createSite));
         }
 
         return result;
@@ -123,7 +124,7 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
      * @return
      */
     private List<Integer> getCreateSitesByPackageCode(String packageCode){
-        return kvIndexDao.queryCreateSiteCodesByKey(packageCode);
+        return KvIndexService.queryCreateSiteCodesByKey(packageCode);
     }
 
     /**
