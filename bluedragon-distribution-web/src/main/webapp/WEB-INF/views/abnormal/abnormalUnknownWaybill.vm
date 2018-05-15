@@ -92,16 +92,19 @@
                 <input type="hidden" class="form-control edit-param" id="id" name="id"/>
                 <hr/>
                 <div class="row">
-                    <div class="col-xs-3">
+                    <div class="col-xs-2">
                     </div>
-                	<div class="col-xs-6">
+                	<div class="col-xs-10">
                 		<div class="form-group">
-                    		<label class="col-xs-3 control-label">运单号 ：</label>
-                    		<div class="col-xs-9">
-                    			<textarea rows="3" class="form-control edit-param" id="waybillCode" name="memo" style="width: 300px; height: 80px;">
+                    		<label class="col-xs-2 control-label">运单号 ：</label>
+                    		<div class="col-xs-4">
+                    			<textarea rows="6" class="form-control edit-param" id="waybillCode" name="memo" style="width: 300px; height: 80px;">
 		                        </textarea>
                     		</div>
-                    	</div>
+                            <div class="col-xs-3">
+                                <li class="active">（说明：一行一个运单号，支持批量录入）</li>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <hr/>
