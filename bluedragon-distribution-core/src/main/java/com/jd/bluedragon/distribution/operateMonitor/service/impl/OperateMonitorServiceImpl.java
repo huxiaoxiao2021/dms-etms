@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.operateMonitor.domain.OperateMonitor;
 import com.jd.bluedragon.distribution.operateMonitor.service.OperateMonitorService;
-import com.jd.bluedragon.distribution.receive.service.ReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
@@ -26,9 +25,6 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
 
     @Autowired
     private KvIndexDao kvIndexDao;
-
-    @Autowired
-    ReceiveService receiveService;
 
     @Autowired
     private InspectionDao inspectionDao;
@@ -207,7 +203,7 @@ public class OperateMonitorServiceImpl implements OperateMonitorService {
 
     /**
      * 按实操时间排序
-     * @param SealCarDtos
+     * @param data
      */
     private void sortOperateMonitors(List<OperateMonitor> data){
         Collections.sort(data, new Comparator<OperateMonitor>() {
