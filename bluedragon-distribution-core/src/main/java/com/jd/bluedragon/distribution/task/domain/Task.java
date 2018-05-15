@@ -766,6 +766,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 return "ReverseSendTask";
             }else if("5".equals(keyword1)){
                 return "TransitSendTask";
+            }else if("6".equals(keyword1)){
+                return "SendDetailMQTask";
             }
         }else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
@@ -825,9 +827,14 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }else if(TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
             return "DeliveryToFinanceTask";
         }
+        //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
+        if(StringUtils.isNotBlank(tableName)){
+            if(TABLE_NAME_WAYBILL.equals(tableName)){
+                return "WaybillStatusTaskN"; //同步运单状态相关任务
+            }
+        }
 
         //抛异常
-
         logger.error("获取任务类型异常 "+allToString());
         String errorMessage ="task type not found taskType:"+type;
         Profiler.businessAlarm("Task.getTaskNameByTaskType", System.currentTimeMillis(), errorMessage);
