@@ -268,5 +268,10 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.abnormalEclpSend}"/>
     </bean>
+    <!-- 三无寄托物核实申请-->
+    <bean id="abnormalUnknownSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
+    </bean>
 
 </beans>

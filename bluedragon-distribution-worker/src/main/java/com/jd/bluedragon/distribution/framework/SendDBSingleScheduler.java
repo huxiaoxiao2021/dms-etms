@@ -31,7 +31,7 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
 				fetchNum = fetchNum * queueNum / queryCondition.size();
 			}
 
-            List<Task> Tasks = taskService.findSendTasks(this.type, fetchNum, this.keyType);
+            List<Task> Tasks = taskService.findSendTasks(this.type, fetchNum, this.keyType,queryCondition);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;

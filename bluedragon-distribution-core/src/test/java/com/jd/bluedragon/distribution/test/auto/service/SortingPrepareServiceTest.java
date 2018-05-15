@@ -32,7 +32,7 @@ public class SortingPrepareServiceTest extends TestBase {
      */
     @Test
     public void testHandler() throws Exception {
-        List<Task> list= taskService.findLimitedTasks(7777, 100, "WTW-TEST");
+        /*List<Task> list= taskService.findLimitedTasks(7777, 100, "WTW-TEST");
         if(null==list){
             logger.info("没有获取到所需要的数据");
             return;
@@ -40,7 +40,7 @@ public class SortingPrepareServiceTest extends TestBase {
         for (Task task:list){
             logger.info(task.toString());
             Assert.assertEquals(true,sortingPrepareService.handler(task));
-        }
+        }*/
     }
     @Test
     public void testSimpleHandler(){

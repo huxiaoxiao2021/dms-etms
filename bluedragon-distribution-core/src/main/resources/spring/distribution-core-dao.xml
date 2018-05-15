@@ -429,4 +429,6 @@
 
     <bean id="dmsAbnormalEclpDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
+    <bean id="abnormalUnknownWaybillDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
 </beans>

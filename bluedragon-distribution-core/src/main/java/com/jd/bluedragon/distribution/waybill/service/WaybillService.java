@@ -2,17 +2,21 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+
+import java.util.List;
 
 public interface WaybillService {
 
-	BigWaybillDto getWaybill(String waybillCode);
+    BigWaybillDto getWaybill(String waybillCode);
 
-	BigWaybillDto getWaybillProduct(String waybillCode);
-	
-	/**
-	 * 获取运单状态接口
-	 * */
+    BigWaybillDto getWaybillProduct(String waybillCode);
+
+    /**
+     * 获取运单状态接口
+     */
     BigWaybillDto getWaybillState(String waybillCode);
 
     /***
@@ -31,6 +35,7 @@ public interface WaybillService {
 
     /**
      * 根据包裹号获取包裹体积重量信息
+     *
      * @param packageCode
      * @return
      */

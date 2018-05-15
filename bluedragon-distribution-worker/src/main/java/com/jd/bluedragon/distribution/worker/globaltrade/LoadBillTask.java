@@ -46,7 +46,7 @@ public class LoadBillTask extends DBSingleScheduler {
 				fetchNum = fetchNum * queueNum / queryCondition.size();
 			}
 
-			List<Task> Tasks = taskService.findSpecifiedTasks(this.type, fetchNum, this.ownSign);
+			List<Task> Tasks = taskService.findSpecifiedTasks(this.type, fetchNum, this.ownSign, queryCondition);
 			for (Task task : Tasks) {
 				if (!isMyTask(queueNum, task.getId(), queryCondition)) {
 					continue;
