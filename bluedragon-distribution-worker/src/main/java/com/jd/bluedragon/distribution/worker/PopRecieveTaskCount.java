@@ -110,7 +110,7 @@ public class PopRecieveTaskCount extends AbstractScheduler<TaskPopRecieveCount> 
 			throws Exception {
 		List<TaskPopRecieveCount> taskLists = new ArrayList<TaskPopRecieveCount>();
 		try {
-			List<TaskPopRecieveCount> unhandles = taskPopRecieveCountService.findLimitedTasks(type, fetchNum, ownSign);
+			List<TaskPopRecieveCount> unhandles = taskPopRecieveCountService.findLimitedTasks(type, fetchNum, ownSign,queryCondition);
 			for (TaskPopRecieveCount taskPopRecieveCount : unhandles) {
 				if (this.isMyTask(queueNum, taskPopRecieveCount.taskId, queryCondition)) {
 					taskLists.add(taskPopRecieveCount);

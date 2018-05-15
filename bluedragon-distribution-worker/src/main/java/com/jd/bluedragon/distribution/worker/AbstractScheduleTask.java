@@ -38,7 +38,7 @@ public abstract class AbstractScheduleTask extends AbstractScheduler<Task>{
 				fetchNum = fetchNum * queueNum / queryCondition.size();
 			}
 
-            List<Task> Tasks = taskService.findLimitedTasks(this.type, fetchNum, this.ownSign);
+            List<Task> Tasks = taskService.findLimitedTasks(this.type, fetchNum, this.ownSign, queryCondition);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;
