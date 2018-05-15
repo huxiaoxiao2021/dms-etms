@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import java.util.List;
 
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 

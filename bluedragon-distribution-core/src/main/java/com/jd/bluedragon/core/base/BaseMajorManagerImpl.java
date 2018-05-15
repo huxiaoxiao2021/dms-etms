@@ -15,9 +15,7 @@ import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
-import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ql.basic.ws.BasicSiteQueryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -54,17 +52,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Qualifier("basicSiteQueryWS")
     BasicSiteQueryWS basicSiteQueryWS;
 
-//    @Autowired
-//    @Qualifier("basicSecondaryWS")
-//    private BasicSecondaryWS basicSecondaryWS;
-
     @Autowired
     @Qualifier("basicPrimaryWSProxy")
     private BasicPrimaryWSProxy basicPrimaryWSProxy;
-
-    @Autowired
-    @Qualifier("basicSecondaryWSProxy")
-    private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
     /**
      * 站点ID

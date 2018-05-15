@@ -8,8 +8,6 @@ import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
-import com.jd.ql.basic.dto.BasePdaUserDto;
-import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.annotation.JProEnum;
@@ -39,11 +37,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@Autowired
 	@Qualifier("basicSecondaryWS")
 	private BasicSecondaryWS basicSecondaryWS;
-	
-//	@Autowired
-//	@Qualifier("basicSecondaryWSProxy")
-//	private BasicSecondaryWSProxy basicSecondaryWSProxy;
-	
+
 	/**
 	 * 
 	 * 获取航空标示信息接口
