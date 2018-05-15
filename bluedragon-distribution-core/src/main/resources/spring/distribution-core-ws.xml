@@ -69,7 +69,7 @@
         <property name="authHeader" ref="authHeaderRefundMoney" />
     </bean> 
     
-    <jaxws:client id="stockWebService"
+<!--     <jaxws:client id="stockWebService"
         serviceClass="com.jd.iwmss.stock.client.StockWebServiceSoap" address="${stock.service.url}">
         <jaxws:inInterceptors>
             <ref bean ="loggingOutInterceptor"/>
@@ -78,7 +78,7 @@
             <ref bean="soapHeaderIntercepterStock"/>
             <ref bean="loggingInInterceptor"/>
         </jaxws:outInterceptors>
-    </jaxws:client>
+    </jaxws:client> -->
     
     <jaxws:client id="financeWebService"
         serviceClass="com.jd.fms.finance.client.FinancialSearchService" address="${finance.fms.url}">
