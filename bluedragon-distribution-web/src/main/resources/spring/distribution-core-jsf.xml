@@ -275,10 +275,17 @@
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
     </jsf:consumer>
     <!-- 路由 谭杨-->
-    <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
+    <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
+        <property name="jimClient" ref="redisClient"/>
+    </bean>
+    <bean id="routeComputeUtil" class="com.jd.etms.sdk.compute.RouteComputeUtil">
+        <property name="routeComputeQueryAPI" ref="routeComputeQueryAPI"/>
+        <property name="redisCache" ref="vrsRedisCacheSdk"/>
+    </bean>
+    <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="3">
     </jsf:consumer>
-    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.vrs.ws.VrsBNetQueryApi"
+    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="3">
     </jsf:consumer>
     <!-- 外单逆向换单接口-->
