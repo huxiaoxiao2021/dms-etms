@@ -4,16 +4,24 @@ import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
+import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.Map;
 
 public class Task implements java.io.Serializable, TaskModeAware{
 
+    private final Log logger = LogFactory.getLog(this.getClass());
     /**
 	 * 
 	 */
@@ -263,7 +271,12 @@ public class Task implements java.io.Serializable, TaskModeAware{
     
     /** 操作时间 */
     private Date operateTime;
-    
+
+    /** 所属队列 */
+    private Integer queueId;
+
+
+
     public Task() {
     }
     
@@ -446,8 +459,16 @@ public class Task implements java.io.Serializable, TaskModeAware{
 	public void setOperateTime(Date operateTime) {
 		this.operateTime = operateTime!=null?(Date)operateTime.clone():null;
 	}
-    
-	public static String getTableName(Integer type) {
+
+    public Integer getQueueId() {
+        return queueId;
+    }
+
+    public void setQueueId(Integer queueId) {
+        this.queueId = queueId;
+    }
+
+    public static String getTableName(Integer type) {
         Assert.notNull(type, "type must not be null");
         
         if (Task.TASK_TYPE_SORTING.equals(type) || Task.TASK_TYPE_SEAL_BOX.equals(type)
@@ -683,4 +704,186 @@ public class Task implements java.io.Serializable, TaskModeAware{
 		return result;
 	}
 
+    /**
+     * 获取当前任务 任务类型
+     * @return
+     */
+	public  String findTaskNameByTaskType(){
+
+        if(TASK_TYPE_POP.equals(type)){
+            return "PopReceiveTaskN";
+        }else if(TASK_TYPE_RECEIVE_COUNT.equals(type)){
+            return  "PopRecieveCountTask";
+        }else if(TASK_TYPE_BOUNDARY.equals(type)){
+            return "PopPickupTask";
+        }else if(TASK_TYPE_MESSAGE.equals(type)){
+            return "MessageTask";
+        }else if(TASK_TYPE_RECEIVE.equals(type)){
+            return "ReceiveTaskN";
+        }else if(TASK_TYPE_AR_RECEIVE.equals(type)){
+            return "ArReceiveTask";
+        }else if(TASK_TYPE_AR_RECEIVE_AND_SEND.equals(type)){
+            //TASK_TYPE_AR_RECEIVE_AND_SEND = 1811; //不会有
+
+
+        }else if(TASK_TYPE_AR_SEND_REGISTER.equals(type)){
+            //TASK_TYPE_AR_SEND_REGISTER = 1809; //不会有
+
+        }else if(TASK_TYPE_SHIELDS_CAR_ERROR.equals(type)){
+            return "ShieldsCarErrorTask";
+        }else if(TASK_TYPE_PUSH_MQ.equals(type)){
+            return "PushMQ2ArteryBillingSysTask";
+        }else if(TASK_TYPE_INSPECTION.equals(type)){
+            return "InspectionTaskN";
+        }else if(TASK_TYPE_SHIELDS_BOX_ERROR.equals(type)){
+            return "ShieldsBoxErrorTask";
+        }else if(TASK_TYPE_PARTNER_WAY_BILL.equals(type)){
+            return "PartnerWaybillTaskN";
+        }else if(TASK_TYPE_PARTNER_WAY_BILL_NOTIFY.equals(type)){
+            return "PartnerWaybillSynchroTaskN";
+        }else if(TASK_TYPE_WEIGHT.equals(type)){
+            return "WeightTask";
+        }else if(TASK_TYPE_SORTING.equals(type)){
+            return "SortingTaskN";
+        }else if(TASK_TYPE_SEAL_BOX.equals(type)){
+            return "SealBoxTask";
+        }else if(TASK_TYPE_RETURNS.equals(type)){
+            return "SortingReturnTask";
+        }else if(TASK_TYPE_SORTING_EXCEPTION.equals(type)){
+            return "SortingExceptionTask";
+        }else if(TASK_TYPE_ZHIPEI_SORTING.equals(type)){
+            return "SortingZhiPeiTask";
+        }else if(TASK_TYPE_DEPARTURE.equals(type)){
+            return "thirdDepartureTask";
+        }else if(TASK_TYPE_SEND_DELIVERY.equals(type)){
+            if("1".equals(keyword1)){
+                return "SendDeliveryTowaybillRedisTask";
+            }else if("2".equals(keyword1)){
+                return "SendDeliveryTotmsTaskN";
+            }else if("3".equals(keyword1)){
+                return "ReverseDeliveryTaskN";
+            }else if("4".equals(keyword1)){
+                return "ReverseSendTask";
+            }else if("5".equals(keyword1)){
+                return "TransitSendTask";
+            }
+        }else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
+            //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
+
+
+        }else if(TASK_TYPE_WATBILL_NOTIFY.equals(type)){
+            //TASK_TYPE_WATBILL_NOTIFY = 1310; //  不能确定
+
+        }else if(TASK_TYPE_GLOBAL_TRADE.equals(type)){
+            //TASK_TYPE_GLOBAL_TRADE = 1340; //  不能确定
+
+        }else if(TASK_TYPE_SCANNER_FRAME.equals(type)){
+            return "ScannerFrameTask";
+        }else if(TASK_TYPE_PDA.equals(type)){
+            //TASK_TYPE_PDA = 1700;// PDA日志 不插库
+
+        }else if(TASK_TYPE_RECEIVE_PICKUP.equals(type)){
+           // TASK_TYPE_RECEIVE_PICKUP = 2110; //不确定
+
+        }else if(TASK_TYPE_RECEIVE_RECEIVE.equals(type)){
+            //TASK_TYPE_RECEIVE_RECEIVE = 2120; //不确定
+        }else if(TASK_TYPE_RECEIVE_EXCEPTION.equals(type)){
+            //TASK_TYPE_RECEIVE_EXCEPTION = 2130; //不确定
+        }else if(TASK_TYPE_REVERSE_RECEIVE.equals(type)){
+            return "ReverseRejectTask";
+        }else if(TASK_TYPE_REVERSE_SEND.equals(type)){
+            //TASK_TYPE_REVERSE_SEND = 3200;// 逆向发货 不确定
+
+        }else if(TASK_TYPE_REVERSE_SPWARE.equals(type)){
+            return "ReverseSpareTask";
+        }else if(TASK_TYPE_REVERSE_QUALITYCONTROL.equals(type)){
+            return "QualityControlTask";
+        }else if(TASK_TYPE_WAYBILL.equals(type)){
+            return "WaybillStatusTaskN";
+        }else if(TASK_TYPE_WAYBILL_FINISHED.equals(type)){
+            return "WaybillStatusTaskN";
+        }else if(TASK_TYPE_WAYBILL_TRACK.equals(type)){
+            return "WaybillTrackTask";
+        }else if(TASK_TYPE_AUTO_SORTING_PREPARE.equals(type)){
+            return "SortingPrepareTask";
+        }else if(TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(type)){
+            return "InspectionPrepareTask";
+        }else if(TASK_TYPE_OFFLINE.equals(type)){
+            return "OfflineCoreTask";
+        }else if(TASK_TYPE_SEAL_OFFLINE.equals(type)){
+            //TASK_TYPE_SEAL_OFFLINE = 1880; //通过1800进来的
+
+        }else if(TASK_TYPE_OFFLINE_EXCEEDAREA.equals(type)){
+            //TASK_TYPE_OFFLINE_EXCEEDAREA = 6000; // 没有直接添加 转换成了1200的任务
+
+        }else if(TASK_TYPE_DEPARTURE_CAR.equals(type)){
+            return "BatchSendCarTask";
+        }else if(TASK_TYPE_CROSS_BOX.equals(type)){
+            return "CrossBoxTask";
+        }else if(TASK_TYPE_DELIVERY_TO_FINANCE_BATCH.equals(type)){
+            return "DeliveryToFinanceBatchTask";
+        }else if(TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
+            return "DeliveryToFinanceTask";
+        }
+
+        //抛异常
+
+        logger.error("获取任务类型异常 "+allToString());
+        String errorMessage ="task type not found taskType:"+type;
+        Profiler.businessAlarm("Task.getTaskNameByTaskType", System.currentTimeMillis(), errorMessage);
+        return null;
+    }
+
+    /**
+     * 获取当前任务队列数
+     * 未获取到任务类型队列数量或者异常时 返回1
+     * @return
+     */
+    public int findTaskQueueSize(Map<String, Integer> allQueueSize){
+        CallerInfo info = null;
+        int queueSize = 1;
+	    try{
+            info = Profiler.registerInfo( "DMSWEB.Task.getTaskQueueSize",false, true);
+            String taskType = findTaskNameByTaskType();
+            if(StringUtils.isNotBlank(taskType) && allQueueSize.containsKey(taskType)){
+                queueSize =  allQueueSize.get(taskType);
+            }
+        }catch (Exception e){
+            Profiler.functionError(info);
+            logger.error("获取任务队列数异常 "+e.getMessage());
+        }finally {
+            Profiler.registerInfoEnd(info);
+            return queueSize;
+        }
+
+
+    }
+
+    public String allToString() {
+        return "Task{" +
+                "id=" + id +
+                ", createSiteCode=" + createSiteCode +
+                ", createTime=" + createTime +
+                ", executeCount=" + executeCount +
+                ", executeTime=" + executeTime +
+                ", type=" + type +
+                ", status=" + status +
+                ", statuses='" + statuses + '\'' +
+                ", yn=" + yn +
+                ", keyword1='" + keyword1 + '\'' +
+                ", keyword2='" + keyword2 + '\'' +
+                ", body='" + body + '\'' +
+                ", tableName='" + tableName + '\'' +
+                ", sequenceName='" + sequenceName + '\'' +
+                ", parsedObject=" + parsedObject +
+                ", boxCode='" + boxCode + '\'' +
+                ", receiveSiteCode=" + receiveSiteCode +
+                ", fingerprint='" + fingerprint + '\'' +
+                ", ownSign='" + ownSign + '\'' +
+                ", businessType=" + businessType +
+                ", operateType=" + operateType +
+                ", operateTime=" + operateTime +
+                ", queueId=" + queueId +
+                '}';
+    }
 }

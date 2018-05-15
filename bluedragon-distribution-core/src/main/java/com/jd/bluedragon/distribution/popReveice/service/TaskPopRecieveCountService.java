@@ -19,6 +19,6 @@ public interface TaskPopRecieveCountService {
 	public int update(TaskPopRecieveCount taskPopRecieveCount);
 	public TaskPopRecieveCount getTaskPopRevieveCountById(Long taskId);
 	public List<TaskPopRecieveCount> getTaskPopRevieveCountByWaybillCode(String waybillCode);
-	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign);
+	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds);
 	public void sendMessage(List<TaskPopRecieveCount> data) throws Exception;
 }

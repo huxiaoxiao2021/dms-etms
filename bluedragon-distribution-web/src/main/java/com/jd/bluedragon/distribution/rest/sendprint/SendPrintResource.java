@@ -4,6 +4,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
+import com.jd.bluedragon.distribution.external.service.DmsSendPrintService;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -33,7 +34,7 @@ import java.util.Map;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SendPrintResource {
+public class SendPrintResource implements DmsSendPrintService {
 
     private static final Log logger= LogFactory.getLog(SendPrintResource.class);
 	@Autowired
@@ -306,7 +307,8 @@ public class SendPrintResource {
 	@POST
 	@GZIP
 	@Path("/sendprint/carrySendCarInfo")
-	public BatchSendInfoResponse batchSendInfoPrint(List<BatchSend> batchSends) {
+    @Override
+	public BatchSendInfoResponse carrySendCarInfo(List<BatchSend> batchSends) {
 
 		if(batchSends==null||batchSends.size()==0){
 			BatchSendInfoResponse tSummaryPrintResultResponse = new BatchSendInfoResponse();

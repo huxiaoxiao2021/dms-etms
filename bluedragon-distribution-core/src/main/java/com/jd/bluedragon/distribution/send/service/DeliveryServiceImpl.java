@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -19,8 +20,10 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
@@ -57,7 +60,6 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -244,6 +246,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     BoardCombinationService boardCombinationService;
 
+    @Autowired
+    SysConfigService sysConfigService;
+
     //自营
     public static final Integer businessTypeONE = 10;
     //退货
@@ -372,7 +377,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
-        this.boardCombinationCancel(domain);
+        SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES);
+        if(content != null){
+            logger.info("从sysConfig表中获取key=" + Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES +
+                    "的配置为:" + content +"操作单位:" + domain.getCreateSiteCode());
+
+            if(content.getMasterSwitch() || content.getSiteCodes().contains(domain.getCreateSiteCode())) {
+                this.boardCombinationCancel(domain);
+            }
+        }
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         packageSend(domain);
@@ -3241,16 +3254,32 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (task == null || task.getBoxCode() == null
                 || task.getCreateSiteCode() == null
                 || task.getKeyword2() == null
-                || task.getReceiveSiteCode() == null)
+                || task.getReceiveSiteCode() == null){
+        	logger.warn("dofindTransitSend:中转任务参数校验失败！"+JsonHelper.toJson(task));
             return true;
+        }
         Integer bCreateSiteCode = task.getCreateSiteCode();
         Integer bReceiveSiteCode = task.getReceiveSiteCode();
         String boxCode = task.getBoxCode();
         Integer type = Integer.valueOf(task.getKeyword2());//业务的正逆向
+        String step1MonitorKey = "DMSWORKER.DeliveryService.findTransitSend1.getSendDetailsByBox";
+        String step2TotalMonitorKey = "DMSWORKER.DeliveryService.findTransitSend2.dealSendDetails";
+        String step2PerMonitorKey = "DMSWORKER.DeliveryService.findTransitSend2.dealSendDetail";
+        CallerInfo step2TotalMonitor = null;
+        long beginTime = System.currentTimeMillis();
+        //1、根据箱号查询send明细，加入监控
+        CallerInfo step1Monitor = ProfilerHelper.registerInfo(step1MonitorKey,Constants.UMP_APP_NAME_DMSWORKER);
         List<SendDetail> list = getCancelSendByBox(boxCode);
-
+        Profiler.registerInfoEnd(step1Monitor);
+        //2、循环处理send明细，根据获取的包裹数量加入监控
         if (list != null && !list.isEmpty()) {
+        	step2TotalMonitor = ProfilerHelper.registerInfo(
+            		ProfilerHelper.genKeyByQuantity(step2TotalMonitorKey, list.size()),
+            		Constants.UMP_APP_NAME_DMSWORKER);
             for (SendDetail tsendDatail : list) {
+            	//2、处理单个send明细，加入监控
+            	CallerInfo step2PerMonitor = ProfilerHelper.registerInfo(
+            			step2PerMonitorKey,Constants.UMP_APP_NAME_DMSWORKER);
                 tsendDatail.setSendDId(null);//把主键置空，避免后面新增时报主键冲突 组织数据将原数据状态清空
                 tsendDatail.setCreateSiteCode(bCreateSiteCode);
                 tsendDatail.setReceiveSiteCode(bReceiveSiteCode);
@@ -3278,23 +3307,38 @@ public class DeliveryServiceImpl implements DeliveryService {
                         sendM.setReceiveSiteCode(bReceiveSiteCode);
                         List<SendM> sendMs = sendMDao.findSendMByBoxCode(sendM);
                         if (null != sendMs && !sendMs.isEmpty()) {
-                            logger.warn("find senm from db success value <"
-                                    + JsonHelper.toJson(sendMs.get(0)) + ">");
+                            logger.warn("dofindTransitSend-find sendm from db success,value "
+                                    + JsonHelper.toJson(sendMs.get(0)));
                             SendM s = sendMs.get(0);
                             tsendDatail.setOperateTime(s.getOperateTime());
                             tsendDatail.setCreateUser(s.getCreateUser());
                             tsendDatail.setCreateUserCode(s.getCreateUserCode());
                             tsendDatail.setBoardCode(s.getBoardCode());
+                        }else{
+                            logger.warn("dofindTransitSend-find sendm from db fail,param :"
+                                    + JsonHelper.toJson(sendM));
                         }
                     } catch (Throwable e) {
-                        logger.error("发货全程跟踪", e);
+                        logger.error("dofindTransitSend-发货全程跟踪异常", e);
                     }
                     List<SendDetail> sendDetails = new ArrayList<SendDetail>(1);
                     sendDetails.add(tsendDatail);
                     this.updateWaybillStatus(sendDetails);     // 回传发货全程跟踪
                 }
+                Profiler.registerInfoEnd(step2PerMonitor);
             }
+            long costTime = System.currentTimeMillis() - beginTime;
+            //消耗时间大于500ms
+            if(costTime>=500){
+            	logger.warn("dofindTransitSend-cost:boxCode:"+boxCode +",size:"+ list.size()+",cost:"+costTime+"ms");
+            }
+        }else{
+        	step2TotalMonitor = ProfilerHelper.registerInfo(
+            		ProfilerHelper.genKeyByQuantity(step2TotalMonitorKey, 0),
+            		Constants.UMP_APP_NAME_DMSWORKER);
+        	logger.warn("dofindTransitSend:根据箱号查询发货明细为空！"+boxCode+"");
         }
+        Profiler.registerInfoEnd(step2TotalMonitor);
         return true;
     }
 
