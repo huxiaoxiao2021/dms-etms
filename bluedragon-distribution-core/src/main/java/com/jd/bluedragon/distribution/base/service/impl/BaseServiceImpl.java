@@ -30,6 +30,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -686,8 +687,7 @@ public class BaseServiceImpl implements BaseService {
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public String getPopBusinessNameByCode(String popCode) {
 		try {
-			BaseTradeInfoDto baseTradeInfoDto = basicSecondaryWS
-			        .getTraderInfoByPopCode(popCode);
+			BasicTraderInfoDTO baseTradeInfoDto = baseMinorManager.getTraderInfoByPopCode(popCode);
 			if (null == baseTradeInfoDto || StringUtils.isBlank(baseTradeInfoDto.getTraderName())) {
 				return null;
 			} else {

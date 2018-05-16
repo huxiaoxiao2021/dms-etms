@@ -10,12 +10,7 @@ import com.jd.ql.basic.dto.*;
 public interface BaseMinorManager {
 	
 	public abstract BasicTraderInfoDTO getBaseTraderById(Integer paramInteger);
-	
-	public abstract MainBranchSchedule getMainBranchScheduleByTranCode(String paramString);
 
-	public abstract BaseResult<List<MainBranchSchedule>> getMainBranchScheduleList(
-			MainBranchSchedule mbs);
-	
 	public abstract AirTransport getAirConfig(Integer originalProvinceId, Integer originalCityId,Integer destinationProvinceId, Integer destinationCityId);
 	
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionDmsCodeSiteCode(Integer dmsID,String flage, Integer siteCode) ;
@@ -32,8 +27,6 @@ public interface BaseMinorManager {
      */
     public List<String> getSignCustomer();
     
-    public BasePdaUserDto pdaUserLogin(String erpcode, String password);
-
 	/**
 	 * 根据站点code查找三方承运超限指标
 	 *
@@ -41,5 +34,8 @@ public interface BaseMinorManager {
 	 * @return
 	 */
 	BaseSiteGoods getGoodsVolumeLimitBySiteCode(Integer siteCode);
+
+
+	public BasicTraderInfoDTO getTraderInfoByPopCode(String popCode);
 
 }
