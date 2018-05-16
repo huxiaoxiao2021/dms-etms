@@ -573,4 +573,13 @@ public class InspectionServiceImpl implements InspectionService {
 			return new InspectionResult("");
 		}
 	}
+
+	/**
+	 * 按条件查询验货记录
+	 *
+	 * */
+	@Override
+	public List<Inspection> queryByCondition(Inspection inspection) {
+		return this.inspectionDao.queryByCondition(inspection);
+	}
 }

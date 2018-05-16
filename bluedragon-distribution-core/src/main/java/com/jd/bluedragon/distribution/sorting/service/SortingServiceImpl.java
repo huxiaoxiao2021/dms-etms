@@ -1084,6 +1084,20 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.findByBsendCode(sorting);
 	}
 
+    /**
+     * 根据包裹号，当前站点查询所有分拣记录
+     * @param createSiteCode
+     * @param packageCode
+     * @return
+     */
+	@Override
+	public List<Sorting>  findByPackageCode(Integer createSiteCode, String packageCode){
+	    Sorting sorting = new Sorting();
+	    sorting.setPackageCode(packageCode);
+	    sorting.setCreateSiteCode(createSiteCode);
+	    return sortingDao.findByPackageCode(sorting);
+    }
+
 	public static void main(String args[]){
 //		SortingServiceImpl impl = new SortingServiceImpl();
 //		Sorting sorting = new Sorting();

@@ -314,6 +314,14 @@
 		WHERE yn=1  AND  waybill_code = #{waybillCode}  AND create_site_code = #{createSiteCode,jdbcType=INTEGER} AND is_cancel = 0
 	</select>
 
-
+	<select id="findByPackageCode" resultMap="sorting" parameterType="sorting">
+		SELECT box_code, package_code, waybill_code, pickup_code,
+		    create_site_code, receive_site_code,
+			create_user_code, create_user,
+			create_time, update_time, operate_time, is_cancel,
+			sorting_status, yn, is_loss
+		FROM  sorting
+		WHERE yn=1  AND  package_code = #{packageCode}  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</select>
 
 </mapper>
