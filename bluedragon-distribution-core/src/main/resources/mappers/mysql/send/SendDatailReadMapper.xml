@@ -80,8 +80,7 @@
 	<select id="findSendByPackageCode" parameterType="java.util.Map" resultMap="SendDetail">
 		select send_code,box_code,package_barcode,waybill_code,create_site_code,CREATE_USER ,receive_site_code,operate_time,create_time,SENDD_STATUS,IS_CANCEL,IS_LOSS
 		from send_d
-		where yn = 1 and package_barcode = #{packageCode} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		order by create_time desc
+		where yn = 1 and package_barcode = #{packageCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 	
 	<select id="findBySendCode" parameterType="map" resultMap="SendDetail">

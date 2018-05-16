@@ -321,7 +321,7 @@
 			create_time, update_time, operate_time, is_cancel,
 			sorting_status, yn, is_loss
 		FROM  sorting
-		WHERE yn=1  AND  package_code = #{packageCode}  AND create_site_code = #{createSiteCode,jdbcType=INTEGER} AND is_cancel = 0
+		WHERE yn=1  AND  package_code = #{packageCode}  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 
 </mapper>
