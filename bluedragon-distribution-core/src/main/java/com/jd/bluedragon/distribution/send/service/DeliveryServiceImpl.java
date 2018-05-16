@@ -3276,6 +3276,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         	step2TotalMonitor = ProfilerHelper.registerInfo(
             		ProfilerHelper.genKeyByQuantity(step2TotalMonitorKey, list.size()),
             		Constants.UMP_APP_NAME_DMSWORKER);
+            SendM sendM = null;
+            try {
+                SendM temp = new SendM();
+                temp.setCreateSiteCode(bCreateSiteCode);
+                temp.setBoxCode(boxCode);
+                temp.setReceiveSiteCode(bReceiveSiteCode);
+                List<SendM> sendMs = sendMDao.findSendMByBoxCode(temp);
+                if (null != sendMs && !sendMs.isEmpty()) {
+                    logger.warn("dofindTransitSend-find sendm from db success,value "
+                            + JsonHelper.toJson(sendMs.get(0)));
+                    sendM = sendMs.get(0);
+
+                }else{
+                    logger.warn("dofindTransitSend-find sendm from db fail,param :"
+                            + JsonHelper.toJson(temp));
+                }
+            } catch (Throwable e) {
+                logger.error("dofindTransitSend-发货全程跟踪异常", e);
+            }
             for (SendDetail tsendDatail : list) {
             	//2、处理单个send明细，加入监控
             	CallerInfo step2PerMonitor = ProfilerHelper.registerInfo(
@@ -3290,36 +3309,17 @@ public class DeliveryServiceImpl implements DeliveryService {
                 tsendDatail.setExcuteCount(0);
                 tsendDatail.setOperateTime(task.getCreateTime());
                 
-                if ((!tsendDatail.getBoxCode().equals(task.getBody()))
-                        && (!StringHelper.isEmpty(task.getBody()))
-                        && task.getBody().contains("-")) {
+                if ((!tsendDatail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
                     tsendDatail.setSendCode(task.getBody());
                     tsendDatail.setYn(1);
                 }
                 this.saveOrUpdateCancel(tsendDatail);
-                if ((!tsendDatail.getBoxCode().equals(task.getBody()))
-                        && (!StringHelper.isEmpty(task.getBody()))
-                        && task.getBody().contains("-")) {
-                    try {
-                        SendM sendM = new SendM();
-                        sendM.setCreateSiteCode(bCreateSiteCode);
-                        sendM.setBoxCode(boxCode);
-                        sendM.setReceiveSiteCode(bReceiveSiteCode);
-                        List<SendM> sendMs = sendMDao.findSendMByBoxCode(sendM);
-                        if (null != sendMs && !sendMs.isEmpty()) {
-                            logger.warn("dofindTransitSend-find sendm from db success,value "
-                                    + JsonHelper.toJson(sendMs.get(0)));
-                            SendM s = sendMs.get(0);
-                            tsendDatail.setOperateTime(s.getOperateTime());
-                            tsendDatail.setCreateUser(s.getCreateUser());
-                            tsendDatail.setCreateUserCode(s.getCreateUserCode());
-                            tsendDatail.setBoardCode(s.getBoardCode());
-                        }else{
-                            logger.warn("dofindTransitSend-find sendm from db fail,param :"
-                                    + JsonHelper.toJson(sendM));
-                        }
-                    } catch (Throwable e) {
-                        logger.error("dofindTransitSend-发货全程跟踪异常", e);
+                if ((!tsendDatail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
+                    if (null != sendM) {
+                        tsendDatail.setOperateTime(sendM.getOperateTime());
+                        tsendDatail.setCreateUser(sendM.getCreateUser());
+                        tsendDatail.setCreateUserCode(sendM.getCreateUserCode());
+                        tsendDatail.setBoardCode(sendM.getBoardCode());
                     }
                     List<SendDetail> sendDetails = new ArrayList<SendDetail>(1);
                     sendDetails.add(tsendDatail);
@@ -3329,7 +3329,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             long costTime = System.currentTimeMillis() - beginTime;
             //消耗时间大于500ms
-            if(costTime>=500){
+            if(costTime>=2000){
             	logger.warn("dofindTransitSend-cost:boxCode:"+boxCode +",size:"+ list.size()+",cost:"+costTime+"ms");
             }
         }else{
@@ -3342,7 +3342,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     private void saveOrUpdateCancel(SendDetail sendDetail) {
         logger.info("WORKER处理中转发货-插入SEND—D表" + JsonHelper.toJson(sendDetail));
         if (Constants.NO_MATCH_DATA == this.update(sendDetail).intValue()) {
