@@ -3,21 +3,25 @@ package com.jd.bluedragon.distribution.worker;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import com.google.gson.reflect.TypeToken;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
-import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
-import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
-import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
+import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * 验货worker
@@ -39,10 +43,12 @@ public class InspectionTask extends DBSingleScheduler {
     @Qualifier("inspectionTaskExecute")
     @Autowired()
     private AbstractTaskExecute taskExecute;
-
+    
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign)
 			throws Exception {
+    		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
+    				Constants.UMP_APP_NAME_DMSWORKER);
 			try {
 				logger.info("验货work开始，task_id: " + task.getId());
 				//List<Inspection> inspections = inspectionService.parseInspections(task);
@@ -84,7 +90,10 @@ public class InspectionTask extends DBSingleScheduler {
             }catch (Exception e) {
 				logger.error("验货worker失败, task id: " + task.getId()
 						+ ". 异常信息: " + e.getMessage(), e);
+				Profiler.functionError(callerInfo);
 				return false;
+			}finally{
+				Profiler.registerInfoEnd(callerInfo);
 			}
 		return true;
 	}

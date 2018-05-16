@@ -478,7 +478,10 @@ public class Constants {
      * 配置信息-北京的分拣中心
      */
     public static final String SYS_CONFIG_NAME_BJ_DMS_SITE_CODES = "bjDmsSiteCodes";
-
+    /**
+     * 配置信息-客户端检查配置sys.config.client.check
+     */
+    public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
 
