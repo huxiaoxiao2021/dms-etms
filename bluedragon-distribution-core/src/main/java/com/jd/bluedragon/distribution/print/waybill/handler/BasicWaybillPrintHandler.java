@@ -207,7 +207,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
                 char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
                 commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
-                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_ONE) == QUICK_SIGN_VALUE || tmsWaybill.getSendPay().charAt(QUICK_SIGN_BIT_TWO) == QUICK_SIGN_VALUE) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
+                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((BusinessHelper.isSignY(tmsWaybill.getSendPay(),56) || BusinessHelper.isSignY(tmsWaybill.getSendPay(),52)) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
             }
             /*值=1，打“普”字，
 			     值=3，打“电”，

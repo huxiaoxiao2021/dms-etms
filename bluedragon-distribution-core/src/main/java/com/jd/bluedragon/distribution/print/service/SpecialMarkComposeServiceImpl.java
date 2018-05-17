@@ -56,18 +56,18 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.appendSpecialMark(SPECIAL_MARK_LOCAL_SCHEDULE);
         }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
-        	if(waybill.getSendPay().charAt(21)!='5'){
+        	if(!BusinessHelper.isSignChar(waybill.getSendPay(),22,'5')){
         		waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_SITE);
         	}
         }
-        if(waybill.getSendPay().length()>134&&waybill.getSendPay().charAt(134)=='1'){
+        if(BusinessHelper.isSignY(waybill.getSendPay(),135)){
             waybill.appendSpecialMark(SPECIAL_MARK_VALUABLE);
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
-        if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().length() >11 && waybill.getWaybillSign().charAt(11)=='9') {
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),12,'9')) {
             waybill.appendSpecialMark(SPECIAL_MARK_CROWD_SOURCING);
         }
-        if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().length() >23 && waybill.getWaybillSign().charAt(23)=='1') {
+        if(BusinessHelper.isSignY(waybill.getWaybillSign(),24)) {
             waybill.appendSpecialMark(SPECIAL_MARK_PUBLIC_WELFARE);
         }
 
@@ -110,8 +110,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(SPECIAL_MARK_VALUABLE, SPECIAL_MARK_CROWD_SOURCING);
 
         //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
-        if (StringHelper.isNotEmpty(waybill.getSendPay()) && waybill.getSendPay().length() > 123 && waybill.getSendPay().charAt(123) == '4'
-                && (waybill.getSendPay().charAt(107) == '1' || waybill.getSendPay().charAt(107) == '2' || waybill.getSendPay().charAt(107) == '3')) {
+        if (BusinessHelper.isSignChar(waybill.getSendPay(),124,'4')
+                && BusinessHelper.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             waybill.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
     }

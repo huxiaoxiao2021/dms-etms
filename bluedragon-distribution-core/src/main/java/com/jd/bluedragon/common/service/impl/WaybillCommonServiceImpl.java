@@ -543,7 +543,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(waybill.getWaybillSign().length()>14 && waybill.getWaybillSign().charAt(14)=='3' && !BusinessHelper.isQWD(waybill.getWaybillSign()))
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
         {
             target.setBusiOrderCode(waybill.getSpareColumn3());
         }
