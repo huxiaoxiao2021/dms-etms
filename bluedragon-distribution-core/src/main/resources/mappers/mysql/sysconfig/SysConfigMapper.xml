@@ -92,13 +92,14 @@
 	</select>
 	
 	<select id="getList" resultMap="sysconfig" parameterType="sysconfig">
-	select * from sysconfig where yn=1 
+	select * from sysconfig where yn=1
 	 <if test="configType != null">
-	and CONFIG_TYPE=#{configType}
+		and CONFIG_TYPE=#{configType}
 	 </if>
 	  <if test="configName != null">
-	 and config_name=#{configName}
+	 	and config_name=#{configName}
 	 </if>
+	 order by config_name
 	</select>
 
 	<select id="getListByConName" resultMap="sysconfig" parameterType="java.lang.String">

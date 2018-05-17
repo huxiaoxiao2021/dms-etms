@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.distribution.command.JdResult;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WayBillPrintRedundanceService;
 import com.jd.bluedragon.utils.JsonHelper;
-
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 

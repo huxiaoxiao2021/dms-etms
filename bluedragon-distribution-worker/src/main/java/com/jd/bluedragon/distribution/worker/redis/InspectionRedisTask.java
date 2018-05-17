@@ -4,10 +4,13 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.gson.reflect.TypeToken;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.utils.JsonHelper;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,10 @@ import com.jd.bluedragon.distribution.framework.RedisSingleScheduler;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * 验货worker
@@ -38,10 +45,11 @@ public class InspectionRedisTask extends RedisSingleScheduler {
     @Qualifier("inspectionTaskExecute")
     @Autowired()
     private AbstractTaskExecute taskExecute;
-
 	@Override
 	protected boolean executeSingleTask(Task task, String ownSign)
 			throws Exception {//FIXME：没必要的异常，如需要抛出需要自定义
+		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
+				Constants.UMP_APP_NAME_DMSWORKER);
 			try {
 				logger.info("验货work开始，task_id: " + task.getId());
                 if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -71,7 +79,10 @@ public class InspectionRedisTask extends RedisSingleScheduler {
             }catch (Exception e) {
 				logger.error("验货worker失败, task id: " + task.getId()
 						+ ". 异常信息: " + e.getMessage(), e);
+				Profiler.functionError(callerInfo);
 				return false;
+			}finally{
+				Profiler.registerInfoEnd(callerInfo);
 			}
 		return true;
 	}
