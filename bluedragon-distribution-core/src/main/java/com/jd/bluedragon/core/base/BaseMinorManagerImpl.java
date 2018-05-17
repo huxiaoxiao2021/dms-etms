@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
@@ -170,6 +171,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 
 	@Override
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getTraderInfoByPopCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+			mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicTraderInfoDTO getTraderInfoByPopCode(String popCode){
 		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
 		responseDTO = basicTraderAPI.getBasicTraderInfoByPopId(popCode);
