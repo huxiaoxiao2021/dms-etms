@@ -378,6 +378,7 @@ public class BaseResource implements DmsBaseService {
 			//检查客户端版本信息，版本不一致，不允许登录
             JdResult<String> checkResult = checkClientInfo(info);
             if(!checkResult.isSucceed()){
+            	this.logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
 				BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
 						checkResult.getMessage());
 				// ERP账号
@@ -493,7 +494,7 @@ public class BaseResource implements DmsBaseService {
     						}
     					}
     					if(!versionIsMatch){
-    						checkResult.toFail("线上最新版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+    						checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
     					}
     				}
     			}
