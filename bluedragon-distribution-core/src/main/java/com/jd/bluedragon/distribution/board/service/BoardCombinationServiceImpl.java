@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.board.service;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -75,6 +77,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     //操作组板的单位类型 0：分拣中心； 1：TC
     private static final Integer BOARD_COMBINATION_SITE_TYPE = 0;
+
+    //批量查询板号信息，每次查询最大数量
+    private static final Integer QUERY_BOARD_PAGE_SIZE = 100;
 
     @Value("${board.combination.bindings.count.max}")
     private Integer boardBindingsMaxCount;
@@ -572,5 +577,49 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             sendWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
         }
         return tcResponse;
+    }
+
+    /**
+     * 批量查询板号信息，分页查询，每次查询100条，
+     * @param boardList
+     * @return boardCodes
+     * @throws Exception
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardVolumeByBoardCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<Board> getBoardVolumeByBoardCode(List<String> boardList) throws Exception {
+        List<Board> boardCodes = null;
+        if(boardList != null && !boardList.isEmpty()){
+            int totalNum = boardList.size();
+            int startNum = 0;
+            boardCodes = new ArrayList<Board>(boardList.size());
+            do{
+                int endNum = startNum +QUERY_BOARD_PAGE_SIZE;
+                if(endNum > totalNum){
+                    endNum = totalNum;
+                }
+                CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.getBoardVolumeByBoardCode.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
+                try{
+                    Response<List<Board>> tcResponse = groupBoardService.getBoardVolumeByBoardCode(boardList.subList(startNum, endNum));
+                    if(tcResponse != null && JdResponse.CODE_SUCCESS.equals(tcResponse.getCode()) ){
+                        if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
+                            boardCodes.addAll(tcResponse.getData());
+                        }
+                    }else{
+                        logger.warn("批量查询板号信息出错,返回结果：" + JsonHelper.toJson(tcResponse) + ";板号信息：" + boardList.subList(startNum, endNum).toString());
+                    }
+                }catch (Exception e){
+                    Profiler.functionError(info);
+                    logger.error("批量查询板号信息出错,板号：" + boardList.subList(startNum, endNum).toString(), e);
+                    throw e;
+
+                }finally {
+                    Profiler.functionError(info);
+                }
+                startNum = startNum + QUERY_BOARD_PAGE_SIZE;
+            }while (startNum < totalNum);
+        }
+
+        return boardCodes;
     }
 }

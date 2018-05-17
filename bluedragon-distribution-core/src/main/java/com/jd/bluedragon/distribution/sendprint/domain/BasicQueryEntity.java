@@ -107,10 +107,16 @@ public class BasicQueryEntity implements Serializable{
     
     /** 返修号*/
     private String reworkNo;
-    
-    /** 发货时间*/
-    private String operateTime;
-    
+
+	/** 发货时间*/
+	private String operateTime;
+
+
+	/** 托盘号*/
+	private String boardCode;
+
+	/** 托盘体积*/
+	private Double boardVolume;
 
 	public Double getGoodWeight2() {
 		return goodWeight2;
@@ -391,4 +397,20 @@ public class BasicQueryEntity implements Serializable{
     public void setGoodVolume(Double goodVolume) {
         this.goodVolume = goodVolume;
     }
+
+	public String getBoardCode() {
+		return boardCode;
+	}
+
+	public void setBoardCode(String boardCode) {
+		this.boardCode = boardCode;
+	}
+
+	public Double getBoardVolume() {
+		return boardVolume;
+	}
+
+	public void setBoardVolume(Double boardVolume) {
+		this.boardVolume = boardVolume;
+	}
 }
