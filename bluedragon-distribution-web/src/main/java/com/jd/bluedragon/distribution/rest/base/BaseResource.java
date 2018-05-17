@@ -378,7 +378,7 @@ public class BaseResource implements DmsBaseService {
 			//检查客户端版本信息，版本不一致，不允许登录
             JdResult<String> checkResult = checkClientInfo(info);
             if(!checkResult.isSucceed()){
-				BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
+				BaseResponse response = new BaseResponse(JdResponse.CODE_SITE_ERROR,
 						checkResult.getMessage());
 				// ERP账号
 				response.setErpAccount(erpAccount);
