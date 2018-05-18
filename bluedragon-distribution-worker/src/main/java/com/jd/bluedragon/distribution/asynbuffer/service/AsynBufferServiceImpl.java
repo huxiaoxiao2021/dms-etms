@@ -4,8 +4,11 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,6 +32,10 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * Created by xumei3 on 2017/4/17.
@@ -64,9 +71,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Qualifier("inspectionTaskExecute")
     @Autowired()
     private AbstractTaskExecute taskExecute;
-
     public boolean inspectionTaskProcess(Task task)
             throws Exception {
+		CallerInfo callerInfo = ProfilerHelper.registerInfo("DmsWorker.Task.InspectionTask.execute",
+				Constants.UMP_APP_NAME_DMSWORKER);
         try {
             logger.info("验货work开始，task_id: " + task.getId());
             if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -101,8 +109,11 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             logger.warn(sb.toString());
             return false;
         }catch (Exception e) {
+        	Profiler.functionError(callerInfo);
             logger.error("验货worker失败, task id: " + task.getId() + ". 异常信息: " + e.getMessage(), e);
             return false;
+        }finally{
+        	Profiler.registerInfoEnd(callerInfo);
         }
         return true;
     }

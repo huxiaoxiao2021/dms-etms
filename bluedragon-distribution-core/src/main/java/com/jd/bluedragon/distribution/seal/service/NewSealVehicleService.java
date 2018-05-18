@@ -20,7 +20,7 @@ public interface NewSealVehicleService {
      * @param sealCars
      * @return
      */
-    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+    public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
 
     /**
      * 查询待解任务
@@ -28,14 +28,14 @@ public interface NewSealVehicleService {
      * @param pageDto
      * @return
      */
-    public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto);
+    public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto) throws Exception;
 
     /**
      * 解封车
      * @param sealCars
      * @return
      */
-    public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+    public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
 
     /**
      *VOS查询批次号是否已被封车接口
@@ -78,6 +78,6 @@ public interface NewSealVehicleService {
      * @param sealCars 待解的封车任务
      * @return
      */
-    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
+    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
 
 }

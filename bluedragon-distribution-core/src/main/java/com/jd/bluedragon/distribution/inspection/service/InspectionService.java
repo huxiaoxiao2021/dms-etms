@@ -95,7 +95,7 @@ public interface InspectionService {
 	
 	/**
 	 * 写入业务表数据和日志数据
-	 * @param  Inspection
+	 * @param  inspection
 	 * */
 	public void saveData(Inspection inspection);
 
@@ -111,4 +111,10 @@ public interface InspectionService {
     public void pushOEMToWMS(Inspection inspection);
 
     public InspectionResult getInspectionResult(Integer dmsSiteCode, String waybillCode);
+
+	/**
+	 * 按条件查询验货记录
+	 *
+	 * */
+	public List<Inspection> queryByCondition(Inspection inspection);
 }

@@ -110,4 +110,12 @@ public interface SortingService {
      * @param sorting
      */
     public void addSortingAdditionalTask(Sorting sorting);
+
+    /**
+     * 根据包裹号，当前站点查询所有分拣记录
+     * @param createSiteCode
+     * @param packageCode
+     * @return
+     */
+    public List<Sorting>  findByPackageCode(Integer createSiteCode, String packageCode);
 }

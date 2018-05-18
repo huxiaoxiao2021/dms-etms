@@ -14,7 +14,9 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.vrs.dto.CommonDto;
+import com.jd.etms.vrs.dto.RecommendRouteDto;
+import com.jd.etms.vrs.dto.compute.RouteProduct;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -90,7 +92,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             crossBoxRequest.setEndIndex(page.getEndIndex());
 
             params = ObjectMapHelper.makeObject2Map(crossBoxRequest);
-            params.put("pageSize", page.getPageSize());
+            params.put("pageSize",page.getPageSize());
             list = crossBoxDao.queryByCondition(params);
         }
         return list;
@@ -304,9 +306,9 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 result.setData(resCrossDmsBox);
                 result.setResultCode(result.SUCCESS);
                 if (resCrossDmsBox != null) {
-                    result.setMessage("已获取到数据并返回");
+                   result.setMessage("已获取到数据并返回");
                 } else {
-                    result.setMessage("调用成功但在青龙系统中未查询到数据");
+                   result.setMessage("调用成功但在青龙系统中未查询到数据");
                 }
             }
         } catch (Exception e) {
@@ -319,7 +321,6 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     /**
      * 查询分拣系统中的路由信息
-     *
      * @param originalDmsId
      * @param destinationDmsId
      * @return
@@ -343,10 +344,10 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             result.setResultCode(result.SUCCESS);
             if (StringUtils.isNotBlank(fullLine)) {
                 result.setData(fullLine);
-                result.setMessage("调用成功,数据已成功获取并返回");
+               result.setMessage("调用成功,数据已成功获取并返回");
             } else {
                 result.setData(null);
-                result.setMessage("调用成功，但未查询到数据，请判断参数是否正确");
+               result.setMessage("调用成功，但未查询到数据，请判断参数是否正确");
             }
         } catch (Exception e) {
             result.setData(null);
@@ -360,7 +361,6 @@ public class CrossBoxServiceImpl implements CrossBoxService {
     /**
      * 查询路由信息
      * 先从路由系统查，没有再从分拣系统查
-     *
      * @param originalDmsId
      * @param destinationDmsId
      * @param predictSendTime
@@ -370,7 +370,7 @@ public class CrossBoxServiceImpl implements CrossBoxService {
     @Override
     @JProfiler(jKey = "DMS.BASE.CrossBoxServiceImpl.getBoxRouter", mState = {JProEnum.TP, JProEnum.FunctionError})
     public CrossBoxResult<String[]> getBoxRouter(Integer originalDmsId, Integer destinationDmsId, Date predictSendTime, Integer transportType) {
-        CrossBoxResult<String[]> result = new CrossBoxResult<String[]>(CrossBoxResult.SUCCESS, null, "成功");
+        CrossBoxResult<String[]> result = new CrossBoxResult<String[]>(CrossBoxResult.SUCCESS,null,"成功");
         try {
             if (originalDmsId == null || destinationDmsId == null) {
                 result.setData(null);
@@ -379,13 +379,13 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 return result;
             }
             //如果有预发时间
-            if (predictSendTime != null && transportType != null) {
-                if (getRemoteRouter(result, originalDmsId, destinationDmsId, predictSendTime, transportType)) {
+            if (predictSendTime!=null && transportType!=null){
+                if (getRemoteRouter(result,originalDmsId,destinationDmsId,predictSendTime,transportType)){
                     return result;
                 }
             }
             //路由系统没返回路由信息  查本地
-            if (transportType != null && (Box.BOX_TRANSPORT_TYPE_HIGHWAY.equals(transportType) || Box.BOX_TRANSPORT_TYPE_CITY.equals(transportType))) {
+            if(transportType!=null && (Box.BOX_TRANSPORT_TYPE_HIGHWAY.equals(transportType)|| Box.BOX_TRANSPORT_TYPE_CITY.equals(transportType))){
                 getCrossRouter(originalDmsId, destinationDmsId, result);
             }
         } catch (Exception e) {
@@ -399,31 +399,30 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     /**
      * 获取路由站点信息  从分拣系统
-     *
      * @param originalDmsId
      * @param destinationDmsId
      * @param result
      * @return
      */
     private boolean getCrossRouter(Integer originalDmsId, Integer destinationDmsId, CrossBoxResult<String[]> result) {
-        CrossBoxResult<CrossBox> crossBoxCrossBoxResult = getCrossDmsBoxByOriAndDes(originalDmsId, destinationDmsId);
-        if (crossBoxCrossBoxResult != null && crossBoxCrossBoxResult.getData() != null && StringHelper.isNotEmpty(crossBoxCrossBoxResult.getData().getFullLine())) {
-            StringBuffer siteIdSb = new StringBuffer();
+        CrossBoxResult<CrossBox> crossBoxCrossBoxResult= getCrossDmsBoxByOriAndDes(originalDmsId,destinationDmsId);
+        if (crossBoxCrossBoxResult!=null && crossBoxCrossBoxResult.getData()!=null&& StringHelper.isNotEmpty(crossBoxCrossBoxResult.getData().getFullLine())){
+            StringBuffer siteIdSb=new StringBuffer();
             siteIdSb.append(originalDmsId);
-            if (crossBoxCrossBoxResult.getData().getTransferOneId() != null) {
+            if (crossBoxCrossBoxResult.getData().getTransferOneId()!=null){
                 siteIdSb.append("--").append(crossBoxCrossBoxResult.getData().getTransferOneId());
             }
-            if (crossBoxCrossBoxResult.getData().getTransferTwoId() != null) {
+            if (crossBoxCrossBoxResult.getData().getTransferTwoId()!=null){
                 siteIdSb.append("--").append(crossBoxCrossBoxResult.getData().getTransferTwoId());
             }
-            if (crossBoxCrossBoxResult.getData().getTransferThreeId() != null) {
+            if (crossBoxCrossBoxResult.getData().getTransferThreeId()!=null){
                 siteIdSb.append("--").append(crossBoxCrossBoxResult.getData().getTransferThreeId());
             }
             siteIdSb.append("--").append(destinationDmsId);
 
-            String[] routerArr = new String[2];
-            routerArr[0] = crossBoxCrossBoxResult.getData().getFullLine();
-            routerArr[1] = siteIdSb.toString();
+            String[] routerArr=new String[2];
+            routerArr[0]= crossBoxCrossBoxResult.getData().getFullLine();
+            routerArr[1]=siteIdSb.toString();
             result.setData(routerArr);
             return true;
         }
@@ -432,20 +431,19 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     /**
      * 转换为接口用的参数
-     *
      * @param transportType
      * @return
      */
-    private RouteProductEnum getRouteProduct(Integer transportType) {
-        if (transportType == null) return null;
-        switch (transportType) {
+    private RouteProduct getRouteProduct(Integer transportType){
+        if (transportType==null) return null;
+        switch (transportType){
             case 1:
-                return RouteProductEnum.T2;
+                return RouteProduct.T2;
             case 2:
             case 3:
-                return RouteProductEnum.T1;
+                return RouteProduct.T1;
             case 4:
-                return RouteProductEnum.T4;
+                return RouteProduct.T4;
             default:
                 return null;
         }
@@ -453,26 +451,23 @@ public class CrossBoxServiceImpl implements CrossBoxService {
 
     /**
      * 若网点名称中包含“分拣中心”则删除， 例如 北京马驹桥分拣中心 显示为  北京马驹桥
-     *
      * @return
      */
-    private String converSiteName(String siteName) {
-        if (StringHelper.isEmpty(siteName)) {
+    private String converSiteName(String siteName){
+        if (StringHelper.isEmpty(siteName)){
             return "";
         }
-        if (siteName.indexOf("分拣中心") != -1) {
-            return siteName.replace("分拣中心", "");
-        } else if (siteName.indexOf("分拨中心") != -1) {
-            return siteName.replace("分拨中心", "");
-        } else if (siteName.indexOf("中转场") != -1) {
-            return siteName.replace("中转场", "");
+        if (siteName.indexOf("分拣中心")!=-1){
+            return siteName.replace("分拣中心","");
+        }else if (siteName.indexOf("分拨中心")!=-1){
+            return siteName.replace("分拨中心","");
+        }else if (siteName.indexOf("中转场")!=-1){
+            return siteName.replace("中转场","");
         }
         return siteName;
     }
-
     /**
      * 获取路由站点信息  从路由系统
-     *
      * @param result
      * @param originalDmsId
      * @param destinationDmsId
@@ -481,42 +476,42 @@ public class CrossBoxServiceImpl implements CrossBoxService {
      * @return 返回false 后面会走老逻辑，查cross_box
      */
     private boolean getRemoteRouter(CrossBoxResult<String[]> result, Integer originalDmsId, Integer destinationDmsId, Date predictSendTime, Integer transportType) {
-        RouteProductEnum routeProduct = getRouteProduct(transportType);
-        if (routeProduct == null) {
+        RouteProduct  routeProduct=getRouteProduct(transportType);
+        if (routeProduct==null){
             return false;
         }
-        BaseStaffSiteOrgDto originalDms = baseMajorManager.getBaseSiteBySiteId(originalDmsId);
-        if (originalDms == null) {
+        BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsId);
+        if (originalDms==null){
             return false;
         }
-        BaseStaffSiteOrgDto destinationDms = baseMajorManager.getBaseSiteBySiteId(destinationDmsId);
-        if (destinationDms == null) {
+        BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsId);
+        if (destinationDms==null){
             return false;
         }
-        String router = vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsSiteCode(), destinationDms.getDmsSiteCode(), predictSendTime, routeProduct);
+        String router=vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
 
-        if (StringUtils.isEmpty(router)) {
+        if (StringUtils.isEmpty(router)){
             return false;
         }
         //拼接路由站点的名称
-        StringBuffer fullLineName = new StringBuffer();
-        StringBuffer fullLineId = new StringBuffer();
-        String[] siteArr = router.split("\\|");
+        StringBuffer fullLineName=new StringBuffer();
+        StringBuffer fullLineId=new StringBuffer();
+        String[] siteArr=router.split("\\|");
         //有路由节点的话，加上发出和接收节点，数量一定会>2个
-        if (siteArr.length < 2) {
+        if (siteArr.length<2){
             return false;
         }
-        for (int i = 0; i < siteArr.length; i++) {
+        for (int i =0;i<siteArr.length;i++){
             //获取站点信息
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
-            if (baseStaffSiteOrgDto == null) {
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
+            if (baseStaffSiteOrgDto==null){
                 result.setData(null);
                 result.setResultCode(result.FAIL);
-                result.setMessage("远程接口返回异常：站点【" + siteArr[i] + "】不存在");
-                logger.warn("路由系统返回的站点路由发现未存在站点：" + siteArr[i] + ",参数列表：originalDms.getDmsSiteCode():" + originalDms.getDmsSiteCode() + ",destinationDms.getDmsSiteCode():" + destinationDms.getDmsSiteCode() + ",predictSendTime:" + predictSendTime.getTime() + ",routeProduct:" + routeProduct);
+                result.setMessage("远程接口返回异常：站点【"+siteArr[i]+"】不存在" );
+                logger.warn("路由系统返回的站点路由发现未存在站点："+ siteArr[i]+",参数列表：originalDms.getDmsSiteCode():"+originalDms.getDmsSiteCode()+",destinationDms.getDmsSiteCode():"+destinationDms.getDmsSiteCode()+",predictSendTime:"+predictSendTime.getTime()+",routeProduct:"+routeProduct);
                 return false;
             }
-            if (i != 0) {
+            if (i!=0){
                 //第一个不需要连接符
                 fullLineName.append("--");
                 fullLineId.append("--");
@@ -524,17 +519,15 @@ public class CrossBoxServiceImpl implements CrossBoxService {
             fullLineName.append(converSiteName(baseStaffSiteOrgDto.getSiteName()));
             fullLineId.append(baseStaffSiteOrgDto.getSiteCode());
         }
-        String[] routerArr = new String[2];
-        routerArr[0] = fullLineName.toString();
-        routerArr[1] = fullLineId.toString();
+        String[] routerArr=new String[2];
+        routerArr[0]= fullLineName.toString();
+        routerArr[1]=fullLineId.toString();
         result.setData(routerArr);
         return true;
 
     }
-
     /**
      * jsf提供的服务，根据箱号查询箱子信息 路由信息
-     *
      * @param boxCode
      * @return
      */
@@ -554,10 +547,10 @@ public class CrossBoxServiceImpl implements CrossBoxService {
         response.setType(box.getType());
         response.setTransportType(box.getTransportType());
         response.setPredictSendTime(box.getPredictSendTime());
-        if (StringHelper.isNotEmpty(box.getRouterName())) {
+        if (StringHelper.isNotEmpty(box.getRouterName())){
             response.setRouterInfo(box.getRouterName().split("\\-\\-"));
         }
-        if (StringHelper.isNotEmpty(box.getRouter())) {
+        if (StringHelper.isNotEmpty(box.getRouter())){
             response.setRouterFullId(box.getRouter().split("\\-\\-"));
         }
         return response;

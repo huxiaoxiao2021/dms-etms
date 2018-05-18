@@ -28,7 +28,6 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 	 * @param password 密码
 	 */
 	public UserInfo verify(String username, String password) {
-		// TODO Auto-generated method stub
 		UserInfo userInfo = null;
 		try {
 			String pwd = UimHelper.md5(password);
