@@ -177,14 +177,14 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     /**
      * 汇总单个批次的统计信息
-     * @param sendM
+     * @param oriSendM
      * @param sendMList
      * @param criteria
      * @param boardMap
      * @return
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public SummaryPrintResult summaryPrintResult(SendM sendM, List<SendM> sendMList, PrintQueryCriteria criteria, Map<String, Double> boardMap) {
+    public SummaryPrintResult summaryPrintResult(SendM oriSendM, List<SendM> sendMList, PrintQueryCriteria criteria, Map<String, Double> boardMap) {
         Date startDate = new Date();
         String roadCode = null;
         /**
@@ -202,23 +202,24 @@ public class SendPrintServiceImpl implements SendPrintService {
         logger.info("打印交接清单-summaryPrintQuery开始" + DateHelper.formatDate(startDate));
         SummaryPrintResult result = new SummaryPrintResult();
         List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
-        result.setSendCode(sendM.getSendCode());
+        result.setSendCode(oriSendM.getSendCode());
         result.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
         result.setSendSiteName(toSiteName(criteria.getSiteCode()));
-        result.setSendTime(DateHelper.formatDateTime(sendM.getOperateTime()));
+        result.setSendTime(DateHelper.formatDateTime(oriSendM.getOperateTime()));
         logger.info("打印交接清单-批次汇总箱子数量" + sendMList.size());
         Double totalVolume = Constants.DOUBLE_ZERO;  //批次下板号的总体积
-        for (SendM dendM : sendMList) {
+        Set<String> dealedBoardCodes = new HashSet<String>();
+        for (SendM sendM : sendMList) {
             Date startDate1 = new Date();
             logger.info("打印交接清单-批次单独批次开始" + DateHelper.formatDate(startDate1));
             Set<String> packageBarcodeSet = new HashSet<String>();
             Set<String> waybillCodeSet = new HashSet<String>();
             SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setCreateSiteCode(dendM.getCreateSiteCode());
-            tSendDatail.setBoxCode(dendM.getBoxCode());
-            tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
+            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDatail.setBoxCode(sendM.getBoxCode());
+            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(0);
-            logger.info("打印交接清单-批次汇总箱子信息" + dendM.getBoxCode());
+            logger.info("打印交接清单-批次汇总箱子信息" + sendM.getBoxCode());
             List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
             sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
 //		    if(sendDetails!=null && !sendDetails.isEmpty()){ 使打印交接汇总清单时带出空箱，之前不打印空箱
@@ -237,24 +238,24 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }
             SummaryPrintBoxEntity detail = new SummaryPrintBoxEntity();
-            detail.setBoxCode(dendM.getBoxCode());
+            detail.setBoxCode(sendM.getBoxCode());
             detail.setPackageBarNum(packageBarcodeSet.size());
             detail.setPackageBarRecNum(packageBarcodeSet.size());
             detail.setWaybillNum(waybillCodeSet.size());
             Double boxOrPackVolume = 0.0;
-            if (BusinessHelper.isBoxcode(dendM.getBoxCode())) {
+            if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
                 Box box = null;
                 try {
-                    box = boxService.findBoxByCode(dendM.getBoxCode());
+                    box = boxService.findBoxByCode(sendM.getBoxCode());
                 } catch (Exception e) {
                     logger.error("打印交接清单获取箱号失败", e);
-                    logger.error(JsonHelper.toJson(dendM));
+                    logger.error(JsonHelper.toJson(sendM));
                 }
                 if (null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
                         && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
                     boxOrPackVolume = Double.valueOf(box.getLength() * box.getWidth() * box.getHeight());
                 }
-                SealBox tSealBox = this.tSealBoxService.findByBoxCode(dendM.getBoxCode());
+                SealBox tSealBox = this.tSealBoxService.findByBoxCode(sendM.getBoxCode());
                 if (tSealBox != null) {
                     detail.setSealNo1(tSealBox.getCode());
                     detail.setSealNo2("");
@@ -264,8 +265,8 @@ public class SendPrintServiceImpl implements SendPrintService {
                     detail.setSealNo2("");
                 }
             } else {
-                if (BusinessHelper.isPackageCode(dendM.getBoxCode())) {
-                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(dendM.getBoxCode());
+                if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(sendM.getBoxCode());
                     if (null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
                             && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
                         boxOrPackVolume = packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh();
@@ -276,8 +277,9 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
             detail.setVolume(boxOrPackVolume);
             details.add(detail);
-            if(StringUtils.isNotBlank(dendM.getBoardCode()) && boardMap.containsKey(dendM.getBoardCode())){
-                totalVolume = totalVolume + boardMap.get(dendM.getBoardCode());
+            if(StringUtils.isNotBlank(sendM.getBoardCode()) && boardMap.containsKey(sendM.getBoardCode()) && !dealedBoardCodes.contains(sendM.getBoardCode())){
+                dealedBoardCodes.add(sendM.getBoardCode());
+                totalVolume = totalVolume + boardMap.get(sendM.getBoardCode());
             }
 //		    }
             Date endDate1 = new Date();
@@ -845,12 +847,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         String fsiteName = toSiteName(criteria.getSiteCode());
 
         String message = JdResponse.MESSAGE_OK;
-        for (SendM dendM : sendMs) {
+        for (SendM sendM : sendMs) {
             List<BasicQueryEntity> tList = new ArrayList<BasicQueryEntity>();
             SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setCreateSiteCode(dendM.getCreateSiteCode());
-            tSendDatail.setBoxCode(dendM.getBoxCode());
-            tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
+            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDatail.setBoxCode(sendM.getBoxCode());
+            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(1);
             List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
 
@@ -862,10 +864,10 @@ public class SendPrintServiceImpl implements SendPrintService {
                         tBasicQueryEntity.setPackageBar(dSendDatail.getPackageBarcode());
                         tBasicQueryEntity.setReceiveSiteName(rsiteName);
                         tBasicQueryEntity.setSendSiteName(fsiteName);
-                        tBasicQueryEntity.setSendUser(dendM.getCreateUser());
+                        tBasicQueryEntity.setSendUser(sendM.getCreateUser());
                         tBasicQueryEntity.setPackageBarNum(dSendDatail.getPackageNum());
                         tBasicQueryEntity.setWaybill(dSendDatail.getWaybillCode());
-                        tBasicQueryEntity.setOperateTime(DateHelper.formatDateTime(dendM.getOperateTime()));
+                        tBasicQueryEntity.setOperateTime(DateHelper.formatDateTime(sendM.getOperateTime()));
                         tList.add(tBasicQueryEntity);
                     }
                 }
@@ -962,11 +964,11 @@ public class SendPrintServiceImpl implements SendPrintService {
         Integer rSiteType = toSiteType(criteria.getReceiveSiteCode());
 
         String message = JdResponse.MESSAGE_OK;
-        for (SendM dendM : sendMs) {
+        for (SendM sendM : sendMs) {
             SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setCreateSiteCode(dendM.getCreateSiteCode());
-            tSendDatail.setBoxCode(dendM.getBoxCode());
-            tSendDatail.setReceiveSiteCode(dendM.getReceiveSiteCode());
+            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDatail.setBoxCode(sendM.getBoxCode());
+            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
             tSendDatail.setIsCancel(1);
 
             List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
@@ -977,7 +979,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                         if (criteria.getPackageBarcode() == null || "".equals(criteria.getPackageBarcode())
                                 || criteria.getPackageBarcode().equals(dSendDatail.getPackageBarcode())) {
                             BasicQueryEntity tBasicQueryEntity = new BasicQueryEntity();
-                            tBasicQueryEntity.setBoxCode(dendM.getBoxCode());
+                            tBasicQueryEntity.setBoxCode(sendM.getBoxCode());
                             if (dSendDatail.getIsCancel() != null && dSendDatail.getIsCancel() == 0) {
                                 tBasicQueryEntity.setIscancel("否");
                             } else {
@@ -987,13 +989,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                             tBasicQueryEntity.setPackageBarWeight(0.0);
                             tBasicQueryEntity.setPackageBarWeight2(0.0);
                             tBasicQueryEntity.setPackageBar(dSendDatail.getPackageBarcode());
-                            tBasicQueryEntity.setReceiveSiteCode(dendM.getReceiveSiteCode());
+                            tBasicQueryEntity.setReceiveSiteCode(sendM.getReceiveSiteCode());
                             tBasicQueryEntity.setReceiveSiteName(rsiteName);
-                            tBasicQueryEntity.setSendCode(dendM.getSendCode());
+                            tBasicQueryEntity.setSendCode(sendM.getSendCode());
                             tBasicQueryEntity.setReceiveSiteType(rSiteType);
                             tBasicQueryEntity.setSendSiteName(fsiteName);
-                            tBasicQueryEntity.setSendUser(dendM.getCreateUser());
-                            tBasicQueryEntity.setSendUserCode(dendM.getCreateUserCode());
+                            tBasicQueryEntity.setSendUser(sendM.getCreateUser());
+                            tBasicQueryEntity.setSendUserCode(sendM.getCreateUserCode());
                             tBasicQueryEntity.setWaybill(dSendDatail.getWaybillCode());
                             tBasicQueryEntity.setInvoice(dSendDatail.getPickupCode());
 
