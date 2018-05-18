@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.dao.AbnormalUnknownWaybillDao;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
+import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillRequest;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -29,6 +31,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -449,5 +452,51 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill) {
         return abnormalUnknownWaybillDao.updateReceive(abnormalUnknownWaybill);
+    }
+
+    /**
+     * 整理导出数据
+     *
+     * @param abnormalUnknownWaybillCondition
+     * @return
+     */
+    public List<List<Object>> getExportData(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+
+        List<Object> heads = new ArrayList<Object>();
+
+        //添加表头
+        heads.add("运单号");
+        heads.add("第几次上报");
+        heads.add("商家名称");
+        heads.add("机构名称");
+        heads.add("区域名称");
+        heads.add("是否回复");
+        heads.add("回复时间");
+        heads.add("回复来源");
+        heads.add("托寄物");
+        heads.add("提报人");
+        resList.add(heads);
+
+        abnormalUnknownWaybillCondition.setLimit(-1);
+        PagerResult<AbnormalUnknownWaybill> pagerResult = this.queryByPagerCondition(abnormalUnknownWaybillCondition);
+        List<AbnormalUnknownWaybill> rows = pagerResult.getRows();
+        if (rows != null && rows.size() > 0) {
+            for (AbnormalUnknownWaybill abnormalUnknownWaybill : rows) {
+                List<Object> body = Lists.newArrayList();
+                body.add(abnormalUnknownWaybill.getWaybillCode());//运单号
+                body.add(abnormalUnknownWaybill.getOrderNumber());//第几次上报
+                body.add(abnormalUnknownWaybill.getTraderName());//商家名称
+                body.add(abnormalUnknownWaybill.getDmsSiteName());//机构名称
+                body.add(abnormalUnknownWaybill.getAreaName());//区域名称
+                body.add(abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
+                body.add(DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
+                body.add(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
+                body.add(abnormalUnknownWaybill.getReceiptContent());
+                body.add(abnormalUnknownWaybill.getCreateUserName());
+                resList.add(body);
+            }
+        }
+        return resList;
     }
 }

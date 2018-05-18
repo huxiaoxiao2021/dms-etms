@@ -3,16 +3,19 @@ package com.jd.bluedragon.distribution.abnormal.controller;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Arrays;
 import java.util.List;
@@ -120,5 +123,25 @@ public class AbnormalUnknownWaybillController {
         }
         rest.setData(abnormalUnknownWaybillService.queryByPagerCondition(abnormalUnknownWaybillCondition));
         return rest.getData();
+    }
+
+    @RequestMapping(value = "/toExport")
+    public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
+        try {
+            if (abnormalUnknownWaybillCondition.getWaybillCode() != null && abnormalUnknownWaybillCondition.getWaybillCode().contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)) {
+                String[] waybillcodes = abnormalUnknownWaybillCondition.getWaybillCode().split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                abnormalUnknownWaybillCondition.setWaybillCodes(Arrays.asList(waybillcodes));
+                abnormalUnknownWaybillCondition.setWaybillCode(null);
+            }
+            List<List<Object>> resultList = abnormalUnknownWaybillService.getExportData(abnormalUnknownWaybillCondition);
+            model.addAttribute("filename", "三无托寄物核实结果.xls");
+            model.addAttribute("sheetname", "三无托寄物核实结果");
+            model.addAttribute("contents", resultList);
+
+            return new ModelAndView(new DefaultExcelView(), model.asMap());
+        } catch (Exception e) {
+            logger.error("abnormal/abnormalUnknownWaybill--toExport:" + e.getMessage(), e);
+            return null;
+        }
     }
 }

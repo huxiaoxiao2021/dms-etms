@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.abnormal.service;
 
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
+import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+
+import java.util.List;
 
 /**
  * @author wuyoude
@@ -23,14 +26,25 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * 二次上报
      */
     public JdResponse<String> submitAgain(String waybillCode);
+
     /**
      * 查最后一次上报
      */
     public AbnormalUnknownWaybill findLastReportByWaybillCode(String waybillCode);
+
     /**
      * 回写结果
+     *
      * @param abnormalUnknownWaybill
      * @return
      */
     public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill);
+
+    /**
+     * 整理导出数据
+     *
+     * @param arBookingSpaceCondition
+     * @return
+     */
+    public List<List<Object>> getExportData(AbnormalUnknownWaybillCondition arBookingSpaceCondition);
 }
