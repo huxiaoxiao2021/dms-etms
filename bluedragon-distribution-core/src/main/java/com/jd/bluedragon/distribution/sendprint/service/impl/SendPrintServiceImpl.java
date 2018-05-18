@@ -79,6 +79,8 @@ public class SendPrintServiceImpl implements SendPrintService {
     @Autowired
     BoardCombinationService boardCombinationService;
 
+    private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
+
     /**
      * 批次汇总&&批次汇总打印
      */
@@ -351,7 +353,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 if(boards != null && !boards.isEmpty()){
                     for(BoardMeasureDto board : boards){
                         if(board.getVolume() != null && board.getVolume().doubleValue() > Constants.DOUBLE_ZERO){
-                            double volume = board.getVolume()/1000000;    //立方厘米转立方米
+                            double volume = board.getVolume()/PARAM_CM3_M3;    //立方厘米转立方米
                             boardMap.put(board.getBoardCode(), NumberHelper.doubleFormat(volume));
                         }
                     }
