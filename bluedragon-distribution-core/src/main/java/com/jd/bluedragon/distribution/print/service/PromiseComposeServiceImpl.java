@@ -47,7 +47,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
     //FIXME: 线上日志表明targetSiteCode传入为0
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         // 外单多时效打标
-        if(StringHelper.isNotEmpty(waybill.getWaybillSign())) {
+        if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().length() > 15) {
             if(waybill.getWaybillSign().charAt(15)=='0')
                 waybill.setTimeCategory("");
             if(waybill.getWaybillSign().charAt(15)=='1')
@@ -94,12 +94,12 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 	waybill.setPromiseText("");
                 }
         	}else if (SerialRuleUtil.isMatchReceiveWaybillNo(waybill.getWaybillCode())
-                    && ((Constants.WAYBILL_SIGN_B!=waybill.getWaybillSign().charAt(1)&& NumberHelper.isNumber(waybill.getOrderCode()))||Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))) {
+                    && ((!BusinessHelper.isSignChar(waybill.getWaybillSign(),2,Constants.WAYBILL_SIGN_B)&& NumberHelper.isNumber(waybill.getOrderCode()))||BusinessHelper.isSignChar(waybill.getWaybillSign(),1,Constants.WAYBILL_SIGN_B))) {
 
                 log.debug("调用promise获取外单时效开始");
 
                 OrderMarkingForeignRequest orderMarkingRequest = new OrderMarkingForeignRequest();
-                if (Constants.WAYBILL_SIGN_B==waybill.getWaybillSign().charAt(0))
+                if (BusinessHelper.isSignChar(waybill.getWaybillSign(),1,Constants.WAYBILL_SIGN_B))
                     orderMarkingRequest.setOrderId(Constants.ORDER_TYPE_B_ORDERNUMBER);//纯外单订单号设置为0
                 else
                     orderMarkingRequest.setOrderId(Long.parseLong(waybill.getOrderCode()));//订单号
