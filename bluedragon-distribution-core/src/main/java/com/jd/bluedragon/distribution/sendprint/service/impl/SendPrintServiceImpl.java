@@ -29,7 +29,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -347,11 +347,12 @@ public class SendPrintServiceImpl implements SendPrintService {
         Map<String, Double> boardMap = new HashMap<String, Double>();
         if(boardCodeList != null && !boardCodeList.isEmpty()){
             try{
-                List<Board> boards = boardCombinationService.getBoardVolumeByBoardCode(boardCodeList);
+                List<BoardMeasureDto> boards = boardCombinationService.getBoardVolumeByBoardCode(boardCodeList);
                 if(boards != null && !boards.isEmpty()){
-                    for(Board board : boards){
-                        if(board.getVolume() != null && board.getVolume().doubleValue > Constants.DOUBLE_ZERO){
-                            boardMap.put(board.getCode(), board.getVolume());
+                    for(BoardMeasureDto board : boards){
+                        if(board.getVolume() != null && board.getVolume().doubleValue() > Constants.DOUBLE_ZERO){
+                            double volume = board.getVolume()/1000000;    //立方厘米转立方米
+                            boardMap.put(board.getBoardCode(), NumberHelper.doubleFormat(volume));
                         }
                     }
                 }

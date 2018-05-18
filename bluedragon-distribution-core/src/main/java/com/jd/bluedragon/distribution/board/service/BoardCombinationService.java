@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.board.service;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
@@ -65,7 +65,7 @@ public interface BoardCombinationService {
      * @return
      * @throws Exception
      */
-    public List<Board> getBoardVolumeByBoardCode(List<String> boardCodes) throws Exception;
+    public List<BoardMeasureDto> getBoardVolumeByBoardCode(List<String> boardCodes) throws Exception;
 
 
 }

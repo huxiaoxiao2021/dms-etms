@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.board.service;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
@@ -24,6 +23,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
+import com.jd.transboard.api.service.BoardMeasureService;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -56,6 +56,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private GroupBoardService groupBoardService;
+
+    @Autowired
+    private BoardMeasureService boardMeasureService;
 
     @Autowired
     private GoddessService goddessService;
@@ -587,12 +590,12 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardVolumeByBoardCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public List<Board> getBoardVolumeByBoardCode(List<String> boardList) throws Exception {
-        List<Board> boardCodes = null;
+    public List<BoardMeasureDto> getBoardVolumeByBoardCode(List<String> boardList) throws Exception {
+        List<BoardMeasureDto> boardCodes = null;
         if(boardList != null && !boardList.isEmpty()){
             int totalNum = boardList.size();
             int startNum = 0;
-            boardCodes = new ArrayList<Board>(boardList.size());
+            boardCodes = new ArrayList<BoardMeasureDto>(boardList.size());
             do{
                 int endNum = startNum +QUERY_BOARD_PAGE_SIZE;
                 if(endNum > totalNum){
@@ -600,7 +603,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 }
                 CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.getBoardVolumeByBoardCode.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
                 try{
-                    Response<List<Board>> tcResponse = groupBoardService.getBoardVolumeByBoardCode(boardList.subList(startNum, endNum));
+                    Response<List<BoardMeasureDto>> tcResponse = boardMeasureService.getBoardMeasure(boardList.subList(startNum, endNum));
                     if(tcResponse != null && JdResponse.CODE_SUCCESS.equals(tcResponse.getCode()) ){
                         if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
                             boardCodes.addAll(tcResponse.getData());

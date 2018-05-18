@@ -274,6 +274,9 @@
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
     </jsf:consumer>
+    <jsf:consumer id="boardMeasureService" interface="com.jd.transboard.api.service.BoardMeasureService"
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="3">
+    </jsf:consumer>
     <!-- 路由 谭杨-->
     <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
         <property name="jimClient" ref="redisClient"/>

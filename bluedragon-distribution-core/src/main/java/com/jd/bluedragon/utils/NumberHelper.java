@@ -1,9 +1,12 @@
 package com.jd.bluedragon.utils;
 
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class NumberHelper {
+
+    public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
 
     public static Double getDoubleValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? Double.valueOf(object.toString()) : 0.0D;
@@ -145,5 +148,18 @@ public class NumberHelper {
             return a.doubleValue() <= b.doubleValue();
         }
         return false;
+    }
+
+    /**
+     * 返回格式化后的double，四舍五入，保留小数点后两位。
+     *
+     * @param num
+     * @return
+     */
+    public static Double doubleFormat(Double num) {
+    	if (num != null) {
+            return Double.valueOf(doubleFormat.format(num));
+        }
+        return null;
     }
 }
