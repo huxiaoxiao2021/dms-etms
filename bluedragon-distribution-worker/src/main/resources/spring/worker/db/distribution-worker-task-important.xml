@@ -19,6 +19,16 @@
         <property name="desc" value="分拣中心收货任务"/>
     </bean>
 
+    <bean id="inspectionTask" class="com.jd.bluedragon.distribution.worker.InspectionTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="InspectionTaskN"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1130"/>
+        <property name="desc" value="分拣中心验货任务"/>
+    </bean>
+
     <bean id="sortingTask"
           class="com.jd.bluedragon.distribution.worker.sorting.SortingTask"
           init-method="init" depends-on="managerFactory">

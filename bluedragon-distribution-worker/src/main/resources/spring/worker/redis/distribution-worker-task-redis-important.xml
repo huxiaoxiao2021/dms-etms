@@ -65,13 +65,6 @@
 		<property name="desc" value="自动分拣交接数据存交接表Resis任务" />
 	</bean>
 
-	<bean id="batchSendCarRedisTask"
-		  class="com.jd.bluedragon.distribution.worker.departure.redis.BatchSendCarRedisTask"
-		  parent="parentRedisTask">
-		<property name="taskType" value="BatchSendCarRedisTask" />
-		<property name="desc" value="批量发车Redis任务" />
-	</bean>
-
 	<bean id="weightRedisTask"
 		  class="com.jd.bluedragon.distribution.worker.weight.WeightRedisTask"
 		  parent="parentRedisTask">
@@ -83,12 +76,6 @@
 		  parent="parentRedisTask">
 		<property name="taskType" value="ScannerFrameRedisTask" />
 		<property name="desc" value="龙门架发货redis任务" />
-	</bean>
-
-	<bean id="messageRedisTask" class="com.jd.bluedragon.distribution.worker.MessageRedisTask"
-		  parent="parentRedisTask">
-		<property name="taskType" value="MessageRedisTask" />
-		<property name="desc" value="异步推送MQ" />
 	</bean>
 
 	<bean id="offlineCoreRedisTask"
