@@ -354,7 +354,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 List<BoardMeasureDto> boards = boardCombinationService.getBoardVolumeByBoardCode(boardCodeList);
                 if(boards != null && !boards.isEmpty()){
                     for(BoardMeasureDto board : boards){
-                        if(board.getVolume() != null && board.getVolume().doubleValue() > Constants.DOUBLE_ZERO){
+                        if(NumberHelper.gt0(board.getVolume().doubleValue())){
                             double volume = board.getVolume()/PARAM_CM3_M3;    //立方厘米转立方米
                             boardMap.put(board.getBoardCode(), NumberHelper.doubleFormat(volume));
                         }

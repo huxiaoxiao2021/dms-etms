@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.board.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -601,7 +602,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 if(endNum > totalNum){
                     endNum = totalNum;
                 }
-                CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.getBoardVolumeByBoardCode.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
+                CallerInfo info = ProfilerHelper.registerInfo("DMSWEB.BoardMeasureService.getBoardMeasure.TCJSF");
                 try{
                     Response<List<BoardMeasureDto>> tcResponse = boardMeasureService.getBoardMeasure(boardList.subList(startNum, endNum));
                     if(tcResponse != null && JdResponse.CODE_SUCCESS.equals(tcResponse.getCode()) ){
