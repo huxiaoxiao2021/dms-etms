@@ -265,16 +265,26 @@
         <property name="desc" value="逆向驳回任务"/>
     </bean>
 
-    <!-- be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间  -->
-    <bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"
+    <!-- be careful limitMin: 分钟，当前系统时间前X分钟；limitHour： 小时，X小时到当前系统时间   不要这个任务了-->
+    <!--<bean id="popSupplementReceiveTask" class="com.jd.bluedragon.distribution.worker.pop.PopSupplementReceiveTask"-->
+          <!--init-method="init" lazy-init="false" depends-on="managerFactory">-->
+        <!--<property name="dataSource" ref="taskDataSource"/>-->
+        <!--<property name="taskType" value="PopSupplementReceiveTask"/>-->
+        <!--<property name="managerFactory" ref="managerFactory"/>-->
+        <!--<property name="ownSign" value="${ownSign}"/>-->
+        <!--<property name="maxExecuteCount" value="3"/>-->
+        <!--<property name="limitMin" value="2"/>-->
+        <!--<property name="limitHour" value="1"/>-->
+    <!--</bean>-->
+
+    <bean id="popPrintInspectionTask" class="com.jd.bluedragon.distribution.worker.pop.PopPrintInspectionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="PopSupplementReceiveTask"/>
+        <property name="taskType" value="popPrintInspectionTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
-        <property name="maxExecuteCount" value="3"/>
-        <property name="limitMin" value="2"/>
-        <property name="limitHour" value="1"/>
+        <property name="type" value="1180"/>
+        <property name="desc" value="平台打印补发货任务"/>
     </bean>
 
     <bean id="reverseSendTask"

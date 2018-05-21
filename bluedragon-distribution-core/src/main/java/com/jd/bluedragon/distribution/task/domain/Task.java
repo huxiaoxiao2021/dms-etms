@@ -63,6 +63,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL = 1600;// 运单号关联包裹信息
     public static final Integer TASK_TYPE_PARTNER_WAY_BILL_NOTIFY = 1601;// 运单号关联包裹回传
     public static final Integer TASK_TYPE_WEIGHT = 1160;// 称重信息回传运单中心
+    public static final Integer TASK_TYPE_POP_PRINT_INSPECTION=1180;//平台打印 补验货数据
     
     /** 分拣相关　 */
     public static final Integer TASK_TYPE_SORTING = 1200; // 分拣
@@ -177,6 +178,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
     
     public static final String TABLE_NAME_AR_RECEIVE = "task_ar_receive";
 
+    public static final String TABLE_NAME_POP_PRINT_INSPECTION = "task_pop_print_inspection";
+
+
     /** 相关数据库序列 */
     public static final String TABLE_NAME_WAYBILL_SEQ = "SEQ_TASK_WAYBILL";
     public static final String TABLE_NAME_REVERSE_SEQ = "SEQ_TASK_REVERSE";
@@ -201,7 +205,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
     
     /**xumei**/
     public static final String TABLE_NAME_CORSS_BOX_SEQ ="TABLE_NAME_CROSSBOX_SEQ";
-    
+    //平台打印，补发货数据tangcq
+    public static final String TABLE_NAME_POP_PRINT_INSPECTION_SEQ ="TABLE_NAME_POP_PRINT_INSPECTION_SEQ";
+
 
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
@@ -532,6 +538,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_DELIVERY_TO_FINANCE_BATCH;
         }else if(Task.TASK_TYPE_AR_RECEIVE.equals(type)){
             return Task.TABLE_NAME_AR_RECEIVE;
+        }else if (Task.TASK_TYPE_POP_PRINT_INSPECTION.equals(type)){
+            return Task.TABLE_NAME_POP_PRINT_INSPECTION;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -572,12 +580,14 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_WEIGHT_SEQ;
         }else if(Task.TABLE_NAME_GLOBAL_TRADE.equals(tableName)){
             return Task.TABLE_NAME_GLOBAL_TRADE_SEQ;
-}else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
+        }else if(Task.TABLE_NAME_MESSAGE.equals(tableName)){
             return Task.TABLE_NAME_MESSAGE_SEQ;
         }else if(Task.TABLE_NAME_SCANNER_FRAME.equals(tableName)){
             return Task.TABLE_NAME_SCANNER_FRAME_SEQ;
         }else if(Task.TABLE_NAME_CROSSBOX.equals(tableName)){
         	return Task.TABLE_NAME_CORSS_BOX_SEQ;
+        }else if (Task.TABLE_NAME_POP_PRINT_INSPECTION.equals(tableName)){
+            return Task.TABLE_NAME_POP_PRINT_INSPECTION_SEQ;
         }
         
         return Task.TABLE_NAME_SORTING_SEQ;

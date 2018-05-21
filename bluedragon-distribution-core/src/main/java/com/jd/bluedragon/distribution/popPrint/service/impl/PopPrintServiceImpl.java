@@ -1,11 +1,18 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +43,12 @@ public class PopPrintServiceImpl implements PopPrintService {
 	
 	@Autowired
 	private InspectionDao inspectionDao;
+
+	@Autowired
+	private SiteService siteService;
+
+	@Autowired
+	private TaskService taskService;
 
 	@Override
 	public PopPrint findByWaybillCode(String waybillCode) {
@@ -74,9 +87,48 @@ public class PopPrintServiceImpl implements PopPrintService {
 			logger.info("传入popPrint 为空");
 			return 0;
 		}
-		return popPrintDao.add(popPrint);
+		int result= popPrintDao.add(popPrint);
+		if (result>0){
+			pushInspection(popPrint);
+		}else {
+			logger.error("PopPrintServiceImpl.add插入失败"+JsonHelper.toJson(popPrint));
+		}
+		return result;
 	}
 
+	//发补验货任务
+	private void pushInspection(PopPrint popPrint) {
+		if (popPrint==null){
+			return;
+		}
+		BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
+		String createSiteName = null != create ? create.getSiteName() : null;
+
+		TaskRequest request=new TaskRequest();
+		request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+		request.setKeyword1(popPrint.getCreateUserCode().toString());
+		if(popPrint.getPackageBarcode() != null){
+			request.setKeyword2(popPrint.getPackageBarcode());
+		}else{
+			request.setKeyword2(popPrint.getWaybillCode());
+		}
+		request.setType(Task.TASK_TYPE_POP_PRINT_INSPECTION);
+		request.setOperateTime(DateHelper.formatDateTime(new Date(popPrint.getCreateTime().getTime()-60000)));
+		request.setSiteCode(popPrint.getCreateSiteCode());
+		request.setSiteName(createSiteName);
+		request.setUserCode(popPrint.getCreateUserCode());
+		request.setUserName(popPrint.getCreateUser());
+		//request.setBody();
+		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+				+ JsonHelper.toJson(popPrint)
+				+ Constants.PUNCTUATION_CLOSE_BRACKET;
+		Task task=this.taskService.toTask(request, eachJson);
+
+		int result= this.taskService.add(task, true);
+		if(logger.isDebugEnabled()){
+			logger.debug("平台打印补验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
+		}
+	}
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int updateByWaybillCode(PopPrint popPrint) {
