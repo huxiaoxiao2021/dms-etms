@@ -311,6 +311,7 @@ $(function () {
 
             if (isEmptyObject(params)){
                 alert('禁止全量导出，请确定查询范围');
+                return;
             }
             var form = $("<form method='post'></form>"),
                 input;
