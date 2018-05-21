@@ -21,7 +21,7 @@
 	<import resource="classpath:spring/worker/redis/distribution-worker-task-redis-important.xml" />
 
 	<!-- JMQ 任务-->
-	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-pre.xml" />
+	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-all.xml" />
 
 	<!-- 特殊业务 -->
 	<import resource="classpath:spring/worker/db/distribution-worker-task-special.xml" />
