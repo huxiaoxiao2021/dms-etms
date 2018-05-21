@@ -11,10 +11,7 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
@@ -222,6 +219,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer deliveryCancelSendMQ;
 
     @Autowired
+    @Qualifier("recyclableBoxSendMQ")
+    private DefaultJMQProducer recyclableBoxSendMQ;
+
+    @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
@@ -291,7 +292,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
-            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
@@ -464,7 +465,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult boardSend(SendM domain) {
         //1.组板发货批次，板号校验（强校验）
         if(!checkSendM(domain)){
-            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
@@ -1175,6 +1176,27 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
         }
         return response;
+    }
+
+    /**
+     * 循环箱发MQ
+     * @param request
+     * @return
+     */
+    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
+        RecyclableBoxSend res=new RecyclableBoxSend();
+
+        try {
+            recyclableBoxSendMQ.send(null, JsonHelper.toJson(request));
+            res.setCode(JdResponse.CODE_OK);
+            res.setMessage(JdResponse.MESSAGE_OK);
+        } catch (Exception e) {
+            res.setCode(JdResponse.CODE_TIME_ERROR);
+            res.setMessage(e.getMessage());
+            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
+        }
+
+        return res;
     }
 
     /**

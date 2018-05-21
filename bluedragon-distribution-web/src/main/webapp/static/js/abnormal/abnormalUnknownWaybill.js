@@ -46,9 +46,6 @@ $(function () {
             if (!temp) {
                 temp = {};
             }
-            if (waybillCodes) {
-                temp.waybillCode = waybillCodes;
-            }
             temp.offset = params.offset;
             temp.limit = params.limit;
             // 这里的键的名字和控制器的变量名必须一直，这边改动，控制器也需要改成一样的
@@ -75,6 +72,9 @@ $(function () {
                     }
                 }
             });
+            if (waybillCodes) {
+                params.waybillCode = waybillCodes;
+            }
             return params;
         };
         oTableInit.tableColums = [{
@@ -302,11 +302,39 @@ $(function () {
         $("#startTime").val(startTime);
         $("#endTime").val(endTime);
     }
+    //初始化导出按钮
+    function initExport(tableInit){
+        $("#btn_export").on("click",function(e){
+
+            var url = "/abnormal/abnormalUnknownWaybill/toExport";
+            var params = tableInit.getSearchCondition();
+
+            if (isEmptyObject(params)){
+                alert('禁止全量导出，请确定查询范围');
+                return;
+            }
+            var form = $("<form method='post'></form>"),
+                input;
+            form.attr({"action":url});
+
+            $.each(params,function(key,value){
+
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name":key});
+                input.val(value);
+                form.append(input);
+            });
+            form.appendTo(document.body);
+            form.submit();
+            document.body.removeChild(form[0]);
+        });
+    }
 
     // initDateQuery();
     initSelect();
     tableInit().init();
     pageInit().init();
+    initExport(tableInit());
 });
 var waybillCodes = null;//多运单查询用
 //再次提报
@@ -348,4 +376,10 @@ function initSelect() {
             $("#query-form #isReceipt").val(null);
         }
     });
+}
+function isEmptyObject(e) {
+    var t;
+    for (t in e)
+        return !1;
+    return !0
 }
