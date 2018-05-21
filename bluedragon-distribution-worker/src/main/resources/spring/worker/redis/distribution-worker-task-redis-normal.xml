@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+
+	<bean id="receiveRedisTask"
+		  class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		  parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="receiveTaskExecutor"/>
+		<property name="taskType" value="ReceiveRedisTask" />
+		<property name="desc" value="分拣中心收货Redis任务" />
+	</bean>
+
+	<bean id="partnerWaybillRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.PartnerWaybillRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="PartnerWaybillRedisTask" />
+		<property name="desc" value="处理运单号关联包裹Redis任务" />
+	</bean>
+
+	<bean id="sealBoxRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.seal.redis.SealBoxRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SealBoxRedisTask" />
+		<property name="desc" value="封箱解封箱Redis任务" />
+	</bean>
+
+	<bean id="sortingReturnRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingReturnRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SortingReturnRedisTask" />
+		<property name="desc" value="分拣退货Redis任务" />
+	</bean>
+
+	<bean id="shieldsBoxErrorRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.ShieldsBoxErrorRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ShieldsBoxErrorRedisTask" />
+		<property name="desc" value="封签[封箱]异常Redis任务" />
+	</bean>
+
+	<bean id="shieldsCarErrorRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.ShieldsCarErrorRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ShieldsCarErrorRedisTask" />
+		<property name="desc" value="封签[封车]异常Redis任务" />
+	</bean>
+
+
+
+	<bean id="reverseRejectRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseRejectRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ReverseRejectRedisTask" />
+		<property name="desc" value="逆向驳回Redis任务" />
+	</bean>
+
+	<!-- redis中屏蔽掉逆向发货任务 此任务只在DB中执行，并在特殊分组中执行-->
+	<!--<bean id="reverseSendRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSendRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ReverseSendRedisTask" />
+		<property name="desc" value="逆向发货回传Redis任务" />
+	</bean>-->
+
+	<bean id="reverseSpareRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSpareRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ReverseSpareRedisTask" />
+		<property name="desc" value="逆向备件库Redis任务" />
+	</bean>
+
+	<bean id="popPickupRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.pop.redis.PopPickupRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="PopPickupRedisTask" />
+		<property name="desc" value="Pop上门收货Redis任务" />
+	</bean>
+
+	<bean id="thirdDepartureRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.departure.redis.ThirdDepartureRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ThirdDepartureRedisTask" />
+		<property name="desc" value="支线发车推送运单Redis任务" />
+	</bean>
+
+
+	<bean id="popReceiveRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.pop.redis.PopReceiveRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="PopReceiveRedisTask" />
+		<property name="desc" value="POP收货Redis任务" />
+	</bean>
+
+
+	<bean id="pushMQ2ArteryBillingSysRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.receive.redis.ReceivePushArteryMQRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="PushMQ2ArteryBillingSysRedisTask" />
+		<property name="desc" value="发干线计费系统MQ任务Redis任务" />
+	</bean>
+
+
+	<bean id="sortingExceptionRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingExceptionRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SortingExceptionRedisTask" />
+		<property name="desc" value="人工分拣异常记录日志到Redis任务" />
+	</bean>
+
+	<bean id="qualityControlRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.QualityControl.redis.QualityControlRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="QualityControlRedisTask" />
+		<property name="desc" value="发送质控系统，配送外呼Resis任务" />
+	</bean>
+
+	<bean id="arReceiveRedisTask"
+		  class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		  parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>
+		<property name="taskType" value="ArReceiveRedisTask" />
+		<property name="desc" value="空铁提货Redis任务" />
+	</bean>
+
+</beans>
+

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+
+    <!-- task任务处理器转为消费jmq消息配置 -->
+    <!-- 全国环境 核心业务 -->
+
+    <bean id="simpleTaskProcessorJMQRouter"
+          class="com.jd.ql.framework.asynBuffer.comsumer.SimpleTaskProcessorJMQRouter">
+        <constructor-arg name="mapping">
+            <map>
+                <!-- 分拣中心收货 -->
+                <entry key="${jmq.task.topic.receive.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="receiveTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 分拣中心验货 -->
+                <entry key="${jmq.task.topic.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="inspectionTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 发货新老数据同步任务/中转发货补全任务/回传周转箱项目任务/发货回传运单状态任务-->
+                <entry key="${jmq.task.topic.send.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="taskSendProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 分拣-->
+                <entry key="${jmq.task.topic.sorting.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="sortingTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 称重信息回传运单中心 -->
+                <entry key="${jmq.task.topic.weight.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="weightTaskProcess"></constructor-arg>
+                    </bean>
+                </entry>
+
+            </map>
+        </constructor-arg>
+    </bean>
+
+
+</beans>
