@@ -309,6 +309,10 @@ $(function () {
             var url = "/abnormal/abnormalUnknownWaybill/toExport";
             var params = tableInit.getSearchCondition();
 
+            if (isEmptyObject(params)){
+                alert('禁止全量导出，请确定查询范围');
+                return;
+            }
             var form = $("<form method='post'></form>"),
                 input;
             form.attr({"action":url});
@@ -372,4 +376,10 @@ function initSelect() {
             $("#query-form #isReceipt").val(null);
         }
     });
+}
+function isEmptyObject(e) {
+    var t;
+    for (t in e)
+        return !1;
+    return !0
 }
