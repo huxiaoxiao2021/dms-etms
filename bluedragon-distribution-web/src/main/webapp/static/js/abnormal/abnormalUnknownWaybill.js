@@ -73,7 +73,7 @@ $(function () {
                 }
             });
             if (waybillCodes) {
-                temp.waybillCode = waybillCodes;
+                params.waybillCode = waybillCodes;
             }
             return params;
         };
