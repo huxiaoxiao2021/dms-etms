@@ -226,6 +226,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--PDA循环箱收发箱MQ-->
+    <bean id="recyclableBoxSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="cb_circulation_info"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--配送员接货，打印后发送mq信息给sms-->
     <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
