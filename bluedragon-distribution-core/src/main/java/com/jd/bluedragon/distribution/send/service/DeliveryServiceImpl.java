@@ -292,7 +292,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         if(!checkSendM(domain)){
-            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
@@ -465,7 +465,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult boardSend(SendM domain) {
         //1.组板发货批次，板号校验（强校验）
         if(!checkSendM(domain)){
-            return new SendResult(SendResult.CODE_SENDED, "批次号错误：" + domain.getSendCode());
+            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
         if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");

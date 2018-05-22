@@ -66,7 +66,6 @@ $(function () {
                 if (_k && (_v != null && _v != '')) {
                     if (_k == 'startTime' || _k == 'endTime') {
                         params[_k] = new Date(_v).getTime();
-                        ;
                     } else {
                         params[_k] = _v;
                     }
@@ -321,7 +320,11 @@ $(function () {
 
                 input = $("<input type='hidden' class='search-param'>");
                 input.attr({"name":key});
-                input.val(value);
+                if (key == 'startTime' || key == 'endTime'){
+                    input.val(new Date(value));
+                }else{
+                    input.val(value);
+                }
                 form.append(input);
             });
             form.appendTo(document.body);
