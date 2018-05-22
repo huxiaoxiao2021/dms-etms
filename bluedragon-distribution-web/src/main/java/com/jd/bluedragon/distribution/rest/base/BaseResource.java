@@ -335,7 +335,8 @@ public class BaseResource implements DmsBaseService {
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		response.setSiteCode(dto.getSiteCode());
 		response.setSiteName(dto.getSiteName());
-		response.setDmsCode(dto.getDmsSiteCode());
+		String dmsSiteCode = dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
+		response.setDmsCode(dmsSiteCode);
 		response.setSiteType(dto.getSiteType());
 		response.setSubType(dto.getSubType());
         response.setOrgId(dto.getOrgId());
