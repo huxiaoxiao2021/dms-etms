@@ -271,7 +271,9 @@
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-
+    <jsf:consumer id="boardMeasureService" interface="com.jd.transboard.api.service.BoardMeasureService"
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 路由 谭杨-->
     <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="${jsf.retries}">

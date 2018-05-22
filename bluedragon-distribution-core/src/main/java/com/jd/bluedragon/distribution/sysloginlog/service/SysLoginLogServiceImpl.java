@@ -4,9 +4,13 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.sysloginlog.dao.SysLoginLogDao;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -21,19 +25,20 @@ import java.util.List;
  */
 @Service("SysLoginLogService")
 public class SysLoginLogServiceImpl implements SysLoginLogService{
-
+	private static final Log logger = LogFactory.getLog(SysLoginLogServiceImpl.class);
     @Autowired
     private SysLoginLogDao sysLoginLogDao;
-
-    private static final Integer DEFAULT_MATCHFLAG = 1; //默认版本最新
-    private static final Integer ERROR_MATCHFLAG = 0; //版本不匹配
 
     @Override
     @JProfiler(jKey = "DMSWEB.SysLoginLogService.insert", mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public SysLoginLog insert(PdaStaff siteInfo, ClientInfo clientInfo) {
         SysLoginLog sysLoginLog = toSysLoginLog(siteInfo, clientInfo);
-        sysLoginLogDao.insert(sysLoginLog);
+        try {
+			sysLoginLogDao.insert(sysLoginLog);
+		} catch (Exception e) {
+			logger.error("插入用户登录日志失败！",e);
+		}
         return sysLoginLog;
     }
 
@@ -65,10 +70,14 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
         sysLoginLog.setFileVersions(fileVersions);
         sysLoginLog.setMachineName(clientInfo.getMachineName());
         sysLoginLog.setMatchFlag(getMatchFlag(clientInfo.getVersionCode(), clientInfo));
-        sysLoginLog.setIpv4(clientInfo.getIpv4());
+        //避免ip长度过长
+        if(StringHelper.isNotEmpty(clientInfo.getIpv4()) && clientInfo.getIpv4().length()<=20){
+        	sysLoginLog.setIpv4(clientInfo.getIpv4());
+        }else{
+        	logger.warn("客户端登录用户-ipv4:"+clientInfo.getIpv4());
+        }
         sysLoginLog.setIpv6(clientInfo.getIpv6());
         sysLoginLog.setMacAdress(clientInfo.getMacAdress());
-
         return sysLoginLog;
     }
 
@@ -79,17 +88,21 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
      * @return
      */
     private Integer getMatchFlag(String versionCode,ClientInfo clientInfo){
+    	//版本校验不通过，登录失败
+    	if(SysLoginLog.MATCHFLAG_LOGIN_FAIL.equals(clientInfo.getMatchFlag())){
+    		return SysLoginLog.MATCHFLAG_LOGIN_FAIL;
+    	}
         List<ClientInfo.FileVersion> files = clientInfo.getFiles();
         if(StringUtils.isBlank(versionCode) || files == null || files.size() == 0){
-            return ERROR_MATCHFLAG;
+            return SysLoginLog.MATCHFLAG_FAIL;
         }
-        Integer matchFlag = DEFAULT_MATCHFLAG;
+        Integer matchFlag = SysLoginLog.MATCHFLAG_SUC;
         String fileVersionCode = null;
         for (ClientInfo.FileVersion fileVersion:files){
             if(fileVersionCode == null || fileVersionCode.equals(fileVersion.getVersionCode())){
                 fileVersionCode = fileVersion.getVersionCode();
             }else{
-                matchFlag = ERROR_MATCHFLAG;
+                matchFlag = SysLoginLog.MATCHFLAG_FAIL;
                 break;
             }
         }
@@ -105,9 +118,9 @@ public class SysLoginLogServiceImpl implements SysLoginLogService{
             fileVersionCode = fileVersion;
         }
         if(fileVersionCode == null){
-            matchFlag = ERROR_MATCHFLAG;
-        }else if(matchFlag.equals(DEFAULT_MATCHFLAG) && !versionCode.contains(fileVersionCode)){
-            matchFlag = ERROR_MATCHFLAG;
+            matchFlag = SysLoginLog.MATCHFLAG_FAIL;
+        }else if(matchFlag.equals(SysLoginLog.MATCHFLAG_SUC) && !versionCode.contains(fileVersionCode)){
+            matchFlag = SysLoginLog.MATCHFLAG_FAIL;
         }
 
         return matchFlag;
