@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -102,7 +103,10 @@ public class PopPrintServiceImpl implements PopPrintService {
         if (!PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
             return;
         }
-        if (popPrint.getPopReceiveType()>=PopPrintRequest.POP_RECEIVE_TYPE_4){
+        String ownSign = BusinessHelper.getOwnSign();
+        if (BusinessHelper.BUSI_OWN_SIGN_PRE.equals(ownSign) && popPrint.getPopReceiveType() != PopPrintRequest.POP_RECEIVE_TYPE_4) {
+            return;
+        } else if (!BusinessHelper.BUSI_OWN_SIGN_PRE.equals(ownSign) && popPrint.getPopReceiveType() >= PopPrintRequest.POP_RECEIVE_TYPE_4) {
             return;
         }
         BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());

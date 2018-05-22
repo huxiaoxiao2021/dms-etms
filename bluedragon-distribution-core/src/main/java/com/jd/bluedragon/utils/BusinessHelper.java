@@ -28,6 +28,7 @@ public class BusinessHelper {
 	public static final String BUSI_ORDER_CODE_QWD = "QWD";
 	public static final String SOURCE_CODE_CLPS = "CLPS";
 	public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+	public static final String BUSI_OWN_SIGN_PRE = "PRE";
 	/**
 	 * hash格式分页存储时，分页大小
 	 */
