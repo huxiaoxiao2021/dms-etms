@@ -465,7 +465,14 @@ public class BaseResource implements DmsBaseService {
     				&& loginCheckConfig.getOrgCodes().contains(loginResult.getOrganizationId())){
     			needCheck = true;
     		}
-    		
+    		//4、站点列表是否包含登录人所属站点则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getSiteCodes() != null
+    				&& loginResult != null
+    				&& loginResult.getSiteId() != null
+    				&& loginCheckConfig.getSiteCodes().contains(loginResult.getSiteId())){
+    			needCheck = true;
+    		}
     		/**
     		 * 4、版本校验：
     		 * 未上传版本类型WH_MINGYANG，验证失败
