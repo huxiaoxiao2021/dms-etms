@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.popPrint.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
@@ -27,123 +28,127 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author zhaohc 
+ * @author zhaohc
  * @E-mail zhaohengchong@360buy.com
  * @createTime 2012-3-14 下午07:50:33
- *
+ * <p>
  * 类说明
  */
 @Service("popPrintService")
 public class PopPrintServiceImpl implements PopPrintService {
-	
-	private final Log logger = LogFactory.getLog(this.getClass());
-	
-	@Autowired
-	private PopPrintDao popPrintDao;
-	
-	@Autowired
-	private InspectionDao inspectionDao;
 
-	@Autowired
-	private SiteService siteService;
+    private final Log logger = LogFactory.getLog(this.getClass());
 
-	@Autowired
-	private TaskService taskService;
+    @Autowired
+    private PopPrintDao popPrintDao;
 
-	@Override
-	public PopPrint findByWaybillCode(String waybillCode) {
-		if (StringUtils.isBlank(waybillCode)) {
-			logger.info("传入运单号 waybillCode 为空");
-		}
-		return popPrintDao.findByWaybillCode(waybillCode);
-	}
+    @Autowired
+    private InspectionDao inspectionDao;
 
-	@Override
-	public List<PopPrint> findSitePrintDetail(Map<String,Object> map){
-		return  popPrintDao.findSitePrintDetail(map);
-	}
+    @Autowired
+    private SiteService siteService;
 
-	@Override
-	public Integer findSitePrintDetailCount(Map<String,Object> map){
-		return  popPrintDao.findSitePrintDetailCount(map);
-	}
+    @Autowired
+    private TaskService taskService;
+
+    @Override
+    public PopPrint findByWaybillCode(String waybillCode) {
+        if (StringUtils.isBlank(waybillCode)) {
+            logger.info("传入运单号 waybillCode 为空");
+        }
+        return popPrintDao.findByWaybillCode(waybillCode);
+    }
+
+    @Override
+    public List<PopPrint> findSitePrintDetail(Map<String, Object> map) {
+        return popPrintDao.findSitePrintDetail(map);
+    }
+
+    @Override
+    public Integer findSitePrintDetailCount(Map<String, Object> map) {
+        return popPrintDao.findSitePrintDetailCount(map);
+    }
 
 
+    @Override
+    public List<PopPrint> findAllByWaybillCode(String waybillCode) {
+        if (StringUtils.isBlank(waybillCode)) {
+            logger.info("传入运单号 waybillCode 为空");
+        }
+        return this.popPrintDao.findAllByWaybillCode(waybillCode);
+    }
 
-	
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public int add(PopPrint popPrint) {
+        if (popPrint == null) {
+            logger.info("传入popPrint 为空");
+            return 0;
+        }
+        int result = popPrintDao.add(popPrint);
+        if (result > 0) {
+            pushInspection(popPrint);
+        } else {
+            logger.error("PopPrintServiceImpl.add插入失败" + JsonHelper.toJson(popPrint));
+        }
+        return result;
+    }
 
-	@Override
-	public List<PopPrint> findAllByWaybillCode(String waybillCode) {
-		if (StringUtils.isBlank(waybillCode)) {
-			logger.info("传入运单号 waybillCode 为空");
-		}
-		return this.popPrintDao.findAllByWaybillCode(waybillCode);
-	}
+    //发补验货任务
+    private void pushInspection(PopPrint popPrint) {
+        if (popPrint == null) {
+            return;
+        }
+        if (!PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
+            return;
+        }
+        if (popPrint.getPopReceiveType()>=PopPrintRequest.POP_RECEIVE_TYPE_4){
+            return;
+        }
+        BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
+        String createSiteName = null != create ? create.getSiteName() : null;
 
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public int add(PopPrint popPrint) {
-		if (popPrint == null) {
-			logger.info("传入popPrint 为空");
-			return 0;
-		}
-		int result= popPrintDao.add(popPrint);
-		if (result>0){
-			pushInspection(popPrint);
-		}else {
-			logger.error("PopPrintServiceImpl.add插入失败"+JsonHelper.toJson(popPrint));
-		}
-		return result;
-	}
+        TaskRequest request = new TaskRequest();
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setKeyword1(popPrint.getCreateUserCode().toString());
+        if (popPrint.getPackageBarcode() != null) {
+            request.setKeyword2(popPrint.getPackageBarcode());
+        } else {
+            request.setKeyword2(popPrint.getWaybillCode());
+        }
+        request.setType(Task.TASK_TYPE_POP_PRINT_INSPECTION);
+        request.setOperateTime(DateHelper.formatDateTime(new Date(popPrint.getCreateTime().getTime() - 60000)));
+        request.setSiteCode(popPrint.getCreateSiteCode());
+        request.setSiteName(createSiteName);
+        request.setUserCode(popPrint.getCreateUserCode());
+        request.setUserName(popPrint.getCreateUser());
+        //request.setBody();
+        String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+                + JsonHelper.toJson(popPrint)
+                + Constants.PUNCTUATION_CLOSE_BRACKET;
+        Task task = this.taskService.toTask(request, eachJson);
 
-	//发补验货任务
-	private void pushInspection(PopPrint popPrint) {
-		if (popPrint==null){
-			return;
-		}
-		BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
-		String createSiteName = null != create ? create.getSiteName() : null;
+        int result = this.taskService.add(task, true);
+        if (logger.isDebugEnabled()) {
+            logger.debug("平台打印补验货任务插入条数:" + result + "条,请求参数:" + JsonHelper.toJson(task));
+        }
+    }
 
-		TaskRequest request=new TaskRequest();
-		request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
-		request.setKeyword1(popPrint.getCreateUserCode().toString());
-		if(popPrint.getPackageBarcode() != null){
-			request.setKeyword2(popPrint.getPackageBarcode());
-		}else{
-			request.setKeyword2(popPrint.getWaybillCode());
-		}
-		request.setType(Task.TASK_TYPE_POP_PRINT_INSPECTION);
-		request.setOperateTime(DateHelper.formatDateTime(new Date(popPrint.getCreateTime().getTime()-60000)));
-		request.setSiteCode(popPrint.getCreateSiteCode());
-		request.setSiteName(createSiteName);
-		request.setUserCode(popPrint.getCreateUserCode());
-		request.setUserName(popPrint.getCreateUser());
-		//request.setBody();
-		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
-				+ JsonHelper.toJson(popPrint)
-				+ Constants.PUNCTUATION_CLOSE_BRACKET;
-		Task task=this.taskService.toTask(request, eachJson);
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public int updateByWaybillCode(PopPrint popPrint) {
+        return popPrintDao.updateByWaybillCode(popPrint);
+    }
 
-		int result= this.taskService.add(task, true);
-		if(logger.isDebugEnabled()){
-			logger.debug("平台打印补验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
-		}
-	}
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public int updateByWaybillCode(PopPrint popPrint) {
-		return popPrintDao.updateByWaybillCode(popPrint);
-	}
+    @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    public int updateByWaybillOrPack(PopPrint popPrint) {
+        return this.popPrintDao.updateByWaybillOrPack(popPrint);
+    }
 
-	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public int updateByWaybillOrPack(PopPrint popPrint) {
-		return this.popPrintDao.updateByWaybillOrPack(popPrint);
-	}
-
-	@Override
+    @Override
     public List<PopPrint> findLimitListNoReceive(List<PopPrint> popList, Map<String, Object> paramMap) {
-        List<PopPrint> target=new LinkedList<PopPrint>();
+        List<PopPrint> target = new LinkedList<PopPrint>();
         if (popList != null && !popList.isEmpty()) {
             for (PopPrint popPrint : popList) {
                 // 优化拆分表和非拆分表查询语句加入的代码
@@ -152,13 +157,13 @@ public class PopPrintServiceImpl implements PopPrintService {
                 inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
                 inspection.setWaybillCode(popPrint.getWaybillCode());
                 inspection.setPackageBarcode(popPrint.getPackageBarcode());
-                if("PRE".equals(ownSign)) {
+                if ("PRE".equals(ownSign)) {
                     inspection.setInspectionType(60);
                 } else {
                     inspection.setInspectionType(40);
                 }
                 Integer inspectionList = inspectionDao.queryCountByCondition(inspection);
-                if(null != inspectionList && inspectionList > 0) {
+                if (null != inspectionList && inspectionList > 0) {
                     //popList.remove(popPrint);
                     continue;
                 }

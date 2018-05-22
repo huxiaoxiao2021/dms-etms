@@ -41,26 +41,23 @@ public class PopPrintInspectionTask extends DBSingleScheduler {
             return true;
         }
 
+        Inspection inspection = popPrintToInspection(popPrint);
         if (Waybill.isPopWaybillType(popPrint.getWaybillType())
-                && !Constants.POP_QUEUE_EXPRESS.equals(popPrint
-                .getPopReceiveType())) {
+                && !Constants.POP_QUEUE_EXPRESS.equals(popPrint.getPopReceiveType())) {
             try {
-                this.taskPopRecieveCountService
-                        .insert(popPrintToInspection(popPrint));
+                this.taskPopRecieveCountService.insert(inspection);
                 this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
                         + popPrint.getCreateSiteCode() + "-"
                         + popPrint.getWaybillCode() + "】收货补全回传POP成功");
             } catch (Exception e) {
-                this.logger
-                        .error("平台订单已打印未收货处理 --> 分拣中心-运单【"
-                                + popPrint.getCreateSiteCode() + "-"
-                                + popPrint.getWaybillCode()
-                                + "】 收货补全回传POP，补全异常", e);
+                this.logger.error("平台订单已打印未收货处理 --> 分拣中心-运单【"
+                        + popPrint.getCreateSiteCode() + "-"
+                        + popPrint.getWaybillCode()
+                        + "】 收货补全回传POP，补全异常", e);
             }
         }
         try {
-            this.inspectionService
-                    .addInspectionPop(popPrintToInspection(popPrint));
+            this.inspectionService.addInspectionPop(inspection);
             this.logger.info("平台订单已打印未收货处理 --> 分拣中心-运单【"
                     + popPrint.getCreateSiteCode() + "-"
                     + popPrint.getWaybillCode() + "】 收货信息不存在，补全成功");
@@ -83,10 +80,7 @@ public class PopPrintInspectionTask extends DBSingleScheduler {
             }
             inspection.setCreateUserCode(popPrint.getCreateUserCode());
             inspection.setCreateUser(popPrint.getCreateUser());
-            inspection
-                    .setCreateTime((popPrint.getPrintPackTime() == null) ? popPrint
-                            .getPrintInvoiceTime()
-                            : popPrint.getPrintPackTime());
+            inspection.setCreateTime((popPrint.getPrintPackTime() == null) ? popPrint.getPrintInvoiceTime() : popPrint.getPrintPackTime());
             inspection.setCreateSiteCode(popPrint.getCreateSiteCode());
 
             inspection.setUpdateTime(inspection.getCreateTime());
@@ -99,14 +93,11 @@ public class PopPrintInspectionTask extends DBSingleScheduler {
             inspection.setCrossCode(popPrint.getCrossCode());
             inspection.setWaybillType(popPrint.getWaybillType());
             inspection.setPopReceiveType(popPrint.getPopReceiveType());
-            inspection.setPopFlag(1);
+            inspection.setPopFlag(PopPrint.POP_FLAF_1);
             inspection.setThirdWaybillCode(popPrint.getThirdWaybillCode());
             inspection.setQueueNo(popPrint.getQueueNo());
 
-            inspection
-                    .setPackageBarcode((popPrint.getPackageBarcode() == null) ? popPrint
-                            .getWaybillCode()
-                            : popPrint.getPackageBarcode());
+            inspection.setPackageBarcode((popPrint.getPackageBarcode() == null) ? popPrint.getWaybillCode() : popPrint.getPackageBarcode());
             inspection.setBoxCode(popPrint.getBoxCode());
             inspection.setDriverCode(popPrint.getDriverCode());
             inspection.setDriverName(popPrint.getDriverName());
