@@ -64,4 +64,10 @@ public interface PopPrintService {
 	public int updateByWaybillCode(PopPrint popPrint);
 
 	public int updateByWaybillOrPack(PopPrint popPrint);
+
+	/**
+	 * 推补发货任务
+	 * @param popPrint
+	 */
+	public void pushInspection(PopPrint popPrint);
 }

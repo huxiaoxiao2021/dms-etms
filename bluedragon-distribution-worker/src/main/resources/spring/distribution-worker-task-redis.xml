@@ -146,6 +146,12 @@
 		<property name="taskType" value="PopReceiveRedisTask" />
 		<property name="desc" value="POP收货Redis任务" />
 	</bean>
+	<bean id="popPrintInspectionRedisTask"
+		class="com.jd.bluedragon.distribution.worker.pop.redis.PopPrintInspectionRedisTask"
+		parent="parentRedisTask">
+		<property name="taskType" value="PopPrintInspectionRedisTask" />
+		<property name="desc" value="平台打印补验货任务" />
+	</bean>
 
 	<bean id="sortingRedisTask"
 		class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingRedisTask"

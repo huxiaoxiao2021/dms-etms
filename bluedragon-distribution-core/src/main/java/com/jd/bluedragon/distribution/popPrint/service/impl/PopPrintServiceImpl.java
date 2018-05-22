@@ -86,21 +86,12 @@ public class PopPrintServiceImpl implements PopPrintService {
             logger.info("传入popPrint 为空");
             return 0;
         }
-        int result = popPrintDao.add(popPrint);
-        if (result > 0) {
-            pushInspection(popPrint);
-        } else {
-            logger.error("PopPrintServiceImpl.add插入失败" + JsonHelper.toJson(popPrint));
-        }
-        return result;
+       return popPrintDao.add(popPrint);
     }
 
     //发补验货任务
-    private void pushInspection(PopPrint popPrint) {
+    public void pushInspection(PopPrint popPrint) {
         if (popPrint == null) {
-            return;
-        }
-        if (!PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
             return;
         }
         String ownSign = BusinessHelper.getOwnSign();

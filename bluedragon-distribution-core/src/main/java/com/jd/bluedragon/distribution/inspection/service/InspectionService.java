@@ -46,7 +46,7 @@ public interface InspectionService {
 	
 	/**
 	 * 增加POP收货数据
-	 * @param inspectionPOPs
+	 * @param pop
 	 * @return
 	 */
 	public int addInspectionPop(Inspection pop);
@@ -69,7 +69,7 @@ public interface InspectionService {
 	
 	/**
 	 * 按条件查询POP交接清单集合
-	 * @param paramMap
+	 * @param waybillCodes
 	 * @return
 	 */
 	public List<Inspection> findPopByWaybillCodes(List<String> waybillCodes);
@@ -82,7 +82,7 @@ public interface InspectionService {
 
 	/**
 	 * 根据包裹号查询验货记录
-	 * @param haveInspection
+	 * @param inspection
 	 * @return
 	 */
 	public boolean haveInspection(Inspection inspection);
@@ -117,4 +117,14 @@ public interface InspectionService {
 	 *
 	 * */
 	public List<Inspection> queryByCondition(Inspection inspection);
+
+
+	/**
+	 * 平台打印，不验货任务
+	 * @param task
+	 * @param ownSign
+	 * @return
+	 * @throws Exception
+	 */
+	public boolean popPrintInspection(Task task, String ownSign) throws Exception;
 }
