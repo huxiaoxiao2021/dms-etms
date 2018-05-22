@@ -100,6 +100,10 @@ public class PopPrintServiceImpl implements PopPrintService {
         } else if (!BusinessHelper.BUSI_OWN_SIGN_PRE.equals(ownSign) && popPrint.getPopReceiveType() >= PopPrintRequest.POP_RECEIVE_TYPE_4) {
             return;
         }
+        popPrint=popPrintDao.findByWaybillCodeAndPackageCode(popPrint);
+        if (popPrint == null) {
+            return;
+        }
         BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
 
