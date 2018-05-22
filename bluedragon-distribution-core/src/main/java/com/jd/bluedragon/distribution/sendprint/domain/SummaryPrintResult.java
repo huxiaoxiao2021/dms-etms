@@ -29,6 +29,9 @@ public class SummaryPrintResult implements Serializable {
 	/** 合计应发包裹总数 */
 	private int totalpackageBarNum;
 
+	/** 合计托盘体积 */
+	private Double totalBoardVolume;
+
 	public List<SummaryPrintBoxEntity> getDetails() {
 		return details;
 	}
@@ -98,4 +101,12 @@ public class SummaryPrintResult implements Serializable {
 	public void setRoadCode(String roadCode) {
 		this.roadCode = roadCode;
 	}
+
+    public Double getTotalBoardVolume() {
+        return totalBoardVolume;
+    }
+
+    public void setTotalBoardVolume(Double totalBoardVolume) {
+        this.totalBoardVolume = totalBoardVolume;
+    }
 }
