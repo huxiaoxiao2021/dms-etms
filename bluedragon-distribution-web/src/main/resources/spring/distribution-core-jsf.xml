@@ -275,7 +275,7 @@
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <jsf:consumer id="boardMeasureService" interface="com.jd.transboard.api.service.BoardMeasureService"
-                  protocol="jsf" alias="${jsf.TC.alias}" serialization="hessian" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 路由 谭杨-->
     <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
