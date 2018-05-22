@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<bean id="redisTaskHanlder"
+		class="com.jd.bluedragon.distribution.framework.RedisTaskHanlder">
+		<property name="taskService" ref="taskService" />
+	</bean>
+
+	<bean id="parentRedisTask" init-method="init" depends-on="managerFactory"
+		class="com.jd.bluedragon.distribution.framework.RedisSingleScheduler"
+		abstract="true">
+		<property name="tbScheduleManagerFactory" value="managerFactory" />
+		<property name="jimClient" ref="redisClient" />
+		<property name="scheduleDataSource" ref="taskDataSource" />
+		<property name="taskClass"
+			value="com.jd.bluedragon.distribution.task.domain.Task" />
+		<property name="ownSign" value="${ownSign}" />
+	</bean>
+	<bean id="baseRedisSingleScheduler"
+		class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		abstract="true" parent="parentRedisTask">
+		<property name="open" value="${beans.baseRedisSingleScheduler.open}"/>
+	</bean>
+
+</beans>
+
