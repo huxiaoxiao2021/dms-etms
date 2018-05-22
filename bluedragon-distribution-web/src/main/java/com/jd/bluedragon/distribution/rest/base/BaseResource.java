@@ -315,21 +315,9 @@ public class BaseResource implements DmsBaseService {
 	public BaseResponse getSite(@PathParam("code") String code) {
 		this.logger.info("sitecode is " + code);
 
-		String siteName;
-		Integer siteCode;
-		String dmsSiteCode;
-		Integer siteType;
-		Integer siteBusType;
-        Integer orgId;
         BaseStaffSiteOrgDto dto=null;
 		try {
 			dto = baseService.queryDmsBaseSiteByCode(code);
-			siteName = dto != null ? dto.getSiteName() : null;
-			siteCode = dto != null ? dto.getSiteCode() : null;
-			dmsSiteCode = dto != null && dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
-			siteType = dto != null && dto.getSiteType() != null ? dto.getSiteType() : null;
-			orgId = dto != null && dto.getOrgId() != null ? dto.getOrgId() : null;
-            siteBusType = dto != null && dto.getSiteBusinessType() != null ? dto.getSiteBusinessType() : null;
 		} catch (Exception e) {
 			logger.error("获取站点名称失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
@@ -337,24 +325,21 @@ public class BaseResource implements DmsBaseService {
 			return response;
 		}
 
-		if (null == siteName) {
+		if (null == dto) {
 			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
 		}
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		response.setSiteCode(siteCode);
-		response.setSiteName(siteName);
-		response.setDmsCode(dmsSiteCode);
-		response.setSiteType(siteType);
-        response.setOrgId(orgId);
-		response.setSiteBusinessType(siteBusType);
-        /*
-        if(null!=dto) {
-            response.setPinyinCode(dto.getSiteNamePym());
-        }
-        */
+		response.setSiteCode(dto.getSiteCode());
+		response.setSiteName(dto.getSiteName());
+		response.setDmsCode(dto.getDmsSiteCode());
+		response.setSiteType(dto.getSiteType());
+		response.setSubType(dto.getSubType());
+        response.setOrgId(dto.getOrgId());
+		response.setSiteBusinessType(dto.getSiteBusinessType());
+
 		return response;
 	}
 
