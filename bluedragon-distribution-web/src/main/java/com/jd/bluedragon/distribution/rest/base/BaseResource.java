@@ -47,6 +47,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
@@ -350,43 +351,17 @@ public class BaseResource implements DmsBaseService {
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
-		ClientInfo info = null;
-		try{
-			//初始化客户端信息
-			if(StringUtils.isNotBlank(request.getClientInfo())){
-	            info = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
-	            info.setLoginUserErp(erpAccount);
-	        }else{
-	            info = new  ClientInfo();
-	            info.setLoginUserErp(erpAccount);
-	        }
-			//检查客户端版本信息，版本不一致，不允许登录
-            JdResult<String> checkResult = checkClientInfo(info);
-            if(!checkResult.isSucceed()){
-            	this.logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
-				BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
-						checkResult.getMessage());
-				// ERP账号
-				response.setErpAccount(erpAccount);
-				// ERP密码
-				response.setPassword(erpAccountPwd);
-				// 返回结果
-				return response;
-			}
-        }catch (Exception e){
-            this.logger.error("用户登录保存日志失败：" + erpAccount, e);
-        }
 		/** 进行登录验证 */
-		PdaStaff result = baseService.login(erpAccount, erpAccountPwd);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd);
 
 		// 处理返回结果
-		if (result.isError()) {
+		if (loginResult.isError()) {
 			// 异常处理-验证失败，返回错误信息
-			this.logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + result.getErrormsg()
+			this.logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + loginResult.getErrormsg()
 			        + "]");
 			// 结果设置
 			BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
-			        result.getErrormsg());
+			        loginResult.getErrormsg());
 			// ERP账号
 			response.setErpAccount(erpAccount);
 			// ERP密码
@@ -396,12 +371,37 @@ public class BaseResource implements DmsBaseService {
 		} else {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
-            try{
-                sysLoginLogService.insert(result, info);
-            }catch (Exception e){
-                this.logger.error("用户登录保存日志失败：" + erpAccount, e);
-            }
-			if (null == result.getSiteId()) {
+			try{
+				ClientInfo clientInfo = null;
+				//初始化客户端信息
+				if(StringUtils.isNotBlank(request.getClientInfo())){
+		            clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+		            clientInfo.setLoginUserErp(erpAccount);
+		        }else{
+		            clientInfo = new  ClientInfo();
+		            clientInfo.setLoginUserErp(erpAccount);
+		        }
+				//检查客户端版本信息，版本不一致，不允许登录
+	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
+	            if(!checkResult.isSucceed()){
+	            	clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
+	            	sysLoginLogService.insert(loginResult, clientInfo);
+	            	this.logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
+					BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
+							checkResult.getMessage());
+					// ERP账号
+					response.setErpAccount(erpAccount);
+					// ERP密码
+					response.setPassword(erpAccountPwd);
+					// 返回结果
+					return response;
+				}else{
+					sysLoginLogService.insert(loginResult, clientInfo);
+				}
+	        }catch (Exception e){
+	            this.logger.error("用户登录保存日志失败：" + erpAccount, e);
+	        }
+			if (null == loginResult.getSiteId()) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_SITE_ERROR,
 				        JdResponse.MESSAGE_SITE_ERROR);
 				return response;
@@ -415,30 +415,33 @@ public class BaseResource implements DmsBaseService {
 			response.setPassword(erpAccountPwd);
 
 			// 站点编号
-			response.setSiteCode(result.getSiteId());
+			response.setSiteCode(loginResult.getSiteId());
 			// 站点名称
-			response.setSiteName(result.getSiteName());
+			response.setSiteName(loginResult.getSiteName());
 			// 用户ID
-			response.setStaffId(result.getStaffId());
+			response.setStaffId(loginResult.getStaffId());
 			// 用户名称
-			response.setStaffName(result.getStaffName());
-			response.setOrgId(result.getOrganizationId());
-			response.setOrgName(result.getOrganizationName());
+			response.setStaffName(loginResult.getStaffName());
+			response.setOrgId(loginResult.getOrganizationId());
+			response.setOrgName(loginResult.getOrganizationName());
 			// 站点类型
-			response.setSiteType(result.getSiteType());
+			response.setSiteType(loginResult.getSiteType());
 			//站点子类型
-			response.setSubType(result.getSubType());
+			response.setSubType(loginResult.getSubType());
 
 			// dmscode
-			response.setDmsCode(result.getDmsCod());
+			response.setDmsCode(loginResult.getDmsCod());
 			// 返回结果
 			return response;
 		}
 	}
-	/*
+	/**
 	 * 检查客户端版本信息
+	 * @param clientInfo 上传的客户端信息
+	 * @param loginResult erp登录结果
+	 * @return
 	 */
-    private JdResult<String> checkClientInfo(ClientInfo clientInfo) {
+    private JdResult<String> checkClientInfo(ClientInfo clientInfo,PdaStaff loginResult) {
     	JdResult<String> checkResult = new JdResult<String>();
     	checkResult.toSuccess();
     	//1、查询客户端登录验证配置信息
@@ -454,9 +457,17 @@ public class BaseResource implements DmsBaseService {
     				&& loginCheckConfig.getProgramTypes().contains(clientInfo.getProgramType())){
     			needCheck = true;
     		}
+    		//3、机构列表是否包含登录人所属机构则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getOrgCodes() != null
+    				&& loginResult != null
+    				&& loginResult.getOrganizationId() != null
+    				&& loginCheckConfig.getOrgCodes().contains(loginResult.getOrganizationId())){
+    			needCheck = true;
+    		}
     		
     		/**
-    		 * 3、版本校验：
+    		 * 4、版本校验：
     		 * 未上传版本类型WH_MINGYANG，验证失败
     		 */
     		if(needCheck){

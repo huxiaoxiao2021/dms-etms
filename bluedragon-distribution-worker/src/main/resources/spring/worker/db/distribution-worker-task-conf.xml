@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd"
+       default-autowire="byName">
+
+    <!-- 调度服务器配置 -->
+    <bean id="scheduleConfigCenter"
+          class="com.taobao.pamirs.schedule.ScheduleConfigCenterClientByDatabase">
+        <property name="dataBaseType" value="mysql"/>
+        <property name="dataSource">
+            <ref bean="taskDataSource"/>
+        </property>
+        <property name="tableMap">
+            <map>
+                <entry key="pamirs_schedule_queue">
+                    <value>PAMIRS_SCHEDULE_QUEUE</value>
+                </entry>
+                <entry key="pamirs_schedule_server">
+                    <value>PAMIRS_SCHEDULE_SERVER</value>
+                </entry>
+                <entry key="pamirs_schedule_tasktype">
+                    <value>PAMIRS_SCHEDULE_TASKTYPE</value>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="managerFactory" class="com.taobao.pamirs.schedule.TBScheduleManagerFactory"
+          init-method="init" lazy-init="false">
+        <property name="scheduleConfigCenter">
+            <ref bean="scheduleConfigCenter"/>
+        </property>
+    </bean>
+
+    <bean id="refreshFetchNumber" class="com.jd.bluedragon.distribution.framework.RefreshSchedulerFetchNumber"
+          init-method="start" destroy-method="close" depends-on="managerFactory">
+        <property name="interval" value="1"/>
+        <property name="firstInterval" value="1"/>
+    </bean>
+
+    <bean id="inspectionTaskExecute" class="com.jd.bluedragon.distribution.worker.inspection.InspectionTaskExecute">
+        <property name="hooks">
+            <list>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.InspectionLogHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.MeasureHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.PushMessageHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.PushOemtoWmsHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.ThirdDifferenceHook"/>
+                <bean class="com.jd.bluedragon.distribution.worker.inspection.TraceHook"/>
+            </list>
+        </property>
+
+    </bean>
+
+    <bean id="storeIdSet"  class="java.util.HashSet">
+        <constructor-arg type="java.util.Collection">
+            <set>
+                <value type="java.lang.Integer">52</value>
+                <value type="java.lang.Integer">53</value>
+                <value type="java.lang.Integer">54</value>
+                <value type="java.lang.Integer">55</value>
+                <value type="java.lang.Integer">56</value>
+                <value type="java.lang.Integer">58</value>
+                <value type="java.lang.Integer">59</value>
+            </set>
+        </constructor-arg>
+
+    </bean>
+    <bean id="baseDBSingleScheduler" abstract="true" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="open" value="${beans.baseDBSingleScheduler.open}"/>
+    </bean>
+
+</beans>
