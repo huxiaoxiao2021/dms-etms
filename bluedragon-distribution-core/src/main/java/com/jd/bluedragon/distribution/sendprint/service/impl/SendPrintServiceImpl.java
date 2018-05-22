@@ -601,7 +601,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
             if (tList != null && !tList.isEmpty()) {
                 for (BasicQueryEntity tBasicQueryEntity : tList) {
-                    if (StringUtils.isNotBlank(sendM.getBoardCode()) && boardMap.containsKey(sendM.getBoardCode())) {
+                    if (StringUtils.isNotBlank(sendM.getBoardCode())) {
                         tBasicQueryEntity.setBoardCode(sendM.getBoardCode());
                         tBasicQueryEntity.setBoardVolume(boardMap.get(sendM.getBoardCode()));
                     }
