@@ -14,7 +14,18 @@ import java.util.Date;
 public class SysLoginLog implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	/**
+	 * 版本匹配成功
+	 */
+    public static final Integer MATCHFLAG_SUC = 1;
+	/**
+	 * 版本不匹配
+	 */
+    public static final Integer MATCHFLAG_FAIL = 0;
+	/**
+	 * 版本不匹配，登录失败
+	 */
+    public static final Integer MATCHFLAG_LOGIN_FAIL = 2;
 	 /** 主键ID */
 	private Long id;
 

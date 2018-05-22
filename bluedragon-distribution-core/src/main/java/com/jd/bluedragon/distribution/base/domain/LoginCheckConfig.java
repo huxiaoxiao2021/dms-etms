@@ -22,6 +22,10 @@ public class LoginCheckConfig implements Serializable {
      * 需要检查的客户端类型列表
      */
     private List<Integer> programTypes;
+    /**
+     * 需要检查的客户端的机构列表
+     */
+    private List<Integer> orgCodes;
 	/**
 	 * @return the masterSwitch
 	 */
@@ -45,6 +49,18 @@ public class LoginCheckConfig implements Serializable {
 	 */
 	public void setProgramTypes(List<Integer> programTypes) {
 		this.programTypes = programTypes;
+	}
+	/**
+	 * @return the orgCodes
+	 */
+	public List<Integer> getOrgCodes() {
+		return orgCodes;
+	}
+	/**
+	 * @param orgCodes the orgCodes to set
+	 */
+	public void setOrgCodes(List<Integer> orgCodes) {
+		this.orgCodes = orgCodes;
 	}
 
 }

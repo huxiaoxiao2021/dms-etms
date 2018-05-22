@@ -194,4 +194,18 @@ public class ClientInfo {
     public void setMachineName(String machineName) {
         this.machineName = machineName;
     }
+
+	/**
+	 * @return the matchFlag
+	 */
+	public Integer getMatchFlag() {
+		return matchFlag;
+	}
+
+	/**
+	 * @param matchFlag the matchFlag to set
+	 */
+	public void setMatchFlag(Integer matchFlag) {
+		this.matchFlag = matchFlag;
+	}
 }
