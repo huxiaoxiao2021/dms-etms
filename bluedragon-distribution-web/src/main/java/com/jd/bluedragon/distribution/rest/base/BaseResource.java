@@ -335,7 +335,8 @@ public class BaseResource implements DmsBaseService {
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		response.setSiteCode(dto.getSiteCode());
 		response.setSiteName(dto.getSiteName());
-		response.setDmsCode(dto.getDmsSiteCode());
+		String dmsSiteCode = dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
+		response.setDmsCode(dmsSiteCode);
 		response.setSiteType(dto.getSiteType());
 		response.setSubType(dto.getSubType());
         response.setOrgId(dto.getOrgId());
@@ -465,7 +466,14 @@ public class BaseResource implements DmsBaseService {
     				&& loginCheckConfig.getOrgCodes().contains(loginResult.getOrganizationId())){
     			needCheck = true;
     		}
-    		
+    		//4、站点列表是否包含登录人所属站点则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getSiteCodes() != null
+    				&& loginResult != null
+    				&& loginResult.getSiteId() != null
+    				&& loginCheckConfig.getSiteCodes().contains(loginResult.getSiteId())){
+    			needCheck = true;
+    		}
     		/**
     		 * 4、版本校验：
     		 * 未上传版本类型WH_MINGYANG，验证失败
