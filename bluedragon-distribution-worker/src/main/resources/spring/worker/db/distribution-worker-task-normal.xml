@@ -119,7 +119,7 @@
     <bean id="popPrintInspectionTask" class="com.jd.bluedragon.distribution.worker.pop.PopPrintInspectionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="popPrintInspectionTask"/>
+        <property name="taskType" value="PopPrintInspectionTask"/>
         <property name="managerFactory" ref="managerFactory"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1180"/>
