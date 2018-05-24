@@ -501,7 +501,15 @@ public class SendPrintServiceImpl implements SendPrintService {
         Waybill waybill = data.getWaybill();
         WaybillManageDomain waybillState = data.getWaybillState();
         List<DeliveryPackageD> deliveryPackage = data.getPackageList();
+
         dBasicQueryEntity.setDeclaredValue(waybill.getCodMoney());
+        dBasicQueryEntity.setGoodValue(waybill.getPrice() == null ? SendPrintConstants.TEXT_DEFAULT_PRICE : waybill.getPrice());
+        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight() == null ? 0.0 : waybill.getGoodWeight());
+        dBasicQueryEntity.setGoodWeight2(waybill.getAgainWeight() == null ? 0.0 : waybill.getAgainWeight());
+        dBasicQueryEntity.setPackageBarNum(waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber());
+        dBasicQueryEntity.setWaybillType(waybill.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : getWaybillType(waybill.getWaybillType()));
+        dBasicQueryEntity.setReceiverName(waybill.getReceiverName());
+
         Integer oldSiteId = waybill.getOldSiteId();
         if (oldSiteId != null) {
             dBasicQueryEntity.setSiteCode(oldSiteId);
@@ -515,7 +523,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
         }
 
-        dBasicQueryEntity.setGoodValue(waybill.getPrice() == null ? SendPrintConstants.TEXT_DEFAULT_PRICE : waybill.getPrice());
         if (deliveryPackage != null && !deliveryPackage.isEmpty() && BusinessHelper.checkIntNumRange(deliveryPackage.size())) {
             for (DeliveryPackageD delivery : deliveryPackage) {
                 if (delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())) {
@@ -536,12 +543,6 @@ public class SendPrintServiceImpl implements SendPrintService {
             dBasicQueryEntity.setFcNo(waybillState.getStoreId());
         }
 
-        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight() == null ? 0.0 : waybill.getGoodWeight());
-        dBasicQueryEntity.setGoodWeight2(waybill.getAgainWeight() == null ? 0.0 : waybill.getAgainWeight());
-        dBasicQueryEntity.setPackageBarNum(waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber());
-        dBasicQueryEntity.setPayment(waybill.getPayment() == null ? 0 : waybill.getPayment());
-        dBasicQueryEntity.setWaybillType(waybill.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : getWaybillType(waybill.getWaybillType()));
-
         if (rSiteType.equals(16)) {
             dBasicQueryEntity.setReceiverAddress(waybill.getReceiverAddress() == null ? "" : waybill.getReceiverAddress());
             if (waybill.getReceiverMobile() == null && waybill.getReceiverTel() == null) {
@@ -551,6 +552,18 @@ public class SendPrintServiceImpl implements SendPrintService {
             }
         } else {
             dBasicQueryEntity.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
+        }
+
+        Integer payment = waybill.getPayment();
+        if (payment == null) {
+            dBasicQueryEntity.setPayment(0);
+            dBasicQueryEntity.setSendPay("");
+        } else {
+            dBasicQueryEntity.setPayment(payment);
+            dBasicQueryEntity.setSendPay(getSendPay(payment));
+            if (payment != 1 && payment != 3) {
+                dBasicQueryEntity.setDeclaredValue(SendPrintConstants.TEXT_ZERO);
+            }
         }
 
         String sendPay = waybill.getSendPay();

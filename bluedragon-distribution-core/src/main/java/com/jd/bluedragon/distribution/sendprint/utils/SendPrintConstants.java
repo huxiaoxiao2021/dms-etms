@@ -31,6 +31,11 @@ public class SendPrintConstants {
      */
     public final static String TEXT_DEFAULT_PRICE = "0.00";
 
+    /**
+     * 文本 0
+     */
+    public final static String TEXT_ZERO = "0";
+
     public final static String TEXT_DOUBLE_BAR = "--";
 
 }
