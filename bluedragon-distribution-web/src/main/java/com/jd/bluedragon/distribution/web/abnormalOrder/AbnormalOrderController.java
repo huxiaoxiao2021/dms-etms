@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.web.abnormalOrder;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalorder.service.AbnormalOrderService;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AbnormalOrderRequest;
 import com.jd.bluedragon.distribution.api.response.RefundReason;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -110,7 +108,7 @@ public class AbnormalOrderController {
 			String abnormalCodeSText = request.getParameter("abnormalCodeSText" + row);
 			
 			Integer AbnormalCode1 = Integer.valueOf(abnormalCodeF);
-			Integer AbnormalCode2 = abnormalCodeS!=null&&NumberHelper.isStringNumber(abnormalCodeS)?Integer.valueOf(abnormalCodeS):-1;
+			Integer AbnormalCode2 = NumberHelper.convertToInteger(abnormalCodeS,-1);
 			abnormalOrder.setOrderId(waybillcode);
 			
 			abnormalOrder.setAbnormalCode1(AbnormalCode1);
