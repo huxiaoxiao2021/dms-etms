@@ -347,6 +347,7 @@ public class BaseResource implements DmsBaseService {
 
 	@POST
 	@Path("/bases/login")
+	@Override
 	public BaseResponse login(LoginRequest request) {
 		this.logger.info("erpAccount is " + request.getErpAccount());
 
@@ -683,6 +684,7 @@ public class BaseResource implements DmsBaseService {
 
 	@GET
 	@Path("/bases/errorlist/")
+	@Override
 	public List<BaseResponse> getErrorList() {
 
 		this.logger.info("获取所有错误信息列表");
@@ -820,6 +822,7 @@ public class BaseResource implements DmsBaseService {
 
 	@GET
 	@Path("/bases/serverdate/")
+	@Override
 	public BaseResponse getServerDate() {
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -1103,6 +1106,7 @@ public class BaseResource implements DmsBaseService {
 
 	@Path("/getRunNumber/")
 	@GET
+	@Override
 	public List<BaseResponse>  getRunNumber(){
 		List<BaseDataDict> dataList =	this.baseService.getBaseDataDictList(6055, 2, 6055);
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();

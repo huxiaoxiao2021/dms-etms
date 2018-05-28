@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 
@@ -32,5 +33,16 @@ public interface DmsDeliveryService {
      * @return
      */
     InvokeResult<SendResult> newPackageSend(PackageSendRequest request);
+
+    /**
+     * 发货前校验
+     *
+     * @param boxCode
+     * @param siteCode
+     * @param receiveSiteCode
+     * @param businessType
+     * @return
+     */
+    DeliveryResponse checkDeliveryInfo(String boxCode, String siteCode, String receiveSiteCode, String businessType);
 
 }

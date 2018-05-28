@@ -5,6 +5,7 @@ package com.jd.bluedragon.distribution.rest.transport;
  */
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.external.service.DmsArBaseService;
 import com.jd.bluedragon.distribution.transport.domain.ARCommonDictionaryType;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
@@ -27,7 +28,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class ArBaseResource {
+public class ArBaseResource implements DmsArBaseService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -43,6 +44,7 @@ public class ArBaseResource {
      */
     @GET
     @Path("/arbase/getARCommonDictionaryInfo/")
+    @Override
     public List<DictionaryInfoModel>  getARCommonDictionaryInfo() {
         this.logger.info("获取空铁项目城市信息和摆渡车信息列表");
 
