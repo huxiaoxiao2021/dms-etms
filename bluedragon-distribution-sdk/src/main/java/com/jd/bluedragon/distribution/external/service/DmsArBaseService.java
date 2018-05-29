@@ -12,10 +12,11 @@ import java.util.List;
 public interface DmsArBaseService {
 
     /**
-     * 空铁项目：登录获取字典信息
+     * 空铁项目：登录获取字典信息,由于物流网关不支持无参方法，故通过该方法跳转
      *
+     * @param arg 任意值
      * @return
      */
-    List<DictionaryInfoModel> getARCommonDictionaryInfo();
+    List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg);
 
 }

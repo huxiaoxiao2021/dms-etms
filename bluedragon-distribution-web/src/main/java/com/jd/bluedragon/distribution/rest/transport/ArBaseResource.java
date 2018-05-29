@@ -40,15 +40,15 @@ public class ArBaseResource implements DmsArBaseService {
 
     /**
      * 获取空铁项目的城市信息和车型信息
+     *
      * @return
      */
     @GET
     @Path("/arbase/getARCommonDictionaryInfo/")
-    @Override
-    public List<DictionaryInfoModel>  getARCommonDictionaryInfo() {
+    public List<DictionaryInfoModel> getARCommonDictionaryInfo() {
         this.logger.info("获取空铁项目城市信息和摆渡车信息列表");
 
-        List<DictionaryInfoModel>  result = new ArrayList<DictionaryInfoModel>();
+        List<DictionaryInfoModel> result = new ArrayList<DictionaryInfoModel>();
 
         //1-查询发货登记表获取始发城市id和始发城市名称
         List<City> startCities = arSendRegisterService.queryStartCityInfo();
@@ -64,6 +64,17 @@ public class ArBaseResource implements DmsArBaseService {
 
         Collections.sort(result);
         return result;
+    }
+
+    /**
+     * 登录获取字典信息,由于物流网关不支持无参方法，故通过该方法跳转
+     *
+     * @param arg 任意值
+     * @return
+     */
+    @Override
+    public List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg) {
+        return this.getARCommonDictionaryInfo();
     }
 
 }
