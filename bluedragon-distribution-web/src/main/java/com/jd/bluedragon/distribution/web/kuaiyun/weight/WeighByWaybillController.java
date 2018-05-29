@@ -303,6 +303,10 @@ public class WeighByWaybillController {
 
                 //存在失败的数据
                 if(errorList.size()>0){
+                    int key = 0 ;
+                    for(WaybillWeightVO errorVo :errorList){
+                        errorVo.setKey(key++);
+                    }
                     return new JdResponse(JdResponse.CODE_PARTIAL_SUCCESS,JdResponse.MESSAGE_PARTIAL_SUCCESS,waybillWeightImportResponse);
                 }
 
@@ -330,6 +334,7 @@ public class WeighByWaybillController {
 
         waybillWeightVO.setCanSubmit(0); //默认设置不可进行强制提交
         waybillWeightVO.setStatus(VALID_EXISTS_STATUS_CODE); //默认设置存在
+        waybillWeightVO.setErrorCode(0);
         //必输项检查 这校验全在JS。。后台还得在来一遍
         String codeStr = waybillWeightVO.getCodeStr();
         Double weight = waybillWeightVO.getWeight();
@@ -355,16 +360,6 @@ public class WeighByWaybillController {
             waybillWeightVO.setCodeStr(convertCodeToWaybillCodeResult.getData());
         }
 
-        //校验重泡比
-        if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
-            //没通过
-            waybillWeightVO.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
-            //可让前台强制提交
-            waybillWeightVO.setCanSubmit(1);
-            return false;
-        }
-
-
         //存在性校验
         InvokeResult<Boolean> verifyWaybillRealityResult = verifyWaybillReality(waybillWeightVO.getCodeStr());
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){
@@ -379,6 +374,16 @@ public class WeighByWaybillController {
             waybillWeightVO.setErrorMessage(verifyWaybillRealityResult.getMessage());
             return false;
         }else{
+
+            //校验重泡比
+            if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
+                //没通过
+                waybillWeightVO.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
+                waybillWeightVO.setErrorCode(Constants.CBM_DIV_KG_CODE);
+                //可让前台强制提交
+                waybillWeightVO.setCanSubmit(1);
+                return false;
+            }
 
             //存在
             //校验成功 执行插入
