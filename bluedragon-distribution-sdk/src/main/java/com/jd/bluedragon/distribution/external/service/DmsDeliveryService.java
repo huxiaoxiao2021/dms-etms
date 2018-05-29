@@ -14,7 +14,7 @@ import java.util.AbstractMap;
 public interface DmsDeliveryService {
 
     /**
-     * 校验并获取批次号信息
+     * 校验并获取批次号信息，由于物流网关不支持返回参数非JSON格式，故通过该方法转换类型
      * 用途:
      * 1. 扫描发货批次号后，校验批次号是否符合正则表达式
      * 2. 校验批次号是否逆向发货（根据批次号目的地类型校验），该入口不允许操作逆向发货。
@@ -24,7 +24,7 @@ public interface DmsDeliveryService {
      * @param sendCode
      * @return
      */
-    InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode);
+    InvokeResult<AbstractMap.Entry<String, String>> checkSendCodeStatus2JSF(String sendCode);
 
     /**
      * 发货，根据批次号和所扫描的箱子或包裹或板号，进行发货
