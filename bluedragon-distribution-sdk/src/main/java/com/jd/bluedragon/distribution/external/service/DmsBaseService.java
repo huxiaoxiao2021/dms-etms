@@ -28,24 +28,27 @@ public interface DmsBaseService {
     BaseResponse getSite(String code);
 
     /**
-     * 获取服务器时间
+     * 获取服务器时间,由于物流网关不支持无参方法，故通过该方法跳转
      *
+     * @param arg 任意值
      * @return
      */
-    BaseResponse getServerDate();
+    BaseResponse getServerDate(String arg);
 
     /**
-     * 获取所有错误信息列表
+     * 获取所有错误信息列表,由于物流网关不支持无参方法，故通过该方法跳转
      *
+     * @param arg 任意值
      * @return
      */
-    List<BaseResponse> getErrorList();
+    List<BaseResponse> getErrorList(String arg);
 
     /**
-     * 登录获取RunTime信息
+     * 登录获取RunTime信息,由于物流网关不支持无参方法，故通过该方法跳转
      *
+     * @param arg 任意值
      * @return
      */
-    List<BaseResponse> getRunNumber();
+    List<BaseResponse> getRunNumber(String arg);
 
 }

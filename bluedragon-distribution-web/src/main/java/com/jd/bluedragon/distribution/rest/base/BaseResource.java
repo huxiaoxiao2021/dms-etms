@@ -684,7 +684,6 @@ public class BaseResource implements DmsBaseService {
 
 	@GET
 	@Path("/bases/errorlist/")
-	@Override
 	public List<BaseResponse> getErrorList() {
 
 		this.logger.info("获取所有错误信息列表");
@@ -722,6 +721,17 @@ public class BaseResource implements DmsBaseService {
 		}
 
 		return ll;
+	}
+
+	/**
+	 * 获取所有错误信息列表,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public List<BaseResponse> getErrorList(String arg) {
+		return this.getErrorList();
 	}
 
     @GET
@@ -822,13 +832,23 @@ public class BaseResource implements DmsBaseService {
 
 	@GET
 	@Path("/bases/serverdate/")
-	@Override
 	public BaseResponse getServerDate() {
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		java.util.Date nowdate = DateHelper.toDate(System.currentTimeMillis());
 		response.setServerDate(formatter.format(nowdate).toString());
 		return response;
+	}
+
+	/**
+	 * 获取服务器时间,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public BaseResponse getServerDate(String arg) {
+		return this.getServerDate();
 	}
 
 	/**********************************************************************************/
@@ -1106,7 +1126,6 @@ public class BaseResource implements DmsBaseService {
 
 	@Path("/getRunNumber/")
 	@GET
-	@Override
 	public List<BaseResponse>  getRunNumber(){
 		List<BaseDataDict> dataList =	this.baseService.getBaseDataDictList(6055, 2, 6055);
 		List<BaseResponse> responseList = new ArrayList<BaseResponse>();
@@ -1120,6 +1139,16 @@ public class BaseResource implements DmsBaseService {
 		return responseList;
 	}
 
+	/**
+	 * 登录获取RunTime信息,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public List<BaseResponse> getRunNumber(String arg) {
+		return this.getRunNumber();
+	}
 
     /**
      *  根据自提柜站点获取自提柜所属站点
