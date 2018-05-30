@@ -157,7 +157,7 @@ public class PackageHalfDetailController {
 
 					//终端或分拣已经操作过
 					Integer waybillState = bigWaybillDto.getWaybillState().getWaybillState();
-					if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) || WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
+					if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) ){
 						packageHalfDetailResponseVO.setCanDelievered(false);
 						packageHalfDetailResponseVO.setCanReject(false);
 						resultMessageTemp = "\n此运单已完成操作！不可再次操作";
