@@ -157,25 +157,25 @@ public class PackageHalfDetailController {
 
 					//终端或分拣已经操作过
 					Integer waybillState = bigWaybillDto.getWaybillState().getWaybillState();
-					if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) || WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
+					if(WaybillStatus.WAYBILL_TRACK_FC .equals(waybillState)|| WaybillStatus.WAYBILL_TRACK_RCD.equals(waybillState) ){ //|| WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(waybillState)){
 						packageHalfDetailResponseVO.setCanDelievered(false);
 						packageHalfDetailResponseVO.setCanReject(false);
 						resultMessageTemp = "\n此运单已完成操作！不可再次操作";
 					}else{
 						//支持协商在妥投的 并且 没有审核完成的
 						if(BusinessHelper.isConsultationTo(bigWaybillDto.getWaybill().getWaybillSign())) {
-							//不允许操作
-							if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())){
+							//不允许操作  2018 5 31 取消此逻辑
+							/*if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())){
 								packageHalfDetailResponseVO.setCanDelievered(false);
 								packageHalfDetailResponseVO.setCanReject(false);
 								result.setMessage("此运单未完成协商再投审核，请在一体机中操作！");
 								return result;
-							}else{
+							}else{*/
 								//只允许操作拒收
 								packageHalfDetailResponseVO.setCanDelievered(false);
 								packageHalfDetailResponseVO.setCanReject(true);
-								resultMessageTemp = "\n此运单完成协商再投审核,只允许操作拒收";
-							}
+								resultMessageTemp = "\n此运单支持协商再投,分拣中心只允许操作拒收";
+							//}
 
 						}
 
