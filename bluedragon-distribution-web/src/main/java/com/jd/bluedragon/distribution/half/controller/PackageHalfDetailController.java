@@ -164,18 +164,19 @@ public class PackageHalfDetailController {
 					}else{
 						//支持协商在妥投的 并且 没有审核完成的
 						if(BusinessHelper.isConsultationTo(bigWaybillDto.getWaybill().getWaybillSign())) {
-							//不允许操作  2018 5 31 取消此逻辑
-							/*if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())){
+							//不允许操作
+							if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())
+                                    && !WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(bigWaybillDto.getWaybillState().getWaybillState())){
 								packageHalfDetailResponseVO.setCanDelievered(false);
 								packageHalfDetailResponseVO.setCanReject(false);
 								result.setMessage("此运单未完成协商再投审核，请在一体机中操作！");
 								return result;
-							}else{*/
+							}else{
 								//只允许操作拒收
 								packageHalfDetailResponseVO.setCanDelievered(false);
 								packageHalfDetailResponseVO.setCanReject(true);
 								resultMessageTemp = "\n此运单支持协商再投,分拣中心只允许操作拒收";
-							//}
+							}
 
 						}
 
