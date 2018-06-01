@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>三无外单寄托物核实</title>
+    <title>三无外单托寄物核实</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -13,7 +13,7 @@
 <div id="dataTableDiv" class="main" style="margin-left: 20px;">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
-            <li class="active">三无外单寄托物核实</li>
+            <li class="active">三无外单托寄物核实</li>
         </ol>
 		<!-- 查询条件 -->
         <div id="query-condition">
@@ -86,7 +86,7 @@
 <!-- 编辑表单 -->
 <div id="dataEditDiv" class="main" style="margin-left: 40px;">
         <ol class="breadcrumb">
-            <li><a href="#">三无外单寄托物核实申请</a></li>
+            <li><a href="#">三无外单托寄物核实申请</a></li>
             <li class="active">新增</li>
         </ol>
         <div id="edit-condition">

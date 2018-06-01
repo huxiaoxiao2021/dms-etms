@@ -604,12 +604,7 @@ public class BusinessHelper {
     		//WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
     		if((isSignChar(waybillSign, 40, '2')||isSignChar(waybillSign, 40, '3'))
     				&&isSignChar(waybillSign, 25, '2')){
-    			String freightStr = bigWaybillDto.getWaybill().getFreight();
-    			if(NumberHelper.isStringNumber(freightStr)){
-    				return NumberHelper.getDoubleValue(freightStr).doubleValue() > 0d;
-    			}else{
-    				return false;
-    			}
+    			return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
     		}
     	}
     	return true;

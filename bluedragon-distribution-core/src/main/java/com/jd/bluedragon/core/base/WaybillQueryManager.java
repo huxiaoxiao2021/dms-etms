@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -47,6 +48,7 @@ public interface WaybillQueryManager{
 			Boolean isWaybillE, Boolean isWaybillM, Boolean isPackList);
 
 
+
 	/**
 	 * @param waybillCode 运单号
 	 * @param isWaybillC 是否查询运单基本信息
@@ -62,6 +64,19 @@ public interface WaybillQueryManager{
 			Boolean isWaybillC, Boolean isWaybillE, Boolean isWaybillM,
 			Boolean isGoodList, Boolean isPackList, Boolean isPickupTask,
 			Boolean isServiceBillPay);
+
+	/**
+	 * 批量获取运单信息
+	 *
+	 * @param waybillCodes 运单号列表
+	 * @param isWaybillC   是否查询运单基本信息
+	 * @param isWaybillE   是否查询运单扩展信息
+	 * @param isWaybillM   是否查询运单管理表信息
+	 * @param isPackList   是否查询运单下的包裹列表
+	 * @return
+	 */
+	BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes, Boolean isWaybillC,
+													 Boolean isWaybillE, Boolean isWaybillM, Boolean isPackList);
 
 	/**
 	 * 发送全程跟踪消息

@@ -201,16 +201,6 @@
         <property name="desc" value="自动分拣交接数据存交接表任务"/>
     </bean>
 
-    <bean id="batchSendCarTask" class="com.jd.bluedragon.distribution.worker.departure.BatchSendCarTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="taskType" value="BatchSendCarTask"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1410"/>
-        <property name="desc" value="批量发车任务"/>
-    </bean>
-
     <bean id="sortingExceptionTask" class="com.jd.bluedragon.distribution.worker.sorting.SortingExceptionTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>

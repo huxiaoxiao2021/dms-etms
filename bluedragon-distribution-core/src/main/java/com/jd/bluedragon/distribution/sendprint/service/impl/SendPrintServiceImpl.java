@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -20,18 +21,19 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
+import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,10 +56,10 @@ public class SendPrintServiceImpl implements SendPrintService {
     private SendDatailDao sendDatailDao;
 
     @Autowired
-    WaybillQueryApi waybillQueryApi;
+    WaybillPackageApi waybillPackageApi;
 
     @Autowired
-    WaybillPackageApi waybillPackageApi;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -80,6 +82,13 @@ public class SendPrintServiceImpl implements SendPrintService {
     BoardCombinationService boardCombinationService;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
+
+    private final static Integer ASM_TYPE = Integer.parseInt(PropertiesHelper.newInstance().getValue("asm_type"));
+
+    /**
+     * 一次批量查询运单数据的大小
+     */
+    private final static int QUERY_SIZE = 50;
 
     /**
      * 批次汇总&&批次汇总打印
@@ -118,28 +127,24 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 解析参数
      */
     private SendM tosendM(PrintQueryCriteria criteria) {
-
         SendM nSendM = new SendM();
         nSendM.setCreateSiteCode(criteria.getSiteCode());
         nSendM.setReceiveSiteCode(criteria.getReceiveSiteCode());
 
-        if (criteria.getSendCode() != null && !"".equals(criteria.getSendCode())) {
+        if (StringUtils.isNotEmpty(criteria.getSendCode())) {
             nSendM.setSendCode(criteria.getSendCode());
         }
-        if (criteria.getBoxCode() != null && !"".equals(criteria.getBoxCode())) {
+        if (StringUtils.isNotEmpty(criteria.getBoxCode())) {
             nSendM.setBoxCode(criteria.getBoxCode());
         } else {
-            Date startTime = DateHelper.parseDateTime(criteria.getStartTime());
-            nSendM.setOperateTime(startTime);
-            Date endTime = DateHelper.parseDateTime(criteria.getEndTime());
-            nSendM.setUpdateTime(endTime);
+            nSendM.setOperateTime(DateHelper.parseDateTime(criteria.getStartTime()));
+            nSendM.setUpdateTime(DateHelper.parseDateTime(criteria.getEndTime()));
         }
         if (criteria.getSendUserCode() != null) {
             nSendM.setCreateUserCode(criteria.getSendUserCode());
         }
         return nSendM;
     }
-
     /**
      * 汇总多个发车批次统计信息,sendMList先按sendCode分组，然后统计每个分组的箱子、包裹信息
      *
@@ -367,30 +372,227 @@ public class SendPrintServiceImpl implements SendPrintService {
         return boardMap;
     }
 
+    private Map<String, Double> getAllGoodVolume(List<String> waybillCodes) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getAllGoodVolume", false, true);
+        Map<String, Double> goodVolumeMap = new HashMap<String, Double>();
+        if (waybillCodes != null && !waybillCodes.isEmpty()) {
+            for (String waybillCode : waybillCodes) {
+                try {
+                    BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
+                    if (packageOpe != null && packageOpe.getData() != null) {
+                        for (PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
+                            if (null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
+                                    && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
+                                goodVolumeMap.put(packOpeFlowDto.getPackageCode(), packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh());
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    logger.error("获取包裹量方信息接口失败，原因", e);
+                }
+            }
+        }
+        Profiler.registerInfoEnd(callerInfo);
+        return goodVolumeMap;
+    }
+
+    /**
+     * 根据运单号分页获取运单数据
+     *
+     * @param waybillCodes
+     * @return
+     */
+    private HashMap<String, BigWaybillDto> getBigWaybillDtoMap(List<String> waybillCodes) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getBigWaybillDtoMap", false, true);
+        HashMap<String, BigWaybillDto> deliveryPackageMap = new HashMap<String, BigWaybillDto>();
+        if (waybillCodes != null && !waybillCodes.isEmpty()) {
+            int n = waybillCodes.size() / QUERY_SIZE;
+            int m = waybillCodes.size() % QUERY_SIZE;
+            if (n > 0) {
+                List<String> waybills = new ArrayList<String>();
+                int num = 0;
+                for (String code : waybillCodes) {
+                    num++;
+                    waybills.add(code);
+                    if (num / QUERY_SIZE > 0 && num % QUERY_SIZE == 0 && n > 0) {
+                        sendToWaybill(deliveryPackageMap, waybills);
+                        waybills = new ArrayList<String>();
+                        n--;
+                    } else if (n == 0 && m > 0 && waybillCodes.size() == num) {
+                        sendToWaybill(deliveryPackageMap, waybills);
+                    }
+                }
+            } else {
+                sendToWaybill(deliveryPackageMap, waybillCodes);
+            }
+        }
+        Profiler.registerInfoEnd(callerInfo);
+        return deliveryPackageMap;
+    }
+
+    /**
+     * 调用取件单接口获取取件单信息
+     *
+     * @param dBasicQueryEntity
+     * @return
+     */
+    private String buildPickUpParams(BasicQueryEntity dBasicQueryEntity) {
+        String message = null;
+        if (dBasicQueryEntity.getInvoice() != null) {
+            try {
+                BaseEntity<PickupTask> tPickupTask = waybillPickupTaskApi.getPickTaskByPickCode(dBasicQueryEntity.getInvoice());
+                if (tPickupTask != null && tPickupTask.getResultCode() > 0) {
+                    PickupTask mPickupTask = tPickupTask.getData();
+                    if (mPickupTask != null) {
+                        dBasicQueryEntity.setInvoice(mPickupTask.getInvoiceId());
+                        if (mPickupTask.getNewWaybillCode() != null)
+                            dBasicQueryEntity.setIsnew(SendPrintConstants.TEXT_YES);
+                    }
+                } else {
+                    message = "打印交接清单-取件单基础信息调用失败，运单号：" + dBasicQueryEntity.getWaybill() + "，" + tPickupTask == null ? "返回的BaseEntity对象为null" : "返回的状态码为" + tPickupTask.getResultCode();
+                    logger.warn(message);
+                }
+            } catch (Exception e) {
+                message = "打印交接清单-取件单基础信息调用发生异常" + dBasicQueryEntity.getWaybill();
+                logger.error(message, e);
+            }
+        }
+        return message;
+    }
+
+    /**
+     * @param tBasicQueryEntity
+     * @param sendDetail
+     * @param sendM
+     * @param criteria
+     */
+    private void buildBasicQueryEntity(BasicQueryEntity tBasicQueryEntity, SendDetail sendDetail, SendM sendM, PrintQueryCriteria criteria) {
+        tBasicQueryEntity.setBoxCode(sendM.getBoxCode());
+        if (sendDetail.getIsCancel() != null && sendDetail.getIsCancel() == 0) {
+            tBasicQueryEntity.setIscancel(SendPrintConstants.TEXT_NO);
+        } else {
+            tBasicQueryEntity.setIscancel(SendPrintConstants.TEXT_YES);
+        }
+        tBasicQueryEntity.setIsnew(SendPrintConstants.TEXT_NO);
+        tBasicQueryEntity.setPackageBarWeight(0.0);
+        tBasicQueryEntity.setPackageBarWeight2(0.0);
+        tBasicQueryEntity.setSiteCode(0);
+        tBasicQueryEntity.setFcNo(0);
+        tBasicQueryEntity.setPackageBar(sendDetail.getPackageBarcode());
+        tBasicQueryEntity.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        tBasicQueryEntity.setSendCode(sendM.getSendCode());
+        tBasicQueryEntity.setSendUser(sendM.getCreateUser());
+        tBasicQueryEntity.setSendUserCode(sendM.getCreateUserCode());
+        tBasicQueryEntity.setWaybill(sendDetail.getWaybillCode());
+        tBasicQueryEntity.setInvoice(sendDetail.getPickupCode());
+        tBasicQueryEntity.setBoxCode(sendM.getBoxCode());
+    }
+
+    /**
+     * 根据运单信息构建打印对象
+     *
+     * @param dBasicQueryEntity
+     * @param data
+     * @param goodVolumeMap
+     * @param rSiteType
+     */
+    private void buildWaybillAttributes(BasicQueryEntity dBasicQueryEntity, BigWaybillDto data, Map<String, Double> goodVolumeMap, Integer rSiteType) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.buildWaybillAttributes", false, true);
+        Waybill waybill = data.getWaybill();
+        WaybillManageDomain waybillState = data.getWaybillState();
+        List<DeliveryPackageD> deliveryPackage = data.getPackageList();
+
+        dBasicQueryEntity.setDeclaredValue(waybill.getCodMoney());
+        dBasicQueryEntity.setGoodValue(waybill.getPrice() == null ? SendPrintConstants.TEXT_DEFAULT_PRICE : waybill.getPrice());
+        dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight() == null ? 0.0 : waybill.getGoodWeight());
+        dBasicQueryEntity.setGoodWeight2(waybill.getAgainWeight() == null ? 0.0 : waybill.getAgainWeight());
+        dBasicQueryEntity.setPackageBarNum(waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber());
+        dBasicQueryEntity.setWaybillType(waybill.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : getWaybillType(waybill.getWaybillType()));
+        dBasicQueryEntity.setReceiverName(waybill.getReceiverName());
+
+        Integer oldSiteId = waybill.getOldSiteId();
+        if (oldSiteId != null) {
+            dBasicQueryEntity.setSiteCode(oldSiteId);
+            BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(oldSiteId);
+            if (bDto != null) {
+                dBasicQueryEntity.setSiteName(bDto.getSiteName());
+                Integer siteType = bDto.getSiteType();
+                if (siteType != null && !siteType.equals(16)) {
+                    dBasicQueryEntity.setSiteType(SendPrintConstants.TEXT_SELF_SUPPORT);
+                }
+            }
+        }
+
+        if (deliveryPackage != null && !deliveryPackage.isEmpty() && BusinessHelper.checkIntNumRange(deliveryPackage.size())) {
+            for (DeliveryPackageD delivery : deliveryPackage) {
+                if (delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())) {
+                    dBasicQueryEntity.setPackageBarWeight(delivery.getGoodWeight());
+                    dBasicQueryEntity.setPackageBarWeight2(delivery.getAgainWeight());
+                    Double goodVolume = goodVolumeMap.get(dBasicQueryEntity.getPackageBar());
+                    if (goodVolume != null) {
+                        dBasicQueryEntity.setGoodVolume(goodVolume);
+                    } else {
+                        dBasicQueryEntity.setGoodVolume(0.0);
+                    }
+                    break;
+                }
+            }
+        }
+
+        if (waybillState != null && waybillState.getStoreId() != null) {
+            dBasicQueryEntity.setFcNo(waybillState.getStoreId());
+        }
+
+        if (rSiteType.equals(16)) {
+            dBasicQueryEntity.setReceiverAddress(waybill.getReceiverAddress() == null ? "" : waybill.getReceiverAddress());
+            if (waybill.getReceiverMobile() == null && waybill.getReceiverTel() == null) {
+                dBasicQueryEntity.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
+            } else {
+                dBasicQueryEntity.setReceiverMobile("");
+            }
+        } else {
+            dBasicQueryEntity.setReceiverMobile(SendPrintConstants.TEXT_DOUBLE_BAR);
+        }
+
+        Integer payment = waybill.getPayment();
+        if (payment == null) {
+            dBasicQueryEntity.setPayment(0);
+            dBasicQueryEntity.setSendPay("");
+        } else {
+            dBasicQueryEntity.setPayment(payment);
+            dBasicQueryEntity.setSendPay(getSendPay(payment));
+            if (payment != 1 && payment != 3) {
+                dBasicQueryEntity.setDeclaredValue(SendPrintConstants.TEXT_ZERO);
+            }
+        }
+
+        String sendPay = waybill.getSendPay();
+        //是否是奢侈品
+        if (sendPay != null && sendPay.charAt(19) == '1') {
+            dBasicQueryEntity.setLuxury(SendPrintConstants.TEXT_YES);
+        } else {
+            dBasicQueryEntity.setLuxury(SendPrintConstants.TEXT_NO);
+        }
+        Profiler.registerInfoEnd(callerInfo);
+    }
+
     /**
      * 明细打印
      */
     public BasicQueryEntityResponse detailPrintQuery(List<SendM> sendMs, PrintQueryCriteria criteria) {
-        Date startDate = new Date();
-        logger.info("打印交接清单-detailPrintQuery开始" + DateHelper.formatDate(startDate));
-
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery", false, true);
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
         List<BasicQueryEntity> fzList = new ArrayList<BasicQueryEntity>();
-        String rsiteName = toSiteName(criteria.getReceiveSiteCode());
-        String fsiteName = toSiteName(criteria.getSiteCode());
+        String rSiteName = toSiteName(criteria.getReceiveSiteCode());
+        String fSiteName = toSiteName(criteria.getSiteCode());
         Integer rSiteType = toSiteType(criteria.getReceiveSiteCode());
         Map<String, Double> boardMap = getBoardValueMapByBoards(getBoardsFromSendMs(sendMs));
         String message = JdResponse.MESSAGE_OK;
         for (SendM sendM : sendMs) {
+            CallerInfo innerCallerInfo = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.buildSingleBySendM", false, true);
             List<BasicQueryEntity> tList = new ArrayList<BasicQueryEntity>();
             List<BasicQueryEntity> mList = new ArrayList<BasicQueryEntity>();
             String sealNo = "";
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
-            tSendDatail.setBoxCode(sendM.getBoxCode());
-            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
-            tSendDatail.setIsCancel(1);
-
             if (BusinessHelper.isBoxcode(sendM.getBoxCode())) {
                 SealBox tSealBox = this.tSealBoxService.findByBoxCode(sendM.getBoxCode());
                 if (tSealBox != null) {
@@ -398,192 +600,58 @@ public class SendPrintServiceImpl implements SendPrintService {
                 }
             }
 
-            List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);
-            sendDetails = selectUniquesSendDetails(sendDetails);//create by wuzuxiang 2016年11月24日 T单、原单去重
-
+            List<SendDetail> sendDetails = this.getUniquesSendDetails(sendM.getCreateSiteCode(), sendM.getReceiveSiteCode(), sendM.getBoxCode());
             if (sendDetails != null && !sendDetails.isEmpty()) {
-                List<String> waybillCodes = new ArrayList<String>();
+                Set<String> waybillCodesSet = new HashSet<String>();
                 try {
-                    for (SendDetail dSendDatail : sendDetails) {
-                        if (criteria.getPackageBarcode() == null || "".equals(criteria.getPackageBarcode())
-                                || criteria.getPackageBarcode().equals(dSendDatail.getPackageBarcode())) {
-                            if (dSendDatail.getWaybillCode() != null && !dSendDatail.getWaybillCode().isEmpty()) {
-                                waybillCodes.add(dSendDatail.getWaybillCode());
+                    for (SendDetail dSendDetail : sendDetails) {
+                        if (criteria.getPackageBarcode() == null || "".equals(criteria.getPackageBarcode()) || criteria.getPackageBarcode().equals(dSendDetail.getPackageBarcode())) {
+                            if (dSendDetail.getWaybillCode() != null && !dSendDetail.getWaybillCode().isEmpty()) {
+                                waybillCodesSet.add(dSendDetail.getWaybillCode());
                             }
-
                             BasicQueryEntity tBasicQueryEntity = new BasicQueryEntity();
-                            tBasicQueryEntity.setBoxCode(sendM.getBoxCode());
-                            if (dSendDatail.getIsCancel() != null && dSendDatail.getIsCancel() == 0) {
-                                tBasicQueryEntity.setIscancel("否");
-                            } else {
-                                tBasicQueryEntity.setIscancel("是");
-                            }
-                            tBasicQueryEntity.setSealNo(sealNo);
-                            tBasicQueryEntity.setIsnew("否");
-                            tBasicQueryEntity.setPackageBarWeight(0.0);
-                            tBasicQueryEntity.setPackageBarWeight2(0.0);
-                            tBasicQueryEntity.setPackageBar(dSendDatail.getPackageBarcode());
-                            tBasicQueryEntity.setReceiveSiteCode(sendM.getReceiveSiteCode());
-                            tBasicQueryEntity.setReceiveSiteName(rsiteName);
-                            tBasicQueryEntity.setSendCode(sendM.getSendCode());
+                            tBasicQueryEntity.setReceiveSiteName(rSiteName);
                             tBasicQueryEntity.setReceiveSiteType(rSiteType);
-                            tBasicQueryEntity.setSendSiteName(fsiteName);
-                            tBasicQueryEntity.setSendUser(sendM.getCreateUser());
-                            tBasicQueryEntity.setSendUserCode(sendM.getCreateUserCode());
-                            tBasicQueryEntity.setWaybill(dSendDatail.getWaybillCode());
-                            tBasicQueryEntity.setInvoice(dSendDatail.getPickupCode());
+                            tBasicQueryEntity.setSendSiteName(fSiteName);
+                            tBasicQueryEntity.setSealNo(sealNo);
+                            this.buildBasicQueryEntity(tBasicQueryEntity, dSendDetail, sendM, criteria);
                             tList.add(tBasicQueryEntity);
                         }
                     }
-                    HashMap<String, BigWaybillDto> deliveryPackageMap = new HashMap<String, BigWaybillDto>();
-                    if (waybillCodes != null && !waybillCodes.isEmpty()) {
-                        int n = waybillCodes.size() / 50;
-                        int m = waybillCodes.size() % 50;
-                        if (n > 0) {
-                            List<String> waybills = new ArrayList<String>();
-                            int num = 0;
-                            for (String code : waybillCodes) {
-                                num++;
-                                waybills.add(code);
-                                if (num / 50 > 0 && num % 50 == 0 && n > 0) {
-                                    sendToWaybill(deliveryPackageMap, waybills);
-                                    waybills = new ArrayList<String>();
-                                    n--;
-                                } else if (n == 0 && m > 0 && waybillCodes.size() == num) {
-                                    sendToWaybill(deliveryPackageMap, waybills);
-                                }
-                            }
-                        } else {
-                            sendToWaybill(deliveryPackageMap, waybillCodes);
-                        }
-                    }
+
+                    List<String> waybillCodes = new ArrayList<String>(waybillCodesSet);
+
+                    HashMap<String, BigWaybillDto> waybillDtoMap = this.getBigWaybillDtoMap(waybillCodes);
+
+                    Map<String, Double> goodVolumeMap = this.getAllGoodVolume(waybillCodes);
 
                     for (BasicQueryEntity dBasicQueryEntity : tList) {
-                        if (rSiteType != null && rSiteType.equals(Integer.parseInt(PropertiesHelper.newInstance().getValue("asm_type")))) {
-                            Date startDate2 = new Date();
-                            logger.info("打印交接清单-调用取件单接口开始" + DateHelper.formatDate(startDate2));
-                            if (dBasicQueryEntity.getInvoice() != null) {
-                                BaseEntity<PickupTask> tPickupTask = waybillPickupTaskApi.getPickTaskByPickCode(dBasicQueryEntity.getInvoice());
-                                if (tPickupTask != null && tPickupTask.getResultCode() > 0) {
-                                    PickupTask mPickupTask = tPickupTask.getData();
-                                    if (mPickupTask != null) {
-                                        dBasicQueryEntity.setInvoice(mPickupTask.getInvoiceId());
-                                        if (mPickupTask.getNewWaybillCode() != null)
-                                            dBasicQueryEntity.setIsnew("是");
-                                    }
-                                } else {
-                                    message = "取件单基础信息调用异常" + dBasicQueryEntity.getWaybill();
-                                    logger.error("取件单基础信息调用异常" + dBasicQueryEntity.getWaybill());
-                                }
-                            }
-                            Date endDate2 = new Date();
-                            logger.info("打印交接清单-调用取件单接口结束-" + (startDate2.getTime() - endDate2.getTime()));
+                        if (rSiteType != null && rSiteType.equals(ASM_TYPE)) {
+                            String callbackMsg = this.buildPickUpParams(dBasicQueryEntity);
+                            if (callbackMsg != null)
+                                message = callbackMsg;
                         }
-
-                        if (dBasicQueryEntity.getWaybill() == null || dBasicQueryEntity.getWaybill().isEmpty()) {
-
+                        // 判断运单号是否为空
+                        if (StringUtils.isEmpty(dBasicQueryEntity.getWaybill())) {
                             logger.info("打印交接清单-如果运单号为空直接加入list返回");
                             continue;
                         }
 
-                        BigWaybillDto data = deliveryPackageMap.get(dBasicQueryEntity.getWaybill());
+                        BigWaybillDto data = waybillDtoMap.get(dBasicQueryEntity.getWaybill());
                         if (data == null || data.getWaybill() == null) {
                             continue;
                         }
-                        Waybill waybill = data.getWaybill();
+
+                        this.buildWaybillAttributes(dBasicQueryEntity, data, goodVolumeMap, rSiteType);
+
                         WaybillManageDomain waybillState = data.getWaybillState();
-                        List<DeliveryPackageD> deliveryPackage = data.getPackageList();
-                        String declaredValue = (waybill == null) ? null : waybill.getCodMoney();
-                        Integer storeId = 0;
-                        if (waybillState != null && waybillState.getStoreId() != null)
-                            storeId = waybillState.getStoreId();
-                        String sendPay = (waybill == null ? null : waybill.getSendPay());
-                        Integer siteId = 0;
-                        if (waybill != null && waybill.getOldSiteId() != null)
-                            siteId = waybill.getOldSiteId();
-                        String siteName = null;
-                        BaseStaffSiteOrgDto bDto = this.baseMajorManager.getBaseSiteBySiteId(siteId);
-                        if (bDto != null) {
-                            siteName = bDto.getSiteName();
-                            Integer siteType = bDto.getSiteType();
-                            if (siteType != null && !siteType.equals(16)) {
-                                dBasicQueryEntity.setSiteType("自营");
+                        if (waybillState != null && waybillState.getStoreId() != null) {
+                            if (criteria.getFc() != null && !criteria.getFc().equals(0) && !criteria.getFc().equals(waybillState.getStoreId())) {
+                                mList.add(dBasicQueryEntity);
                             }
-                        }
-                        dBasicQueryEntity.setDeclaredValue(declaredValue);
-                        dBasicQueryEntity.setGoodValue((waybill == null || waybill.getPrice() == null) ? "0.00" : waybill.getPrice());
-                        if (deliveryPackage != null && !deliveryPackage.isEmpty()
-                                && BusinessHelper.checkIntNumRange(deliveryPackage.size())) {
-                            for (DeliveryPackageD delivery : deliveryPackage) {
-                                if (delivery.getPackageBarcode().equals(dBasicQueryEntity.getPackageBar())) {
-                                    dBasicQueryEntity.setGoodVolume(0.0);
-                                    PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(delivery.getPackageBarcode());
-                                    if (null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
-                                            && packOpeFlowDto.getpLength() > 0 && packOpeFlowDto.getpWidth() > 0 && packOpeFlowDto.getpHigh() > 0) {
-                                        dBasicQueryEntity.setGoodVolume(packOpeFlowDto.getpLength() * packOpeFlowDto.getpWidth() * packOpeFlowDto.getpHigh());
-                                    }
-                                    dBasicQueryEntity.setPackageBarWeight(delivery.getGoodWeight());
-                                    dBasicQueryEntity.setPackageBarWeight2(delivery.getAgainWeight());
-                                }
-                            }
-                        }
-                        dBasicQueryEntity.setFcNo(storeId);
-                        //dBasicQueryEntity.setGoodVolume(0.0);
-                        //if(waybill != null && waybill.getGoodVolume() != null)
-                        //dBasicQueryEntity.setGoodVolume(waybill.getGoodVolume());
-                        dBasicQueryEntity.setGoodWeight(0.0);
-                        if (waybill != null && waybill.getGoodWeight() != null)
-                            dBasicQueryEntity.setGoodWeight(waybill.getGoodWeight());
-                        dBasicQueryEntity.setGoodWeight2(0.0);
-                        if (waybill != null && waybill.getAgainWeight() != null)
-                            dBasicQueryEntity.setGoodWeight2(waybill.getAgainWeight());
-                        dBasicQueryEntity.setPackageBarNum(0);
-                        if (waybill != null && waybill.getGoodNumber() != null)
-                            dBasicQueryEntity.setPackageBarNum(waybill.getGoodNumber());
-                        dBasicQueryEntity.setPayment(0);
-                        if (waybill != null && waybill.getPayment() != null)
-                            dBasicQueryEntity.setPayment(waybill.getPayment());
-
-                        if (waybill != null && rSiteType.equals(16)) {
-                            dBasicQueryEntity.setReceiverAddress(waybill.getReceiverAddress() == null ? "" : waybill.getReceiverAddress());
-                            String receiverMobile = waybill.getReceiverMobile() == null ? "" : waybill.getReceiverMobile();
-                            String receiverTel = waybill.getReceiverTel() == null ? "" : waybill.getReceiverTel();
-                            if (waybill.getReceiverMobile() == null && waybill.getReceiverTel() == null) {
-                                dBasicQueryEntity.setReceiverMobile("--");
-                            } else {
-                                //dBasicQueryEntity.setReceiverMobile(receiverMobile+"/"+receiverTel);
-                                dBasicQueryEntity.setReceiverMobile("");
-                            }
-                        } else {
-                            dBasicQueryEntity.setReceiverMobile("--");
-                        }
-                        dBasicQueryEntity.setReceiverName(waybill == null ? null : waybill.getReceiverName());
-                        if (waybill == null || waybill.getPayment() == null) {
-                            dBasicQueryEntity.setSendPay("");
-                        } else {
-                            dBasicQueryEntity.setSendPay(getSendPay(waybill.getPayment()));
-                            if (waybill.getPayment() != 1 && waybill.getPayment() != 3) {
-                                dBasicQueryEntity.setDeclaredValue("0");
-                            }
-                        }
-                        //是否是奢侈品
-                        if (sendPay != null && sendPay.charAt(19) == '1') {
-                            dBasicQueryEntity.setLuxury("是");
-                        } else {
-                            dBasicQueryEntity.setLuxury("否");
-                        }
-                        dBasicQueryEntity.setSiteCode(siteId);
-                        dBasicQueryEntity.setSiteName(siteName);
-                        if (waybill == null || waybill.getWaybillType() == null) {
-                            dBasicQueryEntity.setWaybillType("一般订单");
-                        } else {
-                            dBasicQueryEntity.setWaybillType(getWaybillType(waybill.getWaybillType()));
                         }
 
-                        if (criteria.getFc() != null && !criteria.getFc().equals(0) && storeId != null &&
-                                !criteria.getFc().equals(storeId)) {
-                            mList.add(dBasicQueryEntity);
-                        }
+                        String sendPay = data.getWaybill().getSendPay();
                         if (criteria.isIs211() &&
                                 (sendPay != null && !"1".equals(sendPay.substring(0, 1)))) {
                             mList.add(dBasicQueryEntity);
@@ -596,7 +664,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     }
                 } catch (Exception e) {
                     message = "同步运单基本信息异常错误原因为" + e.getMessage();
-                    logger.error("同步运单基本信息异常错误原因为" + e.getMessage());
+                    logger.error(message, e);
                 }
             }
             if (tList != null && !tList.isEmpty()) {
@@ -608,13 +676,30 @@ public class SendPrintServiceImpl implements SendPrintService {
                     fzList.add(tBasicQueryEntity);
                 }
             }
+            Profiler.registerInfoEnd(innerCallerInfo);
         }
         tBasicQueryEntityResponse.setCode(JdResponse.CODE_OK);
         tBasicQueryEntityResponse.setMessage(message);
         tBasicQueryEntityResponse.setData(fzList);
-        Date endDate = new Date();
-        logger.info("打印交接清单-detailPrintQuery结束-" + (startDate.getTime() - endDate.getTime()));
+        Profiler.registerInfoEnd(callerInfo);
         return tBasicQueryEntityResponse;
+    }
+
+    /**
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param boxCode
+     * @return
+     */
+    private List<SendDetail> getUniquesSendDetails(Integer createSiteCode, Integer receiveSiteCode, String boxCode) {
+        SendDetail tSendDetail = new SendDetail();
+        tSendDetail.setCreateSiteCode(createSiteCode);
+        tSendDetail.setBoxCode(boxCode);
+        tSendDetail.setReceiveSiteCode(receiveSiteCode);
+        tSendDetail.setIsCancel(1);
+        List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDetail);
+        //create by wuzuxiang 2016年11月24日 T单、原单去重
+        return selectUniquesSendDetails(sendDetails);
     }
 
     private String getWaybillType(int waybillType) {
@@ -689,12 +774,13 @@ public class SendPrintServiceImpl implements SendPrintService {
         return "";
     }
 
-    @Override
+
     /**
      * 基本查询
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.basicPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
     public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
         Date startDate = new Date();
         logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
@@ -733,23 +819,11 @@ public class SendPrintServiceImpl implements SendPrintService {
     }
 
     private HashMap<String, BigWaybillDto> sendToWaybill(HashMap<String, BigWaybillDto> deliveryPackageMap, List<String> waybillCodes) {
-
-        WChoice queryWChoice = new WChoice();
-        queryWChoice.setQueryWaybillC(true);
-        queryWChoice.setQueryWaybillE(true);
-        queryWChoice.setQueryWaybillM(true);
-        queryWChoice.setQueryPackList(true);
-
-        Date startDate1 = new Date();
-        logger.info("打印交接清单-调用运单接口开始" + DateHelper.formatDate(startDate1));
-        BaseEntity<List<BigWaybillDto>> results = this.waybillQueryApi.getDatasByChoice(waybillCodes, queryWChoice);
-        Date endDate1 = new Date();
-        logger.info("打印交接清单-调用运单接口结束-" + (startDate1.getTime() - endDate1.getTime()));
+        BaseEntity<List<BigWaybillDto>> results = this.waybillQueryManager.getDatasByChoice(waybillCodes, true, true, true, true);
         if (results != null && results.getResultCode() > 0) {
-            logger.info("打印交接清单-调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
-            List<BigWaybillDto> datas = results.getData();
-            if (datas != null && !datas.isEmpty()) {
-                for (BigWaybillDto data : datas) {
+            List<BigWaybillDto> dataList = results.getData();
+            if (dataList != null && !dataList.isEmpty()) {
+                for (BigWaybillDto data : dataList) {
                     if (data.getWaybill() != null) {
                         deliveryPackageMap.put(data.getWaybill().getWaybillCode(), data);
                     }

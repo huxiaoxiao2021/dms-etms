@@ -67,14 +67,6 @@
 		<property name="desc" value="逆向驳回Redis任务" />
 	</bean>
 
-	<!-- redis中屏蔽掉逆向发货任务 此任务只在DB中执行，并在特殊分组中执行-->
-	<!--<bean id="reverseSendRedisTask"
-		  class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSendRedisTask"
-		  parent="parentRedisTask">
-		<property name="taskType" value="ReverseSendRedisTask" />
-		<property name="desc" value="逆向发货回传Redis任务" />
-	</bean>-->
-
 	<bean id="reverseSpareRedisTask"
 		  class="com.jd.bluedragon.distribution.worker.reverse.redis.ReverseSpareRedisTask"
 		  parent="parentRedisTask">
@@ -133,13 +125,6 @@
 		<property name="dmsTaskExecutor" ref="arReceiveTaskExecutor"/>
 		<property name="taskType" value="ArReceiveRedisTask" />
 		<property name="desc" value="空铁提货Redis任务" />
-	</bean>
-
-	<bean id="batchSendCarRedisTask"
-		  class="com.jd.bluedragon.distribution.worker.departure.redis.BatchSendCarRedisTask"
-		  parent="parentRedisTask">
-		<property name="taskType" value="BatchSendCarRedisTask" />
-		<property name="desc" value="批量发车Redis任务" />
 	</bean>
 
 	<bean id="messageRedisTask" class="com.jd.bluedragon.distribution.worker.MessageRedisTask"

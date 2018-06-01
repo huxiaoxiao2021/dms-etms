@@ -86,7 +86,19 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryServiceBillPay(isServiceBillPay);
 		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
 	}
-	
+
+
+	@Override
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDatasByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes, Boolean isWaybillC, Boolean isWaybillE, Boolean isWaybillM, Boolean isPackList) {
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(isWaybillC);
+		wChoice.setQueryWaybillE(isWaybillE);
+		wChoice.setQueryWaybillM(isWaybillM);
+		wChoice.setQueryPackList(isPackList);
+		return this.waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+	}
+
 	@Override
 	public boolean sendOrderTrace(String businessKey, int msgType, String title, String content, String operatorName, Date operateTime) {
 		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.sendOrderTrace", false, true);
