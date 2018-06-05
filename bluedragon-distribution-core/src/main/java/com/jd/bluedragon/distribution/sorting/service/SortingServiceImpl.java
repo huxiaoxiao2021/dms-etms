@@ -859,17 +859,15 @@ public class SortingServiceImpl implements SortingService {
 			Iterator<SendM> iterator = sendList.iterator();
 			while (iterator.hasNext()) {
 				SendM sendM = iterator.next();
-				// 判断分拣始发站点与箱号的始发站点是否一致，不一致直接丢弃
-				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode())){
-					if (sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
-					    // 直发分拣
-						logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
-						sendMs.add(sendM);
-					} else {
-					    // 跨分拣发货
-						transitSendMs.add(sendM);
-						logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
-					}
+				// 判断分拣始发站点与箱号的始发站点，目的站点是否都一致，不一致则为中转发货
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())){
+					// 直发分拣
+					logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
+					sendMs.add(sendM);
+				}else {
+					// 跨分拣发货
+					transitSendMs.add(sendM);
+					logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
 				}
 			}
 		}
