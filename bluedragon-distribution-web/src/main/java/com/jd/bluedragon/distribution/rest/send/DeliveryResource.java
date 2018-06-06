@@ -150,8 +150,8 @@ public class DeliveryResource implements DmsDeliveryService {
         domain.setSendType(request.getBusinessType());
         domain.setTransporttype(request.getTransporttype());
         domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + 30000));
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
             if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
