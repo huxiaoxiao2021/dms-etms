@@ -84,7 +84,10 @@ public class BasePrintWaybill implements Serializable {
      */
     private String consigneeCompany;
     /**
-     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担、4-冷链整车、5-快运冷链
+     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担
+	 * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
+     * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+     * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
      */
     private String jZDFlag;
 
