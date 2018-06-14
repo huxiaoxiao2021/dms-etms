@@ -361,7 +361,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
-            if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
+            if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode()) && !isForceSend) {
                 SendResult  result = new SendResult();
                 result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
                 result.setValue(response.getMessage());
