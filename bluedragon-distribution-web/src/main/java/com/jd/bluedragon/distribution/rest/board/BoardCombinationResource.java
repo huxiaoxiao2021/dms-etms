@@ -142,8 +142,8 @@ public class BoardCombinationResource {
      * @return
      */
     @GET
-    @Path("/boardCombination/belong/{boxCode}")
-    public JdResponse<Board> getBoardByBoxCode(@PathParam("boxCode") String boxCode){
+    @Path("/boardCombination/belong/{siteCode}/{boxCode}")
+    public JdResponse<Board> getBoardByBoxCode(@PathParam("siteCode") Integer siteCode, @PathParam("boxCode") String boxCode){
         JdResponse<Board> result = new JdResponse<Board>();
         result.toSucceed("查询箱子所属板号成功!");
 
@@ -151,7 +151,7 @@ public class BoardCombinationResource {
 
         if(BusinessHelper.isBoxcode(boxCode) || BusinessHelper.isPackageCode(boxCode)){
             try {
-                Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(boxCode);
+                Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, boxCode);
                 if(tcResponse == null){
                     result.toFail("组板组件返回结果为空！");
                 }else if(JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){

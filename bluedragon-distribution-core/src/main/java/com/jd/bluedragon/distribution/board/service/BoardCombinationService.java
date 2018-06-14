@@ -47,11 +47,11 @@ public interface BoardCombinationService {
 
     /**
      * 获取箱号所属的板号
-     *
+     * @param siteCode
      * @param boxCode
      * @return
      */
-    public Response<Board> getBoardByBoxCode(String boxCode);
+    public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode);
 
     /**
      * 清除组板时加的板号缓存

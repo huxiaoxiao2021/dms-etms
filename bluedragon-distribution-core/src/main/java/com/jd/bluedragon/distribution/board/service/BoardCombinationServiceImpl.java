@@ -361,14 +361,14 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     /**
      * 获取箱号所属的板号
-     *
+     * @param siteCode
      * @param boxCode
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Response<Board> getBoardByBoxCode(String boxCode) {
-        return groupBoardService.getBoardByCode(boxCode);
+    public Response<Board> getBoardByBoxCode(Integer siteCode , String boxCode) {
+        return groupBoardService.getBoardByBoxCode(boxCode , siteCode);
     }
 
     /**
