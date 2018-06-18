@@ -1,21 +1,12 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.google.common.collect.Lists;
+import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
@@ -25,6 +16,9 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.domain.AreaNode;
+import com.jd.bluedragon.utils.AreaHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -34,6 +28,17 @@ import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service("siteService")
@@ -54,6 +59,9 @@ public class SiteServiceImpl implements SiteService {
 	
 	@Autowired
 	private SysConfigService sysConfigService;
+
+	@Autowired
+	RedisManager redisManager;
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -277,5 +285,88 @@ public class SiteServiceImpl implements SiteService {
 			}
 		}
 		return CRouterVerifyOpenDms;
+	}
+
+	/**
+	 * 获取区域内的所有分拣中心
+	 * 如果orgId为-1，则获取全国所有的分拣中心
+	 * @param areaId
+	 * @return
+	 */
+	public List<BaseStaffSiteOrgDto> getDmsListByAreaId(Integer areaId){
+		List<BaseStaffSiteOrgDto> orgDmsList = new ArrayList<BaseStaffSiteOrgDto>();
+		if(areaId == null || areaId == -1){
+			orgDmsList.addAll(getAllDmsSite());
+		}else {
+			orgDmsList.addAll(getDmsSiteByAreaId(areaId));
+		}
+		return orgDmsList;
+	}
+
+	/**
+	 * 根据区域 查分拣中心
+	 * @param areaId
+	 * @return
+	 */
+	private List<BaseStaffSiteOrgDto> getDmsSiteByAreaId(Integer areaId) {
+		List<BaseStaffSiteOrgDto> allSites= getAllDmsSite();
+		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
+		for (BaseStaffSiteOrgDto site : allSites) {
+			if (areaId==site.getAreaId()) {
+				data.add(site);
+			}
+		}
+		return data;
+	}
+
+	/**
+	 * 获取所有分拣中心
+	 * @return
+	 */
+	@Override
+	public List<BaseStaffSiteOrgDto> getAllDmsSite(){
+		List<BaseStaffSiteOrgDto> list = null;
+		String temp = redisManager.get(Constants.ALL_DMS_SITES_KEY);
+		if (JsonHelper.isJsonString(temp)) {
+			list = JsonHelper.fromJsonUseGson(temp, new TypeToken<List<BaseStaffSiteOrgDto>>() {
+			}.getType());
+		}
+		if (list == null || list.size() == 0) {
+			//缓存所有分拣中心
+			list = this.baseMajorManager.getBaseSiteByOrgIdSiteType(null,Constants.DMS_SITE_TYPE);
+			if (list!=null&&list.size()>0){
+				redisManager.setex(Constants.ALL_DMS_SITES_KEY, 24 * 3600, JsonHelper.toJson(list));
+				return list;
+			}
+		}
+		return new ArrayList<BaseStaffSiteOrgDto>();
+	}
+	@Override
+	public List<BaseStaffSiteOrgDto> getDmsListByCity(Integer cityId){
+		//获取区域内的所有分拣中心
+		List<BaseStaffSiteOrgDto> allSites = getAllDmsSite();
+
+		//遍历分拣中心根据城市id进行过滤
+		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
+		for (BaseStaffSiteOrgDto site : allSites) {
+			if (cityId==site.getCityId()) {
+				data.add(site);
+			}
+		}
+		return  data;
+	}
+	@Override
+	public List<BaseStaffSiteOrgDto> getDmsListByProvince(Integer provinceId ){
+		//获取区域内的所有分拣中心
+		List<BaseStaffSiteOrgDto> allSites = getAllDmsSite();
+
+		//遍历分拣中心根据城市id进行过滤
+		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
+		for (BaseStaffSiteOrgDto site : allSites) {
+			if (provinceId==site.getProvinceId()) {
+				data.add(site);
+			}
+		}
+		return  data;
 	}
 }

@@ -7,13 +7,16 @@ import java.util.List;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.distribution.base.service.ProvinceAndCityService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import org.apache.commons.logging.Log;
@@ -29,9 +32,6 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
 
 /**
  *
@@ -52,6 +52,10 @@ public class DmsStorageAreaController {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private SiteService siteService;
+
 
 
 	/**
@@ -96,7 +100,96 @@ public class DmsStorageAreaController {
         }
         return cities;
     }
+	@ResponseBody
+	@RequestMapping("/getAllArea")
+	public Object getAllArea(String isDefault){
+		List<AreaNode> areas = new ArrayList<AreaNode>();
+		if(StringHelper.isEmpty(isDefault) || isDefault.equals("true")){
+			areas.add(new AreaNode(-1,"全部"));
+		}
+		areas.addAll(AreaHelper.getAllArea());
+		return areas;
+	}
+	/**
+	 * 根据条件获取城市信息
+	 * 1、选了省，获取省下属的城市
+	 * 2、不选省，选择了区域，获取区域内的所有城市
+	 * 3、不选区域，获取全国所有的城市
+	 * @param areaId
+	 * @param provinceId
+	 * @param isDefault
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/getCityListByKey")
+	public Object getCityList(Integer areaId, Integer provinceId,String isDefault){
+		List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
+		if(StringHelper.isEmpty(isDefault) || isDefault.equals("true")){
+			cities.add(new ProvinceAndCity("-1","全部"));
+		}
 
+		if(provinceId != null && provinceId != -1){
+			cities.addAll(provinceAndCityService.getCityByProvince(provinceId));
+		}else if(areaId != null && areaId != -1){
+			//获取区域下所有的省
+			List<Integer> provinceIdList = new ArrayList<Integer>(AreaHelper.getProvinceIdsByAreaId(areaId));
+			cities.addAll(provinceAndCityService.getCityByProvince(provinceIdList));
+		}else{
+			List<Integer> provinceIdList = new ArrayList<Integer>(AreaHelper.getAllProvinceIds());
+			cities.addAll(provinceAndCityService.getCityByProvince(provinceIdList));
+		}
+		return cities;
+	}
+	/**
+	 * 根据条件获取省
+	 * 选择了区域orgId不为空且不为-1，加载区域内的省
+	 * 不选区域，加载全国所有的省
+	 * @param areaId
+	 * @param isDefault
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/getProvinceListByKey")
+	public Object getProvinceList(Integer areaId,String isDefault){
+		//区域不选，加载全国所有的省
+		List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
+		if(StringHelper.isEmpty(isDefault) || isDefault.equals("true")){
+			provinces.add(new ProvinceNode(-1,"全部"));
+		}
+		if(areaId != null && areaId !=-1){
+			provinces.addAll(AreaHelper.getProvincesByAreaId(areaId));
+		}else {
+			provinces.addAll(AreaHelper.getAllProvince());
+		}
+		return provinces;
+	}
+	/**
+	 * 根据条件获取分拣中心信息
+	 * 1、如果选择了城市cityId不为空且不为-1，加载城市下的分拣中心
+	 * 2、不选城市，选择了省provinceId不为空且不为-1，加载省下面的分拣中心
+	 * 3、不选省，选择了区域orgId不为空且不为-1，加载区域下面的分拣中心
+	 * 4、不选区域，加载全国的分拣中心
+	 * @param areaId
+	 * @param provinceId
+	 * @param cityId
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/getSiteListByKey")
+	public Object getSiteList(Integer areaId, Integer provinceId, Integer cityId){
+		List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
+
+		if(cityId != null && cityId != -1){
+			allDms.addAll(siteService.getDmsListByCity(cityId));
+		}else if(provinceId != null && provinceId != -1){
+			allDms.addAll(siteService.getDmsListByProvince(provinceId));
+		}else if (areaId !=null&& areaId !=-1){
+			allDms.addAll(siteService.getDmsListByAreaId(areaId));
+		}else{
+			allDms.addAll(siteService.getAllDmsSite());
+		}
+		return allDms;
+	}
 	/**
 	 * 根据id获取基本信息
 	 * @param id

@@ -146,6 +146,16 @@ public class AreaHelper {
 
 		return provinceList;
 	}
+	public static List<AreaNode> getAllArea(){
+		List<AreaNode> areaList = new ArrayList<AreaNode>();
+
+		Iterator<Integer> it = AREA_DATAS.keySet().iterator();
+		while (it.hasNext()) {
+			areaList.add(AREA_DATAS.get(it.next()));
+		}
+
+		return areaList;
+	}
 	/**
 	 * 获取区域所有的省份id
 	 * @param areaId

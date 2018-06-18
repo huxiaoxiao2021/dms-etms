@@ -53,4 +53,30 @@ public interface SiteService {
 	 * @return
 	 */
 	Set<Integer> getCRouterAllowedList();
+	/**
+	 * 根据省id获取分拣中心
+	 * @param provinceId
+	 * @return
+	 */
+	public List<BaseStaffSiteOrgDto> getDmsListByProvince(Integer provinceId );
+
+	/**
+	 * 获取所有分拣中心
+	 * @return
+	 */
+	List<BaseStaffSiteOrgDto> getAllDmsSite();
+
+	/**
+	 * 根据城市id获取分拣中心
+	 * @param cityId
+	 * @return
+	 */
+	public List<BaseStaffSiteOrgDto> getDmsListByCity(Integer cityId);
+
+	/**
+	 * 根据orgId获取分拣中心
+	 * @param areaId
+	 * @return
+	 */
+	public List<BaseStaffSiteOrgDto> getDmsListByAreaId(Integer areaId);
 }

@@ -272,6 +272,10 @@ public class Constants {
 	 */
 	public static final String ASION_NO_ONE_SITE_CODES_KEY = "ASION_NO_ONE_SITE_CODES";
 
+    /**
+     * redis 所有站点的key
+     */
+    public static final String ALL_DMS_SITES_KEY = "Q_ALL_DMS_SITES_KEY";
 
     //region  Promise常量定义
 
