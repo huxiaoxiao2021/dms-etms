@@ -4,10 +4,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.css')" media="all">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery-ui-1.10.4.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mousewheel.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.js')"></script>
 </head>
 <body id="leftframe">
-<div id="lsidebar">
+<div id="lsidebar" class="content">
     <dl>
         <dt><a href="#" class="curr">平台订单</a></dt>
         <!--
@@ -75,14 +79,32 @@
         $('dd').hide();
         showMenu($("#lsidebar .curr"));
         $("#lsidebar dt a").bind("click", function () {
+            //再点击可以收缩
+            var closeFlag=false;
+            if ($(this).attr("class").indexOf("curr")>-1){
+                closeFlag=true;
+            }
             hideMenu($("#lsidebar .curr"));
-            showMenu($(this));
+            if (!closeFlag){
+                showMenu($(this));
+            }
         });
 
         $("#control").bind("click", function () {
             parent.document.getElementsByTagName('frameset')[1].cols = (parent.document.getElementsByTagName('frameset')[1].cols == '10,*') ? '189,*' : '10,*';
             document.getElementById('lsidebar').style.display = (document.getElementById('lsidebar').style.display == 'none') ? '' : 'none';
             document.getElementById('control').className = (document.getElementById('control').className == 'control') ? 'control switch' : 'control';
+        });
+        //设置菜单高度，以便出现滚动条
+        var setHeight = function(){
+            var h=window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+            document.getElementById("lsidebar").style.height = h+"px";
+        }
+        setHeight();
+        //添加滚动条
+        $(".content").mCustomScrollbar({
+            autoHideScrollbar:true,
+            theme:"minimal-dark"
         });
     })()
 
@@ -95,7 +117,11 @@
         obj.removeClass('curr');
         obj.parent().nextUntil('dt').slideUp('fast');
     }
-
+    //窗口变化时自动调整div高度
+    window.onresize = function(){
+        var h=window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+        document.getElementById("lsidebar").style.height = h+"px";
+    }
 </script>
 
 </body>
