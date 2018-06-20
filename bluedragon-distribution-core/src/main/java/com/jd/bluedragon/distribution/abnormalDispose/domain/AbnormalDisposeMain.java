@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.abnormalDispose;
+package com.jd.bluedragon.distribution.abnormalDispose.domain;
 
 import java.util.Date;
 

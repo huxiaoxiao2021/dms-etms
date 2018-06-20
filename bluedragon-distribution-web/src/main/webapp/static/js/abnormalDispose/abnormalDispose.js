@@ -1,12 +1,13 @@
 $(function () {
-    var queryUrl = '/abnormalDispose/abnormalDispose/listData';
+    var mainQueryUrl = '/abnormalDispose/abnormalDispose/listData';
+    var exportUrl = '/abnormalDispose/abnormalDispose/toExport';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
             $('#dataTable').bootstrapTable({
-                url: queryUrl, // 请求后台的URL（*）
+                url: mainQueryUrl, // 请求后台的URL（*）
                 method: 'post', // 请求方式（*）
-                toolbar: '#toolbar', // 工具按钮用哪个容器
+                toolbar: '#toolbar_main', // 工具按钮用哪个容器
                 queryParams: oTableInit.getSearchParams, // 查询参数（*）
                 //height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 uniqueId: "ID", // 每一行的唯一标识，一般为主键列
@@ -64,7 +65,6 @@ $(function () {
                 if (_k && _v) {
                     if (_k == 'startTime' || _k == 'endTime') {
                         params[_k] = new Date(_v).getTime();
-                        ;
                     } else {
                         params[_k] = _v;
                     }
@@ -102,26 +102,41 @@ $(function () {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         }, {
-            field: 'NotReceiveNum',
-            title: '未收货数量'
+            field: 'notReceiveNum',
+            title: '未收货数量',
+            formatter: function (value, row, index) {
+                return "<a href='#' onclick='queryinspection(\"" + row.transferNo + "\")'>" + value + "</a>";
+            }
         }, {
-            field: 'NotReceiveDisposeNum',
+            field: 'notReceiveDisposeNum',
             title: '已处理未收货异常数'
         }, {
-            field: 'NotReceiveProcess',
-            title: '未收货异常处理进度'
+            field: 'notReceiveProcess',
+            title: '未收货异常处理进度',
+            formatter: function (value, row, index) {
+                return value + '%';
+            }
         }, {
-            field: 'NotSendNum',
-            title: '未发货数量'
+            field: 'notSendNum',
+            title: '未发货数量',
+            formatter: function (value, row, index) {
+                return "<a href='#' onclick='querySend(\"" + row.transferNo + "\")'>" + value + "</a>";
+            }
         }, {
-            field: 'NotSendDisposeNum',
+            field: 'notSendDisposeNum',
             title: '已处理未发货异常数'
         }, {
-            field: 'NotSendProcess',
-            title: '未发货异常处理进度'
+            field: 'notSendProcess',
+            title: '未发货异常处理进度',
+            formatter: function (value, row, index) {
+                return value + '%';
+            }
         }, {
             field: 'totalProcess',
-            title: '总进度'
+            title: '总进度',
+            formatter: function (value, row, index) {
+                return value + '%';
+            }
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
@@ -131,9 +146,7 @@ $(function () {
     };
     var pageInit = function () {
         var oInit = new Object();
-        var postdata = {};
         oInit.init = function () {
-            $('#dataEditDiv').hide();
             /*起始时间*/
             /*截止时间*/
             $.datePicker.createNew({
@@ -165,191 +178,197 @@ $(function () {
             $('#btn_query').click(function () {
                 tableInit().refresh();
             });
-
-            // 初始化页面上面的按钮事件
-
-            $('#btn_return').click(function () {
-
-                $('#dataEditDiv').hide();
-                $('#dataTableDiv').show();
-            });
         };
         return oInit;
     };
+    //初始化导出按钮
+    var initExport = function (tableInit) {
+        $("#btn_export").on("click", function (e) {
+
+            var params = tableInit.getSearchCondition();
+
+            if ($.isEmptyObject(params)) {
+                alert('禁止全量导出，请确定查询范围');
+                return;
+            }
+            var form = $("<form method='post'></form>"),
+                input;
+            form.attr({"action": exportUrl});
+
+            $.each(params, function (key, value) {
+
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name": key});
+                if (key == 'startTime' || key == 'endTime') {
+                    input.val(new Date(value));
+                } else {
+                    input.val(value);
+                }
+                form.append(input);
+            });
+            form.appendTo(document.body);
+            form.submit();
+            document.body.removeChild(form[0]);
+        });
+    }
+
+//初始化日期时间
+    var initDateQuery = function () {
+        var startTime = $.dateHelper.formateDateOfTs(new Date(new Date().toLocaleDateString()));
+        var endTime = $.dateHelper.formateDateOfTs(new Date(new Date().toLocaleDateString()));
+        $("#startTime").val(startTime);
+        $("#endTime").val(endTime);
+    }
+
+//加载分拣中心
+    var loadSite = function (params) {
+        var siteListUrl = '/base/dmsStorageArea/getSiteListByKey';
+        $.ajax({
+            type: "get",
+            url: siteListUrl,
+            data: params,
+            async: true,
+            success: function (data) {
+                var result = [];
+                if (data.length == 1 && data[0].code != "200") {
+                } else {
+                    for (var i in data) {
+                        if (data[i].dmsSiteCode && data[i].dmsSiteCode != "") {
+                            result.push({id: data[i].dmsSiteCode, text: data[i].siteName});
+                        }
+                    }
+                }
+                $("#dmsSiteCode").empty();
+                $("#query-form #dmsSiteCode").select2({
+                    width: '100%',
+                    placeholder: '请选择',
+                    allowClear: true,
+                    data: result
+                });
+                $("#query-form #dmsSiteCode").val(null).trigger('change');
+            }
+        });
+    }
+
+//初始化区域
+    var initArea = function () {
+        var url = "/base/dmsStorageArea/getAllArea";
+        var param = {};
+        $.ajax({
+            type: "get",
+            url: url,
+            data: param,
+            async: true,
+            success: function (data) {
+                var result = [];
+                for (var i in data) {
+                    if (data[i].id && data[i].id != "") {
+                        result.push({id: data[i].id, text: data[i].name});
+                    }
+                }
+                $('#query-form #areaId').select2({
+                    width: '100%',
+                    placeholder: '请选择',
+                    allowClear: true,
+                    data: result
+                });
+                $("#query-form #areaId").val(null).trigger('change');
+                $("#query-form #areaId")
+                    .on("change", function (e) {
+                        var areaId = $("#areaId").val();
+                        var provinceId = $("#provinceId").val();
+                        var cityId = $("#cityId").val();
+                        if (areaId) {
+                            initProvince({areaId: areaId});
+                            initCity({areaId: areaId});
+                            loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
+                        }
+                    });
+            }
+        });
+    }
+
+//加载省
+    var initProvince = function (param) {
+        var url = "/base/dmsStorageArea/getProvinceListByKey";
+        $.ajax({
+            type: "get",
+            url: url,
+            data: param,
+            async: true,
+            success: function (data) {
+                var result = [];
+                for (var i in data) {
+                    if (data[i].id && data[i].id != "") {
+                        result.push({id: data[i].id, text: data[i].name});
+                    }
+                }
+                $("#provinceId").empty();
+                $('#query-form #provinceId').select2({
+                    width: '100%',
+                    placeholder: '请选择',
+                    allowClear: true,
+                    data: result
+                });
+                $("#query-form #provinceId").val(null).trigger('change');
+                $("#query-form #provinceId")
+                    .on("change", function (e) {
+                        var areaId = $("#areaId").val();
+                        var provinceId = $("#provinceId").val();
+                        var cityId = $("#cityId").val();
+                        if (provinceId) {
+                            initCity({areaId: areaId, provinceId: provinceId});
+                            loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
+                        }
+                    });
+
+            }
+        });
+    }
+
+//加载市
+    var initCity = function (param) {
+        var url = "/base/dmsStorageArea/getCityListByKey";
+        $.ajax({
+            type: "get",
+            url: url,
+            data: param,
+            async: true,
+            success: function (data) {
+                var result = [];
+                for (var i in data) {
+                    if (data[i].assortCode && data[i].assortCode != "") {
+                        result.push({id: data[i].assortCode, text: data[i].assortName});
+                    }
+                }
+                $("#cityId").empty();
+                $('#query-form #cityId').select2({
+                    width: '100%',
+                    placeholder: '请选择',
+                    allowClear: true,
+                    data: result
+                });
+                $("#query-form #cityId").val(null).trigger('change');
+                $("#query-form #cityId")
+                    .on("change", function (e) {
+                        var areaId = $("#areaId").val();
+                        var provinceId = $("#provinceId").val();
+                        var cityId = $("#cityId").val();
+                        if (cityId) {
+                            loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
+                        }
+                    });
+            }
+        });
+    }
+
     initDateQuery();
     tableInit().init();
     pageInit().init();
-    initSelect();
     initArea();
     initProvince({});
     initCity({});
     loadSite({});
+    initExport(tableInit());
 });
 
-
-function initSelect() {
-    $("#query-form #isDispostSelect").select2({
-        width: '100%',
-        placeholder: '请选择',
-        allowClear: true
-
-    });
-    $("#query-form #isDispostSelect").val(null).trigger('change');
-    //ID 冲突。。select2插件有问题
-    $("#query-form #isDispostSelect").on('change', function (e) {
-        var v = $("#query-form #isDispostSelect").val();
-        if (v == 0 || v == 1) {
-            $("#query-form #isDispost").val(v);
-        }
-    });
-}
-
-//初始化日期时间
-function initDateQuery() {
-    var startTime = $.dateHelper.formateDateOfTs(new Date(new Date().toLocaleDateString()));
-    var endTime = $.dateHelper.formateDateOfTs(new Date(new Date().toLocaleDateString()));
-    $("#startTime").val(startTime);
-    $("#endTime").val(endTime);
-}
-
-//加载分拣中心
-function loadSite(params) {
-    var siteListUrl = '/base/dmsStorageArea/getSiteListByKey';
-    $.ajax({
-        type: "get",
-        url: siteListUrl,
-        data: params,
-        async: true,
-        success: function (data) {
-            var result = [];
-            if (data.length == 1 && data[0].code != "200") {
-            } else {
-                for (var i in data) {
-                    if (data[i].dmsSiteCode && data[i].dmsSiteCode != "") {
-                        result.push({id: data[i].dmsSiteCode, text: data[i].siteName});
-                    }
-                }
-            }
-            $("#dmsSiteCode").empty();
-            $("#query-form #dmsSiteCode").select2({
-                width: '100%',
-                placeholder: '请选择',
-                allowClear: true,
-                data: result
-            });
-            $("#query-form #dmsSiteCode").val(null).trigger('change');
-        }
-    });
-}
-
-//初始化区域
-function initArea() {
-    var url = "/base/dmsStorageArea/getAllArea";
-    var param = {};
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: true,
-        success: function (data) {
-            var result = [];
-            for (var i in data) {
-                if (data[i].id && data[i].id != "") {
-                    result.push({id: data[i].id, text: data[i].name});
-                }
-            }
-            $('#query-form #areaId').select2({
-                width: '100%',
-                placeholder: '请选择',
-                allowClear: true,
-                data: result
-            });
-            $("#query-form #areaId").val(null).trigger('change');
-            $("#query-form #areaId")
-                .on("change", function (e) {
-                    var areaId = $("#areaId").val();
-                    var provinceId = $("#provinceId").val();
-                    var cityId = $("#cityId").val();
-                    if (areaId) {
-                        initProvince({areaId: areaId});
-                        initCity({areaId: areaId});
-                        loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
-                    }
-                });
-        }
-    });
-}
-
-//加载省
-function initProvince(param) {
-    var url = "/base/dmsStorageArea/getProvinceListByKey";
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: true,
-        success: function (data) {
-            var result = [];
-            for (var i in data) {
-                if (data[i].id && data[i].id != "") {
-                    result.push({id: data[i].id, text: data[i].name});
-                }
-            }
-            $("#provinceId").empty();
-            $('#query-form #provinceId').select2({
-                width: '100%',
-                placeholder: '请选择',
-                allowClear: true,
-                data: result
-            });
-            $("#query-form #provinceId").val(null).trigger('change');
-            $("#query-form #provinceId")
-                .on("change", function (e) {
-                    var areaId = $("#areaId").val();
-                    var provinceId = $("#provinceId").val();
-                    var cityId = $("#cityId").val();
-                    if (provinceId) {
-                        initCity({areaId: areaId, provinceId: provinceId});
-                        loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
-                    }
-                });
-
-        }
-    });
-}
-
-//加载市
-function initCity(param) {
-    var url = "/base/dmsStorageArea/getCityListByKey";
-    $.ajax({
-        type: "get",
-        url: url,
-        data: param,
-        async: true,
-        success: function (data) {
-            var result = [];
-            for (var i in data) {
-                if (data[i].assortCode && data[i].assortCode != "") {
-                    result.push({id: data[i].assortCode, text: data[i].assortName});
-                }
-            }
-            $("#cityId").empty();
-            $('#query-form #cityId').select2({
-                width: '100%',
-                placeholder: '请选择',
-                allowClear: true,
-                data: result
-            });
-            $("#query-form #cityId").val(null).trigger('change');
-            $("#query-form #cityId")
-                .on("change", function (e) {
-                    var areaId = $("#areaId").val();
-                    var provinceId = $("#provinceId").val();
-                    var cityId = $("#cityId").val();
-                    if (cityId) {
-                        loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
-                    }
-                });
-        }
-    });
-}
