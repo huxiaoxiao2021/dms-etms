@@ -22,10 +22,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
+import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
+import com.jd.bluedragon.distribution.send.domain.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,12 +54,6 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendDifference;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
@@ -71,7 +68,7 @@ import com.jd.ump.annotation.JProfiler;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class DeliveryResource {
+public class DeliveryResource implements DmsDeliveryService {
 
     @Autowired
     DeliveryService deliveryService;
@@ -132,6 +129,7 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/newpackagesend")
+    @Override
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
@@ -176,6 +174,7 @@ public class DeliveryResource {
 
     @GET
     @Path("/delivery/checksendcodestatus/{sendCode}")
+    @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
@@ -264,6 +263,22 @@ public class DeliveryResource {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
+    }
+
+    @POST
+    @Path("/delivery/recyclableboxsend")
+    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request) {
+        if (logger.isInfoEnabled()) {
+            logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
+        }
+        RecyclableBoxSend res = deliveryService.recyclableBoxSend(request);
+        if (logger.isInfoEnabled()) {
+            logger.info("结束循环箱发MQ");
+        }
+        /**
+         * com.jd.bluedragon.distribution.command;
+         */
+        return res;
     }
 
     /**

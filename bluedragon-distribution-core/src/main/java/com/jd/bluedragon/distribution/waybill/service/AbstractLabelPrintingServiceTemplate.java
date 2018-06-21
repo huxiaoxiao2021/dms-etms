@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 
@@ -30,8 +29,6 @@ import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
@@ -291,13 +288,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         }
 
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
-        //优先级较高，加载完基础数据进行处理
-        log.info("包裹标签打印-waybillSign及sendPay打标处理");
-		String waybillSign = waybill.getWaybillSign();
-		String sendPay = waybill.getSendPay();
-		waybillPrintService.dealSignTexts(waybillSign, labelPrinting, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
-		waybillPrintService.dealSignTexts(sendPay, labelPrinting, Constants.DIC_NAME_SEND_PAY_CONFIG);
-
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
 

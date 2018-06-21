@@ -14,7 +14,6 @@ import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.thirdpl.dto.OrderShipsDto;

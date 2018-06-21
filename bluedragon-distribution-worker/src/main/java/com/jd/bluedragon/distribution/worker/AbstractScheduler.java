@@ -78,7 +78,8 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
      * @return
      */
     public boolean isMyTask(long queueNum, long id, List<?> subQueues) {
-        if (queueNum == subQueues.size()) {//说明只有一台机器
+        return true;
+        /*if (queueNum == subQueues.size()) {//说明只有一台机器
             return true;
         }
         
@@ -88,7 +89,7 @@ public abstract class AbstractScheduler<T> implements IScheduleTaskDealMulti<T> 
                 return true;
             }
         }
-        return false;
+        return false;*/
     }
     
     /**

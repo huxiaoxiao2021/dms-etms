@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import java.util.List;
+
+import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.send.domain.*;
@@ -103,8 +105,16 @@ public interface DeliveryService {
      * @param tDeliveryMessageJsonList 发货相关数据
      */
     public DeliveryResponse dellDeliveryMessage(List<SendM> sendMList);
-    
-    /**
+
+	/**
+	 * 循环箱发MQ
+	 * @param request
+	 * @return
+	 */
+	public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request);
+
+
+	/**
      * 电子标签批量发货处理
      * 
      * @param tDeliveryMessageJsonList 发货相关数据

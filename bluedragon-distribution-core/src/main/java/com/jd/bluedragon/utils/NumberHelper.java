@@ -1,10 +1,17 @@
 package com.jd.bluedragon.utils;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NumberHelper {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+public class NumberHelper {
+	private static final Log logger= LogFactory.getLog(NumberHelper.class);
+	
+    public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
     public static Double getDoubleValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? Double.valueOf(object.toString()) : 0.0D;
     }
@@ -24,19 +31,25 @@ public class NumberHelper {
 
         return NumberHelper.isPositiveNumber(Long.valueOf(number));
     }
-
-    public static boolean isStringNumber(String number) {
-        if(null==number){
+    /**
+     * 判断字符串是否为数值类型,包含整数和浮点数
+     * eg:+1,+1.,-1,-1.,+1.0,-1.0,+1,0.0,001,009,001.0
+     * @param numberStr
+     * @return
+     */
+    public static boolean isBigDecimal(String numberStr) {
+        if(null==numberStr){
             return false;
         }
-        Pattern pattern1 = Pattern.compile("[1-9]\\d*\\.?\\d+");
-        Matcher matcher1 = pattern1.matcher(number);
-        if (matcher1.matches()) {
-            return true;
-        }
-        return false;
+        Pattern pattern = Pattern.compile("^((\\+|-)?\\d+)(\\.\\d*)?");
+        Matcher matcher = pattern.matcher(numberStr);
+        return matcher.matches();
     }
-
+    /**
+     * 判断是否正整数
+     * @param number
+     * @return
+     */
     public static boolean isNumber(String number) {
         if(null==number){
             return false;
@@ -98,7 +111,7 @@ public class NumberHelper {
     }
     /**
      * 返回结果a是否大于0
-     * @param a 数字类型的对象
+     * @param a 数字类型的对象，支持 Byte,Double,Float,Integer,Long,Short
      * @return
      */
     public static boolean gt0(Number a) {
@@ -108,13 +121,14 @@ public class NumberHelper {
         return false;
     }
     /**
-     * 返回结果：字符串是否大于0的数字类型
+     * 返回结果：字符串是否大于0的数值
      * @param numStr-数字型的字符串
      * @return
      */
     public static boolean gt0(String numStr) {
-        if (isStringNumber(numStr)) {
-            return gt0(Double.valueOf(numStr));
+        if (isBigDecimal(numStr)) {
+        	BigDecimal decimal = new BigDecimal(numStr);
+            return decimal.compareTo(BigDecimal.ZERO)==1;
         }
         return false;
     }
@@ -141,5 +155,42 @@ public class NumberHelper {
             return a.doubleValue() <= b.doubleValue();
         }
         return false;
+    }
+
+    /**
+     * 返回格式化后的double，四舍五入，保留小数点后两位。
+     *
+     * @param num
+     * @return
+     */
+    public static Double doubleFormat(Double num) {
+    	if (num != null) {
+            return Double.valueOf(doubleFormat.format(num));
+        }
+        return null;
+    }
+    /**
+     * 将字符串转换为Integer类型，传入参数为空/转换异常返回null
+     * @param str
+     * @return
+     */
+    public static Integer convertToInteger(String str) {
+        return convertToInteger(str,null);
+    }
+    /**
+     * 将字符串转换为Integer类型，传入参数为空/转换异常返回指定的值：defaultVal
+     * @param str
+     * @param defaultVal 默认返回值
+     * @return
+     */
+    public static Integer convertToInteger(String str,Integer defaultVal) {
+    	if (str != null) {
+            try {
+				return Integer.valueOf(str);
+			} catch (NumberFormatException e) {
+				logger.warn("fail to convertToInteger! input:" + str);
+			}
+        }
+        return defaultVal;
     }
 }

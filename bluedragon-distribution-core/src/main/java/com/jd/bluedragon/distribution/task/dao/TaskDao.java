@@ -29,51 +29,56 @@ public class TaskDao extends BaseDao<Task> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findLimitedTasks(Integer fetchNum) {
+	public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("tableName", Task.getTaskWaybillTableName());
 		request.put("fetchNum", fetchNum);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasks", request);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findLimitedTasks(Integer type, Integer fetchNum) {
+	public List<Task> findLimitedTasks(Integer type, Integer fetchNum, List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
+		request.put("queueIds", queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasksByType", request);
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
+	public List<Task> findLimitedTasks(Integer type, Integer fetchNum, String ownSign ,List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
 		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasksByType", request);
 	}
 
 
     @SuppressWarnings("unchecked")
-    public List<Task> findLimitedTasksWithoutFailed(Integer type, Integer fetchNum, String ownSign) {
+    public List<Task> findLimitedTasksWithoutFailed(Integer type, Integer fetchNum, String ownSign,List<String> queueIds) {
         Map<String, Object> request = new HashMap<String, Object>();
         request.put("type", type);
         request.put("tableName", Task.getTableName(type));
         request.put("fetchNum", fetchNum);
         request.put("ownSign", ownSign);
+        request.put("queueIds",queueIds);
         return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasksWithoutFailedByType", request);
     }
 
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign) {
+	public List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign ,List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
 		request.put("ownSign", ownSign);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findSpecifiedTasks", request);
 	}
 
@@ -107,12 +112,13 @@ public class TaskDao extends BaseDao<Task> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key) {
+	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key, List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
 		request.put("key", key);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findSendTasks", request);
 	}
 
@@ -223,11 +229,12 @@ public class TaskDao extends BaseDao<Task> {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public List<Task> findTaskTypeByStatus(Integer type, Integer fetchNum){
+	public List<Task> findTaskTypeByStatus(Integer type, Integer fetchNum ,List<String> queueIds){
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
+		request.put("queueIds",queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findTaskTypeByStatus", request);
 	}
 	
@@ -241,11 +248,12 @@ public class TaskDao extends BaseDao<Task> {
 		return (Integer) super.getSqlSession().update(TaskDao.namespace + ".updateTaskStatus", task);
 	}
 
-	public List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum) {
+	public List<Task> findDeliveryToFinanceConvertTasks(Integer type, Integer fetchNum,List<String> queueIds) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
+		request.put("queueIds", queueIds);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findDeliveryToFinanceConvertTasks", request);
 	}
 

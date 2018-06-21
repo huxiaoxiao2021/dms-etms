@@ -31,6 +31,9 @@ public class BoardResponse implements Serializable{
     public static final Integer CODE_BOXORPACKAGE_REACH_LIMIT = 20107;
     public static final String MESSAGE_BOXORPACKAGE_REACH_LIMIT = "板号绑定的箱号/包裹号已达上限.";
 
+    public static final Integer CODE_BOARD_CHANGE = 39999;
+    public static final String Message_BOARD_CHANGE = "  确定绑到新板上？";
+
     /**
      * 一单多件不齐
      */

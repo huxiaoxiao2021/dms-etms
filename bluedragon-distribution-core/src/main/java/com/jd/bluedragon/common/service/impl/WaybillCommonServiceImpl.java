@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import jd.oom.client.orderfile.Business;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.utils.BigDecimalHelper;
@@ -84,6 +86,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private WaybillQueryManager waybillQueryManager;
     @Autowired
     private PopPrintService popPrintService;
+    @Autowired
+    private WaybillPrintService waybillPrintService;
+    
     
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -531,6 +536,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     	if(target==null||waybill==null){
     		return target;
     	}
+		logger.info("包裹标签打印-waybillSign及sendPay打标处理");
+		waybillPrintService.dealSignTexts(waybill.getWaybillSign(), target, Constants.DIC_NAME_WAYBILL_SIGN_CONFIG);
+		waybillPrintService.dealSignTexts(waybill.getSendPay(), target, Constants.DIC_NAME_SEND_PAY_CONFIG);
     	//设置商家id和name
         target.setBusiId(waybill.getBusiId());
         target.setBusiName(waybill.getBusiName());
@@ -543,7 +551,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(waybill.getWaybillSign().length()>14 && waybill.getWaybillSign().charAt(14)=='3' && !BusinessHelper.isQWD(waybill.getWaybillSign()))
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
         {
             target.setBusiOrderCode(waybill.getSpareColumn3());
         }
@@ -675,9 +683,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             Profiler.functionError(info);
         }finally{
             Profiler.registerInfoEnd(info);
-            return result;
         }
-
+        return result;
     }
     /**
      * 先校验运单是否已录入总重量,否则查询分拣是否存在录入重量记录

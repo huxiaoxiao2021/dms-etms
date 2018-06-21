@@ -1,41 +1,20 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.VmsManager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BaseRequest;
-import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.response.*;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.domain.PdaStaff;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.client.JsonUtil;
-import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
-import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
-import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
-import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
-import com.jd.bluedragon.utils.BaseContants;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
-import com.jd.etms.vehicle.manager.domain.Vehicle;
-import com.jd.etms.vts.dto.CarrierInfo;
-import com.jd.etms.vts.dto.CarrierParamDto;
-import com.jd.etms.vts.dto.CommonDto;
-import com.jd.etms.vts.dto.DictDto;
-import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.SimpleBaseSite;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,20 +22,54 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.VmsManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.response.BaseDatadict;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
+import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
+import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.LoginCheckConfig;
+import com.jd.bluedragon.distribution.base.domain.PdaStaff;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
+import com.jd.bluedragon.distribution.external.service.DmsBaseService;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
+import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
+import com.jd.bluedragon.distribution.version.domain.ClientConfig;
+import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
+import com.jd.etms.vehicle.manager.domain.Vehicle;
+import com.jd.etms.vts.dto.CarrierInfo;
+import com.jd.etms.vts.dto.CarrierParamDto;
+import com.jd.etms.vts.dto.DictDto;
+import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
 
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class BaseResource {
+public class BaseResource implements DmsBaseService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
@@ -90,6 +103,9 @@ public class BaseResource {
 
 	@Autowired
 	private VtsQueryWS vtsQueryWS;
+	
+	@Autowired
+	private ClientConfigService clientConfigService;
 
 	@GET
 	//Path("/bases/allsite/")
@@ -296,24 +312,13 @@ public class BaseResource {
 
 	@GET
 	@Path("/bases/site/{code}")
+	@Override
 	public BaseResponse getSite(@PathParam("code") String code) {
 		this.logger.info("sitecode is " + code);
 
-		String siteName;
-		Integer siteCode;
-		String dmsSiteCode;
-		Integer siteType;
-		Integer siteBusType;
-        Integer orgId;
         BaseStaffSiteOrgDto dto=null;
 		try {
 			dto = baseService.queryDmsBaseSiteByCode(code);
-			siteName = dto != null ? dto.getSiteName() : null;
-			siteCode = dto != null ? dto.getSiteCode() : null;
-			dmsSiteCode = dto != null && dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
-			siteType = dto != null && dto.getSiteType() != null ? dto.getSiteType() : null;
-			orgId = dto != null && dto.getOrgId() != null ? dto.getOrgId() : null;
-            siteBusType = dto != null && dto.getSiteBusinessType() != null ? dto.getSiteBusinessType() : null;
 		} catch (Exception e) {
 			logger.error("获取站点名称失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
@@ -321,24 +326,22 @@ public class BaseResource {
 			return response;
 		}
 
-		if (null == siteName) {
+		if (null == dto) {
 			logger.warn("没有对应站点");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITE_EMPTY);
 			return response;
 		}
 		BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		response.setSiteCode(siteCode);
-		response.setSiteName(siteName);
+		response.setSiteCode(dto.getSiteCode());
+		response.setSiteName(dto.getSiteName());
+		String dmsSiteCode = dto.getDmsSiteCode() != null ? dto.getDmsSiteCode() : "";
 		response.setDmsCode(dmsSiteCode);
-		response.setSiteType(siteType);
-        response.setOrgId(orgId);
-		response.setSiteBusinessType(siteBusType);
-        /*
-        if(null!=dto) {
-            response.setPinyinCode(dto.getSiteNamePym());
-        }
-        */
+		response.setSiteType(dto.getSiteType());
+		response.setSubType(dto.getSubType());
+        response.setOrgId(dto.getOrgId());
+		response.setSiteBusinessType(dto.getSiteBusinessType());
+
 		return response;
 	}
 
@@ -346,21 +349,20 @@ public class BaseResource {
 	@Path("/bases/login")
 	public BaseResponse login(LoginRequest request) {
 		this.logger.info("erpAccount is " + request.getErpAccount());
-		this.logger.info("password is " + request.getPassword());
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
 		/** 进行登录验证 */
-		PdaStaff result = baseService.login(erpAccount, erpAccountPwd);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd);
 
 		// 处理返回结果
-		if (result.isError()) {
+		if (loginResult.isError()) {
 			// 异常处理-验证失败，返回错误信息
-			this.logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + result.getErrormsg()
+			this.logger.info("erpAccount is " + erpAccount + " 验证失败，错误信息[" + loginResult.getErrormsg()
 			        + "]");
 			// 结果设置
 			BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
-			        result.getErrormsg());
+			        loginResult.getErrormsg());
 			// ERP账号
 			response.setErpAccount(erpAccount);
 			// ERP密码
@@ -370,20 +372,37 @@ public class BaseResource {
 		} else {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
-            try{
-                ClientInfo info = null;
-                if(StringUtils.isNotBlank(request.getClientInfo())){
-                    info = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
-                    info.setLoginUserErp(erpAccount);
-                }else{
-                    info = new  ClientInfo();
-                    info.setLoginUserErp(erpAccount);
-                }
-                sysLoginLogService.insert(result, info);
-            }catch (Exception e){
-                this.logger.error("用户登录保存日志失败：" + erpAccount, e);
-            }
-			if (null == result.getSiteId()) {
+			try{
+				ClientInfo clientInfo = null;
+				//初始化客户端信息
+				if(StringUtils.isNotBlank(request.getClientInfo())){
+		            clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+		            clientInfo.setLoginUserErp(erpAccount);
+		        }else{
+		            clientInfo = new  ClientInfo();
+		            clientInfo.setLoginUserErp(erpAccount);
+		        }
+				//检查客户端版本信息，版本不一致，不允许登录
+	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
+	            if(!checkResult.isSucceed()){
+	            	clientInfo.setMatchFlag(SysLoginLog.MATCHFLAG_LOGIN_FAIL);
+	            	sysLoginLogService.insert(loginResult, clientInfo);
+	            	this.logger.warn("login-fail:params="+JsonHelper.toJson(request)+",msg="+checkResult.getMessage());
+					BaseResponse response = new BaseResponse(JdResponse.CODE_INTERNAL_ERROR,
+							checkResult.getMessage());
+					// ERP账号
+					response.setErpAccount(erpAccount);
+					// ERP密码
+					response.setPassword(erpAccountPwd);
+					// 返回结果
+					return response;
+				}else{
+					sysLoginLogService.insert(loginResult, clientInfo);
+				}
+	        }catch (Exception e){
+	            this.logger.error("用户登录保存日志失败：" + erpAccount, e);
+	        }
+			if (null == loginResult.getSiteId()) {
 				BaseResponse response = new BaseResponse(JdResponse.CODE_SITE_ERROR,
 				        JdResponse.MESSAGE_SITE_ERROR);
 				return response;
@@ -397,28 +416,98 @@ public class BaseResource {
 			response.setPassword(erpAccountPwd);
 
 			// 站点编号
-			response.setSiteCode(result.getSiteId());
+			response.setSiteCode(loginResult.getSiteId());
 			// 站点名称
-			response.setSiteName(result.getSiteName());
+			response.setSiteName(loginResult.getSiteName());
 			// 用户ID
-			response.setStaffId(result.getStaffId());
+			response.setStaffId(loginResult.getStaffId());
 			// 用户名称
-			response.setStaffName(result.getStaffName());
-			response.setOrgId(result.getOrganizationId());
-			response.setOrgName(result.getOrganizationName());
+			response.setStaffName(loginResult.getStaffName());
+			response.setOrgId(loginResult.getOrganizationId());
+			response.setOrgName(loginResult.getOrganizationName());
 			// 站点类型
-			response.setSiteType(result.getSiteType());
+			response.setSiteType(loginResult.getSiteType());
 			//站点子类型
-			response.setSubType(result.getSubType());
+			response.setSubType(loginResult.getSubType());
 
 			// dmscode
-			response.setDmsCode(result.getDmsCod());
+			response.setDmsCode(loginResult.getDmsCod());
 			// 返回结果
 			return response;
 		}
 	}
+	/**
+	 * 检查客户端版本信息
+	 * @param clientInfo 上传的客户端信息
+	 * @param loginResult erp登录结果
+	 * @return
+	 */
+    private JdResult<String> checkClientInfo(ClientInfo clientInfo,PdaStaff loginResult) {
+    	JdResult<String> checkResult = new JdResult<String>();
+    	checkResult.toSuccess();
+    	//1、查询客户端登录验证配置信息
+    	SysConfig checkConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_LOGIN_CHECK);
+    	if(checkConfig!=null && StringHelper.isNotEmpty(checkConfig.getConfigContent())){
+    		LoginCheckConfig loginCheckConfig = 
+    				JsonHelper.fromJson(checkConfig.getConfigContent(), LoginCheckConfig.class);
+    		boolean needCheck = loginCheckConfig.getMasterSwitch();
+    		//2、校验总开关开启或者programTypes里包含登录客户端所属类型则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getProgramTypes() != null
+    				&& clientInfo.getProgramType() != null
+    				&& loginCheckConfig.getProgramTypes().contains(clientInfo.getProgramType())){
+    			needCheck = true;
+    		}
+    		//3、机构列表是否包含登录人所属机构则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getOrgCodes() != null
+    				&& loginResult != null
+    				&& loginResult.getOrganizationId() != null
+    				&& loginCheckConfig.getOrgCodes().contains(loginResult.getOrganizationId())){
+    			needCheck = true;
+    		}
+    		//4、站点列表是否包含登录人所属站点则进行校验
+    		if(!needCheck
+    				&& loginCheckConfig.getSiteCodes() != null
+    				&& loginResult != null
+    				&& loginResult.getSiteId() != null
+    				&& loginCheckConfig.getSiteCodes().contains(loginResult.getSiteId())){
+    			needCheck = true;
+    		}
+    		/**
+    		 * 4、版本校验：
+    		 * 未上传版本类型WH_MINGYANG，验证失败
+    		 */
+    		if(needCheck){
+    			if(StringHelper.isEmpty(clientInfo.getVersionName())){
+    				checkResult.toFail("应用版本过低，请联系运维重新安装！");
+    			}else{
+    				List<ClientConfig> clientConfigs = clientConfigService.getBySiteCode(clientInfo.getVersionName());
+    				if(clientConfigs == null || clientConfigs.isEmpty()){
+    					checkResult.toFail("应用版本无效，请联系运维重新安装！");
+    				}else{
+    					boolean versionIsMatch = false;
+    					String versionOnline = "";
+    					for(ClientConfig clientConfig : clientConfigs){
+    						if(clientConfig.getProgramType().equals(clientInfo.getProgramType())){
+    							versionOnline = clientConfig.getVersionCode();
+    						}
+    						if(clientConfig.getVersionCode().equals(clientInfo.getVersionCode())){
+    							versionIsMatch = true;
+    							break;
+    						}
+    					}
+    					if(!versionIsMatch){
+    						checkResult.toFail("线上版本【"+versionOnline+"】，请退出重新登录/联系运维重新安装！");
+    					}
+    				}
+    			}
+    		}
+    	}
+		return checkResult;
+	}
 
-    @GET
+	@GET
 	@Path("/bases/drivers/{orgId}")
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
 		// 根据机构ID获取对应的司机信息列表

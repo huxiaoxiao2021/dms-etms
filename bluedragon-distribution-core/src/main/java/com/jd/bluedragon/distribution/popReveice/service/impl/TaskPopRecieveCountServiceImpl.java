@@ -176,8 +176,8 @@ public class TaskPopRecieveCountServiceImpl implements TaskPopRecieveCountServic
 	}
 
 	@Override
-	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign) {
-		List<TaskPopRecieveCount> dataList = this.taskPopRecieveCountDao.findLimitedTasks(type, fetchNum, ownSign);
+	public List<TaskPopRecieveCount> findLimitedTasks(Integer type, Integer fetchNum, String ownSign, List<String> queueIds) {
+		List<TaskPopRecieveCount> dataList = this.taskPopRecieveCountDao.findLimitedTasks(type, fetchNum, ownSign,queueIds);
 		return dataList;
 	}
 

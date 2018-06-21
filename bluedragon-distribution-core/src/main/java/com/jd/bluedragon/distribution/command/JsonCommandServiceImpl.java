@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.command;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import com.jd.ump.annotation.JProfiler;
  */
 @Service("jsonCommandService")
 public class JsonCommandServiceImpl implements JdCommandService{
+	private static final Log logger= LogFactory.getLog(JsonCommandServiceImpl.class);
 	/**
 	 * json格式的指令集配置
 	 */
@@ -39,11 +42,16 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		}
 		Handler<JdCommand<String>,JdResult<String>> handler = JsonCommandHandlerMapping.getHandler(jdCommand);
 		//返回无服务信息
-		if(handler == null){
-			return JsonHelper.toJson(JdResults.REST_FAIL_SERVER_NOT_FIND);
-		}else{
-			return JsonHelper.toJson(handler.handle(jdCommand));
+		try {
+			if(handler == null){
+				return JsonHelper.toJson(JdResults.REST_FAIL_SERVER_NOT_FIND);
+			}else{
+				return JsonHelper.toJson(handler.handle(jdCommand));
+			}
+		} catch (Exception e) {
+			//处理异常返回异常信息
+			logger.error("JsonCommandServiceImpl.execute-error!", e);
+			return JsonHelper.toJson(JdResults.REST_ERROR_SERVER_EXCEPTION);
 		}
 	}
-	
 }

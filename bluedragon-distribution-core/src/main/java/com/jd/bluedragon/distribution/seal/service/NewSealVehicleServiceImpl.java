@@ -74,8 +74,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private final Log logger = LogFactory.getLog(this.getClass());
 
 	@Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP})
-	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.seal", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
         List<SealCarDto> paramList = convertList(sealCars);
         logger.info("封车参数："+ JsonHelper.toJson(paramList));
         CommonDto<String> sealCarInfo = null;
@@ -95,6 +95,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }catch (Exception e){
             this.logger.error("封车-error", e);
             msg = "封车异常：["+ e.getMessage() +"]";
+            throw e;
         }finally {
             addSystemLog(paramList, msg);
         }
@@ -142,7 +143,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @return
      */
     @Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.findSealInfo", mState = {JProEnum.TP})
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.findSealInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<PageDto<SealCarDto>> findSealInfo(SealCarDto request,PageDto<SealCarDto> pageDto) {
 		CommonDto<PageDto<SealCarDto>> sealCarInfo = vosQueryWS.querySealCarPage(request,pageDto);
 		return sealCarInfo;
@@ -155,8 +156,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      * @throws Exception
      */
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isSealCarInArea", mState = {JProEnum.TP})
-    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars){
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isSealCarInArea", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<String> isSealCarInArea(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
         List<String> sealCarCodes = new ArrayList<String>(sealCars.size());
         for (com.jd.bluedragon.distribution.wss.dto.SealCarDto sourceSealDto : sealCars) {
             sealCarCodes.add(sourceSealDto.getSealCarCode());
@@ -182,13 +183,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             }
         }catch (Exception e){
             logger.error("查询待解任务的车辆是否在围栏异常：" + JsonHelper.toJson(sealCarCodes) , e);
+            throw e;
         }
         return unsealCarOutArea;
     }
 
 	@Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal", mState = {JProEnum.TP})
-	public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
         List<SealCarDto> paramList = convertList(sealCars);
         logger.info("解封车参数："+JsonHelper.toJson(paramList));
         CommonDto<String> sealCarInfo = null;
@@ -207,6 +209,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }catch (Exception e){
             this.logger.error("封车-error", e);
             msg = "封车异常：["+ e.getMessage() +"]";
+            throw e;
         }finally {
             addSystemLog(paramList, msg);
         }
@@ -214,21 +217,21 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	}
 
 	@Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealed", mState = {JProEnum.TP})
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.isBatchCodeHasSealed", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode) {
 		CommonDto<Boolean> isSealed = vosQueryWS.isBatchCodeHasSealed(batchCode);
 		return isSealed;
 	}
 
 	@Override
-	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode", mState = {JProEnum.TP})
+	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
 		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
 		return dto;
 	}
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryTransWorkItemBySimpleCode", mState = {JProEnum.TP})
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.queryTransWorkItemBySimpleCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception {
         return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
     }

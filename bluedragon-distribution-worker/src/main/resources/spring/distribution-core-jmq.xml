@@ -245,6 +245,12 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!--PDA循环箱收发箱MQ-->
+    <bean id="recyclableBoxSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="cb_circulation_info"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
@@ -271,5 +277,10 @@
     <bean id="abnormalEclpSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.abnormalEclpSend}"/>
+    </bean>
+    <!-- 三无寄托物核实申请-->
+    <bean id="abnormalUnknownSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
     </bean>
 </beans>

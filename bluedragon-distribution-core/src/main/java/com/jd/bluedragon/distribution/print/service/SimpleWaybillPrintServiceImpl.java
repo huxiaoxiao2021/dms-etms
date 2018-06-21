@@ -2,10 +2,7 @@ package com.jd.bluedragon.distribution.print.service;
 
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,16 +21,12 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.SignConfig;
-import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;

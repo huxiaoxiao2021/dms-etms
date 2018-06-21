@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 
 import org.apache.commons.logging.Log;
@@ -44,12 +46,10 @@ public class SysConfigServiceImpl implements SysConfigService {
 	}
 
 	@Override
-	@Cache(key = "Test1SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000
+	@Cache(key = "SysConfigServiceImpl.findConfigContentByConfigName@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000
 			,redisEnable = true, redisExpiredTime = 5 * 60 * 1000)
 	public SysConfig findConfigContentByConfigName(String configName) {
-		SysConfig result=this.sysConfigDao.findConfigContentByConfigName(configName);
-		return result;
-		//return this.sysConfigDao.findConfigContentByConfigName(configName);
+		return this.sysConfigDao.findConfigContentByConfigName(configName);
 	}
 
 
@@ -91,5 +91,19 @@ public class SysConfigServiceImpl implements SysConfigService {
 		SysConfig config = new SysConfig();
 		config.setConfigName(configName);
 		return this.sysConfigDao.getList(config);
+	}
+
+	/**
+	 * 从sysconfig表里查出来内容为json格式的配置
+	 * @return
+	 */
+	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,redisEnable = false)
+	@Override
+	public SysConfigContent getSysConfigJsonContent(String key){
+		List<SysConfig> sysConfigs = getListByConfigName(key);
+		if(sysConfigs != null && !sysConfigs.isEmpty()){
+			return JsonHelper.fromJson(sysConfigs.get(0).getConfigContent(), SysConfigContent.class);
+		}
+		return null;
 	}
 }

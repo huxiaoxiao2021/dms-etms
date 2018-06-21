@@ -62,6 +62,23 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
         return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".getWaybillCodesByBoxCodeAndFetchNum", paramMap);
     }
 
+    /**
+     * 根据包裹号查询当前分拣中心的send_d
+     * @param waybillCode
+     * @param createSiteCode
+     * @return
+     */
+    public List<SendDetail> findSendByPackageCode(String waybillCode, Integer createSiteCode) {
+        if (waybillCode == null || waybillCode.isEmpty()) {
+            return null;
+        }
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("packageCode", waybillCode);
+        paramMap.put("createSiteCode", createSiteCode);
+        List<SendDetail> sendDetailList = this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".findSendByPackageCode", paramMap);
+
+        return sendDetailList;
+    }
 
     @SuppressWarnings("unchecked")
     public List<SendBoxDetailResponse> findSendBoxByWaybillCode(String waybillCode) {

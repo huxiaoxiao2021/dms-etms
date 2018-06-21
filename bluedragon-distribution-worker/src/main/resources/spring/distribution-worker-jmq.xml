@@ -171,5 +171,9 @@
     <jmq:consumer id="jmq.abnormalWarehouseRejectReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_wms_reject_outbound_feedback" listener="dmsAbnormalEclpConsumer"/>
     </jmq:consumer>
+    <!-- 三无寄托物核实-->
+    <jmq:consumer id="jmq.abnormalUnknownReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dms_unknown_verify_feedback" listener="dmsAbnormalUnknownConsumer"/>
+    </jmq:consumer>
 </beans>
 

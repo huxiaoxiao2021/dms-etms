@@ -1,19 +1,25 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.reverse.domain.BizToken;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.reverse.domain.WmsSite;
+import com.jd.bluedragon.external.service.PackExchangeServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.wms.packExchange.BaseWebService;
 import com.jd.wms.packExchange.Result;
 import com.jd.wms.packExchange.domains.packExchange.PePackage;
 import com.jd.wms.packExchange.domains.packExchange.dto.BlueLongDTO;
@@ -27,7 +33,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	private String packExchangeBizTokenJasonAsia;
 	
 	@Autowired
-	BaseWebService packExchangeWebService;
+	PackExchangeServiceManager packExchangeServiceManager;
 	
 	@Autowired
 	BaseService baseService;
@@ -119,7 +125,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			String bizBody = JsonHelper.toJson(reportDto);
 			this.log.info("亚一通过包裹获取出库明细packExchangeBizTokenJasonAsia的值"+packExchangeBizTokenJasonAsia);
 			this.log.info("亚一通过包裹获取出库明细bizBody的值"+bizBody);
-			Result result = packExchangeWebService.queryWs(
+			Result result = packExchangeServiceManager.queryWs(
 					packExchangeBizTokenJasonAsia, bizBody);
 
 			int resultCode = result.getResultCode();

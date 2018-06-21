@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+	<bean id="reverseDeliveryRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.delivery.redis.ReverseDeliveryToTmsRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ReverseDeliveryRedisTask" />
+		<property name="desc" value="发货新老数据同步Redis任务" />
+	</bean>
+
+	<bean id="transitSendRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.delivery.redis.TransitSendRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="TransitSendRedisTask" />
+		<property name="desc" value="中转发货补全Redis任务" />
+	</bean>
+
+	<bean id="sendDeliveryTotmsRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.delivery.redis.SendDeliveryTotmsRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SendDeliveryTotmsRedisTask" />
+		<property name="desc" value="回传周转箱项目Redis任务" />
+	</bean>
+
+	<bean id="sendDeliveryTowaybillRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.delivery.redis.SendDeliveryTowaybillRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SendDeliveryTowaybillRedisTask" />
+		<property name="desc" value="发货回传运单状态Redis任务" />
+	</bean>
+
+	<bean id="inspectionRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.redis.InspectionRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="InspectionRedisTask" />
+		<property name="desc" value="分拣中心验货Redis任务" />
+	</bean>
+
+
+	<bean id="sortingRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="SortingRedisTask" />
+		<property name="desc" value="分拣Redis任务" />
+	</bean>
+
+
+	<bean id="sortingPrepareRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.sorting.redis.SortingPrepareRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="sortingPrepareRedisTask" />
+		<property name="desc" value="自动分拣机分拣任务准备Redis任务" />
+	</bean>
+
+	<bean id="inspectionPrepareRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.inspection.redis.InspectionPrepareRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="InspectionPrepareRedisTask" />
+		<property name="desc" value="自动分拣交接数据存交接表Resis任务" />
+	</bean>
+
+	<bean id="weightRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.weight.WeightRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="WeightRedisTask" />
+		<property name="desc" value="将称重信息回传到运单中心Resis任务" />
+	</bean>
+	<bean id="scannerFrameRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.ScannerFrameRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="ScannerFrameRedisTask" />
+		<property name="desc" value="龙门架发货redis任务" />
+	</bean>
+
+	<bean id="offlineCoreRedisTask"
+		  class="com.jd.bluedragon.distribution.framework.BaseRedisSingleScheduler"
+		  parent="baseRedisSingleScheduler">
+		<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
+		<property name="taskType" value="OfflineCoreRedisTask" />
+		<property name="desc" value="离线Redis任务" />
+	</bean>
+</beans>
+

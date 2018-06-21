@@ -12,7 +12,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,15 +41,17 @@ import com.jd.bluedragon.distribution.popAbnormal.service.PopReceiveAbnormalServ
 import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
+import com.jd.bluedragon.external.service.SortCenterServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.WorkBookObject;
-import com.jd.pop.sortcenter.ws.SortCenterService;
 import com.jd.pop.sortcenter.ws.VenderOperInfoResult;
 import com.jd.pop.sortcenter.ws.VenderOperateInfo;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 
 /**
  * @author zhaohc
@@ -83,7 +84,7 @@ public class PopReceiveAbnormalController {
 	private LossProductResource lossProductResource;
 
 	@Autowired
-	private SortCenterService popSortCenterService;
+	private SortCenterServiceManager sortCenterManager;
 
 	/**
 	 * 跳转到查询POP差异列表页面
@@ -280,11 +281,14 @@ public class PopReceiveAbnormalController {
 				popAbnormal = new PopReceiveAbnormal();
 				popAbnormal.setWaybillCode(waybillCode);
 				try {
-					VenderOperInfoResult venderOperInfoResult = this.popSortCenterService
-							.searchInfoForByOrderId(Long.valueOf(waybillCode));
-
+					VenderOperInfoResult venderOperInfoResult = null;
+					if(NumberHelper.isNumber(waybillCode)){
+						venderOperInfoResult = this.sortCenterManager.searchInfoForByOrderId(Long.valueOf(waybillCode));
+					}else{
+						this.logger.warn("录入的订单号不是数字类型：【" + waybillCode + "】 ");
+					}
 					if (venderOperInfoResult == null) {
-						this.logger.info("根据订单号【" + waybillCode
+						this.logger.warn("根据订单号【" + waybillCode
 								+ "】 获取POP相关信息为空");
 					} else {
 						if ("10100000".equals(venderOperInfoResult
