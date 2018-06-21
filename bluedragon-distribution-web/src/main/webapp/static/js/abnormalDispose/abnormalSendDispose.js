@@ -1,5 +1,7 @@
 $(function () {
     var sendQueryUrl = '/abnormalDispose/abnormalDispose/send/listData';
+    var pushAbnormalOrderUrl = '/services/abnormalorder/pushAbnormalOrders';//外呼地址
+    var pushExceptioninfoUrl = '/services/qualitycontrol/exceptioninfos';//异常地址
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -70,17 +72,17 @@ $(function () {
 
 
         oTableInit.tableColums = [{
-          checkbox : true
-         }, {
+            checkbox: true
+        }, {
             field: 'inspectionDate',
             title: '解封车时间',
             formatter: function (value, row, index) {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
-        },  {
+        }, {
             field: 'inspectionSiteName',
             title: '验货分拣中心'
-        },{
+        }, {
             field: 'waybillCode',
             title: '运单'
         }, {
@@ -99,21 +101,21 @@ $(function () {
             field: 'isDispose',
             title: '是否提报异常',
             formatter: function (value, row, index) {
-                if(value=='1'){
+                if (value == '1') {
                     return '是';
-                }else{
+                } else {
                     return '否';
                 }
-          }
+            }
         }, {
             field: 'abnormalType',
             title: '异常类型',
             formatter: function (value, row, index) {
-                if(value=='1'){
+                if (value == '1') {
                     return '外呼';
-                }else if(value=='0'){
+                } else if (value == '0') {
                     return '异常';
-                }else{
+                } else {
                     return '';
                 }
             }
@@ -131,27 +133,207 @@ $(function () {
             }
         }];
         oTableInit.refresh = function () {
-            $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+            $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber:  $('#dataTableSend').bootstrapTable.pageNumber});
         };
         return oTableInit;
     };
+    var abnormal1 = [];//异常一级原因
+    var abnormal2 = {};//异常二级原因
+    var outcall1 = [];//外呼一级原因
+    var outcall2 = {};//外呼二级原因
+    //加载
+    var loadDictionar = function (type) {
+        var requestFlag = false;
+        var params = {};
+        if (type == 0 && abnormal1.length == 0) {//异常
+            requestFlag = true;
+            params.typeGroups = '110-7040';
+            abnormal1.push({id: 0, text: '0-请选择'});
+
+        } else if (type == 1 && outcall1.length == 0) {//外呼
+            requestFlag = true;
+            params.typeGroups = '5003';
+            outcall1.push({id: 0, text: '0-请选择'});
+        }
+        if (requestFlag) {//需要请求后台
+            var dictionarListUrl = '/services/bases/getBaseDictionaryTreeMulti';
+            $.ajax({
+                type: "get",
+                url: dictionarListUrl,
+                data: params,
+                async: false,
+                success: function (response) {
+                    var result = [];
+                    var v_data = response.data;
+                    for (var i in v_data) {
+                        var v_text = v_data[i].typeCode + '-' + v_data[i].typeName;
+                        var v_id = v_data[i].typeCode;
+                        var v_vid=v_data[i].id;
+                        var v_typeGroup=v_data[i].typeGroup;
+                        if (v_data[i].nodeLevel == 2) {//作为一级原因
+                            if (type == 0) {
+                                abnormal1.push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                            } else {
+                                outcall1.push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                            }
+                        }
+                        if (v_data[i].nodeLevel == 3) {//作为二级原因
+                            if (type == 0) {
+                                if (!abnormal2[v_data[i].parentId]) {
+                                    abnormal2[v_data[i].parentId] = [{id: 0, text: '0-请选择'}];
+                                }
+                                abnormal2[v_data[i].parentId].push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                            } else {
+                                if (!outcall2[v_data[i].parentId]) {
+                                    outcall2[v_data[i].parentId] = [{id: 0, text: '0-请选择'}];
+                                }
+                                outcall2[v_data[i].parentId].push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        var result = type == 0 ? abnormal1 : outcall1;
+        $("#edit-form #abnormalReason1Select1").empty();
+        $("#edit-form #abnormalReason1Select1").select2({
+            width: '100%',
+            placeholder: 0,
+            allowClear: false,
+            dropdownCss: {'z-index': 999999},
+            data: result
+        });
+        $("#edit-form #abnormalReason1Select1").val(0).trigger('change');
+
+    }
+    //一级原因和二级的级联
+    var abnormalReason1Select1Change = function () {
+        var type = $('input:radio:checked').val();
+        var abnormalReason1Select1 = $("#abnormalReason1Select1").val();
+        var result = [];
+        if (abnormalReason1Select1) {
+            result = type == 0 ? abnormal2[abnormalReason1Select1] : outcall2[abnormalReason1Select1];
+        }
+        $("#edit-form #abnormalReason1Select2").empty();
+        $("#edit-form #abnormalReason1Select2").select2({
+            width: '100%',
+            placeholder: 0,
+            allowClear: false,
+            dropdownCss: {'z-index': 999999},
+            data: result
+        });
+        $("#edit-form #abnormalReason1Select2").val(null).trigger('change');
+    }
+    //提报异常
+    function sumbitQc() {
+        var waybillcodes=$('#waybillCodeSend').val();
+        var type=  $('#abnormalTypeSend').val();
+        var abnormalReason1Select1 = $("#abnormalReason1Select1").select2("data")[0];
+        var abnormalReason1Select2 = $("#abnormalReason1Select2").select2("data")[0];
+
+        var v_url;
+        var params={};
+        if(type==1){//发外呼
+            v_url=pushAbnormalOrderUrl;
+            params.orderId=waybillcodes;
+            if(abnormalReason1Select1.id>0){
+                params.AbnormalCode1=abnormalReason1Select1.id;
+                params.AbnormalReason1=abnormalReason1Select1.text;
+            }else{
+                params.AbnormalCode1=0;
+                params.AbnormalReason1='';
+                alert("请选择原因");
+                return;
+            }
+            if(abnormalReason1Select2&&abnormalReason1Select2.id>0){
+                params.AbnormalCode2 = abnormalReason1Select2.id;
+                params.AbnormalReason2 = abnormalReason1Select2.text;
+                params.AbnormalReasonId = abnormalReason1Select2.vid;
+            }else{
+                params.AbnormalCode2=0;
+                params.AbnormalReason2='';
+            }
+        }else{
+            v_url=pushExceptioninfoUrl;
+            params.qcType=2;//2代表运单
+            params.qcValue=waybillcodes;
+            if(abnormalReason1Select1.id>0){
+                params.qcCode=abnormalReason1Select1.id;
+                params.qcName=abnormalReason1Select1.text;
+                params.isSortingReturn=abnormalReason1Select1.typeGroup==110;
+            }
+            if(abnormalReason1Select2&&abnormalReason1Select2.id>0){
+                params.qcCode = abnormalReason1Select2.id;
+                params.qcName = abnormalReason1Select2.text;
+                params.isSortingReturn = abnormalReason1Select2.typeGroup==110;
+            }
+        }
+        jQuery.ajax({
+            type: "POST",
+            url: v_url,
+            contentType : 'application/json',
+            dataType : 'json',
+            data: JSON.stringify(params),
+            async: false,
+            success: function (response) {
+                if(response.code==200){
+                    $('#dataEditDiv').jqmHide();
+                    $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                }else{
+                    alert(response.message);
+                }
+
+            }
+        });
+
+
+    }
     var pageInit = function () {
         var oInit = new Object();
         var postdata = {};
         oInit.init = function () {
             $('#sendDetail').hide();
+            $('#dataEditDiv').hide();
+            // 初始化页面上面的按钮事件
             $('#btn_query_send').click(function () {
                 tableInit().refresh();
             });
-
-            $('#btn_abnormal').click(function (){
-                alert(111)
-            });
-            // 初始化页面上面的按钮事件
-
             $('#btn_back_send').click(function () {
                 $('#sendDetail').hide();
                 $('#dataTableMainDiv').show();
+            });
+            $('#abnormal_save').click(function () {
+                sumbitQc();
+            });
+
+            //注册一级原因和二级原因的级联事件
+            $("#edit-form #abnormalReason1Select1")
+                .on("change", function (e) {
+                    abnormalReason1Select1Change();
+                });
+            //弹窗行为
+            $('#dataEditDiv').jqm({modal: true});
+            $('#dataEditDiv').css('opacity', 1);//透明程度
+            $('#btn_abnormal').click(function () {
+                var rows = $('#dataTableSend').bootstrapTable('getSelections');
+                if (rows && rows.length > 0) {
+                    var waybillCodes = '';
+                    for (var i = 0; i < rows.length; i++) {
+                        waybillCodes = waybillCodes + ',' + rows[i].waybillCode;
+                    }
+                    $('#waybillCodeSend').val(waybillCodes.substring(1));
+                    $('#dataEditDiv').jqmShow();
+                } else {
+                    alert("请选择运单");
+                }
+            });
+            //加载下拉
+            loadDictionar(0);
+            //注册事件
+            $('input:radio[name="abnormalTypeRadio"]').change(function () {
+                var type = $('input:radio:checked').val();
+                $('#abnormalTypeSend').val(type);
+                loadDictionar(type);
             });
         };
         return oInit;
@@ -171,10 +353,7 @@ $(function () {
 
 });
 
-function sumbitQc() {
-    alert("提交异常")
-}
-function querySend(transferNo){
+function querySend(transferNo) {
     $('#dataTableMainDiv').hide();
     $('#sendDetail').show();
     $('#transferNoSend').val(transferNo);

@@ -22,7 +22,7 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
     @Override
     public PagerResult<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
         AbnormalDisposeInspection abnormalDisposeInspection=new AbnormalDisposeInspection();
-        abnormalDisposeInspection.setWaybillCode("kkkk");
+        abnormalDisposeInspection.setWaybillCode("12345");
         abnormalDisposeInspection.setCreateUser("tcq");
         abnormalDisposeInspection.setEndCityName("上海");
         abnormalDisposeInspection.setQcCode("ddd");
@@ -71,6 +71,7 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
        aa.setEndCityName("北京");
        aa.setEndSiteName("目的站点");
        aa.setInspectionDate(new Date());
+       aa.setWaybillCode("12345");
         PagerResult<AbnormalDisposeSend> pagerResult=new PagerResult<AbnormalDisposeSend>();
         pagerResult.setTotal(50);
         List<AbnormalDisposeSend>  r=new ArrayList<AbnormalDisposeSend>();

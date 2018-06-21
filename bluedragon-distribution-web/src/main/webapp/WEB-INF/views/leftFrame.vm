@@ -4,11 +4,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')" media="all">
-    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.css')" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.min.css')" media="all">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/js/jquery-plugins/jquery-ui-1.10.4.min.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mousewheel.min.js')"></script>
-    <script type="text/javascript" src="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/imports/plugin/mCustomScrollbar/jquery.mCustomScrollbar.concat.min.js')"></script>
 </head>
 <body id="leftframe">
 <div id="lsidebar" class="content">
