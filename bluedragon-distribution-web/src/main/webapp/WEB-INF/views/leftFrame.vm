@@ -78,12 +78,9 @@
         showMenu($("#lsidebar .curr"));
         $("#lsidebar dt a").bind("click", function () {
             //再点击可以收缩
-            var closeFlag=false;
             if ($(this).attr("class").indexOf("curr")>-1){
-                closeFlag=true;
-            }
-            hideMenu($("#lsidebar .curr"));
-            if (!closeFlag){
+                hideMenu($(this));
+            }else{
                 showMenu($(this));
             }
         });

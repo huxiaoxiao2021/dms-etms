@@ -208,10 +208,10 @@
                         <div class="form-group ">
                             <label class="col-xs-3 control-label">提交类型 ：</label>
                             <div class="col-xs-9">
-                                <label class="btn btn-default">
+                                <label class="col-xs-4  control-label" style="text-align:left">
                                     <input type="radio" name="abnormalTypeRadio" value="0" checked="true"> 提交异常
                                 </label>
-                                <label class="btn btn-default">
+                                <label class="col-xs-4  control-label" style="text-align:left">
                                     <input type="radio" name="abnormalTypeRadio" value="1"> 发起外呼
                                 </label>
                                 <input type="hidden" id="abnormalTypeSend" class="form-control edit-param " value="0"
