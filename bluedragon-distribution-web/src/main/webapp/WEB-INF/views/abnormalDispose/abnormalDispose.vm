@@ -11,8 +11,10 @@
     <script src="/static/js/abnormalDispose/abnormalInspectionDispose.js"></script>
     <script src="/static/js/abnormalDispose/abnormalSendDispose.js"></script>
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jqModal.css')" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/css/bootstrap-editable.css')" media="all">
     <script src="/static/js/plugins/jqModal.js"></script>
     <script src="/static/js/plugins/jquery-migrate-1.2.1.js"></script>
+    <script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
 </head>
 <body class="container-fluid">
 <div id="dataTableMainDiv">

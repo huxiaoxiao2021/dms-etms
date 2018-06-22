@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,4 +95,13 @@ public class AbnormalDisposeController extends DmsBaseController {
             return null;
         }
     }
+
+    @RequestMapping(value="/saveQcCode")
+    public @ResponseBody
+    JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection){
+        JdResponse<String> rest = new JdResponse<String>();
+        rest.setData("");
+        return rest;
+    }
+
 }

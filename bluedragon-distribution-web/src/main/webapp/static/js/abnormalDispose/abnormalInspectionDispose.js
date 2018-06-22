@@ -1,3 +1,4 @@
+var curRow = {};
 $(function () {
     var inspectionQueryUrl = '/abnormalDispose/abnormalDispose/inspection/listData';
     var tableInit = function () {
@@ -35,7 +36,37 @@ $(function () {
                 // showFooter:true,
                 // paginationVAlign:'center',
                 // singleSelect:true,
-                columns: oTableInit.tableColums
+                columns: oTableInit.tableColums,
+                onClickRow: function (row, $element) {
+                    curRow = row;
+                },
+                onLoadSuccess: function (aa, bb, cc) {
+                    $("#dataTableInspection a").editable({
+                        url: function (params) {
+                            var sName = $(this).attr("name");
+                            var v_param={};
+                            v_param.qcCode= params.value
+                            jQuery.ajax({
+                                type: "POST",
+                                url: "/abnormalDispose/abnormalDispose/saveQcCode",
+                                contentType: 'application/json',
+                                data:  JSON.stringify(v_param),
+                                async: false,
+                                success: function (response) {
+                                    if (response.code == 200) {
+                                        curRow[sName] = params.value;
+                                    } else {
+                                        alert("保存失败+"+response.message);
+                                    }
+                                },
+                                error: function () {
+                                    alert("保存失败");
+                                }
+                            });
+                        },
+                        type: 'text'
+                    });
+                },
             });
         };
         oTableInit.getSearchParams = function (params) {
@@ -97,17 +128,17 @@ $(function () {
             field: 'isDispose',
             title: '是否提报异常',
             formatter: function (value, row, index) {
-                if(row.qcCode){
+                if (row.qcCode) {
                     return '是';
-                }else{
+                } else {
                     return '否';
                 }
-          }
+            }
         }, {
             field: 'qcCode',
             title: '异常编码',
             formatter: function (value, row, index) {
-                return "<a href='#' onclick=\"updateQc('"+value+"',"+index+")\">维护</a>";
+                return "<a href=\"#\" name=\"qcCode\" data-type=\"text\" data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
             }
         }, {
             field: 'createUser',
@@ -121,7 +152,7 @@ $(function () {
         }, {
             field: 'temp',
             title: '提交异常',
-            formatter:function(value, row, index){
+            formatter: function (value, row, index) {
                 return "<a href='#' onclick='sumbitQc()'>提交</a>";
             }
         }];
@@ -164,12 +195,14 @@ $(function () {
 function sumbitQc() {
     alert("提交异常")
 }
-function queryinspection(transferNo){
+
+function queryinspection(transferNo) {
     $('#dataTableMainDiv').hide();
     $('#inspectionDetail').show();
     $('#transferNoInspection').val(transferNo);
     $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
 }
-function updateQc(value, index){
+
+function updateQc(value, index) {
     alert(value)
 }
