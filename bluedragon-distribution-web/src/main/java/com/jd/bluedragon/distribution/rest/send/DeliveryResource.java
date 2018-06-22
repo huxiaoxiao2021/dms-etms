@@ -22,7 +22,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
@@ -39,9 +39,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
-import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -857,4 +854,100 @@ public class DeliveryResource implements DmsDeliveryService {
     	res.setData(sendDatailDao.queryListByCondition(condition));
     	return res;
     }
+
+    /**
+     * 原包分拣发货
+     * @author jinjingcheng
+     * @param request
+     * @return 发货结果 200成功
+     */
+    @POST
+    @Path("/delivery/packageSortSend")
+    public InvokeResult packageSortSend(PackageCodeRequest request){
+        InvokeResult result = new InvokeResult();
+        try {
+            if(!packageSendCheckParam(request, result)){
+                return result;
+            }
+            /**检查批次号是否已发货*/
+            List<SendM> sendMs = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
+                    request.getDistributeId(), request.getReceiveSiteCode());
+            List<SendM> sendMList = initSendMList(request);
+            deliveryService.packageSortSend(sendMList);
+            result.success();
+        }catch (Exception e){
+            logger.error("原包分拣发货异常，",e);
+            result.error("原包分拣发货异常");
+        }
+
+        return result;
+    }
+
+    /**
+     * 原包分拣发货 参数校验
+     * @param request
+     * @param result
+     * @return
+     */
+    private boolean packageSendCheckParam(PackageCodeRequest request, InvokeResult result){
+        if(request.getDistributeId() == null){
+            result.parameterError("DistributeId不能为空！");
+            return false;
+        }
+        if(StringUtils.isBlank(request.getDistributeName())){
+            result.parameterError("DistributeName不能为空！");
+            return false;
+        }
+        if(StringUtils.isBlank(request.getOperatorName())){
+            result.parameterError("OperatorName不能为空！");
+            return false;
+        }
+        if(StringUtils.isBlank(request.getSendCode())){
+            result.parameterError("SendCode不能为空！");
+            return false;
+        }
+        if(request.getOperatorId() == null){
+            result.parameterError("OperatorId不能为空！");
+            return false;
+        }
+        if(request.getReceiveSiteCode() == null){
+            result.parameterError("ReceiveSiteCode不能为空！");
+            return false;
+        }
+        if(request.getOperateTime() == null){
+            result.parameterError("OperateTime()不能为空！");
+            return false;
+        }
+        if(request.getPackageList() == null || request.getPackageList().isEmpty()){
+            result.parameterError("PackageList不能为空！");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 原包分拣发货构建 sendMList
+     * @param request
+     * @return
+     */
+    private List<SendM> initSendMList(PackageCodeRequest request) throws CloneNotSupportedException {
+
+        SendM sendM = new SendM();
+        sendM.setSendCode(request.getSendCode());
+        sendM.setCreateSiteCode(request.getDistributeId());
+        sendM.setCreateUser(request.getOperatorName());
+        sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+        sendM.setYn(1);
+        sendM.setCreateTime(new Date());
+        sendM.setOperateTime(request.getOperateTime());
+        List<SendM> sendMList = new ArrayList<SendM>(request.getPackageList().size());
+        for(String packageCode : request.getPackageList()){
+            if(StringUtils.isNotBlank(packageCode)){
+                SendM sendMClone = (SendM)sendM.clone();
+                sendMList.add(sendMClone);
+            }
+        }
+        return sendMList;
+    }
+
 }

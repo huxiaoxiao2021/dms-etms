@@ -4,6 +4,7 @@ import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
+import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
@@ -24,6 +25,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -228,5 +230,56 @@ if(waybills==null){
 			logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
 		}
 		return response;
+	}
+
+	@POST
+	@Path("/sendCode/batchGenerate")
+	public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
+		BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
+		/** 校验参数*/
+		if(!batchGenerateCheckParam(request, response)){
+			return response;
+		}
+		try{
+			List<String> sendCodes = new ArrayList<String>(request.getQuantity());
+			for(int i = request.getQuantity(); i > 0; i--){
+				String sendCode = SerialRuleUtil.generateSendCode(
+						request.getCreateSiteCode(),
+						request.getReceiveSiteCode(),
+						new Date()
+				);
+				sendCodes.add(sendCode);
+			}
+			response.setCode(200);
+			response.setSendCodes(sendCodes);
+		}catch (Exception e){
+			response.setCode(CODE_CREATE_SEND_CODE_ERROR);
+			response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
+			logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+		}
+		return response;
+	}
+
+	private boolean batchGenerateCheckParam(GenerateSendCodeRequest request, BatchGenerateSendCodeReponse response){
+		//校验参数
+		if(request.getQuantity() == null || request.getQuantity() <= 0){
+			response.setCode(JdResponse.CODE_PARAM_ERROR);
+			response.setMessage("生成数量Quantity非法！");
+			logger.warn(MessageFormat.format("生成数量Quantity:{0}非法！",request.getQuantity()));
+			return false;
+		}
+		if(request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0){
+			response.setCode(JdResponse.CODE_PARAM_ERROR);
+			response.setMessage("分拣中心编号非法！");
+			logger.warn("分拣中心编号非法！");
+			return false;
+		}
+		if(request.getQuantity() > 200){
+			response.setCode(JdResponse.CODE_PARAM_ERROR);
+			response.setMessage("生成数量Quantity非法,不能超过200！");
+			logger.warn("生成数量Quantity非法,不能超过200！");
+			return false;
+		}
+		return true;
 	}
 }

@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 public interface DeliveryService {
 
@@ -309,4 +311,18 @@ public interface DeliveryService {
 	 * @return
 	 */
 	boolean doBoardDelivery(Task task);
+
+	/**
+	 * 原包分拣发货
+	 * @param sendMList
+	 */
+    void packageSortSend(List<SendM> sendMList);
+	/**
+	 *  查询发货记录
+	 * @param sendCode 批次号
+	 * @param createSiteCode 始发分拣中心
+	 * @param receiveSiteCode 目的分拣中心
+	 * @return
+	 */
+    List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode);
 }
