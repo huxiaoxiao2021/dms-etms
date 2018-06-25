@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.reverse;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -71,6 +72,25 @@ public class ReversePrintResource {
         InvokeResult<String> result=new InvokeResult<String>();
         try {
            result= reversePrintService.getNewWaybillCode(oldWaybillCode, true);
+        }catch (Throwable e){
+            logger.error("[逆向换单获取新单号]",e);
+            result.error(e);
+        }
+        return result;
+    }
+
+
+    /**
+     *  根据原单号获取对应的新单号（新）
+     * @param oldWaybillCode 原单号
+     * @return
+     */
+    @GET
+    @Path("/reverse/exchange/getNewWaybillCode1/{oldWaybillCode}")
+    public InvokeResult<RepeatPrint> getNewWaybillCode1(@PathParam("oldWaybillCode") String oldWaybillCode){
+        InvokeResult<RepeatPrint> result=new InvokeResult<RepeatPrint>();
+        try {
+           result= reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
         }catch (Throwable e){
             logger.error("[逆向换单获取新单号]",e);
             result.error(e);
