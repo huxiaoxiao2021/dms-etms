@@ -20,6 +20,7 @@ public interface ComposeService {
     String PREPARE_SITE_NAME_EMS_DIRECT = "EMS全国直发";
 
     String PREPARE_SITE_NAME_FRESH_SEND = "生鲜专送";
+    String PREPARE_SITE_NAME_SAMECITY_ARRIVE = "同城当日达";
 
     String SPECIAL_MARK_AIRTRANSPORT ="航";
     String SPECIAL_MARK_SENIOR ="尊";
@@ -30,6 +31,7 @@ public interface ComposeService {
     String SPECIAL_MARK_VALUABLE="安";
     String SPECIAL_MARK_PUBLIC_WELFARE="益";
     String SPECIAL_MARK_FRESH = "鲜";
+    String SPECIAL_MARK_SAME = "同";
     String SPECIAL_MARK_FIRST = "优";
 
     /**
