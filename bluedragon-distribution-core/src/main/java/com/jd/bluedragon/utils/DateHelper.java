@@ -241,4 +241,25 @@ public class DateHelper {
 
         return DateHelper.compare(date, adjustDate);
     }
+
+    /**
+     * 计算两个两个日期的相隔天数
+     * @param nDate
+     * @param oDate
+     * @return
+     */
+    public static int daydiff(Date nDate, Date oDate) {
+
+        Calendar aCalendar = Calendar.getInstance();
+        aCalendar.setTime(nDate);
+        int day1 = aCalendar.get(Calendar.DAY_OF_YEAR);
+
+        aCalendar.setTime(oDate);
+        int day2 = aCalendar.get(Calendar.DAY_OF_YEAR);
+        if((day2 - day1) >= 0)
+            return day2 - day1;
+        else
+            return day1 - day2;
+
+    }
 }

@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.ReceiveManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
@@ -92,6 +94,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired(required = false)
     private JsfSortingResourceService jsfSortingResourceService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -232,6 +237,74 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
 
+    }
+
+    @Override
+    public InvokeResult<RepeatPrint> getNewWaybillCode1(String oldWaybillCode, boolean isPickUpFinished) {
+        InvokeResult<RepeatPrint> targetResult=new InvokeResult<RepeatPrint>();
+        RepeatPrint repeatPrint =new RepeatPrint();
+        boolean isOverTime = false;
+        if(oldWaybillCode.toUpperCase().startsWith("Q")) {
+            BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
+            if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
+                if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
+                    targetResult.customMessage(-1,"未操作取件完成无法打印面单");
+                }else{
+                    targetResult.setMessage(result.getData().getServiceCode());
+                    repeatPrint.setNewWaybillCode(result.getData().getSurfaceCode());
+                    repeatPrint.setOldWaybillCode(oldWaybillCode);
+                    repeatPrint.setOverTime(isExceed(result.getData().getSurfaceCode()));
+                    targetResult.setData(repeatPrint);
+                }
+            }else{
+                targetResult.customMessage(-1,"没有获取到新的取件单");
+            }
+            return targetResult;
+        }
+        else{
+            InvokeResult<Waybill> result = this.waybillCommonService.getReverseWaybill(oldWaybillCode);
+            targetResult.setCode(result.getCode());
+            targetResult.setMessage(result.getMessage());
+            repeatPrint.setOverTime(isOverTime);
+            if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
+                repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
+                targetResult.setData(repeatPrint);
+                return targetResult;
+            }
+
+            if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
+                return receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+            }else{
+                return targetResult;
+            }
+        }
+    }
+
+    /**
+     *  通过运单号获得取件单的创建时间是否超过15天
+     *
+     * */
+    private Boolean isExceed(String oldWaybillCode) {
+
+        BaseEntity<BigWaybillDto> result = null;
+        try {
+            result = waybillQueryManager.getDataByChoice(oldWaybillCode,
+                    true, true, true, true, true, false, false);
+            if(result != null && result.getData() != null && result.getData().getWaybill() != null && result.getData().getWaybill().getFirstTime() != null)
+            {
+                return (DateHelper.daydiff(result.getData().getWaybill().getFirstTime(),new Date()) - 15) > 0;
+            }
+            this.logger.warn("通过运单号" + oldWaybillCode + "调用getDataByChoice数据为空");
+        } catch (Exception e) {
+            StringBuilder errorMsg = new StringBuilder(
+                    "中心服务调用运单getDataByChoice出错").append("waybillCode=")
+                    .append(oldWaybillCode).append("isWaybillC")
+                    .append(true).append("isWaybillE").append(true)
+                    .append("isWaybillM").append(true)
+                    .append("isPackList").append(true);
+            logger.error(errorMsg, e);
+        }
+        return true;
     }
 
     @Override
