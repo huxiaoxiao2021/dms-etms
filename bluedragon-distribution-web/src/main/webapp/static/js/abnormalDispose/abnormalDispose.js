@@ -230,8 +230,7 @@ $(function () {
             async: true,
             success: function (data) {
                 var result = [];
-                if (data.length == 1 && data[0].code != "200") {
-                } else {
+                if(data){
                     for (var i in data) {
                         if (data[i].dmsSiteCode && data[i].dmsSiteCode != "") {
                             result.push({id: data[i].dmsSiteCode, text: data[i].siteName});
