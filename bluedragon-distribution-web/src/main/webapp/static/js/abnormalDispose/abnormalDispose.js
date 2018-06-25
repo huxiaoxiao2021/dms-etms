@@ -105,7 +105,7 @@ $(function () {
             field: 'notReceiveNum',
             title: '未收货数量',
             formatter: function (value, row, index) {
-                return "<a href='#' onclick='queryinspection(\"" + row.transferNo + "\")'>" + value + "</a>";
+                return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
             }
         }, {
             field: 'notReceiveDisposeNum',
@@ -120,7 +120,7 @@ $(function () {
             field: 'notSendNum',
             title: '未发货数量',
             formatter: function (value, row, index) {
-                return "<a href='#' onclick='querySend(\"" + row.transferNo + "\")'>" + value + "</a>";
+                return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
             }
         }, {
             field: 'notSendDisposeNum',

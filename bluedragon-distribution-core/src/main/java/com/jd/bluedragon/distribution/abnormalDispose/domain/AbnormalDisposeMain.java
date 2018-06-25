@@ -8,6 +8,7 @@ import java.util.Date;
  * @date 2018年06月13日 16时:31分
  */
 public class AbnormalDisposeMain {
+    private String waveBusinessId;//班次业务主键：日期、班次编码计算出的哈希值
     private Date dateTime;//日期
     private Integer areaId;//区域id
     private String areaName;//区域名称
@@ -28,6 +29,14 @@ public class AbnormalDisposeMain {
 
     private Integer totalProcess;//总进度
 
+
+    public String getWaveBusinessId() {
+        return waveBusinessId;
+    }
+
+    public void setWaveBusinessId(String waveBusinessId) {
+        this.waveBusinessId = waveBusinessId;
+    }
 
     public Date getDateTime() {
         return dateTime;

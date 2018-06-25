@@ -196,10 +196,10 @@ function sumbitQc() {
     alert("提交异常")
 }
 
-function queryinspection(transferNo) {
+function queryinspection(waveBusinessId) {
     $('#dataTableMainDiv').hide();
     $('#inspectionDetail').show();
-    $('#transferNoInspection').val(transferNo);
+    $('#waveBusinessIdInspection').val(waveBusinessId);
     $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
 }
 

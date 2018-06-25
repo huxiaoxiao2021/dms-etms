@@ -353,9 +353,9 @@ $(function () {
 
 });
 
-function querySend(transferNo) {
+function querySend(waveBusinessId) {
     $('#dataTableMainDiv').hide();
     $('#sendDetail').show();
-    $('#transferNoSend').val(transferNo);
+    $('#waveBusinessIdSend').val(waveBusinessId);
     $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
 }

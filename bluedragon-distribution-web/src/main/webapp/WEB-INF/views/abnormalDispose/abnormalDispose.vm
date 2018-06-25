@@ -120,8 +120,8 @@
                                     </select>
                                     <input type="hidden" id="isDisposeInspection"
                                            class="form-control  search-param-inspection " name="isDispose">
-                                    <input type="hidden" id="transferNoInspection"
-                                           class="form-control  search-param-inspection " name="transferNo">
+                                    <input type="hidden" id="waveBusinessIdInspection"
+                                           class="form-control  search-param-inspection " name="waveBusinessId">
                                 </div>
                             </div>
                         </div>
@@ -167,8 +167,8 @@
                                     </select>
                                     <input type="hidden" id="isDisposeSend" class="form-control  search-param-send "
                                            name="isDispose">
-                                    <input type="hidden" id="transferNoSend" class="form-control  search-param-send "
-                                           name="transferNo">
+                                    <input type="hidden" id="waveBusinessIdSend" class="form-control  search-param-send "
+                                           name="waveBusinessId">
                                 </div>
                             </div>
                         </div>

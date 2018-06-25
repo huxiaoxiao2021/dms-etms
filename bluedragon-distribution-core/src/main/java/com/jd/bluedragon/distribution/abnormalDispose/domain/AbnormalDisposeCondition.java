@@ -16,14 +16,14 @@ public class AbnormalDisposeCondition  extends BasePagerCondition {
     private Integer provinceId;
     private Integer cityId;
     private String dmsSiteCode;
-    private String transferNo;
+    private String waveBusinessId;
 
-    public String getTransferNo() {
-        return transferNo;
+    public String getWaveBusinessId() {
+        return waveBusinessId;
     }
 
-    public void setTransferNo(String transferNo) {
-        this.transferNo = transferNo;
+    public void setWaveBusinessId(String waveBusinessId) {
+        this.waveBusinessId = waveBusinessId;
     }
 
     public Date getStartTime() {
