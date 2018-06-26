@@ -1,21 +1,22 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
 import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.common.dto.CommonDto;
+import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
+import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
+import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
+import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
+import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
 import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.sdk.util.PerformanceTimeUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import java.util.Date;
-
-import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
-import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
-import com.jd.etms.vrs.dto.PageDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,16 +35,19 @@ import java.util.Date;
 @Service("vrsRouteTransferRelationManager")
 public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRelationManager {
     private static final Logger logger = Logger.getLogger(VrsRouteTransferRelationManagerImpl.class);
-    
-    private static final Integer ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA= 0;
-    
-    private static final Integer ROUTE_INTER_NODE_TYPE_WANG_DIAN_BIAN_MA= 1;
-    
+
+    private static final Integer ROUTE_INTER_NODE_TYPE_CHENG_SHI_BIAN_MA = 0;
+
+    private static final Integer ROUTE_INTER_NODE_TYPE_WANG_DIAN_BIAN_MA = 1;
+
     @Autowired
     private RouteComputeUtil routeComputeUtil;
 
     @Autowired
     private VrsBNetQueryAPI vrsBNetQueryApi;
+
+    @Autowired
+    private TransferWaveMonitorAPI transferWaveMonitorAPI;
 
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
@@ -113,8 +117,88 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         }
     }
 
+    /**
+     * 批次清零 主页面统计
+     *
+     * @param page
+     * @param parameter
+     * @return
+     */
     @Override
+    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getAbnormalTotal", mState = {JProEnum.TP, JProEnum.FunctionError})
     public PageDto<TransferWaveMonitorResp> getAbnormalTotal(PageDto<TransferWaveMonitorReq> page, TransferWaveMonitorReq parameter) {
-        return null;
+        BaseDto baseDto = new BaseDto();
+        baseDto.setToken(vrsRouteTransferRelationApiToken);
+        try {
+            CommonDto<PageDto<TransferWaveMonitorResp>> commonDto = transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum(baseDto, page, parameter);
+            if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
+                logger.warn("批次清零异常统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
+                logger.warn("批次清零异常统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                return null;
+            } else {
+                logger.debug("批次清零异常统计成功：page：" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
+                return commonDto.getData();
+            }
+        } catch (Exception e) {
+            logger.error("批次清零异常统计失败：" + e);
+            return null;
+        }
+
+    }
+
+    /**
+     * 批次清零 未发货明细
+     *
+     * @param page
+     * @param waveBusinessId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getNoSendDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public PageDto<TransferWaveMonitorDetailResp> getNoSendDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
+        BaseDto baseDto = new BaseDto();
+        baseDto.setToken(vrsRouteTransferRelationApiToken);
+        try {
+            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getNoSendDetail(baseDto, page, waveBusinessId);
+            if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
+                logger.warn("批次清零异常未发货明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                logger.warn("批次清零异常未发货明细统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                return null;
+            } else {
+                logger.debug("批次清零异常未发货明统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                return commonDto.getData();
+            }
+        } catch (Exception e) {
+            logger.error("批次清零异常未发货明统计失败：" + e);
+            return null;
+        }
+    }
+
+    /**
+     * 批次清零 未验货明细
+     *
+     * @param page
+     * @param waveBusinessId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getArrivedButNoCheckDetail  ", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public PageDto<TransferWaveMonitorDetailResp> getArrivedButNoCheckDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
+        BaseDto baseDto = new BaseDto();
+        baseDto.setToken(vrsRouteTransferRelationApiToken);
+        try {
+            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getArrivedButNoCheckDetail(baseDto, page, waveBusinessId);
+            if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
+                logger.warn("批次清零异常未验明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                logger.warn("批次清零异常未验明细细统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                return null;
+            } else {
+                logger.debug("批次清零异常未验明细统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
+                return commonDto.getData();
+            }
+        } catch (Exception e) {
+            logger.error("批次清零异常未验明细统计失败：" + e);
+            return null;
+        }
     }
 }
