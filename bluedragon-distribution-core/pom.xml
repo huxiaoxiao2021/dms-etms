@@ -762,6 +762,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.etms.vrs</groupId>
+			<artifactId>etms-vrs-sdk</artifactId>
+			<version>1.1.4-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
 			<version>1.2.18-SNAPSHOT</version>

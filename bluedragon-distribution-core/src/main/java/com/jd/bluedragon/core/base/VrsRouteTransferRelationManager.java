@@ -2,6 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import java.util.Date;
 
+import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
+import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
+import com.jd.etms.vrs.dto.PageDto;
 import com.jd.etms.vrs.dto.compute.RouteProduct;
 
 /**
@@ -33,4 +36,9 @@ public interface VrsRouteTransferRelationManager {
 	 * @return
 	 */
 	String queryRoutePredictDate(Integer configType, Integer bizzType, String startSiteNode, String toSiteNode, Date pickUpEndTime);
+
+	/**
+	 * 获取未发、已到未验单量及相关信息
+	 */
+	PageDto<TransferWaveMonitorResp> getAbnormalTotal(PageDto<TransferWaveMonitorReq> page, TransferWaveMonitorReq parameter);
 }

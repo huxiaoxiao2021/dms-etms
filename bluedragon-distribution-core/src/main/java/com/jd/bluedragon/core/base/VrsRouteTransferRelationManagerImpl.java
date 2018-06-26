@@ -2,6 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import java.util.Date;
 
+import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
+import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
+import com.jd.etms.vrs.dto.PageDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,5 +99,10 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             logger.error("查询订单路由时效失败：" + e);
             return null;
         }
+    }
+
+    @Override
+    public PageDto<TransferWaveMonitorResp> getAbnormalTotal(PageDto<TransferWaveMonitorReq> page, TransferWaveMonitorReq parameter) {
+        return null;
     }
 }
