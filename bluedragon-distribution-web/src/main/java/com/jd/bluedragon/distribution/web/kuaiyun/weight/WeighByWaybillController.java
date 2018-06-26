@@ -375,6 +375,14 @@ public class WeighByWaybillController {
             return false;
         }else{
 
+            boolean isValid = this.validateParam(waybillWeightVO);
+            if (!isValid) {
+                //没通过
+                waybillWeightVO.setErrorMessage(InvokeResult.PARAM_ERROR);
+                waybillWeightVO.setErrorCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                return false;
+            }
+
             //校验重泡比
             if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
                 //没通过
