@@ -562,11 +562,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
         task.setKeyword2(domain.getBoxCode());
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        task.setOperateTime(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME));
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
         SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
@@ -609,11 +609,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
         task.setKeyword2(packageCode);
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        task.setOperateTime(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME));
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
         SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
