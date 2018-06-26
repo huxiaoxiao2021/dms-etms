@@ -567,4 +567,9 @@ public class Constants {
      * 龙门架校验调整天数
      */
     public static final Integer GANTRY_CHECK_DAYS= -30;
+
+    /**
+     * 原包发货推迟时间5秒
+     */
+    public static final int DELIVERY_DELAY_TIME = 5000;
 }
