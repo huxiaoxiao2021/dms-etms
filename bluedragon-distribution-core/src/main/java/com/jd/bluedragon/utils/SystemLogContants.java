@@ -15,4 +15,6 @@ public class SystemLogContants {
 
 	public static final long TYPE_SITE_CHANGE_MQ = 13000;//外单中小件预分拣站点变更mq
 
+    public static final long TYPE_SITE_CHANGE_MQ_OF_OTHER = 13001;//打印客户端现场预分拣站点变更mq
+
 }
