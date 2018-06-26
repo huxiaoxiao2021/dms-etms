@@ -288,6 +288,9 @@
     <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
+                  protocol="jsf" alias="${jsf.transferWaveMonitorAPI.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
     <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
