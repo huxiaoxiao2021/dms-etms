@@ -41,7 +41,7 @@ $(function () {
                     curRow = row;
                 },
                 onLoadSuccess: function (aa, bb, cc) {
-                    $("#dataTableInspection a").editable({
+                    $("#dataTableInspection a[name='qcCode']").editable({
                         url: function (params) {
                             var sName = $(this).attr("name");
                             var v_param={};
@@ -138,7 +138,7 @@ $(function () {
             field: 'qcCode',
             title: '异常编码',
             formatter: function (value, row, index) {
-                return "<a href=\"#\" name=\"qcCode\" data-type=\"text\" data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
+                return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
             }
         }, {
             field: 'createUser',
@@ -153,7 +153,7 @@ $(function () {
             field: 'temp',
             title: '提交异常',
             formatter: function (value, row, index) {
-                return "<a href='#' onclick='sumbitQc()'>提交</a>";
+                return "<a href=\"#\" onclick=\"sumbitQc()\">提交</a>";
             }
         }];
         oTableInit.refresh = function () {
@@ -193,7 +193,7 @@ $(function () {
 });
 
 function sumbitQc() {
-    alert("提交异常")
+    window.open("http://qc.jd.com");
 }
 
 function queryinspection(waveBusinessId) {
@@ -201,8 +201,4 @@ function queryinspection(waveBusinessId) {
     $('#inspectionDetail').show();
     $('#waveBusinessIdInspection').val(waveBusinessId);
     $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
-}
-
-function updateQc(value, index) {
-    alert(value)
 }
