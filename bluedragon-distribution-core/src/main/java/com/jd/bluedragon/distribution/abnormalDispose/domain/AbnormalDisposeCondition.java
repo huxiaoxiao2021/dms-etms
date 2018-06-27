@@ -17,6 +17,15 @@ public class AbnormalDisposeCondition  extends BasePagerCondition {
     private Integer cityId;
     private String dmsSiteCode;
     private String waveBusinessId;
+    private String isDispose;//是否提报异常
+
+    public String getIsDispose() {
+        return isDispose;
+    }
+
+    public void setIsDispose(String isDispose) {
+        this.isDispose = isDispose;
+    }
 
     public String getWaveBusinessId() {
         return waveBusinessId;

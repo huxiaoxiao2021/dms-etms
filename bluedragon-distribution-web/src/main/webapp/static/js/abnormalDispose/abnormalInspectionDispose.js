@@ -44,19 +44,21 @@ $(function () {
                     $("#dataTableInspection a[name='qcCode']").editable({
                         url: function (params) {
                             var sName = $(this).attr("name");
-                            var v_param={};
-                            v_param.qcCode= params.value
+                            var v_param = {};
+                            v_param.qcCode = params.value;
+                            v_param.waveBusinessId = curRow.waveBusinessId;
+                            v_param.waybillCode = curRow.waybillCode;
                             jQuery.ajax({
                                 type: "POST",
                                 url: "/abnormalDispose/abnormalDispose/saveQcCode",
                                 contentType: 'application/json',
-                                data:  JSON.stringify(v_param),
+                                data: JSON.stringify(v_param),
                                 async: false,
                                 success: function (response) {
                                     if (response.code == 200) {
                                         curRow[sName] = params.value;
                                     } else {
-                                        alert("保存失败+"+response.message);
+                                        alert("保存失败+" + response.message);
                                     }
                                 },
                                 error: function () {
@@ -66,7 +68,7 @@ $(function () {
                         },
                         type: 'text'
                     });
-                },
+                }
             });
         };
         oTableInit.getSearchParams = function (params) {
@@ -101,61 +103,64 @@ $(function () {
 
         // $('#dataTableInspection').bootstrapTable('destroy');//这里必须要添加这个销毁，否则新增、修改、查看的切换可编辑列表中的数据可能加载出现问题。
 
-        oTableInit.tableColums = [/*{
-         checkbox : false
-         }, */{
-            field: 'sealVehicleDate',
-            title: '解封车时间',
-            formatter: function (value, row, index) {
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
-        }, {
-            field: 'waybillCode',
-            title: '运单'
-        }, {
-            field: 'prevAreaName',
-            title: '上级区域'
-        }, {
-            field: 'prevSiteName',
-            title: '上级站点'
-        }, {
-            field: 'endCityName',
-            title: '目的城市'
-        }, {
-            field: 'endSiteName',
-            title: '目的站点'
-        }, {
-            field: 'isDispose',
-            title: '是否提报异常',
-            formatter: function (value, row, index) {
-                if (row.qcCode) {
-                    return '是';
-                } else {
-                    return '否';
+        oTableInit.tableColums = [
+            {
+                field: 'waveBusinessId',
+                title: 'id',
+                visible: false
+            },{
+                field: 'sealVehicleDate',
+                title: '解封车时间',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateTimeOfTs(value);
                 }
-            }
-        }, {
-            field: 'qcCode',
-            title: '异常编码',
-            formatter: function (value, row, index) {
-                return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
-            }
-        }, {
-            field: 'createUser',
-            title: '异常提交人'
-        }, {
-            field: 'createTime',
-            title: '异常提交时间',
-            formatter: function (value, row, index) {
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
-        }, {
-            field: 'temp',
-            title: '提交异常',
-            formatter: function (value, row, index) {
-                return "<a href=\"#\" onclick=\"sumbitQc()\">提交</a>";
-            }
-        }];
+            }, {
+                field: 'waybillCode',
+                title: '运单'
+            }, {
+                field: 'prevAreaName',
+                title: '上级区域'
+            }, {
+                field: 'prevSiteName',
+                title: '上级站点'
+            }, {
+                field: 'endCityName',
+                title: '目的城市'
+            }, {
+                field: 'endSiteName',
+                title: '目的站点'
+            }, {
+                field: 'isDispose',
+                title: '是否提报异常',
+                formatter: function (value, row, index) {
+                    if (row.qcCode) {
+                        return '是';
+                    } else {
+                        return '否';
+                    }
+                }
+            }, {
+                field: 'qcCode',
+                title: '异常编码',
+                formatter: function (value, row, index) {
+                    return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
+                }
+            }, {
+                field: 'createUser',
+                title: '异常提交人'
+            }, {
+                field: 'createTime',
+                title: '异常提交时间',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
+            }, {
+                field: 'temp',
+                title: '提交异常',
+                formatter: function (value, row, index) {
+                    return "<a href=\"#\" onclick=\"sumbitQc()\">提交</a>";
+                }
+            }];
         oTableInit.refresh = function () {
             $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
         };
@@ -183,6 +188,8 @@ $(function () {
             var v = $("#query-form-inspection #isDisposeInspectionSelect").val();
             if (v == 0 || v == 1) {
                 $("#query-form-inspection #isDisposeInspection").val(v);
+            } else {
+                $("#query-form-inspection #isDisposeInspection").val(null);
             }
         });
     }

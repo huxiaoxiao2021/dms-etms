@@ -74,70 +74,74 @@ $(function () {
         };
 
 
-        oTableInit.tableColums = [/*{
-         checkbox : false
-         }, */{
-            field: 'dateTime',
-            title: '日期',
-            formatter: function (value, row, index) {
-                return $.dateHelper.formateDateOfTs(value);
-            }
-        }, {
-            field: 'areaName',
-            title: '区域'
-        }, {
-            field: 'transferNo',
-            title: '中转班次'
-        }, {
-            field: 'transferStartTime',
-            title: '班次开始时间',
-            formatter: function (value, row, index) {
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
+        oTableInit.tableColums = [
+            {
+                field: 'waveBusinessId',
+                title: 'id',
+                visible: false
+            },
+            {
+                field: 'dateTime',
+                title: '日期',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateOfTs(value);
+                }
+            }, {
+                field: 'areaName',
+                title: '区域'
+            }, {
+                field: 'transferNo',
+                title: '中转班次'
+            }, {
+                field: 'transferStartTime',
+                title: '班次开始时间',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
 
-        }, {
-            field: 'transferEndTime',
-            title: '班次结束时间',
-            formatter: function (value, row, index) {
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
-        }, {
-            field: 'notReceiveNum',
-            title: '未收货数量',
-            formatter: function (value, row, index) {
-                return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
-            }
-        }, {
-            field: 'notReceiveDisposeNum',
-            title: '已处理未收货异常数'
-        }, {
-            field: 'notReceiveProcess',
-            title: '未收货异常处理进度',
-            formatter: function (value, row, index) {
-                return value + '%';
-            }
-        }, {
-            field: 'notSendNum',
-            title: '未发货数量',
-            formatter: function (value, row, index) {
-                return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
-            }
-        }, {
-            field: 'notSendDisposeNum',
-            title: '已处理未发货异常数'
-        }, {
-            field: 'notSendProcess',
-            title: '未发货异常处理进度',
-            formatter: function (value, row, index) {
-                return value + '%';
-            }
-        }, {
-            field: 'totalProcess',
-            title: '总进度',
-            formatter: function (value, row, index) {
-                return value + '%';
-            }
-        }];
+            }, {
+                field: 'transferEndTime',
+                title: '班次结束时间',
+                formatter: function (value, row, index) {
+                    return $.dateHelper.formateDateTimeOfTs(value);
+                }
+            }, {
+                field: 'notReceiveNum',
+                title: '未收货数量',
+                formatter: function (value, row, index) {
+                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
+                }
+            }, {
+                field: 'notReceiveDisposeNum',
+                title: '已处理未收货异常数'
+            }, {
+                field: 'notReceiveProcess',
+                title: '未收货异常处理进度',
+                formatter: function (value, row, index) {
+                    return value + '%';
+                }
+            }, {
+                field: 'notSendNum',
+                title: '未发货数量',
+                formatter: function (value, row, index) {
+                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
+                }
+            }, {
+                field: 'notSendDisposeNum',
+                title: '已处理未发货异常数'
+            }, {
+                field: 'notSendProcess',
+                title: '未发货异常处理进度',
+                formatter: function (value, row, index) {
+                    return value + '%';
+                }
+            }, {
+                field: 'totalProcess',
+                title: '总进度',
+                formatter: function (value, row, index) {
+                    return value + '%';
+                }
+            }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             //$('#dataTable').bootstrapTable('refresh');
@@ -230,7 +234,7 @@ $(function () {
             async: true,
             success: function (data) {
                 var result = [];
-                if(data){
+                if (data) {
                     for (var i in data) {
                         if (data[i].dmsSiteCode && data[i].dmsSiteCode != "") {
                             result.push({id: data[i].dmsSiteCode, text: data[i].siteName});

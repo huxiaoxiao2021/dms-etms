@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
+
 /**
  * @author tangchunqing
  * @Description: 类描述信息
@@ -65,7 +67,14 @@ public class AbnormalDisposeController extends DmsBaseController {
     @RequestMapping(value = "/inspection/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeInspection> inspectionListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
-        PagerResult<AbnormalDisposeInspection> rest = abnormalDisposeService.queryInspection(abnormalDisposeCondition);
+        PagerResult<AbnormalDisposeInspection> rest;
+        if (abnormalDisposeCondition.getWaveBusinessId() == null) {
+            rest = new PagerResult<AbnormalDisposeInspection>();
+            rest.setTotal(0);
+            rest.setRows(new ArrayList<AbnormalDisposeInspection>());
+            return rest;
+        }
+        rest = abnormalDisposeService.queryInspection(abnormalDisposeCondition);
         return rest;
     }
 
@@ -78,7 +87,14 @@ public class AbnormalDisposeController extends DmsBaseController {
     @RequestMapping(value = "/send/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeSend> sendListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
-        PagerResult<AbnormalDisposeSend> rest = abnormalDisposeService.querySend(abnormalDisposeCondition);
+        PagerResult<AbnormalDisposeSend> rest;
+        if (abnormalDisposeCondition.getWaveBusinessId() == null) {
+            rest = new PagerResult<AbnormalDisposeSend>();
+            rest.setTotal(0);
+            rest.setRows(new ArrayList<AbnormalDisposeSend>());
+            return rest;
+        }
+        rest = abnormalDisposeService.querySend(abnormalDisposeCondition);
         return rest;
     }
 
@@ -96,9 +112,9 @@ public class AbnormalDisposeController extends DmsBaseController {
         }
     }
 
-    @RequestMapping(value="/saveQcCode")
+    @RequestMapping(value = "/saveQcCode")
     public @ResponseBody
-    JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection){
+    JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection) {
         JdResponse<String> rest = new JdResponse<String>();
         rest.setData("");
         return rest;
