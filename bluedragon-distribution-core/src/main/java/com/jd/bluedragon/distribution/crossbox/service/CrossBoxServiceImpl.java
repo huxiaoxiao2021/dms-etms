@@ -14,9 +14,7 @@ import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.vrs.dto.CommonDto;
-import com.jd.etms.vrs.dto.RecommendRouteDto;
-import com.jd.etms.vrs.dto.compute.RouteProduct;
+import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -434,16 +432,16 @@ public class CrossBoxServiceImpl implements CrossBoxService {
      * @param transportType
      * @return
      */
-    private RouteProduct getRouteProduct(Integer transportType){
-        if (transportType==null) return null;
-        switch (transportType){
+    private RouteProductEnum getRouteProduct(Integer transportType) {
+        if (transportType == null) return null;
+        switch (transportType) {
             case 1:
-                return RouteProduct.T2;
+                return RouteProductEnum.T2;
             case 2:
             case 3:
-                return RouteProduct.T1;
+                return RouteProductEnum.T1;
             case 4:
-                return RouteProduct.T4;
+                return RouteProductEnum.T4;
             default:
                 return null;
         }
@@ -476,8 +474,8 @@ public class CrossBoxServiceImpl implements CrossBoxService {
      * @return 返回false 后面会走老逻辑，查cross_box
      */
     private boolean getRemoteRouter(CrossBoxResult<String[]> result, Integer originalDmsId, Integer destinationDmsId, Date predictSendTime, Integer transportType) {
-        RouteProduct  routeProduct=getRouteProduct(transportType);
-        if (routeProduct==null){
+        RouteProductEnum routeProduct = getRouteProduct(transportType);
+        if (routeProduct == null) {
             return false;
         }
         BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsId);
