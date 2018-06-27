@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.annotation.BusinessLog;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -71,6 +72,7 @@ public class SortingResource {
 	 */
 	@PUT
 	@Path("/sorting/cancel")
+	@BusinessLog(sourceSys = 1,bizType = 2002)
 	public SortingResponse cancelPackage(SortingRequest request) {
 		this.logger.info("取消分拣参数packageCode is " + request.getPackageCode());
 		if (StringHelper.isEmpty(request.getPackageCode())) {

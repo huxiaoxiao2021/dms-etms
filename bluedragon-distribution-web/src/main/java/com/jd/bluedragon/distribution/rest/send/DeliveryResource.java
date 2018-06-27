@@ -21,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
@@ -29,6 +30,10 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,6 +129,31 @@ public class DeliveryResource implements DmsDeliveryService {
             AbstractMap.Entry<Integer, String> data = new AbstractMap.SimpleEntry<Integer, String>(res.getData().getKey(), res.getData().getValue());
             result.setData(data);
         }
+        try {
+            BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+            businessLogProfiler.setSourceSys(1);
+            businessLogProfiler.setBizType(100);
+            businessLogProfiler.setOperateType(1001);
+            businessLogProfiler.setMethodName("DeliveryResource#packageSend");
+            businessLogProfiler.setUrl("/delivery/packagesend");
+            Map<String, Object> businessLogRequest = new HashedMap<String, Object>();
+            businessLogRequest.put("request", request);
+            businessLogProfiler.setOperateRequest(JSON.toJSONString(businessLogRequest));
+            //暂时不支持这种复杂的，需要自定义一下code和message
+            Map<String, Object> businessLogResponse = new HashedMap<String, Object>();
+            if (null != res.getData()) {
+                businessLogResponse.put("code", res.getData().getKey());
+                businessLogResponse.put("message", res.getData().getValue());
+            } else {
+                businessLogResponse.put("code", res.getCode());
+                businessLogResponse.put("message", res.getMessage());
+            }
+            businessLogProfiler.setOperateResponse(JSON.toJSONString(businessLogResponse));
+            BusinessLogWriter.writeLog(businessLogProfiler);
+        }catch (Exception e){
+            logger.error("写入操作日志失败." + e);
+        }
+
         return result;
     }
 
@@ -235,6 +265,7 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @POST
     @Path("/delivery/cancel")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
         logger.info("取消发货JSON" + JsonHelper.toJsonUseGson(request));
         this.logger.info("开始写入取消发货信息");
@@ -330,6 +361,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1002)
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
         this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
         if (check(request)) {
