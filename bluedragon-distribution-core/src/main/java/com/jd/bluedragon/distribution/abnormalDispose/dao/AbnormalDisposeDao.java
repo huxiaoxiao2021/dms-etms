@@ -13,10 +13,6 @@ import java.util.List;
 public class AbnormalDisposeDao extends BaseDao<AbnormalDisposeCondition> {
     public static final String namespace = AbnormalDisposeDao.class.getName();
 
-    public List<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition){
-        return super.getSqlSession().selectList(namespace + ".queryInspection",abnormalDisposeCondition);
-    }
-
     public Integer saveInspection(AbnormalDisposeRecord abnormalDisposeRecord) {
         return super.getSqlSession().insert(namespace + ".saveInspection",abnormalDisposeRecord);
     }

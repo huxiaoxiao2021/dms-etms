@@ -6,12 +6,8 @@ import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInsp
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeRecord;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
-import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,23 +34,13 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
     private JsfSortingResourceService jsfSortingResourceService;
 
     @Autowired
-    private SiteService siteService;
-
-    @Autowired
     private TransferWaveMonitorAPI transferWaveMonitorAPI;
-
-
-
-    /**
-     * 运单路由字段使用的分隔符
-     */
-    private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
 
     @Override
     public PagerResult<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> pagerResult=new PagerResult<AbnormalDisposeInspection>();
 
-        /*AbnormalDisposeInspection abnormalDisposeInspection=new AbnormalDisposeInspection();
+        AbnormalDisposeInspection abnormalDisposeInspection=new AbnormalDisposeInspection();
         abnormalDisposeInspection.setWaybillCode("12345");
         abnormalDisposeInspection.setCreateUser("tcq");
         abnormalDisposeInspection.setEndCityName("上海");
@@ -62,18 +48,8 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
         pagerResult.setTotal(50);
         List<AbnormalDisposeInspection>  r=new ArrayList<AbnormalDisposeInspection>();
         r.add(abnormalDisposeInspection);
-        pagerResult.setRows(r);*/
+        pagerResult.setRows(r);
 
-        ArrayList<AbnormalDisposeInspection> list =new ArrayList<AbnormalDisposeInspection>();
-        AbnormalDisposeInspection abnormalDisposeInspection =new AbnormalDisposeInspection();
-
-        BaseDto token;
-        PageDto<TransferWaveMonitorReq > page;
-        TransferWaveMonitorReq parameter;
-        transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum();
-
-        pagerResult.setRows(list);
-        pagerResult.setTotal(list.size());
         return pagerResult;
     }
 
