@@ -129,37 +129,13 @@ public class DeliveryResource implements DmsDeliveryService {
             AbstractMap.Entry<Integer, String> data = new AbstractMap.SimpleEntry<Integer, String>(res.getData().getKey(), res.getData().getValue());
             result.setData(data);
         }
-        try {
-            BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
-            businessLogProfiler.setSourceSys(1);
-            businessLogProfiler.setBizType(100);
-            businessLogProfiler.setOperateType(1001);
-            businessLogProfiler.setMethodName("DeliveryResource#packageSend");
-            businessLogProfiler.setUrl("/delivery/packagesend");
-            Map<String, Object> businessLogRequest = new HashedMap<String, Object>();
-            businessLogRequest.put("request", request);
-            businessLogProfiler.setOperateRequest(JSON.toJSONString(businessLogRequest));
-            //暂时不支持这种复杂的，需要自定义一下code和message
-            Map<String, Object> businessLogResponse = new HashedMap<String, Object>();
-            if (null != res.getData()) {
-                businessLogResponse.put("code", res.getData().getKey());
-                businessLogResponse.put("message", res.getData().getValue());
-            } else {
-                businessLogResponse.put("code", res.getCode());
-                businessLogResponse.put("message", res.getMessage());
-            }
-            businessLogProfiler.setOperateResponse(JSON.toJSONString(businessLogResponse));
-            BusinessLogWriter.writeLog(businessLogProfiler);
-        }catch (Exception e){
-            logger.error("写入操作日志失败." + e);
-        }
-
         return result;
     }
 
     @POST
     @Path("/delivery/newpackagesend")
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
