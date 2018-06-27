@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalDisposeDao" >
+
+    <select id="queryInspection" resultMap="abnormalDisposeInspection" parameterType="abnormalDisposeCondition">
+        SELECT
+        id,wave_business_id,waybill_code,create_user_code,
+        create_user_erp,create_user,create_site_code,create_site_name,
+        qc_code,operate_time,create_time,update_time,yn
+        FROM abnormal_qc
+        WHERE wave_business_id=#{waveBusinessId} AND waybil_code=#{wabillCode}
+    </select>
+
+    <select id="findInspection" resultMap="abnormalDisposeRecord" parameterType="abnormalDisposeRecord">
+        SELECT
+        id,wave_business_id,waybill_code,create_user_code,
+        create_user_erp,create_user,create_site_code,create_site_name,
+        qc_code,operate_time,create_time,update_time,yn
+        FROM abnormal_qc
+        WHERE wave_business_id=#{waveBusinessId} AND waybil_code=#{wabillCode}
+    </select>
+
+    <insert id="saveInspection" parameterType="abnormalDisposeRecord">
+        INSERT INTO abnormal_qc (
+          id,wave_business_id,waybill_code,create_user_code,
+          create_user_erp,create_user,create_site_code,create_site_name,
+          qc_code,operate_time,create_time,yn
+        )VALUES(
+          #{id,jdbcType=BIGINT},#{waveBusinessId,jdbcType=VARCHAR},#{waybillCode,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},
+          #{createUserErp,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},#{createSiteCode,jdbcType=INTEGER},#{createSiteName,jdbcType=VARCHAR},
+          #{qcCode,jdbcType=VARCHAR},NOW(),NOW(),1
+        )
+    </insert>
+
+    <update id="updateInspection" parameterType="abnormalDisposeRecord">
+        UPDATE abnormal_qc
+        SET
+          qc_code=#{qcCode,jdbcType=VARCHAR},
+          update_time=NOW()
+        WHERE wave_business_id=#{id,jdbcType=INTEGER} AND waybill_code=#{waybillCode,jdbcType=VARCHAR}
+    </update>
+
+</mapper>

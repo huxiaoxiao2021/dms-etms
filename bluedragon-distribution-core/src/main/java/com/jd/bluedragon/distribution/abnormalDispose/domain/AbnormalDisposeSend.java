@@ -8,6 +8,7 @@ import java.util.Date;
  * @date 2018年06月19日 11时:35分
  */
 public class AbnormalDisposeSend {
+    private String waveBusinessId;
     private Date inspectionDate;//验货时间
     private String inspectionSiteCode;//验货分拣中心
     private String inspectionSiteName;//验货分拣中心
@@ -61,6 +62,14 @@ public class AbnormalDisposeSend {
      * 更新时间
      */
     Date updateTime;
+
+    public String getWaveBusinessId() {
+        return waveBusinessId;
+    }
+
+    public void setWaveBusinessId(String waveBusinessId) {
+        this.waveBusinessId = waveBusinessId;
+    }
 
     public Date getCreateTime() {
         return createTime;

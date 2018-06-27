@@ -19,9 +19,11 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,6 +57,10 @@ public class DmsStorageAreaController {
 
 	@Autowired
 	private SiteService siteService;
+
+    @Autowired
+    @Qualifier("basicPrimaryWS")
+    private BasicPrimaryWS basicPrimaryWS;
 
 
 
@@ -178,16 +184,26 @@ public class DmsStorageAreaController {
 	@RequestMapping("/getSiteListByKey")
 	public Object getSiteList(Integer areaId, Integer provinceId, Integer cityId){
 		List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
-
-		if(cityId != null && cityId != -1){
-			allDms.addAll(siteService.getDmsListByCity(cityId));
-		}else if(provinceId != null && provinceId != -1){
-			allDms.addAll(siteService.getDmsListByProvince(provinceId));
-		}else if (areaId !=null&& areaId !=-1){
-			allDms.addAll(siteService.getDmsListByAreaId(areaId));
-		}else{
-			allDms.addAll(siteService.getAllDmsSite());
-		}
+        ErpUserClient.ErpUser erpUser = null;
+        try{
+            erpUser = ErpUserClient.getCurrUser();
+            BaseStaffSiteOrgDto dto  =basicPrimaryWS.getBaseStaffByStaffId(erpUser.getUserId());
+            if(dto.getSiteType() == 64){
+                allDms.add(dto);
+            }else{
+                if(cityId != null && cityId != -1){
+                    allDms.addAll(siteService.getDmsListByCity(cityId));
+                }else if(provinceId != null && provinceId != -1){
+                    allDms.addAll(siteService.getDmsListByProvince(provinceId));
+                }else if (areaId !=null&& areaId !=-1){
+                    allDms.addAll(siteService.getDmsListByAreaId(areaId));
+                }else{
+                    allDms.addAll(siteService.getAllDmsSite());
+                }
+            }
+        }catch(Exception e){
+            this.logger.error("通过登陆员工编号" + erpUser.getUserId() + "调用基础资料获得员工信息失败");
+        }
 		return allDms;
 	}
 	/**

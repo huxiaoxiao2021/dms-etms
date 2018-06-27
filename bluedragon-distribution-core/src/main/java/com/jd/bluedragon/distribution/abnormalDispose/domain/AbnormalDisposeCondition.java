@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.abnormalDispose.domain;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 import java.util.Date;
 

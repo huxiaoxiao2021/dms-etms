@@ -1,12 +1,16 @@
 package com.jd.bluedragon.distribution.abnormalDispose;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
+import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeRecord;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
@@ -21,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 
+import java.util.Date;
+
 /**
  * @author tangchunqing
  * @Description: 类描述信息
@@ -34,6 +40,9 @@ public class AbnormalDisposeController extends DmsBaseController {
 
     @Autowired
     AbnormalDisposeService abnormalDisposeService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     /**
      * 返回主页面
@@ -116,7 +125,30 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection) {
         JdResponse<String> rest = new JdResponse<String>();
-        rest.setData("");
+        Date date =new Date();
+        //获取操作人信息封装数据
+        LoginContext loginContext = LoginContext.getLoginContext();
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+        AbnormalDisposeRecord abnormalDisposeRecord =new AbnormalDisposeRecord();
+        abnormalDisposeRecord.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
+        abnormalDisposeRecord.setWaybillCode(abnormalDisposeInspection.getWaybillCode());
+        abnormalDisposeRecord.setCreateUserCode(userDto.getStaffNo());
+        abnormalDisposeRecord.setCreateUser(userDto.getAccountNumber());
+        abnormalDisposeRecord.setCreateUser(userDto.getStaffName());
+        abnormalDisposeRecord.setCreateSiteCode(userDto.getSiteCode());
+        abnormalDisposeRecord.setCreateSiteName(userDto.getSiteName());
+        abnormalDisposeRecord.setQcCode(abnormalDisposeInspection.getQcCode());
+        abnormalDisposeRecord.setOperateTime(date);
+        abnormalDisposeRecord.setCreateTime(date);
+
+        Integer integer = abnormalDisposeService.saveInspection(abnormalDisposeRecord);
+        if(integer > -1) {
+            rest.setCode(JdResponse.CODE_SUCCESS);
+            rest.setData(abnormalDisposeInspection.getQcCode());
+        }
+        else{
+            rest.setCode(JdResponse.CODE_FAIL);
+        }
         return rest;
     }
 
