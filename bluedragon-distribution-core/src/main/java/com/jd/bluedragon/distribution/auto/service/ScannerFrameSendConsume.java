@@ -96,8 +96,8 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         domain.setCreateUserCode(config.getOperateUserId());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + 30000));
-        domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + 30000));
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + Constants.DELIVERY_DELAY_TIME));
         SendResult result = deliveryService.atuoPackageSend(domain, isSortingSend,uploadData.getPackageCode());
         return result.getKey().equals(SendResult.CODE_OK);
     }

@@ -755,7 +755,7 @@ public class SortingServiceImpl implements SortingService {
 		// added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
-		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
+		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
 		this.fillSendDetailIfPickup(sendDetail);
 		/* 补齐包裹重量 */
 		// String retrieveFlag =
