@@ -11,8 +11,12 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.external.service.DmsWaybillService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
+import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
+import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
@@ -27,6 +31,8 @@ import com.jd.etms.waybill.dto.*;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -66,7 +72,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class WaybillResource {
+public class WaybillResource implements DmsWaybillService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -119,6 +125,9 @@ public class WaybillResource {
 
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
+
+	@Autowired
+	private WaybillSafService waybillSafService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1135,6 +1144,13 @@ public class WaybillResource {
 		invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		invokeResult.setData(result);
 		return invokeResult;
+	}
+
+	@POST
+	@Path("/waybill/post/cancel")
+	@Override
+	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
+		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
 
 }
