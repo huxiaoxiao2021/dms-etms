@@ -4,7 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeRecord;
+import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -129,19 +129,19 @@ public class AbnormalDisposeController extends DmsBaseController {
         //获取操作人信息封装数据
         LoginContext loginContext = LoginContext.getLoginContext();
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-        AbnormalDisposeRecord abnormalDisposeRecord =new AbnormalDisposeRecord();
-        abnormalDisposeRecord.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
-        abnormalDisposeRecord.setWaybillCode(abnormalDisposeInspection.getWaybillCode());
-        abnormalDisposeRecord.setCreateUserCode(userDto.getStaffNo());
-        abnormalDisposeRecord.setCreateUser(userDto.getAccountNumber());
-        abnormalDisposeRecord.setCreateUser(userDto.getStaffName());
-        abnormalDisposeRecord.setCreateSiteCode(userDto.getSiteCode());
-        abnormalDisposeRecord.setCreateSiteName(userDto.getSiteName());
-        abnormalDisposeRecord.setQcCode(abnormalDisposeInspection.getQcCode());
-        abnormalDisposeRecord.setOperateTime(date);
-        abnormalDisposeRecord.setCreateTime(date);
+        AbnormalQc abnormalQc =new AbnormalQc();
+        abnormalQc.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
+        abnormalQc.setWaybillCode(abnormalDisposeInspection.getWaybillCode());
+        abnormalQc.setCreateUserCode(userDto.getStaffNo());
+        abnormalQc.setCreateUser(userDto.getAccountNumber());
+        abnormalQc.setCreateUser(userDto.getStaffName());
+        abnormalQc.setCreateSiteCode(userDto.getSiteCode());
+        abnormalQc.setCreateSiteName(userDto.getSiteName());
+        abnormalQc.setQcCode(abnormalDisposeInspection.getQcCode());
+        abnormalQc.setOperateTime(date);
+        abnormalQc.setCreateTime(date);
 
-        Integer integer = abnormalDisposeService.saveInspection(abnormalDisposeRecord);
+        Integer integer = abnormalDisposeService.saveInspection(abnormalQc);
         if(integer > -1) {
             rest.setCode(JdResponse.CODE_SUCCESS);
             rest.setData(abnormalDisposeInspection.getQcCode());
