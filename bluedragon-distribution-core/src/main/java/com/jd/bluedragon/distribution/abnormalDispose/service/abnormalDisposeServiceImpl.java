@@ -51,15 +51,12 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
     @Autowired
     private SiteService siteService;
 
+    @Autowired
+    private AbnormalOrderDao abnormalOrderDao;
     /**
      * 运单路由字段使用的分隔符
      */
     private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
-    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
-
-    @Autowired
-    private AbnormalOrderDao abnormalOrderDao;
-
     @Override
     public PagerResult<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> pagerResult=new PagerResult<AbnormalDisposeInspection>();
@@ -207,7 +204,6 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
         abnormalDisposeMain.setTransferStartTime(new Date());
         abnormalDisposeMain.setTransferEndTime(new Date());
         abnormalDisposeMain.setTotalProcess(30);
-        PagerResult<AbnormalDisposeMain> pagerResult=new PagerResult<AbnormalDisposeMain>();
         pagerResult.setTotal(50);
         List<AbnormalDisposeMain>  r=new ArrayList<AbnormalDisposeMain>();
         r.add(abnormalDisposeMain);

@@ -53,7 +53,7 @@
 	FROM abnormal_order
 	WHERE order_id = #{orderId}  LIMIT 1
 </select>
-	<select id="getByorderIds" resultMap="abnormalOrder" parameterType="java.util.List">
+	<select id="getByWaveIds" resultMap="abnormalOrder" parameterType="java.util.List">
 		SELECT
 		system_id,fingerprint,order_id,
 		abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
