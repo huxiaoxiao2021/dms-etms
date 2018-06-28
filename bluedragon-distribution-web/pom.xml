@@ -348,6 +348,14 @@
 			<artifactId>spring-configsec-sdk</artifactId>
 			<version>1.0.2.RELEASE</version>
 		</dependency>
+
+		<!--操作日志系统-->
+		<dependency>
+			<groupId>com.jd.ql.dms.opLog</groupId>
+			<artifactId>opLog-agent</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

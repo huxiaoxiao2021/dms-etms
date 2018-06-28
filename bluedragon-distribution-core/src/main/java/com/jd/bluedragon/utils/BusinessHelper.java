@@ -77,6 +77,22 @@ public class BusinessHelper {
     }
 
 	/**
+	 * 根据包裹获得当前所属包裹数
+	 *
+	 * @param packageBarcode
+	 * @return
+	 */
+	public static int getCurrentPackageNum(String packageBarcode){
+		int num = 1;
+		if(packageBarcode.indexOf("N")>0 && packageBarcode.indexOf("S")>0){
+			num = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("N")+1, packageBarcode.indexOf("S")));
+		}else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
+			num = Integer.valueOf(packageBarcode.split("-")[1]);
+		}
+		return num;
+	}
+
+	/**
 	 * 从包裹号码提取运单号码.
 	 *
 	 * @param s
