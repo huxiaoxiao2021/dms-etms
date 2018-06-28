@@ -75,7 +75,7 @@ $(function () {
             checkbox: true
         }, {
             field: 'inspectionDate',
-            title: '解封车时间',
+            title: '验货时间',
             formatter: function (value, row, index) {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }

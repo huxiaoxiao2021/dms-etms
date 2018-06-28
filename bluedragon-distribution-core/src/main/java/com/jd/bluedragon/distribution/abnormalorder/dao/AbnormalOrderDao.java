@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.abnormalorder.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 
+import java.util.List;
+
 public class AbnormalOrderDao  extends BaseDao<AbnormalOrder>{
 	 public static final String namespace = AbnormalOrderDao.class.getName();
 	 
@@ -21,5 +23,8 @@ public class AbnormalOrderDao  extends BaseDao<AbnormalOrder>{
 	 public AbnormalOrder query(String orderId){
 		 return (AbnormalOrder)super.getSqlSession().selectOne(namespace + ".get" , orderId);
 	 }
-	 
+	 public List<AbnormalOrder> queryByorderIds(List<String> orderIds){
+		 return super.getSqlSession().selectList(namespace + ".getByorderIds" , orderIds);
+	 }
+
 }

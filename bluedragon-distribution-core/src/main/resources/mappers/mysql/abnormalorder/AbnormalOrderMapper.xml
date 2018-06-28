@@ -44,14 +44,28 @@
 	</insert>
 
 	<select id="get" resultMap="abnormalOrder" parameterType="java.lang.String">
+	SELECT
+	system_id,fingerprint,order_id,
+	abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
+	create_user_code,create_user_erp,create_user,
+	operate_time,create_time,update_time,
+	create_site_code,create_site_name,is_cancel,memo,yn
+	FROM abnormal_order
+	WHERE order_id = #{orderId}  LIMIT 1
+</select>
+	<select id="getByorderIds" resultMap="abnormalOrder" parameterType="java.util.List">
 		SELECT
-			system_id,fingerprint,order_id,
-			abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
-			create_user_code,create_user_erp,create_user,
-			operate_time,create_time,update_time,
-			create_site_code,create_site_name,is_cancel,memo,yn
+		system_id,fingerprint,order_id,
+		abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
+		create_user_code,create_user_erp,create_user,
+		operate_time,create_time,update_time,
+		create_site_code,create_site_name,is_cancel,memo,yn
 		FROM abnormal_order
-		WHERE order_id = #{orderId}  LIMIT 1
+		WHERE order_id IN
+		<foreach item="item" index="index" collection="list"
+				 open="(" separator="," close=")">
+			#{item}
+		</foreach>
 	</select>
 
 	<update id="update" parameterType="abnormalOrder" >
