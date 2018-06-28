@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.abnormalDispose.service;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeRecord;
+import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -20,7 +20,7 @@ public interface AbnormalDisposeService {
 
     public PagerResult<AbnormalDisposeSend> querySend(AbnormalDisposeCondition abnormalDisposeCondition);
 
-    Integer saveInspection(AbnormalDisposeRecord abnormalDisposeRecord);
+    Integer saveInspection(AbnormalQc abnormalQc);
 
-    Integer updateInspection(AbnormalDisposeRecord abnormalDisposeRecord);
+    Integer updateInspection(AbnormalQc abnormalQc);
 }

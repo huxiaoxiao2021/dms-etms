@@ -1,27 +1,31 @@
 package com.jd.bluedragon.distribution.abnormalDispose.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeRecord;
+import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 /**
  * Created by hujiping on 2018/6/26.
  */
-public class AbnormalDisposeDao extends BaseDao<AbnormalDisposeCondition> {
+public class AbnormalDisposeDao extends BaseDao<AbnormalQc> {
     public static final String namespace = AbnormalDisposeDao.class.getName();
 
-    public Integer saveInspection(AbnormalDisposeRecord abnormalDisposeRecord) {
-        return super.getSqlSession().insert(namespace + ".saveInspection",abnormalDisposeRecord);
+    public Integer saveInspection(AbnormalQc abnormalQc) {
+        return super.getSqlSession().insert(namespace + ".saveInspection", abnormalQc);
     }
 
-    public Integer updateInspection(AbnormalDisposeRecord abnormalDisposeRecord){
-        return super.getSqlSession().update(namespace + ".updateInspection",abnormalDisposeRecord);
+    public Integer updateInspection(AbnormalQc abnormalQc){
+        return super.getSqlSession().update(namespace + ".updateInspection", abnormalQc);
     }
 
-    public AbnormalDisposeRecord findInspection(AbnormalDisposeRecord abnormalDisposeRecord) {
-        return super.getSqlSession().selectOne(namespace + ".findInspection",abnormalDisposeRecord);
+    public AbnormalQc findInspection(AbnormalQc abnormalQc) {
+        return super.getSqlSession().selectOne(namespace + ".findInspection", abnormalQc);
+    }
+
+    public List<AbnormalQc> queryQcCodes(ArrayList<String> waybillCodeList) {
+        return super.getSqlSession().selectList(namespace+ ".queryQcCodes",waybillCodeList);
     }
 }

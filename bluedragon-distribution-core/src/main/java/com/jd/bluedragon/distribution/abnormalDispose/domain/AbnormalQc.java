@@ -6,7 +6,7 @@ import java.util.Date;
  * Created by hujiping on 2018/6/27.
  * 质控工单记录表
  */
-public class AbnormalDisposeRecord {
+public class AbnormalQc {
 
     private Integer id;
     private String waveBusinessId;
