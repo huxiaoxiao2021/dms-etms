@@ -1098,7 +1098,19 @@ public class SortingServiceImpl implements SortingService {
 	    return sortingDao.findByPackageCode(sorting);
     }
 
-	public static void main(String args[]){
+    @Override
+    public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode) {
+	    if(StringUtils.isNotEmpty(waybillCode) || StringUtils.isNotEmpty(packageCode)){
+	        Sorting sorting = new Sorting();
+	        sorting.setCreateSiteCode(createSiteCode);
+	        sorting.setPackageCode(packageCode);
+	        sorting.setWaybillCode(waybillCode);
+	        return sortingDao.findByWaybillCodeOrPackageCode(sorting);
+        }
+        return null;
+    }
+
+    public static void main(String args[]){
 //		SortingServiceImpl impl = new SortingServiceImpl();
 //		Sorting sorting = new Sorting();
 //		sorting.setWaybillCode("T42747129215");
