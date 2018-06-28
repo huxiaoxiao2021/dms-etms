@@ -180,6 +180,7 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @GET
     @Path("/delivery/checksendcodestatus/{sendCode}")
+    @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(@PathParam("sendCode") String sendCode) {
         InvokeResult<AbstractMap.Entry<Integer, String>> result = new InvokeResult<AbstractMap.Entry<Integer, String>>();
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
@@ -205,24 +206,6 @@ public class DeliveryResource implements DmsDeliveryService {
             }
         }
         return result;
-    }
-
-    /**
-     * 校验并获取批次号信息，由于物流网关不支持返回参数非JSON格式，故通过该方法转换类型
-     *
-     * @param sendCode
-     * @return
-     */
-    @Override
-    public InvokeResult<AbstractMap.Entry<String, String>> checkSendCodeStatus2JSF(String sendCode) {
-        InvokeResult<AbstractMap.Entry<Integer, String>> invokeResult = this.checkSendCodeStatus(sendCode);
-        InvokeResult<AbstractMap.Entry<String, String>> jsfInvokeResult = new InvokeResult<AbstractMap.Entry<String, String>>();
-        AbstractMap.Entry<Integer, String> data = invokeResult.getData();
-        AbstractMap.Entry<String, String> finalData = new AbstractMap.SimpleEntry<String, String>(String.valueOf(data.getKey()), data.getValue());
-        jsfInvokeResult.setCode(invokeResult.getCode());
-        jsfInvokeResult.setMessage(invokeResult.getMessage());
-        jsfInvokeResult.setData(finalData);
-        return jsfInvokeResult;
     }
 
     /**

@@ -24,7 +24,7 @@ public interface DmsDeliveryService {
      * @param sendCode
      * @return
      */
-    InvokeResult<AbstractMap.Entry<String, String>> checkSendCodeStatus2JSF(String sendCode);
+    InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode);
 
     /**
      * 发货，根据批次号和所扫描的箱子或包裹或板号，进行发货
