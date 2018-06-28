@@ -226,12 +226,14 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
         }
         //查询路由信息并封装
         Map<String, String> routerByWaybillCodes = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
-        for(String waybillCode : routerByWaybillCodes.keySet()){
-            String router = routerByWaybillCodes.get(waybillCode);
+        //查异常 FIXME
+
+        for( TransferWaveMonitorDetailResp transferWaveMonitorDetailResp:noSendDetail.getResult()){
+            AbnormalDisposeSend abnormalDisposeSend = new AbnormalDisposeSend();
+            String router =routerByWaybillCodes.get(abnormalDisposeSend.getWaybillCode());
             String[] routers = router.split(WAYBILL_ROUTER_SPLITER);
             BaseStaffSiteOrgDto nextDto = null;
             BaseStaffSiteOrgDto endDto = null;
-            AbnormalDisposeSend abnormalDisposeSend = new AbnormalDisposeSend();
             if(routers != null && routers.length > 0){
                 for(int i = 0; i < routers.length-1; i++){
                     if(abnormalDisposeCondition.getDmsSiteCode() == routers[i]){
@@ -243,7 +245,7 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
                 }
             }
             //运单号
-            abnormalDisposeSend.setWaybillCode(waybillCode);
+            abnormalDisposeSend.setWaybillCode(abnormalDisposeSend.getWaybillCode());
             //上级站点、区域
             abnormalDisposeSend.setNextSiteCode(nextDto.getSiteCode().toString());
             abnormalDisposeSend.setNextSiteName(nextDto.getSiteName());
@@ -254,9 +256,14 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService{
             abnormalDisposeSend.setEndSiteName(endDto.getSiteName());
             abnormalDisposeSend.setEndCityId(endDto.getCityId());
             abnormalDisposeSend.setEndCityName(endDto.getCityName());
+
+            //加异常信息 FIXME
+
             list.add(abnormalDisposeSend);
+
         }
-        //查询inspection获得验货时间
+
+
 
 
         pagerResult.setRows(list);
