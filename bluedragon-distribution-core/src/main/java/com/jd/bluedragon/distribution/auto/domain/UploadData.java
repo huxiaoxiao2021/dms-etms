@@ -87,6 +87,11 @@ public class UploadData implements Serializable {
 //    private String distributeName;
 
     /**
+     * 分拣目的地编号【可选，来源为自动分拣机时必填】
+     */
+    private Integer boxSiteCode;
+
+    /**
      * 发货目的地编号【可选，来源为自动分拣机时必填】
      */
     private Integer sendSiteCode;
@@ -209,6 +214,15 @@ public class UploadData implements Serializable {
 //    public void setDistributeName(String distributeName) {
 //        this.distributeName = distributeName;
 //    }
+
+
+    public Integer getBoxSiteCode() {
+        return boxSiteCode;
+    }
+
+    public void setBoxSiteCode(Integer boxSiteCode) {
+        this.boxSiteCode = boxSiteCode;
+    }
 
     public Integer getSendSiteCode() {
         return sendSiteCode;
