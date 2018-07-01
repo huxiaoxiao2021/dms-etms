@@ -28,4 +28,13 @@ public class AbnormalDisposeDao extends BaseDao<AbnormalQc> {
     public List<AbnormalQc> queryQcCodes(ArrayList<String> waybillCodeList) {
         return super.getSqlSession().selectList(namespace+ ".queryQcCodes",waybillCodeList);
     }
+
+    /**
+     * 按版次号 统计
+     * @param waveIds
+     * @return
+     */
+    public List<AbnormalQc> getByWaveIds(List<String> waveIds) {
+        return super.getSqlSession().selectList(namespace+ ".getByWaveIds",waveIds);
+    }
 }

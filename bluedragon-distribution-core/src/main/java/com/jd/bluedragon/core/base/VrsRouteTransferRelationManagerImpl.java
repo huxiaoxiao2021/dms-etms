@@ -13,8 +13,10 @@ import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
+import com.jd.etms.api.waybill.VrsWaybillQueryAPI;
 import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.sdk.util.PerformanceTimeUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
@@ -23,6 +25,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 路由系统的jsf接口，查询路由信息
@@ -48,6 +52,12 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
 
     @Autowired
     private TransferWaveMonitorAPI transferWaveMonitorAPI;
+
+    @Autowired
+    private VrsWaybillQueryAPI vrsWaybillQueryAPI;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
@@ -198,6 +208,47 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             }
         } catch (Exception e) {
             logger.error("批次清零异常未验明细统计失败：" + e);
+            return null;
+        }
+    }
+
+    /**
+     * 根据运单号、网点编码获取班次信息
+     *
+     * @param waybillCode
+     * @param nodeCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getArrivedButNoCheckDetail  ", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public String queryWaveInfoByWaybillCodeAndNodeCode(String waybillCode, Integer nodeCode) {
+
+        //站点区域查出来
+        BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(nodeCode);
+        if (org==null){
+            return null;
+        }
+        BaseDto baseDto = new BaseDto();
+        baseDto.setToken(vrsRouteTransferRelationApiToken);
+        try {
+            CommonDto<Map<String, List<String>>> commonDto = vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode(baseDto, waybillCode, org.getDmsSiteCode());
+            if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
+                logger.warn("查询班次失败,参数列表：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
+                logger.warn("查询班次失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                return null;
+            } else {
+                logger.debug("查询班次失败成功：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
+                Map<String, List<String>> map = commonDto.getData();
+                List<String> list = map.get("realWaves");//planWaves，realWaves
+                if (list != null && list.size() > 0) {
+                    return list.get(list.size() - 1);//取最后一个
+                } else {
+                    logger.warn("查询班次为空,参数列表：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
+                    return null;
+                }
+            }
+        } catch (Exception e) {
+            logger.error("查询班次失败" + e);
             return null;
         }
     }

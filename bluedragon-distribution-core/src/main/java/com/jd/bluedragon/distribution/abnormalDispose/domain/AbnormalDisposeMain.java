@@ -24,10 +24,10 @@ public class AbnormalDisposeMain {
     private Integer NotReceiveDisposeNum;//已处理未收货异常数
     private Integer NotSendDisposeNum;//已处理未发货异常数
 
-    private Integer NotReceiveProcess;// 未收货异常处理进度
-    private Integer NotSendProcess;//未发货异常处理进度
+    private String NotReceiveProgress;// 未收货异常处理进度
+    private String NotSendProgress;//未发货异常处理进度
 
-    private Integer totalProcess;//总进度
+    private String totalProgress;//总进度
 
 
     public String getWaveBusinessId() {
@@ -134,27 +134,27 @@ public class AbnormalDisposeMain {
         NotSendDisposeNum = notSendDisposeNum;
     }
 
-    public Integer getNotReceiveProcess() {
-        return NotReceiveProcess;
+    public String getNotReceiveProgress() {
+        return NotReceiveProgress;
     }
 
-    public void setNotReceiveProcess(Integer notReceiveProcess) {
-        NotReceiveProcess = notReceiveProcess;
+    public void setNotReceiveProgress(String notReceiveProgress) {
+        NotReceiveProgress = notReceiveProgress;
     }
 
-    public Integer getNotSendProcess() {
-        return NotSendProcess;
+    public String getNotSendProgress() {
+        return NotSendProgress;
     }
 
-    public void setNotSendProcess(Integer notSendProcess) {
-        NotSendProcess = notSendProcess;
+    public void setNotSendProgress(String notSendProgress) {
+        NotSendProgress = notSendProgress;
     }
 
-    public Integer getTotalProcess() {
-        return totalProcess;
+    public String getTotalProgress() {
+        return totalProgress;
     }
 
-    public void setTotalProcess(Integer totalProcess) {
-        this.totalProcess = totalProcess;
+    public void setTotalProgress(String totalProgress) {
+        this.totalProgress = totalProgress;
     }
 }

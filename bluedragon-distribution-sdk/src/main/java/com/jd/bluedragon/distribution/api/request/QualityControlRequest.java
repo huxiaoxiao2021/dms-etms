@@ -23,6 +23,7 @@ public class QualityControlRequest implements Serializable{
     private String qcName;          // 质控异常名称
     private boolean isSortingReturn; //是否生成分拣退货数据
     private String trackContent;     // 发送全程跟踪内容
+    private String waveBusinessId;//版次号，路由系统的字段
 
     public Integer getUserID() {
         return userID;
@@ -118,5 +119,13 @@ public class QualityControlRequest implements Serializable{
 
     public void setTrackContent(String trackContent) {
         this.trackContent = trackContent;
+    }
+
+    public String getWaveBusinessId() {
+        return waveBusinessId;
+    }
+
+    public void setWaveBusinessId(String waveBusinessId) {
+        this.waveBusinessId = waveBusinessId;
     }
 }

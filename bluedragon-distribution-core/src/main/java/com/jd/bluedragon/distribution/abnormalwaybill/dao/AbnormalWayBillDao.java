@@ -44,4 +44,7 @@ public class AbnormalWayBillDao extends BaseDao<AbnormalWayBill> {
         parameter.put("siteCode", siteCode);
         return super.getSqlSession().selectOne(namespace + ".get" , parameter);
     }
+    public List<AbnormalWayBill> queryByWaveIds(List<String> waveIds){
+        return super.getSqlSession().selectList(namespace + ".getByWaveIds" , waveIds);
+    }
 }

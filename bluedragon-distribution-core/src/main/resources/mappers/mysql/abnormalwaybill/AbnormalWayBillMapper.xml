@@ -21,6 +21,7 @@
 		<result column="UPDATE_TIME" property="updateTime" jdbcType="TIMESTAMP"/>
 		<result column="YN" property="yn" jdbcType="TINYINT" />
 		<result column="ts" property="ts" jdbcType="TIMESTAMP"/>
+		<result column="wave_Business_Id" property="waveBusinessId" jdbcType="VARCHAR"/>
 	</resultMap>
 
 	<sql id="Base_Column_List">
@@ -42,6 +43,7 @@
 			UPDATE_TIME,
 			YN,
 			ts,
+			wave_Business_Id
 		</trim>
 	</sql>
 
@@ -68,6 +70,7 @@
             now(),
 			1,
             now(),
+			#{waveBusinessId,jdbcType=VARCHAR}
 		</trim>
 	</insert>
 
@@ -94,7 +97,8 @@
             now(),
             now(),
             1,
-            now()
+            now(),
+			#{abnormalWayBill.waveBusinessId,jdbcType=VARCHAR}
             )
         </foreach>
     </insert>
@@ -107,5 +111,15 @@
 		WHERE yn=1 AND create_site_code = #{siteCode, jdbcType=INTEGER}
 		AND waybill_code = #{wayBillCode, jdbcType=VARCHAR}  LIMIT 1
 	</select>
-
+	<select id="getByWaveIds" resultMap="abnormalWayBill" parameterType="java.util.List">
+		SELECT
+		count( DISTINCT WAYBILL_CODE) as QC_CODE,wave_Business_Id
+		FROM abnormalWayBill
+		WHERE yn=1 and  WAYBILL_CODE is not null  and wave_Business_Id IN
+		<foreach item="item" index="index" collection="list"
+				 open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		group by wave_Business_Id
+	</select>
 </mapper>	

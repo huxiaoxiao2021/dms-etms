@@ -233,6 +233,7 @@ $(function () {
 
         var v_url;
         var params={};
+        params.waveBusinessId= $('#waveBusinessIdSend').val();
         if(type==1){//发外呼
             v_url=pushAbnormalOrderUrl;
             params.orderId=waybillcodes;

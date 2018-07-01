@@ -94,6 +94,8 @@ public class AbnormalOrder {
 	 *  全程跟踪显示内容
 	 * */
 	String trackContent;
+
+	String waveBusinessId;//版次号，路由系统的字段
 	
 	public AbnormalOrder(){
 		
@@ -113,7 +115,15 @@ public class AbnormalOrder {
 		this.createSiteName = request.getSiteName();
 		this.trackContent = request.getTrackContent();
 	}
-	
+
+	public String getWaveBusinessId() {
+		return waveBusinessId;
+	}
+
+	public void setWaveBusinessId(String waveBusinessId) {
+		this.waveBusinessId = waveBusinessId;
+	}
+
 	public Long getSystemId() {
 		return systemId;
 	}

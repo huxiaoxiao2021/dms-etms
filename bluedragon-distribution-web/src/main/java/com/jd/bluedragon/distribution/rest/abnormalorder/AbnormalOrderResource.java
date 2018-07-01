@@ -163,7 +163,6 @@ public class AbnormalOrderResource {
 		response.setCode(JdResponse.CODE_OK);
 		String waybillCodes=request.getOrderId();
 		String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
-		Boolean hasError=false;
 		//获取操作人信息
 		LoginContext loginContext = LoginContext.getLoginContext();
 		BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
@@ -180,7 +179,7 @@ public class AbnormalOrderResource {
 			request.setOrderId(waybillCode);
 			AbnormalOrderResponse responseOne=pushAbnormalOrder(request);
 			if(responseOne.getCode()!=JdResponse.CODE_OK){
-				hasError=true;
+				//如果有失败的
 				response.setCode(responseOne.getCode());
 				response.setMessage(response.getMessage()+","+waybillCode+":"+responseOne.getMessage());
 			}

@@ -60,4 +60,16 @@
         WHERE wave_business_id=#{id,jdbcType=INTEGER} AND waybill_code=#{waybillCode,jdbcType=VARCHAR}
     </update>
 
+    <select id="getByWaveIds" resultMap="abnormalQc" parameterType="java.util.List">
+        SELECT
+        count( DISTINCT WAYBILL_CODE) as QC_CODE,wave_Business_Id
+        FROM abnormal_qc
+        WHERE yn=1 and wave_Business_Id IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        group by wave_Business_Id
+    </select>
+
 </mapper>

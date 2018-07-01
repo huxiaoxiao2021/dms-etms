@@ -61,4 +61,13 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     PageDto<TransferWaveMonitorDetailResp> getArrivedButNoCheckDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId);
+
+    /**
+     * 批次清零 未验货明细
+     *
+     * @param waybillCode
+     * @param nodeCode
+     * @return
+     */
+    public String queryWaveInfoByWaybillCodeAndNodeCode(String waybillCode, Integer nodeCode);
 }
