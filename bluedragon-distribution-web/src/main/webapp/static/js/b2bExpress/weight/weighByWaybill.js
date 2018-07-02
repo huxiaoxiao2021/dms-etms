@@ -28,6 +28,9 @@
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
 
+    var CBM_DIV_KG_CODE = 10001; //批量导入 重泡比 校验失败码值
+
+    var allForcedToSubmit = 0; // 批量强制提交。 0 代表否 1代表是
 /**************************************************************************************/
 /*公共方法*/
 /**************************************************************************************/
@@ -300,7 +303,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 });
 
                 $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
-                $.messager.alert('运单录入结果','运单称重量方记录已录入成功！','info');
+                if(allForcedToSubmit == 0){
+                    $.messager.alert('运单录入结果','运单称重量方记录已录入成功！','info');
+                }
                 $('#waybill-weight-btn').linkbutton('enable');
 
                 /*为方便输入 清空输入内容*/
@@ -345,7 +350,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             else
             {
                 /*录入成功*/
-                $.messager.alert('运单录入结果','运单相关信息不存在，已转为离线录入','info');
+                if(allForcedToSubmit == 0){
+                    $.messager.alert('运单录入结果','运单相关信息不存在，已转为离线录入','info');
+                }
                 insertParam.statusText = '离线录入';
                 insertParam.memo = '进行称重量方信息录入时无运单信息，转为离线录入';
                 involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
@@ -477,34 +484,57 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             status:status
         };
 
-        var messageBodyStr = "运单号："+waybillCode+" 重量："+weight+" 体积："+volume;
-        $.messager.confirm('请您仔细确认',messageBodyStr
-            ,function(confirmFlag){
-                if(confirmFlag == true){
-
-                    if(isExist){
-                        //此处返回的存在并不是真正意义上的存在
-                        doWaybillWeight(insertParam,removeFailDataFunc,index);
-                    }else{
-                        noExistSubmit(insertParam,removeFailDataFunc,index);
-                    }
-                    //会自动把errorData的数据移除掉一条
-
-                    /*提交业务流程*/
-                    $.messager.alert('提交成功','提交成功');
-                    return;
-                }else {
-                    return;
-                }
+        if(allForcedToSubmit == 1){
+            // 批量强制提交 调用的时候
+            if(isExist){
+                //是真正意义上的存在
+                existSubmit(insertParam,removeFailDataFunc,index);
+            }else{
+                noExistSubmit(insertParam,removeFailDataFunc,index);
             }
-        );
+
+        }else{
+            // 单独点击强制提交 调用的时候
+            var messageBodyStr = "运单号："+waybillCode+" 重量："+weight+" 体积："+volume;
+            $.messager.confirm('请您仔细确认',messageBodyStr
+                ,function(confirmFlag){
+                    if(confirmFlag == true){
+
+                        if(isExist){
+                            //此处返回的存在并不是真正意义上的存在
+                            doWaybillWeight(insertParam,removeFailDataFunc,index);
+                        }else{
+                            noExistSubmit(insertParam,removeFailDataFunc,index);
+                        }
+                        //会自动把errorData的数据移除掉一条
+
+                        /*提交业务流程*/
+                        $.messager.alert('提交成功','提交成功');
+                        return;
+                    }else {
+                        return;
+                    }
+                }
+            );
+
+        }
+
+
 
     }
 
 
-function removeFailDataFunc(index){
-    $("#waybill-weight-fail-submit-message").html("强制提交"+(++forcedToSubmitCount)+"条数据");
-    $('#waybill-weight-fail-datagrid').datagrid('deleteRow',index);
+function removeFailDataFunc(key){
+        //防止删除后 数组索引发生变化  原函数索引未改变
+    if(key || key >= 0){
+        for(var index = 0 ; index < errorData.length ; index++ ){
+            if(errorData[index].key == key){
+                $("#waybill-weight-fail-submit-message").html("强制提交"+(++forcedToSubmitCount)+"条数据");
+                $('#waybill-weight-fail-datagrid').datagrid('deleteRow',index);
+                errorData.splice(index,1);
+            }
+        }
+    }
 }
     /**
      * 显示导入失败的数据
@@ -527,7 +557,13 @@ function removeFailDataFunc(index){
                         formatter:function(value, row, index){
                             var str = '';
                             if(row.canSubmit == 1){
-                                str = '<a href="javascript:eval(\'forcedToSubmit(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+index+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton" ></a>';
+                                if(row.errorCode && CBM_DIV_KG_CODE == row.errorCode){
+                                    str = '<a href="javascript:eval(\'forcedToSubmit(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton all-submit-data" ></a>';
+
+                                }else{
+                                    str = '<a href="javascript:eval(\'forcedToSubmit(\\\'' +  row.codeStr + '\\\',\\\''+row.weight+'\\\',\\\''+row.volume+'\\\',\\\''+row.key+'\\\',\\\''+row.status+'\\\')\');" name="opera" class="easyui-linkbutton" ></a>';
+
+                                }
                             }
                             return str;
                         }
@@ -539,7 +575,7 @@ function removeFailDataFunc(index){
                 },
 
             });
-            errorData = data;
+            errorData = data.slice(0);
         }
 
     }
@@ -572,6 +608,30 @@ $("#waybill-weight-export-close").click(function(){
 
 });
 
+$("#waybill-weight-all-submit").click(function(){
+    $.messager.confirm('提示','是否强制提交重泡比校验未通过的所有数据？'
+        ,function(confirmFlag){
+            if(confirmFlag){
+                allForcedToSubmit = 1; //控制提示语 执行的所有请求全部为同步 才可以这么做
+                allSubmitRemove();
+                allForcedToSubmit = 0;
+            }
+        }
+    );
+
+});
+
+function allSubmitRemove(){
+
+    for(var i = 0 ; i < errorData.length ; i++){
+        var myRow = errorData[i];
+        if(myRow.errorCode && CBM_DIV_KG_CODE == myRow.errorCode){
+            forcedToSubmit(myRow.codeStr ,myRow.weight ,myRow.volume ,myRow.key ,myRow.status);
+            allSubmitRemove();
+            break;
+        }
+    }
+}
 /*
 });*/
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -38,7 +39,7 @@ public interface DeliveryService {
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
      */
-    SendResult atuoPackageSend(SendM domain,boolean isForceSend,String packageCode);
+    SendResult atuoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]
