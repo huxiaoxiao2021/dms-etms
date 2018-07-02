@@ -588,7 +588,7 @@ public class InspectionServiceImpl implements InspectionService {
 		return this.inspectionDao.queryByCondition(inspection);
 	}
 	/**
-	 * 平台打印，不验货任务
+	 * 平台打印，补验货任务
 	 * @param task
 	 * @param ownSign
 	 * @return

@@ -89,21 +89,10 @@ public class PopPrintServiceImpl implements PopPrintService {
        return popPrintDao.add(popPrint);
     }
 
-    //发补验货任务
+    /**
+     * 发补验货任务
+     */
     public void pushInspection(PopPrint popPrint) {
-        if (popPrint == null) {
-            return;
-        }
-        String ownSign = BusinessHelper.getOwnSign();
-        if (BusinessHelper.BUSI_OWN_SIGN_PRE.equals(ownSign) && popPrint.getPopReceiveType() != PopPrintRequest.POP_RECEIVE_TYPE_4) {
-            return;
-        } else if (!BusinessHelper.BUSI_OWN_SIGN_PRE.equals(ownSign) && popPrint.getPopReceiveType() >= PopPrintRequest.POP_RECEIVE_TYPE_4) {
-            return;
-        }
-        popPrint=popPrintDao.findByWaybillCodeAndPackageCode(popPrint);
-        if (popPrint == null) {
-            return;
-        }
         BaseStaffSiteOrgDto create = siteService.getSite(popPrint.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
 
@@ -116,7 +105,7 @@ public class PopPrintServiceImpl implements PopPrintService {
             request.setKeyword2(popPrint.getWaybillCode());
         }
         request.setType(Task.TASK_TYPE_POP_PRINT_INSPECTION);
-        request.setOperateTime(DateHelper.formatDateTime(new Date(popPrint.getCreateTime().getTime() - 60000)));
+        request.setOperateTime(DateHelper.formatDateTime(popPrint.getPrintPackTime()));
         request.setSiteCode(popPrint.getCreateSiteCode());
         request.setSiteName(createSiteName);
         request.setUserCode(popPrint.getCreateUserCode());

@@ -28,11 +28,6 @@ public class PopPrintDao extends BaseDao<PopPrint> {
         PopPrint popPrint = (obj == null) ? null : (PopPrint) obj;
         return popPrint;
     }
-    public PopPrint findByWaybillCodeAndPackageCode(PopPrint popPrint) {
-        Object obj = this.getSqlSession().selectOne(namespace + ".findByWaybillCodeAndPackageCode", popPrint);
-        PopPrint popPrint1 = (obj == null) ? null : (PopPrint) obj;
-        return popPrint1;
-    }
 
     public List<PopPrint> findSitePrintDetail(Map<String, Object> map) {
         Object o = this.getSqlSession().selectList(namespace + ".findSitePrintDetail", map);

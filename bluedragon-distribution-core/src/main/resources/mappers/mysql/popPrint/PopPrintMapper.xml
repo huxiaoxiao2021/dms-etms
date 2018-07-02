@@ -86,15 +86,6 @@
         WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
          LIMIT 1
     </select>
-    <select id="findByWaybillCodeAndPackageCode" resultMap="popPrint"
-            parameterType="popPrint">
-        SELECT
-        <include refid="Base_Column_List"/>
-        FROM pop_print
-        WHERE waybill_code = #{waybillCode, jdbcType=VARCHAR} and yn = 1
-        and  package_barcode = #{packageBarcode, jdbcType=VARCHAR} order by id desc
-         LIMIT 1
-    </select>
 
     <select id="findSitePrintDetail" resultMap="popPrint" parameterType="java.util.Map">
         SELECT
