@@ -33,7 +33,7 @@ import java.util.Map;
 
 /**
  * @author tangchunqing
- * @Description: 类描述信息
+ * @Description: 批次清零
  * @date 2018年06月18日 09时:52分
  */
 @Service("abnormalDisposeService")
@@ -57,6 +57,11 @@ public class abnormalDisposeServiceImpl implements AbnormalDisposeService {
     @Autowired
     private AbnormalWayBillDao abnormalWayBillDao;
 
+    /**
+     * 未验货明细页面加载数据
+     * @param abnormalDisposeCondition
+     * @return
+     */
     @Override
     public PagerResult<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> pagerResult = new PagerResult<AbnormalDisposeInspection>();
