@@ -461,6 +461,7 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @GET
     @Path("/delivery/check")
+    @Override
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
