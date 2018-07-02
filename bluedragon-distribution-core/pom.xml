@@ -764,7 +764,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.18-SNAPSHOT</version>
+			<version>1.2.36-TEST-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>
