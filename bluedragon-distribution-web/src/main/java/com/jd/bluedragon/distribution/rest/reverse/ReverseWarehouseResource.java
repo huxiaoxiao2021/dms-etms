@@ -80,8 +80,8 @@ public class ReverseWarehouseResource {
             //已分拣
             if(sortingList != null && !sortingList.isEmpty()){
                 status++;
-                sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, packageCode);
             }
+            sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, packageCode);
             //已发货
             if(sendDetailList != null && !sendDetailList.isEmpty()){
                 status++;
