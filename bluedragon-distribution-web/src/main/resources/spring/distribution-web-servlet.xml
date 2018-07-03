@@ -14,7 +14,7 @@
 	<import resource="classpath:spring/distribution-web-wss-service.xml"/>
 
 	<mvc:default-servlet-handler />
-    <aop:aspectj-autoproxy/>
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
 	
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="suffix"><value>.jsp</value></property>

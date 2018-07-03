@@ -132,7 +132,7 @@
         missingMessage:'请您输入该运单总体体积 单位：立方米',
         min:0,
         // max:VOLUME_MAX,
-        precision:2,
+        precision:6,
         suffix:'立方米'
 
     });
