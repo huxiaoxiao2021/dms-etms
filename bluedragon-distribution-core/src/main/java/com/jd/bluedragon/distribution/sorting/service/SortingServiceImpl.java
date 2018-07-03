@@ -1098,6 +1098,20 @@ public class SortingServiceImpl implements SortingService {
 	    return sortingDao.findByPackageCode(sorting);
     }
 
+	/**
+	 * 根据箱号，当前站点查询有限的分拣记录
+	 * @param boxCode
+	 * @param createSiteCode
+	 * @param fetchNum
+	 * @return
+	 */
+	public List<Sorting>  findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum){
+        if (boxCode == null || boxCode.isEmpty() || createSiteCode <= 0 || fetchNum <=0){
+            return null;
+        }
+	    return sortingDao.findByBoxCodeAndFetchNum(boxCode,createSiteCode,fetchNum);
+    }
+
 	public static void main(String args[]){
 //		SortingServiceImpl impl = new SortingServiceImpl();
 //		Sorting sorting = new Sorting();
