@@ -25,12 +25,12 @@
 	<bean name = "uccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration">
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
-		<!--<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>-->
-		<!--<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>-->
-		<!--<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>-->
-		<!--<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>-->
-		<!--<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>-->
-		<!--<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>-->
+		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
+		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
+		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
+		<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>
+		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
+		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -40,12 +40,12 @@
 			<list>
 				<value>uccPropertyConfiguration.asynbufferEnabledTaskType</value>
 				<value>uccPropertyConfiguration.cassandraGlobalSwitch</value>
-                <!--<value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>-->
-                <!--<value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>-->
-                <!--<value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>-->
-                <!--<value>uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp</value>-->
-                <!--<value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>-->
-                <!--<value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>-->
+                <value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
+                <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
+                <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
+                <value>uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp</value>
+                <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
+                <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 			</list>
 		</property>
 	</bean>
