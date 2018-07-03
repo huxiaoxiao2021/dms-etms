@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      *
      * @return
      */
+//    @Authorization("bluedragon_abnormalDispose_index")
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/abnormalDispose/abnormalDispose";
