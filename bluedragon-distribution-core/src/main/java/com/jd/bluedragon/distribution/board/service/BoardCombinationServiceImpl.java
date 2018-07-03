@@ -135,7 +135,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //板号已完结
-        if (tcResponse.getData().getStatus() == STATUS_BOARD_CLOSED) {
+        if (STATUS_BOARD_CLOSED.equals(tcResponse.getData().getStatus())) {
             this.logger.warn("板号" + boardCode + "的状态为已经完结");
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
             return boardResponse;
@@ -357,6 +357,18 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
+    }
+
+    /**
+     * 获取箱号所属的板号
+     * @param siteCode
+     * @param boxCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Board> getBoardByBoxCode(Integer siteCode , String boxCode) {
+        return groupBoardService.getBoardByBoxCode(boxCode , siteCode);
     }
 
     /**

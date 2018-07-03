@@ -4,9 +4,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.Response;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
  * Created by xumei3 on 2018/3/27.
@@ -80,11 +84,11 @@ public class BoardCombinationResource {
         try {
             //操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
-            if(statusCode == JdResponse.CODE_FAIL){
+            if(JdResponse.CODE_FAIL.equals(statusCode)){
                 result.toFail(boardResponse.buildStatusMessages());
-            }else if(statusCode == JdResponse.CODE_CONFIRM){
+            }else if(JdResponse.CODE_CONFIRM.equals(statusCode)){
                 result.toConfirm(boardResponse.buildStatusMessages());
-            }else if(statusCode == JdResponse.CODE_SUCCESS){
+            }else if(JdResponse.CODE_SUCCESS.equals(statusCode)){
                 return result;
             }
         } catch (Exception e) {
@@ -130,6 +134,110 @@ public class BoardCombinationResource {
         }
 
         return result;
+    }
+
+    /**
+     * 查询箱子所属板号
+     * @param boxCode
+     * @return
+     */
+    @GET
+    @Path("/boardCombination/belong/{siteCode}/{boxCode}")
+    public JdResponse<Board> getBoardByBoxCode(@PathParam("siteCode") Integer siteCode, @PathParam("boxCode") String boxCode){
+        JdResponse<Board> result = new JdResponse<Board>();
+        result.toSucceed("查询箱子所属板号成功!");
+
+        //参数校验
+
+        if(BusinessHelper.isBoxcode(boxCode) || BusinessHelper.isPackageCode(boxCode)){
+            try {
+                Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, boxCode);
+                if(tcResponse == null){
+                    result.toFail("组板组件返回结果为空！");
+                }else if(JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){
+                    //查询成功
+                    if(tcResponse.getData() != null){
+                        result.setData(tcResponse.getData());
+                    }else{
+                        result.toFail("未查询到板号");
+                    }
+                }else {
+                    //查询失败
+                    result.toFail(tcResponse.getMesseage());
+                }
+            } catch (Exception e) {
+                logger.error("查询箱子所属板号失败!",e);
+                result.toError("查询箱子所属板号失败，系统异常！");
+            }
+        }else{
+            result.toFail("请扫描正确的包裹号或箱号!");
+        }
+
+        return result;
+    }
+
+    /**
+     * 查询板号下的组板明细
+     * @param boardCode
+     * @return
+     */
+    @GET
+    @Path("/boardCombination/detail/{boardCode}")
+    public JdResponse<BoardResponse> getBoxCodesByBoardCode(@PathParam("boardCode") String boardCode){
+        JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
+        result.toSucceed("查询箱子所属板号成功!");
+
+        //参数校验
+        if(SerialRuleUtil.isBoardCode(boardCode)){
+            try {
+                Response<List<String>>  tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
+                if(tcResponse == null){
+                    result.toFail("组板组件返回结果为空！");
+                }else if(JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){
+                    //查询成功
+                    if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
+                        result.setData(dealBoardDetails(tcResponse, boardCode));
+                    }else{
+                        result.toFail("未查询到板号明细");
+                    }
+                }else {
+                    //查询失败
+                    result.toFail(tcResponse.getMesseage());
+                }
+            } catch (Exception e) {
+                logger.error("查询箱子所属板号失败!",e);
+                result.toError("查询箱子所属板号失败，系统异常！");
+            }
+        }else{
+            result.toFail("请扫描正确的板号!");
+        }
+
+        return result;
+    }
+
+    /**
+     * 处理组板明细数据
+     * @param tcResponse
+     * @param boardCode
+     * @return
+     */
+    private BoardResponse dealBoardDetails(Response<List<String>>  tcResponse, String boardCode){
+        BoardResponse boardResponse = new BoardResponse();
+        boardResponse.setBoardCode(boardCode);
+        boardResponse.setBoardDetails(tcResponse.getData());
+        int boxNum = 0;
+        int packageNum = 0;
+        for (String temp : tcResponse.getData()){
+            if(BusinessHelper.isPackageCode(temp)){
+                packageNum++;
+            }
+            if(BusinessHelper.isBoxcode(temp)){
+                boxNum++;
+            }
+        }
+        boardResponse.setBoxNum(boxNum);
+        boardResponse.setPackageNum(packageNum);
+        return boardResponse;
     }
 
     /**

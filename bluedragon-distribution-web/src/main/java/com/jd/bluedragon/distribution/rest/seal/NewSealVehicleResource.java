@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -145,6 +146,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/seal")
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011)
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -284,6 +286,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/unseal")
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1012)
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
