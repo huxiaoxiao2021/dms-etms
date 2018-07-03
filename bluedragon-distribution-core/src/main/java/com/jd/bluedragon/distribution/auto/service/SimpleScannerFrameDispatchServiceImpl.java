@@ -166,7 +166,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             this.addGantryException(domain, config, 24, null);
             return false;
         }
-        config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
+        config.setSendCode(scannerFrameBatchSendService.getOrGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
         return true;
     }
 
