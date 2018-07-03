@@ -50,7 +50,10 @@ public class ReverseWarehouseResource {
     private static final String MESSAGE_WAYBILL_SORTING = "运单中分拣建包{0}个包裹，请先取消分拣建包";
     private static final String MESSAGE_WAYBILL_SEND = "运单中分拣建包{0}个包裹，发货{1}个包裹，请先取消发货再取消分拣建包";
 
-    private static final String MESSAGE_PACKAGE_SEND_ONLY = "请先取消发货";    //老发货原包发货，存在原包没有分拣的情况
+    //老发货原包发货，存在原包没有分拣的情况
+    private static final String MESSAGE_WAYBILL_SEND_ONLY = "运单中发货{0}个包裹，请先取消发货";
+    private static final String MESSAGE_PACKAGE_SEND_ONLY = "请先取消发货";
+
 
     @POST
     @Path("/reverse/warehouse/check")
@@ -107,8 +110,13 @@ public class ReverseWarehouseResource {
         }
 
         //包裹只是做了发货（老发货原包发货才有的情况）
-        if(isPackage && !isSorting && isSend){
-            response.toFail(MESSAGE_PACKAGE_SEND_ONLY);
+        if(!isSorting && isSend){
+            if(isPackage){
+                message = MESSAGE_PACKAGE_SEND_ONLY;
+            }else{
+                message = MessageFormat.format(MESSAGE_WAYBILL_SEND_ONLY, sendDetailList.size());
+            }
+            response.toFail(message);
         }
 
         //包裹已分拣发货
