@@ -1,21 +1,30 @@
 package com.jd.bluedragon.distribution.reassignWaybill.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.util.Date;
+
 @Service("reassignWaybill")
 public class ReassignWaybillServiceImpl implements ReassignWaybillService {
+	private static final Log logger= LogFactory.getLog(ReassignWaybillServiceImpl.class);
 
 	@Autowired
 	private ReassignWaybillDao reassignWaybillDao;
@@ -23,6 +32,10 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 	private CenConfirmService cenConfirmService;
 	@Autowired
 	private DefaultJMQProducer reassignWaybillMQ;
+	@Autowired
+	@Qualifier("waybillSiteChangeProducer")
+	private DefaultJMQProducer waybillSiteChangeProducer;
+
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean add(ReassignWaybill packTagPrint) {
@@ -40,6 +53,31 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		cenConfirmService.syncWaybillStatusTask(cenConfirm);
 		//添加返调度运单信息到本地库
 		sendReassignWaybillMq(packTagPrint);
+
+		if(BusinessHelper.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
+			//每个运单只需要发一次就可以
+			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
+			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());
+			siteChangeMqDto.setPackageCode(packTagPrint.getPackageBarcode());
+			siteChangeMqDto.setNewSiteId(packTagPrint.getChangeSiteCode());
+			siteChangeMqDto.setNewSiteName(packTagPrint.getChangeSiteName());
+			siteChangeMqDto.setNewSiteRoadCode("0"); // 此操作无法触发预分拣 故传默认值0
+			siteChangeMqDto.setOperatorId(packTagPrint.getUserCode());
+			siteChangeMqDto.setOperatorName(packTagPrint.getUserName());
+			siteChangeMqDto.setOperatorSiteId(packTagPrint.getSiteCode());
+			siteChangeMqDto.setOperatorSiteName(packTagPrint.getSiteName());
+			siteChangeMqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+			try {
+				waybillSiteChangeProducer.sendOnFailPersistent(packTagPrint.getWaybillCode(), JsonHelper.toJsonUseGson(siteChangeMqDto));
+				logger.debug("发送预分拣站点变更mq消息成功(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto));
+			} catch (Exception e) {
+				logger.error("发送预分拣站点变更mq消息失败(现场预分拣)："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+			}finally{
+				SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), String.valueOf(siteChangeMqDto.getOperatorId()), waybillSiteChangeProducer.getTopic(),
+						siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ_OF_OTHER);
+			}
+
+		}
 
 		return reassignWaybillDao.add(packTagPrint);
 	}

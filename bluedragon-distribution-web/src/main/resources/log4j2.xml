@@ -41,6 +41,19 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
 
+
+        <!-- business log -->
+        <RollingFile name="business.log" fileName="${LOG_HOME}/dms-business.log"
+                     filePattern="${LOG_HOME}/dms-business.%i.log">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG.PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
     </Appenders>
 
     <Loggers>
@@ -59,7 +72,10 @@
         <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
         <Logger name="com.jd.dbs.transaction" level="ERROR" additivity="true"/>
         <Logger name="com.jd.etms.basic.cache" level="ERROR" additivity="true"/>
-
+        <!-- 操作日志 -->
+        <logger name="com.jd.dms.logger.aop.BusinessLogWriter" level="INFO" additivity="false">
+            <appender-ref ref="business.log"/>
+        </logger>
         <!-- 建立一个默认的root的Logger -->
         <AsyncRoot level="INFO">
             <AppenderRef ref="console"/>

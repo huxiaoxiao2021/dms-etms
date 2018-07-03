@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.batch.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class BatchSend {
-	 /**
+public class BatchSend implements Serializable {
+    /**
      * 全局唯一ID
      */
     private Long id;
@@ -17,17 +18,17 @@ public class BatchSend {
      * 创建站点编号
      */
     private Integer createSiteCode;
-    
+
     /**
      * 目的站点编号
      */
     private Integer receiveSiteCode;
-    
+
     /**
      * 批次号
      */
     private String sendCode;
-    
+
 
     /**
      * 创建人
@@ -53,7 +54,7 @@ public class BatchSend {
      * 最后操作人
      */
     private String updateUser;
-    
+
     /**
      * 最后操作人
      */
@@ -77,7 +78,7 @@ public class BatchSend {
     /**
      * 发车状态操作时间
      */
-    private Date    sendCarOperateTime;
+    private Date sendCarOperateTime;
 
     public Integer getSendCarState() {
         return sendCarState;
@@ -96,141 +97,141 @@ public class BatchSend {
     }
 
     public Long getId() {
-		return id;
-	}
+        return id;
+    }
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getBatchCode() {
-		return batchCode;
-	}
+    public String getBatchCode() {
+        return batchCode;
+    }
 
-	public void setBatchCode(String batchCode) {
-		this.batchCode = batchCode;
-	}
+    public void setBatchCode(String batchCode) {
+        this.batchCode = batchCode;
+    }
 
-	public Integer getCreateSiteCode() {
-		return createSiteCode;
-	}
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
+    }
 
-	public void setCreateSiteCode(Integer createSiteCode) {
-		this.createSiteCode = createSiteCode;
-	}
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
 
-	public Integer getReceiveSiteCode() {
-		return receiveSiteCode;
-	}
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
 
-	public void setReceiveSiteCode(Integer receiveSiteCode) {
-		this.receiveSiteCode = receiveSiteCode;
-	}
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
 
-	public String getSendCode() {
-		return sendCode;
-	}
+    public String getSendCode() {
+        return sendCode;
+    }
 
-	public void setSendCode(String sendCode) {
-		this.sendCode = sendCode;
-	}
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
 
-	public String getCreateUser() {
-		return createUser;
-	}
+    public String getCreateUser() {
+        return createUser;
+    }
 
-	public void setCreateUser(String createUser) {
-		this.createUser = createUser;
-	}
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
 
-	public Integer getCreateUserCode() {
-		return createUserCode;
-	}
+    public Integer getCreateUserCode() {
+        return createUserCode;
+    }
 
-	public void setCreateUserCode(Integer createUserCode) {
-		this.createUserCode = createUserCode;
-	}
+    public void setCreateUserCode(Integer createUserCode) {
+        this.createUserCode = createUserCode;
+    }
 
-	public Date getCreateTime() {
-		return createTime;
-	}
+    public Date getCreateTime() {
+        return createTime;
+    }
 
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
-	public Integer getUpdateUserCode() {
-		return updateUserCode;
-	}
+    public Integer getUpdateUserCode() {
+        return updateUserCode;
+    }
 
-	public void setUpdateUserCode(Integer updateUserCode) {
-		this.updateUserCode = updateUserCode;
-	}
+    public void setUpdateUserCode(Integer updateUserCode) {
+        this.updateUserCode = updateUserCode;
+    }
 
-	public String getUpdateUser() {
-		return updateUser;
-	}
+    public String getUpdateUser() {
+        return updateUser;
+    }
 
-	public void setUpdateUser(String updateUser) {
-		this.updateUser = updateUser;
-	}
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
 
-	public Integer getSendStatus() {
-		return sendStatus;
-	}
+    public Integer getSendStatus() {
+        return sendStatus;
+    }
 
-	public void setSendStatus(Integer sendStatus) {
-		this.sendStatus = sendStatus;
-	}
+    public void setSendStatus(Integer sendStatus) {
+        this.sendStatus = sendStatus;
+    }
 
-	public Date getUpdateTime() {
-		return updateTime;
-	}
+    public Date getUpdateTime() {
+        return updateTime;
+    }
 
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
+    }
 
-	public Integer getYn() {
-		return yn;
-	}
+    public Integer getYn() {
+        return yn;
+    }
 
-	public void setYn(Integer yn) {
-		this.yn = yn;
-	}
+    public void setYn(Integer yn) {
+        this.yn = yn;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((batchCode == null) ? 0 : batchCode.hashCode());
-		result = prime * result
-				+ ((sendCode == null) ? 0 : sendCode.hashCode());
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((batchCode == null) ? 0 : batchCode.hashCode());
+        result = prime * result
+                + ((sendCode == null) ? 0 : sendCode.hashCode());
+        return result;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BatchSend other = (BatchSend) obj;
-		if (batchCode == null) {
-			if (other.batchCode != null)
-				return false;
-		} else if (!batchCode.equals(other.batchCode))
-			return false;
-		if (sendCode == null) {
-			if (other.sendCode != null)
-				return false;
-		} else if (!sendCode.equals(other.sendCode))
-			return false;
-		return true;
-	}
-    
-    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        BatchSend other = (BatchSend) obj;
+        if (batchCode == null) {
+            if (other.batchCode != null)
+                return false;
+        } else if (!batchCode.equals(other.batchCode))
+            return false;
+        if (sendCode == null) {
+            if (other.sendCode != null)
+                return false;
+        } else if (!sendCode.equals(other.sendCode))
+            return false;
+        return true;
+    }
+
+
 }
