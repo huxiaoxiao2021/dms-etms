@@ -1,14 +1,7 @@
 package com.jd.bluedragon.distribution.rest.send;
 
 import java.text.MessageFormat;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -29,6 +22,7 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.utils.DateHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -870,15 +864,14 @@ public class DeliveryResource implements DmsDeliveryService {
                 return result;
             }
             /**检查批次号是否已发货*/
-            List<SendM> sendMs = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
+            List<SendM> sendedList = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
                     request.getDistributeId(), request.getReceiveSiteCode());
-            if(sendMs != null && !sendMs.isEmpty()){
-                result.parameterError("批次号：" + request.getSendCode() + "已经发货，请勿重复发货！");
-                logger.warn("批次号：" + request.getSendCode() + "已经发货，请勿重复发货！");
-                return result;
+            //转成 boxCode List 方便后面检查是否boxCode已存在
+            List<String> sendedBoxCodes = initSendedBoxCodes(sendedList);
+            List<SendM> sendMList = initSendMList(request, sendedBoxCodes);
+            if(!sendMList.isEmpty()){
+                deliveryService.packageSortSend(sendMList);
             }
-            List<SendM> sendMList = initSendMList(request);
-            deliveryService.packageSortSend(sendMList);
             result.success();
         }catch (Exception e){
             logger.error("原包分拣发货异常，",e);
@@ -936,7 +929,7 @@ public class DeliveryResource implements DmsDeliveryService {
      * @param request
      * @return
      */
-    private List<SendM> initSendMList(PackageCodeRequest request) throws CloneNotSupportedException {
+    private List<SendM> initSendMList(PackageCodeRequest request, List<String> sendedBoxCodes) throws CloneNotSupportedException {
 
         SendM sendM = new SendM();
         sendM.setSendCode(request.getSendCode());
@@ -946,11 +939,11 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         sendM.setYn(1);
         sendM.setCreateTime(new Date());
-        sendM.setOperateTime(request.getOperateTime());
+        sendM.setOperateTime(DateHelper.parseDate(request.getOperateTime(), DateHelper.DATE_TIME_FORMAT[0]));
         sendM.setCreateUserCode(request.getOperatorId());
-        List<SendM> sendMList = new ArrayList<SendM>(request.getPackageList().size());
+        List<SendM> sendMList = new ArrayList<SendM>();
         for(String packageCode : request.getPackageList()){
-            if(StringUtils.isNotBlank(packageCode)){
+            if(StringUtils.isNotBlank(packageCode) && !sendedBoxCodes.contains(packageCode)){
                 SendM sendMClone = (SendM)sendM.clone();
                 sendMClone.setBoxCode(packageCode);
                 sendMList.add(sendMClone);
@@ -959,4 +952,14 @@ public class DeliveryResource implements DmsDeliveryService {
         return sendMList;
     }
 
+    private List<String> initSendedBoxCodes(List<SendM> sendedList){
+        if(sendedList == null || sendedList.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+        List<String> sendedBoxCodes = new ArrayList<String>(sendedList.size());
+        for(SendM sendM : sendedList){
+            sendedBoxCodes.add(sendM.getBoxCode());
+        }
+        return sendedBoxCodes;
+    }
 }

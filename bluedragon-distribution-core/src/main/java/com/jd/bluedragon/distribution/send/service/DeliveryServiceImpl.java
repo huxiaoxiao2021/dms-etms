@@ -4064,7 +4064,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageSortSend(List<SendM> sendMList){
             /**插入SEND_M*/
-            this.sendMDao.addBatch(sendMList);
+//            this.sendMDao.addBatch(sendMList);
+        for(SendM sendM : sendMList){
+            sendMDao.insertSendM(sendM);
+        }
             for(SendM sendM : sendMList){
                 /**大件写TASK_SORTING*/
                 pushSorting(sendM);

@@ -21,7 +21,7 @@ public class PackageCodeRequest implements Serializable{
     /**操作人姓名 */
     private String operatorName;
     /**操作时间 */
-    private Date operateTime;
+    private String operateTime;
     /**批次号 */
     private String sendCode;
     /** 下一个分拣中心id*/
@@ -61,11 +61,11 @@ public class PackageCodeRequest implements Serializable{
         this.operatorName = operatorName;
     }
 
-    public Date getOperateTime() {
+    public String getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
     }
 
