@@ -90,9 +90,6 @@
         <button id="btn_query" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
         </button>
-        <button id="btn_export" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
-        </button>
     </div>
     <table id="dataTable"></table>
 </div>
@@ -133,6 +130,9 @@
     <div id="toolbar_inspection" class="btn-group">
         <button id="btn_query_inspection" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_export_inspection" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
         </button>
         <button id="btn_save_inspection" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-export" aria-hidden="true"></span>保存异常编码
@@ -180,6 +180,9 @@
     <div id="toolbar_send" class="btn-group">
         <button id="btn_query_send" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_export_send" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
         </button>
         <button id="btn_abnormal" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提交异常

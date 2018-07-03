@@ -97,6 +97,8 @@
 
         <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter" alias="B2BRouter" />
         <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode" alias="B2BRouterNode"/>
+        <!--  tangchunqing-->
+        <typeAlias type="com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc" alias="abnormalQc"/>
     </typeAliases>
 
     <plugins>
@@ -247,11 +249,8 @@
         <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfApproveMapper.xml"/>
-        <!--异常外呼 -->
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
-        <!--三无托寄物-->
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
-        <!--批次清零 -->
         <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
     </mappers>
 </configuration>

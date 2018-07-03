@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.abnormalDispose.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.api.common.dto.PageDto;
@@ -114,24 +116,24 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(abnormalDisposeCondition.getLimit());
             page.setCurrentPage(currPage);
-            PageDto<TransferWaveMonitorDetailResp> noSendDetail = vrsRouteTransferRelationManager.getArrivedButNoCheckDetail(page, abnormalDisposeCondition.getWaveBusinessId());
+            PageDto<TransferWaveMonitorDetailResp> noInspectionDetail = vrsRouteTransferRelationManager.getArrivedButNoCheckDetail(page, abnormalDisposeCondition.getWaveBusinessId());
             //如果没有明细，下面就不走了
-            if (noSendDetail == null) {
+            if (noInspectionDetail == null) {
                 break;
             } else {
                 //获取总页数
-                totalPage = noSendDetail.getTotalPage();
+                totalPage = noInspectionDetail.getTotalPage();
                 if (totalPage > 5000) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
-            if (noSendDetail.getResult() == null || noSendDetail.getResult().size() == 0) {
+            if (noInspectionDetail.getResult() == null || noInspectionDetail.getResult().size() == 0) {
                 break;
             }
 
             //整理所有的运单号，后面批量查询 路由 异常等
             ArrayList<String> waybillCodeList = new ArrayList();
-            for (TransferWaveMonitorDetailResp detailResp : noSendDetail.getResult()) {
+            for (TransferWaveMonitorDetailResp detailResp : noInspectionDetail.getResult()) {
                 waybillCodeList.add(detailResp.getWaybillCode());
             }
             //查询路由信息（查ver）
@@ -145,7 +147,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
                 }
             }
-            for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
+            for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
                 if (abnormalDisposeCondition.getIsDispose().equals(0) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
@@ -304,6 +306,12 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.queryMain", mState = {JProEnum.TP})
     public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition) {
 
+        LoginContext loginContext = LoginContext.getLoginContext();
+//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjxings");
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+        if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
+            abnormalDisposeCondition.setDmsSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
+        }
         //封装分页参数
         PageDto<TransferWaveMonitorReq> page = new PageDto<TransferWaveMonitorReq>();
         page.setCurrentPage(getCurrentPage(abnormalDisposeCondition.getOffset(), abnormalDisposeCondition.getLimit()));
@@ -581,6 +589,231 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         pagerResult.setRows(resultData);
         return pagerResult;
 
+    }
+
+    /**
+     * 整理导出数据-未验货
+     *
+     * @param abnormalDisposeCondition
+     * @return
+     */
+    public List<List<Object>> getExportDataInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        if (currSite == null) {
+            return resList;
+        }
+        List<Object> heads = new ArrayList<Object>();
+
+        //添加表头
+        heads.add("解封车时间");
+        heads.add("运单");
+        heads.add("运单");
+        heads.add("上级区域");
+        heads.add("上级站点");
+        heads.add("目的城市");
+        heads.add("目的站点");
+        heads.add("是否提报异常");
+        heads.add("异常编码");
+        heads.add("异常提交人");
+        heads.add("异常提交时间");
+        resList.add(heads);
+
+        List<AbnormalDisposeInspection> rows = Lists.newArrayList();
+        int totalPage = 0;//路由中总页数
+        int currPage = 0;//翻页控制
+        while (true) {
+            currPage++;//自动翻页查询
+            //调用路由接口查明细
+            PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
+            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setCurrentPage(currPage);
+            PageDto<TransferWaveMonitorDetailResp> noInspectionDetail = vrsRouteTransferRelationManager.getArrivedButNoCheckDetail(page, abnormalDisposeCondition.getWaveBusinessId());
+            //如果没有明细，下面就不走了
+            if (noInspectionDetail == null) {
+                break;
+            } else {
+                //获取总页数
+                totalPage = noInspectionDetail.getTotalPage();
+                if (totalPage > 5000) {
+                    break;//查过阈值，就不拉了，数据量太大，有风险
+                }
+            }
+            if (noInspectionDetail.getResult() == null || noInspectionDetail.getResult().size() == 0) {
+                break;
+            }
+
+            //整理所有的运单号，后面批量查询 路由 异常等
+            ArrayList<String> waybillCodeList = new ArrayList();
+            for (TransferWaveMonitorDetailResp detailResp : noInspectionDetail.getResult()) {
+                waybillCodeList.add(detailResp.getWaybillCode());
+            }
+            //查询路由信息（查ver）
+            Map<String, String> routerMap = null;
+
+            //查询已处理的明细
+            List<AbnormalQc> abnormalQcs = abnormalQcDao.queryQcByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
+            Map<String, String> abnormalQcMap = Maps.newHashMap();
+            if (abnormalQcs != null && abnormalQcs.size() > 0) {
+                for (AbnormalQc abnormalQc : abnormalQcs) {
+                    abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
+                }
+            }
+            for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
+                //想查未处理的,提报过异常的就过滤掉
+                if (abnormalDisposeCondition.getIsDispose().equals(0) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
+                    continue;
+                }
+                //想查已处理的,没提报过异常的就过滤掉
+                if (abnormalDisposeCondition.getIsDispose().equals(1) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
+                    continue;
+                }
+                if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
+                    routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
+                }
+                rows.add(convertAbnormalDisposeInspection(abnormalDisposeCondition, currSite, routerMap, abnormalQcMap, transferWaveMonitorDetailResp));
+            }
+
+            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
+                break;
+            }
+        }
+        if (rows != null && rows.size() > 0) {
+            for (AbnormalDisposeInspection abnormalDisposeSend : rows) {
+                List<Object> body = Lists.newArrayList();
+                body.add(DateHelper.formatDate(abnormalDisposeSend.getSealVehicleDate(), Constants.DATE_TIME_FORMAT));//解封车时间
+                body.add(abnormalDisposeSend.getWaybillCode());//运单号
+                body.add(abnormalDisposeSend.getPrevAreaName());
+                body.add(abnormalDisposeSend.getPrevSiteName());
+                body.add(abnormalDisposeSend.getEndCityName());
+                body.add(abnormalDisposeSend.getEndSiteName());
+                body.add("1".equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
+                body.add(abnormalDisposeSend.getQcCode());
+                body.add(abnormalDisposeSend.getCreateUser());
+                body.add(DateHelper.formatDate(abnormalDisposeSend.getCreateTime(), Constants.DATE_TIME_FORMAT));
+                resList.add(body);
+            }
+        }
+        return resList;
+    }
+
+    /**
+     * 整理导出数据-未发货
+     *
+     * @param abnormalDisposeCondition
+     * @return
+     */
+    public List<List<Object>> getExportDataSend(AbnormalDisposeCondition abnormalDisposeCondition) {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        if (currSite == null) {
+            return resList;
+        }
+        List<Object> heads = new ArrayList<Object>();
+
+        //添加表头
+        heads.add("验货时间");
+        heads.add("验货分拣中心");
+        heads.add("运单");
+        heads.add("下级区域");
+        heads.add("下级站点");
+        heads.add("目的城市");
+        heads.add("目的站点");
+        heads.add("是否提报异常");
+        heads.add("异常类型");
+        heads.add("一级原因");
+        heads.add("异常提交人");
+        heads.add("异常提交时间");
+        resList.add(heads);
+
+        List<AbnormalDisposeSend> rows = Lists.newArrayList();
+        int totalPage = 0;//路由中总页数
+        int currPage = 0;//翻页控制
+        while (true) {
+            //调用路由接口查明细
+            PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
+            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setCurrentPage(currPage);
+            PageDto<TransferWaveMonitorDetailResp> noSendDetail = vrsRouteTransferRelationManager.getNoSendDetail(page, abnormalDisposeCondition.getWaveBusinessId());
+            //如果没有明细，下面就不走了
+            if (noSendDetail == null) {
+                break;
+            } else {
+                //获取总页数
+                totalPage = noSendDetail.getTotalPage();
+                if (totalPage > 5000) {
+                    break;//查过阈值，就不拉了，数据量太大，有风险
+                }
+            }
+            if (noSendDetail.getResult() == null || noSendDetail.getResult().size() == 0) {
+                break;
+            }
+
+            //整理所有的运单号，后面批量查询 路由 异常等
+            ArrayList<String> waybillCodeList = new ArrayList();
+            for (TransferWaveMonitorDetailResp detailResp : noSendDetail.getResult()) {
+                waybillCodeList.add(detailResp.getWaybillCode());
+            }
+            //查询路由信息（查ver）
+            Map<String, String> routerMap = null;
+
+            //查询已处理的明细 外呼
+            List<AbnormalOrder> abnormalOrders = abnormalOrderDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
+            Map<String, AbnormalOrder> abnormalOrdersMap = Maps.newHashMap();
+            if (abnormalOrders != null && abnormalOrders.size() > 0) {
+                for (AbnormalOrder abnormalOrder : abnormalOrders) {
+                    abnormalOrdersMap.put(abnormalOrder.getOrderId(), abnormalOrder);
+                }
+            }
+            //查询已处理的明细 异常
+            List<AbnormalWayBill> abnormalWayBills = abnormalWayBillDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
+            Map<String, AbnormalWayBill> abnormalWayBillsMap = Maps.newHashMap();
+            if (abnormalWayBills != null && abnormalWayBills.size() > 0) {
+                for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
+                    abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
+                }
+            }
+
+            for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
+                //想查未处理的,提报过异常的就过滤掉
+                if (abnormalDisposeCondition.getIsDispose().equals(0) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
+                    continue;
+                }
+                //想查已处理的,没提报过异常的就过滤掉
+                if (abnormalDisposeCondition.getIsDispose().equals(1) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
+                    continue;
+                }
+                if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
+                    routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
+                }
+                rows.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, transferWaveMonitorDetailResp));
+            }
+
+            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
+                break;
+            }
+        }
+        if (rows != null && rows.size() > 0) {
+            for (AbnormalDisposeSend abnormalDisposeSend : rows) {
+                List<Object> body = Lists.newArrayList();
+                body.add(DateHelper.formatDate(abnormalDisposeSend.getInspectionDate(), Constants.DATE_TIME_FORMAT));//验货时间
+                body.add(abnormalDisposeSend.getInspectionSiteName());//验货分拣中心
+                body.add(abnormalDisposeSend.getWaybillCode());//运单号
+                body.add(abnormalDisposeSend.getNextAreaName());
+                body.add(abnormalDisposeSend.getNextSiteName());
+                body.add(abnormalDisposeSend.getEndCityName());
+                body.add(abnormalDisposeSend.getEndSiteName());
+                body.add("1".equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
+                body.add(abnormalDisposeSend.getAbnormalType() == null ? "" : "1".equals(abnormalDisposeSend.getAbnormalType()) ? "外呼" : "异常");
+                body.add(abnormalDisposeSend.getAbnormalReason1());
+                body.add(abnormalDisposeSend.getCreateUser());
+                body.add(DateHelper.formatDate(abnormalDisposeSend.getCreateTime(), Constants.DATE_TIME_FORMAT));
+                resList.add(body);
+            }
+        }
+        return resList;
     }
 
     @Override

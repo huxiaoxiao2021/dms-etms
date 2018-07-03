@@ -1,6 +1,5 @@
 $(function () {
     var mainQueryUrl = '/abnormalDispose/abnormalDispose/listData';
-    var exportUrl = '/abnormalDispose/abnormalDispose/toExport';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -62,10 +61,14 @@ $(function () {
             $(_selector).each(function () {
                 var _k = this.id;
                 var _v = $(this).val();
-                if (_k && _v) {
+                if (_k ) {
                     if (_k == 'startTime' || _k == 'endTime') {
+                        if (!_v){
+                            alert("时间范围不允许为空")
+                            return;
+                        }
                         params[_k] = new Date(_v).getTime();
-                    } else {
+                    } else if (_v != '-1') {
                         params[_k] = _v;
                     }
                 }
@@ -109,7 +112,7 @@ $(function () {
                 field: 'notReceiveNum',
                 title: '未收货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
+                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\,"+value+")'>" + value + "</a>";
                 }
             }, {
                 field: 'notReceiveDisposeNum',
@@ -124,7 +127,7 @@ $(function () {
                 field: 'notSendNum',
                 title: '未发货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\")'>" + value + "</a>";
+                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\,"+value+")'>" + value + "</a>";
                 }
             }, {
                 field: 'notSendDisposeNum',
@@ -177,44 +180,13 @@ $(function () {
                     /*重置表单验证状态*/
                 }
             });
-
-
+            //加载数据
             $('#btn_query').click(function () {
                 tableInit().refresh();
             });
         };
         return oInit;
     };
-    //初始化导出按钮
-    var initExport = function (tableInit) {
-        $("#btn_export").on("click", function (e) {
-
-            var params = tableInit.getSearchCondition();
-
-            if ($.isEmptyObject(params)) {
-                alert('禁止全量导出，请确定查询范围');
-                return;
-            }
-            var form = $("<form method='post'></form>"),
-                input;
-            form.attr({"action": exportUrl});
-
-            $.each(params, function (key, value) {
-
-                input = $("<input type='hidden' class='search-param'>");
-                input.attr({"name": key});
-                if (key == 'startTime' || key == 'endTime') {
-                    input.val(new Date(value));
-                } else {
-                    input.val(value);
-                }
-                form.append(input);
-            });
-            form.appendTo(document.body);
-            form.submit();
-            document.body.removeChild(form[0]);
-        });
-    }
 
 //初始化日期时间
     var initDateQuery = function () {
@@ -231,7 +203,7 @@ $(function () {
             type: "get",
             url: siteListUrl,
             data: params,
-            async: true,
+            async: false,
             success: function (data) {
                 var result = [];
                 if (data) {
@@ -248,7 +220,11 @@ $(function () {
                     allowClear: true,
                     data: result
                 });
-                $("#query-form #dmsSiteCode").val(null).trigger('change');
+                if (result.length > 0) {
+                    $("#query-form #dmsSiteCode").val(result[0].id).trigger('change');
+                } else {
+                    $("#query-form #dmsSiteCode").val(null).trigger('change');
+                }
             }
         });
     }
@@ -275,7 +251,12 @@ $(function () {
                     allowClear: true,
                     data: result
                 });
-                $("#query-form #areaId").val(null).trigger('change');
+
+                if (result.length > 0) {
+                    $("#query-form #areaId").val(result[0].id).trigger('change');
+                } else {
+                    $("#query-form #areaId").val(null).trigger('change');
+                }
                 $("#query-form #areaId")
                     .on("change", function (e) {
                         var areaId = $("#areaId").val();
@@ -283,7 +264,7 @@ $(function () {
                         var cityId = $("#cityId").val();
                         if (areaId) {
                             initProvince({areaId: areaId});
-                            initCity({areaId: areaId});
+                            initCity({});
                             loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
                         }
                     });
@@ -313,7 +294,11 @@ $(function () {
                     allowClear: true,
                     data: result
                 });
-                $("#query-form #provinceId").val(null).trigger('change');
+                if (result.length > 0) {
+                    $("#query-form #provinceId").val(result[0].id).trigger('change');
+                } else {
+                    $("#query-form #provinceId").val(null).trigger('change');
+                }
                 $("#query-form #provinceId")
                     .on("change", function (e) {
                         var areaId = $("#areaId").val();
@@ -351,7 +336,11 @@ $(function () {
                     allowClear: true,
                     data: result
                 });
-                $("#query-form #cityId").val(null).trigger('change');
+                if (result.length > 0) {
+                    $("#query-form #cityId").val(result[0].id).trigger('change');
+                } else {
+                    $("#query-form #cityId").val(null).trigger('change');
+                }
                 $("#query-form #cityId")
                     .on("change", function (e) {
                         var areaId = $("#areaId").val();
@@ -365,13 +354,12 @@ $(function () {
         });
     }
 
-    initDateQuery();
-    tableInit().init();
-    pageInit().init();
     initArea();
     initProvince({});
     initCity({});
     loadSite({});
-    initExport(tableInit());
+    initDateQuery();
+    tableInit().init();
+    pageInit().init();
 });
 

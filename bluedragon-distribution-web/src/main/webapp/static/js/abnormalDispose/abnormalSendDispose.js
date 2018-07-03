@@ -2,6 +2,7 @@ $(function () {
     var sendQueryUrl = '/abnormalDispose/abnormalDispose/send/listData';
     var pushAbnormalOrderUrl = '/services/abnormalorder/pushAbnormalOrders';//外呼地址
     var pushExceptioninfoUrl = '/services/qualitycontrol/exceptioninfos';//异常地址
+    var exportUrl = '/abnormalDispose/abnormalDispose/send/toExport';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -133,7 +134,7 @@ $(function () {
             }
         }];
         oTableInit.refresh = function () {
-            $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber:  $('#dataTableSend').bootstrapTable.pageNumber});
+            $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: $('#dataTableSend').bootstrapTable.pageNumber});
         };
         return oTableInit;
     };
@@ -168,13 +169,13 @@ $(function () {
                     for (var i in v_data) {
                         var v_text = v_data[i].typeCode + '-' + v_data[i].typeName;
                         var v_id = v_data[i].typeCode;
-                        var v_vid=v_data[i].id;
-                        var v_typeGroup=v_data[i].typeGroup;
+                        var v_vid = v_data[i].id;
+                        var v_typeGroup = v_data[i].typeGroup;
                         if (v_data[i].nodeLevel == 2) {//作为一级原因
                             if (type == 0) {
-                                abnormal1.push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                                abnormal1.push({id: v_id, text: v_text, vid: v_vid, typeGroup: v_typeGroup});
                             } else {
-                                outcall1.push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                                outcall1.push({id: v_id, text: v_text, vid: v_vid, typeGroup: v_typeGroup});
                             }
                         }
                         if (v_data[i].nodeLevel == 3) {//作为二级原因
@@ -182,12 +183,22 @@ $(function () {
                                 if (!abnormal2[v_data[i].parentId]) {
                                     abnormal2[v_data[i].parentId] = [{id: 0, text: '0-请选择'}];
                                 }
-                                abnormal2[v_data[i].parentId].push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                                abnormal2[v_data[i].parentId].push({
+                                    id: v_id,
+                                    text: v_text,
+                                    vid: v_vid,
+                                    typeGroup: v_typeGroup
+                                });
                             } else {
                                 if (!outcall2[v_data[i].parentId]) {
                                     outcall2[v_data[i].parentId] = [{id: 0, text: '0-请选择'}];
                                 }
-                                outcall2[v_data[i].parentId].push({id: v_id, text: v_text,vid:v_vid,typeGroup:v_typeGroup});
+                                outcall2[v_data[i].parentId].push({
+                                    id: v_id,
+                                    text: v_text,
+                                    vid: v_vid,
+                                    typeGroup: v_typeGroup
+                                });
                             }
                         }
                     }
@@ -224,63 +235,64 @@ $(function () {
         });
         $("#edit-form #abnormalReason1Select2").val(null).trigger('change');
     }
+
     //提报异常
     function sumbitQc() {
-        var waybillcodes=$('#waybillCodeSend').val();
-        var type=  $('#abnormalTypeSend').val();
+        var waybillcodes = $('#waybillCodeSend').val();
+        var type = $('#abnormalTypeSend').val();
         var abnormalReason1Select1 = $("#abnormalReason1Select1").select2("data")[0];
         var abnormalReason1Select2 = $("#abnormalReason1Select2").select2("data")[0];
 
         var v_url;
-        var params={};
-        params.waveBusinessId= $('#waveBusinessIdSend').val();
-        if(type==1){//发外呼
-            v_url=pushAbnormalOrderUrl;
-            params.orderId=waybillcodes;
-            if(abnormalReason1Select1.id>0){
-                params.AbnormalCode1=abnormalReason1Select1.id;
-                params.AbnormalReason1=abnormalReason1Select1.text;
-            }else{
-                params.AbnormalCode1=0;
-                params.AbnormalReason1='';
+        var params = {};
+        params.waveBusinessId = $('#waveBusinessIdSend').val();
+        if (type == 1) {//发外呼
+            v_url = pushAbnormalOrderUrl;
+            params.orderId = waybillcodes;
+            if (abnormalReason1Select1.id > 0) {
+                params.AbnormalCode1 = abnormalReason1Select1.id;
+                params.AbnormalReason1 = abnormalReason1Select1.text;
+            } else {
+                params.AbnormalCode1 = 0;
+                params.AbnormalReason1 = '';
                 alert("请选择原因");
                 return;
             }
-            if(abnormalReason1Select2&&abnormalReason1Select2.id>0){
+            if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
                 params.AbnormalCode2 = abnormalReason1Select2.id;
                 params.AbnormalReason2 = abnormalReason1Select2.text;
                 params.AbnormalReasonId = abnormalReason1Select2.vid;
-            }else{
-                params.AbnormalCode2=0;
-                params.AbnormalReason2='';
+            } else {
+                params.AbnormalCode2 = 0;
+                params.AbnormalReason2 = '';
             }
-        }else{
-            v_url=pushExceptioninfoUrl;
-            params.qcType=2;//2代表运单
-            params.qcValue=waybillcodes;
-            if(abnormalReason1Select1.id>0){
-                params.qcCode=abnormalReason1Select1.id;
-                params.qcName=abnormalReason1Select1.text;
-                params.isSortingReturn=abnormalReason1Select1.typeGroup==110;
+        } else {
+            v_url = pushExceptioninfoUrl;
+            params.qcType = 2;//2代表运单
+            params.qcValue = waybillcodes;
+            if (abnormalReason1Select1.id > 0) {
+                params.qcCode = abnormalReason1Select1.id;
+                params.qcName = abnormalReason1Select1.text;
+                params.isSortingReturn = abnormalReason1Select1.typeGroup == 110;
             }
-            if(abnormalReason1Select2&&abnormalReason1Select2.id>0){
+            if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
                 params.qcCode = abnormalReason1Select2.id;
                 params.qcName = abnormalReason1Select2.text;
-                params.isSortingReturn = abnormalReason1Select2.typeGroup==110;
+                params.isSortingReturn = abnormalReason1Select2.typeGroup == 110;
             }
         }
         jQuery.ajax({
             type: "POST",
             url: v_url,
-            contentType : 'application/json',
-            dataType : 'json',
+            contentType: 'application/json',
+            dataType: 'json',
             data: JSON.stringify(params),
             async: false,
             success: function (response) {
-                if(response.code==200){
+                if (response.code == 200) {
                     $('#dataEditDiv').jqmHide();
                     $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
-                }else{
+                } else {
                     alert(response.message);
                 }
 
@@ -289,6 +301,7 @@ $(function () {
 
 
     }
+
     var pageInit = function () {
         var oInit = new Object();
         var postdata = {};
@@ -348,13 +361,47 @@ $(function () {
             }
         });
     }
+    //初始化导出按钮
+    var initExport = function (tableInit) {
+        $("#btn_export_send").on("click", function (e) {
+
+            var params = tableInit.getSearchCondition();
+
+            if ($.isEmptyObject(params)) {
+                alert('禁止全量导出，请确定查询范围');
+                return;
+            }
+            var form = $("<form method='post'></form>"),
+                input;
+            form.attr({"action": exportUrl});
+
+            $.each(params, function (key, value) {
+
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name": key});
+                if (key == 'startTime' || key == 'endTime') {
+                    input.val(new Date(value));
+                } else {
+                    input.val(value);
+                }
+                form.append(input);
+            });
+            form.appendTo(document.body);
+            form.submit();
+            document.body.removeChild(form[0]);
+        });
+    }
     tableInit().init();
     pageInit().init();
     initSelect();
-
+    initExport(tableInit());
 });
 
-function querySend(waveBusinessId) {
+function querySend(waveBusinessId, num) {
+    if (num && num > 5000) {
+        alert("班次未结束，暂不开放明细查看");
+        return;
+    }
     $('#dataTableMainDiv').hide();
     $('#sendDetail').show();
     $('#waveBusinessIdSend').val(waveBusinessId);

@@ -1,6 +1,7 @@
 var curRow = {};
 $(function () {
     var inspectionQueryUrl = '/abnormalDispose/abnormalDispose/inspection/listData';
+    var exportUrl = '/abnormalDispose/abnormalDispose/inspection/toExport';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -193,17 +194,51 @@ $(function () {
             }
         });
     }
+    //初始化导出按钮
+    var initExport = function (tableInit) {
+        $("#btn_export_inspection").on("click", function (e) {
+
+            var params = tableInit.getSearchCondition();
+
+            if ($.isEmptyObject(params)) {
+                alert('禁止全量导出，请确定查询范围');
+                return;
+            }
+            var form = $("<form method='post'></form>"),
+                input;
+            form.attr({"action": exportUrl});
+
+            $.each(params, function (key, value) {
+
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name": key});
+                if (key == 'startTime' || key == 'endTime') {
+                    input.val(new Date(value));
+                } else {
+                    input.val(value);
+                }
+                form.append(input);
+            });
+            form.appendTo(document.body);
+            form.submit();
+            document.body.removeChild(form[0]);
+        });
+    }
     tableInit().init();
     pageInit().init();
     initSelect();
-
+    initExport(tableInit());
 });
 
 function sumbitQc() {
     window.open("http://qc.jd.com");
 }
 
-function queryinspection(waveBusinessId) {
+function queryinspection(waveBusinessId,num) {
+    if (num && num > 5000) {
+        alert("班次未结束，暂不开放明细查看");
+        return;
+    }
     $('#dataTableMainDiv').hide();
     $('#inspectionDetail').show();
     $('#waveBusinessIdInspection').val(waveBusinessId);

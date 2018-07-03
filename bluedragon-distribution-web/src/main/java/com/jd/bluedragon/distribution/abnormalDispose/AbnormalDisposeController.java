@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.abnormalDispose;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
@@ -69,7 +68,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     PagerResult<AbnormalDisposeInspection> inspectionListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> rest;
-        if (abnormalDisposeCondition.getWaveBusinessId() == null||abnormalDisposeCondition.getDmsSiteCode()==null) {
+        if (abnormalDisposeCondition.getWaveBusinessId() == null || abnormalDisposeCondition.getDmsSiteCode() == null) {
             rest = new PagerResult<AbnormalDisposeInspection>();
             rest.setTotal(0);
             rest.setRows(new ArrayList<AbnormalDisposeInspection>());
@@ -99,12 +98,26 @@ public class AbnormalDisposeController extends DmsBaseController {
         return rest;
     }
 
-    @RequestMapping(value = "/toExport")
-    public ModelAndView toExport(AbnormalDisposeCondition abnormalDisposeCondition, Model model) {
+    @RequestMapping(value = "/send/toExport")
+    public ModelAndView toExportSend(AbnormalDisposeCondition abnormalDisposeCondition, Model model) {
         try {
-            model.addAttribute("filename", "三无托寄物核实结果.xls");
-            model.addAttribute("sheetname", "三无托寄物核实结果");
-//            model.addAttribute("contents", resultList);
+            model.addAttribute("filename", "未发货明细.xls");
+            model.addAttribute("sheetname", "未发货明细");
+            model.addAttribute("contents", abnormalDisposeService.getExportDataSend(abnormalDisposeCondition));
+
+            return new ModelAndView(new DefaultExcelView(), model.asMap());
+        } catch (Exception e) {
+            logger.error("abnormal/AbnormalDisposeCondition--toExport:" + e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @RequestMapping(value = "/inspection/toExport")
+    public ModelAndView toExportInspection(AbnormalDisposeCondition abnormalDisposeCondition, Model model) {
+        try {
+            model.addAttribute("filename", "未验货明细.xls");
+            model.addAttribute("sheetname", "未验货明细");
+            model.addAttribute("contents", abnormalDisposeService.getExportDataInspection(abnormalDisposeCondition));
 
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
