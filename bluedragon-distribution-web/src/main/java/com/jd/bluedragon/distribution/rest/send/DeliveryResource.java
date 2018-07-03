@@ -872,6 +872,11 @@ public class DeliveryResource implements DmsDeliveryService {
             /**检查批次号是否已发货*/
             List<SendM> sendMs = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
                     request.getDistributeId(), request.getReceiveSiteCode());
+            if(sendMs != null && !sendMs.isEmpty()){
+                result.parameterError("批次号：" + request.getSendCode() + "已经发货，请勿重复发货！");
+                logger.warn("批次号：" + request.getSendCode() + "已经发货，请勿重复发货！");
+                return result;
+            }
             List<SendM> sendMList = initSendMList(request);
             deliveryService.packageSortSend(sendMList);
             result.success();
@@ -925,6 +930,7 @@ public class DeliveryResource implements DmsDeliveryService {
         return true;
     }
 
+
     /**
      * 原包分拣发货构建 sendMList
      * @param request
@@ -936,14 +942,17 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setSendCode(request.getSendCode());
         sendM.setCreateSiteCode(request.getDistributeId());
         sendM.setCreateUser(request.getOperatorName());
+        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         sendM.setYn(1);
         sendM.setCreateTime(new Date());
         sendM.setOperateTime(request.getOperateTime());
+        sendM.setCreateUserCode(request.getOperatorId());
         List<SendM> sendMList = new ArrayList<SendM>(request.getPackageList().size());
         for(String packageCode : request.getPackageList()){
             if(StringUtils.isNotBlank(packageCode)){
                 SendM sendMClone = (SendM)sendM.clone();
+                sendMClone.setBoxCode(packageCode);
                 sendMList.add(sendMClone);
             }
         }
