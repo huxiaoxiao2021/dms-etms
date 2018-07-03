@@ -110,6 +110,7 @@
     </div>
     <div id="waybill-weight-import-fail-btn-group-wrapper">
         <a href="#" id="waybill-weight-export" class="easyui-linkbutton">导出</a>
+        <a href="#" id="waybill-weight-all-submit" class="easyui-linkbutton">批量强制提交</a>
         <a href="#" id="waybill-weight-export-close" class="easyui-linkbutton">关闭</a>
     </div>
 

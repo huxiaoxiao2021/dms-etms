@@ -545,6 +545,8 @@ public class Constants {
     public static final double CBM_DIV_KG_MIN_LIMIT = 168.0;
     public static final double CBM_DIV_KG_MAX_LIMIT = 330.0;
     public static final String CBM_DIV_KG_MESSAGE = "重泡比超过正常范围168:1到330:1";
+    public static final Integer CBM_DIV_KG_CODE = 10001;
+
     /**
      * 一级分拣中心名称后缀
      */

@@ -348,6 +348,7 @@ public class BaseResource implements DmsBaseService {
 
 	@POST
 	@Path("/bases/login")
+	@Override
 	public BaseResponse login(LoginRequest request) {
 		this.logger.info("erpAccount is " + request.getErpAccount());
 
@@ -723,6 +724,17 @@ public class BaseResource implements DmsBaseService {
 		return ll;
 	}
 
+	/**
+	 * 获取所有错误信息列表,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public List<BaseResponse> getErrorList(String arg) {
+		return this.getErrorList();
+	}
+
     @GET
     @Path("/bases/getBaseDictionaryTreeMulti")
     public InvokeResult<List<BaseDataDict>> getBaseDictionaryTreeMulti(@QueryParam("typeGroups")String typeGroups){
@@ -848,6 +860,17 @@ public class BaseResource implements DmsBaseService {
 		java.util.Date nowdate = DateHelper.toDate(System.currentTimeMillis());
 		response.setServerDate(formatter.format(nowdate).toString());
 		return response;
+	}
+
+	/**
+	 * 获取服务器时间,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public BaseResponse getServerDate(String arg) {
+		return this.getServerDate();
 	}
 
 	/**********************************************************************************/
@@ -1138,6 +1161,16 @@ public class BaseResource implements DmsBaseService {
 		return responseList;
 	}
 
+	/**
+	 * 登录获取RunTime信息,由于物流网关不支持无参方法，故通过该方法跳转
+	 *
+	 * @param arg 任意值
+	 * @return
+	 */
+	@Override
+	public List<BaseResponse> getRunNumber(String arg) {
+		return this.getRunNumber();
+	}
 
     /**
      *  根据自提柜站点获取自提柜所属站点

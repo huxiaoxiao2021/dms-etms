@@ -21,6 +21,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
@@ -29,6 +30,10 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
+import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -130,6 +135,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @POST
     @Path("/delivery/newpackagesend")
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
@@ -235,6 +241,7 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @POST
     @Path("/delivery/cancel")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
     public ThreeDeliveryResponse cancelDeliveryInfo(DeliveryRequest request) {
         logger.info("取消发货JSON" + JsonHelper.toJsonUseGson(request));
         this.logger.info("开始写入取消发货信息");
@@ -330,6 +337,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/delivery/send")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1002)
     public DeliveryResponse sendDeliveryInfo(List<DeliveryRequest> request) {
         this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
         if (check(request)) {
@@ -453,6 +461,7 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @GET
     @Path("/delivery/check")
+    @Override
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,

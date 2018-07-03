@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
@@ -361,7 +362,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
-            if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
+            if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode()) && !isForceSend) {
                 SendResult  result = new SendResult();
                 result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
                 result.setValue(response.getMessage());
@@ -3874,7 +3875,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,String packageCode) {
+    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
         try {
 
             if (StringUtils.isNotBlank(getSendedCode(domain))) {
@@ -3883,28 +3884,63 @@ public class DeliveryServiceImpl implements DeliveryService {
             	//插入SEND_M
                 this.sendMDao.insertSendM(domain);
             }
-            
-            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
-            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-                pushInspection(domain,packageCode);
-            	pushAtuoSorting(domain,packageCode);
-            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-            }
-            
-            if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                if(isForceSend){
-                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+
+            /**
+             * modified at 2018/4/25
+             * 区分分拣机还是龙门架自动发货
+             * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
+             * */
+
+            if(isForceSend){
+                if(SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                    //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+                    if(uploadData.getBoxSiteCode() != null){
+                        domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+                    }
+
+                    pushInspection(domain,uploadData.getPackageCode());
+                    pushAtuoSorting(domain,uploadData.getPackageCode());
+                    return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+                }else{
+                    pushInspection(domain,null);
+                    pushSorting(domain);
                 }
-                pushSorting(domain);//大件写TASK_SORTING
-            } else {
-                SendDetail tSendDatail = new SendDetail();
-                tSendDatail.setBoxCode(domain.getBoxCode());
-                tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-                tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-                this.updateCancel(tSendDatail);//更新SEND_D状态
+
+            }else{
+                if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                    pushSorting(domain);//大件写TASK_SORTING
+                } else {
+                    SendDetail tSendDatail = new SendDetail();
+                    tSendDatail.setBoxCode(domain.getBoxCode());
+                    tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+                    tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+                    this.updateCancel(tSendDatail);//更新SEND_D状态
+                }
             }
             this.transitSend(domain);//中转任务
             this.pushStatusTask(domain);//全程跟踪任务
+            
+            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
+//            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+//                pushInspection(domain,packageCode);
+//            	pushAtuoSorting(domain,packageCode);
+//            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+//            }
+//
+//            if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+//                if(isForceSend){
+//                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+//                }
+//                pushSorting(domain);//大件写TASK_SORTING
+//            } else {
+//                SendDetail tSendDatail = new SendDetail();
+//                tSendDatail.setBoxCode(domain.getBoxCode());
+//                tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+//                tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+//                this.updateCancel(tSendDatail);//更新SEND_D状态
+//            }
+//            this.transitSend(domain);//中转任务
+//            this.pushStatusTask(domain);//全程跟踪任务
         } catch (Exception e) {
             logger.error("一车一单自动发货异常", e);
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);

@@ -37,6 +37,17 @@ public class WaybillWeightVO implements Serializable
      */
     private String errorMessage;
 
+    /**
+     * 错误编码
+     */
+    private Integer errorCode;
+
+    /**
+     * 存放当前索引 供前台使用
+     */
+    private Integer key;
+
+
     /*是否可强制提交 0否 1是*/
     private Integer canSubmit;
 
@@ -160,6 +171,22 @@ public class WaybillWeightVO implements Serializable
 
     public void setCanSubmit(Integer canSubmit) {
         this.canSubmit = canSubmit;
+    }
+
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    public Integer getKey() {
+        return key;
+    }
+
+    public void setKey(Integer key) {
+        this.key = key;
+    }
+
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
     }
 
     public WaybillWeightVO(String codeStr, Double weight, Double volume, Integer status, Integer operatorId, String operatorName, Integer operatorSiteCode, String operatorSiteName, long operateTimeMillis)
