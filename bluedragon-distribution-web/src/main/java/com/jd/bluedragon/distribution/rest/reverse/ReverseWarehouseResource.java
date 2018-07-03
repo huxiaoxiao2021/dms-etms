@@ -50,6 +50,8 @@ public class ReverseWarehouseResource {
     private static final String MESSAGE_WAYBILL_SORTING = "运单中分拣建包{0}个包裹，请先取消分拣建包";
     private static final String MESSAGE_WAYBILL_SEND = "运单中分拣建包{0}个包裹，发货{1}个包裹，请先取消发货再取消分拣建包";
 
+    private static final String MESSAGE_PACKAGE_SEND_ONLY = "请先取消发货";    //老发货原包发货，存在原包没有分拣的情况
+
     @POST
     @Path("/reverse/warehouse/check")
     public JdResponse returnWarehouseCheck(ReverseWarehouseRequest request){
@@ -72,19 +74,19 @@ public class ReverseWarehouseResource {
 
         List<Sorting> sortingList = null;
         List<SendDetail> sendDetailList = null;
-        //数据的状态：0正常，1已分拣，2已发货
-        int status = 0;
-
+        //数据的状态：已分拣，已发货
+        boolean isSorting = false;
+        boolean isSend = false;
         try{
             sortingList = sortingService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, packageCode);
             //已分拣
             if(sortingList != null && !sortingList.isEmpty()){
-                status++;
+                isSorting = true;
             }
             sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, packageCode);
             //已发货
             if(sendDetailList != null && !sendDetailList.isEmpty()){
-                status++;
+                isSend = true;
             }
         }catch (Exception e){
             logger.error("返仓扫描查询分拣发货数据失败", e);
@@ -95,7 +97,7 @@ public class ReverseWarehouseResource {
         String message = "ok";
 
         //包裹只是做了分拣
-        if(1 == status){
+        if(isSorting && !isSend){
             if(isPackage){
                 message = MESSAGE_PACKAGE_SORTING;
             }else{
@@ -104,8 +106,13 @@ public class ReverseWarehouseResource {
             response.toFail(message);
         }
 
-        //包裹已发货
-        if(2 == status){
+        //包裹只是做了发货（老发货原包发货才有的情况）
+        if(isPackage && !isSorting && isSend){
+            response.toFail(MESSAGE_PACKAGE_SEND_ONLY);
+        }
+
+        //包裹已分拣发货
+        if(isSorting && isSend){
             if(isPackage){
                 message = MESSAGE_PACKAGE_SEND;
             }else{
