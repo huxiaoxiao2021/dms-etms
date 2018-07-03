@@ -97,4 +97,15 @@
 		WHERE
 			order_id = #{orderId,jdbcType=VARCHAR} and yn = 1
 	</update>
+
+	<select id="queryByWaveIdAndWaybillCodes" resultMap="abnormalOrder" parameterType="java.util.Map">
+		SELECT
+		order_id,wave_Business_Id,abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2
+		FROM abnormal_order
+		WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} and yn = 1 and
+		order_id IN
+		<foreach collection="waybillCodes" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
 </mapper>	

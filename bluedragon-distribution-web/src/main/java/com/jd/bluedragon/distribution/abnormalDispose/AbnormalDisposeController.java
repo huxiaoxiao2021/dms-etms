@@ -4,13 +4,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.common.web.LoginContext;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
@@ -25,8 +22,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 
-import java.util.Date;
-
 /**
  * @author tangchunqing
  * @Description: 类描述信息
@@ -40,9 +35,6 @@ public class AbnormalDisposeController extends DmsBaseController {
 
     @Autowired
     AbnormalDisposeService abnormalDisposeService;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     /**
      * 返回主页面
@@ -77,7 +69,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     PagerResult<AbnormalDisposeInspection> inspectionListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> rest;
-        if (abnormalDisposeCondition.getWaveBusinessId() == null) {
+        if (abnormalDisposeCondition.getWaveBusinessId() == null||abnormalDisposeCondition.getDmsSiteCode()==null) {
             rest = new PagerResult<AbnormalDisposeInspection>();
             rest.setTotal(0);
             rest.setRows(new ArrayList<AbnormalDisposeInspection>());
@@ -124,32 +116,13 @@ public class AbnormalDisposeController extends DmsBaseController {
     @RequestMapping(value = "/saveQcCode")
     public @ResponseBody
     JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection) {
-        JdResponse<String> rest = new JdResponse<String>();
-        Date date =new Date();
-        //获取操作人信息封装数据
-        LoginContext loginContext = LoginContext.getLoginContext();
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
-        AbnormalQc abnormalQc =new AbnormalQc();
-        abnormalQc.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
-        abnormalQc.setWaybillCode(abnormalDisposeInspection.getWaybillCode());
-        abnormalQc.setCreateUserCode(userDto.getStaffNo());
-        abnormalQc.setCreateUser(userDto.getAccountNumber());
-        abnormalQc.setCreateUser(userDto.getStaffName());
-        abnormalQc.setCreateSiteCode(userDto.getSiteCode());
-        abnormalQc.setCreateSiteName(userDto.getSiteName());
-        abnormalQc.setQcCode(abnormalDisposeInspection.getQcCode());
-        abnormalQc.setOperateTime(date);
-        abnormalQc.setCreateTime(date);
+        if (abnormalDisposeInspection.getWaveBusinessId() == null || abnormalDisposeInspection.getWaybillCode() == null || abnormalDisposeInspection.getQcCode() == null) {
+            this.logger.error("保存质控编码 --> 传入参数非法");
+            return new JdResponse<String>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
+        }
 
-        Integer integer = abnormalDisposeService.saveInspection(abnormalQc);
-        if(integer > -1) {
-            rest.setCode(JdResponse.CODE_SUCCESS);
-            rest.setData(abnormalDisposeInspection.getQcCode());
-        }
-        else{
-            rest.setCode(JdResponse.CODE_FAIL);
-        }
-        return rest;
+        return abnormalDisposeService.saveAbnormalQc(abnormalDisposeInspection);
+
     }
 
 }

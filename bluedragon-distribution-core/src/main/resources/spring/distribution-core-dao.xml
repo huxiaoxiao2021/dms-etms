@@ -193,10 +193,6 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
-    <bean id="abnormalDisposeDao" class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalDisposeDao">
-        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
-    </bean>
-
     <bean id="abnormalWayBillDao" class="com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
@@ -435,4 +431,6 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
     <bean id="abnormalUnknownWaybillDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
+    <bean id="abnormalQcDao"  parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
 </beans>

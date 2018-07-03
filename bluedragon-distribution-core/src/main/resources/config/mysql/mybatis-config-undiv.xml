@@ -247,7 +247,11 @@
         <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfRedeliveryMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfApproveMapper.xml"/>
+        <!--异常外呼 -->
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
+        <!--三无托寄物-->
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
+        <!--批次清零 -->
+        <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
     </mappers>
 </configuration>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalDisposeDao" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao" >
 
-    <resultMap id="findInspection" type="com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc">
+    <resultMap id="abnormalQc" type="com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc">
         <result column="id" property="id" />
         <result column="wave_business_id" property="waveBusinessId" />
         <result column="waybill_code" property="waybillCode" />
@@ -13,34 +13,25 @@
         <result column="create_site_name" property="createUserName" />
         <result column="qc_code" property="qcCode" />
         <result column="operate_time" property="operateTime" />
-        <result column="operate_time" property="operateTime" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
         <result column="yn" property="yn" />
     </resultMap>
 
-    <select id="findInspection" resultMap="abnormalQc" parameterType="abnormalQc">
+    <select id="queryQcByWaveIdAndWaybillCodes" resultMap="abnormalQc" parameterType="java.util.Map">
         SELECT
         id,wave_business_id,waybill_code,create_user_code,
         create_user_erp,create_user,create_site_code,create_site_name,
         qc_code,operate_time,create_time,update_time,yn
         FROM abnormal_qc
-        WHERE wave_business_id=#{waveBusinessId} AND waybil_code=#{wabillCode}
-    </select>
-
-    <select id="queryQcCodes" resultMap="abnormalQc" parameterType="List">
-        SELECT
-        id,wave_business_id,waybill_code,create_user_code,
-        create_user_erp,create_user,create_site_code,create_site_name,
-        qc_code,operate_time,create_time,update_time,yn
-        FROM abnormal_qc
-        WHERE waybill_code IN
-        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+        WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} and yn = 1 and
+        waybill_code IN
+        <foreach collection="waybillCodes" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
     </select>
 
-    <insert id="saveInspection" parameterType="abnormalQc">
+    <insert id="insertAbnormalQc" parameterType="abnormalQc">
         INSERT INTO abnormal_qc (
           id,wave_business_id,waybill_code,create_user_code,
           create_user_erp,create_user,create_site_code,create_site_name,
@@ -52,12 +43,12 @@
         )
     </insert>
 
-    <update id="updateInspection" parameterType="abnormalQc">
+    <update id="updateAbnormalQc" parameterType="abnormalQc">
         UPDATE abnormal_qc
         SET
           qc_code=#{qcCode,jdbcType=VARCHAR},
           update_time=NOW()
-        WHERE wave_business_id=#{id,jdbcType=INTEGER} AND waybill_code=#{waybillCode,jdbcType=VARCHAR}
+        WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} AND waybill_code=#{waybillCode,jdbcType=VARCHAR} and yn=1
     </update>
 
     <select id="getByWaveIds" resultMap="abnormalQc" parameterType="java.util.List">
