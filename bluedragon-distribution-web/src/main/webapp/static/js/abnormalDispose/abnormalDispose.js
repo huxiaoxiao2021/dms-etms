@@ -203,7 +203,7 @@ $(function () {
             type: "get",
             url: siteListUrl,
             data: params,
-            async: false,
+            async: true,
             success: function (data) {
                 var result = [];
                 if (data) {
@@ -260,12 +260,12 @@ $(function () {
                 $("#query-form #areaId")
                     .on("change", function (e) {
                         var areaId = $("#areaId").val();
-                        var provinceId = $("#provinceId").val();
-                        var cityId = $("#cityId").val();
                         if (areaId) {
                             initProvince({areaId: areaId});
-                            initCity({});
-                            loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
+                            $('#query-form #cityId').select2({data:[]});
+                            $("#cityId").empty();
+                            $("#query-form #cityId").val(null).trigger('change');
+                            loadSite({areaId: areaId});
                         }
                     });
             }
@@ -303,10 +303,15 @@ $(function () {
                     .on("change", function (e) {
                         var areaId = $("#areaId").val();
                         var provinceId = $("#provinceId").val();
-                        var cityId = $("#cityId").val();
                         if (provinceId) {
-                            initCity({areaId: areaId, provinceId: provinceId});
-                            loadSite({areaId: areaId, provinceId: provinceId, cityId: cityId});
+                            if(provinceId==-1){
+                                $('#query-form #cityId').select2({data:[]});
+                                $("#cityId").empty();
+                                $("#query-form #cityId").val(null).trigger('change');
+                            }else{
+                                initCity({areaId: areaId, provinceId: provinceId});
+                            }
+                            loadSite({areaId: areaId, provinceId: provinceId});
                         }
                     });
 
@@ -355,8 +360,6 @@ $(function () {
     }
 
     initArea();
-    initProvince({});
-    initCity({});
     loadSite({});
     initDateQuery();
     tableInit().init();

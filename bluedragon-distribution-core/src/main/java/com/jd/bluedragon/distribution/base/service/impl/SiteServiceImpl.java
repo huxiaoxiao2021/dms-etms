@@ -311,8 +311,9 @@ public class SiteServiceImpl implements SiteService {
 	private List<BaseStaffSiteOrgDto> getDmsSiteByAreaId(Integer areaId) {
 		List<BaseStaffSiteOrgDto> allSites= getAllDmsSite();
 		List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
+		Set<Integer>  provinceIds =AreaHelper.getProvinceIdsByAreaId(areaId);
 		for (BaseStaffSiteOrgDto site : allSites) {
-			if (areaId==site.getAreaId()) {
+			if (provinceIds.contains(site.getProvinceId())) {
 				data.add(site);
 			}
 		}
