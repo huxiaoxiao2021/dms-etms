@@ -302,7 +302,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     result.getData().getWaybill().getFirstTime() != null)
             {
                 Date diffDate = DateHelper.addDate(new Date(),-PICKUP_DIFFER_DAYS);
-                return (result.getData().getWaybill().getFirstTime().after(diffDate));
+                return result.getData().getWaybill().getFirstTime().before(diffDate);
             }
             this.logger.warn("通过运单号" + oldWaybillCode + "调用getDataByChoice数据为空");
         } catch (Exception e) {
