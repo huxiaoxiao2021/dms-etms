@@ -176,7 +176,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.waybillCommonService.getReverseWaybill", mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.waybillCommonService.getReverseWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
         InvokeResult<Waybill> result = new InvokeResult<Waybill>();
         Waybill waybill = null;
@@ -713,8 +713,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	}
 
 	@Override
-    @JProfiler(jKey = "DMSWEB.waybillCommonService.getPickupTask", mState = {JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.waybillCommonService.getPickupTask", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
 	public BaseEntity<PickupTask> getPickupTask(String oldWaybillCode){
-	    return waybillPickupTaskApi.getDataBySfCode(oldWaybillCode);
+	    return waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
     }
 }
