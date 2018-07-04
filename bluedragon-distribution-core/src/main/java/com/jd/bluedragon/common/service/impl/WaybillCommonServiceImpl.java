@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jd.etms.waybill.domain.PickupTask;
 import jd.oom.client.orderfile.Business;
 
 import org.apache.commons.lang.StringUtils;
@@ -88,6 +89,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private PopPrintService popPrintService;
     @Autowired
     private WaybillPrintService waybillPrintService;
+    @Autowired
+    private WaybillCommonService waybillCommonService;
     
     
     public Waybill findByWaybillCode(String waybillCode) {
@@ -173,6 +176,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.waybillCommonService.getReverseWaybill", mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
         InvokeResult<Waybill> result = new InvokeResult<Waybill>();
         Waybill waybill = null;
@@ -707,4 +711,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 		}
 		return false;
 	}
+
+	@Override
+    @JProfiler(jKey = "DMSWEB.waybillCommonService.getPickupTask", mState = {JProEnum.TP,JProEnum.FunctionError})
+	public BaseEntity<PickupTask> getPickupTask(String oldWaybillCode){
+	    return waybillCommonService.getPickupTask(oldWaybillCode);
+    }
 }
