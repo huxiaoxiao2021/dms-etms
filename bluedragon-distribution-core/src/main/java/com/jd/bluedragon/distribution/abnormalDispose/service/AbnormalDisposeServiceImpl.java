@@ -79,9 +79,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.queryInspection", mState = {JProEnum.TP})
     public PagerResult<AbnormalDisposeInspection> queryInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> pagerResult = new PagerResult<AbnormalDisposeInspection>();
-        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
-            logger.error("当前站点不存在：" + abnormalDisposeCondition.getDmsSiteCode());
+            logger.error("当前站点不存在：" + abnormalDisposeCondition.getSiteCode());
             pagerResult.setTotal(0);
             pagerResult.setRows(new ArrayList<AbnormalDisposeInspection>());
             return pagerResult;
@@ -255,6 +255,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
      * 根据路由 获取上游站点
      */
     private BaseStaffSiteOrgDto getPrevSite(String router, Integer currSiteCode) {
+        if (router == null) {
+            return null;
+        }
         String[] routers = router.split(WAYBILL_ROUTER_SPLITER);
         if (routers != null && routers.length > 0) {
             for (int i = 0; i < routers.length; i++) {
@@ -274,6 +277,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
      * 根据路由 获取下游站点
      */
     private BaseStaffSiteOrgDto getNextSite(String router, Integer currSiteCode) {
+        if (router == null) {
+            return null;
+        }
         String[] routers = router.split(WAYBILL_ROUTER_SPLITER);
         if (routers != null && routers.length > 0) {
             for (int i = 0; i < routers.length; i++) {
@@ -307,10 +313,10 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition) {
 
         LoginContext loginContext = LoginContext.getLoginContext();
-//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjxings");
+//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
         if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
-            abnormalDisposeCondition.setDmsSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
+            abnormalDisposeCondition.setSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
         }
         //封装分页参数
         PageDto<TransferWaveMonitorReq> page = new PageDto<TransferWaveMonitorReq>();
@@ -323,7 +329,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         parameter.setProvinceId(abnormalDisposeCondition.getProvinceId());
         parameter.setStartDate(abnormalDisposeCondition.getStartTime());
         parameter.setEndDate(abnormalDisposeCondition.getEndTime());
-        parameter.setSiteCode(abnormalDisposeCondition.getDmsSiteCode());
+        parameter.setSiteCode(abnormalDisposeCondition.getSiteCode());
         PageDto<TransferWaveMonitorResp> pageDto = vrsRouteTransferRelationManager.getAbnormalTotal(page, parameter);
 
         PagerResult<AbnormalDisposeMain> pagerResult = new PagerResult<AbnormalDisposeMain>();
@@ -371,6 +377,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             abnormalDisposeMain.setWaveBusinessId(transferWaveMonitorResp.getWaveBusinessId());
             abnormalDisposeMain.setAreaName(transferWaveMonitorResp.getOrgName());
             abnormalDisposeMain.setSiteName(transferWaveMonitorResp.getSiteName());
+            abnormalDisposeMain.setSiteCode(transferWaveMonitorResp.getSiteCode());
             abnormalDisposeMain.setTransferStartTime(transferWaveMonitorResp.getPlanStartTime());
             abnormalDisposeMain.setTransferEndTime(transferWaveMonitorResp.getPlanEndTime());
             abnormalDisposeMain.setTransferNo(transferWaveMonitorResp.getWaveCode());
@@ -380,6 +387,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             abnormalDisposeMain.setNotReceiveNum(transferWaveMonitorResp.getActualArriveNoInspection());
             abnormalDisposeMain.setNotReceiveDisposeNum(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
             abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getActualArriveNoInspection()));
+            abnormalDisposeMain.setDateTime(transferWaveMonitorResp.getDateTime());
             abnormalDisposeMains.add(abnormalDisposeMain);
         }
         pagerResult.setTotal(pageDto.getTotalRow());
@@ -410,9 +418,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.querySend", mState = {JProEnum.TP})
     public PagerResult<AbnormalDisposeSend> querySend(AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeSend> pagerResult = new PagerResult<AbnormalDisposeSend>();
-        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
-            logger.error("当前站点不存在：" + abnormalDisposeCondition.getDmsSiteCode());
+            logger.error("当前站点不存在：" + abnormalDisposeCondition.getSiteCode());
             pagerResult.setTotal(0);
             pagerResult.setRows(new ArrayList<AbnormalDisposeSend>());
             return pagerResult;
@@ -478,12 +486,13 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         //运单号
         abnormalDisposeSend.setWaybillCode(abnormalDisposeSend.getWaybillCode());
         BaseStaffSiteOrgDto nextDto = getNextSite(routerMap.get(transferWaveMonitorDetailResp.getWaybillCode()), currSite.getSiteCode());
-
-        //下游站点、区域
-        abnormalDisposeSend.setNextSiteCode(nextDto.getDmsSiteCode());
-        abnormalDisposeSend.setNextSiteName(nextDto.getSiteName());
-        abnormalDisposeSend.setNextAreaId(Integer.valueOf(nextDto.getAreaId() + ""));
-        abnormalDisposeSend.setNextAreaName(nextDto.getAreaName());
+        if (nextDto != null) {
+            //下游站点、区域
+            abnormalDisposeSend.setNextSiteCode(nextDto.getDmsSiteCode());
+            abnormalDisposeSend.setNextSiteName(nextDto.getSiteName());
+            abnormalDisposeSend.setNextAreaId(Integer.valueOf(nextDto.getAreaId() + ""));
+            abnormalDisposeSend.setNextAreaName(nextDto.getAreaName());
+        }
         //目的站点、城市
         abnormalDisposeSend.setEndSiteCode(transferWaveMonitorDetailResp.getEndNodeCode());
         abnormalDisposeSend.setEndSiteName(transferWaveMonitorDetailResp.getEndNodeName());
@@ -600,7 +609,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public List<List<Object>> getExportDataInspection(AbnormalDisposeCondition abnormalDisposeCondition) {
 
         List<List<Object>> resList = new ArrayList<List<Object>>();
-        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
             return resList;
         }
@@ -707,7 +716,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public List<List<Object>> getExportDataSend(AbnormalDisposeCondition abnormalDisposeCondition) {
 
         List<List<Object>> resList = new ArrayList<List<Object>>();
-        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getDmsSiteCode());
+        BaseStaffSiteOrgDto currSite = baseMajorManager.getBaseSiteByDmsCode(abnormalDisposeCondition.getSiteCode());
         if (currSite == null) {
             return resList;
         }

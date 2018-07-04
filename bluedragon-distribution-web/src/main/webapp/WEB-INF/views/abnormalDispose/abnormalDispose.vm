@@ -74,7 +74,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-4" for="site-select">分拣中心 </label>
                                     <div class=" col-xs-8">
-                                        <select id="dmsSiteCode" class="form-control search-param " name="dmsSiteCode"
+                                        <select id="siteCodeMain" class="form-control search-param " name="siteCode"
                                                 value=""></select>
                                     </div>
                                 </div>
@@ -119,6 +119,8 @@
                                            class="form-control  search-param-inspection " name="isDispose">
                                     <input type="hidden" id="waveBusinessIdInspection"
                                            class="form-control  search-param-inspection " name="waveBusinessId">
+                                    <input type="hidden" id="siteCodeInspection" class="form-control  search-param-inspection "
+                                           name="siteCode">
                                 </div>
                             </div>
                         </div>
@@ -169,6 +171,8 @@
                                            name="isDispose">
                                     <input type="hidden" id="waveBusinessIdSend" class="form-control  search-param-send "
                                            name="waveBusinessId">
+                                    <input type="hidden" id="siteCodeSend" class="form-control  search-param-send "
+                                           name="siteCode">
                                 </div>
                             </div>
                         </div>

@@ -70,7 +70,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     PagerResult<AbnormalDisposeInspection> inspectionListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeInspection> rest;
-        if (abnormalDisposeCondition.getWaveBusinessId() == null || abnormalDisposeCondition.getDmsSiteCode() == null) {
+        if (abnormalDisposeCondition.getWaveBusinessId() == null || abnormalDisposeCondition.getSiteCode() == null) {
             rest = new PagerResult<AbnormalDisposeInspection>();
             rest.setTotal(0);
             rest.setRows(new ArrayList<AbnormalDisposeInspection>());
@@ -90,7 +90,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     PagerResult<AbnormalDisposeSend> sendListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeSend> rest;
-        if (abnormalDisposeCondition.getWaveBusinessId() == null) {
+        if (abnormalDisposeCondition.getWaveBusinessId() == null|| abnormalDisposeCondition.getSiteCode() == null) {
             rest = new PagerResult<AbnormalDisposeSend>();
             rest.setTotal(0);
             rest.setRows(new ArrayList<AbnormalDisposeSend>());

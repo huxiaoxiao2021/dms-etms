@@ -144,7 +144,11 @@ $(function () {
                 field: 'qcCode',
                 title: '异常编码',
                 formatter: function (value, row, index) {
-                    return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
+                    if(value){
+                        return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\">" + value + "</a>";
+                    }else{
+                        return "<a href=\"#\" name=\"qcCode\" data-emptytext=\"无\" data-type=\"text\"  data-pk=\"" + row.waybillCode + "\" data-title=\"维护异常编码\"></a>";
+                    }
                 }
             }, {
                 field: 'createUser',
@@ -234,7 +238,7 @@ function sumbitQc() {
     window.open("http://qc.jd.com");
 }
 
-function queryinspection(waveBusinessId,num) {
+function queryinspection(waveBusinessId,siteCode,num) {
     if (num && num > 5000) {
         alert("班次未结束，暂不开放明细查看");
         return;
@@ -242,5 +246,6 @@ function queryinspection(waveBusinessId,num) {
     $('#dataTableMainDiv').hide();
     $('#inspectionDetail').show();
     $('#waveBusinessIdInspection').val(waveBusinessId);
+    $('#siteCodeInspection').val(siteCode);
     $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
 }

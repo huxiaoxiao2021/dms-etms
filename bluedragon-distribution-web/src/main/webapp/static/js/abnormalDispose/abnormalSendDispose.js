@@ -397,7 +397,7 @@ $(function () {
     initExport(tableInit());
 });
 
-function querySend(waveBusinessId, num) {
+function querySend(waveBusinessId,siteCode, num) {
     if (num && num > 5000) {
         alert("班次未结束，暂不开放明细查看");
         return;
@@ -405,5 +405,6 @@ function querySend(waveBusinessId, num) {
     $('#dataTableMainDiv').hide();
     $('#sendDetail').show();
     $('#waveBusinessIdSend').val(waveBusinessId);
+    $('#siteCodeSend').val(siteCode);
     $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
 }

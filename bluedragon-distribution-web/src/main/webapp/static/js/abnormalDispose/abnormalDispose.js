@@ -59,11 +59,11 @@ $(function () {
                 _selector = ".search-param";
             }
             $(_selector).each(function () {
-                var _k = this.id;
+                var _k = this.name;
                 var _v = $(this).val();
-                if (_k ) {
+                if (_k) {
                     if (_k == 'startTime' || _k == 'endTime') {
-                        if (!_v){
+                        if (!_v) {
                             alert("时间范围不允许为空")
                             return;
                         }
@@ -81,6 +81,11 @@ $(function () {
             {
                 field: 'waveBusinessId',
                 title: 'id',
+                visible: false
+            },
+            {
+                field: 'siteCode',
+                title: 'siteCode',
                 visible: false
             },
             {
@@ -112,37 +117,51 @@ $(function () {
                 field: 'notReceiveNum',
                 title: '未收货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\,"+value+")'>" + value + "</a>";
+                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
                 }
             }, {
                 field: 'notReceiveDisposeNum',
+                width: 100,
                 title: '已处理未收货异常数'
             }, {
-                field: 'notReceiveProcess',
+                field: 'notReceiveProgress',
                 title: '未收货异常处理进度',
                 formatter: function (value, row, index) {
-                    return value + '%';
+                    if (value) {
+                        return value + '%';
+                    } else {
+                        return '0%';
+                    }
                 }
             }, {
                 field: 'notSendNum',
                 title: '未发货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\,"+value+")'>" + value + "</a>";
+                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
                 }
             }, {
                 field: 'notSendDisposeNum',
+                width: 100,
                 title: '已处理未发货异常数'
             }, {
-                field: 'notSendProcess',
+                field: 'notSendProgress',
                 title: '未发货异常处理进度',
                 formatter: function (value, row, index) {
-                    return value + '%';
+                    if (value) {
+                        return value + '%';
+                    } else {
+                        return '0%';
+                    }
                 }
             }, {
-                field: 'totalProcess',
+                field: 'totalProgress',
                 title: '总进度',
                 formatter: function (value, row, index) {
-                    return value + '%';
+                    if (value) {
+                        return value + '%';
+                    } else {
+                        return '0%';
+                    }
                 }
             }];
         oTableInit.refresh = function () {
@@ -262,7 +281,7 @@ $(function () {
                         var areaId = $("#areaId").val();
                         if (areaId) {
                             initProvince({areaId: areaId});
-                            $('#query-form #cityId').select2({data:[]});
+                            $('#query-form #cityId').select2({data: []});
                             $("#cityId").empty();
                             $("#query-form #cityId").val(null).trigger('change');
                             loadSite({areaId: areaId});
@@ -304,11 +323,11 @@ $(function () {
                         var areaId = $("#areaId").val();
                         var provinceId = $("#provinceId").val();
                         if (provinceId) {
-                            if(provinceId==-1){
-                                $('#query-form #cityId').select2({data:[]});
+                            if (provinceId == -1) {
+                                $('#query-form #cityId').select2({data: []});
                                 $("#cityId").empty();
                                 $("#query-form #cityId").val(null).trigger('change');
-                            }else{
+                            } else {
                                 initCity({areaId: areaId, provinceId: provinceId});
                             }
                             loadSite({areaId: areaId, provinceId: provinceId});

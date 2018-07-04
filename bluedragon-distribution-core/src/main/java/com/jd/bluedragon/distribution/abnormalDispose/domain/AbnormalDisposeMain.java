@@ -12,20 +12,20 @@ public class AbnormalDisposeMain {
     private Date dateTime;//日期
     private Integer areaId;//区域id
     private String areaName;//区域名称
-    private Integer siteCode;//站点编码 数字id
+    private String siteCode;//站点编码 7位编码
     private String siteName;//机构名称
     private String transferNo;//中转班次
     private Date transferStartTime;//班次开始时间
     private Date transferEndTime;//班次结束时间
 
-    private Integer NotReceiveNum;//未收货数量
-    private Integer NotSendNum;//未发货数量
+    private Integer notReceiveNum;//未收货数量
+    private Integer notSendNum;//未发货数量
 
-    private Integer NotReceiveDisposeNum;//已处理未收货异常数
-    private Integer NotSendDisposeNum;//已处理未发货异常数
+    private Integer notReceiveDisposeNum;//已处理未收货异常数
+    private Integer notSendDisposeNum;//已处理未发货异常数
 
-    private String NotReceiveProgress;// 未收货异常处理进度
-    private String NotSendProgress;//未发货异常处理进度
+    private String notReceiveProgress;// 未收货异常处理进度
+    private String notSendProgress;//未发货异常处理进度
 
     private String totalProgress;//总进度
 
@@ -62,11 +62,11 @@ public class AbnormalDisposeMain {
         this.areaName = areaName;
     }
 
-    public Integer getSiteCode() {
+    public String getSiteCode() {
         return siteCode;
     }
 
-    public void setSiteCode(Integer siteCode) {
+    public void setSiteCode(String siteCode) {
         this.siteCode = siteCode;
     }
 
@@ -103,51 +103,51 @@ public class AbnormalDisposeMain {
     }
 
     public Integer getNotReceiveNum() {
-        return NotReceiveNum;
+        return notReceiveNum;
     }
 
     public void setNotReceiveNum(Integer notReceiveNum) {
-        NotReceiveNum = notReceiveNum;
+        this.notReceiveNum = notReceiveNum;
     }
 
     public Integer getNotSendNum() {
-        return NotSendNum;
+        return notSendNum;
     }
 
     public void setNotSendNum(Integer notSendNum) {
-        NotSendNum = notSendNum;
+        this.notSendNum = notSendNum;
     }
 
     public Integer getNotReceiveDisposeNum() {
-        return NotReceiveDisposeNum;
+        return notReceiveDisposeNum;
     }
 
     public void setNotReceiveDisposeNum(Integer notReceiveDisposeNum) {
-        NotReceiveDisposeNum = notReceiveDisposeNum;
+        this.notReceiveDisposeNum = notReceiveDisposeNum;
     }
 
     public Integer getNotSendDisposeNum() {
-        return NotSendDisposeNum;
+        return notSendDisposeNum;
     }
 
     public void setNotSendDisposeNum(Integer notSendDisposeNum) {
-        NotSendDisposeNum = notSendDisposeNum;
+        this.notSendDisposeNum = notSendDisposeNum;
     }
 
     public String getNotReceiveProgress() {
-        return NotReceiveProgress;
+        return notReceiveProgress;
     }
 
     public void setNotReceiveProgress(String notReceiveProgress) {
-        NotReceiveProgress = notReceiveProgress;
+        this.notReceiveProgress = notReceiveProgress;
     }
 
     public String getNotSendProgress() {
-        return NotSendProgress;
+        return notSendProgress;
     }
 
     public void setNotSendProgress(String notSendProgress) {
-        NotSendProgress = notSendProgress;
+        this.notSendProgress = notSendProgress;
     }
 
     public String getTotalProgress() {
