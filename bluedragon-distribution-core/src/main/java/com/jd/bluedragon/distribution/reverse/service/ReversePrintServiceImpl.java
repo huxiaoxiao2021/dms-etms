@@ -30,6 +30,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +58,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private static final Integer EXCHANGE_OWN_WAYBILL_OP_TYPE=Integer.valueOf(4200);
 
     private static final Integer PICKUP_FINISHED_STATUS=Integer.valueOf(20); //取件单完成态
+
+    private static final Integer PICKUP_DIFFER_DAYS = 15;   //取件单创建时间和现在相差天数
 
     @Autowired
     private TaskService taskService;
@@ -202,6 +205,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ReversePrint.getNewWaybillCode", mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<String> getNewWaybillCode(String oldWaybillCode, boolean isPickUpFinished) {
         if(oldWaybillCode.toUpperCase().startsWith("Q")) {
             InvokeResult<String> targetResult=new InvokeResult<String>();
@@ -245,15 +249,19 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         RepeatPrint repeatPrint =new RepeatPrint();
         boolean isOverTime = false;
         if(oldWaybillCode.toUpperCase().startsWith("Q")) {
-            BaseEntity<PickupTask> result= waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
+            BaseEntity<PickupTask> result = waybillCommonService.getPickupTask(oldWaybillCode);
             if(null!=result&&null!=result.getData()&&StringHelper.isNotEmpty(result.getData().getSurfaceCode())) {
                 if(isPickUpFinished && !PICKUP_FINISHED_STATUS.equals(result.getData().getStatus())){
                     targetResult.customMessage(-1,"未操作取件完成无法打印面单");
                 }else{
+                    StringBuilder errorMessage = new StringBuilder();
                     targetResult.setMessage(result.getData().getServiceCode());
                     repeatPrint.setNewWaybillCode(result.getData().getSurfaceCode());
                     repeatPrint.setOldWaybillCode(oldWaybillCode);
-                    repeatPrint.setOverTime(isExceed(result.getData().getSurfaceCode()));
+                    repeatPrint.setOverTime(isExceed(result.getData().getSurfaceCode(),errorMessage));
+                    if(!"".equals(errorMessage.toString())){
+                        targetResult.customMessage(-1,errorMessage.toString());
+                    }
                     targetResult.setData(repeatPrint);
                 }
             }else{
@@ -284,15 +292,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
      *  通过运单号获得取件单的创建时间是否超过15天
      *
      * */
-    private Boolean isExceed(String oldWaybillCode) {
+    private Boolean isExceed(String oldWaybillCode,StringBuilder errorMessage) {
 
         BaseEntity<BigWaybillDto> result = null;
         try {
             result = waybillQueryManager.getDataByChoice(oldWaybillCode,
                     true, true, true, true, true, false, false);
-            if(result != null && result.getData() != null && result.getData().getWaybill() != null && result.getData().getWaybill().getFirstTime() != null)
+            if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
+                    result.getData().getWaybill().getFirstTime() != null)
             {
-                return (DateHelper.daydiff(result.getData().getWaybill().getFirstTime(),new Date()) - 15) > 0;
+                Date diffDate = DateHelper.addDate(new Date(),-PICKUP_DIFFER_DAYS);
+                return result.getData().getWaybill().getFirstTime().before(diffDate);
             }
             this.logger.warn("通过运单号" + oldWaybillCode + "调用getDataByChoice数据为空");
         } catch (Exception e) {
@@ -304,6 +314,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     .append("isPackList").append(true);
             logger.error(errorMsg, e);
         }
+        errorMessage.append("根据运单号" + oldWaybillCode + "获得运单信息失败");
         return true;
     }
 

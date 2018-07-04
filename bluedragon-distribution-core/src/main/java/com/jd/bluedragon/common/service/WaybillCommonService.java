@@ -6,7 +6,9 @@ import java.util.Map;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 
@@ -139,4 +141,6 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	boolean hasTotalWeight(String waybillCode);
+
+    BaseEntity<PickupTask> getPickupTask(String oldWaybillCode);
 }
