@@ -54,7 +54,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	public BasicTraderInfoDTO getBaseTraderById(Integer paramInteger) {
 		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
 		responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
-		if(responseDTO != null){
+		if(responseDTO != null && responseDTO.getResult() != null ){
+			responseDTO.getResult().setAllAddress(null);
 			return responseDTO.getResult();
 		}
 		return null;
@@ -101,9 +102,10 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderByName", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public List<BasicTraderInfoDTO> getBaseTraderByName(String name) {
 		ResponseDTO<List<BasicTraderInfoDTO>> responseDTO =  basicTraderAPI.getBaseTraderByName(name);
-		if(responseDTO == null){
+		if(responseDTO == null || responseDTO.getResult() == null){
 			return Collections.emptyList();
 		}
+        resetBasicTraderInfoDTOs(responseDTO.getResult());
 		return responseDTO.getResult();
 	}
 
@@ -148,6 +150,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 		log.info("getBaseAllTrader获取数据count[" + count + "]");
 		log.info("getBaseAllTrader获取数据耗时[" + (System.currentTimeMillis() - startTime) + "]");
+        resetBasicTraderInfoDTOs(traderList);
 		return traderList;
 	}
 
@@ -171,14 +174,31 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 
 	@Override
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getTraderInfoByPopCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-			mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMinorManagerImpl.getTraderInfoByPopCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getTraderInfoByPopCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicTraderInfoDTO getTraderInfoByPopCode(String popCode){
 		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
 		responseDTO = basicTraderAPI.getBasicTraderInfoByPopId(popCode);
-		if(responseDTO != null){
+		if(responseDTO != null && responseDTO.getResult() != null){
+		    //设置商家地址列表为空,这个属性太大，并且我们用不到
+            responseDTO.getResult().setAllAddress(null);
 			return responseDTO.getResult();
 		}
 		return null;
 	}
+
+    /**
+     * 精简商家基础资料，过滤掉不用的大属性，避免内存缓存存储大量无用数据
+     * 不用的大属性：商家地址列表
+     * @param basicTraderInfoDTOList
+     */
+	private void resetBasicTraderInfoDTOs(List<BasicTraderInfoDTO> basicTraderInfoDTOList){
+	    if(basicTraderInfoDTOList == null || basicTraderInfoDTOList.isEmpty()){
+	        return;
+        }
+        for (BasicTraderInfoDTO dto:basicTraderInfoDTOList){
+            dto.setAllAddress(null);
+        }
+    }
 }

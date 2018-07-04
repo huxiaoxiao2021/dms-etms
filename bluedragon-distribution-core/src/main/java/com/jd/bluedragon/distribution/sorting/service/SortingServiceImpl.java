@@ -26,7 +26,6 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -61,8 +60,6 @@ public class SortingServiceImpl implements SortingService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
-	private final static String MQ_KEY_REFUND = "bd_blocker_complete";
-
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
 	@Autowired
@@ -95,9 +92,6 @@ public class SortingServiceImpl implements SortingService {
 	private DefaultJMQProducer blockerComOrbrefundRqMQ;
 
 	@Autowired
-	private WaybillCancelService waybillCancelService;
-
-	@Autowired
 	private InspectionECDao inspectionECDao;
 
 	@Autowired
@@ -111,9 +105,6 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-
-//	@Autowired
-//	private WaybillCommonService waybillCommonService;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -755,7 +746,7 @@ public class SortingServiceImpl implements SortingService {
 		// added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
-		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + 30000));
+		sendDetail.setOperateTime(new Date(sorting.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
 		this.fillSendDetailIfPickup(sendDetail);
 		/* 补齐包裹重量 */
 		// String retrieveFlag =
@@ -772,10 +763,10 @@ public class SortingServiceImpl implements SortingService {
 	/**
 	 * 分拣时已发货，补全中转发货数据
 	 *
-	 * @param sorting    分拣数据
+	 * @param sendM    发货sendM
 	 * @param sendDetail 发货明细数据
 	 */
-	private SendDetail addTransitSendDetail(Sorting sorting, SendDetail sendDetail, SendM sendM) {
+	private SendDetail addTransitSendDetail(SendDetail sendDetail, SendM sendM) {
 		// 分拣补中转发货
 		try {
 			SendDetail transitSendD = new SendDetail();
@@ -795,7 +786,7 @@ public class SortingServiceImpl implements SortingService {
 			transitSendD.setCreateUserCode(sendM.getCreateUserCode());
 			return transitSendD;
 		} catch (Exception ex) {
-			logger.error("[分拣Worker]分拣补中转发货数据时发生异常，包裹号：" + sorting.getPackageCode(), ex);
+			logger.error("[分拣Worker]分拣补中转发货数据时发生异常，包裹号：" + sendDetail.getPackageBarcode(), ex);
 		}
 		return null;
 	}
@@ -820,7 +811,7 @@ public class SortingServiceImpl implements SortingService {
 					for (SendDetail sendDetail : sendDs) {
 					    // 只有按箱操作才存在跨分拣的情况
 						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-							SendDetail sendDetail1 = this.addTransitSendDetail(sorting, sendDetail, sendM);
+							SendDetail sendDetail1 = this.addTransitSendDetail(sendDetail, sendM);
 							if (sendDetail1 != null) {
 								sendDetail1.setBoardCode(sendM.getBoardCode());
 								transitSendDs.add(sendDetail1);
@@ -859,17 +850,15 @@ public class SortingServiceImpl implements SortingService {
 			Iterator<SendM> iterator = sendList.iterator();
 			while (iterator.hasNext()) {
 				SendM sendM = iterator.next();
-				// 判断分拣始发站点与箱号的始发站点是否一致，不一致直接丢弃
-				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode())){
-					if (sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
-					    // 直发分拣
-						logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
-						sendMs.add(sendM);
-					} else {
-					    // 跨分拣发货
-						transitSendMs.add(sendM);
-						logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
-					}
+				// 判断分拣始发站点与箱号的始发站点，目的站点是否都一致，不一致则为中转发货
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())){
+					// 直发分拣
+					logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
+					sendMs.add(sendM);
+				}else {
+					// 跨分拣发货
+					transitSendMs.add(sendM);
+					logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
 				}
 			}
 		}

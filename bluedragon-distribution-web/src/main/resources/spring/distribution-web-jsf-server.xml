@@ -79,6 +79,13 @@
                   ref="arReceiveResource" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 空铁项目-基础服务JSF接口 -->
+    <jsf:provider id="jsfDmsArBaseService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsArBaseService"
+                  alias="${dms.jsf.alias}"
+                  ref="arBaseResource" server="dmsjsf">
+    </jsf:provider>
+
     <!-- 新版封车解封车相关JSF接口 -->
     <jsf:provider id="jsfDmsNewSealVehicleService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService"
@@ -119,6 +126,13 @@
                   interface="com.jd.bluedragon.distribution.external.service.DmsTaskService"
                   alias="${dms.jsf.alias}"
                   ref="taskResource" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 运单相关JSF接口 -->
+    <jsf:provider id="jsfDmsWaybillService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsWaybillService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillResource" server="dmsjsf">
     </jsf:provider>
 
 </beans>
