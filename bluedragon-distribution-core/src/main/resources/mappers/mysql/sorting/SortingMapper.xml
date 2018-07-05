@@ -336,4 +336,16 @@
 		WHERE yn=1  AND  package_code = #{packageCode}  AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 
+	<select id="findByWaybillCodeOrPackageCode" resultMap="sorting" parameterType="sorting">
+		SELECT waybill_code,package_code,box_code
+		FROM  sorting
+		WHERE yn=1  AND is_cancel = 0 AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			AND package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+	</select>
+
 </mapper>

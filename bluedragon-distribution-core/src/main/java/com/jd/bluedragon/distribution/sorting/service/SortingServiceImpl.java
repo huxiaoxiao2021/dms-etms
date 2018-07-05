@@ -1101,17 +1101,16 @@ public class SortingServiceImpl implements SortingService {
 	    return sortingDao.findByBoxCodeAndFetchNum(boxCode,createSiteCode,fetchNum);
     }
 
-	public static void main(String args[]){
-//		SortingServiceImpl impl = new SortingServiceImpl();
-//		Sorting sorting = new Sorting();
-//		sorting.setWaybillCode("T42747129215");
-//		impl.backwardSendMQ(sorting);
-		String waybillsign = "T0000000000000200000000000000000000000000000000000";
-		String b = waybillsign.substring(15,16);
-		String a = waybillsign.substring(0,1);
-		if("T".equals(a) || "6".equals(b)){
-			System.out.println(a);
-		}
+    @Override
+    public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode) {
+	    if(StringUtils.isNotEmpty(waybillCode) || StringUtils.isNotEmpty(packageCode)){
+	        Sorting sorting = new Sorting();
+	        sorting.setCreateSiteCode(createSiteCode);
+	        sorting.setPackageCode(packageCode);
+	        sorting.setWaybillCode(waybillCode);
+	        return sortingDao.findByWaybillCodeOrPackageCode(sorting);
+        }
+        return null;
+    }
 
-	}
 }

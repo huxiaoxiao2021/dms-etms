@@ -122,4 +122,12 @@ public class SortingDao extends BaseDao<Sorting> {
         paramMap.put("createSiteCode", createSiteCode);
         return this.getSqlSession().selectList(namespace + ".findByBoxCodeAndFetchNum", paramMap);
     }
+    /**
+     * 根据运单号或者包裹号，当前站点查询已分拣记录
+     * @param sorting 运单号
+     * @return
+     */
+    public List<Sorting>  findByWaybillCodeOrPackageCode(Sorting sorting){
+        return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sorting);
+    }
 }

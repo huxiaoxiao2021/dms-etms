@@ -126,4 +126,13 @@ public interface SortingService {
      * @return
      */
     public List<Sorting>  findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum);
+
+    /**
+     * 根据运单号或者包裹号，当前站点查询所有分拣记录
+     * @param createSiteCode
+     * @param waybillCode
+     * @param packageCode
+     * @return
+     */
+    public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
 }
