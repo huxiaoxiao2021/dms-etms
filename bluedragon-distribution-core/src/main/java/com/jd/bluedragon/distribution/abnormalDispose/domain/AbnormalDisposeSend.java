@@ -8,6 +8,7 @@ import java.util.Date;
  * @date 2018年06月19日 11时:35分
  */
 public class AbnormalDisposeSend {
+    public static String ABNORMAL_TYPE_1="1";
     private String waveBusinessId;
     private Date inspectionDate;//验货时间
     private String inspectionSiteCode;//验货分拣中心

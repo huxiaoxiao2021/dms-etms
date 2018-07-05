@@ -10,6 +10,8 @@ import java.util.Date;
  * @date 2018年06月13日 20时:01分
  */
 public class AbnormalDisposeCondition  extends BasePagerCondition {
+    public static String IS_DISPOSE_YES="1";
+    public static String IS_DISPOSE_NO="0";
     private Date startTime;
     private Date endTime;
     private Integer areaId;

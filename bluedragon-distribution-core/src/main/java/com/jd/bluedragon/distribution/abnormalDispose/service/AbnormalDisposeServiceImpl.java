@@ -6,17 +6,17 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
-import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc;
+import com.jd.bluedragon.distribution.abnormalDispose.domain.*;
 import com.jd.bluedragon.distribution.abnormalorder.dao.AbnormalOrderDao;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.domain.AreaNode;
+import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
@@ -65,7 +65,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     private AbnormalOrderDao abnormalOrderDao;
     @Autowired
     private AbnormalWayBillDao abnormalWayBillDao;
-
+    @Autowired
+    private InspectionDao inspectionDao;
     @Autowired
     private BaseMajorManager baseMajorManager;
 
@@ -114,7 +115,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
-            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setPageSize(100);
             page.setCurrentPage(currPage);
             PageDto<TransferWaveMonitorDetailResp> noInspectionDetail = vrsRouteTransferRelationManager.getArrivedButNoCheckDetail(page, abnormalDisposeCondition.getWaveBusinessId());
             //如果没有明细，下面就不走了
@@ -123,7 +124,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noInspectionDetail.getTotalPage();
-                if (totalPage > 5000) {
+                if (noInspectionDetail.getTotalRow() > 5000) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -150,11 +151,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(0) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(1) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
                     continue;
                 }
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
@@ -313,8 +314,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition) {
 
         LoginContext loginContext = LoginContext.getLoginContext();
-//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
+//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
         if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
             abnormalDisposeCondition.setSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
         }
@@ -375,7 +376,10 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         for (TransferWaveMonitorResp transferWaveMonitorResp : pageDto.getResult()) {
             AbnormalDisposeMain abnormalDisposeMain = new AbnormalDisposeMain();
             abnormalDisposeMain.setWaveBusinessId(transferWaveMonitorResp.getWaveBusinessId());
-            abnormalDisposeMain.setAreaName(transferWaveMonitorResp.getOrgName());
+            AreaNode areaNode = AreaHelper.getArea(transferWaveMonitorResp.getOrgId());
+            if (areaNode != null) {
+                abnormalDisposeMain.setAreaName(areaNode.getName());
+            }
             abnormalDisposeMain.setSiteName(transferWaveMonitorResp.getSiteName());
             abnormalDisposeMain.setSiteCode(transferWaveMonitorResp.getSiteCode());
             abnormalDisposeMain.setTransferStartTime(transferWaveMonitorResp.getPlanStartTime());
@@ -388,11 +392,20 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             abnormalDisposeMain.setNotReceiveDisposeNum(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
             abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getActualArriveNoInspection()));
             abnormalDisposeMain.setDateTime(transferWaveMonitorResp.getDateTime());
+            abnormalDisposeMain.setTotalProgress(countProgress(getInteger(abnormalDisposeMain.getNotReceiveDisposeNum()) + getInteger(abnormalDisposeMain.getNotSendDisposeNum()), transferWaveMonitorResp.getNoSendWaybillCount() + transferWaveMonitorResp.getActualArriveNoInspection()));
             abnormalDisposeMains.add(abnormalDisposeMain);
         }
         pagerResult.setTotal(pageDto.getTotalRow());
         pagerResult.setRows(abnormalDisposeMains);
         return pagerResult;
+    }
+
+    private Integer getInteger(Integer value) {
+        if (value == null) {
+            return 0;
+        } else {
+            return value;
+        }
     }
 
     /**
@@ -471,9 +484,17 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
             }
         }
+        //查验货时间
+        List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
+        Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
+        if (inspectionList != null && inspectionList.size() > 0) {
+            for (Inspection inspection : inspectionList) {
+                inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
+            }
+        }
         ArrayList<AbnormalDisposeSend> resultData = new ArrayList<AbnormalDisposeSend>();
         for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
-            resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, transferWaveMonitorDetailResp));
+            resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
         }
 
         pagerResult.setTotal(noSendDetail.getTotalRow());
@@ -481,7 +502,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         return pagerResult;
     }
 
-    private AbnormalDisposeSend convertAbnormalDisposeSend(BaseStaffSiteOrgDto currSite, Map<String, String> routerMap, Map<String, AbnormalOrder> abnormalOrdersMap, Map<String, AbnormalWayBill> abnormalWayBillsMap, TransferWaveMonitorDetailResp transferWaveMonitorDetailResp) {
+    private AbnormalDisposeSend convertAbnormalDisposeSend(BaseStaffSiteOrgDto currSite, Map<String, String> routerMap, Map<String, AbnormalOrder> abnormalOrdersMap, Map<String, AbnormalWayBill> abnormalWayBillsMap, Map<String, Inspection> inspectionWayBillsMap, TransferWaveMonitorDetailResp transferWaveMonitorDetailResp) {
         AbnormalDisposeSend abnormalDisposeSend = new AbnormalDisposeSend();
         //运单号
         abnormalDisposeSend.setWaybillCode(abnormalDisposeSend.getWaybillCode());
@@ -504,6 +525,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             abnormalDisposeSend.setAbnormalType("0");
             abnormalDisposeSend.setAbnormalReason1(abnormalWayBillsMap.get(abnormalDisposeSend.getWaybillCode()).getQcName());
         }
+        //验货时间
+        Inspection inspection = inspectionWayBillsMap.get(abnormalDisposeSend.getWaybillCode());
+        if (inspection != null) {
+            abnormalDisposeSend.setInspectionDate(inspection.getOperateTime());
+        }
         return abnormalDisposeSend;
     }
 
@@ -525,7 +551,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
-            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setPageSize(100);
             page.setCurrentPage(currPage);
             PageDto<TransferWaveMonitorDetailResp> noSendDetail = vrsRouteTransferRelationManager.getNoSendDetail(page, abnormalDisposeCondition.getWaveBusinessId());
             //如果没有明细，下面就不走了
@@ -534,7 +560,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noSendDetail.getTotalPage();
-                if (totalPage > 5000) {
+                if (noSendDetail.getTotalRow() > 5000) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -566,14 +592,22 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
                 }
             }
+            //查验货时间
+            List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
+            Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
+            if (inspectionList != null && inspectionList.size() > 0) {
+                for (Inspection inspection : inspectionList) {
+                    inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
+                }
+            }
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(0) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(1) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
                     continue;
                 }
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
@@ -587,7 +621,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
                 }
-                resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, transferWaveMonitorDetailResp));
+                resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
             }
 
             if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
@@ -636,7 +670,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
-            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setPageSize(100);
             page.setCurrentPage(currPage);
             PageDto<TransferWaveMonitorDetailResp> noInspectionDetail = vrsRouteTransferRelationManager.getArrivedButNoCheckDetail(page, abnormalDisposeCondition.getWaveBusinessId());
             //如果没有明细，下面就不走了
@@ -645,7 +679,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noInspectionDetail.getTotalPage();
-                if (totalPage > 5000) {
+                if (noInspectionDetail.getTotalRow() > 5000) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -671,11 +705,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             }
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(0) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(1) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
+                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
                     continue;
                 }
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
@@ -697,7 +731,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 body.add(abnormalDisposeSend.getPrevSiteName());
                 body.add(abnormalDisposeSend.getEndCityName());
                 body.add(abnormalDisposeSend.getEndSiteName());
-                body.add("1".equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
+                body.add(AbnormalDisposeCondition.IS_DISPOSE_YES.equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
                 body.add(abnormalDisposeSend.getQcCode());
                 body.add(abnormalDisposeSend.getCreateUser());
                 body.add(DateHelper.formatDate(abnormalDisposeSend.getCreateTime(), Constants.DATE_TIME_FORMAT));
@@ -743,7 +777,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         while (true) {
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
-            page.setPageSize(abnormalDisposeCondition.getLimit());
+            page.setPageSize(100);
             page.setCurrentPage(currPage);
             PageDto<TransferWaveMonitorDetailResp> noSendDetail = vrsRouteTransferRelationManager.getNoSendDetail(page, abnormalDisposeCondition.getWaveBusinessId());
             //如果没有明细，下面就不走了
@@ -752,7 +786,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noSendDetail.getTotalPage();
-                if (totalPage > 5000) {
+                if (noSendDetail.getTotalRow() > 5000) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -784,20 +818,28 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
                 }
             }
+            //查验货时间
+            List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
+            Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
+            if (inspectionList != null && inspectionList.size() > 0) {
+                for (Inspection inspection : inspectionList) {
+                    inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
+                }
+            }
 
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(0) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(1) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
                     continue;
                 }
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
                 }
-                rows.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, transferWaveMonitorDetailResp));
+                rows.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
             }
 
             if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
@@ -814,8 +856,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 body.add(abnormalDisposeSend.getNextSiteName());
                 body.add(abnormalDisposeSend.getEndCityName());
                 body.add(abnormalDisposeSend.getEndSiteName());
-                body.add("1".equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
-                body.add(abnormalDisposeSend.getAbnormalType() == null ? "" : "1".equals(abnormalDisposeSend.getAbnormalType()) ? "外呼" : "异常");
+                body.add(AbnormalDisposeCondition.IS_DISPOSE_YES.equals(abnormalDisposeSend.getIsDispose()) ? "是" : "否");
+                body.add(abnormalDisposeSend.getAbnormalType() == null ? "" : AbnormalDisposeSend.ABNORMAL_TYPE_1.equals(abnormalDisposeSend.getAbnormalType()) ? "外呼" : "异常");
                 body.add(abnormalDisposeSend.getAbnormalReason1());
                 body.add(abnormalDisposeSend.getCreateUser());
                 body.add(DateHelper.formatDate(abnormalDisposeSend.getCreateTime(), Constants.DATE_TIME_FORMAT));

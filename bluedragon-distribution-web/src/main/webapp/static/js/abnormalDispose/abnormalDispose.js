@@ -98,6 +98,9 @@ $(function () {
                 field: 'areaName',
                 title: '区域'
             }, {
+                field: 'siteName',
+                title: '分拣中心'
+            },{
                 field: 'transferNo',
                 title: '中转班次'
             }, {
@@ -117,7 +120,11 @@ $(function () {
                 field: 'notReceiveNum',
                 title: '未收货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
+                    if (value!='0'){
+                        return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
+                    }else{
+                        return value;
+                    }
                 }
             }, {
                 field: 'notReceiveDisposeNum',
@@ -137,7 +144,11 @@ $(function () {
                 field: 'notSendNum',
                 title: '未发货数量',
                 formatter: function (value, row, index) {
-                    return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
+                    if (value!='0'){
+                        return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
+                    }else{
+                        return value;
+                    }
                 }
             }, {
                 field: 'notSendDisposeNum',
