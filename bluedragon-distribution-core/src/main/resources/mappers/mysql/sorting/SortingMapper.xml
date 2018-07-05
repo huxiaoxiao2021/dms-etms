@@ -107,8 +107,20 @@
 		<if test="type != null">
 			AND sorting_type = #{type}
 		</if>
-	</select>		
-	
+	</select>
+
+	<select id="findByBoxCodeAndFetchNum" resultMap="sorting" parameterType="java.util.Map">
+		SELECT box_code, package_code, waybill_code, create_site_code, receive_site_code
+		FROM Sorting
+		WHERE yn=1 AND is_cancel = 0
+		AND box_code = #{boxCode}
+		AND create_site_code = #{createSiteCode}
+		<if test="receiveSiteCode != null">
+			AND receive_site_code = #{receiveSiteCode}
+		</if>
+		limit #{fetchNum}
+	</select>
+
 	<update id="canCancel" parameterType="sorting">
 		UPDATE Sorting 
 		SET is_cancel = 1, update_user_code = #{updateUserCode,jdbcType=INTEGER},

@@ -118,4 +118,12 @@ public interface SortingService {
      * @return
      */
     public List<Sorting>  findByPackageCode(Integer createSiteCode, String packageCode);
+    /**
+     * 根据箱号，当前站点查询有限的分拣记录
+     * @param boxCode
+     * @param createSiteCode
+     * @param fetchNum
+     * @return
+     */
+    public List<Sorting>  findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum);
 }
