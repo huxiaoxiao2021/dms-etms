@@ -151,11 +151,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
                     continue;
                 }
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
@@ -603,11 +603,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
                     continue;
                 }
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
@@ -705,11 +705,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             }
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 //想查未处理的,提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
                     continue;
                 }
                 //想查已处理的,没提报过异常的就过滤掉
-                if (abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
+                if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
                     continue;
                 }
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
