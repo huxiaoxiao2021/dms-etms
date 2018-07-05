@@ -240,6 +240,10 @@ public class DmsStorageAreaController {
                 } else {
                     allDms.addAll(siteService.getAllDmsSite());
                 }
+
+                if (allDms.size()==1){
+                    allDms.remove(0);//没有分拣中心 就不显示全部了
+                }
             }
         } catch (Exception e) {
             this.logger.error("加载站点失败areaId：" + areaId + "provinceId:" + provinceId + "cityId:" + cityId, e);

@@ -232,17 +232,17 @@ $(function () {
                         }
                     }
                 }
-                $("#dmsSiteCode").empty();
-                $("#query-form #dmsSiteCode").select2({
+                $("#siteCodeMain").empty();
+                $("#query-form #siteCodeMain").select2({
                     width: '100%',
                     placeholder: '请选择',
-                    allowClear: true,
+                    allowClear: false,
                     data: result
                 });
                 if (result.length > 0) {
-                    $("#query-form #dmsSiteCode").val(result[0].id).trigger('change');
+                    $("#query-form #siteCodeMain").val(result[0].id).trigger('change');
                 } else {
-                    $("#query-form #dmsSiteCode").val(null).trigger('change');
+                    $("#query-form #siteCodeMain").val(null).trigger('change');
                 }
             }
         });
@@ -267,7 +267,7 @@ $(function () {
                 $('#query-form #areaId').select2({
                     width: '100%',
                     placeholder: '请选择',
-                    allowClear: true,
+                    allowClear: false,
                     data: result
                 });
 
@@ -310,7 +310,7 @@ $(function () {
                 $('#query-form #provinceId').select2({
                     width: '100%',
                     placeholder: '请选择',
-                    allowClear: true,
+                    allowClear: false,
                     data: result
                 });
                 if (result.length > 0) {
@@ -357,7 +357,7 @@ $(function () {
                 $('#query-form #cityId').select2({
                     width: '100%',
                     placeholder: '请选择',
-                    allowClear: true,
+                    allowClear: false,
                     data: result
                 });
                 if (result.length > 0) {
