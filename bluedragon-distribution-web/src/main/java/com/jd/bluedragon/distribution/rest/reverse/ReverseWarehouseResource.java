@@ -4,7 +4,9 @@ package com.jd.bluedragon.distribution.rest.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.ReverseWarehouseRequest;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -20,7 +22,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * create by shipeilin 2018-06-27
@@ -40,6 +45,9 @@ public class ReverseWarehouseResource {
 
     @Autowired
     private SortingService sortingService;
+
+    @Autowired
+    private SendMService sendMService;
 
     @Autowired
     private SendDetailService sendDetailService;
@@ -77,6 +85,7 @@ public class ReverseWarehouseResource {
 
         List<Sorting> sortingList = null;
         List<SendDetail> sendDetailList = null;
+        List<SendM> sendMList = new ArrayList<SendM>();
         //数据的状态：已分拣，已发货
         boolean isSorting = false;
         boolean isSend = false;
@@ -90,6 +99,24 @@ public class ReverseWarehouseResource {
             //已发货
             if(sendDetailList != null && !sendDetailList.isEmpty()){
                 isSend = true;
+            }
+            //包裹只是做了发货（老发货原包发货才有的情况），需要进一步判断SendM
+            if(!isSorting && isSend){
+                //获取所有箱号
+                Set<String> boxCodes = new HashSet<String>();
+                for(SendDetail sendDetail : sendDetailList){
+                    boxCodes.add(sendDetail.getBoxCode());
+                }
+                for (String boxCode : boxCodes){
+                    List<SendM> temp = sendMService.findDeliveryRecord(createSiteCode, boxCode);
+                    if(temp != null && !temp.isEmpty()){
+                        sendMList.addAll(temp);
+                    }
+                }
+                //sendM没有发货记录，说明老发货取消发货了，将isSend置为false
+                if(sendMList.isEmpty()){
+                    isSend = false;
+                }
             }
         }catch (Exception e){
             logger.error("返仓扫描查询分拣发货数据失败", e);
@@ -114,7 +141,7 @@ public class ReverseWarehouseResource {
             if(isPackage){
                 message = MESSAGE_PACKAGE_SEND_ONLY;
             }else{
-                message = MessageFormat.format(MESSAGE_WAYBILL_SEND_ONLY, sendDetailList.size());
+                message = MessageFormat.format(MESSAGE_WAYBILL_SEND_ONLY, sendMList.size());
             }
             response.toFail(message);
         }
