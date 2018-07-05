@@ -230,7 +230,7 @@ $(function () {
     var loadSite = function (params) {
         var siteListUrl = '/base/dmsStorageArea/getSiteListByKey';
         $.ajax({
-            type: "get",
+            type: "post",
             url: siteListUrl,
             data: params,
             async: true,
@@ -264,7 +264,7 @@ $(function () {
         var url = "/base/dmsStorageArea/getAllArea";
         var param = {};
         $.ajax({
-            type: "get",
+            type: "post",
             url: url,
             data: param,
             async: true,
@@ -306,7 +306,7 @@ $(function () {
     var initProvince = function (param) {
         var url = "/base/dmsStorageArea/getProvinceListByKey";
         $.ajax({
-            type: "get",
+            type: "post",
             url: url,
             data: param,
             async: true,
@@ -353,7 +353,7 @@ $(function () {
     var initCity = function (param) {
         var url = "/base/dmsStorageArea/getCityListByKey";
         $.ajax({
-            type: "get",
+            type: "post",
             url: url,
             data: param,
             async: true,
