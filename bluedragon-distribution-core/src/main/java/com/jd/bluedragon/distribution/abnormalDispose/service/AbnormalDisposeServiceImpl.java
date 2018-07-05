@@ -314,8 +314,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition) {
 
         LoginContext loginContext = LoginContext.getLoginContext();
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
-//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
         if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
             abnormalDisposeCondition.setSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
         }
@@ -775,6 +775,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         int totalPage = 0;//路由中总页数
         int currPage = 0;//翻页控制
         while (true) {
+            currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(100);
