@@ -178,10 +178,10 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
-        //航空标识
+        /*//航空标识
         if(LabelPrintingService.AIR_TRANSPORT.equals(crossPackageTag.getIsAirTransport()) && request.isAirTransport()){
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
-        }
+        }*/
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
         if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
