@@ -114,6 +114,7 @@ public class AbnormalOrder {
 		this.createSiteCode = request.getSiteCode();
 		this.createSiteName = request.getSiteName();
 		this.trackContent = request.getTrackContent();
+		this.waveBusinessId=request.getWaveBusinessId();
 	}
 
 	public String getWaveBusinessId() {

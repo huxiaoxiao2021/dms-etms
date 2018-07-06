@@ -250,33 +250,33 @@ $(function () {
             v_url = pushAbnormalOrderUrl;
             params.orderId = waybillcodes;
             if (abnormalReason1Select1.id > 0) {
-                params.AbnormalCode1 = abnormalReason1Select1.id;
-                params.AbnormalReason1 = abnormalReason1Select1.text;
+                params.abnormalCode1 = abnormalReason1Select1.id;
+                params.abnormalReason1 = abnormalReason1Select1.text;
             } else {
-                params.AbnormalCode1 = 0;
-                params.AbnormalReason1 = '';
+                params.abnormalCode1 = 0;
+                params.abnormalReason1 = '';
                 alert("请选择原因");
                 return;
             }
             if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
-                params.AbnormalCode2 = abnormalReason1Select2.id;
-                params.AbnormalReason2 = abnormalReason1Select2.text;
-                params.AbnormalReasonId = abnormalReason1Select2.vid;
+                params.abnormalCode2 = abnormalReason1Select2.id;
+                params.abnormalReason2 = abnormalReason1Select2.text;
+                params.abnormalReasonId = abnormalReason1Select2.vid;
             } else {
-                params.AbnormalCode2 = 0;
-                params.AbnormalReason2 = '';
+                params.abnormalCode2 = 0;
+                params.abnormalReason2 = '';
             }
         } else {
             v_url = pushExceptioninfoUrl;
             params.qcType = 2;//2代表运单
             params.qcValue = waybillcodes;
             if (abnormalReason1Select1.id > 0) {
-                params.qcCode = abnormalReason1Select1.id;
+                params.qcCode = parseInt(abnormalReason1Select1.id);
                 params.qcName = abnormalReason1Select1.text;
                 params.isSortingReturn = abnormalReason1Select1.typeGroup == 110;
             }
             if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
-                params.qcCode = abnormalReason1Select2.id;
+                params.qcCode = parseInt(abnormalReason1Select2.id);
                 params.qcName = abnormalReason1Select2.text;
                 params.isSortingReturn = abnormalReason1Select2.typeGroup == 110;
             }

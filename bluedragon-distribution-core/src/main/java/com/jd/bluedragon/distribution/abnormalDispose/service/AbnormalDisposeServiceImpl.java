@@ -505,7 +505,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     private AbnormalDisposeSend convertAbnormalDisposeSend(BaseStaffSiteOrgDto currSite, Map<String, String> routerMap, Map<String, AbnormalOrder> abnormalOrdersMap, Map<String, AbnormalWayBill> abnormalWayBillsMap, Map<String, Inspection> inspectionWayBillsMap, TransferWaveMonitorDetailResp transferWaveMonitorDetailResp) {
         AbnormalDisposeSend abnormalDisposeSend = new AbnormalDisposeSend();
         //运单号
-        abnormalDisposeSend.setWaybillCode(abnormalDisposeSend.getWaybillCode());
+        abnormalDisposeSend.setWaybillCode(transferWaveMonitorDetailResp.getWaybillCode());
         BaseStaffSiteOrgDto nextDto = getNextSite(routerMap.get(transferWaveMonitorDetailResp.getWaybillCode()), currSite.getSiteCode());
         if (nextDto != null) {
             //下游站点、区域
@@ -514,6 +514,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             abnormalDisposeSend.setNextAreaId(Integer.valueOf(nextDto.getAreaId() + ""));
             abnormalDisposeSend.setNextAreaName(nextDto.getAreaName());
         }
+        abnormalDisposeSend.setInspectionSiteName(currSite.getSiteName());
+        abnormalDisposeSend.setInspectionSiteCode(currSite.getDmsSiteCode());
         //目的站点、城市
         abnormalDisposeSend.setEndSiteCode(transferWaveMonitorDetailResp.getEndNodeCode());
         abnormalDisposeSend.setEndSiteName(transferWaveMonitorDetailResp.getEndNodeName());

@@ -113,7 +113,7 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 			}
             //调用路由接口，查询出班次 tangchunqing2018年6月29日08:58:18
             if (abnormalOrder.getWaveBusinessId() == null) {
-                if (tmpvo.getWaveBusinessId() != null) {
+                if (tmpvo!=null&&tmpvo.getWaveBusinessId() != null) {
                     abnormalOrder.setWaveBusinessId(tmpvo.getWaveBusinessId());
                 } else {
                     abnormalOrder.setWaveBusinessId(vrsRouteTransferRelationManager.queryWaveInfoByWaybillCodeAndNodeCode(abnormalOrder.getOrderId(), abnormalOrder.getCreateSiteCode()));
