@@ -117,7 +117,7 @@ public class DmsStorageAreaController {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 //        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
 //        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getUserId());
+            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
         if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
             return areas;
         } else {
@@ -145,7 +145,7 @@ public class DmsStorageAreaController {
     public Object getCityList(Integer areaId, Integer provinceId, String isDefault) {
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getUserId());
+        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
 //                BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
 //        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
         if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
@@ -183,7 +183,7 @@ public class DmsStorageAreaController {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 //        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
 //        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getUserId());
+            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
         List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
         if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
             return provinces;
@@ -221,7 +221,7 @@ public class DmsStorageAreaController {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 //            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
 //            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getUserId());
+            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
             if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
                 allDms.add(dto);
             } else {
