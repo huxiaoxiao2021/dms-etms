@@ -296,6 +296,9 @@ $(function () {
                     alert(response.message);
                 }
 
+            },
+            error: function () {
+                alert("服务器异常");
             }
         });
 
