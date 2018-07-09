@@ -135,9 +135,6 @@
         <button id="btn_export_inspection" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
         </button>
-        <button id="btn_save_inspection" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>保存异常编码
-        </button>
         <button id="btn_back_inspection" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-home" aria-hidden="true"></span>返回
         </button>
