@@ -13,10 +13,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +24,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -242,11 +240,12 @@ if(waybills==null){
 		}
 		try{
 			List<String> sendCodes = new ArrayList<String>(request.getQuantity());
-			for(int i = request.getQuantity(); i > 0; i--){
+			for(int i = 0; i < request.getQuantity(); i++){
 				String sendCode = SerialRuleUtil.generateSendCode(
 						request.getCreateSiteCode(),
 						request.getReceiveSiteCode(),
-						new Date()
+						//防止生成的批次号重复
+						DateHelper.add(new Date(), Calendar.MILLISECOND, i)
 				);
 				sendCodes.add(sendCode);
 			}
