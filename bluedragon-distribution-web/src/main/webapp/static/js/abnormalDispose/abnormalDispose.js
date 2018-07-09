@@ -78,12 +78,12 @@ $(function () {
         oTableInit.tableColums = [
             {
                 field: 'waveBusinessId',
-                title: 'id',
+                title: 'ID',
                 visible: false
             },
             {
                 field: 'siteCode',
-                title: 'siteCode',
+                title: '站点编码',
                 visible: false
             },
             {
