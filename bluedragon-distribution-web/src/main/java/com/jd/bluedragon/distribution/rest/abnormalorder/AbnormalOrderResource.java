@@ -159,7 +159,7 @@ public class AbnormalOrderResource {
 	@POST
 	@Path("/abnormalorder/pushAbnormalOrders")
 	public AbnormalOrderResponse pushAbnormalOrders(AbnormalOrderRequest request){
-		AbnormalOrderResponse response = pushAbnormalOrder(request);
+		AbnormalOrderResponse response = new AbnormalOrderResponse();
 		response.setCode(JdResponse.CODE_OK);
 		String waybillCodes=request.getOrderId();
 		String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
@@ -181,7 +181,11 @@ public class AbnormalOrderResource {
 			if(responseOne.getCode()!=JdResponse.CODE_OK){
 				//如果有失败的
 				response.setCode(responseOne.getCode());
-				response.setMessage(response.getMessage()+","+waybillCode+":"+responseOne.getMessage());
+				if (response.getMessage()==null){
+					response.setMessage(waybillCode+":"+responseOne.getMessage());
+				}else{
+					response.setMessage(response.getMessage()+","+waybillCode+":"+responseOne.getMessage());
+				}
 			}
 		}
 		return response;

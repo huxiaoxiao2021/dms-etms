@@ -63,11 +63,9 @@ $(function () {
                 var _v = $(this).val();
                 if (_k) {
                     if (_k == 'startTime' || _k == 'endTime') {
-                        if (!_v) {
-                            alert("时间范围不允许为空")
-                            return;
+                        if (_v) {
+                            params[_k] = new Date(_v).getTime();
                         }
-                        params[_k] = new Date(_v).getTime();
                     } else if (_v != '-1') {
                         params[_k] = _v;
                     }
@@ -176,8 +174,22 @@ $(function () {
                 }
             }];
         oTableInit.refresh = function () {
+            var temp = oTableInit.getSearchCondition();
+            if(!temp['startTime']){
+                alert('开始时间不允许为空');
+                return;
+            }
+            if(!temp['endTime']){
+                alert('结束时间不允许为空');
+                return;
+            }
+            var dates = Math.abs((temp['endTime'] - temp['startTime']))/(1000*60*60*24);
+            if(dates>10){
+                alert("时间间隔不允许超过10天");
+                return;
+            }
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
-            //$('#dataTable').bootstrapTable('refresh');
+
         };
         return oTableInit;
     };

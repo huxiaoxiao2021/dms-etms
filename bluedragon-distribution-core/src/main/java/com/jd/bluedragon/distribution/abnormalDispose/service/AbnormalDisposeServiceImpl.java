@@ -521,9 +521,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         abnormalDisposeSend.setEndSiteName(transferWaveMonitorDetailResp.getEndNodeName());
         abnormalDisposeSend.setEndCityName(transferWaveMonitorDetailResp.getEndCityName());
         if (abnormalOrdersMap.get(abnormalDisposeSend.getWaybillCode()) != null) {//是外呼类型
+            abnormalDisposeSend.setIsDispose("1");
             abnormalDisposeSend.setAbnormalType("1");
             abnormalDisposeSend.setAbnormalReason1(abnormalOrdersMap.get(abnormalDisposeSend.getWaybillCode()).getAbnormalReason1());
         } else if (abnormalWayBillsMap.get(abnormalDisposeSend.getWaybillCode()) != null) {//是异常类型
+            abnormalDisposeSend.setIsDispose("1");
             abnormalDisposeSend.setAbnormalType("0");
             abnormalDisposeSend.setAbnormalReason1(abnormalWayBillsMap.get(abnormalDisposeSend.getWaybillCode()).getQcName());
         }
@@ -881,7 +883,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         abnormalQc.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
         abnormalQc.setWaybillCode(abnormalDisposeInspection.getWaybillCode());
         abnormalQc.setCreateUserCode(userDto.getStaffNo());
-        abnormalQc.setCreateUser(userDto.getAccountNumber());
+        abnormalQc.setCreateUserErp(userDto.getAccountNumber());
         abnormalQc.setCreateUser(userDto.getStaffName());
         abnormalQc.setCreateSiteCode(userDto.getSiteCode());
         abnormalQc.setCreateSiteName(userDto.getSiteName());
