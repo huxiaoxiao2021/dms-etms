@@ -245,7 +245,7 @@ if(waybills==null){
 						request.getCreateSiteCode(),
 						request.getReceiveSiteCode(),
 						//防止生成的批次号重复
-						DateHelper.add(new Date(), Calendar.MILLISECOND, i)
+						DateHelper.add(new Date(), Calendar.MILLISECOND, i*10)
 				);
 				sendCodes.add(sendCode);
 			}
