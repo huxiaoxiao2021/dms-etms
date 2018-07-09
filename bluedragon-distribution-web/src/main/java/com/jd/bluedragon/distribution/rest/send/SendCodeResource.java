@@ -274,12 +274,6 @@ if(waybills==null){
 			logger.warn("分拣中心编号非法！");
 			return false;
 		}
-		if(request.getQuantity() > 200){
-			response.setCode(JdResponse.CODE_PARAM_ERROR);
-			response.setMessage("生成数量Quantity非法,不能超过200！");
-			logger.warn("生成数量Quantity非法,不能超过200！");
-			return false;
-		}
 		return true;
 	}
 }
