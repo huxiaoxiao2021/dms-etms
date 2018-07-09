@@ -521,7 +521,7 @@
 	</select>
 
     <select id="findOperateTimeByWaybillCodes" resultMap="BaseResultMap" parameterType="java.util.Map">
-        SELECT min(operate_time) ,waybill_code
+        SELECT min(operate_time) as operate_time,waybill_code
         FROM  inspection
         WHERE create_site_code = #{createSiteCode, jdbcType=INTEGER} and yn = 1 and
         waybill_code IN
