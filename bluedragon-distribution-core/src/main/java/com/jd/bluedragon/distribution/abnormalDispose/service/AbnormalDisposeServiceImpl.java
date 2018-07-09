@@ -262,7 +262,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         String[] routers = router.split(WAYBILL_ROUTER_SPLITER);
         if (routers != null && routers.length > 0) {
             for (int i = 0; i < routers.length; i++) {
-                if (currSiteCode.equals(routers[i])) {
+                if (currSiteCode.toString().equals(routers[i])) {
                     if (i == 0) {
                         return null;
                     }
@@ -284,7 +284,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         String[] routers = router.split(WAYBILL_ROUTER_SPLITER);
         if (routers != null && routers.length > 0) {
             for (int i = 0; i < routers.length; i++) {
-                if (currSiteCode.equals(routers[i])) {
+                if (currSiteCode.toString().equals(routers[i])) {
                     if (i == routers.length - 1) {
                         return null;
                     }
