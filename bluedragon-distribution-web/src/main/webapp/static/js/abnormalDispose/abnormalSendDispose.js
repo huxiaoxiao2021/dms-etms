@@ -259,7 +259,7 @@ $(function () {
             } else {
                 params.abnormalCode1 = 0;
                 params.abnormalReason1 = '';
-                alert("请选择原因");
+                Jd.alert("请选择原因");
                 return;
             }
             if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
@@ -282,7 +282,7 @@ $(function () {
             } else {
                 params.qcCode = 0;
                 params.qcName = '';
-                alert("请选择原因");
+                Jd.alert("请选择原因");
                 return;
             }
             if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
@@ -302,13 +302,14 @@ $(function () {
                 if (response.code == 200) {
                     $('#dataEditDiv').jqmHide();
                     $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                    Jd.alert("提报成功");
                 } else {
-                    alert(response.message);
+                    Jd.alert(response.message);
                 }
 
             },
             error: function () {
-                alert("服务器异常");
+                Jd.alert("服务器异常");
             }
         });
 
@@ -351,7 +352,7 @@ $(function () {
                     $('#waybillCodeSend').val(waybillCodes.substring(1));
                     $('#dataEditDiv').jqmShow();
                 } else {
-                    alert("请选择运单");
+                    Jd.alert("请选择运单");
                 }
             });
             //加载下拉
@@ -381,7 +382,7 @@ $(function () {
             var params = tableInit.getSearchCondition();
 
             if ($.isEmptyObject(params)) {
-                alert('禁止全量导出，请确定查询范围');
+                Jd.alert('禁止全量导出，请确定查询范围');
                 return;
             }
             var form = $("<form method='post'></form>"),
@@ -412,7 +413,7 @@ $(function () {
 
 function querySend(waveBusinessId, siteCode, num) {
     if (num && num > 5000) {
-        alert("班次未结束，暂不开放明细查看");
+        Jd.alert("班次未结束，暂不开放明细查看");
         return;
     }
     $('#dataTableMainDiv').hide();

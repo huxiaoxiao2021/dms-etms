@@ -1,0 +1,176 @@
+.qt_wrapper{ border: 1px solid #666666;}
+.qt_wrapper .c1, .qt_wrapper .c2, .qt_wrapper .c3, .qt_wrapper .c4, .qt_wrapper .c6, .qt_wrapper .c7, .qt_wrapper .c8, .qt_wrapper .c9 {
+    background: url("images/shadebg1.png") no-repeat scroll 0 0 transparent;
+    display: block;
+    font-size: 1px;
+    line-height: 1px;
+    position: absolute;
+    z-index: 1;
+}
+.qt_wrapper .c1 {
+    background-position: 0 0;
+    left: -6px;
+    top: -5px;
+}
+.qt_wrapper .c2 {
+    background-position: 0 -10px;
+    left: 0;
+    top: -5px;
+}
+.qt_wrapper .c3 {
+    background-position: -6px 0;
+    right: -6px;
+    top: -5px;
+}
+.qt_wrapper .c4 {
+    background-position: 0 0;
+    left: -6px;
+    top: 0;
+}
+.qt_wrapper .c6 {
+    background-position: -6px 0;
+    right: -6px;
+    top: 0;
+}
+.qt_wrapper .c7 {
+    background-position: 0 -5px;
+    bottom: -5px;
+    left: -6px;
+}
+.qt_wrapper .c8 {
+    background-position: 0 -15px;
+    bottom: -5px;
+    left: 0;
+}
+.qt_wrapper .c9 {
+    background-position: -6px -5px;
+    bottom: -5px;
+    right: -6px;
+}
+.qt_wrapper .c1, .qt_wrapper .c3, .qt_wrapper .c7, .qt_wrapper .c9 {
+    height: 5px;
+    width: 6px;
+}
+.qt_wrapper .c2, .qt_wrapper .c8 {
+    background-repeat: repeat-x;
+    height: 5px;
+    width: 100%;
+}
+.qt_wrapper .c4, .qt_wrapper .c6 {
+    background: url("images/shadebg2.png") repeat-y scroll 0 0 transparent;
+    height: 100%;
+    width: 6px;
+}
+
+.qt_alert{
+   padding: 25px
+}
+.qt_alert table{
+    border: 0px;
+}
+.qt_alert table td{
+    text-align: left;vertical-align: middle;
+}
+.qt_alert .ico_success {
+    background: url("images/ico_success.gif") no-repeat scroll 0 0 transparent;
+}
+.qt_alert .ico_info {
+    background: url("images/ico_info.gif") no-repeat scroll 0 0 transparent;
+}
+.qt_alert .ico_error {
+    background: url("images/ico_error.gif") no-repeat scroll 0 0 transparent;
+}
+.qt_alert .ico_confirm {
+    background: url("images/ico_confirm.gif") no-repeat scroll 0 0 transparent;
+}
+.qt_alert .ico {
+    display: block;
+    height: 32px;
+    width: 45px;
+}
+.qt_btn {
+    background: url("images/btn.gif") no-repeat scroll 0 0 transparent;
+    color: #666666;
+    display: inline-block;
+    height: 26px;
+    line-height: 26px;
+    text-align: center;
+    text-decoration: none;
+    width: 82px;
+}
+.qt_err {
+    background: #FFEAEA;
+    height: 30px;
+    line-height: 30px;
+    color: #C00;
+    padding: 0 3px;
+    position: absolute;
+    border: 1px solid #E5C3C4;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    white-space: nowrap;
+    z-index: 99;
+    _padding-top: 7px;
+    _height: 28px;
+    _float: left;
+}
+.qt_err i{
+    background: url(images/error.gif) no-repeat;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 12px;
+    display: inline-block;
+    line-height: 0;
+    height: 16px;
+    width: 16px;
+    top:4px;
+    position: relative;
+    margin: 0 3px;
+}
+.qt_r {
+    height: 28px;
+    line-height: 28px;
+    padding: 0 2px;
+    position: absolute;
+    white-space: nowrap;
+    z-index: 99;
+    _padding-top: 5px;
+    _height: 26px;
+    _float: left;
+}
+.qt_r i{
+    background: url(images/pass.gif) no-repeat;
+    display: inline-block;
+    line-height: 0;
+    height: 16px;
+    width: 16px;
+    top:4px;
+    position: relative;
+    margin: 0 3px; 
+}
+
+.siteInput {
+    position: absolute;
+    background: white;
+    border:1px solid #ccccff;
+}
+
+.siteInput input{
+    border:0px solid #ccccff;
+}
+
+.siteInput ul li{
+    margin: 3px;
+}
+
+.siteInput ul li span{
+    font-weight: bold;
+}
+
+.validateBox {
+	display:block ;
+}
+.inputPass{ border:1px solid #9DB833; background:url(images/inputPass.png) repeat-x;  }
+.inputError{ border:1px solid #CC0101; background:url(images/inputError.png) repeat-x;  }
+.areaPass{ border:1px solid #9DB833; background:url(images/areaPass.png) repeat-x;}
+.areaError{ border:1px solid #CC0101; background:url(images/areaError.png) repeat-x;}
+
