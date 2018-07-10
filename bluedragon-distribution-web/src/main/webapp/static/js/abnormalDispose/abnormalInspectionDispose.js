@@ -60,8 +60,8 @@ $(function () {
                                 success: function (response) {
                                     if (response.code == 200) {
                                         curRow[sName] = params.value;
-                                        curRow['isDispose'] ='是';
-                                        $('#dataTableInspection').bootstrapTable("updateRow",{index: index, row: curRow});
+                                        Jd.alert("保存成功");
+                                        $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
                                     } else {
                                         curRow[sName]='';
                                         Jd.alert("保存失败+" + response.message);
@@ -189,6 +189,7 @@ $(function () {
             $('#btn_back_inspection').click(function () {
                 $('#inspectionDetail').hide();
                 $('#dataTableMainDiv').show();
+                $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
         };
         return oInit;

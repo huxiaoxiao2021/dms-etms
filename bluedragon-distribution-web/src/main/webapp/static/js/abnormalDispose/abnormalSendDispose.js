@@ -301,8 +301,8 @@ $(function () {
             success: function (response) {
                 if (response.code == 200) {
                     $('#dataEditDiv').jqmHide();
-                    $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
                     Jd.alert("提报成功");
+                    $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
                 } else {
                     Jd.alert(response.message);
                 }
@@ -329,6 +329,7 @@ $(function () {
             $('#btn_back_send').click(function () {
                 $('#sendDetail').hide();
                 $('#dataTableMainDiv').show();
+                $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
             $('#abnormal_save').click(function () {
                 sumbitQc();
