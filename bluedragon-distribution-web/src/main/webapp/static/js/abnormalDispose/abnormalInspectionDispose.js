@@ -1,4 +1,5 @@
 var curRow = {};
+var index;
 $(function () {
     var inspectionQueryUrl = '/abnormalDispose/abnormalDispose/inspection/listData';
     var exportUrl = '/abnormalDispose/abnormalDispose/inspection/toExport';
@@ -40,6 +41,7 @@ $(function () {
                 columns: oTableInit.tableColums,
                 onClickRow: function (row, $element) {
                     curRow = row;
+                    index = $element.data('index');;
                 },
                 onLoadSuccess: function (aa, bb, cc) {
                     $("#dataTableInspection a[name='qcCode']").editable({
@@ -59,6 +61,7 @@ $(function () {
                                     if (response.code == 200) {
                                         curRow[sName] = params.value;
                                         curRow['isDispose'] ='是';
+                                        $('#dataTableInspection').bootstrapTable("updateRow",{index: index, row: curRow});
                                     } else {
                                         curRow[sName]='';
                                         alert("保存失败+" + response.message);
