@@ -82,6 +82,7 @@ public class QualityControlResource {
         }
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(usercode);
         request.setDistCenterID(userDto.getSiteCode());
+        request.setUserID(userDto.getStaffNo());
         for (String waybillCode:waybillCodeArr){
             request.setQcValue(waybillCode);
             request.setTrackContent("订单扫描异常【"+waybillCode+"】。");
