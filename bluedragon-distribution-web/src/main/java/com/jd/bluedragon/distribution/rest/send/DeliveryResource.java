@@ -889,40 +889,74 @@ public class DeliveryResource implements DmsDeliveryService {
      */
     private boolean packageSendCheckParam(PackageCodeRequest request, InvokeResult result){
         if(request.getDistributeId() == null){
-            result.parameterError("DistributeId不能为空！");
+            result.parameterError("发货分拣中心Id不能为空！");
             return false;
         }
         if(StringUtils.isBlank(request.getDistributeName())){
-            result.parameterError("DistributeName不能为空！");
+            result.parameterError("发货分拣中心名称不能为空！");
             return false;
         }
         if(StringUtils.isBlank(request.getOperatorName())){
-            result.parameterError("OperatorName不能为空！");
+            result.parameterError("操作人名称不能为空！");
             return false;
         }
         if(StringUtils.isBlank(request.getSendCode())){
-            result.parameterError("SendCode不能为空！");
+            result.parameterError("批次号不能为空！");
             return false;
         }
         if(request.getOperatorId() == null){
-            result.parameterError("OperatorId不能为空！");
+            result.parameterError("操作人id不能为空！");
             return false;
         }
         if(request.getReceiveSiteCode() == null){
-            result.parameterError("ReceiveSiteCode不能为空！");
+            result.parameterError("发货目的站点不能为空！");
             return false;
         }
         if(request.getOperateTime() == null){
-            result.parameterError("OperateTime()不能为空！");
+            result.parameterError("操作时间不能为空！");
             return false;
         }
         if(request.getPackageList() == null || request.getPackageList().isEmpty()){
-            result.parameterError("PackageList不能为空！");
+            result.parameterError("包裹号不能为空！");
             return false;
         }
+        /**
+         * 验证发货分拣中心和目的站点是否存在
+         */
+        BaseStaffSiteOrgDto cbDto = null;
+        BaseStaffSiteOrgDto rbDto = null;
+        try {
+            rbDto = this.baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
+            cbDto = this.baseMajorManager.getBaseSiteBySiteId(request.getDistributeId());
+            if(cbDto == null){
+                cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(request.getDistributeId()));
+            }
+            if (rbDto == null){
+                rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(request.getReceiveSiteCode()));
+            }
+            if(rbDto == null){
+                result.parameterError(MessageFormat.format("发货目的站点编号[{0}]不合法，在基础资料未查到！",
+                        request.getReceiveSiteCode()));
+                return false;
+            }
+            if(cbDto == null){
+                result.parameterError(MessageFormat.format("发货分拣中心id[{0}]不合法，在基础资料未查到！",
+                        request.getDistributeId()));
+                return false;
+            }
+        } catch (Exception e) {
+            this.logger.error("分拣开放平台调分拣发货接口校验参数，检查站点信息，调用站点信息异常！", e);
+        }
+        /**检查批次号的合法 */
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
+        if(receiveSiteCode == null){
+            result.parameterError(MessageFormat.format("发货批次号[{0}]不合法,正则校验未通过！",
+                    request.getSendCode()));
+            return false;
+        }
+
         return true;
     }
-
 
     /**
      * 原包分拣发货构建 sendMList
