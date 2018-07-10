@@ -133,17 +133,16 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      * @return
      */
     private boolean getSortMachineAutoSendConfig(UploadData domain, GantryDeviceConfig config) {
-//        String barCode = domain.getBarCode();
-        //将自动发货拦截逻辑下线
-//        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
-//            // 获取运单号
-//            String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
-//            // 判断是否为拦截订单
-//            if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
-//                this.addGantryException(domain, config, 23, null);
-//                return false;
-//            }
-//        }
+        String barCode = domain.getBarCode();
+        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            // 获取运单号
+            String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
+            // 判断是否为拦截订单
+            if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
+                this.addGantryException(domain, config, 23, null);
+                return false;
+            }
+        }
         // 业务类型-发货
         config.setBusinessType(2);
         // 多批次发货版本
