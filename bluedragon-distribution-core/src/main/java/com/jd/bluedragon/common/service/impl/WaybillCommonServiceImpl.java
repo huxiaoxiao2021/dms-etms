@@ -643,6 +643,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //一体化面单，显示生鲜专送
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
+        //waybill_sign标识位，第三十一位为0且第六十七位为1，打航填标
+        if(BusinessHelper.isExternal(waybill.getWaybillSign()) &&
+                BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'0') &&
+                BusinessHelper.isSignChar(waybill.getWaybillSign(),67,'1')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
+        }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessHelper.isB2b(waybill.getWaybillSign()) &&
                 BusinessHelper.isSignChar(waybill.getWaybillSign(),16,'1') &&
