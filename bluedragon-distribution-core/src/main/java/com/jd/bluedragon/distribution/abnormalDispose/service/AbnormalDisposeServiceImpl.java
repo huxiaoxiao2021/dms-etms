@@ -53,6 +53,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
      * 运单路由字段使用的分隔符
      */
     private static final String WAYBILL_ROUTER_SPLITER = "\\|";
+    //查询最大阈值，防止调用路由次数过多 影响性能
+    public static Integer DEFAULT_MAX_NUM = 5000;
     @Autowired
     private AbnormalQcDao abnormalQcDao;
     @Autowired
@@ -124,7 +126,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noInspectionDetail.getTotalPage();
-                if (noInspectionDetail.getTotalRow() > 5000) {
+                if (noInspectionDetail.getTotalRow() > DEFAULT_MAX_NUM) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -133,7 +135,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             }
 
             //整理所有的运单号，后面批量查询 路由 异常等
-            ArrayList<String> waybillCodeList = new ArrayList();
+            List<String> waybillCodeList = new ArrayList();
             for (TransferWaveMonitorDetailResp detailResp : noInspectionDetail.getResult()) {
                 waybillCodeList.add(detailResp.getWaybillCode());
             }
@@ -141,13 +143,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             Map<String, String> routerMap = null;
 
             //查询已处理的明细
-            List<AbnormalQc> abnormalQcs = abnormalQcDao.queryQcByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, String> abnormalQcMap = Maps.newHashMap();
-            if (abnormalQcs != null && abnormalQcs.size() > 0) {
-                for (AbnormalQc abnormalQc : abnormalQcs) {
-                    abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
-                }
-            }
+            Map<String, String> abnormalQcMap = queryAbnormalQcMap(abnormalDisposeCondition, waybillCodeList);
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
@@ -180,6 +176,24 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         pagerResult.setRows(resultData);
         return pagerResult;
 
+    }
+
+    /**
+     * 查询qc表处理的明细
+     *
+     * @param abnormalDisposeCondition
+     * @param waybillCodeList
+     * @return
+     */
+    private Map<String, String> queryAbnormalQcMap(AbnormalDisposeCondition abnormalDisposeCondition, List<String> waybillCodeList) {
+        List<AbnormalQc> abnormalQcs = abnormalQcDao.queryQcByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
+        Map<String, String> abnormalQcMap = Maps.newHashMap();
+        if (abnormalQcs != null && abnormalQcs.size() > 0) {
+            for (AbnormalQc abnormalQc : abnormalQcs) {
+                abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
+            }
+        }
+        return abnormalQcMap;
     }
 
     private AbnormalDisposeInspection convertAbnormalDisposeInspection(AbnormalDisposeCondition abnormalDisposeCondition, BaseStaffSiteOrgDto currSite, Map<String, String> routerMap, Map<String, String> abnormalQcMap, TransferWaveMonitorDetailResp transferWaveMonitorDetailResp) {
@@ -226,7 +240,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             return pagerResult;
         }
         //整理所有的运单号，后面批量查询 路由 异常等
-        ArrayList<String> waybillCodeList = new ArrayList();
+        List<String> waybillCodeList = new ArrayList();
         for (TransferWaveMonitorDetailResp detailResp : noSendDetail.getResult()) {
             waybillCodeList.add(detailResp.getWaybillCode());
         }
@@ -234,14 +248,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         Map<String, String> routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
 
         //查询已处理的明细
-        List<AbnormalQc> abnormalQcs = abnormalQcDao.queryQcByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-        Map<String, String> abnormalQcMap = Maps.newHashMap();
-        if (abnormalQcs != null && abnormalQcs.size() > 0) {
-            for (AbnormalQc abnormalQc : abnormalQcs) {
-                abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
-            }
-        }
-        ArrayList<AbnormalDisposeInspection> resultData = new ArrayList<AbnormalDisposeInspection>();
+        Map<String, String> abnormalQcMap = queryAbnormalQcMap(abnormalDisposeCondition, waybillCodeList);
+        List<AbnormalDisposeInspection> resultData = new ArrayList<AbnormalDisposeInspection>();
         for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
             AbnormalDisposeInspection abnormalDisposeInspection = convertAbnormalDisposeInspection(abnormalDisposeCondition, currSite, routerMap, abnormalQcMap, transferWaveMonitorDetailResp);
             resultData.add(abnormalDisposeInspection);
@@ -345,6 +353,74 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             waveBusinessIds.add(transferWaveMonitorResp.getWaveBusinessId());
         }
         //统计未发货的处理情况
+        Map<String, Integer> noSendTotalMap = queryNoSendTotalMap(waveBusinessIds);
+        //统计未收货的处理情况
+        Map<String, Integer> noInspectionTotalMap = queryNoInspectionMap(waveBusinessIds);
+
+        List<AbnormalDisposeMain> abnormalDisposeMains = Lists.newArrayList();
+        for (TransferWaveMonitorResp transferWaveMonitorResp : pageDto.getResult()) {
+            convertAbnormalDisposeMain(noSendTotalMap, noInspectionTotalMap, abnormalDisposeMains, transferWaveMonitorResp);
+        }
+        pagerResult.setTotal(pageDto.getTotalRow());
+        pagerResult.setRows(abnormalDisposeMains);
+        return pagerResult;
+    }
+
+    /**
+     * 封装对象
+     *
+     * @param noSendTotalMap
+     * @param noInspectionTotalMap
+     * @param abnormalDisposeMains
+     * @param transferWaveMonitorResp
+     */
+    private void convertAbnormalDisposeMain(Map<String, Integer> noSendTotalMap, Map<String, Integer> noInspectionTotalMap, List<AbnormalDisposeMain> abnormalDisposeMains, TransferWaveMonitorResp transferWaveMonitorResp) {
+        AbnormalDisposeMain abnormalDisposeMain = new AbnormalDisposeMain();
+        abnormalDisposeMain.setWaveBusinessId(transferWaveMonitorResp.getWaveBusinessId());
+        AreaNode areaNode = AreaHelper.getArea(transferWaveMonitorResp.getOrgId());
+        if (areaNode != null) {
+            abnormalDisposeMain.setAreaName(areaNode.getName());
+        }
+        abnormalDisposeMain.setSiteName(transferWaveMonitorResp.getSiteName());
+        abnormalDisposeMain.setSiteCode(transferWaveMonitorResp.getSiteCode());
+        abnormalDisposeMain.setTransferStartTime(transferWaveMonitorResp.getPlanStartTime());
+        abnormalDisposeMain.setTransferEndTime(transferWaveMonitorResp.getPlanEndTime());
+        abnormalDisposeMain.setTransferNo(transferWaveMonitorResp.getWaveCode());
+        abnormalDisposeMain.setNotSendNum(transferWaveMonitorResp.getNoSendWaybillCount());
+        abnormalDisposeMain.setNotSendDisposeNum(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
+        abnormalDisposeMain.setNotSendProgress(countProgress(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getNoSendWaybillCount()));
+        abnormalDisposeMain.setNotReceiveNum(transferWaveMonitorResp.getActualArriveNoInspection());
+        abnormalDisposeMain.setNotReceiveDisposeNum(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
+        abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getActualArriveNoInspection()));
+        abnormalDisposeMain.setDateTime(transferWaveMonitorResp.getDateTime());
+        abnormalDisposeMain.setTotalProgress(countProgress(getInteger(abnormalDisposeMain.getNotReceiveDisposeNum()) + getInteger(abnormalDisposeMain.getNotSendDisposeNum()), transferWaveMonitorResp.getNoSendWaybillCount() + transferWaveMonitorResp.getActualArriveNoInspection()));
+        abnormalDisposeMains.add(abnormalDisposeMain);
+    }
+
+    /**
+     * 统计未收货的处理情况
+     *
+     * @param waveBusinessIds
+     * @return
+     */
+    private Map<String, Integer> queryNoInspectionMap(List<String> waveBusinessIds) {
+        Map<String, Integer> noInspectionTotalMap = Maps.newHashMap();
+        List<AbnormalQc> qcTotal = abnormalQcDao.getByWaveIds(waveBusinessIds);
+        if (qcTotal != null && qcTotal.size() > 0) {
+            for (AbnormalQc abnormalQc : qcTotal) {
+                noInspectionTotalMap.put(abnormalQc.getWaveBusinessId(), Integer.parseInt(abnormalQc.getQcCode()));
+            }
+        }
+        return noInspectionTotalMap;
+    }
+
+    /**
+     * 统计未发货的处理情况
+     *
+     * @param waveBusinessIds
+     * @return
+     */
+    private Map<String, Integer> queryNoSendTotalMap(List<String> waveBusinessIds) {
         Map<String, Integer> noSendTotalMap = Maps.newHashMap();
         List<AbnormalOrder> orderTotal = abnormalOrderDao.queryByWaveIds(waveBusinessIds);
         List<AbnormalWayBill> waybillTotal = abnormalWayBillDao.queryByWaveIds(waveBusinessIds);
@@ -363,41 +439,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
             }
         }
-        //统计未收货的处理情况
-        Map<String, Integer> noInspectionTotalMap = Maps.newHashMap();
-        List<AbnormalQc> qcTotal = abnormalQcDao.getByWaveIds(waveBusinessIds);
-        if (qcTotal != null && qcTotal.size() > 0) {
-            for (AbnormalQc abnormalQc : qcTotal) {
-                noInspectionTotalMap.put(abnormalQc.getWaveBusinessId(), Integer.parseInt(abnormalQc.getQcCode()));
-            }
-        }
-
-        List<AbnormalDisposeMain> abnormalDisposeMains = Lists.newArrayList();
-        for (TransferWaveMonitorResp transferWaveMonitorResp : pageDto.getResult()) {
-            AbnormalDisposeMain abnormalDisposeMain = new AbnormalDisposeMain();
-            abnormalDisposeMain.setWaveBusinessId(transferWaveMonitorResp.getWaveBusinessId());
-            AreaNode areaNode = AreaHelper.getArea(transferWaveMonitorResp.getOrgId());
-            if (areaNode != null) {
-                abnormalDisposeMain.setAreaName(areaNode.getName());
-            }
-            abnormalDisposeMain.setSiteName(transferWaveMonitorResp.getSiteName());
-            abnormalDisposeMain.setSiteCode(transferWaveMonitorResp.getSiteCode());
-            abnormalDisposeMain.setTransferStartTime(transferWaveMonitorResp.getPlanStartTime());
-            abnormalDisposeMain.setTransferEndTime(transferWaveMonitorResp.getPlanEndTime());
-            abnormalDisposeMain.setTransferNo(transferWaveMonitorResp.getWaveCode());
-            abnormalDisposeMain.setNotSendNum(transferWaveMonitorResp.getNoSendWaybillCount());
-            abnormalDisposeMain.setNotSendDisposeNum(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
-            abnormalDisposeMain.setNotSendProgress(countProgress(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getNoSendWaybillCount()));
-            abnormalDisposeMain.setNotReceiveNum(transferWaveMonitorResp.getActualArriveNoInspection());
-            abnormalDisposeMain.setNotReceiveDisposeNum(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
-            abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getActualArriveNoInspection()));
-            abnormalDisposeMain.setDateTime(transferWaveMonitorResp.getDateTime());
-            abnormalDisposeMain.setTotalProgress(countProgress(getInteger(abnormalDisposeMain.getNotReceiveDisposeNum()) + getInteger(abnormalDisposeMain.getNotSendDisposeNum()), transferWaveMonitorResp.getNoSendWaybillCount() + transferWaveMonitorResp.getActualArriveNoInspection()));
-            abnormalDisposeMains.add(abnormalDisposeMain);
-        }
-        pagerResult.setTotal(pageDto.getTotalRow());
-        pagerResult.setRows(abnormalDisposeMains);
-        return pagerResult;
+        return noSendTotalMap;
     }
 
     private Integer getInteger(Integer value) {
@@ -470,28 +512,13 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
         //查询已处理的明细 外呼
         List<AbnormalOrder> abnormalOrders = abnormalOrderDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-        Map<String, AbnormalOrder> abnormalOrdersMap = Maps.newHashMap();
-        if (abnormalOrders != null && abnormalOrders.size() > 0) {
-            for (AbnormalOrder abnormalOrder : abnormalOrders) {
-                abnormalOrdersMap.put(abnormalOrder.getOrderId(), abnormalOrder);
-            }
-        }
+        Map<String, AbnormalOrder> abnormalOrdersMap = convertAbnormalOrdersMap(abnormalOrders);
         //查询已处理的明细 异常
         List<AbnormalWayBill> abnormalWayBills = abnormalWayBillDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-        Map<String, AbnormalWayBill> abnormalWayBillsMap = Maps.newHashMap();
-        if (abnormalWayBills != null && abnormalWayBills.size() > 0) {
-            for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
-                abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
-            }
-        }
+        Map<String, AbnormalWayBill> abnormalWayBillsMap = convertAbnormalWaybillsMap(abnormalWayBills);
         //查验货时间
         List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
-        Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
-        if (inspectionList != null && inspectionList.size() > 0) {
-            for (Inspection inspection : inspectionList) {
-                inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
-            }
-        }
+        Map<String, Inspection> inspectionWayBillsMap = convertInspectionWayBillsMap(inspectionList);
         ArrayList<AbnormalDisposeSend> resultData = new ArrayList<AbnormalDisposeSend>();
         for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
             resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
@@ -502,6 +529,33 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         return pagerResult;
     }
 
+    /**
+     * list 转 map
+     *
+     * @param abnormalOrders
+     * @return
+     */
+    private Map<String, AbnormalOrder> convertAbnormalOrdersMap(List<AbnormalOrder> abnormalOrders) {
+        Map<String, AbnormalOrder> abnormalOrdersMap = Maps.newHashMap();
+        if (abnormalOrders != null && abnormalOrders.size() > 0) {
+            for (AbnormalOrder abnormalOrder : abnormalOrders) {
+                abnormalOrdersMap.put(abnormalOrder.getOrderId(), abnormalOrder);
+            }
+        }
+        return abnormalOrdersMap;
+    }
+
+    /**
+     * 封装对象
+     *
+     * @param currSite
+     * @param routerMap
+     * @param abnormalOrdersMap
+     * @param abnormalWayBillsMap
+     * @param inspectionWayBillsMap
+     * @param transferWaveMonitorDetailResp
+     * @return
+     */
     private AbnormalDisposeSend convertAbnormalDisposeSend(BaseStaffSiteOrgDto currSite, Map<String, String> routerMap, Map<String, AbnormalOrder> abnormalOrdersMap, Map<String, AbnormalWayBill> abnormalWayBillsMap, Map<String, Inspection> inspectionWayBillsMap, TransferWaveMonitorDetailResp transferWaveMonitorDetailResp) {
         AbnormalDisposeSend abnormalDisposeSend = new AbnormalDisposeSend();
         //运单号
@@ -564,7 +618,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noSendDetail.getTotalPage();
-                if (noSendDetail.getTotalRow() > 5000) {
+                if (noSendDetail.getTotalRow() > DEFAULT_MAX_NUM) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -582,28 +636,13 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
             //查询已处理的明细 外呼
             List<AbnormalOrder> abnormalOrders = abnormalOrderDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, AbnormalOrder> abnormalOrdersMap = Maps.newHashMap();
-            if (abnormalOrders != null && abnormalOrders.size() > 0) {
-                for (AbnormalOrder abnormalOrder : abnormalOrders) {
-                    abnormalOrdersMap.put(abnormalOrder.getOrderId(), abnormalOrder);
-                }
-            }
+            Map<String, AbnormalOrder> abnormalOrdersMap = convertAbnormalOrdersMap(abnormalOrders);
             //查询已处理的明细 异常
             List<AbnormalWayBill> abnormalWayBills = abnormalWayBillDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, AbnormalWayBill> abnormalWayBillsMap = Maps.newHashMap();
-            if (abnormalWayBills != null && abnormalWayBills.size() > 0) {
-                for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
-                    abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
-                }
-            }
+            Map<String, AbnormalWayBill> abnormalWayBillsMap = convertAbnormalWaybillsMap(abnormalWayBills);
             //查验货时间
             List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
-            Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
-            if (inspectionList != null && inspectionList.size() > 0) {
-                for (Inspection inspection : inspectionList) {
-                    inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
-                }
-            }
+            Map<String, Inspection> inspectionWayBillsMap = convertInspectionWayBillsMap(inspectionList);
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
                 hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
@@ -636,6 +675,22 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         pagerResult.setRows(resultData);
         return pagerResult;
 
+    }
+
+    /**
+     * list 转 map
+     *
+     * @param inspectionList
+     * @return
+     */
+    private Map<String, Inspection> convertInspectionWayBillsMap(List<Inspection> inspectionList) {
+        Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
+        if (inspectionList != null && inspectionList.size() > 0) {
+            for (Inspection inspection : inspectionList) {
+                inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
+            }
+        }
+        return inspectionWayBillsMap;
     }
 
     /**
@@ -683,7 +738,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noInspectionDetail.getTotalPage();
-                if (noInspectionDetail.getTotalRow() > 5000) {
+                if (noInspectionDetail.getTotalRow() > DEFAULT_MAX_NUM) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -700,13 +755,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             Map<String, String> routerMap = null;
 
             //查询已处理的明细
-            List<AbnormalQc> abnormalQcs = abnormalQcDao.queryQcByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, String> abnormalQcMap = Maps.newHashMap();
-            if (abnormalQcs != null && abnormalQcs.size() > 0) {
-                for (AbnormalQc abnormalQc : abnormalQcs) {
-                    abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc.getQcCode());
-                }
-            }
+            Map<String, String> abnormalQcMap = queryAbnormalQcMap(abnormalDisposeCondition, waybillCodeList);
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
                 //想查未处理的,提报过异常的就过滤掉
                 if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
@@ -791,7 +840,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             } else {
                 //获取总页数
                 totalPage = noSendDetail.getTotalPage();
-                if (noSendDetail.getTotalRow() > 5000) {
+                if (noSendDetail.getTotalRow() > DEFAULT_MAX_NUM) {
                     break;//查过阈值，就不拉了，数据量太大，有风险
                 }
             }
@@ -809,28 +858,13 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
             //查询已处理的明细 外呼
             List<AbnormalOrder> abnormalOrders = abnormalOrderDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, AbnormalOrder> abnormalOrdersMap = Maps.newHashMap();
-            if (abnormalOrders != null && abnormalOrders.size() > 0) {
-                for (AbnormalOrder abnormalOrder : abnormalOrders) {
-                    abnormalOrdersMap.put(abnormalOrder.getOrderId(), abnormalOrder);
-                }
-            }
+            Map<String, AbnormalOrder> abnormalOrdersMap = convertAbnormalOrdersMap(abnormalOrders);
             //查询已处理的明细 异常
             List<AbnormalWayBill> abnormalWayBills = abnormalWayBillDao.queryByWaveIdAndWaybillCodes(abnormalDisposeCondition.getWaveBusinessId(), waybillCodeList);
-            Map<String, AbnormalWayBill> abnormalWayBillsMap = Maps.newHashMap();
-            if (abnormalWayBills != null && abnormalWayBills.size() > 0) {
-                for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
-                    abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
-                }
-            }
+            Map<String, AbnormalWayBill> abnormalWayBillsMap = convertAbnormalWaybillsMap(abnormalWayBills);
             //查验货时间
             List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
-            Map<String, Inspection> inspectionWayBillsMap = Maps.newHashMap();
-            if (inspectionList != null && inspectionList.size() > 0) {
-                for (Inspection inspection : inspectionList) {
-                    inspectionWayBillsMap.put(inspection.getWaybillCode(), inspection);
-                }
-            }
+            Map<String, Inspection> inspectionWayBillsMap = convertInspectionWayBillsMap(inspectionList);
 
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
                 //想查未处理的,提报过异常的就过滤掉
@@ -870,6 +904,22 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             }
         }
         return resList;
+    }
+
+    /**
+     * list 转 map
+     *
+     * @param abnormalWayBills
+     * @return
+     */
+    private Map<String, AbnormalWayBill> convertAbnormalWaybillsMap(List<AbnormalWayBill> abnormalWayBills) {
+        Map<String, AbnormalWayBill> abnormalWayBillsMap = Maps.newHashMap();
+        if (abnormalWayBills != null && abnormalWayBills.size() > 0) {
+            for (AbnormalWayBill abnormalWayBill : abnormalWayBills) {
+                abnormalWayBillsMap.put(abnormalWayBill.getWaybillCode(), abnormalWayBill);
+            }
+        }
+        return abnormalWayBillsMap;
     }
 
     @Override

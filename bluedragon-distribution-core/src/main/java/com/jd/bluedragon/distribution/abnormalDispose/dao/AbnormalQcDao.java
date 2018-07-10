@@ -29,7 +29,7 @@ public class AbnormalQcDao extends BaseDao<AbnormalQc> {
      * @param waybillCodeList
      * @return
      */
-    public List<AbnormalQc> queryQcByWaveIdAndWaybillCodes(String waveBusinessId, ArrayList<String> waybillCodeList) {
+    public List<AbnormalQc> queryQcByWaveIdAndWaybillCodes(String waveBusinessId, List<String> waybillCodeList) {
         Map<String, Object> param = Maps.newHashMap();
         param.put("waveBusinessId", waveBusinessId);
         param.put("waybillCodes", waybillCodeList);

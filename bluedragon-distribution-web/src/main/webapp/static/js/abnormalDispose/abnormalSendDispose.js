@@ -242,11 +242,15 @@ $(function () {
         var type = $('#abnormalTypeSend').val();
         var abnormalReason1Select1 = $("#abnormalReason1Select1").select2("data")[0];
         var abnormalReason1Select2 = $("#abnormalReason1Select2").select2("data")[0];
-
+        var usercode = $("#currUserCode").text();
+        if (!usercode) {
+            return;
+        }
         var v_url;
         var params = {};
         params.waveBusinessId = $('#waveBusinessIdSend').val();
         if (type == 1) {//发外呼
+            params.userName=usercode;
             v_url = pushAbnormalOrderUrl;
             params.orderId = waybillcodes;
             if (abnormalReason1Select1.id > 0) {
@@ -268,12 +272,18 @@ $(function () {
             }
         } else {
             v_url = pushExceptioninfoUrl;
+            params.userERP = usercode;
             params.qcType = 2;//2代表运单
             params.qcValue = waybillcodes;
             if (abnormalReason1Select1.id > 0) {
                 params.qcCode = parseInt(abnormalReason1Select1.id);
                 params.qcName = abnormalReason1Select1.text;
                 params.isSortingReturn = abnormalReason1Select1.typeGroup == 110;
+            } else {
+                params.qcCode = 0;
+                params.qcName = '';
+                alert("请选择原因");
+                return;
             }
             if (abnormalReason1Select2 && abnormalReason1Select2.id > 0) {
                 params.qcCode = parseInt(abnormalReason1Select2.id);
@@ -400,7 +410,7 @@ $(function () {
     initExport(tableInit());
 });
 
-function querySend(waveBusinessId,siteCode, num) {
+function querySend(waveBusinessId, siteCode, num) {
     if (num && num > 5000) {
         alert("班次未结束，暂不开放明细查看");
         return;

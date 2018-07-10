@@ -74,8 +74,13 @@ public class QualityControlResource {
         String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
         Boolean hasError=false;
         //获取操作人信息
-        LoginContext loginContext = LoginContext.getLoginContext();
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+        String usercode=request.getUserERP();
+        if (usercode==null){
+            response.setCode(response.CODE_SERVICE_ERROR);
+            response.setMessage(response.MESSAGE_SERVICE_ERROR);
+            return response;
+        }
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(usercode);
         request.setDistCenterID(userDto.getSiteCode());
         for (String waybillCode:waybillCodeArr){
             request.setQcValue(waybillCode);

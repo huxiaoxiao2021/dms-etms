@@ -164,8 +164,13 @@ public class AbnormalOrderResource {
 		String waybillCodes=request.getOrderId();
 		String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
 		//获取操作人信息
-		LoginContext loginContext = LoginContext.getLoginContext();
-		BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+		String usercode=request.getUserName();
+		if (usercode==null){
+			response.setCode(response.CODE_SERVICE_ERROR);
+			response.setMessage(response.MESSAGE_SERVICE_ERROR);
+			return response;
+		}
+		BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(usercode);
 		String dateNow= DateHelper.formatDate(new Date(),Constants.DATE_TIME_FORMAT);
 
 		request.setUserCode(userDto.getStaffNo());

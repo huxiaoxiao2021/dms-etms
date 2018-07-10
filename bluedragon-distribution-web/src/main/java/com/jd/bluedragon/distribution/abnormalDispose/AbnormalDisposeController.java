@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.common.web.LoginContext;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -41,9 +42,11 @@ public class AbnormalDisposeController extends DmsBaseController {
      *
      * @return
      */
-//    @Authorization("bluedragon_abnormalDispose_index")
+    @Authorization("bluedragon_abnormalDispose_index")
     @RequestMapping(value = "/toIndex")
-    public String toIndex() {
+    public String toIndex(Model model) {
+        LoginContext loginContext=LoginContext.getLoginContext();
+        model.addAttribute("usercode", loginContext.getPin());
         return "/abnormalDispose/abnormalDispose";
     }
 

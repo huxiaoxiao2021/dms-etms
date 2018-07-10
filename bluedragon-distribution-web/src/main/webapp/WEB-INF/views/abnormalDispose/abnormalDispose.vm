@@ -248,8 +248,10 @@
                     <a id="abnormal_save" href="#" class="glyphicon glyphicon-ok">保存</a>
                 </div>
             </fieldset>
+
         </form>
     </div>
+    <span id="currUserCode" class="hidden">$!{usercode}</span>
     <hr/>
 </div>
 </body>
