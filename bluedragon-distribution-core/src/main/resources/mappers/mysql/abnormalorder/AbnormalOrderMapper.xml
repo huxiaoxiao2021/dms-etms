@@ -100,7 +100,11 @@
 
 	<select id="queryByWaveIdAndWaybillCodes" resultMap="abnormalOrder" parameterType="java.util.Map">
 		SELECT
-		order_id,wave_Business_Id,abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2
+		system_id,fingerprint,order_id,wave_Business_Id,
+		abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
+		create_user_code,create_user_erp,create_user,
+		operate_time,create_time,update_time,
+		create_site_code,create_site_name,is_cancel,memo,yn
 		FROM abnormal_order
 		WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} and yn = 1 and
 		order_id IN
