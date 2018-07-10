@@ -37,6 +37,7 @@
         <dd><a href="#springUrl('/abnormal/dmsAbnormalEclp/toIndex')" target="mainFrame">库房拒收外呼申请</a></dd>
         <dd><a href="#springUrl('/abnormal/abnormalUnknownWaybill/toIndex')" target="mainFrame">三无外单托寄物核实</a></dd>
         <dd><a href="#springUrl('http://dms.sc.jd.com/kaSortingReport/toIndex')" target="mainFrame">KA商家实时报表</a></dd>
+        <dd><a href="#springUrl('/barcode/toIndex')" target="mainFrame">69码查询商品名称</a></dd>
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
         <dd><a href="#springUrl('/base/dmsStorageArea/toIndex')" target="mainFrame">流向库位配置表</a></dd>

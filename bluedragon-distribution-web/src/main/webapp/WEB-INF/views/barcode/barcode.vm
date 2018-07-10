@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>三无外单托寄物核实</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/barcode/barcode.js"></script>
+</head>
+<body>
+
+<div id="dataEditDiv" class="main" style="margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li class="active">69码查询商品名称</li>
+    </ol>
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="col-xs-2 control-label">69码</label>
+                        <div class="col-xs-4">
+                    			<textarea rows="6" class="form-control edit-param" id="barcode" name="memo"
+                                          style="width: 300px; height: 80px;">
+		                        </textarea>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group">
+                                <button id="btn_query" type="button" class="btn btn-primary" data-toggle="button">
+                                    查询
+                                </button>
+                                <button id="btn_clear" type="button" class="btn btn-primary" data-toggle="button">
+                                    清空
+                                </button>
+                                <button id="btn_export" type="button" class="btn btn-primary" data-toggle="button">
+                                    导出
+                                </button>
+                            </div>
+                            <li class="active">（说明：一行一个运单号，支持批量录入）</li>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+</div>
+</body>
+</html>
