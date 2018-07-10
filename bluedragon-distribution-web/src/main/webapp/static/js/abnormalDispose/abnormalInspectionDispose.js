@@ -64,12 +64,12 @@ $(function () {
                                         $('#dataTableInspection').bootstrapTable("updateRow",{index: index, row: curRow});
                                     } else {
                                         curRow[sName]='';
-                                        alert("保存失败+" + response.message);
+                                        Jd.alert("保存失败+" + response.message);
                                     }
                                 },
                                 error: function () {
                                     curRow[sName]='';
-                                    alert("保存失败");
+                                    Jd.alert("保存失败");
                                 }
                             });
                         },
@@ -211,7 +211,7 @@ $(function () {
             var params = tableInit.getSearchCondition();
 
             if ($.isEmptyObject(params)) {
-                alert('禁止全量导出，请确定查询范围');
+                Jd.alert('禁止全量导出，请确定查询范围');
                 return;
             }
             var form = $("<form method='post'></form>"),
@@ -246,7 +246,7 @@ function sumbitQc() {
 
 function queryinspection(waveBusinessId,siteCode,num) {
     if (num && num > 5000) {
-        alert("班次未结束，暂不开放明细查看");
+        Jd.alert("班次未结束，暂不开放明细查看");
         return;
     }
     $('#dataTableMainDiv').hide();

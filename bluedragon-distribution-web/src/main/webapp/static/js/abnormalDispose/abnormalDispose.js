@@ -176,16 +176,16 @@ $(function () {
         oTableInit.refresh = function () {
             var temp = oTableInit.getSearchCondition();
             if(!temp['startTime']){
-                alert('开始时间不允许为空');
+                Jd.alert('开始时间不允许为空');
                 return;
             }
             if(!temp['endTime']){
-                alert('结束时间不允许为空');
+                Jd.alert('结束时间不允许为空');
                 return;
             }
             var dates = Math.abs((temp['endTime'] - temp['startTime']))/(1000*60*60*24);
             if(dates>10){
-                alert("时间间隔不允许超过10天");
+                Jd.alert("时间间隔不允许超过10天");
                 return;
             }
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
