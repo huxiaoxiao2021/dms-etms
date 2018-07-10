@@ -203,8 +203,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             //上级站点、区域
             abnormalDisposeInspection.setPrevSiteCode(prevDto.getDmsSiteCode());
             abnormalDisposeInspection.setPrevSiteName(prevDto.getSiteName());
-            abnormalDisposeInspection.setPrevAreaId(Integer.valueOf(prevDto.getAreaId() + ""));
-            abnormalDisposeInspection.setPrevAreaName(prevDto.getAreaName());
+            AreaNode areaNode = AreaHelper.getAreaByProvinceId(prevDto.getProvinceId());
+            if (areaNode != null) {
+                abnormalDisposeInspection.setPrevAreaId(areaNode.getId());
+                abnormalDisposeInspection.setPrevAreaName(areaNode.getName());
+            }
         }
         //目的站点、城市
         abnormalDisposeInspection.setEndSiteCode(transferWaveMonitorDetailResp.getEndNodeCode());
@@ -565,8 +568,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             //下游站点、区域
             abnormalDisposeSend.setNextSiteCode(nextDto.getDmsSiteCode());
             abnormalDisposeSend.setNextSiteName(nextDto.getSiteName());
-            abnormalDisposeSend.setNextAreaId(Integer.valueOf(nextDto.getAreaId() + ""));
-            abnormalDisposeSend.setNextAreaName(nextDto.getAreaName());
+            AreaNode areaNode = AreaHelper.getAreaByProvinceId(nextDto.getProvinceId());
+            if (areaNode != null) {
+                abnormalDisposeSend.setNextAreaId(areaNode.getId());
+                abnormalDisposeSend.setNextAreaName(areaNode.getName());
+            }
         }
         abnormalDisposeSend.setInspectionSiteName(currSite.getSiteName());
         abnormalDisposeSend.setInspectionSiteCode(currSite.getDmsSiteCode());
