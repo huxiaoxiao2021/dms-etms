@@ -82,7 +82,10 @@ public class QualityControlResource {
         }
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(usercode);
         request.setDistCenterID(userDto.getSiteCode());
+        request.setDistCenterName(userDto.getSiteName());
         request.setUserID(userDto.getStaffNo());
+        request.setUserName(userDto.getStaffName());
+        request.setUserERP(userDto.getErp());
         request.setOperateTime(new Date());
         for (String waybillCode:waybillCodeArr){
             request.setQcValue(waybillCode);

@@ -124,12 +124,7 @@
 	</select>
 	<select id="queryByWaveIdAndWaybillCodes" resultMap="abnormalWayBill" parameterType="java.util.Map">
 		SELECT
-		WAYBILL_CODE,
-	  	QC_TYPE,
-		QC_VALUE,
-		QC_CODE,
-		QC_NAME,
-		wave_Business_Id
+		<include refid="Base_Column_List"/>
 		FROM abnormal_waybill
 		WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} and yn = 1 and
 		WAYBILL_CODE IN
