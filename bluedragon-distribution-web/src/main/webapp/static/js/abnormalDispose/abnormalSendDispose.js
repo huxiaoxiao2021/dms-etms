@@ -117,7 +117,7 @@ $(function () {
                 } else if (value == '0') {
                     return '异常';
                 } else {
-                    return '';
+                    return ;
                 }
             }
         }, {

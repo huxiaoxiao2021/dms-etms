@@ -58,7 +58,7 @@ $(function () {
                                 success: function (response) {
                                     if (response.code == 200) {
                                         curRow[sName] = params.value;
-                                        curRow['isDispose'] =1;
+                                        curRow['isDispose'] ='是';
                                     } else {
                                         curRow[sName]='';
                                         alert("保存失败+" + response.message);
