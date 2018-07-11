@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
@@ -136,7 +137,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getAbnormalTotal", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorResp> getAbnormalTotal(PageDto<TransferWaveMonitorReq> page, TransferWaveMonitorReq parameter) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
@@ -166,7 +167,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getNoSendDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.getNoSendDetail", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorDetailResp> getNoSendDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
@@ -195,7 +196,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getArrivedButNoCheckDetail  ", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.getArrivedButNoCheckDetail", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorDetailResp> getArrivedButNoCheckDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
@@ -224,7 +225,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.getArrivedButNoCheckDetail  ", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public String queryWaveInfoByWaybillCodeAndNodeCode(String waybillCode, Integer nodeCode) {
 
         //站点区域查出来

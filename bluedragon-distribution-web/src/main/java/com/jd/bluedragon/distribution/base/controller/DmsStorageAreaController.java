@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.base.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageAreaCondition;
@@ -42,7 +43,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("base/dmsStorageArea")
-public class DmsStorageAreaController {
+public class DmsStorageAreaController extends DmsBaseController{
 
     private static final Log logger = LogFactory.getLog(DmsStorageAreaController.class);
 
@@ -114,11 +115,8 @@ public class DmsStorageAreaController {
     @RequestMapping("/getAllArea")
     public Object getAllArea(String isDefault) {
         List<AreaNode> areas = new ArrayList<AreaNode>();
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
-//        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
-        if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
+        LoginUser loginUser=getLoginUser();
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的
             return areas;
         } else {
             if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
@@ -144,11 +142,8 @@ public class DmsStorageAreaController {
     @RequestMapping("/getCityListByKey")
     public Object getCityList(Integer areaId, Integer provinceId, String isDefault) {
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
-//                BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
-//        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-        if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
+        LoginUser loginUser=getLoginUser();
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的的
             return cities;
         } else {
             if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
@@ -180,12 +175,9 @@ public class DmsStorageAreaController {
     @ResponseBody
     @RequestMapping("/getProvinceListByKey")
     public Object getProvinceList(Integer areaId, String isDefault) {
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
-//        BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
         List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
-        if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
+        LoginUser loginUser=getLoginUser();
+        if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的
             return provinces;
         } else {
             //区域不选，加载全国所有的省
@@ -218,18 +210,13 @@ public class DmsStorageAreaController {
     public Object getSiteList(Integer areaId, Integer provinceId, Integer cityId, String isDefault) {
         List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
         try {
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(10053);
-//            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(1999);
-            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(erpUser.getStaffNo());
+            LoginUser loginUser=getLoginUser();
+            BaseStaffSiteOrgDto dto = basicPrimaryWS.getBaseStaffByStaffId(loginUser.getStaffNo());
             if (dto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {//分拣中心的人 只能看本地的
                 allDms.add(dto);
             } else {
-                if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
-                    BaseStaffSiteOrgDto all = new BaseStaffSiteOrgDto();
-                    all.setDmsSiteCode("-1");
-                    all.setSiteName("全部");
-                    allDms.add(all);
+                if (!"false".equals(isDefault)) {
+                    allDms.add(AreaHelper.getDmsSiteTitle());
                 }
                 if (cityId != null && cityId != -1) {
                     allDms.addAll(siteService.getDmsListByCity(cityId));

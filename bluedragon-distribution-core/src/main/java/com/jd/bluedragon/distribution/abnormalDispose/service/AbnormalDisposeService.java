@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCond
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
@@ -30,7 +31,7 @@ public interface AbnormalDisposeService {
      * @param abnormalDisposeCondition
      * @return
      */
-    public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition);
+    public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition, LoginUser loginUser);
 
     /**
      * 查询未发货明细
@@ -46,7 +47,7 @@ public interface AbnormalDisposeService {
      * @param abnormalDisposeInspection
      * @return
      */
-    JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection);
+    JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection,LoginUser loginUser);
 
     /**
      * 导出未验货数据

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalDispose;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeCondition;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeInspection;
 import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeMain;
@@ -7,7 +8,6 @@ import com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalDisposeSend
 import com.jd.bluedragon.distribution.abnormalDispose.service.AbnormalDisposeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.common.web.LoginContext;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -42,11 +42,10 @@ public class AbnormalDisposeController extends DmsBaseController {
      *
      * @return
      */
-    @Authorization("bluedragon_abnormalDispose_index")
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
-        LoginContext loginContext=LoginContext.getLoginContext();
-        model.addAttribute("usercode", loginContext.getPin());
+        model.addAttribute("usercode", getLoginUser().getUserErp());
         return "/abnormalDispose/abnormalDispose";
     }
 
@@ -59,7 +58,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeMain> listData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
-        PagerResult<AbnormalDisposeMain> pagerResult = abnormalDisposeService.queryMain(abnormalDisposeCondition);
+        PagerResult<AbnormalDisposeMain> pagerResult = abnormalDisposeService.queryMain(abnormalDisposeCondition, getLoginUser());
         return pagerResult;
     }
 
@@ -93,7 +92,7 @@ public class AbnormalDisposeController extends DmsBaseController {
     public @ResponseBody
     PagerResult<AbnormalDisposeSend> sendListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
         PagerResult<AbnormalDisposeSend> rest;
-        if (abnormalDisposeCondition.getWaveBusinessId() == null|| abnormalDisposeCondition.getSiteCode() == null) {
+        if (abnormalDisposeCondition.getWaveBusinessId() == null || abnormalDisposeCondition.getSiteCode() == null) {
             rest = new PagerResult<AbnormalDisposeSend>();
             rest.setTotal(0);
             rest.setRows(new ArrayList<AbnormalDisposeSend>());
@@ -139,7 +138,7 @@ public class AbnormalDisposeController extends DmsBaseController {
             return new JdResponse<String>(JdResponse.CODE_FAIL, JdResponse.MESSAGE_FAIL);
         }
 
-        return abnormalDisposeService.saveAbnormalQc(abnormalDisposeInspection);
+        return abnormalDisposeService.saveAbnormalQc(abnormalDisposeInspection, getLoginUser());
 
     }
 

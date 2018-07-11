@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.abnormalorder.dao.AbnormalOrderDao;
 import com.jd.bluedragon.distribution.abnormalorder.domain.AbnormalOrder;
 import com.jd.bluedragon.distribution.abnormalwaybill.dao.AbnormalWayBillDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -19,7 +20,6 @@ import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.common.web.LoginContext;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
@@ -107,10 +107,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     private PagerResult<AbnormalDisposeInspection> getInspectionAll(AbnormalDisposeCondition abnormalDisposeCondition, PagerResult<AbnormalDisposeInspection> pagerResult, BaseStaffSiteOrgDto currSite) {
 
         ArrayList<AbnormalDisposeInspection> resultData = new ArrayList<AbnormalDisposeInspection>();
-        int totalPage = 0;//路由中总页数
+        int totalPage = 1;//路由中总页数
         int currPage = 0;//翻页控制
         int hasGetIndex = 0;//已经得到数据索引，前端有可能查后几页的数据，前面非本页的数据，遍历到之后跳过，不new对象
-        while (true) {
+        //如果路由系统已经最后一页了，就不要再拉数据了
+        while (currPage < totalPage) {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
@@ -142,7 +143,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             //查询已处理的明细
             Map<String, AbnormalQc> abnormalQcMap = queryAbnormalQcMap(abnormalDisposeCondition, waybillCodeList);
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noInspectionDetail.getResult()) {
-                hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
                 if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null) {
                     continue;
@@ -151,6 +151,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null) {
                     continue;
                 }
+                hasGetIndex++;
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
                 if (abnormalDisposeCondition.getOffset() >= hasGetIndex) {
                     continue;
@@ -163,10 +164,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
                 }
                 resultData.add(convertAbnormalDisposeInspection(abnormalDisposeCondition, currSite, routerMap, abnormalQcMap, transferWaveMonitorDetailResp));
-            }
-
-            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
-                break;
             }
         }
         pagerResult.setTotal(totalPage);
@@ -324,11 +321,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.queryMain", mState = {JProEnum.TP})
-    public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition) {
-
-        LoginContext loginContext = LoginContext.getLoginContext();
-//        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjych");
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+    public PagerResult<AbnormalDisposeMain> queryMain(AbnormalDisposeCondition abnormalDisposeCondition,LoginUser loginUser) {
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
         if (userDto.getSiteType() == Constants.BASE_SITE_DISTRIBUTION_CENTER) {
             abnormalDisposeCondition.setSiteCode(userDto.getDmsSiteCode());//分拣中心的人只能查本分拣中心的 防止前台不合法请求
         }
@@ -624,10 +618,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     private PagerResult<AbnormalDisposeSend> getSendAll(AbnormalDisposeCondition abnormalDisposeCondition, PagerResult<AbnormalDisposeSend> pagerResult, BaseStaffSiteOrgDto currSite) {
 
         ArrayList<AbnormalDisposeSend> resultData = new ArrayList<AbnormalDisposeSend>();
-        int totalPage = 0;//路由中总页数
+        int totalPage = 1;//路由中总页数
         int currPage = 0;//翻页控制
         int hasGetIndex = 0;//已经得到数据索引，前端有可能查后几页的数据，前面非本页的数据，遍历到之后跳过，不new对象
-        while (true) {
+        //如果路由系统已经最后一页了，就不要再拉数据了
+        while (currPage < totalPage) {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
@@ -666,7 +661,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
             List<Inspection> inspectionList = inspectionDao.findOperateTimeByWaybillCodes(currSite.getSiteCode(), waybillCodeList);
             Map<String, Inspection> inspectionWayBillsMap = convertInspectionWayBillsMap(inspectionList);
             for (TransferWaveMonitorDetailResp transferWaveMonitorDetailResp : noSendDetail.getResult()) {
-                hasGetIndex++;
                 //想查未处理的,提报过异常的就过滤掉
                 if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_NO) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null || abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) != null)) {
                     continue;
@@ -675,6 +669,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 if (abnormalDisposeCondition.getIsDispose() != null && abnormalDisposeCondition.getIsDispose().equals(AbnormalDisposeCondition.IS_DISPOSE_YES) && (abnormalOrdersMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null && abnormalWayBillsMap.get(transferWaveMonitorDetailResp.getWaybillCode()) == null)) {
                     continue;
                 }
+                hasGetIndex++;
                 //说明还没有遍历到 查询页所需要的数据，只记录索引
                 if (abnormalDisposeCondition.getOffset() >= hasGetIndex) {
                     continue;
@@ -687,10 +682,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
                 }
                 resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
-            }
-
-            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
-                break;
             }
         }
         pagerResult.setTotal(totalPage);
@@ -745,9 +736,10 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         resList.add(heads);
 
         List<AbnormalDisposeInspection> rows = Lists.newArrayList();
-        int totalPage = 0;//路由中总页数
+        int totalPage = 1;//路由中总页数
         int currPage = 0;//翻页控制
-        while (true) {
+        //如果路由系统已经最后一页了，就不要再拉数据了
+        while (currPage < totalPage) {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
@@ -791,10 +783,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
                 }
                 rows.add(convertAbnormalDisposeInspection(abnormalDisposeCondition, currSite, routerMap, abnormalQcMap, transferWaveMonitorDetailResp));
-            }
-
-            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
-                break;
             }
         }
         if (rows != null && rows.size() > 0) {
@@ -847,9 +835,10 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         resList.add(heads);
 
         List<AbnormalDisposeSend> rows = Lists.newArrayList();
-        int totalPage = 0;//路由中总页数
+        int totalPage = 1;//路由中总页数
         int currPage = 0;//翻页控制
-        while (true) {
+        //如果路由系统已经最后一页了，就不要再拉数据了
+        while (currPage < totalPage) {
             currPage++;//自动翻页查询
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
@@ -902,10 +891,6 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 }
                 rows.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
             }
-
-            if (currPage >= totalPage) {//如果路由系统已经最后一页了，就不要再拉数据了
-                break;
-            }
         }
         if (rows != null && rows.size() > 0) {
             for (AbnormalDisposeSend abnormalDisposeSend : rows) {
@@ -946,11 +931,10 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.saveAbnormalQc", mState = {JProEnum.TP})
-    public JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection) {
+    public JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection,LoginUser loginUser) {
         Date date = new Date();
         //获取操作人信息封装数据
-        LoginContext loginContext = LoginContext.getLoginContext();
-        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
         AbnormalQc abnormalQc = new AbnormalQc();
         abnormalQc.setWaveBusinessId(abnormalDisposeInspection.getWaveBusinessId());
         abnormalQc.setWaybillCode(abnormalDisposeInspection.getWaybillCode());

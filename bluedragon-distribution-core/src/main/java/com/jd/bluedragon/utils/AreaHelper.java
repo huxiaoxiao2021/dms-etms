@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.util.*;
 
@@ -198,5 +199,16 @@ public class AreaHelper {
 			}
 		}
 		return proId;
+	}
+
+	/**
+	 * 定义一个标题型的站点
+	 * @return
+	 */
+	public static BaseStaffSiteOrgDto getDmsSiteTitle(){
+		BaseStaffSiteOrgDto all = new BaseStaffSiteOrgDto();
+		all.setDmsSiteCode("-1");
+		all.setSiteName("全部");
+		return all;
 	}
 }
