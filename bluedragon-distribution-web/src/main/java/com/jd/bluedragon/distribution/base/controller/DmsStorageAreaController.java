@@ -119,8 +119,8 @@ public class DmsStorageAreaController extends DmsBaseController{
         if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的
             return areas;
         } else {
-            if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
-                areas.add(new AreaNode(-1, "全部"));
+            if (!"false".equals(isDefault)) {
+                areas.add(AreaHelper.getAreaNodeTitle());
             }
             areas.addAll(AreaHelper.getAllArea());
         }
@@ -146,12 +146,12 @@ public class DmsStorageAreaController extends DmsBaseController{
         if (Constants.BASE_SITE_DISTRIBUTION_CENTER == loginUser.getSiteType()  ) {//分拣中心的人 只能看本地的的
             return cities;
         } else {
-            if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
-                cities.add(new ProvinceAndCity("-1", "全部"));
+            if (!"false".equals(isDefault)) {
+                cities.add(AreaHelper.getCityNodeTitle());
             }
-            if (provinceId != null && provinceId != -1) {
+            if (AreaHelper.isNotEmptyAndTitle(provinceId)) {
                 cities.addAll(provinceAndCityService.getCityByProvince(provinceId));
-            } else if (areaId != null && areaId != -1) {
+            } else if (AreaHelper.isNotEmptyAndTitle(areaId)) {
                 //获取区域下所有的省
                 List<Integer> provinceIdList = new ArrayList<Integer>(AreaHelper.getProvinceIdsByAreaId(areaId));
                 cities.addAll(provinceAndCityService.getCityByProvince(provinceIdList));
@@ -181,10 +181,10 @@ public class DmsStorageAreaController extends DmsBaseController{
             return provinces;
         } else {
             //区域不选，加载全国所有的省
-            if (StringHelper.isEmpty(isDefault) || isDefault.equals("true")) {
-                provinces.add(new ProvinceNode(-1, "全部"));
+            if (!"false".equals(isDefault)) {
+                provinces.add(AreaHelper.getProvinceNodeTitle());
             }
-            if (areaId != null && areaId != -1) {
+            if (AreaHelper.isNotEmptyAndTitle(areaId)) {
                 provinces.addAll(AreaHelper.getProvincesByAreaId(areaId));
             } else {
                 provinces.addAll(AreaHelper.getAllProvince());
@@ -218,11 +218,11 @@ public class DmsStorageAreaController extends DmsBaseController{
                 if (!"false".equals(isDefault)) {
                     allDms.add(AreaHelper.getDmsSiteTitle());
                 }
-                if (cityId != null && cityId != -1) {
+                if (AreaHelper.isNotEmptyAndTitle(cityId)) {
                     allDms.addAll(siteService.getDmsListByCity(cityId));
-                } else if (provinceId != null && provinceId != -1) {
+                } else if (AreaHelper.isNotEmptyAndTitle(provinceId)) {
                     allDms.addAll(siteService.getDmsListByProvince(provinceId));
-                } else if (areaId != null && areaId != -1) {
+                } else if (AreaHelper.isNotEmptyAndTitle(areaId)) {
                     allDms.addAll(siteService.getDmsListByAreaId(areaId));
                 } else {
                     allDms.addAll(siteService.getAllDmsSite());

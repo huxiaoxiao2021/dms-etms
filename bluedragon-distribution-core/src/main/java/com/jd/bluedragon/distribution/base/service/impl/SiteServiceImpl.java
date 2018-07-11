@@ -287,7 +287,7 @@ public class SiteServiceImpl implements SiteService {
      */
     public List<BaseStaffSiteOrgDto> getDmsListByAreaId(Integer areaId) {
         List<BaseStaffSiteOrgDto> orgDmsList = new ArrayList<BaseStaffSiteOrgDto>();
-        if (areaId == null || areaId == -1) {
+        if (AreaHelper.isNotEmptyAndTitle(areaId)) {
             orgDmsList.addAll(getAllDmsSite());
         } else {
             orgDmsList.addAll(baseMajorManager.getBaseSiteByOrgIdSiteType(areaId, Constants.DMS_SITE_TYPE));

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.utils;
 
 
+import com.jd.bluedragon.distribution.b2bRouter.domain.ProvinceAndCity;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -210,5 +211,26 @@ public class AreaHelper {
 		all.setDmsSiteCode("-1");
 		all.setSiteName("全部");
 		return all;
+	}
+	/**
+	 * 定义一个标题型的省
+	 * @return
+	 */
+	public static ProvinceNode getProvinceNodeTitle(){
+		return new ProvinceNode(-1, "全部");
+	}
+	public static AreaNode getAreaNodeTitle(){
+		return new AreaNode(-1, "全部");
+	}
+	public static ProvinceAndCity getCityNodeTitle (){
+		return new ProvinceAndCity("-1", "全部");
+	}
+	/**
+	 * 判断是不是空或者选的全部
+	 * @param id
+	 * @return
+	 */
+	public static boolean isNotEmptyAndTitle(Integer id){
+		return (id != null && id != -1);
 	}
 }
