@@ -113,6 +113,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         //如果路由系统已经最后一页了，就不要再拉数据了
         while (currPage < totalPage) {
             currPage++;//自动翻页查询
+            if (currPage>100){
+                break;//防止路由系统有BUG，导致我们循环
+            }
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(100);
@@ -624,6 +627,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         //如果路由系统已经最后一页了，就不要再拉数据了
         while (currPage < totalPage) {
             currPage++;//自动翻页查询
+            if (currPage>100){
+                break;//防止路由系统有BUG，导致我们循环
+            }
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(100);
@@ -741,6 +747,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         //如果路由系统已经最后一页了，就不要再拉数据了
         while (currPage < totalPage) {
             currPage++;//自动翻页查询
+            if (currPage>100){
+                break;//防止路由系统有BUG，导致我们循环
+            }
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(100);
@@ -840,6 +849,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         //如果路由系统已经最后一页了，就不要再拉数据了
         while (currPage < totalPage) {
             currPage++;//自动翻页查询
+            if (currPage>100){
+                break;//防止路由系统有BUG，导致我们循环
+            }
             //调用路由接口查明细
             PageDto<TransferWaveMonitorDetailResp> page = new PageDto<TransferWaveMonitorDetailResp>();
             page.setPageSize(100);
