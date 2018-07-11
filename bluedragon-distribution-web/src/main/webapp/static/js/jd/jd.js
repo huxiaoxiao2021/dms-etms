@@ -32,8 +32,7 @@
                     height : conf.height + 'px',
                     width : conf.width + 'px',
                     top : conf.y + 'px',
-                    left : conf.x + 'px',
-                    'z-index':9999999
+                    left : conf.x + 'px'
             }),$(cont).width('100%').height('100%');
             if (conf.cur) {
                 var _hp = document.documentElement.scrollHeight > document.documentElement.clientHeight ?$(t).height(): $(window).height();
@@ -212,7 +211,7 @@
             $(p).css({
                 position : 'absolute',
                 height : _hp + 'px',
-                zIndex : 100,
+                zIndex : 99999999,
                 top : 0,
                 left : 0
             }).width('100%');
