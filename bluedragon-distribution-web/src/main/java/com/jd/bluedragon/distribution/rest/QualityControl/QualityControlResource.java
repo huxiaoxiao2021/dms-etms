@@ -85,7 +85,7 @@ public class QualityControlResource {
         request.setDistCenterName(userDto.getSiteName());
         request.setUserID(userDto.getStaffNo());
         request.setUserName(userDto.getStaffName());
-        request.setUserERP(userDto.getErp());
+        request.setUserERP(userDto.getAccountNumber());
         request.setOperateTime(new Date());
         for (String waybillCode:waybillCodeArr){
             request.setQcValue(waybillCode);

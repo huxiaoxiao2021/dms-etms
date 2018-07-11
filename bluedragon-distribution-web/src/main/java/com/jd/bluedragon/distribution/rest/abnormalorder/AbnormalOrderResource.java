@@ -174,7 +174,7 @@ public class AbnormalOrderResource {
 		String dateNow= DateHelper.formatDate(new Date(),Constants.DATE_TIME_FORMAT);
 
 		request.setUserCode(userDto.getStaffNo());
-		request.setCreateUserErp(userDto.getErp());
+		request.setCreateUserErp(userDto.getAccountNumber());
 		request.setUserName(userDto.getStaffName());
 		request.setOperateTime(dateNow);
 		request.setSiteCode(userDto.getSiteCode());
