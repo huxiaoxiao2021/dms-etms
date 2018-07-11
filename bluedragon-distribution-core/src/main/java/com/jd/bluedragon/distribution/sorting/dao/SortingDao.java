@@ -105,4 +105,29 @@ public class SortingDao extends BaseDao<Sorting> {
     public List<Sorting>  findByPackageCode(Sorting sorting){
         return this.getSqlSession().selectList(namespace + ".findByPackageCode", sorting);
     }
+
+    /**
+     * 根据箱号，当前站点查询有限的分拣记录
+     * @param boxCode
+     * @param createSiteCode
+     * @param fetchNum
+     * @return
+     */
+    public List<Sorting>  findByBoxCodeAndFetchNum(String boxCode, int createSiteCode, int fetchNum){
+        if (boxCode == null || boxCode.isEmpty() || createSiteCode <= 0 || fetchNum <=0)
+            return null;
+        Map<String, Object> paramMap = new HashMap<String, Object>();
+        paramMap.put("boxCode", boxCode);
+        paramMap.put("fetchNum",fetchNum);
+        paramMap.put("createSiteCode", createSiteCode);
+        return this.getSqlSession().selectList(namespace + ".findByBoxCodeAndFetchNum", paramMap);
+    }
+    /**
+     * 根据运单号或者包裹号，当前站点查询已分拣记录
+     * @param sorting 运单号
+     * @return
+     */
+    public List<Sorting>  findByWaybillCodeOrPackageCode(Sorting sorting){
+        return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sorting);
+    }
 }

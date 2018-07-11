@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.ql.basic.domain.AirTransport;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
 
 @Service("airTransportService")
 public class AirTransportServiceImpl implements AirTransportService{
