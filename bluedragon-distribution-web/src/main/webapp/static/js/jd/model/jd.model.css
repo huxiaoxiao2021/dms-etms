@@ -1,6 +1,5 @@
 .qt_wrapper{
     border: 1px solid #666666;
-    z-index:999999999;
 }
 .qt_wrapper .c1, .qt_wrapper .c2, .qt_wrapper .c3, .qt_wrapper .c4, .qt_wrapper .c6, .qt_wrapper .c7, .qt_wrapper .c8, .qt_wrapper .c9 {
     background: url("images/shadebg1.png") no-repeat scroll 0 0 transparent;
@@ -66,7 +65,7 @@
 }
 
 .qt_alert{
-   padding: 25px
+   padding: 25px;
 }
 .qt_alert table{
     border: 0px;
