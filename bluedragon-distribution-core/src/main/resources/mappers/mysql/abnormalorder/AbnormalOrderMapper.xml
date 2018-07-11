@@ -56,7 +56,7 @@
 </select>
 	<select id="getByWaveIds" resultMap="abnormalOrder" parameterType="java.util.List">
 		SELECT
-		count( DISTINCT order_id) as ABNORMAL_CODE1,wave_Business_Id
+		 DISTINCT order_id,wave_Business_Id
 		FROM abnormal_order
 		WHERE yn=1 and is_cancel != 1 and wave_Business_Id IN
 		<foreach item="item" index="index" collection="list"

@@ -35,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author tangchunqing
@@ -190,7 +187,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         Map<String, AbnormalQc> abnormalQcMap = Maps.newHashMap();
         if (abnormalQcs != null && abnormalQcs.size() > 0) {
             for (AbnormalQc abnormalQc : abnormalQcs) {
-                abnormalQcMap.put(abnormalQc.getWaybillCode(),abnormalQc);
+                abnormalQcMap.put(abnormalQc.getWaybillCode(), abnormalQc);
             }
         }
         return abnormalQcMap;
@@ -215,9 +212,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         abnormalDisposeInspection.setEndCityName(transferWaveMonitorDetailResp.getEndCityName());
         //运单号
         abnormalDisposeInspection.setWaybillCode(transferWaveMonitorDetailResp.getWaybillCode());
-        AbnormalQc abnormalQc=abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode());
+        AbnormalQc abnormalQc = abnormalQcMap.get(transferWaveMonitorDetailResp.getWaybillCode());
         //质控编码
-        if (abnormalQc!=null){
+        if (abnormalQc != null) {
             abnormalDisposeInspection.setQcCode(abnormalQc.getQcCode());
             abnormalDisposeInspection.setCreateUser(abnormalQc.getCreateUser());
             abnormalDisposeInspection.setCreateTime(abnormalQc.getCreateTime());
@@ -429,25 +426,35 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
      * @return
      */
     private Map<String, Integer> queryNoSendTotalMap(List<String> waveBusinessIds) {
-        Map<String, Integer> noSendTotalMap = Maps.newHashMap();
+        Map<String, Set<String>> noSendTotalMap = Maps.newHashMap();
         List<AbnormalOrder> orderTotal = abnormalOrderDao.queryByWaveIds(waveBusinessIds);
         List<AbnormalWayBill> waybillTotal = abnormalWayBillDao.queryByWaveIds(waveBusinessIds);
         if (orderTotal != null && orderTotal.size() > 0) {
             for (AbnormalOrder abnormalOrder : orderTotal) {
-                noSendTotalMap.put(abnormalOrder.getWaveBusinessId(), abnormalOrder.getAbnormalCode1());//发外呼的数量
+                if (noSendTotalMap.containsKey(abnormalOrder.getWaveBusinessId())) {
+                    noSendTotalMap.get(abnormalOrder.getWaveBusinessId()).add(abnormalOrder.getOrderId());
+                } else {
+                    noSendTotalMap.put(abnormalOrder.getWaveBusinessId(), new HashSet<String>());
+                    noSendTotalMap.get(abnormalOrder.getWaveBusinessId()).add(abnormalOrder.getOrderId());
+                }
             }
         }
         if (waybillTotal != null && waybillTotal.size() > 0) {
             for (AbnormalWayBill abnormalWayBill : waybillTotal) {
-                if (noSendTotalMap.get(abnormalWayBill.getWaveBusinessId()) == null) {
-                    noSendTotalMap.put(abnormalWayBill.getWaveBusinessId(), abnormalWayBill.getQcCode());//反异常的数量
+                if (noSendTotalMap.containsKey(abnormalWayBill.getWaveBusinessId())) {
+                    noSendTotalMap.get(abnormalWayBill.getWaveBusinessId()).add(abnormalWayBill.getWaybillCode());
                 } else {
-                    noSendTotalMap.put(abnormalWayBill.getWaveBusinessId(), noSendTotalMap.get(abnormalWayBill.getWaveBusinessId()) + abnormalWayBill.getQcCode());//都有的情况
+                    noSendTotalMap.put(abnormalWayBill.getWaveBusinessId(), new HashSet<String>());
+                    noSendTotalMap.get(abnormalWayBill.getWaveBusinessId()).add(abnormalWayBill.getWaybillCode());
                 }
 
             }
         }
-        return noSendTotalMap;
+        Map<String, Integer> result = new HashMap<String, Integer>();
+        for (String key : noSendTotalMap.keySet()) {
+            result.put(key, noSendTotalMap.get(key).size());
+        }
+        return result;
     }
 
     private Integer getInteger(Integer value) {
