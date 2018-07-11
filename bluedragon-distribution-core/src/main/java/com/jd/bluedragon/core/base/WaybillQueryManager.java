@@ -138,4 +138,10 @@ public interface WaybillQueryManager{
      * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
      */
     public Map<String, Object> uploadOpe(String packOpeJson);
+	/**
+	 * 根据运单号获取运单数据信息给打印用
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<BigWaybillDto> getWaybillDataForPrint(String waybillCode);
 }

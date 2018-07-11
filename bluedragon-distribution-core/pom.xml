@@ -22,6 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
+		<etms.waybill.agent.version>4.0.1-SNAPSHOT</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -136,7 +137,7 @@
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
 			<artifactId>etms-waybill-agent</artifactId>
-			<version>3.0-SNAPSHOT</version>
+			<version>${etms.waybill.agent.version}</version>
 		</dependency>
 		
 		<dependency>
@@ -810,4 +811,6 @@
 			</plugin>
 		</plugins>
 	</build>
+	<groupId>com.jd.bluedragon</groupId>
+	<version>1.0.0</version>
 </project>

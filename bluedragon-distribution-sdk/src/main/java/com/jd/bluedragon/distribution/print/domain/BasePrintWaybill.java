@@ -140,6 +140,10 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String barCode;
 	/**
+	 * 拆包员号码
+	 */
+	private String unpackClassifyNum;
+	/**
 	 * 备注
 	 */
 	private String remark;
@@ -568,5 +572,13 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setBarCode(String barCode) {
 		this.barCode = barCode;
+	}
+
+	public String getUnpackClassifyNum() {
+		return unpackClassifyNum;
+	}
+
+	public void setUnpackClassifyNum(String unpackClassifyNum) {
+		this.unpackClassifyNum = unpackClassifyNum;
 	}
 }
