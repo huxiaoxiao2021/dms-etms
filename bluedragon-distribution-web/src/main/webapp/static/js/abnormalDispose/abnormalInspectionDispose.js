@@ -188,6 +188,7 @@ $(function () {
                 $('#inspectionDetail').hide();
                 $('#dataTableMainDiv').show();
                 $("#isDisposeInspectionSelect").val(2).trigger('change');
+                $("#query-form-inspection #isDisposeInspection").val(null);
                 $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
         };

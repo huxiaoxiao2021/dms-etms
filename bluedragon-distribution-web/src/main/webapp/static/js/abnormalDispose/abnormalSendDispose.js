@@ -335,6 +335,7 @@ $(function () {
                 $('#sendDetail').hide();
                 $('#dataTableMainDiv').show();
                 $("#isDisposeSendSelect").val(2).trigger('change');
+                $("#query-form-send #isDisposeSend").val(null);
                 $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
             $('#abnormal_save').click(function () {
@@ -379,6 +380,8 @@ $(function () {
             var v = $("#query-form-send #isDisposeSendSelect").val();
             if (v == 0 || v == 1) {
                 $("#query-form-send #isDisposeSend").val(v);
+            }else{
+                $("#query-form-send #isDisposeSend").val(null);
             }
         });
     }
