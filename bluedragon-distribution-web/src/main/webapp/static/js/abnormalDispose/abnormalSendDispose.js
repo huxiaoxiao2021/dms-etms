@@ -301,8 +301,13 @@ $(function () {
             success: function (response) {
                 if (response.code == 200) {
                     $('#dataEditDiv').jqmHide();
-                    Jd.alert("提报成功");
-                    $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                    if(type == 1){
+                        Jd.alert("外呼提报成功");
+                        $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                    }else{
+                        Jd.alert("异常提报成功，系统正在处理，请稍后刷新查看");
+                        $('#dataTableSend').bootstrapTable('refreshOptions', {pageNumber: 1});
+                    }
                 } else {
                     Jd.alert(response.message);
                 }
