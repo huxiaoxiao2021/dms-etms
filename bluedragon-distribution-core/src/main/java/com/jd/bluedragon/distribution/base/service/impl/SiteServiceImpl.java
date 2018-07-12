@@ -316,7 +316,7 @@ public class SiteServiceImpl implements SiteService {
         //遍历分拣中心根据城市id进行过滤
         List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
         for (BaseStaffSiteOrgDto site : allSites) {
-            if (cityId == site.getCityId()) {
+            if (cityId.equals(site.getCityId()) ) {
                 data.add(site);
             }
         }
@@ -331,7 +331,7 @@ public class SiteServiceImpl implements SiteService {
         //遍历分拣中心根据城市id进行过滤
         List<BaseStaffSiteOrgDto> data = new ArrayList<BaseStaffSiteOrgDto>();
         for (BaseStaffSiteOrgDto site : allSites) {
-            if (provinceId == site.getProvinceId()) {
+            if (provinceId.equals(site.getProvinceId()) ) {
                 data.add(site);
             }
         }
