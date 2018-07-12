@@ -50,6 +50,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
      * 运单路由字段使用的分隔符
      */
     private static final String WAYBILL_ROUTER_SPLITER = "\\|";
+    private static final String QC_FLAG="QC";
     //查询最大阈值，防止调用路由次数过多 影响性能
     public static Integer DEFAULT_MAX_NUM = 5000;
     @Autowired
@@ -945,6 +946,9 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     @JProfiler(jKey = "DMSWEB.AbnormalDisposeServiceImpl.saveAbnormalQc", mState = {JProEnum.TP})
     public JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection,LoginUser loginUser) {
         Date date = new Date();
+        if (!abnormalDisposeInspection.getQcCode().startsWith(QC_FLAG)){
+            return new JdResponse<String>(JdResponse.CODE_FAIL, "异常编码格式不正确，请检查");
+        }
         //获取操作人信息封装数据
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
         AbnormalQc abnormalQc = new AbnormalQc();
