@@ -61,14 +61,12 @@ $(function () {
                                     if (response.code == 200) {
                                         curRow[sName] = params.value;
                                         Jd.alert("保存成功");
-                                        $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
+                                        $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: $('#dataTableInspection').bootstrapTable.pageNumber});
                                     } else {
-                                        curRow[sName]='';
                                         Jd.alert("保存失败:" + response.message);
                                     }
                                 },
                                 error: function () {
-                                    curRow[sName]='';
                                     Jd.alert("保存失败");
                                 }
                             });
@@ -189,6 +187,7 @@ $(function () {
             $('#btn_back_inspection').click(function () {
                 $('#inspectionDetail').hide();
                 $('#dataTableMainDiv').show();
+                $("#isDisposeInspectionSelect").val(2).trigger('change');
                 $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
         };

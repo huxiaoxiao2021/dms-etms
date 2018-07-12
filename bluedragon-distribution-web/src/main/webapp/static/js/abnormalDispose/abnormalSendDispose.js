@@ -329,6 +329,7 @@ $(function () {
             $('#btn_back_send').click(function () {
                 $('#sendDetail').hide();
                 $('#dataTableMainDiv').show();
+                $("#isDisposeSendSelect").val(2).trigger('change');
                 $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
             });
             $('#abnormal_save').click(function () {
