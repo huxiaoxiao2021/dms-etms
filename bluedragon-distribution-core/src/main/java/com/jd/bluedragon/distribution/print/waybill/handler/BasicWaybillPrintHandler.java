@@ -148,7 +148,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 		
         String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
         try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
             	//运单数据为空，直接返回运单数据为空异常
             	if(baseEntity.getData() == null

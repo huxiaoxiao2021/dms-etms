@@ -111,6 +111,22 @@ public class Constants {
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
     /**
+     * 业务操作日志系统编码-分拣web
+     */
+    public static final Integer BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+    /**
+     * 业务类型-未知业务类型
+     */
+    public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+    /**
+     * 业务类型-未知业务操作类型
+     */
+    public static final Integer OPERATE_TYPE_UNKNOWN = 0;
+    /**
+     * 业务类型-包裹标签打印
+     */
+    public static final Integer BUSINESS_TYPE_PACKAGE_PRINT = 1001;
+    /**
      * 业务类型-称重
      */
     public static final Integer BUSINESS_TYPE_WEIGHT = 1002;
