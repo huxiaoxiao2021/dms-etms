@@ -64,7 +64,7 @@ $(function () {
                                         $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: 1});
                                     } else {
                                         curRow[sName]='';
-                                        Jd.alert("保存失败+" + response.message);
+                                        Jd.alert("保存失败:" + response.message);
                                     }
                                 },
                                 error: function () {
