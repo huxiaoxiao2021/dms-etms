@@ -188,6 +188,11 @@ $(function () {
                 Jd.alert("时间间隔不允许超过10天");
                 return;
             }
+            dates=Math.abs((new  Date()- temp['startTime']))/(1000*60*60*24);
+            if(dates>30){
+                Jd.alert("只允许查询30天内的数据");
+                return;
+            }
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
 
         };
