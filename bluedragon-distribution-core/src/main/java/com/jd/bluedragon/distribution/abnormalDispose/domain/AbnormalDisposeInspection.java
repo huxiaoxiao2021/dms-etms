@@ -10,6 +10,8 @@ import java.util.Date;
 public class AbnormalDisposeInspection {
     private String waveBusinessId;
     private Date sealVehicleDate;//解封车时间
+    private String sealSiteCode;//解封车站点
+    private String sealSiteName;//
     private String waybillCode;
     private Integer prevAreaId;//上级区域
     private String prevAreaName;//上级区域
@@ -21,6 +23,22 @@ public class AbnormalDisposeInspection {
     private String endSiteName;//目的站点
     private String isDispose;//是否提报异常
     private String qcCode;//质控系统异常编码
+
+    public String getSealSiteCode() {
+        return sealSiteCode;
+    }
+
+    public void setSealSiteCode(String sealSiteCode) {
+        this.sealSiteCode = sealSiteCode;
+    }
+
+    public String getSealSiteName() {
+        return sealSiteName;
+    }
+
+    public void setSealSiteName(String sealSiteName) {
+        this.sealSiteName = sealSiteName;
+    }
 
     /**
      * 创建人code

@@ -85,7 +85,7 @@ $(function () {
             title: '验货分拣中心'
         }, {
             field: 'waybillCode',
-            title: '运单'
+            title: '运单号'
         }, {
             field: 'nextAreaName',
             title: '下级区域'

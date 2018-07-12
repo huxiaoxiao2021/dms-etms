@@ -207,6 +207,8 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 abnormalDisposeInspection.setPrevAreaName(areaNode.getName());
             }
         }
+        abnormalDisposeInspection.setSealSiteCode(currSite.getDmsSiteCode());
+        abnormalDisposeInspection.setSealSiteName(currSite.getSiteName());
         //目的站点、城市
         abnormalDisposeInspection.setEndSiteCode(transferWaveMonitorDetailResp.getEndNodeCode());
         abnormalDisposeInspection.setEndSiteName(transferWaveMonitorDetailResp.getEndNodeName());

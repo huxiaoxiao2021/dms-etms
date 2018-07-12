@@ -120,8 +120,11 @@ $(function () {
                     return $.dateHelper.formateDateTimeOfTs(value);
                 }
             }, {
+                field: 'sealSiteName',
+                title: '解封车分拣中心'
+            }, {
                 field: 'waybillCode',
-                title: '运单'
+                title: '运单号'
             }, {
                 field: 'prevAreaName',
                 title: '上级区域'
