@@ -70,16 +70,11 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		//写入自定义日志
 		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
 		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
-		Integer businessType = jdCommand.getBusinessType();
 		Integer operateType = jdCommand.getOperateType();
-		if(businessType == null){
-			businessType = Constants.BUSINESS_TYPE_UNKNOWN;
-		}
 		if(operateType == null){
 			operateType = Constants.OPERATE_TYPE_UNKNOWN;
 		}
-		businessLogProfiler.setBizType(businessType);
-		businessLogProfiler.setOperateType(operateType);
+		businessLogProfiler.setBizType(operateType);
 		businessLogProfiler.setOperateRequest(jsonCommand);
 		businessLogProfiler.setOperateResponse(jsonResponse);
 		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
