@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface JsfSortingResourceService {
 	public SortingJsfResponse check(SortingCheck sortingCheck);
@@ -15,4 +16,10 @@ public interface JsfSortingResourceService {
     public Integer getWaybillCancelByWaybillCode(String waybillCode);
     public String getRouterByWaybillCode(String waybillCode);
     public BoardCombinationJsfResponse boardCombinationCheck(BoardCombinationRequest request);
+    /**
+     * 批量查询路由
+     * @param waybillCodes
+     * @return
+     */
+    public Map<String,String> getRouterByWaybillCodes(List<String> waybillCodes);
 }

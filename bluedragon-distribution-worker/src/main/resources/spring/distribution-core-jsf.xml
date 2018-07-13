@@ -285,8 +285,14 @@
     <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
+                  protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
     <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
+                  protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
