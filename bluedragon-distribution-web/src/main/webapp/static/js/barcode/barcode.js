@@ -8,9 +8,7 @@ $(function () {
                 columns: oTableInit.tableColums
             });
         };
-        oTableInit.tableColums = [{
-            checkbox: true
-        }, {
+        oTableInit.tableColums = [ {
             field: 'barcode',
             title: '69码'
         }, {
@@ -37,23 +35,19 @@ $(function () {
             });
             $("#btn_export").click(function () {
 
+                var v_barcode=$("#barcode").text();
+                if (!v_barcode){
+                    alert("无可导出内容");
+                }
                 var url = "/barcode/toExport";
-                var params ={};
                 var form = $("<form method='post'></form>"),
                     input;
                 form.attr({"action": url});
 
-                $.each(params, function (key, value) {
-
-                    input = $("<input type='hidden' class='search-param'>");
-                    input.attr({"name": key});
-                    if (key == 'startTime' || key == 'endTime') {
-                        input.val(new Date(value));
-                    } else {
-                        input.val(value);
-                    }
-                    form.append(input);
-                });
+                input = $("<input type='hidden' class='search-param'>");
+                input.attr({"name": "barcode"});
+                input.val(v_barcode);
+                form.append(input);
                 form.appendTo(document.body);
                 form.submit();
                 document.body.removeChild(form[0]);

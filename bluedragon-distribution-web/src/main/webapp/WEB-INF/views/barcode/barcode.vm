@@ -50,7 +50,13 @@
             </fieldset>
         </form>
     </div>
-    <table id="dataTable"></table>
+    <div  class="row">
+        <div class="col-xs-2"></div>
+        <div class="col-xs-4">
+            <table id="dataTable"></table>
+        </div>
+    </div>
+
 </div>
 </body>
 </html>

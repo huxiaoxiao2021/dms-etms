@@ -11,4 +11,5 @@ import java.util.List;
  */
 public interface BarcodeService {
     List<BarCode> query(BarCode barCode);
+    List<List<Object>> export(BarCode barCode);
 }
