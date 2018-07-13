@@ -63,7 +63,7 @@ $(function () {
                                         Jd.alert("保存成功");
                                         $('#dataTableInspection').bootstrapTable('refreshOptions', {pageNumber: $('#dataTableInspection').bootstrapTable.pageNumber});
                                     } else {
-                                        Jd.alert("保存失败:" + response.message);
+                                        Jd.alert("编码提交失败:" + response.message);
                                     }
                                 },
                                 error: function () {

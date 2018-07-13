@@ -949,7 +949,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
     public JdResponse<String> saveAbnormalQc(AbnormalDisposeInspection abnormalDisposeInspection,LoginUser loginUser) {
         Date date = new Date();
         if (!abnormalDisposeInspection.getQcCode().startsWith(QC_FLAG)){
-            return new JdResponse<String>(JdResponse.CODE_FAIL, "异常编码格式不正确，请检查");
+            return new JdResponse<String>(JdResponse.CODE_FAIL, "格式不正确，应为QC开头的编码，请重新提交");
         }
         //获取操作人信息封装数据
         BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
