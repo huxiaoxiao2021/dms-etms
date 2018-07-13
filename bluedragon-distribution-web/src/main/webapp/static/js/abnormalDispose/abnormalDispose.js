@@ -127,10 +127,10 @@ $(function () {
             }, {
                 field: 'notReceiveDisposeNum',
                 width: 100,
-                title: '已处理未收货异常数'
+                title: '已处理未验异常'
             }, {
                 field: 'notReceiveProgress',
-                title: '未收货异常处理进度',
+                title: '未验异常处理进度',
                 formatter: function (value, row, index) {
                     if (value) {
                         return value + '%';
@@ -140,7 +140,7 @@ $(function () {
                 }
             }, {
                 field: 'notSendNum',
-                title: '未发单量',
+                title: '未发货单量',
                 formatter: function (value, row, index) {
                     if (value!='0'){
                         return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
@@ -151,7 +151,7 @@ $(function () {
             }, {
                 field: 'notSendDisposeNum',
                 width: 100,
-                title: '已处理未发货异常数'
+                title: '已处理未发货异常'
             }, {
                 field: 'notSendProgress',
                 title: '未发货异常处理进度',
