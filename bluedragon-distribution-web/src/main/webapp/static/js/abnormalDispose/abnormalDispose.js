@@ -116,7 +116,7 @@ $(function () {
                 }
             }, {
                 field: 'notReceiveNum',
-                title: '未收货数量',
+                title: '已到未验单量',
                 formatter: function (value, row, index) {
                     if (value!='0'){
                         return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
@@ -140,7 +140,7 @@ $(function () {
                 }
             }, {
                 field: 'notSendNum',
-                title: '未发货数量',
+                title: '未发单量',
                 formatter: function (value, row, index) {
                     if (value!='0'){
                         return "<a href='#' onclick='querySend(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
