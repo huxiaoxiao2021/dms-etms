@@ -662,6 +662,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),57,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_FIRST);
         }
+        //拆包面单打印拆包员号码
+        if(waybill.getWaybillExt() != null){
+        	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
+        }
         return target;
     }
 

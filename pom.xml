@@ -2,12 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    
     <modelVersion>4.0.0</modelVersion>
-	
-	<parent>
-      <groupId>com.jd.etms.base.conf</groupId>
-      <artifactId>etms-base-conf</artifactId>
-      <version>1.0-SNAPSHOT</version>
-   </parent>
 
     <name>bluedragon-distribution</name>
     <groupId>com.jd.bluedragon</groupId>
@@ -29,12 +23,64 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
+		<!-- wss2 update@2012.06.13 -->
+		<wss2.version>1.1.0</wss2.version>
+		<!-- wss3 update@2012.08.21 -->
+		<wss3.version>1.2.2-SNAPSHOT</wss3.version>
+		<!-- dbs update@2012.05.22 -->
+		<dbs.version>1.1.0</dbs.version>
+		<!-- base.cache update@2012.05.22 -->
+		<base.cache.version>1.0.6-SNAPSHOT</base.cache.version>
+		<!-- mq.client update@2012.05.22 -->
+		<mq.client.version>1.0.0</mq.client.version>
+		<!-- mq.sender update@2012.06.11 -->
+		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
+		<waybill.cache.version>1.0.3</waybill.cache.version>
 	</properties>
 	
 	<dependencyManagement>
 		<dependencies>
-		
-	        <dependency>
+		<dependency>
+				<groupId>com.jd.etms</groupId>
+				<artifactId>waybill-cache</artifactId>
+				<version>${waybill.cache.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd</groupId>
+				<artifactId>wss2</artifactId>
+				<version>${wss2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd</groupId>
+				<artifactId>wss3</artifactId>
+				<version>${wss3.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd</groupId>
+				<artifactId>dbs</artifactId>
+				<version>${dbs.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.etms</groupId>
+				<artifactId>base-cache</artifactId>
+				<version>${base.cache.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.etms.mq.client</groupId>
+				<artifactId>etms-mq-client</artifactId>
+				<version>${mq.client.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.jd.etms.mq.sender</groupId>
+				<artifactId>etms-mq-sender</artifactId>
+				<version>${mq.sender.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.6</version>
+			</dependency>
+	    <dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
 				<version>${org.springframework.version}</version>

@@ -139,7 +139,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
      * @return 运单实体
      */
     private Waybill loadBasicWaybillInfo(WaybillPrintContext context,String waybillCode,Integer packOpeFlowFlg) {
-    	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+    	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
     	if (baseEntity == null 
     			||baseEntity.getResultCode() != 1
     			||baseEntity.getData()==null) {

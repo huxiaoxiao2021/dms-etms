@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.qualityControl.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
@@ -62,6 +63,9 @@ public class QualityControlService {
 
     @Autowired
     AbnormalWayBillService abnormalWayBillService;
+
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     public TaskResult dealQualityControlTask(Task task) {
         QualityControlRequest request = null;
@@ -251,7 +255,12 @@ public class QualityControlService {
             abnormalWayBill.setQcName(request.getQcName());
             abnormalWayBill.setSortingReturn(request.getIsSortingReturn());
             abnormalWayBill.setOperateTime(request.getOperateTime());
-
+            if (request.getWaveBusinessId() == null) {
+                //查路由系统班次号tangcq 2018年6月29日18:35:32
+                abnormalWayBill.setWaveBusinessId(vrsRouteTransferRelationManager.queryWaveInfoByWaybillCodeAndNodeCode(abnormalWayBill.getWaybillCode(), abnormalWayBill.getCreateSiteCode()));
+            } else {
+                abnormalWayBill.setWaveBusinessId(request.getWaveBusinessId());
+            }
             list.add(abnormalWayBill);
         }
         return list;

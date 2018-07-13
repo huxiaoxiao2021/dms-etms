@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分拣批次清零</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/abnormalDispose/abnormalDispose.js"></script>
+    <script src="/static/js/abnormalDispose/abnormalInspectionDispose.js"></script>
+    <script src="/static/js/abnormalDispose/abnormalSendDispose.js"></script>
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jqModal.css')" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/css/bootstrap-editable.css')" media="all">
+    <script src="/static/js/plugins/jqModal.js"></script>
+    <script src="/static/js/plugins/jquery-migrate-1.2.1.js"></script>
+    <script src="/static/imports/bootstrap/v3.3.7/plugin/bootstrap3-editable/js/bootstrap-editable.min.js"></script>
+</head>
+<body class="container-fluid">
+<div id="dataTableMainDiv">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">分拣批次清零</li>
+    </ol>
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3 " for="startDate">查询日期</label>
+                                <div class=" col-xs-4">
+                                    <input type="text" id="startTime" name="startTime"
+                                           class="form-control search-param ">
+
+                                </div>
+                                <label class="control-label col-xs-1 " for="startDate"
+                                       style="text-align: center">—</label>
+                                <div class=" col-xs-4">
+                                    <input type="text" id="endTime" name="endTime" class="form-control search-param ">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <div class="col-xs-3">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4" for="site-select">区域 </label>
+                                    <div class=" col-xs-8">
+                                        <select id="areaId" class="form-control search-param " name="areaId"
+                                                value=""></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-2">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-3" for="site-select">省 </label>
+                                    <div class=" col-xs-9">
+                                        <select id="provinceId" class="form-control search-param " name="provinceId"
+                                                value=""></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-3">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4" for="site-select">市 </label>
+                                    <div class=" col-xs-8">
+                                        <select id="cityId" class="form-control search-param " name="cityId"
+                                                value=""></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4" for="site-select">分拣中心 </label>
+                                    <div class=" col-xs-8">
+                                        <select id="siteCodeMain" class="form-control search-param " name="siteCode"
+                                                value=""></select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="toolbar_main" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+
+<div id="inspectionDetail">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">分拣批次清零</li>
+        <li class="active">已解封车未收验货</li>
+    </ol>
+    <div id="query-condition-inspection">
+        <form id="query-form-inspection" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="isDisposeInspection"> 异常是否处理 </label>
+                                <div class=" col-xs-8">
+                                    <select type="text" class="form-control " id="isDisposeInspectionSelect"
+                                            name="isDisposeSelect">
+                                        <option value="2" selected>全部</option>
+                                        <option value="1">是</option>
+                                        <option value="0">否</option>
+                                    </select>
+                                    <input type="hidden" id="isDisposeInspection"
+                                           class="form-control  search-param-inspection " name="isDispose">
+                                    <input type="hidden" id="waveBusinessIdInspection"
+                                           class="form-control  search-param-inspection " name="waveBusinessId">
+                                    <input type="hidden" id="siteCodeInspection" class="form-control  search-param-inspection "
+                                           name="siteCode">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="toolbar_inspection" class="btn-group">
+        <button id="btn_query_inspection" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_export_inspection" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
+        </button>
+        <button id="btn_back_inspection" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>返回
+        </button>
+    </div>
+    <table id="dataTableInspection"></table>
+</div>
+
+<div id="sendDetail">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">分拣批次清零</li>
+        <li class="active">已收验货未发货</li>
+    </ol>
+    <div id="query-condition-send">
+        <form id="query-form-send" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="control-label col-xs-4 " for="isDisposeSend"> 异常是否处理 </label>
+                                <div class=" col-xs-8">
+                                    <select type="text" class="form-control " id="isDisposeSendSelect"
+                                            name="isDisposeSendSelect">
+                                        <option value="2" selected>全部</option>
+                                        <option value="1">是</option>
+                                        <option value="0">否</option>
+                                    </select>
+                                    <input type="hidden" id="isDisposeSend" class="form-control  search-param-send "
+                                           name="isDispose">
+                                    <input type="hidden" id="waveBusinessIdSend" class="form-control  search-param-send "
+                                           name="waveBusinessId">
+                                    <input type="hidden" id="siteCodeSend" class="form-control  search-param-send "
+                                           name="siteCode">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="toolbar_send" class="btn-group">
+        <button id="btn_query_send" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+        <button id="btn_export_send" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
+        </button>
+        <button id="btn_abnormal" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-export" aria-hidden="true"></span>提交异常
+        </button>
+        <button id="btn_back_send" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-home" aria-hidden="true"></span>返回
+        </button>
+    </div>
+    <table id="dataTableSend"></table>
+</div>
+<div id="dataEditDiv" class="main jqmWindow">
+    <ol class="breadcrumb">
+        <li class="active">提交异常</li>
+    </ol>
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="form-group">
+                            <label class="col-xs-3 control-label">运单号 ：</label>
+                            <div class="col-xs-9">
+                                <input type="text" readonly="true" class="form-control edit-param" id="waybillCodeSend"
+                                       name="waybillCode"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label class="col-xs-3 control-label">提交类型 ：</label>
+                            <div class="col-xs-9">
+                                <label class="col-xs-4  control-label" style="text-align:left">
+                                    <input type="radio" name="abnormalTypeRadio" value="0" checked="true"> 提交异常
+                                </label>
+                                <label class="col-xs-4  control-label" style="text-align:left">
+                                    <input type="radio" name="abnormalTypeRadio" value="1"> 发起外呼
+                                </label>
+                                <input type="hidden" id="abnormalTypeSend" class="form-control edit-param " value="0"
+                                       name="abnormalType">
+                            </div>
+                        </div>
+
+                        <div class="form-group ">
+                            <label class="control-label col-xs-3" for="site-select">原因 </label>
+                            <div class=" col-xs-9">
+                                <select id="abnormalReason1Select1" class="form-control edit-param " name="abnormalReason1"
+                                        value=""></select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-xs-3" for="site-select"> </label>
+                            <div class=" col-xs-9">
+                                <select id="abnormalReason1Select2" class="form-control edit-param " name="abnormalReason2"
+                                        value=""></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+
+                <div class="form-group " style="text-align:center;">
+                    <a href="#" class="glyphicon glyphicon-remove jqmClose">取消</a>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <a id="abnormal_save" href="#" class="glyphicon glyphicon-ok">保存</a>
+                </div>
+            </fieldset>
+
+        </form>
+    </div>
+    <span id="currUserCode" class="hidden">$!{usercode}</span>
+    <hr/>
+</div>
+</body>
+</html>

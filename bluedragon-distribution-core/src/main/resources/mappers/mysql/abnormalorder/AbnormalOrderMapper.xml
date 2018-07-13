@@ -21,6 +21,7 @@
 		<result column="is_cancel" property="isCancel" />
 		<result column="memo" property="memo" />
 		<result column="yn" property="yn" />				
+		<result column="wave_Business_Id" property="waveBusinessId" />
 	</resultMap>
 	
 	<insert id="add" parameterType="abnormalOrder" >
@@ -31,7 +32,7 @@
 			create_user_code,create_user_erp,create_user,
 			operate_time,create_time,update_time,
 			create_site_code,create_site_name,
-			is_cancel,memo,yn)
+			is_cancel,memo,wave_Business_Id,yn)
 		VALUES(
 		    #{systemId,jdbcType=BIGINT},
 			#{fingerprint,jdbcType=VARCHAR},#{orderId,jdbcType=VARCHAR},
@@ -39,19 +40,30 @@
 			#{createUserCode,jdbcType=INTEGER},#{createUserErp,jdbcType=VARCHAR},#{createUser,jdbcType=VARCHAR},
 			#{operateTime,jdbcType=TIMESTAMP},NOW(),NOW(),
 			#{createSiteCode,jdbcType=VARCHAR},#{createSiteName,jdbcType=VARCHAR},
-			-1,#{memo,jdbcType=VARCHAR},1
+			-1,#{memo,jdbcType=VARCHAR},#{waveBusinessId,jdbcType=VARCHAR},1
 		)
 	</insert>
 
 	<select id="get" resultMap="abnormalOrder" parameterType="java.lang.String">
+	SELECT
+	system_id,fingerprint,order_id,
+	abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
+	create_user_code,create_user_erp,create_user,
+	operate_time,create_time,update_time,
+	create_site_code,create_site_name,is_cancel,memo,yn
+	FROM abnormal_order
+	WHERE order_id = #{orderId}  LIMIT 1
+</select>
+	<select id="getByWaveIds" resultMap="abnormalOrder" parameterType="java.util.List">
 		SELECT
-			system_id,fingerprint,order_id,
-			abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
-			create_user_code,create_user_erp,create_user,
-			operate_time,create_time,update_time,
-			create_site_code,create_site_name,is_cancel,memo,yn
+		 DISTINCT order_id,wave_Business_Id
 		FROM abnormal_order
-		WHERE order_id = #{orderId}  LIMIT 1
+		WHERE yn=1 and is_cancel != 1 and wave_Business_Id IN
+		<foreach item="item" index="index" collection="list"
+				 open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		group by wave_Business_Id
 	</select>
 
 	<update id="update" parameterType="abnormalOrder" >
@@ -69,6 +81,7 @@
 			create_site_name=#{createSiteName,jdbcType=VARCHAR},
 			operate_time=#{operateTime,jdbcType=VARCHAR},
 			memo=#{memo,jdbcType=VARCHAR},
+			wave_Business_Id=#{waveBusinessId,jdbcType=VARCHAR},
 			is_cancel=#{isCancel,jdbcType=VARCHAR},
 			update_time=NOW()
 		WHERE
@@ -84,4 +97,19 @@
 		WHERE
 			order_id = #{orderId,jdbcType=VARCHAR} and yn = 1
 	</update>
+
+	<select id="queryByWaveIdAndWaybillCodes" resultMap="abnormalOrder" parameterType="java.util.Map">
+		SELECT
+		system_id,fingerprint,order_id,wave_Business_Id,
+		abnormal_code1,abnormal_reason1,abnormal_code2,abnormal_reason2,
+		create_user_code,create_user_erp,create_user,
+		operate_time,create_time,update_time,
+		create_site_code,create_site_name,is_cancel,memo,yn
+		FROM abnormal_order
+		WHERE wave_business_id=#{waveBusinessId,jdbcType=VARCHAR} and yn = 1 and
+		order_id IN
+		<foreach collection="waybillCodes" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
 </mapper>	

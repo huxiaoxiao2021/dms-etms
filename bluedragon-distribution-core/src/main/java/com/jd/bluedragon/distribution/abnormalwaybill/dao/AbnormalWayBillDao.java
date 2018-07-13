@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.abnormalwaybill.dao;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,5 +45,20 @@ public class AbnormalWayBillDao extends BaseDao<AbnormalWayBill> {
         parameter.put("wayBillCode", wayBillCode);
         parameter.put("siteCode", siteCode);
         return super.getSqlSession().selectOne(namespace + ".get" , parameter);
+    }
+    public List<AbnormalWayBill> queryByWaveIds(List<String> waveIds){
+        return super.getSqlSession().selectList(namespace + ".getByWaveIds" , waveIds);
+    }
+    /**
+     * 通过班次id和 多运单，查异常处理情况
+     * @param waveBusinessId
+     * @param waybillCodeList
+     * @return
+     */
+    public List<AbnormalWayBill> queryByWaveIdAndWaybillCodes(String waveBusinessId, ArrayList<String> waybillCodeList) {
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("waveBusinessId", waveBusinessId);
+        param.put("waybillCodes", waybillCodeList);
+        return super.getSqlSession().selectList(namespace + ".queryByWaveIdAndWaybillCodes", param);
     }
 }
