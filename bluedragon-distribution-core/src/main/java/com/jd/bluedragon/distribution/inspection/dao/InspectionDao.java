@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.inspection.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -142,5 +143,17 @@ public class InspectionDao extends BaseDao<Inspection>{
 	public List<Inspection>  findPackageBoxCodesByWaybillCode(Inspection inspectionQuery){
 		return this.getSqlSession().selectList(namespace + ".findPackageBoxCodesByWaybillCode", inspectionQuery);
 
+	}
+	/**
+	 * 查某些运单的验货时间
+	 * @param siteCode
+	 * @param waybillCodeList
+	 * @return
+	 */
+	public List<Inspection> findOperateTimeByWaybillCodes(Integer siteCode, List<String> waybillCodeList) {
+		Map<String, Object> param = Maps.newHashMap();
+		param.put("createSiteCode", siteCode);
+		param.put("waybillCodes", waybillCodeList);
+		return super.getSqlSession().selectList(namespace + ".findOperateTimeByWaybillCodes", param);
 	}
 }

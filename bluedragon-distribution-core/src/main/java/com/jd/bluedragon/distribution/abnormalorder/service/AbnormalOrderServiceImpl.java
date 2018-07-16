@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormalorder.service;
 
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageDestinationConstant;
 import com.jd.bluedragon.distribution.abnormalorder.dao.AbnormalOrderDao;
@@ -65,6 +66,9 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 	@Autowired
 	private WaybillTraceApi waybillTraceApi;
 
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+
 	@Override
 	public AbnormalOrder queryAbnormalOrderByOrderId(String orderId){
 		return abnormalOrderDao.query(orderId);
@@ -107,7 +111,16 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 					abnormalOrder.setIsCancel(AbnormalOrder.WAIT);
 				}
 			}
-			
+            //调用路由接口，查询出班次 tangchunqing2018年6月29日08:58:18
+            if (abnormalOrder.getWaveBusinessId() == null) {
+                if (tmpvo!=null&&tmpvo.getWaveBusinessId() != null) {
+                    abnormalOrder.setWaveBusinessId(tmpvo.getWaveBusinessId());
+                } else {
+                    abnormalOrder.setWaveBusinessId(vrsRouteTransferRelationManager.queryWaveInfoByWaybillCodeAndNodeCode(abnormalOrder.getOrderId(), abnormalOrder.getCreateSiteCode()));
+                }
+
+            }
+
 			int tmpresult = isHave?abnormalOrderDao.updateSome(abnormalOrder):abnormalOrderDao.insert(abnormalOrder);
 			log.info("AbnormalOrderServiceImpl.pushNewDataFromPDA waybillcode:" + waybillcode + "\t 数据库操作结果:" + tmpresult);
 			result.put(waybillcode, isHave?AbnormalOrder.NOTCANCEL:AbnormalOrder.NEW);

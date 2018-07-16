@@ -36,7 +36,7 @@
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
-
+<script src="/static/js/jd/jd.js"></script>
 ####################
 ## 基础样式
 ####################

@@ -269,4 +269,20 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public Map<String, Object> uploadOpe(String packOpeJson){
     	return waybillPackageApiJsf.uploadOpe(packOpeJson);
     }
+	/**
+	 * 根据运单号获取运单数据信息给打印用
+	 * @param waybillCode
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public BaseEntity<BigWaybillDto> getWaybillDataForPrint(String waybillCode) {
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(Boolean.TRUE);
+		wChoice.setQueryWaybillE(Boolean.TRUE);
+		wChoice.setQueryWaybillM(Boolean.TRUE);
+		wChoice.setQueryPackList(Boolean.TRUE);
+		wChoice.setQueryWaybillExtend(Boolean.TRUE);
+		return this.getDataByChoice(waybillCode, wChoice);
+	}
 }

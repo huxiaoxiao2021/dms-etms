@@ -61,6 +61,7 @@ public class AbnormalWayBill {
 
     /**  数据库时间戳 */
     private Date ts;
+    private String waveBusinessId;//版次号，路由系统的字段
 
     public Integer getCreateSiteCode() {
         return createSiteCode;
@@ -204,5 +205,13 @@ public class AbnormalWayBill {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getWaveBusinessId() {
+        return waveBusinessId;
+    }
+
+    public void setWaveBusinessId(String waveBusinessId) {
+        this.waveBusinessId = waveBusinessId;
     }
 }
