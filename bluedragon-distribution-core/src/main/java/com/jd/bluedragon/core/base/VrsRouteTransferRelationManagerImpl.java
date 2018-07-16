@@ -262,14 +262,14 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         CommonDto commonDto=new CommonDto();
         commonDto.setCode(1);
         PageDto pageDto=new PageDto();
-        pageDto.setPageSize(10);
+        pageDto.setPageSize(page.getPageSize());
         pageDto.setCurrentPage(page.getCurrentPage());
         pageDto.setTotalPage(50);
         pageDto.setTotalRow(499);
         List<TransferWaveMonitorDetailResp> list= Lists.newArrayList();
-        for (int i=0;i<10;i++){
+        for (int i=0;i<page.getPageSize();i++){
             TransferWaveMonitorDetailResp transferWaveMonitorDetailResp=new TransferWaveMonitorDetailResp();
-            transferWaveMonitorDetailResp.setEndCityName("上海"+i);
+            transferWaveMonitorDetailResp.setEndCityName("上海"+(page.getPageSize()*(page.getCurrentPage()-1) +i));
             transferWaveMonitorDetailResp.setEndNodeName("分拣中心"+i);
             transferWaveMonitorDetailResp.setEndOrgName("华东"+i);
             transferWaveMonitorDetailResp.setStartCityName("北京"+i);
