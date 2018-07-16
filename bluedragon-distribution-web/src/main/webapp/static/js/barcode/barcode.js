@@ -24,8 +24,16 @@ $(function () {
         var oInit = new Object();
         oInit.init = function () {
             $('#dataTable').hide();
+            $('#barcode').val(null);
             $('#btn_query').click(function () {
                 var params={};
+                var v_barcode=$('#barcode').val();
+                if(v_barcode){
+                    params.barcode=v_barcode;
+                }else{
+                    Jd.alert("请输入要查询的商品编码");
+                    return;
+                }
                 $.ajaxHelper.doPostSync(queryUrl, JSON.stringify(params), function (res) {
                     if (res) {
                         $('#dataTable').bootstrapTable("load",res);
@@ -35,9 +43,10 @@ $(function () {
             });
             $("#btn_export").click(function () {
 
-                var v_barcode=$("#barcode").text();
+                var v_barcode=$("#barcode").val();
                 if (!v_barcode){
-                    alert("无可导出内容");
+                    Jd.alert("无可导出内容");
+                    return;
                 }
                 var url = "/barcode/toExport";
                 var form = $("<form method='post'></form>"),

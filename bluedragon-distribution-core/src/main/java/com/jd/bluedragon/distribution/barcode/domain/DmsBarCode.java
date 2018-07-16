@@ -5,7 +5,7 @@ package com.jd.bluedragon.distribution.barcode.domain;
  * @Description: 类描述信息
  * @date 2018年07月12日 16时:15分
  */
-public class BarCode {
+public class DmsBarCode {
     private String barcode;//69码
     private String skuId;
     private String productName;

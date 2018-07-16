@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.barcode.service;
 
-import com.jd.bluedragon.distribution.barcode.domain.BarCode;
+import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 
 import java.util.List;
 
@@ -10,6 +10,6 @@ import java.util.List;
  * @date 2018年07月12日 16时:14分
  */
 public interface BarcodeService {
-    List<BarCode> query(BarCode barCode);
-    List<List<Object>> export(BarCode barCode);
+    List<DmsBarCode> query(DmsBarCode barCode);
+    List<List<Object>> export(DmsBarCode barCode);
 }

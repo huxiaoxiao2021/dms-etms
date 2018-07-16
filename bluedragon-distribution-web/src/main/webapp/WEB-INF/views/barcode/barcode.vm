@@ -23,8 +23,7 @@
                     <div class="col-xs-12">
                         <label class="col-xs-2 control-label">69码</label>
                         <div class="col-xs-3">
-                    			<textarea  class="col-xs-12" class="form-control edit-param" id="barcode" name="memo"
-                                          style="width: 300px; height: 80px;">
+                    			<textarea  class="form-control" id="barcode" name="barcode" rows="6">
 		                        </textarea>
                         </div>
                         <div class="col-xs-3">

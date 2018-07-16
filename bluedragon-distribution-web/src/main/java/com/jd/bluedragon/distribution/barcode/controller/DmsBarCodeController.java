@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.barcode.controller;
 
-import com.jd.bluedragon.distribution.barcode.domain.BarCode;
+import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
@@ -47,12 +47,12 @@ public class DmsBarCodeController extends DmsBaseController {
      */
     @RequestMapping(value = "/listData")
     public @ResponseBody
-    List<BarCode> listData(@RequestBody BarCode barCode) {
+    List<DmsBarCode> listData(@RequestBody DmsBarCode barCode) {
         return barcodeService.query(barCode);
     }
 
     @RequestMapping(value = "/toExport")
-    public ModelAndView toExport(BarCode barCode, Model model) {
+    public ModelAndView toExport(DmsBarCode barCode, Model model) {
         try {
             List<List<Object>> resultList = barcodeService.export(barCode);
             model.addAttribute("filename", "69码商品查询.xls");
