@@ -146,7 +146,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
 //            CommonDto<PageDto<TransferWaveMonitorResp>> commonDto =testGetMain(baseDto, page, parameter);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
                 logger.warn("批次清零异常统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
-                logger.warn("批次清零异常统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                logger.warn("批次清零异常统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
                 return null;
             } else {
                 logger.debug("批次清零异常统计成功：page：" + JsonHelper.toJson(page) + ",parameter:" + JsonHelper.toJson(parameter));
@@ -176,7 +176,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
                 logger.warn("批次清零异常未发货明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
-                logger.warn("批次清零异常未发货明细统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                logger.warn("批次清零异常未发货明细统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
                 return null;
             } else {
                 logger.debug("批次清零异常未发货明统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
@@ -205,7 +205,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
                 logger.warn("批次清零异常未验明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
-                logger.warn("批次清零异常未验明细细统计失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                logger.warn("批次清零异常未验明细细统计失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
                 return null;
             } else {
                 logger.debug("批次清零异常未验明细统计成功：page：" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);
@@ -239,7 +239,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<Map<String, List<String>>> commonDto = vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode(baseDto, waybillCode, org.getDmsSiteCode());
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
                 logger.warn("查询班次失败,参数列表：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
-                logger.warn("查询班次失败，返回消息：" + commonDto == null ? "commonDto=null" : commonDto.getMessage());
+                logger.warn("查询班次失败，返回消息：" + (commonDto == null ? "commonDto=null" : commonDto.getMessage()));
                 return null;
             } else {
                 logger.debug("查询班次失败成功：waybillCode:" + waybillCode + ",nodeCode:" + nodeCode);
@@ -262,14 +262,14 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         CommonDto commonDto=new CommonDto();
         commonDto.setCode(1);
         PageDto pageDto=new PageDto();
-        pageDto.setPageSize(10);
+        pageDto.setPageSize(page.getPageSize());
         pageDto.setCurrentPage(page.getCurrentPage());
         pageDto.setTotalPage(50);
         pageDto.setTotalRow(499);
         List<TransferWaveMonitorDetailResp> list= Lists.newArrayList();
-        for (int i=0;i<10;i++){
+        for (int i=0;i<page.getPageSize();i++){
             TransferWaveMonitorDetailResp transferWaveMonitorDetailResp=new TransferWaveMonitorDetailResp();
-            transferWaveMonitorDetailResp.setEndCityName("上海"+i);
+            transferWaveMonitorDetailResp.setEndCityName("上海"+(page.getPageSize()*(page.getCurrentPage()-1) +i));
             transferWaveMonitorDetailResp.setEndNodeName("分拣中心"+i);
             transferWaveMonitorDetailResp.setEndOrgName("华东"+i);
             transferWaveMonitorDetailResp.setStartCityName("北京"+i);

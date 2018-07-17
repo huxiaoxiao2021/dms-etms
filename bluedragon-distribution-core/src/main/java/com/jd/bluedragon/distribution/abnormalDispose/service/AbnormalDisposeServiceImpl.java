@@ -162,7 +162,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 }
                 //说明抓取的数据已经够了，改跳出了 resultData.size()理论上不会出现>limit的情况
                 if ((abnormalDisposeCondition.getOffset() + abnormalDisposeCondition.getLimit()) < hasGetIndex && resultData.size() >= abnormalDisposeCondition.getLimit()) {
-                    break;
+                    continue;
                 }
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
@@ -170,7 +170,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 resultData.add(convertAbnormalDisposeInspection(abnormalDisposeCondition, currSite, routerMap, abnormalQcMap, transferWaveMonitorDetailResp));
             }
         }
-        pagerResult.setTotal(totalPage);
+        pagerResult.setTotal(hasGetIndex);
         pagerResult.setRows(resultData);
         return pagerResult;
 
@@ -685,7 +685,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 }
                 //说明抓取的数据已经够了，改跳出了 resultData.size()理论上不会出现>limit的情况
                 if ((abnormalDisposeCondition.getOffset() + abnormalDisposeCondition.getLimit()) < hasGetIndex && resultData.size() >= abnormalDisposeCondition.getLimit()) {
-                    break;
+                    continue;
                 }
                 if (routerMap == null) {//放在这里，避免当前页都要过滤掉时，没必要的调用ver
                     routerMap = jsfSortingResourceService.getRouterByWaybillCodes(waybillCodeList);
@@ -693,7 +693,7 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
                 resultData.add(convertAbnormalDisposeSend(currSite, routerMap, abnormalOrdersMap, abnormalWayBillsMap, inspectionWayBillsMap, transferWaveMonitorDetailResp));
             }
         }
-        pagerResult.setTotal(totalPage);
+        pagerResult.setTotal(hasGetIndex);
         pagerResult.setRows(resultData);
         return pagerResult;
 
