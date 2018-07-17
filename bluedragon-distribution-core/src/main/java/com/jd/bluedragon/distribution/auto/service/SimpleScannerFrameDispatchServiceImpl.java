@@ -315,11 +315,11 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
     private Integer getSiteCodeWithPackageCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 获取运单号
         String waybillCode = SerialRuleUtil.getWaybillCode(domain.getBarCode());
-        // 判断是否为拦截订单
-        if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
-            this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
-            this.addGantryException(domain, config, 4, null);
-        } else {
+        // 判断是否为拦截订单  对于拦截订单的的处理去掉
+//        if (WaybillCancelClient.isWaybillCancel(waybillCode)) {
+//            this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|拦截订单，取消发货", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
+//            this.addGantryException(domain, config, 4, null);
+//        } else {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
             if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 // 获取运单信息
@@ -341,7 +341,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 this.printWarnLog("龙门架自动发货,根据包裹号获取批次号registerNo={0},operateTime={1},waybillCode={2}|运单信息查询结果为NULL", domain.getRegisterNo(), domain.getScannerTime(), waybillCode);
                 this.addGantryException(domain, config, 2, null);
             }
-        }
+//        }
         return null;
     }
 

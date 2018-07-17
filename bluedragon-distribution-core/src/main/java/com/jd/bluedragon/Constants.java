@@ -111,6 +111,22 @@ public class Constants {
     public static final int OPERATE_TYPE_PSY = 31;//配送员上门接货
     public static final int OPERATE_TYPE_In = 1150;//驻场
     /**
+     * 业务操作日志系统编码-分拣web
+     */
+    public static final Integer BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+    /**
+     * 业务类型-未知业务类型
+     */
+    public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+    /**
+     * 业务类型-未知业务操作类型
+     */
+    public static final Integer OPERATE_TYPE_UNKNOWN = 0;
+    /**
+     * 业务类型-包裹标签打印
+     */
+    public static final Integer BUSINESS_TYPE_PACKAGE_PRINT = 1001;
+    /**
      * 业务类型-称重
      */
     public static final Integer BUSINESS_TYPE_WEIGHT = 1002;
@@ -444,6 +460,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_FRESH_R ="DMS-WEB-SORTING-FRESH-R"; //生鲜温度录入
     public static final String DMS_WEB_SORTING_GANTRYAUTOSEND_R ="DMS-WEB-SORTING-GANTRYAUTOSEND-R"; //龙门架自动发货
     public static final String DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R ="DMS-WEB-SORTING-SORTMACHINEAUTOSEND-R"; //分拣机自动发货
+    public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
     public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
     public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
     public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断

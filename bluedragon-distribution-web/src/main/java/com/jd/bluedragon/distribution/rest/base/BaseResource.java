@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -735,19 +736,40 @@ public class BaseResource implements DmsBaseService {
 	}
 
     @GET
-    @Path("/bases/getBaseDictionaryTree/{typeGroup}")
-    public InvokeResult<List<BaseDataDict>> getBaseDictionaryTree(@PathParam("typeGroup") int typeGroup){
+    @Path("/bases/getBaseDictionaryTreeMulti")
+    public InvokeResult<List<BaseDataDict>> getBaseDictionaryTreeMulti(@QueryParam("typeGroups")String typeGroups){
         InvokeResult<List<BaseDataDict>> result=new InvokeResult<List<BaseDataDict>>();
         result.success();
         try{
-            result.setData(baseService.getBaseDictionaryTree(typeGroup));
+			List<BaseDataDict> data= Lists.newArrayList();
+			if (typeGroups.indexOf(Constants.SEPARATOR_HYPHEN)!=-1){
+				String[] typeGroupArr=typeGroups.split(Constants.SEPARATOR_HYPHEN);
+				for(String typeGroup: typeGroupArr){
+					data.addAll(baseService.getBaseDictionaryTree(Integer.parseInt(typeGroup)));
+				}
+				result.setData(data);
+			}else{
+				result.setData(baseService.getBaseDictionaryTree(Integer.parseInt(typeGroups)));
+			}
         }catch (Exception ex){
             logger.error(ex.getMessage(),ex);
             result.error(ex);
         }
         return result;
     }
-
+	@GET
+	@Path("/bases/getBaseDictionaryTree/{typeGroup}")
+	public InvokeResult<List<BaseDataDict>> getBaseDictionaryTree(@PathParam("typeGroup") int typeGroup){
+		InvokeResult<List<BaseDataDict>> result=new InvokeResult<List<BaseDataDict>>();
+		result.success();
+		try{
+			result.setData(baseService.getBaseDictionaryTree(typeGroup));
+		}catch (Exception ex){
+			logger.error(ex.getMessage(),ex);
+			result.error(ex);
+		}
+		return result;
+	}
 	@GET
 	@Path("/bases/error/{typeGroup}")
 	public List<BaseResponse> getErrorList(@PathParam("typeGroup") Integer typeGroup) {

@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -147,7 +148,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 		
         String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
         try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
             	//运单数据为空，直接返回运单数据为空异常
             	if(baseEntity.getData() == null
@@ -423,23 +424,16 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
         if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
-            String packageCode = context.getRequest().getBarCode();
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
-            if(bigWaybillDto == null){
-                BaseEntity<BigWaybillDto> baseEntity  = waybillQueryManager.getDataByChoice(BusinessHelper.getWaybillCode(packageCode), true, true, true, true);
-                if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-                    bigWaybillDto = baseEntity.getData();
-                    context.setBigWaybillDto(bigWaybillDto);
-                }
-            }
             if (bigWaybillDto != null) {
                 Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
                 for(PrintPackage pack : commonWaybill.getPackList()){
                     DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
-                    if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getAgainWeight())){
-                        pack.setWeight(deliveryPackageD.getAgainWeight());
-                    }else if(deliveryPackageD != null && !Double.valueOf(0.0).equals(deliveryPackageD.getGoodWeight())){
-                        pack.setWeight(deliveryPackageD.getGoodWeight());
+                    if(deliveryPackageD != null){
+                    	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
+                    	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
+                            pack.setWeight(deliveryPackageD.getAgainWeight());
+                        }
                     }
                 }
             }

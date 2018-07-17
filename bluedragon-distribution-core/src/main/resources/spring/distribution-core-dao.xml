@@ -431,4 +431,6 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsAbnormalEclpDaoImpl"/>
     <bean id="abnormalUnknownWaybillDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
+    <bean id="abnormalQcDao"  parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
 </beans>

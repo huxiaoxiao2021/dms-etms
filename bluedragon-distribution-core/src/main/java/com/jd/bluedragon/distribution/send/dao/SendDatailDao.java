@@ -319,4 +319,13 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail>  queryListByCondition(SendDetail sendDetail){
         return this.getSqlSession().selectList(namespace + ".queryListByCondition", sendDetail);
     }
+
+    /**
+     * 根据运单或包裹号查询已发货数据
+     * @param sendDetail
+     * @return
+     */
+    public List<SendDetail>  findByWaybillCodeOrPackageCode(SendDetail sendDetail){
+        return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sendDetail);
+    }
 }

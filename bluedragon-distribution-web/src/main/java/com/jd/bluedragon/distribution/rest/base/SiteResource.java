@@ -16,7 +16,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.external.service.DmsSiteService;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -55,14 +54,8 @@ public class SiteResource implements DmsSiteService {
 	public BaseStaffSiteOrgDto getSite(@PathParam("siteCode") Integer siteCode) {
 		return this.siteService.getSite(siteCode);
 	}
-	
-	@GET
-	@GZIP
-	@Path("/trader/{siteCode}")
-	public BasicTraderInfoDTO getTrader(@PathParam("siteCode") Integer siteCode) {
-		return this.siteService.getTrader(siteCode);
-	}
-	
+
+
 	/** 
 	 * 通过运力编码获取基础资料信息
 	 * 3/19
@@ -101,9 +94,10 @@ public class SiteResource implements DmsSiteService {
 			//参数不全返回
 			response.setCode(JdResponse.CODE_PARAM_ERROR);
 			response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+			return response;
 		}
 		//接口实现
-			response = siteService.queryCapacityCodeInfo(request);
+		response = siteService.queryCapacityCodeInfo(request);
 		
 		return response;
 	}
