@@ -4061,7 +4061,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return 1：发货成功  2：发货失败
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageSortSend(List<SendM> sendMList){
             /**插入SEND_M*/
 //            this.sendMDao.addBatch(sendMList);

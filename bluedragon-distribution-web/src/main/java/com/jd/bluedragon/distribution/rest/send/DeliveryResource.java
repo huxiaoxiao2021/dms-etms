@@ -23,6 +23,8 @@ import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -925,7 +927,10 @@ public class DeliveryResource implements DmsDeliveryService {
          */
         BaseStaffSiteOrgDto cbDto = null;
         BaseStaffSiteOrgDto rbDto = null;
+        CallerInfo info = null;
         try {
+            info = Profiler.registerInfo("DMSWEB.packageSortSend.checkSiteCode", Constants.UMP_APP_NAME_DMSWEB,
+                    false,true);
             rbDto = this.baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
             cbDto = this.baseMajorManager.getBaseSiteBySiteId(request.getDistributeId());
             if(cbDto == null){
@@ -946,6 +951,8 @@ public class DeliveryResource implements DmsDeliveryService {
             }
         } catch (Exception e) {
             this.logger.error("分拣开放平台调分拣发货接口校验参数，检查站点信息，调用站点信息异常！", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         /**检查批次号的合法 */
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
