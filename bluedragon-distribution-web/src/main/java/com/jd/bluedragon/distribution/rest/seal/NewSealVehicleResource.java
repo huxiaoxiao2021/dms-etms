@@ -4,11 +4,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
 import java.util.*;
 
 /**
@@ -54,6 +57,93 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     private CarLicenseChangeUtil carLicenseChangeUtil;
 
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
+    private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
+
+    /**
+     * 校验并获取运力编码信息
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/new/vehicle/seal/transportCode")
+    @Override
+    public RouteTypeResponse getTransportCode(NewSealVehicleRequest request) {
+        logger.info("封车校验运力编码请求体：" + JsonHelper.toJson(request));
+        RouteTypeResponse response = new RouteTypeResponse();
+        if(StringUtils.isEmpty(request.getTransportCode()) || !NumberHelper.isPositiveNumber(request.getSiteCode())){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        try {
+            com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(request.getTransportCode());
+            if (vtsDto == null) {    //JSF接口返回空
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("查询运力信息结果为空:" + request.getTransportCode());
+                return response;
+            }
+            if (Constants.RESULT_SUCCESS == vtsDto.getCode()) { //JSF接口调用成功
+                VtsTransportResourceDto vtrd = vtsDto.getData();
+                if (vtrd != null) {
+                    response = checkTransportCode(vtrd, request.getSiteCode());
+                } else {
+                    response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    response.setMessage("查询运力信息结果为空:" + request.getTransportCode());
+                }
+            } else if (Constants.RESULT_WARN == vtsDto.getCode()) {    //查询运力信息接口返回警告，给出前台提示
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage(vtsDto.getMessage());
+            } else { //服务出错或者出异常，打日志
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("查询运力信息出错！");
+                logger.error("查询运力信息出错,出错原因:" + vtsDto.getMessage());
+                logger.error("查询运力信息出错,运力编码:" + request.getTransportCode());
+            }
+            return response;
+        } catch (Exception e) {
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            logger.error("通过运力编码获取基础资料信息异常：" + JsonHelper.toJson(request), e);
+        }
+
+        return response;
+    }
+
+    private RouteTypeResponse checkTransportCode(VtsTransportResourceDto data, Integer createSiteCode){
+        RouteTypeResponse response = new RouteTypeResponse();
+        if(createSiteCode.equals(data.getStartNodeId())){
+            int hour = data.getSendCarHour();
+            int min = data.getSendCarMin();
+            Calendar calendar =Calendar.getInstance();
+            calendar.set(Calendar.HOUR_OF_DAY, hour);
+            calendar.set(Calendar.MINUTE, min);
+            calendar.set(Calendar.SECOND, 0);
+            if(DateHelper.currentTimeIsRangeHours(calendar.getTime(), RANGE_HOUR)){
+                response.setSiteCode(data.getEndNodeId());
+                response.setDriverId(data.getCarrierId());
+                response.setSendUserType(data.getTransType());
+                response.setRouteType(data.getRouteType());
+                response.setDriver(data.getCarrierName());
+                response.setTransWay(data.getTransMode());
+                response.setCarrierType(data.getTransType());
+                response.setCode(JdResponse.CODE_OK);
+                response.setMessage(JdResponse.MESSAGE_OK);
+            }else{
+
+                String hourStr = hour < 10 ? "0" + String.valueOf(hour) : String.valueOf(hour);
+                String minStr = min < 10 ? "0" + String.valueOf(min) : String.valueOf(min);
+                response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK);
+                response.setMessage(MessageFormat.format(NewSealVehicleResponse.MESSAGE_TRANSPORT_RANGE_OUT_CHECK, hourStr, minStr));
+                response.setCode(30002);
+                response.setMessage(MessageFormat.format("此运力编码标准发车时间 {0}:{1} 是否使用此运力编码？", hourStr, minStr));
+            }
+        }else{
+            response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_TRANSPORT_RANGE_ERROR);
+        }
+
+        return response;
+    }
 
     /**
      * 根据任务简码获取任务信息

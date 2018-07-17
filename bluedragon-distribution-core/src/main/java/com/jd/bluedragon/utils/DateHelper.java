@@ -241,4 +241,26 @@ public class DateHelper {
 
         return DateHelper.compare(date, adjustDate);
     }
+
+    /**
+     * 判断当前时间是否在基准时间前后rangeHours小时的范围内
+     * @param standDate
+     * @param rangeHours
+     * @return
+     */
+    public static boolean currentTimeIsRangeHours(final Date standDate, Integer rangeHours) {
+        if(standDate == null){
+            return false;
+        }
+        Calendar calendar =Calendar.getInstance();
+        calendar.setTime(standDate);
+        calendar.add(Calendar.HOUR_OF_DAY, rangeHours);
+        long endTime = calendar.getTimeInMillis();
+        calendar.add(Calendar.HOUR_OF_DAY, -2*rangeHours);
+        long startTime = calendar.getTimeInMillis();
+
+        long currentTime = System.currentTimeMillis();
+
+        return startTime <= currentTime && currentTime <= endTime ;
+    }
 }
