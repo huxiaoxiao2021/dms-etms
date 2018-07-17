@@ -3405,7 +3405,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if (BusinessHelper.isPickupCode(dto.getPackageBarcode())) {
                             BaseEntity<PickupTask> pickup = null;
                             try {
-                                pickup = this.waybillPickupTaskApi.getDataBySfCode(dto.getPackageBarcode());
+                                pickup = this.waybillPickupTaskApi.getDataBySfCode(BusinessHelper.getWaybillCode(dto.getPackageBarcode()));
                             } catch (Exception e) {
                                 this.logger.error("调用取件单号信息ws接口异常");
                             }
