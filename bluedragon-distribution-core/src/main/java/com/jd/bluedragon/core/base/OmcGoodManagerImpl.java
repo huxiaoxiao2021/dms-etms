@@ -33,7 +33,7 @@ public class OmcGoodManagerImpl implements OmcGoodManager {
         DmsBarCode dmsBarCode = new DmsBarCode();
         dmsBarCode.setBarcode(code);
         try {
-            String goodStr = omcGoodService.getBaseAndSpecInfo(code, OmcGoodsService.IS_SKU);
+            String goodStr = omcGoodService.getBaseAndSpecInfo(code, OmcGoodsService.IS_UPC);
             if (StringHelper.isNotEmpty(goodStr)) {
                 JSONObject goodObj = JSONObject.fromObject(goodStr);
                 if (goodObj != null && !goodObj.isNullObject()) {

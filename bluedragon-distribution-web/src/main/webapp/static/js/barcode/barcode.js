@@ -1,5 +1,23 @@
 $(function () {
     var queryUrl = '/barcode/listData';
+    /*blockUI*/
+    var lockPage = function () {
+        $.blockUI({
+            message: "<span class='pl20 icon-loading'>加载中-请您稍候</span>",
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#fff',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .5,
+                color: '#000'
+            }
+        });
+    };
+    var unLockPage = function () {
+        $.unblockUI();
+    };
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -34,12 +52,18 @@ $(function () {
                     Jd.alert("请输入要查询的商品编码");
                     return;
                 }
-                $.ajaxHelper.doPostSync(queryUrl, JSON.stringify(params), function (res) {
+                lockPage();
+                $.ajaxHelper.doPostAsync(queryUrl, JSON.stringify(params), function (res) {
                     if (res) {
                         $('#dataTable').bootstrapTable("load",res);
                         $('#dataTable').show();
+                        unLockPage();
                     }
                 })
+            });
+            $('#btn_clear').click(function () {
+                $('#barcode').val(null);
+                $('#dataTable').bootstrapTable("load",[]);
             });
             $("#btn_export").click(function () {
 

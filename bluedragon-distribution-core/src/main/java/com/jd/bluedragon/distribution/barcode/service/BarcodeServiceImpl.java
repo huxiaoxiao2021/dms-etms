@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.barcode.service;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.core.base.OmcGoodManager;
 import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
+import com.jd.bluedragon.utils.StringHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,9 @@ public class BarcodeServiceImpl implements BarcodeService {
 
         if (barcodes.length > 0) {
             for (String barcode : barcodes) {
+                if (StringHelper.isEmpty(barcode)){
+                    continue;
+                }
 //                if (barcode.startsWith("69")) {
                     result.add(omcGoodManager.getBaseAndSpecInfo(barcode.trim()));
 //                } else {
