@@ -39,7 +39,7 @@ public interface DeliveryService {
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
      */
-    SendResult atuoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
+    SendResult autoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]

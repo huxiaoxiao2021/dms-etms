@@ -58,6 +58,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -3876,9 +3877,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
         try {
 
+            if(logger.isInfoEnabled()){
+                logger.info("execute device auto send,parameter is :"+JsonHelper.toJson(domain));
+            }
             if (StringUtils.isNotBlank(getSendedCode(domain))) {
                 new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
             }else{
