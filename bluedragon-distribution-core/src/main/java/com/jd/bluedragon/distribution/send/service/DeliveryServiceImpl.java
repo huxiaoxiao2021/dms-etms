@@ -78,7 +78,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +89,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
@@ -3413,15 +3411,18 @@ public class DeliveryServiceImpl implements DeliveryService {
                             }
                             if (pickup != null && pickup.getData() != null) {
                                 dsendDatail.setPickupCode(pickup.getData().getPickupCode());
-                                dsendDatail.setWaybillCode(pickup.getData().getOldWaybillCode());
+                                dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
+                            }
+                            if(BusinessHelper.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                                dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
                             }
                         }
                         dsendDatail.setCreateUser(dto.getOperatorName());
                         dsendDatail.setCreateUserCode(dto.getOperatorId());
                         dsendDatail.setOperateTime(dto.getHandoverDate());
                         dsendDatail.setSendType(businessType);
-                        if (dto.getPackageBarcode() != null)
-                            dsendDatail.setPackageNum(getPackageNum(dto.getPackageBarcode()));
+                        if (dsendDatail.getPackageBarcode() != null)
+                            dsendDatail.setPackageNum(getPackageNum(dsendDatail.getPackageBarcode()));
                         else
                             dsendDatail.setPackageNum(1);
                         dsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
