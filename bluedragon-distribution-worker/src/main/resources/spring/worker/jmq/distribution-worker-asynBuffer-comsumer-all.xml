@@ -458,6 +458,22 @@
                         <constructor-arg name="methodName" value="offlineTaskProcess"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 龙门架自动发货 -->
+                <entry key = "${jmq.task.topic.scannerFrame.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="scannerFrameDispatchService"></constructor-arg>
+                        <constructor-arg name="methodName" value="dispatch"/>
+                    </bean>
+                </entry>
+                <entry key = "${jmq.task.topic.scannerFrame.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="scannerFrameDispatchService"></constructor-arg>
+                        <constructor-arg name="methodName" value="dispatch"/>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>
