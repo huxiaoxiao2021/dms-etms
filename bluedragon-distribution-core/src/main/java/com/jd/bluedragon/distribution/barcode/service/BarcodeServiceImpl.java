@@ -45,7 +45,7 @@ public class BarcodeServiceImpl implements BarcodeService {
                     continue;
                 }
 //                if (barcode.startsWith("69")) {
-                    result.add(omcGoodManager.getBaseAndSpecInfo(barcode.trim()));
+                    result.addAll(omcGoodManager.getBaseAndSpecInfo(barcode.trim()));
 //                } else {
 //                    DmsBarCode dmsBarCode = new DmsBarCode();
 //                    dmsBarCode.setBarcode(barcode);

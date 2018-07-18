@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 
+import java.util.List;
+
 /**
  * @author tangchunqing
  * @Description: omc 查询商品接口
@@ -14,5 +16,5 @@ public interface OmcGoodManager {
      * @param barcode 商品编码
      * @return
      */
-    public DmsBarCode getBaseAndSpecInfo(String barcode);
+    public List<DmsBarCode> getBaseAndSpecInfo(String barcode);
 }
