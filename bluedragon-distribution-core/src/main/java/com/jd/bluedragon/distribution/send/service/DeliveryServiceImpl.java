@@ -3413,7 +3413,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 dsendDatail.setPickupCode(pickup.getData().getPickupCode());
                                 dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
                             }
-                            if(BusinessHelper.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                            if(SerialRuleUtil.isMatchAllWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
                                 dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
                             }
                         }
