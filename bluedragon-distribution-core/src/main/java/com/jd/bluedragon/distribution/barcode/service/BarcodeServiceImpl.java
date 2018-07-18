@@ -30,6 +30,13 @@ public class BarcodeServiceImpl implements BarcodeService {
         if (barCode == null || barCode.getBarcode() == null) {
             return result;
         }
+        /**
+         *  前台输入例如
+         *  6905321911667
+         *  6928136815586
+         *  6932543703367
+         *  点查询传过来的换行是\n 点导出传过来的是\r\n  为了兼容，所以先把\r\n替换成\n
+         */
         String[] barcodes = barCode.getBarcode().replace(BARCODE_SPLITER_EXPORT,BARCODE_SPLITER_QUERY).split(BARCODE_SPLITER_QUERY);
 
         if (barcodes.length > 0) {

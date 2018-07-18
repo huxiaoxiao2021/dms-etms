@@ -35,6 +35,7 @@ public class OmcGoodManagerImpl implements OmcGoodManager {
         try {
             String goodStr = omcGoodService.getBaseAndSpecInfo(code, OmcGoodsService.IS_UPC);
             if (StringHelper.isNotEmpty(goodStr)) {
+                //用他推荐的 net.sf.json 解析json串，不要替换哟
                 JSONObject goodObj = JSONObject.fromObject(goodStr);
                 if (goodObj != null && !goodObj.isNullObject()) {
                     JSONArray baseAttrArr = goodObj.getJSONArray(BASEATTR);
