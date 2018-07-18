@@ -56,9 +56,6 @@ public class OmcGoodManagerImpl implements OmcGoodManager {
                             }
                         }
                     } else {
-                        DmsBarCode dmsBarCode = new DmsBarCode();
-                        dmsBarCode.setBarcode(code);
-                        list.add(dmsBarCode);
                         logger.warn("69码查询无结果,基本信息有问题1,code=" + code + ",goodStr=" + goodStr);
                     }
                 } else {
@@ -69,6 +66,11 @@ public class OmcGoodManagerImpl implements OmcGoodManager {
             }
         } catch (Exception e) {
             logger.error("69码查询失败,code=" + code, e);
+        }
+        if (list.isEmpty()){
+            DmsBarCode dmsBarCode = new DmsBarCode();
+            dmsBarCode.setBarcode(code);
+            list.add(dmsBarCode);
         }
         return list;
     }
