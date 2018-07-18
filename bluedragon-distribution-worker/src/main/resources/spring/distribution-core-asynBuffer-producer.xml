@@ -122,6 +122,10 @@
 					<!-- 离线任务 -->
 					<entry key="task_offline_1800_DMS" value="${jmq.task.topic.offline.dms}"/>
 					<entry key="task_offline_1800_PRE" value="${jmq.task.topic.offline.pre}"/>
+
+					<!-- 龙门架自动发货 -->
+					<entry key="task_scanner_frame_7779_DMS" value="${jmq.task.topic.scannerFrame.dms}"/>
+					<entry key="task_scanner_frame_7779_PRE" value="${jmq.task.topic.scannerFrame.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>
