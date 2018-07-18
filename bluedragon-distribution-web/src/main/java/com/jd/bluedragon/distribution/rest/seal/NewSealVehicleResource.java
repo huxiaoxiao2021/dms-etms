@@ -110,8 +110,25 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
         return response;
     }
 
+    /**
+     * 校验并返回运力信息
+     * @param data
+     * @param createSiteCode
+     * @return
+     */
     private RouteTypeResponse checkTransportCode(VtsTransportResourceDto data, Integer createSiteCode){
         RouteTypeResponse response = new RouteTypeResponse();
+
+        //设置运力基本信息
+        response.setSiteCode(data.getEndNodeId());
+        response.setDriverId(data.getCarrierId());
+        response.setSendUserType(data.getTransType());
+        response.setRouteType(data.getRouteType());
+        response.setDriver(data.getCarrierName());
+        response.setTransWay(data.getTransMode());
+        response.setCarrierType(data.getTransType());
+
+        //运力校验
         if(createSiteCode.equals(data.getStartNodeId())){
             int hour = data.getSendCarHour();
             int min = data.getSendCarMin();
@@ -120,23 +137,13 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
             calendar.set(Calendar.MINUTE, min);
             calendar.set(Calendar.SECOND, 0);
             if(DateHelper.currentTimeIsRangeHours(calendar.getTime(), RANGE_HOUR)){
-                response.setSiteCode(data.getEndNodeId());
-                response.setDriverId(data.getCarrierId());
-                response.setSendUserType(data.getTransType());
-                response.setRouteType(data.getRouteType());
-                response.setDriver(data.getCarrierName());
-                response.setTransWay(data.getTransMode());
-                response.setCarrierType(data.getTransType());
                 response.setCode(JdResponse.CODE_OK);
                 response.setMessage(JdResponse.MESSAGE_OK);
             }else{
-
                 String hourStr = hour < 10 ? "0" + String.valueOf(hour) : String.valueOf(hour);
                 String minStr = min < 10 ? "0" + String.valueOf(min) : String.valueOf(min);
                 response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK);
                 response.setMessage(MessageFormat.format(NewSealVehicleResponse.MESSAGE_TRANSPORT_RANGE_OUT_CHECK, hourStr, minStr));
-//                response.setCode(30002);
-//                response.setMessage(MessageFormat.format("此运力编码标准发车时间 {0}:{1} 是否使用此运力编码？", hourStr, minStr));
             }
         }else{
             response.setCode(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR);
