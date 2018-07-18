@@ -118,11 +118,11 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
             originalOrderInfo.setOriginalStationId(oldPrepareSiteCode);
             originalOrderInfo.setOriginalStationName(oldPreSiteInfo.getSiteName());
             JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
-            //接口调用失败/返回站点ID为空，直接通过不强制拦截
+            //接口调用失败/返回站点ID为空/小于等于0，直接通过不强制拦截
             if(mediumStationOrderInfo.isSucceed()
             		&& mediumStationOrderInfo.getData() != null
             		&& mediumStationOrderInfo.getData().getData() != null
-            		&& mediumStationOrderInfo.getData().getData().getMediumStationId() != null){
+            		&& NumberHelper.gt0(mediumStationOrderInfo.getData().getData().getMediumStationId())){
 	            MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
 	            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
 	            if(!newPreSiteInfo.getMediumStationId().equals(oldPrepareSiteCode)){
@@ -166,11 +166,11 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	            originalOrderInfo.setCountyId(context.getBigWaybillDto().getWaybill().getCountryId());
 	            originalOrderInfo.setTownId(context.getBigWaybillDto().getWaybill().getTownId());
 	            JdResult<BaseResponseIncidental<MediumStationOrderInfo>> mediumStationOrderInfo = preseparateWaybillManager.getMediumStation(originalOrderInfo);
-	            //接口调用失败/返回站点ID为空，直接通过不强制拦截
+	            //接口调用失败/返回站点ID为空/小于等于0，直接通过不强制拦截
 	            if(mediumStationOrderInfo.isSucceed()
 	            		&& mediumStationOrderInfo.getData() != null
 	            		&& mediumStationOrderInfo.getData().getData() != null
-	            		&& mediumStationOrderInfo.getData().getData().getMediumStationId() != null){
+	            		&& NumberHelper.gt0(mediumStationOrderInfo.getData().getData().getMediumStationId())){
 		            MediumStationOrderInfo newPreSiteInfo = mediumStationOrderInfo.getData().getData();
 		            //新预分拣站点不同于原站点则提示换单并设置为新的预分拣站点
 		            if(!newPreSiteInfo.getMediumStationId().equals(oldPrepareSiteCode)){
