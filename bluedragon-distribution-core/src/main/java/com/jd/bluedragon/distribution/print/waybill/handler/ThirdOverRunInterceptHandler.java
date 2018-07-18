@@ -104,7 +104,8 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 				flage = false;
 			}
 			if(!flage){
-				result.toWeakSuccess(WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.getMsgCode(), WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.formatMsg(message));
+				String[] splitMessage = WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.getMsgFormat().split("-");
+				result.toWeakSuccess(WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.getMsgCode(), String.format(splitMessage[1],message));
 			}
 		}
 			//获取预分拣站点，校验是三方站点才走拦截
