@@ -81,31 +81,30 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 		}
 		double pWeight = weight;
 		double pVolume = volumes[0] * volumes[1] * volumes[2];
-		Waybill waybill = context.getWaybill();
+		com.jd.etms.waybill.domain.Waybill waybill = context.getBigWaybillDto().getWaybill();
 		//信任商家判断逻辑
-		if(waybill.getPackageNum() == 1 && context.getRequest().getTrustBusinessFlag()){
+		if(waybill !=null && waybill.getGoodNumber() == 1 && context.getRequest().getTrustBusinessFlag()){
 			double waybillWeight = 0;
 			double waybillVolume = 0;
-			DeliveryPackageD packageInfo = context.getBigWaybillDto().getPackageList().get(0);
-			if(packageInfo.getGoodWeight() != null){
-				waybillWeight = packageInfo.getGoodWeight().doubleValue();
+			if(waybill.getGoodWeight() != null){
+				waybillWeight = waybill.getGoodWeight().doubleValue();
 			}
-			if(packageInfo.getGoodVolume() != null){
-				waybillVolume = Double.valueOf(packageInfo.getGoodVolume());
+			if(waybill.getGoodVolume() != null){
+				waybillVolume = Double.valueOf(waybill.getGoodVolume());
 			}
 
 			String message = "";
 			boolean flage = true;
-			if((waybillWeight - pWeight) >= -diffWeight && (waybillWeight - pWeight) <= diffWeight){
-				message = "实际称重重量与商家重量相比，误差值超过0.5公斤\\r\\n";
+			if((waybillWeight - pWeight) <= -diffWeight || (waybillWeight - pWeight) >= diffWeight){
+				message = "实际称重重量与商家重量相比，误差值超过0.5公斤\r\n";
 				flage = false;
 			}
-			if((waybillVolume - pVolume) >= -diffVolume && (waybillVolume - pVolume) <= diffVolume ){
-				message = message + "实际测量体积与商家体积对比，误差值超过0.01立方米\\r\\n";
+			if((waybillVolume - pVolume) <= -diffVolume || (waybillVolume - pVolume) >= diffVolume ){
+				message = message + "实际测量体积与商家体积对比，误差值超过0.01立方米\r\n";
 				flage = false;
 			}
 			if(!flage){
-				result.toWarn(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.formatMsg(message));
+				result.toWeakSuccess(WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.getMsgCode(), WaybillPrintMessages.WARN_MESSAGE_TRUST_BUSINESS.formatMsg(message));
 			}
 		}
 			//获取预分拣站点，校验是三方站点才走拦截
