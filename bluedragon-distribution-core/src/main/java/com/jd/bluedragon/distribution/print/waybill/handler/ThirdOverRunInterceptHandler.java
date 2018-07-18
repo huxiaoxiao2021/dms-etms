@@ -83,7 +83,7 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 		double pVolume = volumes[0] * volumes[1] * volumes[2];
 		com.jd.etms.waybill.domain.Waybill waybill = context.getBigWaybillDto().getWaybill();
 		//信任商家判断逻辑
-		if(waybill !=null && waybill.getGoodNumber() == 1 && context.getRequest().getTrustBusinessFlag()){
+		if(waybill !=null && context.getWaybill().getPackageNum() == 1 && context.getRequest().getTrustBusinessFlag()){
 			double waybillWeight = 0;
 			double waybillVolume = 0;
 			if(waybill.getGoodWeight() != null){
