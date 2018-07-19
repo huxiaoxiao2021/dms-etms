@@ -69,5 +69,7 @@
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler"/>
 	<bean id="thirdOverRunInterceptHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.ThirdOverRunInterceptHandler">
 		<property name="open" value="${beans.thirdOverRunInterceptHandler.open}"/>
+		<property name="diffWeight" value="${beans.thirdOverRunInterceptHandler.diffWeight}"/>
+		<property name="diffVolume" value="${beans.thirdOverRunInterceptHandler.diffVolume}"/>
 	</bean>
 </beans>
