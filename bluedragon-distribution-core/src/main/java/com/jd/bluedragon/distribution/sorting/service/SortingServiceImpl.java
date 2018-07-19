@@ -776,12 +776,19 @@ public class SortingServiceImpl implements SortingService {
 			transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
 			// 补全批次号SendCode
 			transitSendD.setSendCode(sendM.getSendCode());
+
 			// 更新或者插入发货明细表
 			this.deliveryService.saveOrUpdate(transitSendD);
 
 			transitSendD.setYn(1);
-			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间
-			transitSendD.setOperateTime(sendM.getOperateTime());
+
+			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
+			if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
+				sendDetail.setOperateTime(sendDetail.getOperateTime());
+			} else {
+				sendDetail.setOperateTime(sendM.getOperateTime());
+			}
+
 			transitSendD.setCreateUser(sendM.getCreateUser());
 			transitSendD.setCreateUserCode(sendM.getCreateUserCode());
 			return transitSendD;
