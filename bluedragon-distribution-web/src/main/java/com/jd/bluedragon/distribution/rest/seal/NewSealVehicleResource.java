@@ -67,7 +67,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/seal/transportCode")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 101101)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101101)
     public RouteTypeResponse getTransportCode(NewSealVehicleRequest request) {
         logger.info("封车校验运力编码请求体：" + JsonHelper.toJson(request));
         RouteTypeResponse response = new RouteTypeResponse();
@@ -159,7 +159,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @GET
     @Path("/new/vehicle/seal/workitem/{simpleCode}")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 101102)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101102)
     public TransWorkItemResponse getVehicleNumBySimpleCode(@PathParam("simpleCode")String simpleCode) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try{
@@ -198,7 +198,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @GET
     @Path("/new/vehicle/seal/check/{transportCode}/{batchCode}/{sealCarType}")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 101103)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101103)
     public NewSealVehicleResponse newCheckTranCodeAndBatchCode(
             @PathParam("transportCode")String transportCode,@PathParam("batchCode") String batchCode,@PathParam("sealCarType")Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -246,7 +246,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/seal")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 1011)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011)
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
@@ -278,7 +278,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/findSealInfo")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 101202)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101202)
     public NewSealVehicleResponse findSealInfo(NewSealVehicleRequest request) {
 
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
@@ -362,7 +362,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/unseal/check")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 101201)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101201)
     public NewSealVehicleResponse unsealCheck(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
@@ -388,7 +388,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     @POST
     @Path("/new/vehicle/unseal")
     @Override
-    @BusinessLog(sourceSys = 1,bizType = 1012)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1012)
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
