@@ -784,9 +784,9 @@ public class SortingServiceImpl implements SortingService {
 
 			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
 			if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
-				sendDetail.setOperateTime(sendDetail.getOperateTime());
+				transitSendD.setOperateTime(sendDetail.getOperateTime());
 			} else {
-				sendDetail.setOperateTime(sendM.getOperateTime());
+				transitSendD.setOperateTime(sendM.getOperateTime());
 			}
 
 			transitSendD.setCreateUser(sendM.getCreateUser());
