@@ -55,3 +55,18 @@
         min-width: 180px;
     }
 </style>
+<script type="text/javascript">
+    var topDoc=parent.document.getElementById("topFrame").contentDocument;
+    var currUserCode;
+    if (topDoc){
+        var currUserCode=topDoc.getElementById("currUserCode").textContent;
+        if(!currUserCode){
+            alert("用户信息加载异常，请重新登录");
+            parent.location.href="#springUrl('/quit')";
+        }
+    }else{
+        alert("用户信息加载失败，请重新登录");
+        parent.location.href="#springUrl('/quit')";
+    }
+</script>
+<script src="/static/js/jd/jd.ajax.js"></script>

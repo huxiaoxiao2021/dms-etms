@@ -98,6 +98,7 @@ public class IndexController {
         }
         model.addAttribute("username", erpUser.getUserName());
         model.addAttribute("roleName", roleName);
+        model.addAttribute("usercode", erpUser.getUserCode());
         return "topFrame";
     }
 
