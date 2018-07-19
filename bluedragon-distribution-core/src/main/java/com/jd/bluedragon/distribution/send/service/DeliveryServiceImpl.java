@@ -58,6 +58,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -3876,9 +3877,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
         try {
 
+            if(logger.isInfoEnabled()){
+                logger.info("execute device auto send,parameter is :"+JsonHelper.toJson(domain));
+            }
             if (StringUtils.isNotBlank(getSendedCode(domain))) {
                 new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
             }else{
@@ -4085,5 +4089,51 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("一车一单发货取消组板异常.包裹号/箱号:" + domain.getBoxCode() + ",操作站点:" + domain.getCreateSiteCode() +
                     "异常原因:" +e);
         }
+    }
+
+    /**
+     * 原包发货[前提条件]1：原包没有发货;
+     * （1）原包发货，补写分拣任务
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     *
+     * @param sendMList 发货对象
+     * @return 1：发货成功  2：发货失败
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void packageSortSend(List<SendM> sendMList){
+            /**插入SEND_M*/
+//            this.sendMDao.addBatch(sendMList);
+        for(SendM sendM : sendMList){
+            sendMDao.insertSendM(sendM);
+        }
+            for(SendM sendM : sendMList){
+                /**大件写TASK_SORTING*/
+                pushSorting(sendM);
+                /**中转任务*/
+                transitSend(sendM);
+                /**全程跟踪任务*/
+                pushStatusTask(sendM);
+            }
+    }
+
+    /**
+     *  查询发货记录
+     * @param sendCode 批次号
+     * @param createSiteCode 始发分拣中心
+     * @param receiveSiteCode 目的分拣中心
+     * @return
+     */
+    @Override
+    public List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode){
+        SendM queryParam = new SendM();
+        queryParam.setSendCode(sendCode);
+        queryParam.setCreateSiteCode(createSiteCode);
+        queryParam.setReceiveSiteCode(receiveSiteCode);
+        /**查询箱子发货记录*/
+        List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryParam);
+        return sendMList;
     }
 }

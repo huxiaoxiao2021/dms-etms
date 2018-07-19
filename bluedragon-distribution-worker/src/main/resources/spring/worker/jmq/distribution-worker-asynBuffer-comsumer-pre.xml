@@ -267,8 +267,8 @@
                 <entry key = "${jmq.task.topic.scannerFrame.pre}">
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
-                        <constructor-arg name="target" ref="scannerFrameDispatchService"></constructor-arg>
-                        <constructor-arg name="methodName" value="dispatch"/>
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="scannerFrameDispatchProcess"/>
                     </bean>
                 </entry>
             </map>

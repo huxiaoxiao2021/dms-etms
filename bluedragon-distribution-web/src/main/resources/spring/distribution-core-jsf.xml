@@ -305,6 +305,10 @@
     <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"
                   protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- WMS查询接口    -->
+    <jsf:consumer id="omcGoodsService" interface="com.jd.omc.jsf.OmcGoodsService" protocol="jsf" alias="${jsf.wms.good.alias}" timeout="5000" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.wms.good.token}" hide="true"/>
+    </jsf:consumer>
     <!--运单 全程跟踪 查询接口 邱一良 -->
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
                   protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
