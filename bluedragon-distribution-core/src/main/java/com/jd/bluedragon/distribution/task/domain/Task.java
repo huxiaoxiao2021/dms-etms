@@ -167,7 +167,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_WEIGHT = "task_weight";
     public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
     public static final String TABLE_NAME_MESSAGE="task_message";
-    
+    public static final String TABLE_NAME_SCANNER_FRAME="task_scanner_frame";
+
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
 
@@ -196,7 +197,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
     public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
     public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
-    public static final String TABLE_NAME_SCANNER_FRAME="TASK_SCANNER_FRAME";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
     
     /**xumei**/

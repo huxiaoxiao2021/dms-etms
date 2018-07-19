@@ -45,6 +45,10 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Boolean nopaperFlg = false;
 	/**
+	 * 信任商家标识
+	 * */
+	private Boolean trustBusinessFlag = false;
+	/**
 	 * 包裹称重类型 
 	 */
 	private Integer weightOperType;
@@ -61,6 +65,15 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 包裹称重信息
 	 */
 	private WeightOperFlow weightOperFlow;
+
+	public Boolean getTrustBusinessFlag() {
+		return trustBusinessFlag;
+	}
+
+	public void setTrustBusinessFlag(Boolean trustBusinessFlag) {
+		this.trustBusinessFlag = trustBusinessFlag;
+	}
+
 	/**
 	 * @return the programType
 	 */
