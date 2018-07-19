@@ -9,6 +9,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 public interface WaybillQueryManager{
 	
@@ -144,4 +145,12 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<BigWaybillDto> getWaybillDataForPrint(String waybillCode);
+
+	/**
+	 * 根据操作单号和状态查询B网全程跟踪数据,包含extend扩展属性
+	 * @param operatorCode 运单号
+	 * @param state 状态码
+	 * @return
+	 */
+	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
 }

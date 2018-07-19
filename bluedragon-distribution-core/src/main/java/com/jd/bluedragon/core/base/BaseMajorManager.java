@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
@@ -68,6 +69,8 @@ public interface BaseMajorManager {
 	public BaseStaffSiteOrgDto queryDmsBaseSiteByCodeDmsver(String siteCode);
 
 	public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
+
+	Map<Integer,BaseDataDict> getValidBaseDataDictListToMap(Integer parentGroup, Integer nodeLevel, Integer typeGroup);
 
 	public List<BaseStaffSiteOrgDto> getBaseStaffListByOrgId(Integer orgid,int num);
 
