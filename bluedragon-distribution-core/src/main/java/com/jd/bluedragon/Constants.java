@@ -113,7 +113,7 @@ public class Constants {
     /**
      * 业务操作日志系统编码-分拣web
      */
-    public static final Integer BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+    public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
     /**
      * 业务类型-未知业务类型
      */
