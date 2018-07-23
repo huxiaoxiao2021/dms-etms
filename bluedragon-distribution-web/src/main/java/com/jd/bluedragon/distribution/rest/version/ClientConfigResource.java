@@ -17,6 +17,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
+import com.jd.bluedragon.distribution.rest.version.resp.ServerVIPConfigResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -214,5 +216,39 @@ public class ClientConfigResource {
         response.setVersionCode(entity.getVersionCode());
         response.setDownloadUrl(entity.getDownloadUrl());
         return response;
-    } 
+    }
+
+    /**
+     * 根据分拣中心ID获取本地服务器VIP地址
+     *
+     * @param siteCode
+     * @return
+     */
+    @POST
+    @Path("/versions/config/getServerVIPByDmsId/{siteCode}")
+    public ServerVIPConfigResponse getServerVIPByDmsId(@PathParam("siteCode") Integer siteCode) {
+        Assert.notNull(siteCode, "siteCode must not be null");
+        return this.getServerVIPConfigResponse(this.clientConfigService.getVipListByDmsId(siteCode));
+    }
+
+    /**
+     * 获取所有的分拣中心本地服务器VIP地址
+     *
+     * @return
+     */
+    @POST
+    @Path("/versions/config/getAllServerVIP")
+    public ServerVIPConfigResponse getAllServerVIP() {
+        return this.getServerVIPConfigResponse(this.clientConfigService.getAllVipList());
+    }
+
+    private ServerVIPConfigResponse getServerVIPConfigResponse(List<VipInfoJsfEntity> datas) {
+        if (datas == null) {
+            return new ServerVIPConfigResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        } else {
+            ServerVIPConfigResponse response = new ServerVIPConfigResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+            response.setDatas(datas);
+            return response;
+        }
+    }
 }

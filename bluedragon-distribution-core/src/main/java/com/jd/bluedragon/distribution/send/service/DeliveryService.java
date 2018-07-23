@@ -128,7 +128,7 @@ public interface DeliveryService {
      * 
      * @param SendM 发货相关数据
      */
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM , boolean flage);
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM , boolean isTransferSend);
 
     /**
      * 通过运单号来判断是否发货
