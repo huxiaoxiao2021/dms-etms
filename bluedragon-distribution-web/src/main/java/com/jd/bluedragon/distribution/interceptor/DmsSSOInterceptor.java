@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TimestampInterceptor implements HandlerInterceptor {
+public class DmsSSOInterceptor implements HandlerInterceptor {
 
     private final Logger logger = Logger.getLogger(this.getClass());
     private String excludePath;

@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author zhaohc
@@ -30,6 +32,8 @@ import java.util.Properties;
 public class IndexController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+    //获取一级域名的正则
+    private static final String RE_DOMAIN = "[0-9a-zA-Z]+((\\.com)|(\\.cn)|(\\.org)|(\\.net)|(\\.edu)|(\\.com.cn)|(\\.360buy.com)|(\\.jd.com))";
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -134,7 +138,12 @@ public class IndexController {
             String newUrl = logoutValue + "?ReturnUrl=http://" + domainValue + "/";
 
             if (!domainValue.contains(".jd.com")) {
-                SSOHelper.logout(response, domainValue);
+                Pattern p = Pattern.compile(RE_DOMAIN);
+                Matcher m = p.matcher(domainValue);
+                //获取一级域名
+                while(m.find()){
+                    SSOHelper.logout(response, m.group());
+                }
             }
             response.sendRedirect(newUrl);
         } catch (IOException e) {
