@@ -97,7 +97,7 @@
         var pos = curWwwPath.indexOf(pathName);
         //获取主机地址，如： http://localhost:8083
         var localhostPath = curWwwPath.substring(0, pos);
-        var quitUrl = localhostPath + "/quit";
+        var quitUrl = localhostPath + "/quit?_="+(new Date().getTime());
         parent.location.href=quitUrl;
     }  
 }
