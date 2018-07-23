@@ -56,7 +56,10 @@
     }
 </style>
 <script type="text/javascript">
-    var topDoc=parent.document.getElementById("topFrame").contentDocument;
+    var topDoc;
+    if (parent&&parent.document&&parent.document.getElementById("topFrame")){
+        topDoc=parent.document.getElementById("topFrame").contentDocument;
+    }
     var currUserCode;
     if (topDoc){
         var currUserCode=topDoc.getElementById("currUserCode").textContent;

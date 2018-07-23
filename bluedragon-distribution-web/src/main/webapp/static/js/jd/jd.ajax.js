@@ -1,5 +1,8 @@
 (function ($) {
-    var topDoc = parent.document.getElementById("topFrame").contentDocument;
+    var topDoc;
+    if (parent&&parent.document&&parent.document.getElementById("topFrame")){
+        topDoc=parent.document.getElementById("topFrame").contentDocument;
+    }
     var currUserCode;
     //获取当前网址
     var curWwwPath = window.document.location.href;
@@ -51,7 +54,7 @@
             },
             complete: function (XHR, TS) {
                 //请求完成后回调函数 (请求成功或失败之后均调用)。
-                if (XHR.status = 800) {
+                if (XHR.status = 888) {
                     parent.location.href = quitUrl;
                 }
             }
