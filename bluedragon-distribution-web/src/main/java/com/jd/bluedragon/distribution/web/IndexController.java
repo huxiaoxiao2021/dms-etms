@@ -33,7 +33,7 @@ public class IndexController {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     //获取一级域名的正则
-    private static final String RE_DOMAIN = "[0-9a-zA-Z]+((\\.com)|(\\.cn)|(\\.org)|(\\.net)|(\\.edu)|(\\.com.cn)|(\\.360buy.com)|(\\.jd.com))";
+    private static final String RE_DOMAIN = "[0-9a-zA-Z]+\\.((360buy.com)|(jd.com))";
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -142,7 +142,7 @@ public class IndexController {
                 Matcher m = p.matcher(domainValue);
                 //获取一级域名
                 while(m.find()){
-                    SSOHelper.logout(response, m.group());
+                    SSOHelper.logout(response, m.group(1));
                 }
             }
             response.sendRedirect(newUrl);
