@@ -19,8 +19,8 @@
             parent.location.href = quitUrl;
         }
     } else {
-        alert("用户信息加载失败，请重新登录");
-        parent.location.href = quitUrl;
+        // alert("用户信息加载失败，请重新登录");
+        // parent.location.href = quitUrl;
     }
     //首先备份下jquery的ajax方法
     var _ajax = $.ajax;
@@ -55,7 +55,7 @@
             complete: function (XHR, TS) {
                 //请求完成后回调函数 (请求成功或失败之后均调用)。
                 if (XHR.status = 888) {
-                    parent.location.href = quitUrl;
+                    // parent.location.href = quitUrl;
                 }
             }
         });
