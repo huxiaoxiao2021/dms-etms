@@ -51,7 +51,7 @@
 			<mvc:mapping path="/**"/>
 			<!-- Spring mvc 当前人和在线用户是否一致 -->
 			<bean class="com.jd.bluedragon.distribution.interceptor.DmsSSOInterceptor" >
-				<property name="excludePath" value="/hessian,/services,/400.vm,/404.vm"/>
+				<property name="excludePath" value="${sso.exclude.path}"/>
 			</bean>
 		</mvc:interceptor>
 	</mvc:interceptors>
