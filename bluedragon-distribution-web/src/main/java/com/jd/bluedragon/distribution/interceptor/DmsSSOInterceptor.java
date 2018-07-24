@@ -45,6 +45,7 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
         if (!currUserCode.equals(erpUser.getUserCode())) {
             logger.error("用户不一致："+currUserCode+"!="+erpUser.getUserCode());
             response.setStatus(888);
+            return false;
         }
         return true;
     }

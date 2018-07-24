@@ -24,21 +24,7 @@ public class ErpUserClient {
     public static ErpUser getCurrUser() {
         LoginContext loginContext = LoginContext.getLoginContext();
         if (loginContext == null) {
-            try {
-                String onLine = PropertiesHelper.newInstance().getValue("app.config.isOnline");
-                if (!StringUtils.isEmpty(onLine) && "false".equals(onLine)) {
-                    //非线上系统，获取不到当前登录用户则返回bjxings
-                    loginContext = new LoginContext();
-                    loginContext.setUserId(10053);
-                    loginContext.setPin("bjxings");
-                    loginContext.setNick("邢松");
-                }else{
-                    return null;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+            return null;
         }
         ErpUser erpUser = new ErpUser();
         erpUser.setUserId((int) loginContext.getUserId());
