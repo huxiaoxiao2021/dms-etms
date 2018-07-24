@@ -278,11 +278,24 @@
                   protocol="jsf" alias="${jsf.TC.alias}" timeout="${jsf.TC.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 路由 谭杨-->
-    <jsf:consumer id="vrsRouteTransferRelationApi" interface="com.jd.etms.vrs.ws.VrsRouteTransferRelationApi"
+    <bean id="vrsRedisCacheSdk" class="com.jd.etms.sdk.util.RedisCache">
+        <property name="jimClient" ref="redisClient"/>
+    </bean>
+    <bean id="routeComputeUtil" class="com.jd.etms.sdk.compute.RouteComputeUtil">
+        <property name="routeComputeQueryAPI" ref="routeComputeQueryAPI"/>
+        <property name="redisCache" ref="vrsRedisCacheSdk"/>
+    </bean>
+    <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
                   protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
-    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.vrs.ws.VrsBNetQueryApi"
+    <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
+                  protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
                   protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
+                  protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
@@ -291,5 +304,15 @@
     <!--eclp查商品明细 -->
     <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"
                   protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- WMS查询接口    -->
+    <jsf:consumer id="omcGoodsService" interface="com.jd.omc.jsf.OmcGoodsService" protocol="jsf" alias="${jsf.wms.good.alias}" timeout="5000" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.wms.good.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- automatic分拣自动化 - 分拣中心本地服务器信息 -->
+    <jsf:consumer id="dmsLocalServerInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.DmsLocalServerInfoJsfService"
+                  protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="5000" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.dmsLocalServer.token}" hide="true" />
     </jsf:consumer>
 </beans>

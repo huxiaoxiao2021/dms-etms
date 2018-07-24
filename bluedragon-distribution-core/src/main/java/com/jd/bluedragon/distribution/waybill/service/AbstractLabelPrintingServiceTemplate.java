@@ -1,27 +1,24 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -40,7 +37,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     public static final String LOG_PREFIX="包裹标签打印模板[AbstractLabelPrintingServiceTemplate] ";
 
     @Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -178,10 +175,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
         log.info(new StringBuilder(LOG_PREFIX).append("基础资料crossPackageTag").append(crossPackageTag.toString()));
-        //航空标识
-        if(LabelPrintingService.AIR_TRANSPORT.equals(crossPackageTag.getIsAirTransport()) && request.isAirTransport()){
-        	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_AIRTRANSPORT);
-        }
+
         //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
         if(LabelPrintingService.ARAYACAK_CABINET.equals(crossPackageTag.getIsZiTi())){
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_ARAYACAK_CABINET);
@@ -262,10 +256,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	bigWaybillDto = context.getBigWaybillDto();
         }else{
         /**查询运单*/
-        WChoice wchoice = new WChoice();
-        wchoice.setQueryWaybillC(true);
-        wchoice.setQueryWaybillE(true);
-        BaseEntity<BigWaybillDto> entity = waybillQueryApi.getDataByChoice(request.getWaybillCode(), wchoice);
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
         if(entity==null || entity.getData()==null){
             log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
             return null;

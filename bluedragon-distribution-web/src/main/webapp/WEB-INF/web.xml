@@ -96,7 +96,38 @@
 	
     <servlet-mapping>
 		<servlet-name>distribution-web</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	
+
+	<servlet>
+		<servlet-name>jsp</servlet-name>
+		<!--#####京东信息安全部改造的安全版本的JspServlet#####-->
+		<servlet-class>com.jd.security.tomcat.JDJspServlet</servlet-class>
+		<init-param>
+			<param-name>enableJsp</param-name>
+			<!-- ###jsp功能开关### 开启jsp功能 请将false修改为true（配置为true安全防护将失效，不建议修改）-->
+			<param-value>false</param-value>
+		</init-param>
+
+		<init-param>
+			<param-name>fork</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<init-param>
+			<param-name>xpoweredBy</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+
+
+	<servlet-mapping>
+		<servlet-name>jsp</servlet-name>
+		<url-pattern>*.jsp</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>jsp</servlet-name>
+		<url-pattern>*.jspx</url-pattern>
+	</servlet-mapping>
 </web-app>

@@ -7,6 +7,8 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
@@ -14,6 +16,8 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -73,6 +77,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
 
+    @Autowired
+    private SortingService sortingService;
+
+    @Autowired
+    private BoxService boxService;
 
     @Autowired
     RedisCommonUtil redisCommonUtil;
@@ -135,7 +144,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //板号已完结
-        if (tcResponse.getData().getStatus() == STATUS_BOARD_CLOSED) {
+        if (STATUS_BOARD_CLOSED.equals(tcResponse.getData().getStatus())) {
             this.logger.warn("板号" + boardCode + "的状态为已经完结");
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_CLOSED, BoardResponse.MESSAGE_BOARD_CLOSED);
             return boardResponse;
@@ -148,6 +157,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     ",开板时间：" + tcResponse.getData().getCreateTime());
         }
         boardResponse.setReceiveSiteName(tcResponse.getData().getDestination());
+        boardResponse.setReceiveSiteCode(tcResponse.getData().getDestinationId());
 
         return boardResponse;
     }
@@ -214,12 +224,40 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         //调Ver的接口进行组板拦截
-        //如果是箱号则不进行拦截
+        //如果是箱号则取其中任一包裹进行校验
         BoardCombinationJsfResponse response = null;
-        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+        if (!request.getIsForceCombination()) {
+            BoardCombinationRequest checkParam = new BoardCombinationRequest();
+            checkParam.setSiteCode(request.getSiteCode());
+            checkParam.setReceiveSiteCode(request.getReceiveSiteCode());
+            checkParam.setBusinessType(request.getBusinessType());
+            checkParam.setUserCode(request.getUserCode());
+            checkParam.setUserName(request.getUserName());
+
+            if(BusinessHelper.isPackageCode(request.getBoxOrPackageCode())){
+                checkParam.setBoxOrPackageCode(request.getBoxOrPackageCode());
+            }else if(BusinessHelper.isBoxcode(request.getBoxOrPackageCode())){
+                Box box = boxService.findBoxByCode(request.getBoxOrPackageCode());
+                if(box != null){
+                    List<Sorting> sortings = sortingService.findByBoxCodeAndFetchNum(box.getCode(), box.getCreateSiteCode(), 1);
+                    if(sortings == null || sortings.isEmpty()){
+                        boardResponse.addStatusInfo(BoardResponse.CODE_BOX_NO_SORTING, BoardResponse.MESSAGE_BOX_NO_SORTING);
+                        return JdResponse.CODE_CONFIRM;
+                    }
+                    checkParam.setBoxOrPackageCode(sortings.get(0).getPackageCode());
+
+                }else{
+                    boardResponse.addStatusInfo(BoardResponse.CODE_BOX_NOT_EXIST, BoardResponse.MESSAGE_BOX_NOT_EXIST);
+                    return JdResponse.CODE_FAIL;
+                }
+            }else{
+                boardResponse.addStatusInfo(BoardResponse.CODE_BOX_PACKAGECODE_ERROR, BoardResponse.MESSAGE_BOX_PACKAGECODE_ERROR);
+                return JdResponse.CODE_FAIL;
+            }
+
             CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
             try {
-                response = jsfSortingResourceService.boardCombinationCheck(request);
+                response = jsfSortingResourceService.boardCombinationCheck(checkParam);
                 logInfo = "组板校验,板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",IsForceCombination:" + request.getIsForceCombination() +
                         ",站点：" + request.getSiteCode() + ".校验结果:"+ response.getMessage();
@@ -236,10 +274,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             if (!response.getCode().equals(200)) {//如果校验不OK
                 if (response.getCode() >= 39000) {
-                    if (!request.getIsForceCombination()){
-                        boardResponse.addStatusInfo(response.getCode(), response.getMessage());
-                        return JdResponse.CODE_CONFIRM;
-                    }
+                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    return JdResponse.CODE_CONFIRM;
                 } else{
                     boardResponse.addStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_FAIL;
@@ -357,6 +393,18 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
+    }
+
+    /**
+     * 获取箱号所属的板号
+     * @param siteCode
+     * @param boxCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Board> getBoardByBoxCode(Integer siteCode , String boxCode) {
+        return groupBoardService.getBoardByBoxCode(boxCode , siteCode);
     }
 
     /**
@@ -626,4 +674,5 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
         return boardCodes;
     }
+
 }

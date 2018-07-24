@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -32,26 +35,50 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	@Qualifier("jsonCommandHandlerMapping")
 	private JsonCommandHandlerMapping<JdCommand<String>,JdResult<String>> JsonCommandHandlerMapping;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public String execute(String jsonCommand) {
-		JdCommand<String> jdCommand = JsonHelper.fromJsonUseGson(jsonCommand, JdCommand.class);
-		//返回参数错误信息
-		if(jdCommand == null){
-			return JsonHelper.toJson(JdResults.REST_FAIL_PARAM_ERROR);
-		}
-		Handler<JdCommand<String>,JdResult<String>> handler = JsonCommandHandlerMapping.getHandler(jdCommand);
-		//返回无服务信息
+		//设置初始化为成功
+		JdResult<?> jdResult = new JdResult<String>(JdResult.CODE_SUC,200,"200-调用服务成功。");
+		JdCommand<String> jdCommand = null;
 		try {
-			if(handler == null){
-				return JsonHelper.toJson(JdResults.REST_FAIL_SERVER_NOT_FIND);
-			}else{
-				return JsonHelper.toJson(handler.handle(jdCommand));
-			}
+			jdCommand = JsonHelper.fromJsonUseGson(jsonCommand, JdCommand.class);
 		} catch (Exception e) {
-			//处理异常返回异常信息
-			logger.error("JsonCommandServiceImpl.execute-error!", e);
-			return JsonHelper.toJson(JdResults.REST_ERROR_SERVER_EXCEPTION);
+			//json转换异常则返回参数错误信息
+			logger.error("JsonCommandServiceImpl.execute-params-error!params:"+jsonCommand, e);
+			jdResult = JdResults.REST_FAIL_PARAM_ERROR;
+			jdCommand = new JdCommand<String>();
 		}
+		if(jdResult.isSucceed()){
+			try {
+				Handler<JdCommand<String>,JdResult<String>> handler = JsonCommandHandlerMapping.getHandler(jdCommand);
+				if(handler == null){
+					//返回无服务信息
+					jdResult = JdResults.REST_FAIL_SERVER_NOT_FIND;
+				}else{
+					//正常处理
+					jdResult = handler.handle(jdCommand);
+				}
+			} catch (Exception e) {
+				//处理异常返回异常信息
+				logger.error("JsonCommandServiceImpl.execute-error!", e);
+				jdResult = JdResults.REST_ERROR_SERVER_EXCEPTION;
+			}
+		}
+		String jsonResponse = JsonHelper.toJson(jdResult);
+		//写入自定义日志
+		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
+		Integer operateType = jdCommand.getOperateType();
+		if(operateType == null){
+			operateType = Constants.OPERATE_TYPE_UNKNOWN;
+		}
+		businessLogProfiler.setBizType(operateType);
+		businessLogProfiler.setOperateRequest(jsonCommand);
+		businessLogProfiler.setOperateResponse(jsonResponse);
+		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
+		BusinessLogWriter.writeLog(businessLogProfiler);
+		return jsonResponse;
 	}
 }

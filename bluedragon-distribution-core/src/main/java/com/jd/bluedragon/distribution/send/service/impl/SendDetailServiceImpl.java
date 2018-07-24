@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service.impl;
 
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -14,6 +15,9 @@ public class SendDetailServiceImpl implements SendDetailService {
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
 
+    @Autowired
+    private SendDatailDao sendDatailDao;
+
     /**
      * 根据包裹号查询当前分拣中心的send_d
      * @param waybillCode
@@ -22,5 +26,14 @@ public class SendDetailServiceImpl implements SendDetailService {
      */
     public List<SendDetail> findSendByPackageCodeFromReadDao(String waybillCode, Integer createSiteCode){
         return sendDatailReadDao.findSendByPackageCode(waybillCode, createSiteCode);
+    }
+
+    @Override
+    public List<SendDetail> findByWaybillCodeOrPackageCode(Integer createSiteCode, String waybillCode, String packageCode) {
+        SendDetail sendDetail = new SendDetail();
+        sendDetail.setCreateSiteCode(createSiteCode);
+        sendDetail.setPackageBarcode(packageCode);
+        sendDetail.setWaybillCode(waybillCode);
+        return sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
     }
 }

@@ -36,7 +36,14 @@
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
-
+#########
+##兼容jq1.9之前的版本 判断浏览器版本的方法
+########
+<script src="/static/js/plugins/jquery-migrate-1.2.1.js"></script>
+#########
+##基础工具包
+########
+<script src="/static/js/jd/jd.js"></script>
 ####################
 ## 基础样式
 ####################

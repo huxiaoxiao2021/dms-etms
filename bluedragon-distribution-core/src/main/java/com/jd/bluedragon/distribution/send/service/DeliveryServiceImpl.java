@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
@@ -57,6 +58,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -77,7 +79,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,7 +90,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.Map.Entry;
@@ -361,7 +361,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
             //按箱发货，从箱中取出一单校验
             DeliveryResponse response =  checkRouterForCBox(domain);
-            if (response.getCode() == DeliveryResponse.CODE_CROUTER_ERROR && !isForceSend) {
+            if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode()) && !isForceSend) {
                 SendResult  result = new SendResult();
                 result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
                 result.setValue(response.getMessage());
@@ -562,11 +562,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
         task.setKeyword2(domain.getBoxCode());
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        task.setOperateTime(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME));
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
         SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
@@ -609,11 +609,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         task.setSequenceName(Task.getSequenceName(task.getTableName()));
         task.setKeyword1(domain.getCreateSiteCode().toString());
         task.setKeyword2(packageCode);
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-30000));
+        task.setOperateTime(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME));
         taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
         SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-30000)));
+        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
         sortDomain.setBoxCode(domain.getBoxCode());
         sortDomain.setUserCode(domain.getCreateUserCode());
         sortDomain.setUserName(domain.getCreateUser());
@@ -1071,12 +1071,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
+    @Override
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
-        if(JdResponse.CODE_OK.equals(response.getCode())){
-            response = deliveryCheckTransit(tSendM, flage);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = deliveryCheckTransit(tSendM, isTransferSend);
         }
-        if(JdResponse.CODE_OK.equals(response.getCode())){
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
         }
         return response;
@@ -1116,19 +1117,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return response;
     }
+
     /**
      * 箱号与目的地不一致校验
+     *
      * @param tSendM
      * @return
      */
-    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend){
+    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
             if (box != null) {
                 if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
-                    response.setCode(DeliveryResponse.CODE_Delivery_IS_SITE);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SITE);
+                    response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
@@ -3406,21 +3409,24 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if (BusinessHelper.isPickupCode(dto.getPackageBarcode())) {
                             BaseEntity<PickupTask> pickup = null;
                             try {
-                                pickup = this.waybillPickupTaskApi.getDataBySfCode(dto.getPackageBarcode());
+                                pickup = this.waybillPickupTaskApi.getDataBySfCode(BusinessHelper.getWaybillCode(dto.getPackageBarcode()));
                             } catch (Exception e) {
                                 this.logger.error("调用取件单号信息ws接口异常");
                             }
                             if (pickup != null && pickup.getData() != null) {
                                 dsendDatail.setPickupCode(pickup.getData().getPickupCode());
-                                dsendDatail.setWaybillCode(pickup.getData().getOldWaybillCode());
+                                dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
+                            }
+                            if(SerialRuleUtil.isMatchAllWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                                dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
                             }
                         }
                         dsendDatail.setCreateUser(dto.getOperatorName());
                         dsendDatail.setCreateUserCode(dto.getOperatorId());
                         dsendDatail.setOperateTime(dto.getHandoverDate());
                         dsendDatail.setSendType(businessType);
-                        if (dto.getPackageBarcode() != null)
-                            dsendDatail.setPackageNum(getPackageNum(dto.getPackageBarcode()));
+                        if (dsendDatail.getPackageBarcode() != null)
+                            dsendDatail.setPackageNum(getPackageNum(dsendDatail.getPackageBarcode()));
                         else
                             dsendDatail.setPackageNum(1);
                         dsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
@@ -3874,37 +3880,75 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,String packageCode) {
+    public SendResult autoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
         try {
 
+            if(logger.isInfoEnabled()){
+                logger.info("execute device auto send,parameter is :"+JsonHelper.toJson(domain));
+            }
             if (StringUtils.isNotBlank(getSendedCode(domain))) {
                 new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
             }else{
             	//插入SEND_M
                 this.sendMDao.insertSendM(domain);
             }
-            
-            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
-            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-                pushInspection(domain,packageCode);
-            	pushAtuoSorting(domain,packageCode);
-            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-            }
-            
-            if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                if(isForceSend){
-                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+
+            /**
+             * modified at 2018/4/25
+             * 区分分拣机还是龙门架自动发货
+             * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
+             * */
+
+            if(isForceSend){
+                if(SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                    //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+                    if(uploadData.getBoxSiteCode() != null){
+                        domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+                    }
+
+                    pushInspection(domain,uploadData.getPackageCode());
+                    pushAtuoSorting(domain,uploadData.getPackageCode());
+                    return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+                }else{
+                    pushInspection(domain,null);
+                    pushSorting(domain);
                 }
-                pushSorting(domain);//大件写TASK_SORTING
-            } else {
-                SendDetail tSendDatail = new SendDetail();
-                tSendDatail.setBoxCode(domain.getBoxCode());
-                tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-                tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-                this.updateCancel(tSendDatail);//更新SEND_D状态
+
+            }else{
+                if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+                    pushSorting(domain);//大件写TASK_SORTING
+                } else {
+                    SendDetail tSendDatail = new SendDetail();
+                    tSendDatail.setBoxCode(domain.getBoxCode());
+                    tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+                    tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+                    this.updateCancel(tSendDatail);//更新SEND_D状态
+                }
             }
             this.transitSend(domain);//中转任务
             this.pushStatusTask(domain);//全程跟踪任务
+            
+            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
+//            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
+//                pushInspection(domain,packageCode);
+//            	pushAtuoSorting(domain,packageCode);
+//            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+//            }
+//
+//            if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+//                if(isForceSend){
+//                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
+//                }
+//                pushSorting(domain);//大件写TASK_SORTING
+//            } else {
+//                SendDetail tSendDatail = new SendDetail();
+//                tSendDatail.setBoxCode(domain.getBoxCode());
+//                tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
+//                tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
+//                this.updateCancel(tSendDatail);//更新SEND_D状态
+//            }
+//            this.transitSend(domain);//中转任务
+//            this.pushStatusTask(domain);//全程跟踪任务
         } catch (Exception e) {
             logger.error("一车一单自动发货异常", e);
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
@@ -4048,5 +4092,51 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("一车一单发货取消组板异常.包裹号/箱号:" + domain.getBoxCode() + ",操作站点:" + domain.getCreateSiteCode() +
                     "异常原因:" +e);
         }
+    }
+
+    /**
+     * 原包发货[前提条件]1：原包没有发货;
+     * （1）原包发货，补写分拣任务
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     *
+     * @param sendMList 发货对象
+     * @return 1：发货成功  2：发货失败
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void packageSortSend(List<SendM> sendMList){
+            /**插入SEND_M*/
+//            this.sendMDao.addBatch(sendMList);
+        for(SendM sendM : sendMList){
+            sendMDao.insertSendM(sendM);
+        }
+            for(SendM sendM : sendMList){
+                /**大件写TASK_SORTING*/
+                pushSorting(sendM);
+                /**中转任务*/
+                transitSend(sendM);
+                /**全程跟踪任务*/
+                pushStatusTask(sendM);
+            }
+    }
+
+    /**
+     *  查询发货记录
+     * @param sendCode 批次号
+     * @param createSiteCode 始发分拣中心
+     * @param receiveSiteCode 目的分拣中心
+     * @return
+     */
+    @Override
+    public List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode){
+        SendM queryParam = new SendM();
+        queryParam.setSendCode(sendCode);
+        queryParam.setCreateSiteCode(createSiteCode);
+        queryParam.setReceiveSiteCode(receiveSiteCode);
+        /**查询箱子发货记录*/
+        List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryParam);
+        return sendMList;
     }
 }

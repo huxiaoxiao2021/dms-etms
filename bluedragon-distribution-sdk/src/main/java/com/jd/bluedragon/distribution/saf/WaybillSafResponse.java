@@ -71,6 +71,38 @@ public class WaybillSafResponse extends JdResponse {
      * 库房ID
      */
     private Integer distributeStoreId;
+
+    private Integer busiId;
+
+    /**
+     * 配送方式
+     */
+    private Integer distributeType;
+
+    /**
+     * 订单二期修改标示
+     */
+    private String waybillSign;
+
+    /**
+     * 配送库房名称
+     * */
+    private String distributeStoreName;
+
+    /**
+     * B商家名称
+     * */
+    private String busiName;
+    /**
+     * 复重
+     */
+    private Double againWeight;
+
+    /**
+     * 复量方
+     */
+    private String spareColumn2;
+
     public static final Integer CODE_NOT_EXISTS = 10001;
     public static final String MESSAGE_NOT_EXISTS = "无此订单信息";
     
@@ -200,4 +232,60 @@ public class WaybillSafResponse extends JdResponse {
 	public void setDistributeStoreId(Integer distributeStoreId) {
 		this.distributeStoreId = distributeStoreId;
 	}
+
+    public Integer getBusiId() {
+        return busiId;
+    }
+
+    public void setBusiId(Integer busiId) {
+        this.busiId = busiId;
+    }
+
+    public Integer getDistributeType() {
+        return distributeType;
+    }
+
+    public void setDistributeType(Integer distributeType) {
+        this.distributeType = distributeType;
+    }
+
+    public String getWaybillSign() {
+        return waybillSign;
+    }
+
+    public void setWaybillSign(String waybillSign) {
+        this.waybillSign = waybillSign;
+    }
+
+    public String getDistributeStoreName() {
+        return distributeStoreName;
+    }
+
+    public void setDistributeStoreName(String distributeStoreName) {
+        this.distributeStoreName = distributeStoreName;
+    }
+
+    public String getBusiName() {
+        return busiName;
+    }
+
+    public void setBusiName(String busiName) {
+        this.busiName = busiName;
+    }
+
+    public Double getAgainWeight() {
+        return againWeight;
+    }
+
+    public void setAgainWeight(Double againWeight) {
+        this.againWeight = againWeight;
+    }
+
+    public String getSpareColumn2() {
+        return spareColumn2;
+    }
+
+    public void setSpareColumn2(String spareColumn2) {
+        this.spareColumn2 = spareColumn2;
+    }
 }

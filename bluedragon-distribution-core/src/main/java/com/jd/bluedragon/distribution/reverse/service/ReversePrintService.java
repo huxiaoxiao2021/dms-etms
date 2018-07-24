@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
@@ -24,6 +25,14 @@ public interface ReversePrintService {
      * @return
      */
     InvokeResult<String> getNewWaybillCode(String oldWaybillCode, boolean isPickUpFinished);
+
+    /**
+     * 获取换单后对应的新运单号和取件单的创建时间是否超过15天
+     * @param oldWaybillCode 原单号
+     * @param isPickUpFinished 是否限制取件完成
+     * @return
+     */
+    InvokeResult<RepeatPrint> getNewWaybillCode1(String oldWaybillCode, boolean isPickUpFinished);
 
     /**
      * 执行逆向换单

@@ -11,6 +11,16 @@ public class AbnormalOrderRequest  extends JdRequest {
 	String abnormalReason2;
 	String createUserErp;
 	String trackContent;  // 全程跟踪显示内容
+	String waveBusinessId;//版次号，路由系统的字段
+
+	public String getWaveBusinessId() {
+		return waveBusinessId;
+	}
+
+	public void setWaveBusinessId(String waveBusinessId) {
+		this.waveBusinessId = waveBusinessId;
+	}
+
 	public String getOrderId() {
 		return orderId;
 	}

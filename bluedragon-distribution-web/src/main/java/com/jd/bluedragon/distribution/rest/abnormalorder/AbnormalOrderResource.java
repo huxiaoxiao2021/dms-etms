@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.abnormalorder;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.ws.rs.Consumes;
@@ -11,6 +12,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +63,9 @@ public class AbnormalOrderResource {
 	
 	@Autowired
 	AbnormalOrderService abnormalOrderService;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	
 	@GET
 	@Path("/abnormalorder/refundreason")
@@ -147,7 +156,45 @@ public class AbnormalOrderResource {
 		
 		return response;
 	}
-    
+	@POST
+	@Path("/abnormalorder/pushAbnormalOrders")
+	public AbnormalOrderResponse pushAbnormalOrders(AbnormalOrderRequest request){
+		AbnormalOrderResponse response = new AbnormalOrderResponse();
+		response.setCode(JdResponse.CODE_OK);
+		String waybillCodes=request.getOrderId();
+		String[] waybillCodeArr=waybillCodes.split(Constants.SEPARATOR_COMMA);
+		//获取操作人信息
+		String usercode=request.getUserName();
+		if (usercode==null){
+			response.setCode(response.CODE_SERVICE_ERROR);
+			response.setMessage(response.MESSAGE_SERVICE_ERROR);
+			return response;
+		}
+		BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(usercode);
+		String dateNow= DateHelper.formatDate(new Date(),Constants.DATE_TIME_FORMAT);
+
+		request.setUserCode(userDto.getStaffNo());
+		request.setCreateUserErp(userDto.getAccountNumber());
+		request.setUserName(userDto.getStaffName());
+		request.setOperateTime(dateNow);
+		request.setSiteCode(userDto.getSiteCode());
+		request.setSiteName(userDto.getSiteName());
+		request.setTrackContent("订单扫描异常【"+ (StringUtils.isEmpty(request.getAbnormalReason2())?request.getAbnormalReason1():request.getAbnormalReason2())+"】。");
+		for (String waybillCode:waybillCodeArr){
+			request.setOrderId(waybillCode);
+			AbnormalOrderResponse responseOne=pushAbnormalOrder(request);
+			if(responseOne.getCode()!=JdResponse.CODE_OK){
+				//如果有失败的
+				response.setCode(responseOne.getCode());
+				if (response.getMessage()==null){
+					response.setMessage(waybillCode+":"+responseOne.getMessage());
+				}else{
+					response.setMessage(response.getMessage()+","+waybillCode+":"+responseOne.getMessage());
+				}
+			}
+		}
+		return response;
+	}
 	@GET
 	@Path("/abnormalorder/clear")
 	public AbnormalOrderResponse clear(){

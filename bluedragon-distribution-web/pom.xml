@@ -19,6 +19,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
 		<aspectj.version>1.6.11</aspectj.version>
+		<tomcat.version>6.0.35</tomcat.version>
 	</properties>
 
 	<dependencies>
@@ -274,11 +275,6 @@
 			<version>3.3.6</version>
 		</dependency>
 
-		<dependency>
-				<groupId>com.jd.etms.waybill</groupId>
-				<artifactId>etms-waybill-agent</artifactId>
-				<version>3.0-SNAPSHOT</version>
-		</dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>
             <artifactId>etms-vehicle-interface</artifactId>
@@ -348,6 +344,28 @@
 			<artifactId>spring-configsec-sdk</artifactId>
 			<version>1.0.2.RELEASE</version>
 		</dependency>
+		<!--京东安全禁止jsp直接访问-开始-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>jd-security-tomcat</artifactId>
+			<version>1.11.WEBAPP</version>
+		</dependency>
+
+		<!--Tomcat6版本配置方法-->
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>jasper</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tomcat</groupId>
+			<artifactId>catalina</artifactId>
+			<version>${tomcat.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!--京东安全禁止jsp直接访问-结束-->
 	</dependencies>
 
 	<build>

@@ -1,13 +1,10 @@
 package com.jd.bluedragon.distribution.web;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-import java.util.Properties;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.common.web.LoginContext;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ssa.utils.SSOHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +13,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.view.RedirectView;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.common.web.cookie.CookieUtils;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ssa.utils.SSOHelper;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author zhaohc
@@ -38,17 +34,42 @@ public class IndexController {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-//    @Autowired
+    //    @Autowired
 //    private CookieUtils cookieUtils;
+    @Value("${mixedConfigUrl}")
+    private String mixedConfigUrl;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
+        this.logger.debug("IndexController --> welcomePage");
+        if (!checkBasicInfo()) {
+            return "reject";
+        }
         return "index";
+    }
+
+    /**
+     * 检查有没有基础资料
+     *
+     * @return
+     */
+    private boolean checkBasicInfo() {
+        LoginContext loginContext = LoginContext.getLoginContext();
+        if (loginContext != null) {
+            BaseStaffSiteOrgDto user = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+            if (user == null) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         this.logger.debug("IndexController --> index");
+        if (!checkBasicInfo()) {
+            return "reject";
+        }
         return "index";
     }
 
@@ -79,8 +100,6 @@ public class IndexController {
         model.addAttribute("roleName", roleName);
         return "topFrame";
     }
-    @Value("${mixedConfigUrl}")
-    private  String mixedConfigUrl;
 
     @RequestMapping(value = "/left", method = RequestMethod.GET)
     public String left(Model model) {
@@ -92,9 +111,9 @@ public class IndexController {
             model.addAttribute("mixedConfigUrl", mixedConfigUrl);
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
-        }catch (Exception e){
+        } catch (Exception e) {
             //菜单不处理异常信息
-            logger.error("获取当前用户失败",e);
+            logger.error("获取当前用户失败", e);
         }
 
         return "leftFrame";

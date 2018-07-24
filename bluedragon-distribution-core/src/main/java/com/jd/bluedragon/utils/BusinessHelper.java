@@ -77,6 +77,22 @@ public class BusinessHelper {
     }
 
 	/**
+	 * 根据包裹获得当前所属包裹数
+	 *
+	 * @param packageBarcode
+	 * @return
+	 */
+	public static int getCurrentPackageNum(String packageBarcode){
+		int num = 1;
+		if(packageBarcode.indexOf("N")>0 && packageBarcode.indexOf("S")>0){
+			num = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("N")+1, packageBarcode.indexOf("S")));
+		}else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
+			num = Integer.valueOf(packageBarcode.split("-")[1]);
+		}
+		return num;
+	}
+
+	/**
 	 * 从包裹号码提取运单号码.
 	 *
 	 * @param s
@@ -150,12 +166,14 @@ public class BusinessHelper {
 	}
 
 	/**
+	 * 建议使用SerialRuleUtil.isMatchAllWaybillCode代替,此方法不能判断w单是运单号
 	 * 判断输入字符串是否为运单号码. 包裹号规则： 123456789
 	 *
 	 * @param s
 	 *            用来判断的字符串
 	 * @return 如果此字符串为包裹号，则返回 true，否则返回 false
 	 */
+	@Deprecated
 	public static Boolean isWaybillCode(String s) {
 		if (StringHelper.isEmpty(s)) {
 			return Boolean.FALSE;
@@ -176,7 +194,8 @@ public class BusinessHelper {
 				&& s.indexOf(Box.BOX_TYPE_REVERSE_AFTER_SERVICE) == -1
 				&& s.indexOf(Box.BOX_TYPE_REVERSE_LUXURY) == -1
 //				&& s.indexOf(Box.BOX_TYPE_REVERSE_REJECTION) == -1 //与箱号T冲突，逆向运单号也有T的情况
-				&& s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_PICKUP) == -1) {
+				&& s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_PICKUP) == -1 //此处不能对W单进行有效判断 于2017.07.18 黄亮 增加注释，需要对w进行判断的地方进行梳理排查
+				) {
 			return Boolean.TRUE;
 		}
 		
@@ -723,5 +742,10 @@ public class BusinessHelper {
 			return key + PACKAGE_SEPARATOR + pageIndex;
 		}
 		return null;
+	}
+
+	public static void main(String[] args){
+		System.out.println(isWaybillCode("WA1019140201989931008"));
+		System.out.println(SerialRuleUtil.isMatchAllWaybillCode("WA1019140201989931008"));
 	}
 }

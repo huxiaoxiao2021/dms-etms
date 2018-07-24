@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,24 +12,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
-import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
-import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
-import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
-import com.jd.bluedragon.distribution.waybill.domain.*;
-import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
-import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.etms.waybill.dto.*;
 
-import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
-import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
-import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,9 +27,12 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -51,22 +40,45 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
+import com.jd.bluedragon.distribution.external.service.DmsWaybillService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
+import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.etms.waybill.api.WaybillQueryApi;
+import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class WaybillResource {
+public class WaybillResource implements DmsWaybillService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -112,13 +124,10 @@ public class WaybillResource {
 
 	/* 运单查询 */
 	@Autowired
-	private WaybillQueryApi waybillQueryApi;
+	private WaybillQueryManager waybillQueryManager;
 
 	@Autowired
-	private WaybillPackageApi waybillPackageApi;
-
-	@Autowired
-	private WaybillTraceApi waybillTraceApi;
+	private WaybillSafService waybillSafService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -852,7 +861,7 @@ public class WaybillResource {
 			wChoice.setQueryWaybillE(true);
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
-			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
 					waybillCode, wChoice);
 			if(null == baseEntity || baseEntity.getData() == null){
 				logger.error("根据运单号获取SKU信息接口为空");
@@ -1135,6 +1144,13 @@ public class WaybillResource {
 		invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		invokeResult.setData(result);
 		return invokeResult;
+	}
+
+	@POST
+	@Path("/waybill/post/cancel")
+	@Override
+	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
+		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
 
 }

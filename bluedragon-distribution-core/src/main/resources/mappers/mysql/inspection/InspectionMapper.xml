@@ -520,5 +520,15 @@
 		       WHERE yn=1  AND  waybill_code = #{waybillCode,jdbcType=VARCHAR}   AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
 	</select>
 
+    <select id="findOperateTimeByWaybillCodes" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT min(operate_time) as operate_time,waybill_code
+        FROM  inspection
+        WHERE create_site_code = #{createSiteCode, jdbcType=INTEGER} and yn = 1 and
+        waybill_code IN
+        <foreach collection="waybillCodes" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
+        group by waybill_code
+    </select>
 
 </mapper>
