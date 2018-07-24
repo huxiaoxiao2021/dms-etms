@@ -50,12 +50,14 @@
                 fn.success(data, textStatus);
             },
             beforeSend: function (request) {
-                request.setRequestHeader("currusercode", currUserCode);
+                if (currUserCode){
+                    request.setRequestHeader("currusercode", currUserCode);
+                }
             },
             complete: function (XHR, TS) {
                 //请求完成后回调函数 (请求成功或失败之后均调用)。
-                if (XHR.status = 888) {
-                    // parent.location.href = quitUrl;
+                if (XHR.status == 888) {
+                    parent.location.href = quitUrl;
                 }
             }
         });
