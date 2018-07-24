@@ -30,4 +30,9 @@ public class TextConstants {
      * 备注-【合并送】
      */
     public static final String REMARK_SEND_GATHER_TOGETHER ="【合并送】";
+
+    /**
+     * 已称标识
+     */
+    public static final String WEIGHT_FLAG_TRUE = "已称";
 }
