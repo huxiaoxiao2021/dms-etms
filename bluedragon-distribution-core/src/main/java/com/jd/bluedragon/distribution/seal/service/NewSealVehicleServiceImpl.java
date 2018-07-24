@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -225,6 +226,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
 	@Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransportResourceByTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "newSealVehicleServiceImpl.getTransportResourceByTransCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> getTransportResourceByTransCode(String batchCode) {
 		com.jd.etms.vts.dto.CommonDto<VtsTransportResourceDto> dto = vtsQueryWS.getTransportResourceByTransCode(batchCode);
 		return dto;
