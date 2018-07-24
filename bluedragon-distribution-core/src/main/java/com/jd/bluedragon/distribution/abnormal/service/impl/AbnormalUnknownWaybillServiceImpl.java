@@ -185,7 +185,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
         }
         if (hasDetailWaybillCodes != null && hasDetailWaybillCodes.size() > 0) {
-            rest.setData(StringUtils.join(hasDetailWaybillCodes.toArray(), ","));
+            rest.setData(StringUtils.join(waybillcodes, ","));
         }
 
 
