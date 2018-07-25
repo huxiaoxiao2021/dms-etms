@@ -126,6 +126,10 @@
 					<!-- 龙门架自动发货 -->
 					<entry key="task_scanner_frame_7779_DMS" value="${jmq.task.topic.scannerFrame.dms}"/>
 					<entry key="task_scanner_frame_7779_PRE" value="${jmq.task.topic.scannerFrame.pre}"/>
+
+					<!-- 平台打印补验货任务 -->
+					<entry key="task_pop_print_inspection_1180_DMS" value="${jmq.task.topic.popprint.inspection.dms}"/>
+					<entry key="task_pop_print_inspection_1180_PRE" value="${jmq.task.topic.popprint.inspection.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>
