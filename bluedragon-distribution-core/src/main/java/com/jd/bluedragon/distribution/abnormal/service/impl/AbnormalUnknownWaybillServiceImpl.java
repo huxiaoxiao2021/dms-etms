@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.abnormal.service.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillRequest;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -49,14 +51,10 @@ import java.util.*;
 public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnknownWaybill> implements AbnormalUnknownWaybillService {
 
     @Autowired
+    BaseMinorManager baseMinorManager;
+    @Autowired
     @Qualifier("abnormalUnknownWaybillDao")
     private AbnormalUnknownWaybillDao abnormalUnknownWaybillDao;
-
-    @Override
-    public Dao<AbnormalUnknownWaybill> getDao() {
-        return this.abnormalUnknownWaybillDao;
-    }
-
     @Autowired
     private WaybillService waybillService;
 
@@ -68,20 +66,21 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
     @Autowired
     private EclpItemManager eclpItemManager;
-
-    @Autowired
-    BaseMinorManager baseMinorManager;
-
     @Autowired
     @Qualifier("abnormalUnknownSendProducer")
     private DefaultJMQProducer abnormalEclpSendProducer;
+
+    @Override
+    public Dao<AbnormalUnknownWaybill> getDao() {
+        return this.abnormalUnknownWaybillDao;
+    }
 
     /**
      * 查询并上报
      *
      * @return
      */
-    public JdResponse<String> queryAndReport(AbnormalUnknownWaybill request) {
+    public JdResponse<String> queryAndReport(AbnormalUnknownWaybill request, LoginUser loginUser) {
         JdResponse<String> rest = new JdResponse<String>();
         if (request.getWaybillCode() == null || StringUtils.isBlank(request.getWaybillCode())) {
             rest.toFail("运单号不能为空");
@@ -156,8 +155,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             List<AbnormalUnknownWaybill> addList = Lists.newArrayList();
             //获取用户信息
             LoginContext loginContext = LoginContext.getLoginContext();
-//            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache("bjxings");
-            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+            BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByErpNoCache(loginUser.getUserErp());
             //站点区域查出来
             BaseStaffSiteOrgDto org = baseMajorManager.getBaseSiteBySiteId(userDto.getSiteCode());
             if (org == null) {
@@ -498,5 +496,67 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
         }
         return resList;
+    }
+
+    @Override
+    public PagerResult<AbnormalUnknownWaybill> queryByPagerCondition(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
+        //不是通过搜索加载数据
+        if (abnormalUnknownWaybillCondition.getWaybillCode() == null && abnormalUnknownWaybillCondition.getWaybillCodes() == null) {
+            return this.getDao().queryByPagerCondition(abnormalUnknownWaybillCondition);
+        }
+        int limit = abnormalUnknownWaybillCondition.getLimit();
+        //查出这批全部
+        abnormalUnknownWaybillCondition.setLimit(-1);
+        PagerResult<AbnormalUnknownWaybill> pagerResult = this.getDao().queryByPagerCondition(abnormalUnknownWaybillCondition);
+        if (pagerResult != null && pagerResult.getTotal() > 0) {
+            if (abnormalUnknownWaybillCondition.getWaybillCode() != null) {//代表前端输入的一个运单号
+                //肯定就是那一个了
+                return pagerResult;
+
+            } else {//代表输入的多个运单号
+                //补上没查到的单号
+                List<AbnormalUnknownWaybill> data = pagerResult.getRows();
+                //前端输入的运单号
+                List<String> waybillCodes = abnormalUnknownWaybillCondition.getWaybillCodes();
+                //转成set
+                Set<String> waybillCodesSetRequest = new HashSet(waybillCodes);
+                //查询结果封装成set
+                Set<String> waybillCodesSetDb = Sets.newHashSet();
+                for (AbnormalUnknownWaybill abnormalUnknownWaybill : data) {
+                    waybillCodesSetDb.add(abnormalUnknownWaybill.getWaybillCode());
+                }
+                //存在的删掉，剩下的是需要补的
+                waybillCodesSetRequest.removeAll(waybillCodesSetDb);
+                for (String waybillCode : waybillCodesSetRequest) {
+                    AbnormalUnknownWaybill abnormalUnknownWaybill = new AbnormalUnknownWaybill();
+                    abnormalUnknownWaybill.setWaybillCode(waybillCode);
+                    data.add(abnormalUnknownWaybill);
+                }
+                pagerResult.setTotal(data.size());
+                int endIndex = (abnormalUnknownWaybillCondition.getOffset() + limit) > data.size() ? data.size() : (abnormalUnknownWaybillCondition.getOffset() + limit);
+                pagerResult.setRows(data.subList(abnormalUnknownWaybillCondition.getOffset(), endIndex));
+                return pagerResult;
+            }
+        } else {//如果没有查询结果，要补出前端输入的运单号
+            pagerResult = new PagerResult<AbnormalUnknownWaybill>();
+            List<AbnormalUnknownWaybill> data = Lists.newArrayList();
+            if (abnormalUnknownWaybillCondition.getWaybillCode() != null) {//代表前端输入的一个运单号
+                pagerResult.setTotal(1);
+                AbnormalUnknownWaybill abnormalUnknownWaybill = new AbnormalUnknownWaybill();
+                abnormalUnknownWaybill.setWaybillCode(abnormalUnknownWaybillCondition.getWaybillCode());
+                data.add(abnormalUnknownWaybill);
+
+            } else {//代表输入的多个运单号
+                List<String> waybillCodes = abnormalUnknownWaybillCondition.getWaybillCodes();
+                for (String waybillCode : waybillCodes) {
+                    AbnormalUnknownWaybill abnormalUnknownWaybill = new AbnormalUnknownWaybill();
+                    abnormalUnknownWaybill.setWaybillCode(waybillCode);
+                    data.add(abnormalUnknownWaybill);
+                }
+                pagerResult.setTotal(data.size());
+            }
+            pagerResult.setRows(data);
+            return pagerResult;
+        }
     }
 }
