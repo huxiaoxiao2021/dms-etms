@@ -1153,4 +1153,32 @@ public class WaybillResource implements DmsWaybillService {
 		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
 
+	/**
+	 * 检查运单是否为理赔完成拦截
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/checkIsLPWaybill/{waybillCode}")
+	public InvokeResult<Boolean> checkIsLPWaybill(@PathParam("waybillCode") String waybillCode){
+
+		InvokeResult invokeResult =new InvokeResult();
+		invokeResult.setData(false);
+		try{
+			Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(waybillCode);
+			if(featureType!= null && Constants.FEATURE_TYPCANCEE_LP.equals(featureType)){
+				invokeResult.setData(true);
+			}
+			invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		}catch (Exception e){
+			logger.error("判断理赔完成拦截运单异常",e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+
+		return invokeResult;
+	}
+
+
 }
