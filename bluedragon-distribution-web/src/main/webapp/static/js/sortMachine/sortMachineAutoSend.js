@@ -491,35 +491,40 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
 function loadChutes(chutes) {
     $("#pagerTable tbody").html("");
     if(chutes){
+        var hasSendSite=new Array();
         $.each(chutes, function (index, chute) {
 
             var sortSchemeDetail = chute.sortSchemeDetail;
-            var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
-            var packageSum = 0.00;//总数量
-            var volumeSum = 0.00;//总体积
-            if(chute.sendCode){
-                CommonClient.ajax("POST",url,{"sendCode":chute.sendCode},function (data) {
-                // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
-                    if (data != undefined && data != null){
-                        var sum = data.data;
-                        $(".packageSum"+sum.sendCode).text(sum.packageSum);
-                        $(".volumeSum"+sum.sendCode).text(sum.volumeSum);
-                    }
-                });
-            }
+            var siteCode=sortSchemeDetail.sendSiteCode;
+            if (hasSendSite.indexOf(siteCode)==-1) {
+                hasSendSite.push(siteCode);
+                var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
+                var packageSum = 0.00;//总数量
+                var volumeSum = 0.00;//总体积
+                if (chute.sendCode) {
+                    CommonClient.ajax("POST", url, {"sendCode": chute.sendCode}, function (data) {
+                        // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
+                        if (data != undefined && data != null) {
+                            var sum = data.data;
+                            $(".packageSum" + sum.sendCode).text(sum.packageSum);
+                            $(".volumeSum" + sum.sendCode).text(sum.volumeSum);
+                        }
+                    });
+                }
 
-            var tr = '';
-            tr += '<tr>';
-            tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
-            tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
-            tr += '<td name="sendSiteCode">' + (sortSchemeDetail.sendSiteCode || '') + '</td>';
-            tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
-            tr += '<td name="sendCode">' + chute.sendCode + '</td>';
-            tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
-            tr += '<td name="packageSum" class="packageSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-            tr += '<td name="volumeSum" class="volumeSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-            tr += '</tr>';
-            $("#pagerTable tbody").append(tr);
+                var tr = '';
+                tr += '<tr>';
+                tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
+                tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
+                tr += '<td name="sendSiteCode">' + (sortSchemeDetail.sendSiteCode || '') + '</td>';
+                tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
+                tr += '<td name="sendCode">' + chute.sendCode + '</td>';
+                tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
+                tr += '<td name="packageSum" class="packageSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+                tr += '<td name="volumeSum" class="volumeSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+                tr += '</tr>';
+                $("#pagerTable tbody").append(tr);
+            }
         });
 
     }
