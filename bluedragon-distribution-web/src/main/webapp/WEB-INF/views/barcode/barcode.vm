@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>69码查询</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/barcode/barcode.js"></script>
+    <script src="/static/imports/plugin/blockUI/jquery.blockUI.js"></script>
+</head>
+<body>
+
+<div id="dataEditDiv" class="main" style="margin-left: 40px;">
+    <ol class="breadcrumb">
+        <li><a href="#">分拣中心</a></li>
+        <li class="active">69码查询商品名称</li>
+    </ol>
+    <div id="edit-condition">
+        <form id="edit-form" class="form-horizontal  col-xs-12">
+            <fieldset>
+                <hr/>
+                <div class="row">
+                    <div class="col-xs-12">
+                        <label class="col-xs-2 control-label">69码</label>
+                        <div class="col-xs-3">
+                    			<textarea  class="form-control" id="barcode" name="barcode" rows="6">
+		                        </textarea>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group" class="col-xs-12">
+                                &nbsp;
+                                <button id="btn_query"  type="button" class="btn btn-primary" data-toggle="button">
+                                    查询
+                                </button>
+                                &nbsp;
+                                <button id="btn_clear" type="button" class="btn btn-primary" data-toggle="button">
+                                    清空
+                                </button>
+                                &nbsp;
+                                <button id="btn_export" type="button" class="btn btn-primary" data-toggle="button">
+                                    导出
+                                </button>
+                            </div>
+                            <li class="active">（说明：一行一个69码，支持批量粘贴）</li>
+                        </div>
+                    </div>
+                </div>
+                <hr/>
+            </fieldset>
+        </form>
+    </div>
+    <div  class="row">
+        <div class="col-xs-12">
+            <div class="col-xs-1"></div>
+            <div class="col-xs-8">
+                <table id="dataTable"></table>
+            </div>
+            <div class="col-xs-2"></div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

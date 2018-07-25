@@ -13,13 +13,19 @@ public class NewSealVehicleResponse<T> extends JdResponse {
 	public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功！";
 
     public static final String TIPS_BATCHCODE_PARAM_ERROR = "请输入正确的批次号!";
-    public static final String TIPS_SITECODE_PARAM_NULL_ERROR = "请输入查询条件！";
+    public static final String TIPS_SITECODE_PARAM_NULL_ERROR = "请输入查询条件!";
 	public static final String TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR = "该批次号没有发货信息，无法操作封车!";
 	public static final String TIPS_BATCHCODE_SEALED_ERROR = "该发货批次号已操作封车，无法重复操作!";
 	public static final String TIPS_RECEIVESITE_DIFF_ERROR = "批次号与运力编码目的地不一致，请核准后重新操作!";
 
-	public static final Integer CODE_UNSEAL_CAR_OUT_CHECK = 30001;
-	public static final String MESSAGE_UNSEAL_CAR_OUT_CHECK = "车辆不在围栏，是否强制解封：";
+
+    public static final Integer CODE_UNSEAL_CAR_OUT_CHECK = 30001;
+    public static final String MESSAGE_UNSEAL_CAR_OUT_CHECK = "车辆不在围栏，是否强制解封：";
+
+    public static final Integer CODE_TRANSPORT_RANGE_CHECK = 30002;
+    public static final String MESSAGE_TRANSPORT_RANGE_OUT_CHECK = "此运力编码标准发车时间 {0}:{1} 是否使用此运力编码？";
+    public static final Integer CODE_TRANSPORT_RANGE_ERROR = 30003;
+    public static final String MESSAGE_TRANSPORT_RANGE_ERROR = "运力编码始发地非当前分拣中心，是否强制操作？";
 
 	public NewSealVehicleResponse(){
 
