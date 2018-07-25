@@ -838,6 +838,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "DeliveryToFinanceBatchTask";
         }else if(TASK_TYPE_DELIVERY_TO_FINANCE.equals(type)){
             return "DeliveryToFinanceTask";
+        }else if(TASK_TYPE_POP_PRINT_INSPECTION.equals(type)){
+            return "PopPrintInspectionTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
