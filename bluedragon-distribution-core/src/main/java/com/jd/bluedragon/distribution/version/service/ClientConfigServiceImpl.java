@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.version.service;
 
+import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
+import com.jd.bluedragon.core.base.DmsLocalServerManager;
 import com.jd.bluedragon.distribution.version.dao.ClientConfigDao;
 import com.jd.bluedragon.distribution.version.dao.ClientConfigHistoryDao;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
@@ -21,6 +23,9 @@ public class ClientConfigServiceImpl implements ClientConfigService {
 	
 	@Autowired
     private ClientConfigHistoryDao clientConfigHistoryDao;
+
+    @Autowired
+    private DmsLocalServerManager dmsLocalServerManager;
 	
     public List<ClientConfig> getAll() {
         return this.clientConfigDao.getAll();
@@ -77,5 +82,15 @@ public class ClientConfigServiceImpl implements ClientConfigService {
 		Assert.notNull(id, "id must not be null");
         return this.clientConfigDao.delete(id);
 	}
+
+    @Override
+    public List<VipInfoJsfEntity> getVipListByDmsId(Integer dmsId) {
+        return dmsLocalServerManager.getVipListByDmsId(dmsId);
+    }
+
+    @Override
+    public List<VipInfoJsfEntity> getAllVipList() {
+        return dmsLocalServerManager.getAllVipList();
+    }
 
 }

@@ -1071,12 +1071,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
+    @Override
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
-        if(JdResponse.CODE_OK.equals(response.getCode())){
-            response = deliveryCheckTransit(tSendM, flage);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = deliveryCheckTransit(tSendM, isTransferSend);
         }
-        if(JdResponse.CODE_OK.equals(response.getCode())){
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
         }
         return response;
@@ -1116,19 +1117,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return response;
     }
+
     /**
      * 箱号与目的地不一致校验
+     *
      * @param tSendM
      * @return
      */
-    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend){
+    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
             if (box != null) {
                 if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
-                    response.setCode(DeliveryResponse.CODE_Delivery_IS_SITE);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SITE);
+                    response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
