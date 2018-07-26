@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 public interface DeliveryService {
 
@@ -39,7 +41,7 @@ public interface DeliveryService {
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
      */
-    SendResult atuoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
+    SendResult autoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]
@@ -126,7 +128,7 @@ public interface DeliveryService {
      * 
      * @param SendM 发货相关数据
      */
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM , boolean flage);
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM , boolean isTransferSend);
 
     /**
      * 通过运单号来判断是否发货
@@ -310,4 +312,18 @@ public interface DeliveryService {
 	 * @return
 	 */
 	boolean doBoardDelivery(Task task);
+
+	/**
+	 * 原包分拣发货
+	 * @param sendMList
+	 */
+    void packageSortSend(List<SendM> sendMList);
+	/**
+	 *  查询发货记录
+	 * @param sendCode 批次号
+	 * @param createSiteCode 始发分拣中心
+	 * @param receiveSiteCode 目的分拣中心
+	 * @return
+	 */
+    List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode);
 }

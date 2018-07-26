@@ -169,6 +169,10 @@ public class PopPrintResource {
 				if (savePopPrintToRedis) {
 					savePopPrintToRedis(popPrint);
 				}
+				//推补发货任务
+				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
+					popPrintService.pushInspection(popPrint);
+				}
 				this.logger.info("插入POP打印信息savePopPrint成功，运单号【" + popPrint.getWaybillCode() + "】");
 				if (isPrintPack) {
 					if (!savePopPrintToRedis) {
@@ -291,7 +295,10 @@ public class PopPrintResource {
 				if (savePopPrintToRedis) {
 					savePopPrintToRedis(popPrint);
 				}
-				
+				//推补发货任务
+				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
+					popPrintService.pushInspection(popPrint);
+				}
 				this.logger.info("插入POP打印信息成功，运单号【" + popPrint.getWaybillCode() + "】");
 				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
 					if (!savePopPrintToRedis) {
@@ -356,6 +363,10 @@ public class PopPrintResource {
 					popPrint.setPrintCount(1);
 				}
 				popPrintService.add(popPrint);
+				//推补发货任务
+				if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrintRequest.getOperateType())) {
+					popPrintService.pushInspection(popPrint);
+				}
 				this.logger.info("插入POP打印信息成功，运单号【" + popPrint.getWaybillCode() + "】--");
 			} else {
 				this.logger.info("更新POP打印信息，运单号【" + popPrint.getWaybillCode() + "】--");

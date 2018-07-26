@@ -458,6 +458,40 @@
                         <constructor-arg name="methodName" value="offlineTaskProcess"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 龙门架自动发货 -->
+                <entry key = "${jmq.task.topic.scannerFrame.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="scannerFrameDispatchProcess"/>
+                    </bean>
+                </entry>
+                <entry key = "${jmq.task.topic.scannerFrame.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="scannerFrameDispatchProcess"/>
+                    </bean>
+                </entry>
+
+                <!-- 平台打印 -->
+                <entry key="${jmq.task.topic.popprint.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="popPrintInspection"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 平台打印 -->
+                <entry key="${jmq.task.topic.popprint.inspection.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="popPrintInspection"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>

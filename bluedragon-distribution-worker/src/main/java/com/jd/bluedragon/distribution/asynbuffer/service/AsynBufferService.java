@@ -41,4 +41,10 @@ public interface AsynBufferService {
         //称重信息回传运单中心
         public boolean weightTaskProcess(Task task) throws Exception;
 
+        //龙门架自动发货任务
+        public boolean scannerFrameDispatchProcess(Task task) throws Exception;
+
+        //平台打印补验货数据
+        public boolean popPrintInspection(Task task) throws Exception;
+
 }

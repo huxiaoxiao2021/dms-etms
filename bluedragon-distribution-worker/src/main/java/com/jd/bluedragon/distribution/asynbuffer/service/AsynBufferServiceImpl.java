@@ -6,7 +6,10 @@ import java.util.List;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.auto.domain.UploadData;
+import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
 import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 
 import org.apache.commons.lang.StringUtils;
@@ -297,4 +300,32 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         }
     }
 
+
+
+    @Autowired
+    private ScannerFrameDispatchService scannerFrameDispatchService;
+
+    /**
+     * 龙门架自动发货任务处理
+     * @param task
+     * @return
+     */
+    public boolean scannerFrameDispatchProcess(Task task) throws Exception{
+        return scannerFrameDispatchService.dispatch(com.jd.bluedragon.distribution.api.utils.JsonHelper.fromJson(task.getBody(), UploadData.class));
+    }
+
+    @Autowired
+    private InspectionService inspectionService;
+    //平台打印补验货数据
+    public boolean popPrintInspection(Task task) throws Exception{
+        try {
+            this.logger.info("task id&type is " + task.getId()+"&"+task.getType());
+            this.inspectionService.popPrintInspection(task,task.getOwnSign());
+        } catch (Exception e) {
+            this.logger.error("task id is" + task.getId());
+            this.logger.error("平台打印补验货数据，异常信息为：" + e.getMessage(), e);
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
 }
