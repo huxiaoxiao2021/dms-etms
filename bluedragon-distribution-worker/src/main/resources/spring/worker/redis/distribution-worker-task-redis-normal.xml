@@ -16,6 +16,13 @@
 		<property name="desc" value="分拣中心收货Redis任务" />
 	</bean>
 
+	<bean id="popPrintInspectionRedisTask"
+		  class="com.jd.bluedragon.distribution.worker.pop.redis.PopPrintInspectionRedisTask"
+		  parent="parentRedisTask">
+		<property name="taskType" value="PopPrintInspectionRedisTask" />
+		<property name="desc" value="平台打印补验货任务" />
+	</bean>
+
 	<bean id="partnerWaybillRedisTask"
 		  class="com.jd.bluedragon.distribution.worker.PartnerWaybillRedisTask"
 		  parent="parentRedisTask">

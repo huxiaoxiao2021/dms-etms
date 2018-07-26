@@ -223,6 +223,15 @@
                     </bean>
                 </entry>
 
+                <!-- 平台打印 -->
+                <entry key="${jmq.task.topic.popprint.inspection.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="asynBufferService"></constructor-arg>
+                        <constructor-arg name="methodName" value="popPrintInspection"></constructor-arg>
+                    </bean>
+                </entry>
+
             </map>
         </constructor-arg>
     </bean>

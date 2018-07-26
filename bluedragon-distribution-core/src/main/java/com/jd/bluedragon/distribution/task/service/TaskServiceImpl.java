@@ -132,7 +132,7 @@ public class TaskServiceImpl implements TaskService {
                 || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
                 || Task.TASK_TYPE_AUTO_SORTING_PREPARE.equals(task.getType()) || Task.TASK_TYPE_SORTING_EXCEPTION.equals(task.getType()) || Task.TASK_TYPE_ZHIPEI_SORTING.equals(task.getType())
-                || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())) {     // 增加干线计费信息MQ去重
+                || Task.TASK_TYPE_GLOBAL_TRADE.equals(task.getType())||Task.TASK_TYPE_POP_PRINT_INSPECTION.equals(task.getType())) {     // 增加干线计费信息MQ去重
             if(!this.has(task)){
                 return routerDao.add(TaskDao.namespace, task);
             }else{
