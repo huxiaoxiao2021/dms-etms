@@ -27,7 +27,9 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object obj,
                            ModelAndView model) throws Exception {
-        model.getModel().put("timestamp", System.currentTimeMillis());
+        if (model != null && model.getModel() != null) {
+            model.getModel().put("timestamp", System.currentTimeMillis());
+        }
     }
 
     @Override
@@ -43,7 +45,7 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
             return true;
         }
         if (!currUserCode.equals(erpUser.getUserCode())) {
-            logger.error("用户不一致："+currUserCode+"!="+erpUser.getUserCode());
+            logger.error("用户不一致：" + currUserCode + "!=" + erpUser.getUserCode());
             response.setStatus(888);
             return false;
         }
