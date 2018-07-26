@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
@@ -227,6 +229,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     @Autowired
+    @Qualifier("operateHintMQ")
+    private DefaultJMQProducer operateHintMQ;
+
+    @Autowired
     @Qualifier("arSendDetailProducer")
     private DefaultJMQProducer arSendDetailProducer;
 
@@ -398,6 +404,22 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         SendResult result = null;
         if(StringUtils.isNotBlank(hints)){
+            //发个mq
+            try {
+                DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+                dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
+                dmsOperateHintTrack.setOperateDmsCode(domain.getCreateSiteCode());
+                dmsOperateHintTrack.setOperateNodeName(DmsOperateHintTrack.OPERATE_NODE_SEND);
+                dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
+                Date now = new Date();
+                dmsOperateHintTrack.setCreateTime(now);
+                dmsOperateHintTrack.setUpdateTime(now);
+                this.logger.info("发送MQ[" + operateHintMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
+                this.operateHintMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+            }catch(Exception e){
+                logger.error("发货提示语发mq异常,异常原因:" +e);
+            }
+
             result = new SendResult(SendResult.CODE_WARN, hints);
         }else{
             result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
