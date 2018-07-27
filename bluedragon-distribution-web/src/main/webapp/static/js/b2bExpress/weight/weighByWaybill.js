@@ -24,6 +24,7 @@
 
     var VALID_EXISTS_STATUS_CODE = 10;
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
+    var NO_NEED_WEIGHT = 201; //不需要称重
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
@@ -103,7 +104,10 @@
                     }else if(res.code == SERVER_ERROR_CODE)
                     {
                         $.messager.alert('运单验证结果','运单查询服务暂不可用，请操作人员务必确认运单真实性再进行录入操作','warning');
-                    } else{
+                    }else if(res.code == NO_NEED_WEIGHT)
+                    {
+                        $.messager.alert('提示',res.message,'warning');
+                    }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
 
@@ -233,7 +237,7 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
             }else
             {
                 /*******************************************************************************/
-                /*运单不存在*/
+                /*运单不存在 或校验不通过*/
                 /*******************************************************************************/
 
                 /*单号不合法*/
@@ -243,6 +247,10 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                     return;
                 }
 
+                if(res.code == NO_NEED_WEIGHT){
+                    $.messager.alert('提示',res.message,'warning');
+                    return ;
+                }
                 /*单号通过正则校验、但单号对应运单不存在*/
                 $.messager.confirm('无运单信息','您输入的运单号/包裹号无相关运单信息，' + '请问您确认要录入吗？'
                     ,function(confirmFlag){
