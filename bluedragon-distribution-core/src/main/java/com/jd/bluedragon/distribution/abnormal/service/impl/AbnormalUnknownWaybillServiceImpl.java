@@ -503,7 +503,18 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //不是通过搜索加载数据
         if (abnormalUnknownWaybillCondition.getWaybillCode() == null && abnormalUnknownWaybillCondition.getWaybillCodes() == null) {
             return this.getDao().queryByPagerCondition(abnormalUnknownWaybillCondition);
+        }else{
+            //查询并补充无详细的运单号
+            return queryAbnormalUnknownWaybillAndReplenish(abnormalUnknownWaybillCondition);
         }
+    }
+
+    /**
+     * 查询并补充无详细的运单号
+     * @param abnormalUnknownWaybillCondition
+     * @return
+     */
+    private PagerResult<AbnormalUnknownWaybill> queryAbnormalUnknownWaybillAndReplenish(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
         int limit = abnormalUnknownWaybillCondition.getLimit();
         //查出这批全部
         abnormalUnknownWaybillCondition.setLimit(-1);
