@@ -466,12 +466,13 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
         param.machineCode = currentSortMachineCode;
         var url = $("#contextPath").val() + "/sortMachineAutoSend/queryChuteBySortMachineCode";
         CommonClient.ajax("POST",url,param,function (data) {
-            var chutes = data.data;
+            var chute = data.data;
             if (data == undefined || data == null) {
                 jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
                 return;
             }
             if ( data.code == 200) {
+               var chutes= groupBySendSite(chute);
                 loadChutes(chutes);
                 //加载发货组
 
@@ -490,14 +491,7 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
  */
 function loadChutes(chutes) {
     $("#pagerTable tbody").html("");
-    if(chutes){
-        var hasSendSite=new Array();
         $.each(chutes, function (index, chute) {
-
-            var sortSchemeDetail = chute.sortSchemeDetail;
-            var siteCode=sortSchemeDetail.sendSiteCode;
-            if (hasSendSite.indexOf(siteCode)==-1) {
-                hasSendSite.push(siteCode);
                 var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
                 var packageSum = 0.00;//总数量
                 var volumeSum = 0.00;//总体积
@@ -511,26 +505,65 @@ function loadChutes(chutes) {
                         }
                     });
                 }
+                var chuteCode=chute.chuteCodes[0];
+                for (var i=1;i<chute.chuteCodes.length;i++){
+                    chuteCode=chuteCode+','+chute.chuteCodes[i];
+                }
 
                 var tr = '';
                 tr += '<tr>';
-                tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
-                tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
-                tr += '<td name="sendSiteCode">' + (sortSchemeDetail.sendSiteCode || '') + '</td>';
-                tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
+                tr += '<td><input type="checkbox" id="ckbox' + chuteCode + '"></td>';
+                tr += '<td name="chuteCode">' + chuteCode + '</td>';
+                tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
+                tr += '<td name="sendSiteName">' + (chute.sendSiteName || '') + '</td>';
                 tr += '<td name="sendCode">' + chute.sendCode + '</td>';
                 tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
                 tr += '<td name="packageSum" class="packageSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
                 tr += '<td name="volumeSum" class="volumeSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
                 tr += '</tr>';
                 $("#pagerTable tbody").append(tr);
-            }
+
         });
 
-    }
 }
 
-
+/**
+ * 根据发货目的地不同对滑道信息分组
+ * @param chutes
+ * @returns {Array}
+ */
+function groupBySendSite(chutes) {
+    var myArray=[];
+       for(var i=0;i<chutes.length;i++){
+        var sortSchemeDetail=chutes[i].sortSchemeDetail;
+        var reval={chuteCode1:sortSchemeDetail.chuteCode1,sendSiteCode:sortSchemeDetail.sendSiteCode,
+            sendSiteName:sortSchemeDetail.sendSiteName,sendCode:chutes[i].sendCode,sendCodeCreateTime:chutes[i].sendCodeCreateTime}
+        myArray.push(reval);
+    }
+      var newArray=[];
+      for(var j=0;j<myArray.length;j++){
+          var index=-1;
+          var sendSiteCode= myArray[j].sendSiteCode;
+          var hasExists= newArray.some(function (value, index1) {
+               if(sendSiteCode===value.sendSiteCode){
+                   index=index1;
+                   return true;
+               }
+           });
+       if (!hasExists) {
+               newArray.push({
+               sendSiteCode: myArray[j].sendSiteCode,
+               sendSiteName:myArray[j].sendSiteName,
+               chuteCodes:[myArray[j].chuteCode1],
+               sendCode:myArray[j].sendCode,
+               sendCodeCreateTime:myArray[j].sendCodeCreateTime
+           });
+       } else {
+           newArray[index].chuteCodes.push(myArray[j].chuteCode1);
+       }
+   }
+      return newArray;
+}
 /**
  * 设置打印机弹出层事件
  */
