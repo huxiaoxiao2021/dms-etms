@@ -11,7 +11,11 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
+import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -28,7 +32,6 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -41,10 +44,25 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.*;
+import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
+import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
+import com.jd.bluedragon.distribution.send.domain.OrderInfo;
+import com.jd.bluedragon.distribution.send.domain.PackInfo;
+import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
+import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
+import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -57,8 +75,15 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -71,7 +96,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
-import com.jd.jmq.client.producer.MessageProducer;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.Response;
@@ -91,16 +115,26 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
 
-
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
     
     private final int MAX_SHOW_NUM = 3;
+
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
 
@@ -153,9 +187,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private InspectionService inspectionService;
 
     @Autowired
-    private IFailQueueService newFailQueueService;
-
-    @Autowired
     private TaskService tTaskService;
 
     @Autowired
@@ -202,10 +233,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     private BaseService baseService;
 
-    @Resource
-    @Qualifier("workerProducer")
-    private MessageProducer workerProducer;
-
     @Qualifier("pop1MQ")
     @Autowired
     private DefaultJMQProducer pop1MQ;
@@ -236,6 +263,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private TransBillScheduleService transBillScheduleService;
+
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
 
     @Resource(name = "transbillMService")
     private TransbillMService transbillMService;
@@ -283,28 +313,29 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return 1：发货成功  2：发货失败  4：需要用户确认
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {
-            JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult packageSend(SendM domain, boolean isForceSend) {
         logger.info("packageSend-箱号/包裹号:" + domain.getBoxCode() +
-                ",批次号：" + domain.getSendCode() + ",操作站点："+ domain.getCreateSiteCode()+
-                ",是否强制操作："+ isForceSend);
+                ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() +
+                ",是否强制操作：" + isForceSend);
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
-        if(!checkSendM(domain)){
+        if (!checkSendM(domain)) {
             return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
-        if(checkSendCodeIsSealed(domain.getSendCode())){
+
+        // 多次发货取消上次发货
+        this.multiSendCancelLast(domain);
+
+        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
-        String oldSendCode = getSendedCode(domain);
-        if (StringUtils.isNotBlank(oldSendCode)) {
-            return new SendResult(SendResult.CODE_SENDED, "箱子已经在批次" + oldSendCode + "中发货");
-        }
+
         Profiler.registerInfoEnd(temp_info1);
 
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
-        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {//大件分拣拦截验证
+        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            //大件分拣拦截验证
             SortingCheck sortingCheck = new SortingCheck();
             sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
             sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
@@ -315,15 +346,15 @@ public class DeliveryServiceImpl implements DeliveryService {
             sortingCheck.setOperateUserName(domain.getCreateUser());
             sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
             //// FIXME: 2018/3/26 待校验后做修改
-            if(domain.getCreateSiteCode()!= null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
+            if (domain.getCreateSiteCode() != null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
                 //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
-                BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode()+"");
-                if(siteInfo == null || siteInfo.getSiteType() != 64){
+                BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode() + "");
+                if (siteInfo == null || siteInfo.getSiteType() != 64) {
                     sortingCheck.setOperateType(1);
-                }else {
+                } else {
                     sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
                 }
-            }else{
+            } else {
                 sortingCheck.setOperateType(1);
             }
             SortingJsfResponse response = null;
@@ -336,7 +367,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             } finally {
                 Profiler.registerInfoEnd(info1);
             }
-            if (!response.getCode().equals(200)) {//如果校验不OK
+            if (!response.getCode().equals(200)) {
+                //如果校验不OK
                 //获得运单的预分拣站点
                 Integer preSortingSiteCode = null;
                 CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
@@ -347,22 +379,22 @@ public class DeliveryServiceImpl implements DeliveryService {
                     }
                 } catch (Throwable e) {
                     logger.error("一车一单获取预分拣站点异常", e);
-                }finally {
+                } finally {
                     Profiler.registerInfoEnd(infoSendfindByWaybillCode);
                 }
 
                 if (response.getCode() >= 39000) {
                     if (!isForceSend)
                         return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else{
+                } else {
                     return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
                 }
             }
-        } else if(siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())){
+        } else if (siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
             //按箱发货，从箱中取出一单校验
-            DeliveryResponse response =  checkRouterForCBox(domain);
+            DeliveryResponse response = checkRouterForCBox(domain);
             if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode()) && !isForceSend) {
-                SendResult  result = new SendResult();
+                SendResult result = new SendResult();
                 result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
                 result.setValue(response.getMessage());
                 result.setInterceptCode(response.getCode());
@@ -370,20 +402,21 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         Profiler.registerInfoEnd(temp_info2);
-        if(!isForceSend){
-            DeliveryVerification.VerificationResult verificationResult=cityDeliveryVerification.verification(domain.getBoxCode(),domain.getReceiveSiteCode(),false);
-            if(!verificationResult.getCode()){//按照箱发货，校验派车单是否齐全，判断是否强制发货
+        if (!isForceSend) {
+            DeliveryVerification.VerificationResult verificationResult = cityDeliveryVerification.verification(domain.getBoxCode(), domain.getReceiveSiteCode(), false);
+            if (!verificationResult.getCode()) {
+                //按照箱发货，校验派车单是否齐全，判断是否强制发货
                 return new SendResult(SendResult.CODE_CONFIRM, verificationResult.getMessage());
             }
         }
 
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES);
-        if(content != null){
+        if (content != null) {
             logger.info("从sysConfig表中获取key=" + Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES +
-                    "的配置为:" + content +"操作单位:" + domain.getCreateSiteCode());
+                    "的配置为:" + content + "操作单位:" + domain.getCreateSiteCode());
 
-            if(content.getMasterSwitch() || content.getSiteCodes().contains(domain.getCreateSiteCode())) {
+            if (content.getMasterSwitch() || content.getSiteCodes().contains(domain.getCreateSiteCode())) {
                 this.boardCombinationCancel(domain);
             }
         }
@@ -397,9 +430,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info4);
 
         SendResult result = null;
-        if(StringUtils.isNotBlank(hints)){
+        if (StringUtils.isNotBlank(hints)) {
             result = new SendResult(SendResult.CODE_WARN, hints);
-        }else{
+        } else {
             result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         }
         return result;
@@ -413,7 +446,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private String getPdaHints(SendM sendM) {
         String msg = "";
         try {
-            if(BusinessHelper.isPackageCode(sendM.getBoxCode())){//原包
+            if(BusinessHelper.isPackageCode(sendM.getBoxCode())){
+                //原包
                 msg = dmsOperateHintService.getDeliveryHintMessageByWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
             }
             logger.info("redis取PDA提示语结果："+msg);
@@ -449,7 +483,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.offlinePackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult offlinePackageSend(SendM domain) {
-        if (StringUtils.isBlank(getSendedCode(domain))) {//未发过货的才执行发货
+        if (StringUtils.isBlank(getSendedCode(domain))) {
+            //未发过货的才执行发货
             packageSend(domain);
         }
         return new SendResult(1, "发货成功");
@@ -467,7 +502,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
-        if(checkSendCodeIsSealed(domain.getSendCode())){
+        if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
         String boardCode = domain.getBoardCode();
@@ -530,17 +565,58 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      */
     private String getSendedCode(SendM domain){
-        SendM queryPara = new SendM();
-        queryPara.setBoxCode(domain.getBoxCode());
-        queryPara.setCreateSiteCode(domain.getCreateSiteCode());
-        queryPara.setReceiveSiteCode(domain.getReceiveSiteCode());
-        //查询箱子发货记录
-        List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);/*不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它*/
-
-        if (null != sendMList && sendMList.size() > 0) {
-            return sendMList.get(0).getSendCode();
+        SendM sendM = getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+        if (sendM != null){
+            return sendM.getSendCode();
         }
         return null;
+    }
+
+    /**
+     * 获取最近一次的发货信息
+     *
+     * @param boxCode
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
+        SendM queryPara = new SendM();
+        queryPara.setBoxCode(boxCode);
+        queryPara.setCreateSiteCode(createSiteCode);
+        queryPara.setReceiveSiteCode(receiveSiteCode);
+        //查询箱子发货记录
+        /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
+        List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);
+        if (null != sendMList && sendMList.size() > 0) {
+            return sendMList.get(0);
+        }
+        return null;
+    }
+
+    /**
+     * 多次发货若封车时间在当前时间一小时内或未封车,则取消上次发货
+     *
+     * @param domain
+     */
+    private void multiSendCancelLast(SendM domain) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM sendHistoryInfo = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+        if (null != sendHistoryInfo) {
+            if (StringUtils.isNotBlank(sendHistoryInfo.getSendCode())) {
+                // 获取封车时间
+                Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(sendHistoryInfo.getSendCode());
+                if (sealCarTime != null) {
+                    // 发货时间在上次发货后封车时间1小时内，则取消上次发货
+                    if (domain.getOperateTime().getTime() - sealCarTime < DateHelper.ONE_HOUR_MILLI) {
+                        this.dellCancelDeliveryMessage(sendHistoryInfo, true);
+                    }
+                } else {
+                    // 未封车 直接取消上次发货
+                    this.dellCancelDeliveryMessage(sendHistoryInfo, true);
+                }
+            }
+        }
     }
 
     /**
@@ -594,7 +670,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      * @param packageCode
      */
-    private void pushAtuoSorting(SendM domain,String packageCode) {
+    private void pushAutoSorting(SendM domain,String packageCode) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -694,6 +770,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @JProfiler(jKey = "DMSWORKER.deliveryServiceImpl.getSendMListByBoxCode", mState = {JProEnum.TP,
             JProEnum.FunctionError})
+    @Override
     public List<SendM> getSendMListByBoxCode(String boxCode) {
         SendM domain = new SendM();
         domain.setBoxCode(boxCode);
@@ -701,6 +778,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Override
     public Integer add(SendDetail sendDetail) {
         if (sendDetail.getPackageBarcode() == null) {
             sendDetail.setPackageNum(0);
@@ -718,6 +796,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Override
     public Integer update(SendDetail sendDetail) {
         return this.sendDatailDao.update(SendDatailDao.namespace, sendDetail);
     }
@@ -770,6 +849,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Override
     public void saveOrUpdate(SendDetail sendDetail) {
         if (Constants.NO_MATCH_DATA == this.update(sendDetail).intValue()) {
             this.add(sendDetail);
@@ -777,6 +857,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @Override
     public Boolean canCancel(SendDetail sendDetail) {
         return this.sendDatailDao.canCancel(sendDetail);
     }
@@ -901,6 +982,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      *
      * @param sendMList 发货相关数据
      */
+    @Override
     public DeliveryResponse dellDeliveryMessage(List<SendM> sendMList) {
         try {
             return this.dellCreateSendM(sendMList);
@@ -1186,6 +1268,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param request
      * @return
      */
+    @Override
     public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
         RecyclableBoxSend res=new RecyclableBoxSend();
 
@@ -1210,6 +1293,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param tSendM 发货相关数据
      */
     @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancel", mState = {JProEnum.TP})
+    @Override
     public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ) {
         try {
             SendDetail tSendDatail = new SendDetail();
@@ -1744,24 +1828,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 校验批次号是否封车:默认返回false
-     * @param sendCode
-     * @return
-     */
-    private boolean checkSendCodeIsSealed(String sendCode) {
-        boolean result = false;
-        try {
-            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
-            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
-            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
-                result = true;
-            }
-        }catch (Throwable e){
-            logger.warn("redis取封车批次号失败："+e.getMessage());
-        }
-        return result;
-    }
-    /**
      * 校验sendm中的批次号
      * @param sendm
      * @return
@@ -1954,6 +2020,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return message;
     }
+    @Override
     public boolean findSendwaybillMessage(Task task) throws Exception {
         if (task == null || task.getBoxCode() == null || task.getCreateSiteCode() == null || task.getKeyword2() == null)
             return true;
@@ -2045,6 +2112,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return tSorting;
     }
 
+    @Override
     public boolean checkSend(SendDetail tSendDatail) {
         List<SendDetail> sendDetails = this.sendDatailDao.querySendDatailsBySelective(tSendDatail);//FIXME:无create_site_code有跨节点风险
         if (sendDetails != null && !sendDetails.isEmpty()) {
@@ -2060,6 +2128,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
+    @Override
     public SendDetail getSendSiteID(String packbarCode, Integer sitecode) {
         if (packbarCode == null || packbarCode.isEmpty() || sitecode == null) {
             return null;
@@ -2090,6 +2159,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return tSendDatail;
     }
 
+    @Override
     public boolean sendMTooldtms(List<SendM> tSendMList) {
         SendM tSendM = tSendMList.get(0);
         Set<ShouHuoInfo> shouHuoes = new HashSet<ShouHuoInfo>();
@@ -2243,6 +2313,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tOrderInfo.setPackInfoList(list);
     }
 
+    @Override
     public List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice, List<String> waybillCodes) {
         List<BigWaybillDto> datalist = new ArrayList<BigWaybillDto>();
         try {
@@ -3450,6 +3521,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.sendDatailDao.queryBySendCodeAndSendType(queryDetail);
     }
 
+    @Override
     public Integer cancelDelivery(SendDetail sendDetail) {
         return this.sendDatailDao.cancelDelivery(sendDetail);
     }
@@ -3880,18 +3952,17 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult autoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, boolean isForceSend, UploadData uploadData) {
         try {
 
-            if(logger.isInfoEnabled()){
-                logger.info("execute device auto send,parameter is :"+JsonHelper.toJson(domain));
+            if (logger.isInfoEnabled()) {
+                logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
-            if (StringUtils.isNotBlank(getSendedCode(domain))) {
-                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-            }else{
-            	//插入SEND_M
-                this.sendMDao.insertSendM(domain);
-            }
+
+            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+            this.multiSendCancelLast(domain);
+
+            this.sendMDao.insertSendM(domain);
 
             /**
              * modified at 2018/4/25
@@ -3899,22 +3970,22 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
 
-            if(isForceSend){
-                if(SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            if (isForceSend) {
+                if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
-                    if(uploadData.getBoxSiteCode() != null){
+                    if (uploadData.getBoxSiteCode() != null) {
                         domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
                     }
 
-                    pushInspection(domain,uploadData.getPackageCode());
-                    pushAtuoSorting(domain,uploadData.getPackageCode());
+                    pushInspection(domain, uploadData.getPackageCode());
+                    pushAutoSorting(domain, uploadData.getPackageCode());
                     return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-                }else{
-                    pushInspection(domain,null);
+                } else {
+                    pushInspection(domain, null);
                     pushSorting(domain);
                 }
 
-            }else{
+            } else {
                 if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushSorting(domain);//大件写TASK_SORTING
                 } else {
@@ -3927,7 +3998,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             this.transitSend(domain);//中转任务
             this.pushStatusTask(domain);//全程跟踪任务
-            
+
             //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
 //            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
 //                pushInspection(domain,packageCode);
@@ -3955,6 +4026,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
+
 	@Override
 	public List<SendDetail> getSendDetailsByBoxCode(String boxCode) {
         Box box = null;
