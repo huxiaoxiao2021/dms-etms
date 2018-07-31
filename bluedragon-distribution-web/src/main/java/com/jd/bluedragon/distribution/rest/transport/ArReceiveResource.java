@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -140,8 +141,10 @@ public class ArReceiveResource implements DmsArReceiveService {
         }
         return cityId;
     }
+
     /**
      * 空铁提货-根据扫描包裹号/箱号获取空铁登记信息
+     *
      * @param barcode
      * @return
      */
@@ -150,15 +153,25 @@ public class ArReceiveResource implements DmsArReceiveService {
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
     @Override
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
-    	JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
-    	if(StringHelper.isEmpty(barcode)){
-    		rest.toFail("包裹号或箱号不能为空！");
-    		return rest;
-    	}
-    	ArSendCode arSendCode = arReceiveService.getLastArSendCodeByBarcode(barcode);
-    	if(arSendCode!=null){
-    		rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
-    	}
-    	return rest;
+        JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
+        if (StringHelper.isEmpty(barcode)) {
+            rest.toFail("包裹号/箱号不能为空！");
+            return rest;
+        }
+
+        if (BusinessHelper.isBoxcode(barcode) && BusinessHelper.isPackageCode(barcode)) {
+            rest.toFail("无法识别的包裹号/箱号！");
+            return rest;
+        }
+
+        ArSendCode arSendCode = arReceiveService.getLastArSendCodeByBarcode(barcode);
+        if (arSendCode != null) {
+            rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
+        } else {
+            rest.toFail("该包裹号/箱号不存在或未操作空铁发货登记！");
+        }
+
+        return rest;
     }
+
 }

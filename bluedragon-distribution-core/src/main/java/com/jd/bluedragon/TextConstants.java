@@ -30,4 +30,21 @@ public class TextConstants {
      * 备注-【合并送】
      */
     public static final String REMARK_SEND_GATHER_TOGETHER ="【合并送】";
+
+    /**
+     * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
+     */
+    public static final String B2B_FRESH_WHOLE_VEHICLE ="冷链整车";
+
+    /**
+     * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+     */
+    public static final String B2B_FRESH_EXPRESS ="快运冷链";
+
+    /**
+     * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
+     */
+    public static final String B2B_FRESH_WAREHOUSE ="仓配冷链";
+
+
 }

@@ -1,5 +1,6 @@
 $(function() {
 	var saveUrl = '/abnormal/dmsOperateHint/save';
+	var batchsaveUrl = '/abnormal/dmsOperateHint/batchsave';
 	var detailUrl = '/abnormal/dmsOperateHint/detail/';
 	var queryUrl = '/abnormal/dmsOperateHint/listData';
 	var tableInit = function() {
@@ -128,9 +129,9 @@ $(function() {
 
 	var pageInit = function() {
 		var oInit = new Object();
-		var postdata = {};
-		oInit.init = function() {
-			$('#dataEditDiv').hide();
+        var postdata = {};
+        oInit.init = function() {
+            $('#dataEditDiv').hide();
 			/*起始时间*/ /*截止时间*/
 			$.datePicker.createNew({
                 elem: '#startTime',
@@ -171,17 +172,18 @@ $(function() {
 				$('#dataTableDiv').hide();
 				$('#dataEditDiv').show();
 				$("#edit-form").data("bootstrapValidator").resetForm();
-			});
+                $("#edit-form #waybillCode").val(null);
+            });
 			// 初始化页面上面的按钮事件
 			// 改
 			$('#btn_edit').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				if (rows.length > 1) {
-					alert("修改操作，只能选择一条数据");
+					Jd.alert("修改操作，只能选择一条数据");
 					return;
 				}
 				if (rows.length == 0) {
-					alert("请选择一条数据");
+					Jd.alert("请选择一条数据");
 					return;
 				}
 				$('.edit-param').each(function () {
@@ -247,14 +249,19 @@ $(function() {
                         }
                     }
                 });
-                $.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
+                var v_waybillCode = $('#edit-form #waybillCode').val();
+                var url = saveUrl;
+                if(v_waybillCode.indexOf("\n") >= 0){
+                    url = batchsaveUrl;
+                }
+                $.ajaxHelper.doPostSync(url,JSON.stringify(params),function(res){
                     if(res&&res.succeed){
-                        alert('操作成功');
+                        Jd.alert('操作成功');
                         tableInit().refresh();
                     }else if(res){
-                        alert(res.message);
+                        Jd.alert(res.message);
                     }else{
-                        alert('服务异常');
+                        Jd.alert('服务异常');
                     }
                     $('#btn_submit').attr("disabled",false);
                     //还原异常信息下拉框
