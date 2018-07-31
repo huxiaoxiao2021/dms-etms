@@ -1,7 +1,7 @@
 (function ($) {
     var topDoc;
-    if (parent&&parent.document&&parent.document.getElementById("topFrame")){
-        topDoc=parent.document.getElementById("topFrame").contentDocument;
+    if (parent && parent.document && parent.document.getElementById("topFrame")) {
+        topDoc = parent.document.getElementById("topFrame").contentDocument;
     }
     var currUserCode;
     //获取当前网址
@@ -12,7 +12,7 @@
     //获取主机地址，如： http://localhost:8083
     var localhostPath = curWwwPath.substring(0, pos);
     var quitUrl = localhostPath + "/quit";
-    if (topDoc) {
+    if (topDoc && topDoc.getElementById("currUserCode")) {
         var currUserCode = topDoc.getElementById("currUserCode").textContent;
         if (!currUserCode) {
             alert("用户信息加载异常，请重新登录");
@@ -50,7 +50,7 @@
                 fn.success(data, textStatus);
             },
             beforeSend: function (request) {
-                if (currUserCode){
+                if (currUserCode) {
                     request.setRequestHeader("currusercode", currUserCode);
                 }
             },
