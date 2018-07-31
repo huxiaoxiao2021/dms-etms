@@ -59,7 +59,7 @@
 				</if>
 				<if test="hintContent != null">
 					hint_content,
-				</if>				
+				</if>
 				<if test="isEnable != null">
 					is_enable,
 				</if>
@@ -101,7 +101,7 @@
 				</if>
 				<if test="hintType != null">
 					#{hintType,jdbcType=INTEGER},
-				</if>				
+				</if>
 				<if test="hintCode != null">
 					#{hintCode,jdbcType=INTEGER},
 				</if>
@@ -113,7 +113,7 @@
 				</if>
 				<if test="hintContent != null">
 					#{hintContent,jdbcType=VARCHAR},
-				</if>				
+				</if>
 				<if test="isEnable != null">
 					#{isEnable,jdbcType=TINYINT},
 				</if>
@@ -191,7 +191,7 @@
 				</if>
 				<if test="hintType != null">
 					hint_type = #{hintType,jdbcType=INTEGER},
-				</if>				
+				</if>
 				<if test="hintCode != null">
 					hint_code = #{hintCode,jdbcType=INTEGER},
 				</if>
@@ -203,7 +203,7 @@
 				</if>
 				<if test="hintContent != null">
 					hint_content = #{hintContent,jdbcType=VARCHAR},
-				</if>				
+				</if>
 				<if test="isEnable != null">
 					is_enable = #{isEnable,jdbcType=TINYINT},
 				</if>
@@ -237,18 +237,18 @@
 	</update>
 
 	<select id="findById" parameterType="Long" resultMap="DmsOperateHint">
-		select 
+		select
 		 <include refid="Base_Column_List"/>
-		from 
-		  dms_operate_hint 
+		from
+		  dms_operate_hint
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
 	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint" resultMap="DmsOperateHint">
-		select 
+		select
 		 <include refid="Base_Column_List"/>
-		from 
-		  dms_operate_hint 
+		from
+		  dms_operate_hint
 		where id = #{id,jdbcType=BIGINT}
 		  order by ts desc
 		limit 1
@@ -262,7 +262,7 @@
             </if>
             <if test="hintType != null">
                 AND hint_type = #{hintType,jdbcType=INTEGER}
-            </if>            
+            </if>
             <if test="waybillCode != null">
                 AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
             </if>
@@ -279,24 +279,42 @@
     </sql>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
-		select 
+		select
 		 count(1) as num
-		from 
+		from
 		  dms_operate_hint
         <include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsOperateHint">
-		select 
+		select
 		 <include refid="Base_Column_List"/>
-		from 
+		from
 		 dms_operate_hint
         <include refid="where_condition"/>
          ORDER BY create_time DESC
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
+
+	<select id="getEnabledOperateHint" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint" resultMap="DmsOperateHint">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_operate_hint
+		where
+		is_delete = 0
+		<if test="waybillCode != null">
+			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="isEnable != null">
+			AND is_enable = #{isEnable,jdbcType=TINYINT}
+		</if>
+		ORDER BY create_time DESC
+		limit 1
+	</select>
+
 	<select id="queryNeedReprintHintByWaybillCode" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition" resultMap="DmsOperateHint">
-		select 
+		select
 		 <include refid="Base_Column_List"/>
 		from dms_operate_hint
           where hint_type = #{hintType,jdbcType=INTEGER}

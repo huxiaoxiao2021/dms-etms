@@ -565,13 +565,11 @@ public class InspectionResource {
 				try {
 					DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
 					dmsOperateHintTrack.setWaybillCode(waybillCode);
-					dmsOperateHintTrack.setOperateDmsCode(siteCode);
-					dmsOperateHintTrack.setOperateNodeName(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
-					Date now = new Date();
-					dmsOperateHintTrack.setCreateTime(now);
-					dmsOperateHintTrack.setUpdateTime(now);
+					dmsOperateHintTrack.setHintDmsCode(siteCode);
+					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
+					dmsOperateHintTrack.setHintTime(new Date());
 					this.logger.info("发送MQ[" + operateHintMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
-					this.operateHintMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+					operateHintMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
 				}catch(Exception e){
 					logger.error("发货提示语发mq异常,异常原因:" +e);
 				}

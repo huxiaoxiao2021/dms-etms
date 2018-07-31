@@ -9,7 +9,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -229,8 +228,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     @Autowired
-    @Qualifier("operateHintMQ")
-    private DefaultJMQProducer operateHintMQ;
+    @Qualifier("operateHintTrackMQ")
+    private DefaultJMQProducer operateHintTrackMQ;
 
     @Autowired
     @Qualifier("arSendDetailProducer")
@@ -404,18 +403,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         SendResult result = null;
         if(StringUtils.isNotBlank(hints)){
-            //发个mq
+            //发货环节产生加急提示，发加急提示追踪的mq消息
             try {
                 DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
                 dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
-                dmsOperateHintTrack.setOperateDmsCode(domain.getCreateSiteCode());
-                dmsOperateHintTrack.setOperateNodeName(DmsOperateHintTrack.OPERATE_NODE_SEND);
+                dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
+                dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
                 dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
-                Date now = new Date();
-                dmsOperateHintTrack.setCreateTime(now);
-                dmsOperateHintTrack.setUpdateTime(now);
-                this.logger.info("发送MQ[" + operateHintMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
-                this.operateHintMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+                dmsOperateHintTrack.setHintTime(new Date());
+                this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
+                this.operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
             }catch(Exception e){
                 logger.error("发货提示语发mq异常,异常原因:" +e);
             }

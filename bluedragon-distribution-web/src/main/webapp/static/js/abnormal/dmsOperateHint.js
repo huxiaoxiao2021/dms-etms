@@ -105,7 +105,20 @@ $(function() {
             },
             width:120,
             class:'min_120'
-        } ];
+        },{
+			field : 'hintDmsName',
+			title : '显示提示分拣中心'
+		},{
+			field : 'hintOperateNode',
+			title : '显示发货环节'
+		},{
+			field : 'hintTime',
+			title : '显示提示时间',
+			formatter : function(value,row,index){
+				return $.dateHelper.formateDateTimeOfTs(value);
+			},
+			width:120,
+			class:'min_120'}];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1});
 			//$('#dataTable').bootstrapTable('refresh');

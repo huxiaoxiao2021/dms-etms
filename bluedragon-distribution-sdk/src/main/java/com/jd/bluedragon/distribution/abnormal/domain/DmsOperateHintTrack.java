@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.abnormal.domain;
 
+
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+
+import java.util.Date;
 
 /**
  * Created by xumei3 on 2018/7/26.
@@ -12,42 +15,68 @@ public class DmsOperateHintTrack extends DbEntity {
     public static final String OPERATE_NODE_INSPECTION="验货";
     public static final String OPERATE_NODE_SEND="发货";
 
+    /**
+     * 运单号
+     */
     private String waybillCode;
 
-    private Integer operateDmsCode;
+    /**
+     * 显示提示的分拣中心编码
+     */
+    private Integer hintDmsCode;
 
-    private String operateDmsName;
+    /**
+     * 显示提示的分拣中心名称
+     */
+    private String hintDmsName;
 
-    private String operateNodeName;
+    /**
+     * 显示提示的业务环节
+     */
+    private String hintOperateNode;
 
+    /**
+     * 处理提示的操作人编码
+     */
     private Integer operateUserCode;
 
+    /**
+     * 处理提示的操作人erp
+     */
     private String operateUserErp;
 
+    /**
+     * 处理提示的操作人姓名
+     */
     private String operateUserName;
 
-    public Integer getOperateDmsCode() {
-        return operateDmsCode;
+    /**
+     * 显示提示的时间
+     */
+    private Date hintTime;
+
+    public Integer getHintDmsCode() {
+        return hintDmsCode;
     }
 
-    public void setOperateDmsCode(Integer operateDmsCode) {
-        this.operateDmsCode = operateDmsCode;
+    public void setHintDmsCode(Integer hintDmsCode) {
+        this.hintDmsCode = hintDmsCode;
     }
 
-    public String getOperateDmsName() {
-        return operateDmsName;
+    public String getHintDmsName() {
+        return hintDmsName;
     }
 
-    public void setOperateDmsName(String operateDmsName) {
-        this.operateDmsName = operateDmsName;
+    public void setHintDmsName(String hintDmsName) {
+        this.hintDmsName = hintDmsName;
     }
 
-    public String getOperateNodeName() {
-        return operateNodeName;
+    public String getHintOperateNode() {
+        return hintOperateNode;
     }
 
-    public void setOperateNodeName(String operateNodeName) {
-        this.operateNodeName = operateNodeName;
+    public void setHintOperateNode(String hintOperateNode) {
+        this.hintOperateNode = hintOperateNode;
     }
 
     public Integer getOperateUserCode() {
@@ -80,5 +109,13 @@ public class DmsOperateHintTrack extends DbEntity {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public Date getHintTime() {
+        return hintTime;
+    }
+
+    public void setHintTime(Date hintTime) {
+        this.hintTime = hintTime;
     }
 }

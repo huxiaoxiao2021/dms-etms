@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintTrackService;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -13,6 +17,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+
+import java.util.List;
 
 /**
  *
@@ -32,6 +38,9 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 	@Autowired
 	@Qualifier("jimdbCacheService")
 	private CacheService jimdbCacheService;
+
+	@Autowired
+	private DmsOperateHintTrackService dmsOperateHintTrackService;
 
 	@Override
 	public Dao<DmsOperateHint> getDao() {
@@ -107,4 +116,36 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 		}
 		return null;
 	}
+
+	/**
+	 * 根据查询条件分页获取提示信息
+	 * @param dmsOperateHintCondition
+	 * @return
+	 */
+	@Override
+	public PagerResult<DmsOperateHint> queryByPagerCondition(DmsOperateHintCondition dmsOperateHintCondition){
+		PagerResult<DmsOperateHint> baseInfo = this.getDao().queryByPagerCondition(dmsOperateHintCondition);
+		List<DmsOperateHint> dmsOperateHints = baseInfo.getRows();
+		for(DmsOperateHint hint:dmsOperateHints){
+			//从track表里查出来一条
+			DmsOperateHintTrack track = dmsOperateHintTrackService.queryFirstTrack(hint.getWaybillCode(),hint.getDmsSiteCode());
+			if(track != null) {
+				hint.setHintDmsName(track.getHintDmsName());
+				hint.setHintOperateNode(track.getHintOperateNode());
+				hint.setHintTime(track.getHintTime());
+			}
+		}
+		return baseInfo;
+	}
+
+	/**
+	 * 获取开启状态的提示信息配置
+	 * @param dmsOperateHint
+	 * @return
+	 */
+	@Override
+	public DmsOperateHint getEnabledOperateHint(DmsOperateHint dmsOperateHint){
+		return dmsOperateHintDao.getEnabledOperateHint(dmsOperateHint);
+	}
+
 }
