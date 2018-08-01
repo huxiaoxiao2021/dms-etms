@@ -1,18 +1,33 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head> 
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>青龙分拣系统</title>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>青龙分拣系统</title>
 </head>
-<frameset rows="93,*" cols="*" frameborder="no" border="0" framespacing="0" >
-	<frame src="#springUrl('/top')" name="topFrame" noresize="noresize" id="topFrame" title="topFrame" scrolling="no">
-	<frameset rows="*" cols="180,*" framespacing="0" frameborder="no" border="0">
-		<frame src="#springUrl('/left')" name="leftFrame" noresize="noresize" id="leftFrame" title="leftFrame" scrolling="no">
-		<frame src="" name="mainFrame" id="mainFrame" title="mainFrame" scrolling="auto">
-	</frameset>
+<frameset rows="93,*" cols="*" frameborder="no" border="0" framespacing="0">
+    <frame src="#springUrl('/top')" name="topFrame" noresize="noresize" id="topFrame" title="topFrame" scrolling="no">
+    <frameset rows="*" cols="180,*" framespacing="0" frameborder="no" border="0">
+        <frame src="#springUrl('/left')" name="leftFrame" noresize="noresize" id="leftFrame" title="leftFrame"
+               scrolling="no">
+        <frame src="" name="mainFrame" id="mainFrame" title="mainFrame" scrolling="auto">
+    </frameset>
 </frameset>
 <noframes>
-<body>
-</body>
+    <body>
+
+    <script type="text/javascript">
+        (function () {
+            var rand = new Date().getTime();
+            $('frame').each(function () {
+                var href = $(this).attr('src');
+                if (href.indexOf('?') > -1) {
+                    $(this).attr('href', href + '&v=' + rand);
+                } else {
+                    $(this).attr('href', href + '?v=' + rand);
+                }
+            });
+        })()
+    </script>
+    </body>
 </noframes>
 </html>
