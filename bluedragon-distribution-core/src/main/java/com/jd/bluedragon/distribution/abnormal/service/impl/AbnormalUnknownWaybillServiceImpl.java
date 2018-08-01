@@ -182,8 +182,10 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 abnormalUnknownWaybillDao.batchInsert(addList);
             }
         }
-        if (hasDetailWaybillCodes != null && hasDetailWaybillCodes.size() > 0) {
+        if (waybillcodes != null && waybillcodes.length > 0) {
             rest.setData(StringUtils.join(waybillcodes, ","));
+        } else {
+            rest.setData(null);
         }
 
 
@@ -503,7 +505,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //不是通过搜索加载数据
         if (abnormalUnknownWaybillCondition.getWaybillCode() == null && abnormalUnknownWaybillCondition.getWaybillCodes() == null) {
             return this.getDao().queryByPagerCondition(abnormalUnknownWaybillCondition);
-        }else{
+        } else {
             //查询并补充无详细的运单号
             return queryAbnormalUnknownWaybillAndReplenish(abnormalUnknownWaybillCondition);
         }
@@ -511,6 +513,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
 
     /**
      * 查询并补充无详细的运单号
+     *
      * @param abnormalUnknownWaybillCondition
      * @return
      */
