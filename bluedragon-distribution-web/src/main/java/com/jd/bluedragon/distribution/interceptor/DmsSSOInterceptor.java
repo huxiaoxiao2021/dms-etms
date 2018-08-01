@@ -27,9 +27,6 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object obj,
                            ModelAndView model) throws Exception {
-        if (model != null && model.getModel() != null) {
-            model.getModel().put("timestamp", System.currentTimeMillis());
-        }
     }
 
     @Override

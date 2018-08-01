@@ -5,9 +5,9 @@
 <title>青龙分拣系统</title>
 </head>
 <frameset rows="93,*" cols="*" frameborder="no" border="0" framespacing="0" >
-	<frame src="#springUrl('/top')?_=$!{timestamp}" name="topFrame" noresize="noresize" id="topFrame" title="topFrame" scrolling="no">
+	<frame src="#springUrl('/top')" name="topFrame" noresize="noresize" id="topFrame" title="topFrame" scrolling="no">
 	<frameset rows="*" cols="180,*" framespacing="0" frameborder="no" border="0">
-		<frame src="#springUrl('/left')?_=$!{timestamp}" name="leftFrame" noresize="noresize" id="leftFrame" title="leftFrame" scrolling="no">
+		<frame src="#springUrl('/left')" name="leftFrame" noresize="noresize" id="leftFrame" title="leftFrame" scrolling="no">
 		<frame src="" name="mainFrame" id="mainFrame" title="mainFrame" scrolling="auto">
 	</frameset>
 </frameset>
