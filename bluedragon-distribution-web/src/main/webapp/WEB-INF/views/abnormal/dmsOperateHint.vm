@@ -90,7 +90,6 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">运单号 ：</label>
                             <div class="col-xs-9">
-##                                <input type="text" class="form-control edit-param" id="waybillCode" name="waybillCode"/>
                                 <textarea  class="form-control edit-param" id="waybillCode" name="waybillCode" rows="6">
 		                        </textarea>
                             </div>

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintTrackService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -50,6 +51,10 @@ public class OperateHintTrackConsumer extends MessageBaseConsumer {
             this.logger.error("OperateHintTrackConsumer consume -->消息转换对象失败：" + message.getText());
             return;
         }
+        if(StringHelper.isEmpty(track.getWaybillCode())){
+            this.logger.error("OperateHintTrackConsumer consume -->消息中没有运单号：" + message.getText());
+            return;
+        }
 
         //完善追踪信息
         if(track.getHintDmsCode() != null){
@@ -65,6 +70,7 @@ public class OperateHintTrackConsumer extends MessageBaseConsumer {
         DmsOperateHint operateHint = new DmsOperateHint();
         operateHint.setWaybillCode(track.getWaybillCode());
         operateHint.setIsEnable(1);
+        operateHint.setHintType(DmsOperateHint.HINT_TYPE_USER);
         operateHint = dmsOperateHintService.getEnabledOperateHint(operateHint);
 
         if(operateHint != null ){

@@ -79,7 +79,7 @@ public class DmsOperateHintServiceImpl extends BaseService<DmsOperateHint> imple
 //			String userMsgKey = CacheKeyConstants.CACHE_KEY_USER_HINT_MSG + waybillCode;
 			String sysMsgKey = CacheKeyConstants.CACHE_KEY_SYS_HINT_MSG + waybillCode;
 			//wuyde-del 兼容之前的缓存，后续删除
-			String oldMsgKey = Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode;
+			String oldMsgKey =  Constants.CACHE_KEY_PRE_PDA_HINT + waybillCode;
 //			String userHintMsg = redisManager.getCache(userMsgKey);
 			String sysHintMsg = jimdbCacheService.get(sysMsgKey);
 			String oldHintMsg = jimdbCacheService.get(oldMsgKey);

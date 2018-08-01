@@ -12,7 +12,7 @@ public interface DmsOperateHintTrackService extends Service<DmsOperateHintTrack>
      * @param dmsOperateHintTrack
      * @return
      */
-    public boolean save(DmsOperateHintTrack dmsOperateHintTrack);
+    boolean save(DmsOperateHintTrack dmsOperateHintTrack);
 
     /**
      * 根据运单号和创建加急提示的分拣中心编码
@@ -23,5 +23,5 @@ public interface DmsOperateHintTrackService extends Service<DmsOperateHintTrack>
      * @param dmsSiteCode
      * @return
      */
-    public DmsOperateHintTrack queryFirstTrack(String waybillCode,Integer dmsSiteCode);
+    DmsOperateHintTrack queryFirstTrack(String waybillCode,Integer dmsSiteCode);
 }

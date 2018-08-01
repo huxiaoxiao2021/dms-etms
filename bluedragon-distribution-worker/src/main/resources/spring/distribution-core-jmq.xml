@@ -284,7 +284,7 @@
         <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
     </bean>
     <!--验货/发货提示语追踪mq，记录提示的分拣中心和提示环节-->
-    <bean id="operateHintMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="operateHintTrackMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.operateHint.track}"/>
         <property name="timeout" value="1000"/>
     </bean>

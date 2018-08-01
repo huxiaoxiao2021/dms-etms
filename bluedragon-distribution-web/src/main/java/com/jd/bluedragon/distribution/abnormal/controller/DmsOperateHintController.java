@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
@@ -41,11 +39,6 @@ public class DmsOperateHintController extends DmsBaseController{
 	@Autowired
 	private DmsOperateHintService dmsOperateHintService;
 
-	@Autowired
-	private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	private RedisManager redisManager;
 	/**
 	 * 返回主页面
 	 * @return

@@ -104,8 +104,8 @@ public class InspectionResource {
 	private InspectionService inspectionService;
 
 	@Autowired
-	@Qualifier("operateHintMQ")
-	private DefaultJMQProducer operateHintMQ;
+	@Qualifier("operateHintTrackMQ")
+	private DefaultJMQProducer operateHintTrackMQ;
 
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
@@ -568,8 +568,8 @@ public class InspectionResource {
 					dmsOperateHintTrack.setHintDmsCode(siteCode);
 					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
 					dmsOperateHintTrack.setHintTime(new Date());
-					this.logger.info("发送MQ[" + operateHintMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
-					operateHintMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+					this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
+					operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
 				}catch(Exception e){
 					logger.error("发货提示语发mq异常,异常原因:" +e);
 				}

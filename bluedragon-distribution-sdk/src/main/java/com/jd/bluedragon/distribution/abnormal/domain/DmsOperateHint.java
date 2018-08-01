@@ -92,20 +92,6 @@ public class DmsOperateHint extends DbEntity {
 	 */
 	private String hintOperateNode;
 
-	/**
-	 * 处理提示的操作人编码
-	 */
-	private Integer operateUserCode;
-
-	/**
-	 * 处理提示的操作人erp
-	 */
-	private String operateUserErp;
-
-	/**
-	 * 处理提示的操作人姓名
-	 */
-	private String operateUserName;
 
 	/**
 	 * 显示提示的时间
@@ -381,27 +367,4 @@ public class DmsOperateHint extends DbEntity {
 		this.hintTime = hintTime;
 	}
 
-	public Integer getOperateUserCode() {
-		return operateUserCode;
-	}
-
-	public void setOperateUserCode(Integer operateUserCode) {
-		this.operateUserCode = operateUserCode;
-	}
-
-	public String getOperateUserErp() {
-		return operateUserErp;
-	}
-
-	public void setOperateUserErp(String operateUserErp) {
-		this.operateUserErp = operateUserErp;
-	}
-
-	public String getOperateUserName() {
-		return operateUserName;
-	}
-
-	public void setOperateUserName(String operateUserName) {
-		this.operateUserName = operateUserName;
-	}
 }

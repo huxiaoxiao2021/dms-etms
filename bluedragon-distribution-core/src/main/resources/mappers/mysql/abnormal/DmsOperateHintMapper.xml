@@ -309,6 +309,7 @@
 		<if test="isEnable != null">
 			AND is_enable = #{isEnable,jdbcType=TINYINT}
 		</if>
+		    AND hint_type = #{hintType,jdbcType=INTEGER}
 		ORDER BY create_time DESC
 		limit 1
 	</select>

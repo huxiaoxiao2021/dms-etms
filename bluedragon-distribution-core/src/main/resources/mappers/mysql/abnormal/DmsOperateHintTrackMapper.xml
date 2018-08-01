@@ -70,7 +70,7 @@
 				AND hint_dms_code != #{dmsSiteCode,jdbcType=INTEGER}
 			</if>
 		</where>
-		ORDER BY create_time DESC
+		ORDER BY create_time ASC
 		limit 1
 	</select>
 
