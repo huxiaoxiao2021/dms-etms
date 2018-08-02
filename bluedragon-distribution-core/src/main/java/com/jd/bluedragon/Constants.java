@@ -38,7 +38,8 @@ public class Constants {
     
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
-    
+    public static final String PUNCTUATION_OPEN_BRACKET_SMALL = "(";
+    public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
     
