@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.abnormal.controller;
 
 import java.util.*;
 
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -136,6 +137,9 @@ public class DmsOperateHintController extends DmsBaseController{
 				condition.setHintType(DmsOperateHint.HINT_TYPE_USER);
 				for(String waybill : waybillSet){
 					waybill = waybill.trim();
+					if(StringHelper.isEmpty(waybill)){
+						continue;
+					}
 					if(SerialRuleUtil.isMatchCommonWaybillCode(waybill)){
 						condition.setWaybillCode(waybill);
 						PagerResult list = dmsOperateHintService.queryByPagerCondition(condition);
