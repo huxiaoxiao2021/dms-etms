@@ -506,6 +506,7 @@ function queryBatchSendSub(pageNo) {
     var params = {};
     if (gantryParams != undefined && gantryParams != null) {
         params.machineId = gantryParams.machineId;
+        params.planId = $("#GantryPlan").val();
     }
     params.pageNo = pageNo;
     queryBatchSendCodes(params);

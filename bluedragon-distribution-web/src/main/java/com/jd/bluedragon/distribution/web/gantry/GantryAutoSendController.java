@@ -6,8 +6,9 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
-import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
+import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
@@ -83,7 +85,8 @@ public class GantryAutoSendController {
     private AreaDestPlanService areaDestPlanService;
 
     @Autowired
-    private AreaDestPlanDetailService areaDestPlanDetailService;
+    private AreaDestService areaDestService;
+
 
     @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -253,13 +256,34 @@ public class GantryAutoSendController {
     @ResponseBody
     public InvokeResult<Pager<List<ScannerFrameBatchSend>>> currentSplitPageList(GantryDeviceConfigRequest request, Pager<GantryDeviceConfigRequest> pager) {
         InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
-        result.setCode(500);
+        result.setCode(400);
         result.setMessage("服务调用异常");
         result.setData(null);
         this.logger.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
         if (request.getMachineId() == null) {
             return result;
         }
+        Integer planId = request.getPlanId() == null? null : request.getPlanId().intValue();
+        List<AreaDest> areaDests = areaDestService.getList(planId,null);
+        List<Integer> receiveSiteCodes = null;
+        if (null != areaDests) {
+            receiveSiteCodes = new ArrayList<Integer>();
+            for (AreaDest areaDest : areaDests) {
+                RouteType routeType = RouteType.getEnum(areaDest.getRouteType());
+                if (areaDest.getRouteType() == null || routeType == null) {
+                    continue;
+                }
+                switch (routeType) {
+                    case DIRECT_SITE:
+                        receiveSiteCodes.add(areaDest.getReceiveSiteCode());
+                    case DIRECT_DMS:
+                        receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                    case MULTIPLE_DMS:
+                        receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                }
+            }
+        }
+
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         if (pager.getPageNo() != null) {
@@ -267,8 +291,7 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
-//        sfbssa.setStartTime(request.getStartTime());
-//        sfbssa.setEndTime(request.getEndTime());
+        sfbssa.setReceiveSiteCodes(receiveSiteCodes);
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {
