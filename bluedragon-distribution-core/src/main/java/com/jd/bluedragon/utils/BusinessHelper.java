@@ -679,6 +679,18 @@ public class BusinessHelper {
 		}
 	}
 
+	/**
+	 * 通过运单标识 判断是否需求称重
+	 *
+	 *  66 位 是1  标识不称重
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isNoNeedWeight(String waybillSign){
+		return isSignChar(waybillSign, 66, '1');
+	}
+
+
 
 	/**
 	 * 校验运单总体积和总重量重泡比
