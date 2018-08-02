@@ -1,9 +1,14 @@
 package com.jd.bluedragon.distribution.rest.batchForward;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.BatchForwardRequest;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batchForward.SendCodeInfo;
+import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -31,9 +36,15 @@ public class BatchForwardResource {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private BatchForwardService batchForwardService;
+
+    @Autowired
+    private DeliveryService deliveryService;
+
 
     /**
-     * 通过批次号获得始发站点和目的站点
+     * 通过批次号获得始发站点和目的站点，批次是否封车校验
      * @param sendCode
      * @return
      */
@@ -73,13 +84,27 @@ public class BatchForwardResource {
         return result;
     }
 
+
     /**
      * 批次号整批转发
-     * @param sendCode
+     * @param request
+     * @return
      */
     @Post
     @Path("/batchForward/batchForwardSend")
-    public void batchForwardSend(){
+    public InvokeResult batchForwardSend(BatchForwardRequest request){
+        if(logger.isInfoEnabled()){
+            logger.info(JsonHelper.toJsonUseGson(request));
+        }
+        InvokeResult<SendResult> result = new InvokeResult<SendResult>();
+        try{
 
+            result.setData(batchForwardService.batchSend(request));
+        }catch (Exception e){
+            result.error(e);
+            this.logger.error("整批转发",e);
+        }
+
+        return result;
     }
 }
