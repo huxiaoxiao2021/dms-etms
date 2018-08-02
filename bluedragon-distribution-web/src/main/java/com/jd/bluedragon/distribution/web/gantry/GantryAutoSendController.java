@@ -276,10 +276,22 @@ public class GantryAutoSendController {
                 switch (routeType) {
                     case DIRECT_SITE:
                         receiveSiteCodes.add(areaDest.getReceiveSiteCode());
+                        break;
                     case DIRECT_DMS:
-                        receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                        if (areaDest.getTransferSiteCode() != 0) {
+                            receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                        } else {
+                            receiveSiteCodes.add(areaDest.getReceiveSiteCode());
+                        }
+                        break;
                     case MULTIPLE_DMS:
                         receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                        if (areaDest.getTransferSiteCode() != 0) {
+                            receiveSiteCodes.add(areaDest.getTransferSiteCode());
+                        } else {
+                            receiveSiteCodes.add(areaDest.getReceiveSiteCode());
+                        }
+                        break;
                 }
             }
         }
