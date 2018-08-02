@@ -136,8 +136,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         /**
          * 原外单添加换单全程跟踪
          */
-        taskService.add(tTask, true);
+        if(StringUtils.isNotBlank(domain.getNewPackageCode()) &&
+                BusinessHelper.getCurrentPackageNum(domain.getNewPackageCode()) == 1){
+            // 第一个包裹换单打印的时候才会在原单上 记录全程跟踪。
+            taskService.add(tTask, true);
+        }
+
         tTask.setKeyword1(domain.getNewCode());
+        status.setPackageCode(domain.getNewPackageCode()); //新单添加包裹号
         status.setWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，原运单号"+domain.getOldCode());
         tTask.setBody(JsonHelper.toJson(status));
