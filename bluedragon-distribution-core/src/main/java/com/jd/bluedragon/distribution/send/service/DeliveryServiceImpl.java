@@ -3954,23 +3954,23 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult autoPackageSend(SendM domain, boolean isForceSend, UploadData uploadData) {
         try {
-
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
-
-            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
-            this.multiSendCancelLast(domain);
-
-            this.sendMDao.insertSendM(domain);
 
             /**
              * modified at 2018/4/25
              * 区分分拣机还是龙门架自动发货
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
-
             if (isForceSend) {
+                if (StringUtils.isNotBlank(getSendedCode(domain))) {
+                    new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+                }else{
+                    //插入SEND_M
+                    this.sendMDao.insertSendM(domain);
+                }
+
                 if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
                     if (uploadData.getBoxSiteCode() != null) {
@@ -3984,8 +3984,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                     pushInspection(domain, null);
                     pushSorting(domain);
                 }
-
             } else {
+                // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+                this.multiSendCancelLast(domain);
+
+                this.sendMDao.insertSendM(domain);
+
                 if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushSorting(domain);//大件写TASK_SORTING
                 } else {
@@ -3998,28 +4002,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             this.transitSend(domain);//中转任务
             this.pushStatusTask(domain);//全程跟踪任务
-
-            //区分分拣机自动发货还是龙门架,分拣机按箱号自动发货 (按箱发货不用回传发货全程跟踪任务)  add by lhc  add by lhc 2017.11.27
-//            if(isForceSend && SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())){
-//                pushInspection(domain,packageCode);
-//            	pushAtuoSorting(domain,packageCode);
-//            	return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-//            }
-//
-//            if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-//                if(isForceSend){
-//                    pushInspection(domain,null);//分拣机自动发货,大件先写TASK_INSPECTION，龙门架忽略   add by lhc 2017.12.20
-//                }
-//                pushSorting(domain);//大件写TASK_SORTING
-//            } else {
-//                SendDetail tSendDatail = new SendDetail();
-//                tSendDatail.setBoxCode(domain.getBoxCode());
-//                tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-//                tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-//                this.updateCancel(tSendDatail);//更新SEND_D状态
-//            }
-//            this.transitSend(domain);//中转任务
-//            this.pushStatusTask(domain);//全程跟踪任务
         } catch (Exception e) {
             logger.error("一车一单自动发货异常", e);
             new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
