@@ -509,12 +509,17 @@ function loadChutes(chutes) {
                 for (var i=1;i<chute.chuteCodes.length;i++){
                     chuteCode=chuteCode+','+chute.chuteCodes[i];
                 }
-
+                var chuteCodeLength=chuteCode.length;
                 var tr = '';
                 tr += '<tr>';
                 tr += '<td><input type="checkbox" id="ckbox' + chuteCode + '"></td>';
-                tr += '<td width="230px" name="chuteCode"><div style="height:auto;width:230px;vertical-align:center;overflow-x:scroll;"> ' + chuteCode + '</div></td>';
-                tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
+                if (chuteCodeLength>42){
+                tr += '<td width="230px" name="chuteCode"><div style="height:auto;width:230px;vertical-align:center;overflow-x:scroll;">' + chuteCode + '</div></td>';
+                } else{
+                tr += '<td width="230px" name="chuteCode">' + chuteCode + '</div></td>';
+                }
+
+            tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
                 tr += '<td name="sendSiteName">' + (chute.sendSiteName || '') + '</td>';
                 tr += '<td name="sendCode">' + chute.sendCode + '</td>';
                 tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
