@@ -90,7 +90,7 @@
     
     function quit(){
         if (confirm("确认退出？"))  {
-            parent.location.href="#springUrl('/quit')"+"?_="+(new Date().getTime());;
+            parent.location.href="#springUrl('/quit')"+"?_="+(new Date().getTime());
     }
 }
 </script>
