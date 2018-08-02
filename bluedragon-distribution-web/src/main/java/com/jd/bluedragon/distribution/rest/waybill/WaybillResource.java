@@ -1091,6 +1091,19 @@ public class WaybillResource implements DmsWaybillService {
 		}
 	}
 
+    /**
+     * B网运单称重 校验接口
+     * @param req 入参
+     * @return
+     */
+    @GET
+    @Path("/waybill/checkWeight/{codeStr}")
+    public InvokeResult<Boolean> checkWeight(@PathParam("codeStr") String codeStr){
+
+       return weighByWaybillController.verifyWaybillReality(codeStr);
+
+    }
+
 	/**
 	 * 获得预分拣站点和路由下一节点
 	 * @param siteCode 当前站点

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.interceptor;
 
-import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.common.web.LoginContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -37,12 +37,12 @@ public class DmsSSOInterceptor implements HandlerInterceptor {
             return true;
         }
         String currUserCode = request.getHeader("currusercode");
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if (StringUtils.isEmpty(currUserCode) || erpUser == null) {
+        LoginContext loginContext = LoginContext.getLoginContext();
+        if (StringUtils.isEmpty(currUserCode) || loginContext == null) {
             return true;
         }
-        if (!currUserCode.equals(erpUser.getUserCode())) {
-            logger.error("用户不一致：" + currUserCode + "!=" + erpUser.getUserCode());
+        if (!currUserCode.equals(loginContext.getPin())) {
+            logger.error("用户不一致：" + currUserCode + "!=" +loginContext.getPin());
             response.setStatus(888);
             return false;
         }
