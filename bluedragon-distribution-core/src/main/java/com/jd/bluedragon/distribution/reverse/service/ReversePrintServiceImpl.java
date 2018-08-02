@@ -140,6 +140,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 BusinessHelper.getCurrentPackageNum(domain.getNewPackageCode()) == 1){
             // 第一个包裹换单打印的时候才会在原单上 记录全程跟踪。
             taskService.add(tTask, true);
+        }else if(StringUtils.isBlank(domain.getNewPackageCode())){
+            //防止未升级客户端 还是需要记录
+            taskService.add(tTask, true);
         }
 
         tTask.setKeyword1(domain.getNewCode());
