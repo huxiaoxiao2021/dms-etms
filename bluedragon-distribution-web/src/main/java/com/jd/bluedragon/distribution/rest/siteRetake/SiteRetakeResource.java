@@ -1,19 +1,21 @@
-package com.jd.bluedragon.distribution.siteRetake;
+package com.jd.bluedragon.distribution.rest.siteRetake;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
+import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 /**
@@ -21,16 +23,18 @@ import java.util.List;
  * @Description: 驻厂批量再取
  * @date 2018年08月02日 14时:53分
  */
-@Controller
-@RequestMapping("siteRetake")
-public class SiteRetakeController {
-    private static final Log logger = LogFactory.getLog(SiteRetakeController.class);
+@Component
+@Path(Constants.REST_URL)
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
+public class SiteRetakeResource {
+    private static final Log logger = LogFactory.getLog(SiteRetakeResource.class);
     @Autowired
     private SiteRetakeService retakeService;
 
-    @ResponseBody
-    @RequestMapping(value = "/queryBasicTraderInfoByKey/{key}", method = RequestMethod.POST)
-    public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(@PathVariable("key") String key) {
+    @GET
+    @Path("/queryBasicTraderInfoByKey/{key}")
+    public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(@PathParam("key") String key) {
         List<BasicTraderQueryDTO> result = Lists.newArrayList();
         if (StringHelper.isEmpty(key)) {
             return result;
@@ -50,5 +54,19 @@ public class SiteRetakeController {
             result.add(emptyText);
         }
         return result;
+    }
+
+    @GET
+    @Path("/queryWaybillCode")
+    public List<String> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+        Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
+        Assert.notNull(siteRetakeCondition.getTraderId(), "traderId type must not be null");
+        return null;
+    }
+
+    @POST
+    @Path("/operation")
+    public InvokeResult<String> operation(SiteRetakeOperation siteRetakeOperation) {
+        return null;
     }
 }
