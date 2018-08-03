@@ -14,7 +14,7 @@ public interface BatchForwardService {
     /**
      * 整批转发
      * */
-    SendResult batchSend(BatchForwardRequest request);
+    InvokeResult batchSend(BatchForwardRequest request);
 
     boolean dealBatchForwardTask(Task task);
 }

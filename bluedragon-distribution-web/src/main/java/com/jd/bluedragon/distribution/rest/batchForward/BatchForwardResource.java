@@ -88,14 +88,14 @@ public class BatchForwardResource {
      */
     @Post
     @Path("/batchForward/batchForwardSend")
-    public InvokeResult<SendResult> batchForwardSend(BatchForwardRequest request){
+    public InvokeResult batchForwardSend(BatchForwardRequest request){
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
         }
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try{
 
-            result.setData(batchForwardService.batchSend(request));
+            return batchForwardService.batchSend(request);
         }catch (Exception e){
             result.error(e);
             this.logger.error("整批转发",e);

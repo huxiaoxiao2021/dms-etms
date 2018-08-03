@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.BatchForwardRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -50,15 +51,16 @@ public class BatchForwardServiceImpl implements BatchForwardService {
     private SendDatailDao sendDatailDao;
 
     @Override
-    public SendResult batchSend(BatchForwardRequest request) {
+    public InvokeResult batchSend(BatchForwardRequest request) {
 
+        InvokeResult result = new InvokeResult();
         //批次是否封车校验
         if(checkSendCodeIsSealed(request.getNewSendCode())){
-            return new SendResult(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
+            result.customMessage(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
         }
         //插入批次转发的任务
         insertBatchForwardTask(request);
-        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        result.customMessage(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         return result;
     }
 
