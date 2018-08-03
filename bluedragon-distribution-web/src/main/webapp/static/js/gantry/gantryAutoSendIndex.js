@@ -356,6 +356,7 @@ function planShow() {
             if (data.code == 200) {
                 var plan = data.data;
                 planId = plan.planId;
+                gantryParams.planId = planId;
             }
         }
     })
@@ -506,7 +507,7 @@ function queryBatchSendSub(pageNo) {
     var params = {};
     if (gantryParams != undefined && gantryParams != null) {
         params.machineId = gantryParams.machineId;
-        params.planId = $("#GantryPlan").val();
+        params.planId = gantryParams.planId;
     }
     params.pageNo = pageNo;
     queryBatchSendCodes(params);
