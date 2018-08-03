@@ -58,8 +58,8 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         }
         //插入批次转发的任务
         insertBatchForwardTask(request);
-
-        return null;
+        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        return result;
     }
 
     @Override
@@ -103,7 +103,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         // 判断是按箱发货还是包裹发货
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
             // 按包裹 补分拣任务
-            pushSorting(domain);//大件写TASK_SORTING
+            pushSorting(domain);
         } else {
             // 按箱
             SendDetail tSendDatail = new SendDetail();

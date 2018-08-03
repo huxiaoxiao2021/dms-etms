@@ -88,7 +88,7 @@ public class BatchForwardResource {
      */
     @Post
     @Path("/batchForward/batchForwardSend")
-    public InvokeResult batchForwardSend(BatchForwardRequest request){
+    public InvokeResult<SendResult> batchForwardSend(BatchForwardRequest request){
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
         }
