@@ -22,6 +22,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  * Created by hujiping on 2018/8/1.
  */
+@Service("batchForwardService")
 public class BatchForwardServiceImpl implements BatchForwardService {
 
     private final Logger logger = Logger.getLogger(BatchForwardServiceImpl.class);
@@ -158,7 +160,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         sortDomain.setReceiveSiteName(receiveSiteName);
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
-        logger.info("一车一单插入task_sorting" + JsonHelper.toJson(task));
+        logger.info("批次转发插入task_sorting" + JsonHelper.toJson(task));
     }
 
     private void insertBatchForwardTask(BatchForwardRequest request) {

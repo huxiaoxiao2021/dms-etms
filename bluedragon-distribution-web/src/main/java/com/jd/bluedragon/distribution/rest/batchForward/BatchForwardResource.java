@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batchForward.SendCodeInfo;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Controller;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -39,18 +39,14 @@ public class BatchForwardResource {
     @Autowired
     private BatchForwardService batchForwardService;
 
-    @Autowired
-    private DeliveryService deliveryService;
-
-
     /**
-     * 通过批次号获得始发站点和目的站点，批次是否封车校验
+     * 通过批次号获得始发站点和目的站点
      * @param sendCode
      * @return
      */
     @GET
-    @Path("/batchForward/getCreateSiteAndReceiveSite")
-    public InvokeResult<SendCodeInfo> getCreateSiteAndReceiveSite(String sendCode){
+    @Path("/batchForward/getCreateSiteAndReceiveSite/{sendCode}")
+    public InvokeResult<SendCodeInfo> getCreateSiteAndReceiveSite(@PathParam("sendCode") String sendCode){
         this.logger.info("批次号"+ sendCode + "不能为空");
         InvokeResult<SendCodeInfo> result = new InvokeResult<SendCodeInfo>();
         Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
