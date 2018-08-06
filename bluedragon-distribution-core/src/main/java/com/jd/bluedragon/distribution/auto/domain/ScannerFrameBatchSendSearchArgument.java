@@ -38,6 +38,8 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     private List<Integer> receiveSiteCodes;
 
+    private Long planId;
+
     public String getMachineId() {
         return machineId;
     }
@@ -84,6 +86,14 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     public void setReceiveSiteCodes(List<Integer> receiveSiteCodes) {
         this.receiveSiteCodes = receiveSiteCodes;
+    }
+
+    public Long getPlanId() {
+        return planId;
+    }
+
+    public void setPlanId(Long planId) {
+        this.planId = planId;
     }
 
     @Override

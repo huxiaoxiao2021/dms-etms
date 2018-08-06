@@ -6,7 +6,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
-import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
@@ -26,7 +25,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.UsingState;
 import com.jd.common.util.StringUtils;
@@ -263,37 +261,6 @@ public class GantryAutoSendController {
         if (request.getMachineId() == null) {
             return result;
         }
-        Integer planId = request.getPlanId() == null? null : request.getPlanId().intValue();
-        List<AreaDest> areaDests = areaDestService.getList(planId,null);
-        List<Integer> receiveSiteCodes = null;
-        if (null != areaDests) {
-            receiveSiteCodes = new ArrayList<Integer>();
-            for (AreaDest areaDest : areaDests) {
-                RouteType routeType = RouteType.getEnum(areaDest.getRouteType());
-                if (areaDest.getRouteType() == null || routeType == null) {
-                    continue;
-                }
-                switch (routeType) {
-                    case DIRECT_SITE:
-                        receiveSiteCodes.add(areaDest.getReceiveSiteCode());
-                        break;
-                    case DIRECT_DMS:
-                        if (areaDest.getTransferSiteCode() != null && areaDest.getTransferSiteCode() > 0) {
-                            receiveSiteCodes.add(areaDest.getTransferSiteCode());
-                        } else {
-                            receiveSiteCodes.add(areaDest.getReceiveSiteCode());
-                        }
-                        break;
-                    case MULTIPLE_DMS:
-                        if (areaDest.getTransferSiteCode() != null && areaDest.getTransferSiteCode() > 0) {
-                            receiveSiteCodes.add(areaDest.getTransferSiteCode());
-                        } else {
-                            receiveSiteCodes.add(areaDest.getReceiveSiteCode());
-                        }
-                        break;
-                }
-            }
-        }
 
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
@@ -302,7 +269,7 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
-        sfbssa.setReceiveSiteCodes(receiveSiteCodes);
+        sfbssa.setPlanId(request.getPlanId());
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {
