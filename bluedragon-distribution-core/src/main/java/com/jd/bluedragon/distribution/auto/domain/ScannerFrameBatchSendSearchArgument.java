@@ -36,6 +36,8 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
      */
     private Boolean hasPrinted;
 
+    private List<Integer> receiveSiteCodes;
+
     public String getMachineId() {
         return machineId;
     }
@@ -74,6 +76,14 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     public void setHasPrinted(Boolean hasPrinted) {
         this.hasPrinted = hasPrinted;
+    }
+
+    public List<Integer> getReceiveSiteCodes() {
+        return receiveSiteCodes;
+    }
+
+    public void setReceiveSiteCodes(List<Integer> receiveSiteCodes) {
+        this.receiveSiteCodes = receiveSiteCodes;
     }
 
     @Override
