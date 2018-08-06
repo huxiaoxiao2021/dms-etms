@@ -312,13 +312,13 @@ function addSendGroup(sendGroupName, sortMachineCode, chuteCodes) {
 }
 
 /**
- * 取得发货组关联的滑槽号
+ * 取得发货组关联的滑槽号（实际上取得是发送目的地code）
  */
 function getChuteCodes() {
     var chutecodes =  new Array();
     $.each($("tbody[id='chuteTb'] input[type='checkbox']"), function(index, chk){
         if($(this).prop('checked')){
-            var chuteCode = $(this).parents("tr").find("[name=chuteCode]").text();
+            var chuteCode = $(this).parents("tr").find("[name=sendSiteCode]").text();
             if(chuteCode){
                 chutecodes.push(chuteCode);
             }
@@ -512,14 +512,14 @@ function loadChutes(chutes) {
                 var chuteCodeLength=chuteCode.length;
                 var tr = '';
                 tr += '<tr>';
-                tr += '<td><input type="checkbox" id="ckbox' + chuteCode + '"></td>';
+                tr += '<td><input type="checkbox" id="ckbox' +chute.sendSiteCode + '"></td>';
                 if (chuteCodeLength>42){
                 tr += '<td width="230px" name="chuteCode"><div style="height:auto;width:230px;vertical-align:center;overflow-x:scroll;">' + chuteCode + '</div></td>';
                 } else{
                 tr += '<td width="230px" name="chuteCode">' + chuteCode + '</div></td>';
                 }
 
-            tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
+                tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
                 tr += '<td name="sendSiteName">' + (chute.sendSiteName || '') + '</td>';
                 tr += '<td name="sendCode">' + chute.sendCode + '</td>';
                 tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
