@@ -125,9 +125,8 @@
         <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
             AND  sfbs.PRINT_TIMES=0
         </if>
-        <if test="data.planId!=null">
-            AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
-        </if>
+        AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
+        AND adc.yn = 1
     </sql>
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
