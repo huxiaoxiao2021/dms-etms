@@ -87,11 +87,11 @@ function editFormValidator(){
                 message: '运单号不能为空',
                 validators: {
                     notEmpty: {
-                    },
+                    }/*,
                     stringLength: {
                         max: 50,
                         message: '运单号不得超过50'
-                    }
+                    }*/
                 }
             },
             excpTypeEdit:{
