@@ -117,6 +117,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -132,7 +133,7 @@ import java.util.Set;
 public class DeliveryServiceImpl implements DeliveryService {
 
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
-    
+
     private final int MAX_SHOW_NUM = 3;
 
     @Resource(name = "cityDeliveryVerification")
@@ -194,7 +195,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SupportServiceInterface supportProxy;
-    
+
     @Autowired
     private DmsOperateHintService dmsOperateHintService;
     @Autowired
@@ -269,7 +270,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Resource(name = "transbillMService")
     private TransbillMService transbillMService;
-    
+
     @Autowired
     @Qualifier("dmsWeightFlowService")
     private DmsWeightFlowService dmsWeightFlowService;
@@ -601,22 +602,38 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private void multiSendCancelLast(SendM domain) {
         // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
-        SendM sendHistoryInfo = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
-        if (null != sendHistoryInfo) {
-            if (StringUtils.isNotBlank(sendHistoryInfo.getSendCode())) {
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+        if (null != lastSendM) {
+            if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
                 // 获取封车时间
-                Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(sendHistoryInfo.getSendCode());
+                Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(lastSendM.getSendCode());
                 if (sealCarTime != null) {
                     // 发货时间在上次发货后封车时间1小时内，则取消上次发货
                     if (domain.getOperateTime().getTime() - sealCarTime < DateHelper.ONE_HOUR_MILLI) {
-                        this.dellCancelDeliveryMessage(sendHistoryInfo, true);
+                        this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
                     }
                 } else {
                     // 未封车 直接取消上次发货
-                    this.dellCancelDeliveryMessage(sendHistoryInfo, true);
+                    this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
                 }
             }
         }
+    }
+
+    private SendM getCancelSendM(SendM lastSendM, SendM domain) {
+        SendM sendM = new SendM();
+        sendM.setBoxCode(lastSendM.getBoxCode());
+        sendM.setCreateSiteCode(lastSendM.getCreateSiteCode());
+        if (!BusinessHelper.isBoxcode(lastSendM.getBoxCode())) {
+            sendM.setReceiveSiteCode(lastSendM.getReceiveSiteCode());
+        }
+        sendM.setSendType(lastSendM.getSendType());
+
+        sendM.setUpdaterUser(domain.getCreateUser());
+        sendM.setUpdateUserCode(domain.getCreateUserCode());
+        sendM.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
+        sendM.setYn(0);
+        return sendM;
     }
 
     /**
@@ -662,10 +679,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         taskService.add(task, true);
         logger.info("一车一单插入task_sorting" + JsonHelper.toJson(task));
     }
-    
+
     /**
      * 推送分拣机按箱自动发货任务
-     * @author lihuachang  
+     * @author lihuachang
      * @category 2017.11.30
      * @param domain
      * @param packageCode
@@ -2521,7 +2538,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             routerShortNames +=  baseService.getDmsShortNameByCode(dmsCode) + Constants.SEPARATOR_COMMA;
         }
-        
+
         if(StringHelper.isNotEmpty(routerShortNames)){
             routerShortNames = routerShortNames.substring(0,routerShortNames.length()-1);
         }
@@ -2694,13 +2711,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
         for(String waybillCode:waybillCodes){
-        	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false); 
+        	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
         		Waybill waybill = baseEntity.getData().getWaybill();
         		//WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 
+        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(),
         				40, '2')){
         			boolean hasTotalWeight = false;
             		//先校验运单的againWeight然后校验称重流水
@@ -3404,7 +3421,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 tsendDatail.setExcuteTime(new Date());
                 tsendDatail.setExcuteCount(0);
                 tsendDatail.setOperateTime(task.getCreateTime());
-                
+
                 if ((!tsendDatail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
                     tsendDatail.setSendCode(task.getBody());
                     tsendDatail.setYn(1);
