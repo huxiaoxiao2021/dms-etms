@@ -85,6 +85,12 @@
         <if test="data.receiveSiteCode!=null">
             AND  RECEIVE_SITE_CODE=#{data.receiveSiteCode,jdbcType=INTEGER}
         </if>
+        <if test="data.receiveSiteCodes != null">
+            AND  RECEIVE_SITE_CODE IN
+            <foreach item="receiveSiteCode" collection="data.receiveSiteCodes" open="(" close=")" index="index" separator=",">
+                #{receiveSiteCode,jdbcType=INTEGER}
+            </foreach>
+        </if>
         <if test=" data.hasPrinted !=null and data.hasPrinted==true ">
             AND  PRINT_TIMES>0
         </if>
@@ -105,21 +111,40 @@
         FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
     </select>
+
+
+    <sql id="currentSplitPageWhere">
+        WHERE
+        sfbs.MACHINE_ID=#{data.machineId,jdbcType=VARCHAR}
+        <if test="data.receiveSiteCode!=null">
+            AND  sfbs.RECEIVE_SITE_CODE=#{data.receiveSiteCode,jdbcType=INTEGER}
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==true ">
+            AND  sfbs.PRINT_TIMES>0
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
+            AND  sfbs.PRINT_TIMES=0
+        </if>
+        AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
+        AND adc.yn = 1
+    </sql>
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
         <include refid="allFieldsExcludeTs"/>
-        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
-        <include refid="getSplitPageListWhere"/>
-        GROUP BY RECEIVE_SITE_CODE
-        ORDER BY ID DESC
+        FROM (SELECT MAX(sfbs.ID) AS ID FROM SCANNER_FRAME_BATCH_SEND sfbs
+        INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        <include refid="currentSplitPageWhere"/>
+        GROUP BY sfbs.RECEIVE_SITE_CODE
+        ORDER BY sfbs.ID DESC
         LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}) T1
         INNER JOIN SCANNER_FRAME_BATCH_SEND ON T1.ID = SCANNER_FRAME_BATCH_SEND.ID
     </select>
     <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
         SELECT COUNT(1)
-        FROM (SELECT MAX(ID) AS ID FROM SCANNER_FRAME_BATCH_SEND
-        <include refid="getSplitPageListWhere"/>
-        GROUP BY RECEIVE_SITE_CODE)T
+        FROM (SELECT MAX(sfbs.ID) AS ID FROM SCANNER_FRAME_BATCH_SEND sfbs
+        INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        <include refid="currentSplitPageWhere"/>
+        GROUP BY sfbs.RECEIVE_SITE_CODE)T
     </select>
 
     <select id="queryByIds" parameterType="java.util.List" resultMap="resultListMap">
