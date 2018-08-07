@@ -340,8 +340,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                //整单拒收逆向换单打印，原单最终状态为拒收/妥投返单的，逆向换单打印的面单显示【已称】
                if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       context.getRequest().getOperateType().equals("100104") ||
-                       !tmsWaybillManageDomain.getWaybillState().equals(600)){
+                       (context.getRequest().getOperateType().equals("100104") &&
+                       !tmsWaybillManageDomain.getWaybillState().equals(600))){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
                }
            }
