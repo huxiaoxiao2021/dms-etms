@@ -262,11 +262,6 @@ public class GantryAutoSendController {
             return result;
         }
 
-        if (request.getPlanId() == null) {
-            result.setMessage("页面失效请重新刷新，清空缓存");
-            return result;
-        }
-
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         if (pager.getPageNo() != null) {
