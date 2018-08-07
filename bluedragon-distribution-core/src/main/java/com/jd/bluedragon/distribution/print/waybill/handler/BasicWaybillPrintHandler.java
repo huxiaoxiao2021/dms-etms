@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.Bus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -335,10 +337,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
            if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){
                //如果waybillSign第25位等于3时，表示运费支付方式为寄付，打印【已称】
                //waybillSign第66位等于1时，为信任运单，打印【已称】
-               //逆向换单打印的面单显示【已称】
+               //整单拒收逆向换单打印，原单最终状态为拒收/妥投返单的，逆向换单打印的面单显示【已称】
                if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       context.getRequest().getOperateType().equals("100104")){
+                       context.getRequest().getOperateType().equals("100104") ||
+                       !tmsWaybillManageDomain.getWaybillState().equals(600)){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
                }
            }
