@@ -269,7 +269,7 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
-        sfbssa.setPlanId(request.getPlanId());
+//        sfbssa.setPlanId(request.getPlanId());
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {
