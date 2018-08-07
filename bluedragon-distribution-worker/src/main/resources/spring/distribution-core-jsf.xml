@@ -318,4 +318,8 @@
     <jsf:consumer id="basicTraderInfoQueryApi" interface="com.jd.ldop.middle.api.basic.BasicTraderInfoQueryApi" protocol="jsf"
                   alias="${ldop.basic.jsf.middle.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 查询揽收未分配列表 负责人 wangfei32-->
+    <jsf:consumer id="vendorOrderJsfService" interface="com.jd.ql.erp.jsf.VendorOrderJsfService" protocol="jsf"
+                  alias="${ql.erp.jsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

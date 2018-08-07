@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,7 +31,7 @@ import java.util.List;
 public class SiteRetakeResource {
     private static final Log logger = LogFactory.getLog(SiteRetakeResource.class);
     @Autowired
-    private SiteRetakeService retakeService;
+    private SiteRetakeService siteRetakeService;
 
     @GET
     @Path("/queryBasicTraderInfoByKey/{key}")
@@ -39,7 +40,7 @@ public class SiteRetakeResource {
         if (StringHelper.isEmpty(key)) {
             return result;
         }
-        List<BasicTraderQueryDTO> basicTraderQueryDTOS = retakeService.queryBasicTraderInfoByKey(key);
+        List<BasicTraderQueryDTO> basicTraderQueryDTOS = siteRetakeService.queryBasicTraderInfoByKey(key);
         if (basicTraderQueryDTOS != null && basicTraderQueryDTOS.size() > 0) {
             for (BasicTraderQueryDTO dto : basicTraderQueryDTOS) {
                 dto.setTraderName(dto.getTraderName() + Constants.PUNCTUATION_OPEN_BRACKET_SMALL + dto.getTraderCode() + Constants.PUNCTUATION_CLOSE_BRACKET_SMALL);
@@ -58,15 +59,16 @@ public class SiteRetakeResource {
 
     @GET
     @Path("/queryWaybillCode")
-    public List<String> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+    public List<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
-        Assert.notNull(siteRetakeCondition.getTraderId(), "traderId type must not be null");
-        return null;
+        Assert.notNull(siteRetakeCondition.getVendorId(), "traderId type must not be null");
+        return siteRetakeService.queryVendorOrderList(siteRetakeCondition);
     }
 
     @POST
     @Path("/operation")
     public InvokeResult<String> operation(SiteRetakeOperation siteRetakeOperation) {
-        return null;
+        return siteRetakeService.updateCommonOrderStatus(siteRetakeOperation);
+
     }
 }
