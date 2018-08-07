@@ -1205,8 +1205,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
-     * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）
-     *
+     * edit:将取消发货分为三类
+     * 一类为按板号
+     * 一类为按箱号
+     * 一类为按包裹（包括按运单、包裹、取件单）
      * @param tSendM 发货相关数据
      */
     @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancel", mState = {JProEnum.TP})
