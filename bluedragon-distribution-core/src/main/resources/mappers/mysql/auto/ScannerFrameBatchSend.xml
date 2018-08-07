@@ -125,14 +125,18 @@
         <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
             AND  sfbs.PRINT_TIMES=0
         </if>
-        AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
-        AND adc.yn = 1
+        <if test="data.planId != null">
+            AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
+            AND adc.yn = 1
+        </if>
     </sql>
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
         <include refid="allFieldsExcludeTs"/>
         FROM (SELECT MAX(sfbs.ID) AS ID FROM SCANNER_FRAME_BATCH_SEND sfbs
-        INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        <if test="data.planId != null">
+            INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        </if>
         <include refid="currentSplitPageWhere"/>
         GROUP BY sfbs.RECEIVE_SITE_CODE
         ORDER BY sfbs.ID DESC
@@ -142,7 +146,9 @@
     <select id="getCurrentSplitPageListCount" parameterType="com.jd.bluedragon.Pager" resultType="java.lang.Long">
         SELECT COUNT(1)
         FROM (SELECT MAX(sfbs.ID) AS ID FROM SCANNER_FRAME_BATCH_SEND sfbs
-        INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        <if test="data.planId != null">
+            INNER JOIN AREA_DEST_CONFIG adc ON sfbs.receive_site_code = adc.receive_site_code OR sfbs.receive_site_code = adc.transfer_site_code
+        </if>
         <include refid="currentSplitPageWhere"/>
         GROUP BY sfbs.RECEIVE_SITE_CODE)T
     </select>
