@@ -1632,7 +1632,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
            refuseReasonId = Integer.parseInt(((Map)JSON.parse(extendProperties)).get("reasonId").toString());
 
         }else{
-            logger.error("退ECLP增加拒收原因处理时，获取旧运单数据拒收原因为空，oldWaybillCode="+oldWaybillCode);
+            logger.info("退ECLP增加拒收原因处理时，获取旧运单数据拒收原因为空，oldWaybillCode="+oldWaybillCode);
             return;
         }
         if(refuseReasonId == null){
