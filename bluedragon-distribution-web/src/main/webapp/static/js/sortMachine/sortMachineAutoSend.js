@@ -62,7 +62,7 @@ $(document).ready(function(){
             jQuery.messager.alert("提示","请填写组名","error");
             return;
         }
-            var chuteCodes = getChuteCodes();
+        var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
             if(!sendGroupName ){
                 jQuery.messager.alert("提示","请选择滑槽","error");
@@ -95,8 +95,8 @@ $(document).ready(function(){
         }
         var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
-                jQuery.messager.alert("提示","请选择目的地记录","error");
-                return;
+            jQuery.messager.alert("提示","请选择目的地记录","error");
+            return;
         }
         updateSendGroup(currentSendGroup, sortMachineCode, chuteCodes);
     });
@@ -107,8 +107,8 @@ $(document).ready(function(){
     $("#delGroupbtn").click(function () {
         var currentSendGroup = $('#sendGroup').val();
         if(!currentSendGroup){
-                jQuery.messager.alert("提示","请选择发货组","error");
-                return;
+            jQuery.messager.alert("提示","请选择发货组","error");
+            return;
         }
         if(!confirm("确定要删除该组么？")){
             return;
@@ -355,7 +355,7 @@ function querySendGroupConfig(groupId) {
                 return;
             }
             if ( data.code == 200) {
-                    loadSendGroupConfigs(sendGroupConfigs);
+                loadSendGroupConfigs(sendGroupConfigs);
             }else if(data.code == 500) {
                 jQuery.messager.alert("提示：",data.message,"error");
             }
@@ -466,13 +466,12 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
         param.machineCode = currentSortMachineCode;
         var url = $("#contextPath").val() + "/sortMachineAutoSend/queryChuteBySortMachineCode";
         CommonClient.ajax("POST",url,param,function (data) {
-            var chute = data.data;
+            var chutes = data.data;
             if (data == undefined || data == null) {
                 jQuery.messager.alert('提示：', "HTTP请求无返回数据！", 'info');
                 return;
             }
             if ( data.code == 200) {
-               var chutes= groupBySendSite(chute);
                 loadChutes(chutes);
                 //加载发货组
 
@@ -491,79 +490,42 @@ function queryChuteBySortMachineCode(currentSortMachineCode) {
  */
 function loadChutes(chutes) {
     $("#pagerTable tbody").html("");
+    if(chutes){
         $.each(chutes, function (index, chute) {
-                var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
-                var packageSum = 0.00;//总数量
-                var volumeSum = 0.00;//总体积
-                if (chute.sendCode) {
-                    CommonClient.ajax("POST", url, {"sendCode": chute.sendCode}, function (data) {
-                        // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
-                        if (data != undefined && data != null) {
-                            var sum = data.data;
-                            $(".packageSum" + sum.sendCode).text(sum.packageSum);
-                            $(".volumeSum" + sum.sendCode).text(sum.volumeSum);
-                        }
-                    });
-                }
-                var chuteCode=chute.chuteCodes[0];
-                for (var i=1;i<chute.chuteCodes.length;i++){
-                    chuteCode=chuteCode+','+chute.chuteCodes[i];
-                }
 
-                var tr = '';
-                tr += '<tr>';
-                tr += '<td><input type="checkbox" id="ckbox' + chuteCode + '"></td>';
-                tr += '<td name="chuteCode">' + chuteCode + '</td>';
-                tr += '<td name="sendSiteCode">' + (chute.sendSiteCode || '') + '</td>';
-                tr += '<td name="sendSiteName">' + (chute.sendSiteName || '') + '</td>';
-                tr += '<td name="sendCode">' + chute.sendCode + '</td>';
-                tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
-                tr += '<td name="packageSum" class="packageSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-                tr += '<td name="volumeSum" class="volumeSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-                tr += '</tr>';
-                $("#pagerTable tbody").append(tr);
+            var sortSchemeDetail = chute.sortSchemeDetail;
+            var url = $("#contextPath").val() + "/sortMachineAutoSend/summaryBySendCode";
+            var packageSum = 0.00;//总数量
+            var volumeSum = 0.00;//总体积
+            if(chute.sendCode){
+                CommonClient.ajax("POST",url,{"sendCode":chute.sendCode},function (data) {
+                    // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
+                    if (data != undefined && data != null){
+                        var sum = data.data;
+                        $(".packageSum"+sum.sendCode).text(sum.packageSum);
+                        $(".volumeSum"+sum.sendCode).text(sum.volumeSum);
+                    }
+                });
+            }
 
+            var tr = '';
+            tr += '<tr>';
+            tr += '<td><input type="checkbox" id="ckbox' + sortSchemeDetail.chuteCode1 + '"></td>';
+            tr += '<td name="chuteCode">' + sortSchemeDetail.chuteCode1 + '</td>';
+            tr += '<td name="sendSiteCode">' + (sortSchemeDetail.sendSiteCode || '') + '</td>';
+            tr += '<td name="sendSiteName">' + (sortSchemeDetail.sendSiteName || '') + '</td>';
+            tr += '<td name="sendCode">' + chute.sendCode + '</td>';
+            tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
+            tr += '<td name="packageSum" class="packageSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+            tr += '<td name="volumeSum" class="volumeSum'+chute.sendCode+'"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+            tr += '</tr>';
+            $("#pagerTable tbody").append(tr);
         });
 
+    }
 }
 
-/**
- * 根据发货目的地不同对滑道信息分组
- * @param chutes
- * @returns {Array}
- */
-function groupBySendSite(chutes) {
-    var myArray=[];
-       for(var i=0;i<chutes.length;i++){
-        var sortSchemeDetail=chutes[i].sortSchemeDetail;
-        var reval={chuteCode1:sortSchemeDetail.chuteCode1,sendSiteCode:sortSchemeDetail.sendSiteCode,
-            sendSiteName:sortSchemeDetail.sendSiteName,sendCode:chutes[i].sendCode,sendCodeCreateTime:chutes[i].sendCodeCreateTime}
-        myArray.push(reval);
-    }
-      var newArray=[];
-      for(var j=0;j<myArray.length;j++){
-          var index=-1;
-          var sendSiteCode= myArray[j].sendSiteCode;
-          var hasExists= newArray.some(function (value, index1) {
-               if(sendSiteCode===value.sendSiteCode){
-                   index=index1;
-                   return true;
-               }
-           });
-       if (!hasExists) {
-               newArray.push({
-               sendSiteCode: myArray[j].sendSiteCode,
-               sendSiteName:myArray[j].sendSiteName,
-               chuteCodes:[myArray[j].chuteCode1],
-               sendCode:myArray[j].sendCode,
-               sendCodeCreateTime:myArray[j].sendCodeCreateTime
-           });
-       } else {
-           newArray[index].chuteCodes.push(myArray[j].chuteCode1);
-       }
-   }
-      return newArray;
-}
+
 /**
  * 设置打印机弹出层事件
  */
@@ -732,8 +694,8 @@ function toReplenishPrintPage(){
     location.href = url + "?machineId=" + $("#sortMachine").val()
         + "&createSiteCode=" + createSiteCode
         + "&createSiteName=" + encodeURIComponent(encodeURIComponent(createSiteName))
-        // + "&startTime="
-        // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
+    // + "&startTime="
+    // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
 /**
@@ -747,7 +709,7 @@ function toGantryExceptionPage(){
     var createSiteCode = $("#createSiteCode").val();
     location.href = url + "?machineId=" + $("#sortMachine").val()
         + "&siteCode=" + createSiteCode
-        // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+    // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }
 function add0(m) {
     return m < 10 ? '0' + m : m;
