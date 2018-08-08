@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.abnormal.domain;
 
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
+import java.util.Date;
+
 /**
  *
  * @ClassName: DmsOperateHint
@@ -38,10 +40,10 @@ public class DmsOperateHint extends DbEntity {
 
 	 /** 运单号 */
 	private String waybillCode;
-	
+
 	 /** 提示语类型  1-用户创建  2-系统创建 */
 	private Integer hintType;
-	
+
 	 /** 提示语编码 */
 	private Integer hintCode;
 
@@ -50,10 +52,10 @@ public class DmsOperateHint extends DbEntity {
 
 	 /** 提示语信息 */
 	private String hintMessage;
-	
+
 	 /** 提示语内容 */
 	private String hintContent;
-	
+
 	 /** 启用状态，默认为1启用 */
 	private Integer isEnable;
 
@@ -74,6 +76,27 @@ public class DmsOperateHint extends DbEntity {
 
 	 /** 更新人名称 */
 	private String updateUserName;
+
+	/**
+	 * 显示提示的分拣中心编码
+	 */
+	private Integer hintDmsCode;
+
+	/**
+	 * 显示提示的分拣中心名称
+	 */
+	private String hintDmsName;
+
+	/**
+	 * 显示提示的操作环节
+	 */
+	private String hintOperateNode;
+
+
+	/**
+	 * 显示提示的时间
+	 */
+	private Date hintTime;
 
 	/**
 	 * The set method for dmsSiteCode.
@@ -311,5 +334,37 @@ public class DmsOperateHint extends DbEntity {
 		this.hintContent = hintContent;
 	}
 
+
+	public Integer getHintDmsCode() {
+		return hintDmsCode;
+	}
+
+	public void setHintDmsCode(Integer hintDmsCode) {
+		this.hintDmsCode = hintDmsCode;
+	}
+
+	public String getHintDmsName() {
+		return hintDmsName;
+	}
+
+	public void setHintDmsName(String hintDmsName) {
+		this.hintDmsName = hintDmsName;
+	}
+
+	public String getHintOperateNode() {
+		return hintOperateNode;
+	}
+
+	public void setHintOperateNode(String hintOperateNode) {
+		this.hintOperateNode = hintOperateNode;
+	}
+
+	public Date getHintTime() {
+		return hintTime;
+	}
+
+	public void setHintTime(Date hintTime) {
+		this.hintTime = hintTime;
+	}
 
 }
