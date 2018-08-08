@@ -519,7 +519,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode)) {
+                if (!isSpecial(send, wallBillCode,sendM)) {
                 	newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
                 	ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
                 }
@@ -652,7 +652,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wayBillCode)) {
+                if (!isSpecial(send,wayBillCode,sendM)) {
                     send.setBusiOrderCode(operCodeMap.get(wayBillCode));
                     ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, 0, bDto, taskId,wayBillCode);
                 }
@@ -1418,7 +1418,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param send
      * @return <code>true</code> 如果是迷你仓、eclp订单
      */
-    private Boolean isSpecial(ReverseSendWms send, String wayBillCode) {
+    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM) {
 
         if (StringHelper.isNotEmpty(send.getWaybillSign())) {
             //迷你仓新需求，waybillsign第一位=8的 不推送库房， 因为不属于逆向 guoyongzhi
@@ -1451,6 +1451,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sendmodel.setWaybillCode(wayBillCode);
 			sendmodel.setRejType(3);
 			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
+			if(sendM.getOperateTime()!=null){
+                sendmodel.setOperateTime(sendM.getOperateTime().getTime());
+            }else{
+                sendmodel.setOperateTime(System.currentTimeMillis());
+            }
+            sendmodel.setOperator(sendM.getCreateUser());
 			//组装拒收原因
             makeRefuseReason(sendmodel);
 			String jsonStr = JsonHelper.toJson(sendmodel);
