@@ -12,6 +12,10 @@ public class ReverseSendMQToECLP {
     private String waybillCode;
     private Integer rejType;
     private String rejRemark;
+    /*拒收原因编码*/
+    private Integer refuseReasonId;
+    /*拒收原因描述*/
+    private String refuseReasonName;
 
     public String getJdOrderCode() {
         return jdOrderCode;
@@ -59,5 +63,21 @@ public class ReverseSendMQToECLP {
 
     public void setRejRemark(String rejRemark) {
         this.rejRemark = rejRemark;
+    }
+
+    public Integer getRefuseReasonId() {
+        return refuseReasonId;
+    }
+
+    public void setRefuseReasonId(Integer refuseReasonId) {
+        this.refuseReasonId = refuseReasonId;
+    }
+
+    public String getRefuseReasonName() {
+        return refuseReasonName;
+    }
+
+    public void setRefuseReasonName(String refuseReasonName) {
+        this.refuseReasonName = refuseReasonName;
     }
 }
