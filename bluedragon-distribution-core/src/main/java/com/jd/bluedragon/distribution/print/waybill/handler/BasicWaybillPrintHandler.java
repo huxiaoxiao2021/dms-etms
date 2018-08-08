@@ -347,11 +347,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                //waybillSign第66位等于1时，为信任运单，打印【已称】
                if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT)){
+                       OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
                }
                //半收的不打印【已称】，这里需要判断原单的状态
-               if(context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT)){
+               if(OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
                    //获取原运单号
                    BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
                    if(oldWaybill != null && oldWaybill.getData()!=null){
@@ -360,7 +360,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                        if(StringHelper.isNotEmpty(oldWaybillCode)){
                            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
                            if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
-                               if(baseEntity.getData().getWaybillState().getWaybillState().equals(WAYBILL_STATE_HALF_RECEIVE)){
+                               if(WAYBILL_STATE_HALF_RECEIVE.equals(baseEntity.getData().getWaybillState().getWaybillState())){
                                    commonWaybill.setWeightFlagText("");
                                }
                            }
