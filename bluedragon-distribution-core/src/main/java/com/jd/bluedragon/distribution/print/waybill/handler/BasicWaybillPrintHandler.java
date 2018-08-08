@@ -142,6 +142,16 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
+    /**
+     * 换单打印的操作类型
+     */
+    private static final Integer OPERATE_TYPE_EXCHANGE_PRINT = 100104;
+
+    /**
+     * 半收的运单状态
+     */
+    private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
@@ -338,8 +348,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                //整单拒收逆向换单打印，原单最终状态为拒收/妥投返单的，逆向换单打印的面单显示【已称】
                if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       (context.getRequest().getOperateType().equals(100104) &&
-                       !tmsWaybillManageDomain.getWaybillState().equals(600))){
+                       (context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT) &&
+                       !tmsWaybillManageDomain.getWaybillState().equals(WAYBILL_STATE_HALF_RECEIVE))){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
                }
            }
