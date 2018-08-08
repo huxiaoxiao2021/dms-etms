@@ -79,7 +79,6 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
-    public static final Integer TASK_TYPE_SEND_BATCHFORWARD = 1320; //批次转发
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
 
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
@@ -781,6 +780,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 return "SendDetailMQTask";
             }else if("7".equals(keyword1)){
                 return "BoardDeliveryTask";
+            }else if("8".equals(keyword1)){
+                return "BatchForwardTask";
             }
         }else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有

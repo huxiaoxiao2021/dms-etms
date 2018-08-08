@@ -92,10 +92,10 @@ public class BatchForwardResource {
         if(logger.isInfoEnabled()){
             logger.info(JsonHelper.toJsonUseGson(request));
         }
-        InvokeResult<SendResult> result = new InvokeResult<SendResult>();
+        InvokeResult result = null;
         try{
 
-            return batchForwardService.batchSend(request);
+            result = batchForwardService.batchSend(request);
         }catch (Exception e){
             result.error(e);
             this.logger.error("整批转发",e);

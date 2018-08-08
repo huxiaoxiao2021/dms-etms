@@ -170,7 +170,8 @@
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="BatchForwardTask"/>
         <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1320"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="8"/>
         <property name="desc" value="批次转发"/>
     </bean>
 </beans>
