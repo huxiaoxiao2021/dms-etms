@@ -270,6 +270,7 @@ public class GantryAutoSendController {
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
 //        sfbssa.setPlanId(request.getPlanId());
+        sfbssa.setStartTime(new Date(new Date().getTime()-3*24*60*60*1000));
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {
