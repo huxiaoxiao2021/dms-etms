@@ -75,8 +75,8 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         List<SendM> oldSendMList = deliveryService.getSendMBySendCodeAndSiteCode(oldSendCode, oldCreateSiteCode, oldReceiveSiteCode);
         //新批次
         String newSendCode = request.getNewSendCode();
-        Integer newCreateSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(oldSendCode);
-        Integer newReceiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(oldSendCode);
+        Integer newCreateSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(newSendCode);
+        Integer newReceiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(newSendCode);
         SendM domain = new SendM();
         domain.setCreateSiteCode(newCreateSiteCode);
         domain.setReceiveSiteCode(newReceiveSiteCode);
@@ -106,14 +106,6 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
             // 按包裹 补分拣任务
             pushSorting(domain);
-        } else {
-            // 按箱
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setBoxCode(domain.getBoxCode());
-            tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-            tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-            //更新SEND_D状态
-            sendDatailDao.updateCancel(tSendDatail);
         }
 
         // 判断是否是中转发货
@@ -175,13 +167,13 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         task.setCreateSiteCode(createSiteCode);
         task.setReceiveSiteCode(receiveSiteCode);
         task.setBusinessType(10);
-        task.setType(Task.TASK_TYPE_SEND_BATCHFORWARD);
-        task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_BATCHFORWARD));
-        task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(createSiteCode.toString());
-        task.setKeyword2(request.getNewSendCode());
+        task.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
+        task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+        task.setKeyword1("8");// 8 批次转发
+        task.setKeyword2(String.valueOf(10));
+        task.setFingerprint(request.getNewSendCode());
         task.setOperateTime(DateHelper.parseDate(request.getOperateTime()));
-        taskService.initFingerPrint(task);
         task.setOwnSign(BusinessHelper.getOwnSign());
 
         task.setBody(JsonHelper.toJson(request));
