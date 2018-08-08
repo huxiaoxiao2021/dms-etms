@@ -337,4 +337,20 @@ public class SiteServiceImpl implements SiteService {
         }
         return data;
     }
+
+    /**
+     * 根据站点id获取站点名称
+     * @param siteCode
+     * @return
+     */
+    public String getSiteNameByCode(Integer siteCode){
+        if(siteCode != null && siteCode > 0){
+            BaseStaffSiteOrgDto dto = getSite(siteCode);
+            if(dto!= null){
+                return dto.getSiteName();
+            }
+        }
+        return null;
+    }
+
 }
