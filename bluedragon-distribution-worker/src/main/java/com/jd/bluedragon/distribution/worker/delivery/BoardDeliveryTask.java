@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.worker.delivery;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;

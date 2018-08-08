@@ -181,5 +181,9 @@ public  class SendMDao extends BaseDao<SendM>  {
      */
 	public List<SendM> queryListByCondition(SendM sendM) {
 		return getSqlSession().selectList(SendMDao.namespace + ".queryListByCondition", sendM);
-	}    
+	}
+
+	public List<String> selectBoxCodeByBoardCodeAndSendCode(SendM sendM){
+		return	this.getSqlSession().selectList(SendMDao.namespace + ".selectBoxCodeByBoardCodeAndSendCode", sendM);
+	}
 }

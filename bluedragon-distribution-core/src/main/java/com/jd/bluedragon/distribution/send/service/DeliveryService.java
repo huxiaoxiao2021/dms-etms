@@ -314,6 +314,13 @@ public interface DeliveryService {
 	boolean doBoardDelivery(Task task);
 
 	/**
+	 * 按板取消发货任务
+	 * @param task 任务实体
+	 * @return
+	 */
+	boolean doBoardDeliveryCancel(Task task);
+
+	/**
 	 * 原包分拣发货
 	 * @param sendMList
 	 */

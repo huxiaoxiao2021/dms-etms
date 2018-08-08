@@ -504,5 +504,15 @@
 		<if test="yn != null">
 			and yn = #{yn}
 		</if>		
-	</select>    
+	</select>
+
+	<select id="selectBoxCodeByBoardCodeAndSendCode" parameterType="SendM"
+			resultType="java.lang.String">
+		select
+		box_code
+		from send_m
+		where send_code= #{sendCode,jdbcType=VARCHAR}
+		AND board_code=#{boardCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</select>
 </mapper>
