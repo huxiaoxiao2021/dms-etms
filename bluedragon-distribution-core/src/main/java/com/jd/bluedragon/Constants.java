@@ -113,7 +113,7 @@ public class Constants {
     /**
      * 业务操作日志系统编码-分拣web
      */
-    public static final Integer BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+    public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
     /**
      * 业务类型-未知业务类型
      */
@@ -403,6 +403,8 @@ public class Constants {
      */
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
     public static final Integer FEATURE_TYPCANCEE_SICKL = 30; // 病单
+
+    public static final Integer FEATURE_TYPCANCEE_LP = 10; // 理赔完成拦截
 
     /**
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号

@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;

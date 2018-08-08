@@ -62,7 +62,7 @@ $(document).ready(function(){
             jQuery.messager.alert("提示","请填写组名","error");
             return;
         }
-            var chuteCodes = getChuteCodes();
+        var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
             if(!sendGroupName ){
                 jQuery.messager.alert("提示","请选择滑槽","error");
@@ -95,8 +95,8 @@ $(document).ready(function(){
         }
         var chuteCodes = getChuteCodes();
         if(chuteCodes == null || chuteCodes.length == 0){
-                jQuery.messager.alert("提示","请选择目的地记录","error");
-                return;
+            jQuery.messager.alert("提示","请选择目的地记录","error");
+            return;
         }
         updateSendGroup(currentSendGroup, sortMachineCode, chuteCodes);
     });
@@ -107,8 +107,8 @@ $(document).ready(function(){
     $("#delGroupbtn").click(function () {
         var currentSendGroup = $('#sendGroup').val();
         if(!currentSendGroup){
-                jQuery.messager.alert("提示","请选择发货组","error");
-                return;
+            jQuery.messager.alert("提示","请选择发货组","error");
+            return;
         }
         if(!confirm("确定要删除该组么？")){
             return;
@@ -355,7 +355,7 @@ function querySendGroupConfig(groupId) {
                 return;
             }
             if ( data.code == 200) {
-                    loadSendGroupConfigs(sendGroupConfigs);
+                loadSendGroupConfigs(sendGroupConfigs);
             }else if(data.code == 500) {
                 jQuery.messager.alert("提示：",data.message,"error");
             }
@@ -499,7 +499,7 @@ function loadChutes(chutes) {
             var volumeSum = 0.00;//总体积
             if(chute.sendCode){
                 CommonClient.ajax("POST",url,{"sendCode":chute.sendCode},function (data) {
-                // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
+                    // CommonClient.syncPost(url,{"sendCode":chute.sendCode},function (data) {
                     if (data != undefined && data != null){
                         var sum = data.data;
                         $(".packageSum"+sum.sendCode).text(sum.packageSum);
@@ -694,8 +694,8 @@ function toReplenishPrintPage(){
     location.href = url + "?machineId=" + $("#sortMachine").val()
         + "&createSiteCode=" + createSiteCode
         + "&createSiteName=" + encodeURIComponent(encodeURIComponent(createSiteName))
-        // + "&startTime="
-        // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
+    // + "&startTime="
+    // + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(DateUtil.formatDateTime(new Date()));
 }
 
 /**
@@ -709,7 +709,7 @@ function toGantryExceptionPage(){
     var createSiteCode = $("#createSiteCode").val();
     location.href = url + "?machineId=" + $("#sortMachine").val()
         + "&siteCode=" + createSiteCode
-        // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
+    // + "&startTime=" + timeStampToDate(gantryParams.startTime) + "&endTime=" + timeStampToDate(gantryParams.endTime);
 }
 function add0(m) {
     return m < 10 ? '0' + m : m;

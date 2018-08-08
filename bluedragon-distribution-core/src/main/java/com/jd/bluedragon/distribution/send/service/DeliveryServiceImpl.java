@@ -1071,12 +1071,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
+    @Override
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
-        if(JdResponse.CODE_OK.equals(response.getCode())){
-            response = deliveryCheckTransit(tSendM, flage);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = deliveryCheckTransit(tSendM, isTransferSend);
         }
-        if(JdResponse.CODE_OK.equals(response.getCode())){
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
         }
         return response;
@@ -1116,19 +1117,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return response;
     }
+
     /**
      * 箱号与目的地不一致校验
+     *
      * @param tSendM
      * @return
      */
-    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend){
+    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
             if (box != null) {
                 if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
-                    response.setCode(DeliveryResponse.CODE_Delivery_IS_SITE);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SITE);
+                    response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
@@ -2625,19 +2628,24 @@ public class DeliveryServiceImpl implements DeliveryService {
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
         		Waybill waybill = baseEntity.getData().getWaybill();
-        		//WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 
-        				40, '2')){
-        			boolean hasTotalWeight = false;
-            		//先校验运单的againWeight然后校验称重流水
-            		if(NumberHelper.gt0(waybill.getAgainWeight())){
-            			hasTotalWeight = true;
-    				 }else{
-    					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
-    				 }
-            		if(!hasTotalWeight){
-            			noHasWeightWaybills.add(waybillCode);
-            		}
+
+                //edited by hanjiaxing3 2018.07.26
+                //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
+                if (! BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessHelper.isSignChar(waybill.getWaybillSign(), 66, '0')) {
+                    //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
+                    if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '2')){
+                        boolean hasTotalWeight = false;
+                        //先校验运单的againWeight然后校验称重流水
+                        if(NumberHelper.gt0(waybill.getAgainWeight())){
+                            hasTotalWeight = true;
+                        }else{
+                            hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+                        }
+                        if(!hasTotalWeight){
+                            noHasWeightWaybills.add(waybillCode);
+                        }
+                    }
+                //end
         		}
         		//b2b校验是否包含-到付运费
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){

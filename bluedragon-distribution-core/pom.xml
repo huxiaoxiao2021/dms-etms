@@ -773,7 +773,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.18-SNAPSHOT</version>
+			<version>1.2.43-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>
@@ -786,6 +786,12 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
 			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.bd.dms.automatic</groupId>
+			<artifactId>automatic-sdk</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

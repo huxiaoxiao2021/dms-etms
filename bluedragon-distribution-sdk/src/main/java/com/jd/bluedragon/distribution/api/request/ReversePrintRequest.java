@@ -22,6 +22,11 @@ public class ReversePrintRequest extends JdObject {
     private String newCode;
 
     /**
+     * 新包裹号
+     */
+    private String newPackageCode ;
+
+    /**
      * 员工ID
      */
     private int staffId;
@@ -115,6 +120,14 @@ public class ReversePrintRequest extends JdObject {
         this.dmsDisCode = dmsDisCode;
     }
 
+    public String getNewPackageCode() {
+        return newPackageCode;
+    }
+
+    public void setNewPackageCode(String newPackageCode) {
+        this.newPackageCode = newPackageCode;
+    }
+
     @Override
     public String toString() {
         StringBuilder stringBuilder=new StringBuilder();
@@ -122,6 +135,8 @@ public class ReversePrintRequest extends JdObject {
         stringBuilder.append(this.oldCode);
         stringBuilder.append(";newCode:");
         stringBuilder.append(this.newCode);
+        stringBuilder.append(";newPackageCode:");
+        stringBuilder.append(this.newPackageCode);
         return stringBuilder.toString();
     }
 }

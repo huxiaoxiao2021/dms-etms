@@ -452,6 +452,7 @@ public class DeliveryResource implements DmsDeliveryService {
         return new DeliveryResponse(JdResponse.CODE_OK, msg);
     }
 
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkDeliveryInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @GET
     @Path("/delivery/check")
     @Override
@@ -465,37 +466,26 @@ public class DeliveryResource implements DmsDeliveryService {
         this.logger.info("receiveSiteCode is " + receiveSiteCode);
         this.logger.info("businessType is " + businessType);
         if (boxCode == null || siteCode == null || businessType == null || receiveSiteCode == null) {
-            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
-                    JdResponse.MESSAGE_PARAM_ERROR);
+            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
         tSendM.setCreateSiteCode(Integer.parseInt(siteCode));
         tSendM.setReceiveSiteCode(Integer.parseInt(receiveSiteCode));
         tSendM.setSendType(Integer.parseInt(businessType));
-        DeliveryResponse tDeliveryResponse = null;
-        boolean flage = false;
-
 
         try {
-
-            flage = deliveryService.isTransferSend(tSendM);
-            tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, flage);
+            boolean isTransferSend = deliveryService.isTransferSend(tSendM);
+            DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                if (flage && tDeliveryResponse.getCode().equals(JdResponse.CODE_OK))
-                    return new DeliveryResponse(DeliveryResponse.CODE_Delivery_TRANSIT,
-                            DeliveryResponse.MESSAGE_Delivery_TRANSIT);
-
                 return tDeliveryResponse;
             } else {
-                return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
-                        JdResponse.MESSAGE_SERVICE_ERROR);
+                return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
-            logger.error("发货校验异常",e);
-            return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
-                    JdResponse.MESSAGE_SERVICE_ERROR);
+            logger.error("发货校验异常", e);
+            return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
 

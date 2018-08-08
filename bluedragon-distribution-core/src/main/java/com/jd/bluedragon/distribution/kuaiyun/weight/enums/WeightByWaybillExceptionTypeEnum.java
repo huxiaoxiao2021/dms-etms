@@ -15,6 +15,9 @@ public enum WeightByWaybillExceptionTypeEnum
     //未找到对应运单
     WaybillNotFindException(false,WeightByWaybillExceptionTypeEnum.WaybillNotFindExceptionMessage),
 
+    //不需要称重
+    WaybillNoNeedWeightException(true,WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightExceptionMessage),
+
     //运单称重对象转换json失败
     WaybillWeightVOConvertExcetion(true,WeightByWaybillExceptionTypeEnum.WaybillWeightVOConvertExcetionMessage),
 
@@ -30,6 +33,7 @@ public enum WeightByWaybillExceptionTypeEnum
     public static final String WaybillWeightVOConvertExcetionMessage = "调取运单称重量方对象转换JSON失败，请检查原因";
     public static final String MQServiceNotAvailableMessage = "运单称重信息MQ发送失败，将转为task异步重试";
     public static final String InvalidMethodInvokeExceptionMessage = "遭遇非界面操作方式调用运单称重录入方法";
+    public static final String WaybillNoNeedWeightExceptionMessage = "此单为信任商家运单，不进行称重量方";
 
 
 
