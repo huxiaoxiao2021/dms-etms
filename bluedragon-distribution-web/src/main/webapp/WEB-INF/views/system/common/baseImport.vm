@@ -36,6 +36,13 @@
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
+#########
+##兼容jq1.9之前的版本 判断浏览器版本的方法
+########
+<script src="/static/js/plugins/jquery-migrate-1.2.1.js"></script>
+#########
+##基础工具包
+########
 <script src="/static/js/jd/jd.js"></script>
 ####################
 ## 基础样式
@@ -48,3 +55,21 @@
         min-width: 180px;
     }
 </style>
+<script type="text/javascript">
+    var topDoc;
+    if (parent&&parent.document&&parent.document.getElementById("topFrame")){
+        topDoc=parent.document.getElementById("topFrame").contentDocument;
+    }
+    var currUserCode;
+    if (topDoc&& topDoc.getElementById("currUserCode")){
+        var currUserCode=topDoc.getElementById("currUserCode").textContent;
+        if(!currUserCode){
+            alert("用户信息加载异常，请重新登录");
+            parent.location.href="#springUrl('/quit')";
+        }
+    }else{
+        ## alert("用户信息加载失败，请重新登录");
+        ## parent.location.href="#springUrl('/quit')";
+    }
+</script>
+<script src="/static/js/jd/jd.ajax.js"></script>

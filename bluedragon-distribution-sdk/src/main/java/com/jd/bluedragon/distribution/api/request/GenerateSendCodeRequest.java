@@ -11,7 +11,8 @@ public class GenerateSendCodeRequest implements Serializable {
     private long createSiteCode;
     private long receiveSiteCode;
     private Date time;
-
+    //数量
+    private Integer quantity;
     public long getCreateSiteCode() {
         return createSiteCode;
     }
@@ -34,5 +35,13 @@ public class GenerateSendCodeRequest implements Serializable {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Integer quantity) {
+        this.quantity = quantity;
     }
 }

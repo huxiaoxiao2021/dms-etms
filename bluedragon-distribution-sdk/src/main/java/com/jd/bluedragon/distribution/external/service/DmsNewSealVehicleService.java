@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 
 /**
@@ -63,5 +64,12 @@ public interface DmsNewSealVehicleService {
      * @return
      */
     NewSealVehicleResponse unseal(NewSealVehicleRequest request);
+
+    /**
+     * 校验并获取运力编码信息
+     * @param request
+     * @return
+     */
+     public RouteTypeResponse getTransportCode(NewSealVehicleRequest request);
 
 }

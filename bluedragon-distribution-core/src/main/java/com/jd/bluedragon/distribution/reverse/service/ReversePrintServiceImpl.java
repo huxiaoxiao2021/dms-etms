@@ -17,6 +17,8 @@ import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -40,6 +42,7 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 逆向换单打印
@@ -100,6 +103,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private PopPrintService popPrintService;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -132,12 +138,24 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         status.setRemark("换单打印，新运单号"+domain.getNewCode());
         status.setCreateSiteCode(domain.getSiteCode());
         status.setCreateSiteName(domain.getSiteName());
+        status.setPackageCode(domain.getOldCode()); //包裹号赋值运单号，防止运单在包裹上进行遍历
         tTask.setBody(JsonHelper.toJson(status));
         /**
          * 原外单添加换单全程跟踪
+         * 只有在此单第一次打印的时候才记录 update by liuduo 2018-08-02
          */
-        taskService.add(tTask, true);
+        List<PopPrint> popPrintList = this.popPrintService.findAllByWaybillCode(domain.getNewCode());
+        if(null==popPrintList||popPrintList.size()==0){
+            taskService.add(tTask, true);
+        }
+
+
         tTask.setKeyword1(domain.getNewCode());
+        if(StringUtils.isBlank(domain.getNewPackageCode())){
+            status.setPackageCode(domain.getNewCode()); //新单添加运单号 防止运单在包裹上进行遍历  只有客户端未升级才会有这种情况
+        }else{
+            status.setPackageCode(domain.getNewPackageCode()); //新单添加包裹号
+        }
         status.setWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，原运单号"+domain.getOldCode());
         tTask.setBody(JsonHelper.toJson(status));

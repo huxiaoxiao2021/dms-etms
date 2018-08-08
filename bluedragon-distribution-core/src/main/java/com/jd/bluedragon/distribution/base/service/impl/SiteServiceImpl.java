@@ -344,7 +344,7 @@ public class SiteServiceImpl implements SiteService {
      * @return
      */
     public String getSiteNameByCode(Integer siteCode){
-        if(siteCode != null || siteCode > 0){
+        if(siteCode != null && siteCode > 0){
             BaseStaffSiteOrgDto dto = getSite(siteCode);
             if(dto!= null){
                 return dto.getSiteName();

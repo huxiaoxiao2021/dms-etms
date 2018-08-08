@@ -5,6 +5,7 @@ import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -78,7 +79,7 @@ public class PopJoinResource {
     /**
      * 按条件查询POP收货交接清单
      *
-     * @param pager 分页对象
+     * @param popJoinQuery 分页对象
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -167,7 +168,7 @@ public class PopJoinResource {
     /**
      * 按条件查询POP收货交接清单
      *
-     * @param pager 分页对象
+     * @param popJoinQuery 分页对象
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -360,6 +361,10 @@ public class PopJoinResource {
                                 popPrint
                                         .setPopReceiveType(Constants.POP_QUEUE_EXPRESS);
                                 this.popPrintService.add(popPrint);
+                                //推补发货任务
+                                if (PopPrintRequest.PRINT_PACK_TYPE.equals(popPrint.getOperateType())) {
+                                    popPrintService.pushInspection(popPrint);
+                                }
                                 paramMap.put(popPrint.getWaybillCode(),
                                         JdResponse.CODE_OK);
                             }

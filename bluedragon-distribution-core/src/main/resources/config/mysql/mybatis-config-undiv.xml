@@ -244,6 +244,7 @@
         <mapper resource="mappers/mysql/b2bRouter/B2BRouterNodeMapper.xml"/>
         <mapper resource="mappers/mysql/weight/DmsWeightFlowMapper.xml"/>
         <mapper resource="mappers/mysql/abnormal/DmsOperateHintMapper.xml"/>
+        <mapper resource="mappers/mysql/abnormal/DmsOperateHintTrackMapper.xml"/>
 
         <mapper resource="mappers/mysql/half/PackageHalfMapper.xml"/>
         <mapper resource="mappers/mysql/half/PackageHalfDetailMapper.xml"/>

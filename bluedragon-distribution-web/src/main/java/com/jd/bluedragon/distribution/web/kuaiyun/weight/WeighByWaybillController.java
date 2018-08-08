@@ -55,6 +55,8 @@ public class WeighByWaybillController {
     private final Integer VALID_EXISTS_STATUS_CODE = 10;
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
+    private final Integer NO_NEED_WEIGHT = 201;
+
     @Autowired
     WeighByWaybillService service;
 
@@ -144,6 +146,8 @@ public class WeighByWaybillController {
     /**
      * 验证运单存在性
      *
+     * 是否需要称重逻辑校验  2018 07 27  update 刘铎
+     *
      * @param codeStr 运单号/运单下包裹号
      * @return 能否从运单系统查到对应运单
      * @throws WeighByWaybillExcpetion
@@ -173,11 +177,15 @@ public class WeighByWaybillController {
             if (exceptionType.shouldBeThrowToTop) {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                    result.setData(false);
-                    result.setMessage(exceptionType.exceptionMessage);
                     logger.error("运单称重：" + exceptionType.exceptionMessage);
                     throw weighByWaybillExcpetion;
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
+                    //不称重
+                    result.setCode(NO_NEED_WEIGHT);
+                    logger.debug("运单称重：" +codeStr+ "  " + exceptionType.exceptionMessage);
                 }
+                result.setData(false);
+                result.setMessage(exceptionType.exceptionMessage);
             } else {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.UnknownCodeException)) {
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);

@@ -12,6 +12,8 @@ import java.util.Date;
  */
 public class PopPrint implements Serializable {
 	private static final long serialVersionUID = 1L;
+
+	public static final Integer POP_FLAF_1=1;
 	
 	/**
 	 * 主键ID

@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
@@ -58,6 +59,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -224,6 +226,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
+
+    @Autowired
+    @Qualifier("operateHintTrackMQ")
+    private DefaultJMQProducer operateHintTrackMQ;
 
     @Autowired
     @Qualifier("arSendDetailProducer")
@@ -397,6 +403,21 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         SendResult result = null;
         if(StringUtils.isNotBlank(hints)){
+            //发货环节产生加急提示，发加急提示追踪的mq消息
+            try {
+                DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+                dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
+                dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
+                dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
+                dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
+                dmsOperateHintTrack.setHintTime(new Date());
+                String mqText = JSON.toJSONString(dmsOperateHintTrack);
+                this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息内容: " + mqText);
+                this.operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), mqText);
+            }catch(Exception e){
+                logger.error("发货提示语发mq异常,异常原因:" +e);
+            }
+
             result = new SendResult(SendResult.CODE_WARN, hints);
         }else{
             result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -1070,12 +1091,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean flage) {
+    @Override
+    public DeliveryResponse findSendMByBoxCode(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = deliveryCheckHasSend(tSendM);
-        if(JdResponse.CODE_OK.equals(response.getCode())){
-            response = deliveryCheckTransit(tSendM, flage);
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
+            response = deliveryCheckTransit(tSendM, isTransferSend);
         }
-        if(JdResponse.CODE_OK.equals(response.getCode())){
+        if (JdResponse.CODE_OK.equals(response.getCode())) {
             response = threeDeliveryCheck(tSendM);
         }
         return response;
@@ -1115,19 +1137,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         return response;
     }
+
     /**
      * 箱号与目的地不一致校验
+     *
      * @param tSendM
      * @return
      */
-    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend){
+    private DeliveryResponse deliveryCheckTransit(SendM tSendM, boolean isTransferSend) {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
             Box box = this.boxService.findBoxByCode(tSendM.getBoxCode());
             if (box != null) {
                 if (!box.getReceiveSiteCode().equals(tSendM.getReceiveSiteCode()) && !isTransferSend) {
-                    response.setCode(DeliveryResponse.CODE_Delivery_IS_SITE);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SITE);
+                    response.setCode(DeliveryResponse.CODE_Delivery_TRANSIT);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_TRANSIT);
                 }
             } else {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
@@ -2624,19 +2648,24 @@ public class DeliveryServiceImpl implements DeliveryService {
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
         		Waybill waybill = baseEntity.getData().getWaybill();
-        		//WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 
-        				40, '2')){
-        			boolean hasTotalWeight = false;
-            		//先校验运单的againWeight然后校验称重流水
-            		if(NumberHelper.gt0(waybill.getAgainWeight())){
-            			hasTotalWeight = true;
-    				 }else{
-    					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
-    				 }
-            		if(!hasTotalWeight){
-            			noHasWeightWaybills.add(waybillCode);
-            		}
+
+                //edited by hanjiaxing3 2018.07.26
+                //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
+                if (! BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessHelper.isSignChar(waybill.getWaybillSign(), 66, '0')) {
+                    //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
+                    if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '2')){
+                        boolean hasTotalWeight = false;
+                        //先校验运单的againWeight然后校验称重流水
+                        if(NumberHelper.gt0(waybill.getAgainWeight())){
+                            hasTotalWeight = true;
+                        }else{
+                            hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+                        }
+                        if(!hasTotalWeight){
+                            noHasWeightWaybills.add(waybillCode);
+                        }
+                    }
+                //end
         		}
         		//b2b校验是否包含-到付运费
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
@@ -3876,9 +3905,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult atuoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, boolean isForceSend,UploadData uploadData) {
         try {
 
+            if(logger.isInfoEnabled()){
+                logger.info("execute device auto send,parameter is :"+JsonHelper.toJson(domain));
+            }
             if (StringUtils.isNotBlank(getSendedCode(domain))) {
                 new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
             }else{
@@ -4085,5 +4117,51 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("一车一单发货取消组板异常.包裹号/箱号:" + domain.getBoxCode() + ",操作站点:" + domain.getCreateSiteCode() +
                     "异常原因:" +e);
         }
+    }
+
+    /**
+     * 原包发货[前提条件]1：原包没有发货;
+     * （1）原包发货，补写分拣任务
+     * （2）写SEND_M表
+     * （3）推送运单状态及回传周转箱
+     * （4）对中转发货写入补全SEND_D任务
+     *
+     * @param sendMList 发货对象
+     * @return 1：发货成功  2：发货失败
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void packageSortSend(List<SendM> sendMList){
+            /**插入SEND_M*/
+//            this.sendMDao.addBatch(sendMList);
+        for(SendM sendM : sendMList){
+            sendMDao.insertSendM(sendM);
+        }
+            for(SendM sendM : sendMList){
+                /**大件写TASK_SORTING*/
+                pushSorting(sendM);
+                /**中转任务*/
+                transitSend(sendM);
+                /**全程跟踪任务*/
+                pushStatusTask(sendM);
+            }
+    }
+
+    /**
+     *  查询发货记录
+     * @param sendCode 批次号
+     * @param createSiteCode 始发分拣中心
+     * @param receiveSiteCode 目的分拣中心
+     * @return
+     */
+    @Override
+    public List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode){
+        SendM queryParam = new SendM();
+        queryParam.setSendCode(sendCode);
+        queryParam.setCreateSiteCode(createSiteCode);
+        queryParam.setReceiveSiteCode(receiveSiteCode);
+        /**查询箱子发货记录*/
+        List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryParam);
+        return sendMList;
     }
 }

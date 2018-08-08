@@ -638,6 +638,28 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         target.setFreightText(freightText);
         target.setGoodsPaymentText(goodsPaymentText);
+
+        /**
+         * B2B生鲜运输产品类型
+         * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
+         * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+         * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
+         */
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),54,'2')){
+            //冷链整车
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),36,'0')
+                    && BusinessHelper.isSignChar(waybill.getWaybillSign(),40,'1')){
+                target.setjZDFlag(TextConstants.B2B_FRESH_WHOLE_VEHICLE);
+            //快运冷链
+            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),36,'1')
+                    && BusinessHelper.isSignChar(waybill.getWaybillSign(),40,'2')){
+                target.setjZDFlag(TextConstants.B2B_FRESH_EXPRESS);
+            //仓配冷链
+            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),36,'1')
+                    && BusinessHelper.isSignChar(waybill.getWaybillSign(),40,'3')){
+                target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
+            }
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
@@ -650,7 +672,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
         //waybill_sign标识位，第三十一位为0且第六十七位为1，打航填标
-        if(BusinessHelper.isExternal(waybill.getWaybillSign()) &&
+        if(!BusinessHelper.isSignInChars(waybill.getWaybillSign(),1,'1','Y') &&
                 BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'0') &&
                 BusinessHelper.isSignChar(waybill.getWaybillSign(),67,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
@@ -667,6 +689,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第五十七位为1，打优字标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),57,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_FIRST);
+        }
+        //waybill_sign标识位，第三十一位为3，打城际标
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
