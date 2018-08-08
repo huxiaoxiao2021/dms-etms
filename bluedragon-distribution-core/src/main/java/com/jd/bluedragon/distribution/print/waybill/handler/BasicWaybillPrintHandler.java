@@ -345,12 +345,27 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
            if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){
                //如果waybillSign第25位等于3时，表示运费支付方式为寄付，打印【已称】
                //waybillSign第66位等于1时，为信任运单，打印【已称】
-               //整单拒收逆向换单打印，原单最终状态为拒收/妥投返单的，逆向换单打印的面单显示【已称】
                if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       (context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT) &&
-                       !tmsWaybillManageDomain.getWaybillState().equals(WAYBILL_STATE_HALF_RECEIVE))){
+                       context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT)){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
+               }
+               //半收的不打印【已称】，这里需要判断原单的状态
+               if(context.getRequest().getOperateType().equals(OPERATE_TYPE_EXCHANGE_PRINT)){
+                   //获取原运单号
+                   BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
+                   if(oldWaybill != null && oldWaybill.getData()!=null){
+                       String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+                       //查询原单号的状态
+                       if(StringHelper.isNotEmpty(oldWaybillCode)){
+                           BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
+                           if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
+                               if(baseEntity.getData().getWaybillState().getWaybillState().equals(WAYBILL_STATE_HALF_RECEIVE)){
+                                   commonWaybill.setWeightFlagText("");
+                               }
+                           }
+                       }
+                   }
                }
            }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
