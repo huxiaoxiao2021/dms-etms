@@ -12,7 +12,7 @@ import java.util.Date;
  * @date 2017年04月28日 13:30:01
  *
  */
-@Deprecated
+
 public class TransbillM implements Serializable{
 
 	/**
