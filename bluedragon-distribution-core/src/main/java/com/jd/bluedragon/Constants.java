@@ -460,7 +460,14 @@ public class Constants {
     public static final String DMS_WEB_SORTING_FRESH_R ="DMS-WEB-SORTING-FRESH-R"; //生鲜温度录入
     public static final String DMS_WEB_SORTING_GANTRYAUTOSEND_R ="DMS-WEB-SORTING-GANTRYAUTOSEND-R"; //龙门架自动发货
     public static final String DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R ="DMS-WEB-SORTING-SORTMACHINEAUTOSEND-R"; //分拣机自动发货
+    public static final String DMS_WEB_SORTING_ECLPREFUSED_R="DMS-WEB-SORTING-ECLPREFUSED-R";//库房拒收外呼申请
+    public static final String DMS_WEB_SORTING_UNKNOWNWAYBILL_R="DMS-WEB-SORTING-UNKNOWNWAYBILL-R";//三无外单托寄物核实
     public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
+    public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
+    public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
+    public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
+    public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
+    public static final String DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R="DMS-WEB-EXPRESS-PACKAGEHALFREDELIVERY-R";//包裹部分签收操作
     public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
     public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
     public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断
@@ -471,6 +478,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_SORTINGCENTER_R ="DMS-WEB-TOOL-SORTINGCENTER-R"; //分拣中心测试查询工具
     public static final String DMS_WEB_TOOL_AREADESTPLAN_R ="DMS-WEB-TOOL-AREADESTPLAN-R"; //龙门架发货关系维护
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
+    public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
     /********************************************* UIM权限资源码相关end ***********************************************/

@@ -42,7 +42,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      *
      * @return
      */
-//    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
         model.addAttribute("usercode", getLoginUser().getUserErp());
@@ -55,6 +55,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      * @param abnormalDisposeCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeMain> listData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
@@ -68,6 +69,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      * @param abnormalDisposeCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/inspection/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeInspection> inspectionListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
@@ -88,6 +90,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      * @param abnormalDisposeCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/send/listData")
     public @ResponseBody
     PagerResult<AbnormalDisposeSend> sendListData(@RequestBody AbnormalDisposeCondition abnormalDisposeCondition) {
@@ -102,6 +105,7 @@ public class AbnormalDisposeController extends DmsBaseController {
         return rest;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/send/toExport")
     public ModelAndView toExportSend(AbnormalDisposeCondition abnormalDisposeCondition, Model model) {
         try {
@@ -116,6 +120,7 @@ public class AbnormalDisposeController extends DmsBaseController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/inspection/toExport")
     public ModelAndView toExportInspection(AbnormalDisposeCondition abnormalDisposeCondition, Model model) {
         try {
@@ -130,6 +135,7 @@ public class AbnormalDisposeController extends DmsBaseController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/saveQcCode")
     public @ResponseBody
     JdResponse<String> saveQcCode(@RequestBody AbnormalDisposeInspection abnormalDisposeInspection) {

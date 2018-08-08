@@ -22,6 +22,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/base/dmsStorageArea";
@@ -244,6 +246,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<DmsStorageArea> detail(@PathVariable("id") Long id) {
@@ -263,6 +266,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param dmsStorageArea
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/save")
     public @ResponseBody
     JdResponse<Boolean> save(DmsStorageArea dmsStorageArea) {
@@ -347,6 +351,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
@@ -366,6 +371,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param dmsStorageAreaCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<DmsStorageArea> listData(@RequestBody DmsStorageAreaCondition dmsStorageAreaCondition) {
@@ -384,6 +390,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param file
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping("/uploadExcel")
     @ResponseBody
     public JdResponse uploadExcel(@RequestParam("importExcelFile") MultipartFile file) {

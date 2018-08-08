@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.half.domain.*;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +48,7 @@ public class PackageHalfController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/half/packageHalf";
@@ -55,6 +58,7 @@ public class PackageHalfController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<PackageHalf> detail(@PathVariable("id") Long id) {
 		JdResponse<PackageHalf> rest = new JdResponse<PackageHalf>();
@@ -66,6 +70,7 @@ public class PackageHalfController {
 	 * @param packageHalf
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfVO packageHalfVO) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -154,6 +159,7 @@ public class PackageHalfController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -170,6 +176,7 @@ public class PackageHalfController {
 	 * @param packageHalfCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackageHalf> listData(@RequestBody PackageHalfCondition packageHalfCondition) {
 		JdResponse<PagerResult<PackageHalf>> rest = new JdResponse<PagerResult<PackageHalf>>();

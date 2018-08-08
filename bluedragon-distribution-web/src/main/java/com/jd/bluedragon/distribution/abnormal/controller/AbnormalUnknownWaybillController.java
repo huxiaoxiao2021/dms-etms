@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ public class AbnormalUnknownWaybillController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/abnormal/abnormalUnknownWaybill";
@@ -51,6 +54,7 @@ public class AbnormalUnknownWaybillController {
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<AbnormalUnknownWaybill> detail(@PathVariable("id") Long id) {
@@ -62,6 +66,7 @@ public class AbnormalUnknownWaybillController {
     /**
      * 二次上报
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/submitAgain/{waybillCode}")
     public @ResponseBody
     JdResponse<String> submitAgain(@PathVariable("waybillCode") String waybillCode) {
@@ -74,6 +79,7 @@ public class AbnormalUnknownWaybillController {
      * @param abnormalUnknownWaybill
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/save")
     public @ResponseBody
     JdResponse<String> save(@RequestBody AbnormalUnknownWaybill abnormalUnknownWaybill) {
@@ -93,6 +99,7 @@ public class AbnormalUnknownWaybillController {
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
@@ -112,6 +119,7 @@ public class AbnormalUnknownWaybillController {
      * @param abnormalUnknownWaybillCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<AbnormalUnknownWaybill> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
@@ -125,6 +133,7 @@ public class AbnormalUnknownWaybillController {
         return rest.getData();
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
         try {
