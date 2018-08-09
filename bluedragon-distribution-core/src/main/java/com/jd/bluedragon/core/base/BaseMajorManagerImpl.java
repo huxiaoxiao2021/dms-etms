@@ -30,9 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 @Service("baseMajorManager")
 public class BaseMajorManagerImpl implements BaseMajorManager {
@@ -368,6 +366,30 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictList", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseDataDict> getValidBaseDataDictList(Integer parentGroup, Integer nodeLevel, Integer typeGroup) {
         return basicPrimaryWS.getValidDataDict(parentGroup, nodeLevel, typeGroup);
+    }
+
+    /**
+     * 基础资料字典值 集合转换成MAP 方便定位。 key 对应typeCode
+     * @param parentGroup
+     * @param nodeLevel
+     * @param typeGroup
+     * @return
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getValidBaseDataDictListToMap@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getValidBaseDataDictListToMap", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Map<Integer,BaseDataDict> getValidBaseDataDictListToMap(Integer parentGroup, Integer nodeLevel, Integer typeGroup){
+        Map<Integer,BaseDataDict> result = new HashMap<Integer, BaseDataDict>();
+
+        List<BaseDataDict> baseDataDicts = basicPrimaryWS.getValidDataDict(parentGroup, nodeLevel, typeGroup);
+        if(baseDataDicts!=null && baseDataDicts.size()>0){
+
+            for(BaseDataDict baseDataDict: baseDataDicts){
+                result.put(baseDataDict.getTypeCode(),baseDataDict);
+            }
+        }
+        return result;
     }
 
     @Override

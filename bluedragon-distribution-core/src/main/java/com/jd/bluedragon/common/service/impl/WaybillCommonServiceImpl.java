@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -41,10 +41,6 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -533,6 +529,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
      * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
      * <p>设置打标信息：运输产品类型、收件公司、寄件公司(signBackText、distributTypeText、transportMode)
+     * <p>设置打标信息：B网订单的备用站点Id、已称标识、客户预约时间、派送时段、特殊要求</p>
      * @param target 目标对象(BasePrintWaybill类型)
      * @param waybill 原始运单对象
      */
@@ -587,6 +584,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //打印时间,取后台服务器时间
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
+
+        //设置备用站点
+        WaybillExt waybillExt = waybill.getWaybillExt();
+        if(waybillExt != null){
+            //从运单中取出备用站点id，转换成站点名称
+            target.setBackupSiteName(siteService.getSiteNameByCode(waybillExt.getBackupSiteId()));
+        }
+
         //设置运费及货款信息
         String freightText = "";
         String goodsPaymentText = "";
@@ -605,7 +610,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else{
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
         	}
-            target.setTemplateName("dms-nopaper-b2b-m");
+
+            target.setTemplateName("dms-b2b-m");
         }else{
             //C网运费和货款
             //运费：waybillSign 25位为2时【到付现结】；25位为3时【寄付现结】

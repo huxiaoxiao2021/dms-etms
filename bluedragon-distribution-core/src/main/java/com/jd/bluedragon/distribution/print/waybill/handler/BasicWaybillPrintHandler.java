@@ -50,31 +50,31 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
     @Autowired
     private DmsBaseDictService dmsBaseDictService;
-    
+
 	@Autowired
     private WaybillPrintService waybillPrintService;
-	
+
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    
+
     @Autowired
     private WaybillCommonService waybillCommonService;
-    
+
     @Autowired
     private PreSortingSecondService preSortingSecondService;
-    
+
     @Autowired
     private TransbillMService transbillMService;
-    
+
     @Autowired
     private PopPrintService popPrintService;
-    
+
     @Autowired
     private BaseMinorManager baseMinorManager;
 
     @Autowired
     private BasicSecondaryWS basicSecondaryWS;
-    
+
     @Autowired
     private AirTransportService airTransportService;
     /**
@@ -142,10 +142,19 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
+    /**
+     * 换单打印的操作类型
+     */
+    private static final Integer OPERATE_TYPE_EXCHANGE_PRINT = 100104;
+
+    /**
+     * 半收的运单状态
+     */
+    private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
-		
         String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
         try {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
@@ -331,6 +340,34 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
             	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
             }
+
+           //B网面单设置已称标识
+           if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){
+               //如果waybillSign第25位等于3时，表示运费支付方式为寄付，打印【已称】
+               //waybillSign第66位等于1时，为信任运单，打印【已称】
+               if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
+                       BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
+                       OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+                   commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
+               }
+               //半收的不打印【已称】，这里需要判断原单的状态
+               if(OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+                   //获取原运单号
+                   BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
+                   if(oldWaybill != null && oldWaybill.getData()!=null){
+                       String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+                       //查询原单号的状态
+                       if(StringHelper.isNotEmpty(oldWaybillCode)){
+                           BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
+                           if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
+                               if(WAYBILL_STATE_HALF_RECEIVE.equals(baseEntity.getData().getWaybillState().getWaybillState())){
+                                   commonWaybill.setWeightFlagText("");
+                               }
+                           }
+                       }
+                   }
+               }
+           }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
@@ -349,7 +386,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     }
     /**
      * 加载已打印记录【标签打印与发票打印】
-     * @param printWaybill
+     * @param context
      */
     private final void loadPrintedData(WaybillPrintContext context){
     	WaybillPrintResponse printWaybill = context.getResponse();

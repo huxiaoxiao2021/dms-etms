@@ -314,4 +314,9 @@
                   protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.dmsLocalServer.token}" hide="true" />
     </jsf:consumer>
+    <!--运单 全程跟踪 查询接口 邱一良 -->
+
+    <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
+                  protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

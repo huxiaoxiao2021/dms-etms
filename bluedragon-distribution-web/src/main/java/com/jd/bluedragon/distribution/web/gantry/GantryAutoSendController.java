@@ -262,11 +262,6 @@ public class GantryAutoSendController {
             return result;
         }
 
-        if (request.getPlanId() == null) {
-            result.setMessage("页面失效请重新刷新，清空缓存");
-            return result;
-        }
-
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         if (pager.getPageNo() != null) {
@@ -274,7 +269,8 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
-        sfbssa.setPlanId(request.getPlanId());
+//        sfbssa.setPlanId(request.getPlanId());
+        sfbssa.setStartTime(new Date(new Date().getTime()-3*24*60*60*1000));
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {
