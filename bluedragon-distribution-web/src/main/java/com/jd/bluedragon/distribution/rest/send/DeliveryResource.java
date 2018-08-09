@@ -554,6 +554,7 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setUpdaterUser(request.getUserName());
         sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
+        sendM.setSendCode(request.getSendCode());
         if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
             sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         }

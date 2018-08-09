@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
@@ -183,7 +184,31 @@ public  class SendMDao extends BaseDao<SendM>  {
 		return getSqlSession().selectList(SendMDao.namespace + ".queryListByCondition", sendM);
 	}
 
+	/**
+	 * 根据板号、批次号和始发分拣中心Code查询sendM中的发货记录
+	 * @param sendM
+	 * @return
+     */
 	public List<String> selectBoxCodeByBoardCodeAndSendCode(SendM sendM){
 		return	this.getSqlSession().selectList(SendMDao.namespace + ".selectBoxCodeByBoardCodeAndSendCode", sendM);
+	}
+
+    /**
+	 * 判断板号是否已经操作过发货
+	 * @param sendM
+	 * @return
+     */
+	public boolean checkSendByBoard(SendM sendM) {
+		Integer count = (Integer)this.getSqlSession().selectOne(namespace+".checkSendByBoard", sendM);
+		return count>0;
+	}
+
+    /**
+	 * 通过板号查询发货记录，只取最新的一条
+	 * @param sendM
+	 * @return
+     */
+	public SendM findSendMByBoardCode(SendM sendM){
+		return	this.getSqlSession().selectOne(SendMDao.namespace + ".findSendMByBoardCode", sendM);
 	}
 }

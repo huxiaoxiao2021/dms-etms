@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
@@ -153,9 +154,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private InspectionService inspectionService;
 
     @Autowired
-    private IFailQueueService newFailQueueService;
-
-    @Autowired
     private TaskService tTaskService;
 
     @Autowired
@@ -265,6 +263,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     private static final int OPERATE_TYPE_NEW_PACKAGE_SEND=60;
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
+
+    //组板发货任务的Reids缓存key的前缀
+    private final String REDIS_PREFIX_BOARD_DELIVERY= "BoardDelivery-";
+    //组板发货任务的Redis过期时间
+    private final int EXPIRE_REDIS_BOARD_TASK = 3*60;
 
     /**
      * 运单路由字段使用的分隔符
@@ -467,13 +470,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
+        //2.判断批次号是否已经封车
         if(checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
         String boardCode = domain.getBoardCode();
 
+        //3.校验板号是否有效
         try{
-            BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
+            BoardResponse boardResponse = boardCombinationService.checkBoardCanSend(boardCode);
             logger.info("组板发货查板号信息：" + JsonHelper.toJson(boardResponse));
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
                 return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
@@ -483,10 +488,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new SendResult(SendResult.CODE_SENDED, "服务异常：组板发货板号校验失败!");
         }
 
-        //2.写发货任务
+        //4.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
+        if(sendMDao.checkSendByBoard(domain)){
+            return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
+        }
+        //5.写发货任务
         pushBoardSendTask(domain,"7");
 
-        //3.写组板发货任务完成，调用TC执行关板
+        //6.写组板发货任务完成，调用TC执行关板
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
@@ -679,10 +688,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
-        tTask.setKeyword1(keyWord1);// 7 组板发货任务
+        tTask.setKeyword1(keyWord1);// 7 组板发货任务  8 整板取消发货任务
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
         logger.info("组板发货任务推送成功：" + JsonHelper.toJson(tTask));
         tTaskService.add(tTask, true);
+        //写redis记录任务状态
+        String redisKey = REDIS_PREFIX_BOARD_DELIVERY + domain.getBoardCode();
+        redisManager.setex(redisKey,EXPIRE_REDIS_BOARD_TASK,domain.getBoardCode());
         return true;
     }
 
@@ -1256,23 +1268,38 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
                 return threeDeliveryResponse;
             } else if (SerialRuleUtil.isBoardCode(tSendM.getBoxCode())){
-                //判断发货任务是否已经跑完，通过对比sendm和组板明细中记录条数确定
+                tSendM.setBoardCode(tSendM.getBoxCode());
+                //1.组板发货批次，板号校验（强校验）
+                if(!checkSendM(tSendM)){
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_SEND_SITE_NOTMATCH__ERROR,
+                            DeliveryResponse.MESSAGE_SEND_SITE_NOTMATCH_ERROR,null);
+                }
+                //2.校板是否已经发车
+                if(checkboardIsDepartured(tSendM)){
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_BOARD_SENDED_ERROR,
+                            DeliveryResponse.MESSAGE_BOARD_SENDED_ERROR,null);
+                }
+
+                //3.校验是否有板号和批次号对应的发货数据
                 List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
-                BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(tSendM.getBoxCode());
-                if(boardResponse == null || boardResponse.getBoardDetails()== null || boardResponse.getBoardDetails().size()<1){
-                    //提示没有找到板号的组板明细
+                if(sendMList == null || sendMList.size()<1){
+                    //提示没有找到板号的发货明细
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_NO_BOARDSEND_DETAIL_ERROR,
                             DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR, null);
                 }
-                if(boardResponse.getBoardDetails().size() != sendMList.size()){
-                    //如果任务没有跑完，提示现场稍后再试
+                //4.校验是否有同一板号的发货任务没有跑完
+                String redisKey = REDIS_PREFIX_BOARD_DELIVERY + tSendM.getBoxCode();
+                if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SEND_NOT_FINISH_ERROR,
-                            DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR, null);
+                            DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR,null);
                 }
-                //任务跑完，生产一个按板号取消发货的任务（为了避免，按板取消处理时间太长，采用这种异步的方式）
+                //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,"8");
+                return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
             // 改变箱子状态为分拣
         } catch (Exception e) {
@@ -1780,6 +1807,19 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.warn("redis取封车批次号失败："+e.getMessage());
         }
         return result;
+    }
+
+    /**
+     * 校验板号是否已经发车
+     * @param domain
+     * @return
+     */
+    private boolean checkboardIsDepartured(SendM domain){
+        SendM sendM = sendMDao.findSendMByBoardCode(domain);
+        if(sendM != null && StringHelper.isNotEmpty(sendM.getSendUser())){
+            return true;
+        }
+        return false;
     }
     /**
      * 校验sendm中的批次号
@@ -4068,7 +4108,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.warn("组板发货,逐单发货查询板标明细出错,组板发货任务：" + JsonHelper.toJson(domain));
             logger.warn("组板发货,逐单发货查询板标明细出错，查询明细结果：" + JsonHelper.toJson(tcResponse));
         }
-		return true;
+        //发货任务处理完毕，删除缓存
+        redisManager.del(REDIS_PREFIX_BOARD_DELIVERY +domain.getBoardCode());
+        return true;
 	}
 
     /**
@@ -4086,6 +4128,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                 try {
                     domain.setSendMId(null);
                     domain.setBoxCode(boxCode);
+                    if (BusinessHelper.isBoxcode(boxCode)) {
+                        domain.setReceiveSiteCode(null);
+                    } else{
+                        domain.setReceiveSiteCode(siteService.getSiteCodeBySendCode(domain.getSendCode())[1]);
+                    }
                     dellCancelDeliveryMessage(domain, true);
                 }catch(Exception e){
                     logger.warn(String.format("按板取消发货，取消包裹/箱号{0}失败,失败原因{1}",boxCode,e.getMessage()));

@@ -511,8 +511,43 @@
 		select
 		box_code
 		from send_m
-		where send_code= #{sendCode,jdbcType=VARCHAR}
+		where yn=1
+		AND send_code= #{sendCode,jdbcType=VARCHAR}
 		AND board_code=#{boardCode,jdbcType=VARCHAR}
 		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
+
+
+	<select id="checkSendByBoard" parameterType="SendM"  resultType="Integer">
+		SELECT COUNT(send_m_id)
+		FROM send_m
+		WHERE yn = 1
+		AND send_type = #{sendType,jdbcType=SMALLINT}
+		AND board_code = #{boardCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</select>
+
+	<select id="findSendMByBoardCode" parameterType="SendM"  resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from  send_m
+		<where>
+			yn=1
+			<if test="createSiteCode!=null">
+				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="receiveSiteCode!=null">
+				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="sendType!=null">
+				and send_type = #{sendType,jdbcType=INTEGER}
+			</if>
+			<if test="boardCode!=null">
+				and board_code = #{boardCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		order by create_time DESC
+		limit 1
+	</select>
+
 </mapper>
