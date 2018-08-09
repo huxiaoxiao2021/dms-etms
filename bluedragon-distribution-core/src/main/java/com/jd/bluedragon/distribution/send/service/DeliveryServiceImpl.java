@@ -565,9 +565,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 箱子已发货则返回已发货批次号
      * @param domain
      */
-    private String getSendedCode(SendM domain){
-        SendM sendM = getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
-        if (sendM != null){
+    private String getSendedCode(SendM domain) {
+        SendM sendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode(), null);
+        if (sendM != null) {
             return sendM.getSendCode();
         }
         return null;
@@ -581,7 +581,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param receiveSiteCode
      * @return
      */
-    private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
+    private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime) {
         //查询箱子发货记录
         /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
         SendM queryPara = new SendM();
@@ -589,6 +589,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         queryPara.setCreateSiteCode(createSiteCode);
         if (receiveSiteCode != null) {
             queryPara.setReceiveSiteCode(receiveSiteCode);
+        }
+        if (operateTime != null){
+            queryPara.setUpdateTime(operateTime);
         }
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);
         if (null != sendMList && sendMList.size() > 0) {
@@ -604,13 +607,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private void multiSendCancelLast(SendM domain) {
         // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
-        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null);
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (null != lastSendM) {
             if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
                 // 获取封车时间
                 Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(lastSendM.getSendCode());
+                // 判断是否已封车
                 if (sealCarTime != null) {
-                    // 发货时间在上次发货后封车时间1小时内，则取消上次发货
+                    // 已封车 发货时间在上次发货后封车时间1小时内，则取消上次发货
                     if (domain.getOperateTime().getTime() - sealCarTime < DateHelper.ONE_HOUR_MILLI) {
                         this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
                     }
