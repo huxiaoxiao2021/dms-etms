@@ -5,6 +5,7 @@
 		<title>库管单号查询</title>
 		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
 		<link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
+		#parse("system/common/baseImport.vm")
 		<script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
 		<SCRIPT type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
 		<script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
@@ -15,23 +16,25 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			if ("$!errorMesage" == "1") {
-				alert('清单为空或查询错误！');
+				Jd.alert('清单为空或查询错误！');
+			}else if ("$!errorMesage" != 0) {
+                Jd.alert("$!errorMesage");
 			}
-			
+
 			$("#search").click(function() {
 			
 			var waybillCode = $('#waybillCode').val();
 			var i = 0;
             if(waybillCode == null || waybillCode.length < 1)
             {
-                alert('请输入合法库单号！');
+                Jd.alert('请输入合法库单号！');
                 return;
             }            
             for (i = 0; i < waybillCode.length; i++) 
             {
                 if (parseInt(waybillCode.charAt(i)) >= 0 && parseInt(waybillCode.charAt(i)) <= 9)
                    continue;
-                alert('请输入合法库单号！');
+                Jd.alert('请输入合法库单号！');
                 return;
             }
 
