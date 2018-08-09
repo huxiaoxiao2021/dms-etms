@@ -84,6 +84,11 @@ public class ArAirWaybillStatus {
      */
     private String transportCode;
 
+    /**
+     * 路由线路编码
+     */
+    private String routeLineCode;
+
     public String getFlightNumber() {
         return flightNumber;
     }
@@ -204,4 +209,11 @@ public class ArAirWaybillStatus {
         this.transportCode = transportCode;
     }
 
+    public String getRouteLineCode() {
+        return routeLineCode;
+    }
+
+    public void setRouteLineCode(String routeLineCode) {
+        this.routeLineCode = routeLineCode;
+    }
 }
