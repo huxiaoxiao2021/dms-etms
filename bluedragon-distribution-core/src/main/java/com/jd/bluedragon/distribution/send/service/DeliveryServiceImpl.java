@@ -325,9 +325,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
 
-        // 多次发货取消上次发货
-        this.multiSendCancelLast(domain);
-
         if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
@@ -421,6 +418,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 this.boardCombinationCancel(domain);
             }
         }
+
+        // 多次发货取消上次发货
+        this.multiSendCancelLast(domain);
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         packageSend(domain);
@@ -582,12 +582,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode) {
+        //查询箱子发货记录
+        /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
         SendM queryPara = new SendM();
         queryPara.setBoxCode(boxCode);
         queryPara.setCreateSiteCode(createSiteCode);
-        queryPara.setReceiveSiteCode(receiveSiteCode);
-        //查询箱子发货记录
-        /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
+        if (receiveSiteCode != null) {
+            queryPara.setReceiveSiteCode(receiveSiteCode);
+        }
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryPara);
         if (null != sendMList && sendMList.size() > 0) {
             return sendMList.get(0);
@@ -602,7 +604,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private void multiSendCancelLast(SendM domain) {
         // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
-        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), domain.getReceiveSiteCode());
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null);
         if (null != lastSendM) {
             if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
                 // 获取封车时间
