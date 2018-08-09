@@ -127,6 +127,8 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             airWaybillStatus.setTransportCode(sealCarDto.getTransportCode());
             /* 发车条码 */
             airWaybillStatus.setSendCarCode(sealCarDto.getSealCarCode());
+            /* 路由线路编码 */
+            airWaybillStatus.setRouteLineCode(sealCarDto.getRouteLineCode());
         } else {
             logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号(" + sendCode + ")获取封车信息为null");
         }
