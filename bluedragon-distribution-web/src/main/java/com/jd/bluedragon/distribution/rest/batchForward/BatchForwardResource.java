@@ -7,17 +7,16 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batchForward.SendCodeInfo;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.codehaus.jra.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -86,7 +85,7 @@ public class BatchForwardResource {
      * @param request
      * @return
      */
-    @Post
+    @POST
     @Path("/batchForward/batchForwardSend")
     public InvokeResult batchForwardSend(BatchForwardRequest request){
         if(logger.isInfoEnabled()){
@@ -100,7 +99,9 @@ public class BatchForwardResource {
             result.error(e);
             this.logger.error("整批转发",e);
         }
-
+        if(logger.isInfoEnabled()){
+            logger.info(JsonHelper.toJsonUseGson(result));
+        }
         return result;
     }
 }
