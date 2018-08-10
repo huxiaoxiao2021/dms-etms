@@ -268,7 +268,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
 
-    //组板发货任务的Reids缓存key的前缀
+    //组板发货任务的Redis缓存key的前缀
     private final String REDIS_PREFIX_BOARD_DELIVERY= "BoardDelivery-";
     //组板发货任务的Redis过期时间
     private final int EXPIRE_REDIS_BOARD_TASK = 3*60;

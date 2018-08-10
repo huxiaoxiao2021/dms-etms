@@ -780,6 +780,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 return "SendDetailMQTask";
             }else if("7".equals(keyword1)){
                 return "BoardDeliveryTask";
+            }else if("8".equals(keyword1)){
+                return "BoardDeliveryCancelTask";
             }
         }else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有

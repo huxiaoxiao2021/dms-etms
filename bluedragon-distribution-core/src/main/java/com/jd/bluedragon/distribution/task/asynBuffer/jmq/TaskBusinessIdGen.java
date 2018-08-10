@@ -77,6 +77,12 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
             }
         }
 
+        if("task_send".equalsIgnoreCase(tableName) && ("7".equals(keyword1) || "8".equals(keyword1))){
+            if(StringHelper.isNotEmpty(task.getBoxCode())){
+                return task.getBoxCode();
+            }
+        }
+
         //task_sorting 和 task_inspeciton
         if("task_sorting".equalsIgnoreCase(tableName) || "task_inspection".equalsIgnoreCase(tableName)){
             String keyWord2 = task.getKeyword2().trim();

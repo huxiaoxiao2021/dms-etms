@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
