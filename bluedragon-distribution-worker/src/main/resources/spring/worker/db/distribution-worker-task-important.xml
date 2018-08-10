@@ -171,7 +171,7 @@
         <property name="taskType" value="BoardDeliveryCancelTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
-        <property name="keyType" value="8"/>
+        <property name="keyType" value="9"/>
         <property name="desc" value="组板取消发货"/>
     </bean>
 </beans>

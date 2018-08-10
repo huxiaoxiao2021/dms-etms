@@ -707,7 +707,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
-        tTask.setKeyword1(keyWord1);// 7 组板发货任务  8 整板取消发货任务
+        tTask.setKeyword1(keyWord1);// 7 组板发货任务  9 整板取消发货任务
         tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
         logger.info("组板发货任务推送成功：" + JsonHelper.toJson(tTask));
         tTaskService.add(tTask, true);
@@ -1317,7 +1317,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR,null);
                 }
                 //生产一个按板号取消发货的任务
-                pushBoardSendTask(tSendM,"8");
+                pushBoardSendTask(tSendM,"9");
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
             // 改变箱子状态为分拣
