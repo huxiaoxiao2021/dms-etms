@@ -9,12 +9,21 @@ import java.util.Date;
  */
 public class SiteRetakeOperation {
     private  String waybillCode;
-    private Integer status;
+    private Integer status;//【5：揽件完成 6：揽件终止7：揽件再取 88.异常订单状态】
     private String remark;
     private Integer operatorId;//配送员id
     private Integer endReason;//终止原因(再取原因)
     private Date requiredStartTime;
     private Date requiredEndTime;
+    private Integer siteCode;
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
 
     public String getWaybillCode() {
         return waybillCode;

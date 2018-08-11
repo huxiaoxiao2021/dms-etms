@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.siteRetake.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.SiteRetakeManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
@@ -9,6 +10,7 @@ import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
  * @Description: 驻厂批量再取
  * @date 2018年08月02日 14时:47分
  */
+@Service("siteRetakeService")
 public class SiteRetakeServiceImpl implements SiteRetakeService {
     @Autowired
     private SiteRetakeManager siteRetakeManager;
@@ -37,10 +40,14 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         List<VendorOrder> resultDate = new ArrayList<VendorOrder>();
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
-        vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
-        vendorOrder.setRequiredStartTime(siteRetakeCondition.getRequiredStartTime());
-        vendorOrder.setRequiredEndTime(siteRetakeCondition.getRequiredEndTime());
-        vendorOrder.setAssignTime(siteRetakeCondition.getAssignStartTime());
+        if (siteRetakeCondition.getVendorId()!=null){
+            vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
+        }
+        if (SiteRetakeCondition.TIME_TYPE_ASSIGNTIME.equals(siteRetakeCondition.getTimeType())){
+            vendorOrder.setAssignTime(siteRetakeCondition.getSelectTime());
+        }else{
+            vendorOrder.setWaybillCreateTime(siteRetakeCondition.getSelectTime());
+        }
         int totalPage = 1;//总页数
         int currPage = 0;//翻页控制
         while (currPage < totalPage) {
@@ -52,7 +59,7 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
             page.setCurrentPage(currPage);
             page.setPageSize(100);
             Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
-            if (pageResult != null) {
+            if (pageResult == null) {
                 break;
             } else {
                 //获取总页数
@@ -65,13 +72,31 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
 
     public InvokeResult<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         VendorOrder vendorOrder = new VendorOrder();
-        vendorOrder.setWaybillCode(siteRetakeOperation.getWaybillCode());
         vendorOrder.setStatus(siteRetakeOperation.getStatus());
         vendorOrder.setOperatorId(siteRetakeOperation.getOperatorId());
+        vendorOrder.setSiteCode(siteRetakeOperation.getSiteCode());
         vendorOrder.setEndReason(siteRetakeOperation.getEndReason());
         vendorOrder.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
         vendorOrder.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
-        return siteRetakeManager.updateCommonOrderStatus(vendorOrder);
+        InvokeResult<String> result=new InvokeResult<String>();
+        result.setCode(200);
+        result.setMessage("");
+        String[] waybillcodes=siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
+        if (waybillcodes!=null&&waybillcodes.length>0){
+
+            for (String waybillCode:waybillcodes){
+                vendorOrder.setWaybillCode(waybillCode);
+                InvokeResult<String> resultOne= siteRetakeManager.updateCommonOrderStatus(vendorOrder);
+                if (resultOne.getCode()!=200){
+                    result.setCode(101);
+                    result.setMessage(result.getMessage()+"运单["+waybillCode+"]保存失败："+resultOne.getMessage()+"\n");
+                }
+            }
+        }else{
+            result.setCode(100);
+            result.setMessage("无可操作运单");
+        }
+        return result;
     }
 }

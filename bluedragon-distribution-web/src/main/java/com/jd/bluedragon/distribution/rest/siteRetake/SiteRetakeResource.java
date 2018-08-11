@@ -34,7 +34,7 @@ public class SiteRetakeResource {
     private SiteRetakeService siteRetakeService;
 
     @GET
-    @Path("/queryBasicTraderInfoByKey/{key}")
+    @Path("/siteRetake/queryBasicTraderInfoByKey/{key}")
     public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(@PathParam("key") String key) {
         List<BasicTraderQueryDTO> result = Lists.newArrayList();
         if (StringHelper.isEmpty(key)) {
@@ -47,27 +47,21 @@ public class SiteRetakeResource {
                 result.add(dto);
             }
         }
-        if (result.size() == 0) {
-            BasicTraderQueryDTO emptyText = new BasicTraderQueryDTO();
-            emptyText.setId("00000");
-            emptyText.setTraderCode("");
-            emptyText.setTraderName("无查询结果");
-            result.add(emptyText);
-        }
+
         return result;
     }
 
-    @GET
-    @Path("/queryWaybillCode")
+    @POST
+    @Path("/siteRetake/queryWaybillCode")
     public List<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
-        Assert.notNull(siteRetakeCondition.getVendorId(), "traderId type must not be null");
+        Assert.notNull(siteRetakeCondition.getSiteCode(), "traderId type must not be null");
         return siteRetakeService.queryVendorOrderList(siteRetakeCondition);
     }
 
     @POST
-    @Path("/operation")
-    public InvokeResult<String> operation(SiteRetakeOperation siteRetakeOperation) {
+    @Path("/siteRetake/updateOrderStatus")
+    public InvokeResult<String> updateOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         return siteRetakeService.updateCommonOrderStatus(siteRetakeOperation);
 
     }

@@ -8,27 +8,20 @@ import java.util.Date;
  * @date 2018年08月02日 16时:29分
  */
 public class SiteRetakeCondition {
-    private Date requiredStartTime;
-    private Date requiredEndTime;
+    public static final Integer TIME_TYPE_ASSIGNTIME=0;
+    public static final Integer TIME_TYPE_ORDERTIME=1;
+
+    private Date selectTime;
     private Integer VendorId;
     private Integer siteCode;
-    private Date  assignStartTime;
-    private Date  assignEndTime;
+    private Integer  timeType;
 
-    public Date getRequiredStartTime() {
-        return requiredStartTime;
+    public Date getSelectTime() {
+        return selectTime;
     }
 
-    public void setRequiredStartTime(Date requiredStartTime) {
-        this.requiredStartTime = requiredStartTime;
-    }
-
-    public Date getRequiredEndTime() {
-        return requiredEndTime;
-    }
-
-    public void setRequiredEndTime(Date requiredEndTime) {
-        this.requiredEndTime = requiredEndTime;
+    public void setSelectTime(Date selectTime) {
+        this.selectTime = selectTime;
     }
 
     public Integer getVendorId() {
@@ -47,19 +40,11 @@ public class SiteRetakeCondition {
         this.siteCode = siteCode;
     }
 
-    public Date getAssignStartTime() {
-        return assignStartTime;
+    public Integer getTimeType() {
+        return timeType;
     }
 
-    public void setAssignStartTime(Date assignStartTime) {
-        this.assignStartTime = assignStartTime;
-    }
-
-    public Date getAssignEndTime() {
-        return assignEndTime;
-    }
-
-    public void setAssignEndTime(Date assignEndTime) {
-        this.assignEndTime = assignEndTime;
+    public void setTimeType(Integer timeType) {
+        this.timeType = timeType;
     }
 }

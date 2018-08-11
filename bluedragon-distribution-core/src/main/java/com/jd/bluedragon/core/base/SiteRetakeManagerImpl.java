@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.packageToMq.domain.Pack;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.orm.page.Page;
@@ -16,8 +18,10 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +29,7 @@ import java.util.List;
  * @Description: 查询商家
  * @date 2018年08月02日 14时:24分
  */
+@Service("siteRetakeManager")
 public class SiteRetakeManagerImpl implements SiteRetakeManager {
     private static final Logger logger = LoggerFactory.getLogger(SiteRetakeManagerImpl.class);
     @Autowired
@@ -60,6 +65,7 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
     public Page<VendorOrder> selectVendorOrderList(VendorOrder vendorOrder, Page page) {
 
         CommonDto<Page<VendorOrder>> result = vendorOrderJsfService.selectVendorOrderList(vendorOrder, page);
+//        CommonDto<Page<VendorOrder>> result = testQueryOrder();
         if (result == null) {
             logger.error("SiteRetakeManagerImpl.selectVendorOrderList 查询异常，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",page：" + JsonHelper.toJson(page));
             page.setTotalRow(0);
@@ -73,7 +79,25 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
         }
         return result.getData();
     }
-
+    private  CommonDto<Page<VendorOrder>> testQueryOrder(){
+        List list=Lists.newArrayList();
+        for (int i=0;i<15;i++){
+            VendorOrder vendorOrder=new VendorOrder();
+            vendorOrder.setWaybillCode("12345"+i);
+            vendorOrder.setWaybillCreateTime(new Date());
+            vendorOrder.setAssignTime(new Date());
+            list.add(vendorOrder);
+        }
+        Page<VendorOrder> page=new Page<VendorOrder>();
+        page.setPageSize(20);
+        page.setCurrentPage(1);
+        page.setTotalRow(15);
+        page.setResult(list);
+        CommonDto<Page<VendorOrder>> aa=new CommonDto<Page<VendorOrder>>();
+        aa.setCode(1);
+        aa.setData(page);
+        return aa;
+    }
     @Override
     @JProfiler(jKey = "com.jd.bluedragon.core.base.SiteRetakeManagerImpl.updateCommonOrderStatus", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<String> updateCommonOrderStatus(VendorOrder vendorOrder) {
