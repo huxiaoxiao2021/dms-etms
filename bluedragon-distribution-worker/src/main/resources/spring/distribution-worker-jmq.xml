@@ -175,5 +175,9 @@
     <jmq:consumer id="jmq.abnormalUnknownReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dms_unknown_verify_feedback" listener="dmsAbnormalUnknownConsumer"/>
     </jmq:consumer>
+
+    <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dms_operateHint_track" listener="operateHintTrackConsumer"/>
+    </jmq:consumer>
 </beans>
 

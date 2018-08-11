@@ -5,10 +5,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
+import com.jd.ql.trace.api.core.APIResultDTO;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -44,7 +49,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
     @Autowired
     private WaybillPackageApi waybillPackageApiJsf;
-	
+
+    @Qualifier("waybillTraceBusinessQueryApi")
+    @Autowired
+	private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
 	@Override
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
 		return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
@@ -285,4 +294,23 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryWaybillExtend(Boolean.TRUE);
 		return this.getDataByChoice(waybillCode, wChoice);
 	}
+
+	/**
+	 * 根据操作单号和状态查询B网全程跟踪数据,包含extend扩展属性。
+	 * @param operatorCode 运单号
+	 * @param state 状态码
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.queryBillBTraceAndExtendByOperatorCode",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state) {
+		APIResultDTO<List<BillBusinessTraceAndExtendDTO>> resultDTO =  waybillTraceBusinessQueryApi.queryBillBTraceAndExtendByOperatorCode( operatorCode,  state);
+		if(resultDTO.isSuccess()){
+			return  resultDTO.getResult();
+		}
+		return null;
+	}
+
+
 }

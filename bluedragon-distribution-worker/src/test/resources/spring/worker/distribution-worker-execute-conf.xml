@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+
+	<!-- worker 执行 配置-->
+
+	<!--统一引入JMQTask TBtask RedisTask 配置-->
+	<import resource="classpath:spring/worker/db/distribution-worker-task-conf.xml" />
+	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-conf.xml" />
+	<import resource="classpath:spring/worker/redis/distribution-worker-task-redis-conf.xml" />
+
+
+	<!-- 非核心业务 -->
+	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-normal.xml" />
+    <import resource="classpath:spring/worker/redis/distribution-worker-task-redis-normal.xml" />
+
+	&lt;!&ndash; 核心业务 &ndash;&gt;
+	<import resource="classpath:spring/worker/db/distribution-worker-task-important.xml" />
+	<import resource="classpath:spring/worker/redis/distribution-worker-task-redis-important.xml" />-->
+
+	<!-- JMQ 任务-->
+
+	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-dms-important.xml" />
+
+
+	<!-- 特殊业务 -->
+	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-special.xml" />-->
+
+</beans>

@@ -13,6 +13,35 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
+import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.external.service.DmsWaybillService;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
+import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
+import com.jd.bluedragon.distribution.saf.WaybillSafService;
+import com.jd.bluedragon.distribution.waybill.domain.*;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
+import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.utils.*;
+import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.dto.*;
+
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
+import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
+import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
+import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,6 +143,10 @@ public class WaybillResource implements DmsWaybillService {
 
 	@Autowired
 	private JsfSortingResourceService jsfSortingResourceService;
+
+	@Autowired
+	@Qualifier("ldopManager")
+	private LDOPManager ldopManager;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -1165,5 +1198,129 @@ public class WaybillResource implements DmsWaybillService {
 	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
 		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
+
+	/**
+	 * 检查运单是否为理赔完成拦截
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/checkIsLPWaybill/{waybillCode}")
+	public InvokeResult<Boolean> checkIsLPWaybill(@PathParam("waybillCode") String waybillCode){
+
+		InvokeResult invokeResult =new InvokeResult();
+		invokeResult.setData(false);
+		try{
+			Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(waybillCode);
+			if(featureType!= null && Constants.FEATURE_TYPCANCEE_LP.equals(featureType)){
+				invokeResult.setData(true);
+			}
+			invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		}catch (Exception e){
+			logger.error("判断理赔完成拦截运单异常",e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+
+		return invokeResult;
+	}
+	/**
+	 * 外单新换单接口
+	 * @param waybillCode  老运单号
+	 * @param operatorId  操作人ID
+	 * @param operatorName 操作人姓名
+	 * @param operateTime  操作时间
+	 * @param packageCount  包裹数（整单换单可不输入）
+	 * @param orgId   操作机构
+	 * @param createSiteCode 操作站
+	 * @param isTotal  是否为整单换单
+	 * @return
+	 */
+	@GET
+	@Path("/dy/createReturnsWaybill/{waybillCode}/{operatorId}/{operatorName}/{operateTime}/{packageCount}/{orgId}/{createSiteCode}/{isTotal}")
+	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
+	public InvokeResult<WaybillReverseResult> createReturnsWaybill(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
+													  @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
+		InvokeResult invokeResult =new InvokeResult();
+
+		logger.debug("外单新换单接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
+				+createSiteCode+" isTotal:"+isTotal);
+
+		try {
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
+			StringBuilder errorMessage = new StringBuilder();
+			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
+			if(waybillReverseResult == null){
+				//失败
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage(errorMessage.toString());
+			}else{
+				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				invokeResult.setData(waybillReverseResult);
+			}
+
+		}catch (Exception e){
+			logger.error("外单逆向换单接口异常,接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
+					+createSiteCode+" isTotal:"+isTotal,e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage("系统异常");
+		}finally {
+			return invokeResult;
+		}
+
+
+
+	}
+
+
+	/**
+	 * 换单前获取信息接口
+	 * @param waybillCode  老运单号
+	 * @param operatorId  操作人ID
+	 * @param operatorName 操作人姓名
+	 * @param operateTime  操作时间
+	 * @param packageCount  包裹数（整单换单可不输入）
+	 * @param orgId   操作机构
+	 * @param createSiteCode 操作站
+	 * @param isTotal  是否为整单换单
+	 * @return
+	 */
+	@GET
+	@Path("/dy/getOldOrderMessage/{waybillCode}/{operatorId}/{operatorName}/{operateTime}/{packageCount}/{orgId}/{createSiteCode}/{isTotal}")
+	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
+	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessage(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
+																   @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
+		InvokeResult invokeResult =new InvokeResult();
+
+		logger.debug("换单前获取信息接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
+				+createSiteCode+" isTotal:"+isTotal);
+
+		try {
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
+			StringBuilder errorMessage = new StringBuilder();
+			WaybillReverseResponseDTO waybillReverseResponseDTO = ldopManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
+			if(waybillReverseResponseDTO == null){
+				//失败
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage(errorMessage.toString());
+			}else{
+				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				invokeResult.setData(waybillReverseResponseDTO);
+			}
+
+		}catch (Exception e){
+			logger.error("换单前获取信息接口异常,接口入参：waybillCode:"+waybillCode+" operatorId:"+operatorId+" operatorName:"+operatorName+" operateTime:"+operateTime+" packageCount:"+packageCount+" orgId:"+orgId+" createSiteCode:"
+					+createSiteCode+" isTotal:"+isTotal,e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage("系统异常");
+		}finally {
+			return invokeResult;
+		}
+
+
+
+	}
+
 
 }

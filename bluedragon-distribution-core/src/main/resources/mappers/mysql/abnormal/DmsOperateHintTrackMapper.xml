@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.abnormal.dao.DmsOperateHintTrackDao">
+
+	<resultMap id="DmsOperateHintTrack" type="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="hint_dms_code" property="hintDmsCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="hint_dms_name" property="hintDmsName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="hint_operate_node" property="hintOperateNode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="operate_user_name" property="operateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="hint_time" property="hintTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,hint_dms_code,hint_dms_name,
+		hint_operate_node,operate_user_code,operate_user_name,
+		hint_time,create_time,update_time,
+		is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack">
+		insert into dms_operate_hint_track
+			(waybill_code,
+		     hint_dms_code,
+		     hint_dms_name,
+		     hint_operate_node,
+			 operate_user_code,
+		     operate_user_erp,
+			 operate_user_name,
+		     hint_time,
+			 create_time,
+		     update_time,
+		     is_delete,
+		     ts)
+			values
+			(
+				#{waybillCode,jdbcType=VARCHAR},
+				#{hintDmsCode,jdbcType=INTEGER},
+				#{hintDmsName,jdbcType=VARCHAR},
+				#{hintOperateNode,jdbcType=VARCHAR},
+				#{operateUserCode,jdbcType=INTEGER},
+				#{operateUserErp,jdbcType=VARCHAR},
+				#{operateUserName,jdbcType=VARCHAR},
+				#{hintTime,jdbcType=TIMESTAMP},
+				now(),
+				now(),
+				0,
+				now()
+			)
+	</insert>
+
+	<select id="queryFirstTrack" parameterType="java.util.Map" resultMap="DmsOperateHintTrack">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		dms_operate_hint_track
+		<where>
+			is_delete = 0
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+
+			<if test="dmsSiteCode != null">
+				AND hint_dms_code != #{dmsSiteCode,jdbcType=INTEGER}
+			</if>
+		</where>
+		ORDER BY create_time ASC
+		limit 1
+	</select>
+
+</mapper>

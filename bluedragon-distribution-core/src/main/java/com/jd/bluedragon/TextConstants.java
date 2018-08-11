@@ -32,6 +32,11 @@ public class TextConstants {
     public static final String REMARK_SEND_GATHER_TOGETHER ="【合并送】";
 
     /**
+     * 已称标识
+     */
+    public static final String WEIGHT_FLAG_TRUE = "已称";
+
+    /**
      * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
      */
     public static final String B2B_FRESH_WHOLE_VEHICLE ="冷链整车";
