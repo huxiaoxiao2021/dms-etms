@@ -63,7 +63,6 @@ public class DmsOperateHintController extends DmsBaseController{
 	 * @param id
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_TOOL_DMSOPERATEHINT_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<DmsOperateHint> detail(@PathVariable("id") Long id) {
 		JdResponse<DmsOperateHint> rest = new JdResponse<DmsOperateHint>();
@@ -75,7 +74,6 @@ public class DmsOperateHintController extends DmsBaseController{
 	 * @param dmsOperateHint
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_TOOL_DMSOPERATEHINT_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsOperateHint dmsOperateHint) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -125,7 +123,6 @@ public class DmsOperateHintController extends DmsBaseController{
 	 * @param ids
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_TOOL_DMSOPERATEHINT_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -142,7 +139,6 @@ public class DmsOperateHintController extends DmsBaseController{
 	 * @param dmsOperateHintCondition
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_TOOL_DMSOPERATEHINT_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<DmsOperateHint> listData(@RequestBody DmsOperateHintCondition dmsOperateHintCondition) {
 		JdResponse<PagerResult<DmsOperateHint>> rest = new JdResponse<PagerResult<DmsOperateHint>>();
