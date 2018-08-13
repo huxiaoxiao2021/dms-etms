@@ -418,6 +418,7 @@ function enOrDisGantry(params) {
         if (data.code == 200) {
             gantryStateInit(data.data);
             gantryParams = data.data;
+            flashByFiveM();//刷新一次页面
         } else {
             jQuery.messager.alert("提示：", "数据请求失败！", "info");
         }
