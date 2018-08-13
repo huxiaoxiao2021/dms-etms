@@ -98,7 +98,7 @@ public interface NewSealVehicleService {
     boolean checkSendCodeIsSealed(String sendCode);
 
     /**
-     * 获取批次号的封车时间，若为null则表示未封车
+     * 获取批次号的封车时间，若为null或者小于等于0则表示未封车
      *
      * @param sendCode
      * @return
