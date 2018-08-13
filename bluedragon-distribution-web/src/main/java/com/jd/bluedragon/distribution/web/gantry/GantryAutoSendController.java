@@ -231,6 +231,7 @@ public class GantryAutoSendController {
                             如果流水表的最后一条发货计划，不是现在更新的发货计划，那么说明用户正在改发货计划，此时需要更新所有批次为无效的批次
                              */
                             if (areaDestPlan == null || request.getPlanId() != (long)areaDestPlan.getPlanId()) {
+                                logger.info("用户正在尝试修改方案，需要将原来的站点置为无效，龙门架为:" + request.getMachineId());
                                 scannerFrameBatchSendService.updateYnByMachineId(String.valueOf(request.getMachineId()));
                             }
                             // 更新方案使用状态为启用
