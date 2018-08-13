@@ -166,6 +166,11 @@
                     </div>
                     <div style="clear: both;height: 0;line-height: 0;font-size: 0;"></div>
                 </div>
+                <div style="margin-top: 30px;">
+                    <span style="color: red">
+                        注意：龙门架方案变更后，“启用龙门架”时，将清空所有的历史批次信息，接下来的发货将使用新的批次号。如果还未来得及打印历史批次，请前往“补打印界面”进行操作。
+                    </span>
+                </div>
                 <div id="part-3" style="margin-top: 30px;">
                     <span>异常数据：</span><a href="#" id="exceptionNum">0</a>
                 </div>
