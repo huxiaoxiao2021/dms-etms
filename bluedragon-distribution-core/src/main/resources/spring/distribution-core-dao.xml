@@ -415,6 +415,9 @@
     <bean id="dmsOperateHintDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsOperateHintDaoImpl"/>
 
+    <bean id="dmsOperateHintTrackDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.abnormal.dao.impl.DmsOperateHintTrackDaoImpl"/>
+
     <bean id="packageHalfDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.half.dao.impl.PackageHalfDaoImpl"/>
 

@@ -6,8 +6,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
-import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
@@ -83,7 +83,8 @@ public class GantryAutoSendController {
     private AreaDestPlanService areaDestPlanService;
 
     @Autowired
-    private AreaDestPlanDetailService areaDestPlanDetailService;
+    private AreaDestService areaDestService;
+
 
     @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -253,13 +254,14 @@ public class GantryAutoSendController {
     @ResponseBody
     public InvokeResult<Pager<List<ScannerFrameBatchSend>>> currentSplitPageList(GantryDeviceConfigRequest request, Pager<GantryDeviceConfigRequest> pager) {
         InvokeResult<Pager<List<ScannerFrameBatchSend>>> result = new InvokeResult<Pager<List<ScannerFrameBatchSend>>>();
-        result.setCode(500);
+        result.setCode(400);
         result.setMessage("服务调用异常");
         result.setData(null);
         this.logger.debug("龙门架自动发货获取数据 --> getCurrentSplitPageList");
         if (request.getMachineId() == null) {
             return result;
         }
+
         ScannerFrameBatchSendSearchArgument sfbssa = new ScannerFrameBatchSendSearchArgument();
         Pager<ScannerFrameBatchSendSearchArgument> argumentPager = new Pager<ScannerFrameBatchSendSearchArgument>();
         if (pager.getPageNo() != null) {
@@ -267,8 +269,8 @@ public class GantryAutoSendController {
             argumentPager.init();
         }
         sfbssa.setMachineId(String.valueOf(request.getMachineId()));
-//        sfbssa.setStartTime(request.getStartTime());
-//        sfbssa.setEndTime(request.getEndTime());
+//        sfbssa.setPlanId(request.getPlanId());
+        sfbssa.setStartTime(new Date(new Date().getTime()-3*24*60*60*1000));
         sfbssa.setHasPrinted(false);
         argumentPager.setData(sfbssa);
         try {

@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -255,6 +256,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     @Autowired
+    @Qualifier("operateHintTrackMQ")
+    private DefaultJMQProducer operateHintTrackMQ;
+
+    @Autowired
     @Qualifier("arSendDetailProducer")
     private DefaultJMQProducer arSendDetailProducer;
 
@@ -432,6 +437,21 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         SendResult result = null;
         if (StringUtils.isNotBlank(hints)) {
+            //发货环节产生加急提示，发加急提示追踪的mq消息
+            try {
+                DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+                dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
+                dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
+                dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
+                dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
+                dmsOperateHintTrack.setHintTime(new Date());
+                String mqText = JSON.toJSONString(dmsOperateHintTrack);
+                this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息内容: " + mqText);
+                this.operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), mqText);
+            }catch(Exception e){
+                logger.error("发货提示语发mq异常,异常原因:" +e);
+            }
+
             result = new SendResult(SendResult.CODE_WARN, hints);
         } else {
             result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -2722,19 +2742,24 @@ public class DeliveryServiceImpl implements DeliveryService {
 					 && baseEntity.getData() != null
 					 && baseEntity.getData().getWaybill() != null){
         		Waybill waybill = baseEntity.getData().getWaybill();
-        		//WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-        		if(BusinessHelper.isSignChar(waybill.getWaybillSign(),
-        				40, '2')){
-        			boolean hasTotalWeight = false;
-            		//先校验运单的againWeight然后校验称重流水
-            		if(NumberHelper.gt0(waybill.getAgainWeight())){
-            			hasTotalWeight = true;
-    				 }else{
-    					hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
-    				 }
-            		if(!hasTotalWeight){
-            			noHasWeightWaybills.add(waybillCode);
-            		}
+
+                //edited by hanjiaxing3 2018.07.26
+                //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
+                if (! BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessHelper.isSignChar(waybill.getWaybillSign(), 66, '0')) {
+                    //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
+                    if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '2')){
+                        boolean hasTotalWeight = false;
+                        //先校验运单的againWeight然后校验称重流水
+                        if(NumberHelper.gt0(waybill.getAgainWeight())){
+                            hasTotalWeight = true;
+                        }else{
+                            hasTotalWeight = dmsWeightFlowService.checkTotalWeight(waybillCode);
+                        }
+                        if(!hasTotalWeight){
+                            noHasWeightWaybills.add(waybillCode);
+                        }
+                    }
+                //end
         		}
         		//b2b校验是否包含-到付运费
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){

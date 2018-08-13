@@ -183,7 +183,9 @@
 
     <!--     监控JSF接口   -->
     <jsf:consumer id="monitorJsfService" interface="com.jd.etms.monitor.jsf.VosScanCodeDifferenceQuery" protocol="jsf"
-                  alias="${monitor.jsf.alias}" timeout="${monitor.jsf.timeout}" retries="${jsf.retries}"/>
+                  alias="${monitor.jsf.alias}" timeout="${monitor.jsf.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${monitor.jsf.token}" hide="true" />
+    </jsf:consumer>
 
 
     <!--订单中间件的jsf接口 订单生产组 宋扬 宋博 测试：ioms-test 预发布：ioms-care 廊坊：ioms-LF-1.0 马驹桥：ioms-MJQ-1.0-->
@@ -314,5 +316,9 @@
     <jsf:consumer id="dmsLocalServerInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.DmsLocalServerInfoJsfService"
                   protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.dmsLocalServer.token}" hide="true" />
+    </jsf:consumer>
+    <!--运单 全程跟踪 查询接口 邱一良 -->
+    <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
+                  protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 </beans>

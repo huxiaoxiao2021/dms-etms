@@ -150,6 +150,32 @@ public class BasePrintWaybill implements Serializable {
 	 * 备注
 	 */
 	private String remark;
+
+	/**
+	 * B网面单已称标识
+	 */
+	private String weightFlagText;
+
+	/**
+	 * 客户预约时间
+	 */
+	private String customerOrderTime;
+
+	/**
+	 * 派送时段
+	 */
+	private String deliveryTimeCategory;
+
+	/**
+	 * 特殊要求
+	 */
+	private String specialRequirement;
+
+	/**
+	 * B网面单备用站点名称
+	 */
+	private String backupSiteName;
+
     
 	public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -583,5 +609,49 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setUnpackClassifyNum(String unpackClassifyNum) {
 		this.unpackClassifyNum = unpackClassifyNum;
+	}
+
+	public String getBackupSiteName() {
+		return backupSiteName;
+	}
+
+	public void setBackupSiteName(String backupSiteName) {
+		this.backupSiteName = backupSiteName;
+	}
+
+	public String getSpecialRequirement() {
+		return specialRequirement;
+	}
+
+	public void setSpecialRequirement(String specialRequirement) {
+		this.specialRequirement = specialRequirement;
+	}
+
+	public String getCustomerOrderTime() {
+		return customerOrderTime;
+	}
+
+	public void setCustomerOrderTime(String customerOrderTime) {
+		this.customerOrderTime = customerOrderTime;
+	}
+
+	public String getDeliveryTimeCategory() {
+		return deliveryTimeCategory;
+	}
+
+	public void setDeliveryTimeCategory(String deliveryTimeCategory) {
+		this.deliveryTimeCategory = deliveryTimeCategory;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public String getWeightFlagText() {
+		return weightFlagText;
+	}
+
+	public void setWeightFlagText(String weightFlagText) {
+		this.weightFlagText = weightFlagText;
 	}
 }

@@ -20,7 +20,10 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/gantry/gantryAutoSendIndex.js')"></script>
+    <script type="text/javascript">
+        document.write("<sc"+"ript type='text/javascript' src='/static/js/gantry/gantryAutoSendIndex.js?_t="
+                + new Date().valueOf() + "'></sc"+"ript>");
+    </script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
