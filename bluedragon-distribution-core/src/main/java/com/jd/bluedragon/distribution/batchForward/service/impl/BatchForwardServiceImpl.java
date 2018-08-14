@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -87,11 +86,30 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        for(SendM oldSendM : oldSendMList){
-            domain.setBoxCode(oldSendM.getBoxCode());
-            packageSend(domain);
+        if(oldSendMList != null &&oldSendMList.size() > 0){
+            for(SendM oldSendM : oldSendMList){
+                domain.setBoxCode(oldSendM.getBoxCode());
+                packageSend(domain);
+            }
+            return true;
         }
+        return false;
+    }
 
+
+    /**
+     * 查询批次号下是否有箱或包裹
+     * @param sendCode
+     * @return
+     */
+    @Override
+    public Boolean isHaveBox(String sendCode) {
+        Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        List<SendM> oldSendMList = deliveryService.getSendMBySendCodeAndSiteCode(sendCode, createSiteCode, receiveSiteCode);
+        if(oldSendMList == null || oldSendMList.size() == 0){
+            return false;
+        }
         return true;
     }
 
