@@ -1609,53 +1609,63 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         String oldWaybillCode = null;
         //拒收原因
         String refuseReasonName = null;
+        try{
 
-        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
 
 
-        if(oldWaybill!=null && oldWaybill.getData() != null){
-            //获取旧运单号
-            oldWaybillCode = oldWaybill.getData().getWaybillCode();
-        }else{
-            logger.error("退ECLP增加拒收原因处理时，获取运单数据失败，waybillCode="+waybillCode);
-            return;
+            if(oldWaybill!=null && oldWaybill.getData() != null){
+                //获取旧运单号
+                oldWaybillCode = oldWaybill.getData().getWaybillCode();
+            }else{
+                logger.error("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                return;
+            }
+            if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){
+                logger.error("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                return;
+            }
+
+
+            List<BillBusinessTraceAndExtendDTO> BillBusinessTraceAndExtendDTOs =waybillQueryManager.queryBillBTraceAndExtendByOperatorCode(oldWaybillCode,WaybillStatus.WAYBILL_TRACK_RCD.toString());
+            if(BillBusinessTraceAndExtendDTOs!= null && BillBusinessTraceAndExtendDTOs.size()>0){
+                String extendProperties = BillBusinessTraceAndExtendDTOs.get(BillBusinessTraceAndExtendDTOs.size()-1).getExtendProperties();
+                //防止存在拒收无拒收原因异常
+                if(StringUtils.isNotBlank(extendProperties) && ((Map)JSON.parse(extendProperties)).get("reasonId") != null){
+                    refuseReasonId = Integer.parseInt(((Map)JSON.parse(extendProperties)).get("reasonId").toString());
+                }
+
+
+            }else{
+                logger.info("退ECLP增加拒收原因处理时，获取旧运单数据拒收原因为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" oldWaybillCode="+oldWaybillCode);
+                return;
+            }
+            if(refuseReasonId == null){
+                logger.error("退ECLP增加拒收原因处理时，拒收原因编码为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" oldWaybillCode="+oldWaybillCode);
+                return;
+            }
+
+
+
+            //获取拒收编码描述
+            BaseDataDict refuseReason = baseMajorManager.getValidBaseDataDictListToMap(
+                    13,2,13).get(refuseReasonId);
+            if(refuseReason!=null){
+                refuseReasonName = refuseReason.getTypeName();
+            }else{
+                logger.error("退ECLP增加拒收原因处理时，从基础资料获取拒收原因名称为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" refuseReasonId="+refuseReasonId);
+                return;
+            }
+
+
+
+            reverseSendMQToECLP.setRefuseReasonId(refuseReasonId);
+            reverseSendMQToECLP.setRefuseReasonName(refuseReasonName);
+
+        }catch (Exception e){
+            logger.error("退ECLP增加拒收原因处理时失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode,e);
         }
-        if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){
-            logger.error("退ECLP增加拒收原因处理时，旧运单号为空，waybillCode="+waybillCode);
-            return;
-        }
 
-
-        List<BillBusinessTraceAndExtendDTO> BillBusinessTraceAndExtendDTOs =waybillQueryManager.queryBillBTraceAndExtendByOperatorCode(oldWaybillCode,WaybillStatus.WAYBILL_TRACK_RCD.toString());
-        if(BillBusinessTraceAndExtendDTOs!= null && BillBusinessTraceAndExtendDTOs.size()>0){
-           String extendProperties = BillBusinessTraceAndExtendDTOs.get(BillBusinessTraceAndExtendDTOs.size()-1).getExtendProperties();
-           refuseReasonId = Integer.parseInt(((Map)JSON.parse(extendProperties)).get("reasonId").toString());
-
-        }else{
-            logger.info("退ECLP增加拒收原因处理时，获取旧运单数据拒收原因为空，oldWaybillCode="+oldWaybillCode);
-            return;
-        }
-        if(refuseReasonId == null){
-            logger.error("退ECLP增加拒收原因处理时，拒收原因编码为空，oldWaybillCode="+oldWaybillCode);
-            return;
-        }
-
-
-
-        //获取拒收编码描述
-        BaseDataDict refuseReason = baseMajorManager.getValidBaseDataDictListToMap(
-                13,2,13).get(refuseReasonId);
-        if(refuseReason!=null){
-            refuseReasonName = refuseReason.getTypeName();
-        }else{
-            logger.error("退ECLP增加拒收原因处理时，从基础资料获取拒收原因名称为空，refuseReasonId="+refuseReasonId);
-            return;
-        }
-
-
-
-        reverseSendMQToECLP.setRefuseReasonId(refuseReasonId);
-        reverseSendMQToECLP.setRefuseReasonName(refuseReasonName);
     }
 
 }
