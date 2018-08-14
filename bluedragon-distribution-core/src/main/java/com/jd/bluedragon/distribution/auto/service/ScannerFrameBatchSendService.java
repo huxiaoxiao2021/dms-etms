@@ -98,4 +98,11 @@ public interface ScannerFrameBatchSendService {
      */
     Pager<List<ScannerFrameBatchSend>> queryAllHistoryBatchSend(Pager<ScannerFrameBatchSendSearchArgument> request);
 
+    /**
+     * 更换方案时将所有的批次置为无效
+     * @param machineId
+     * @return
+     */
+    long updateYnByMachineId(String machineId);
+
 }
