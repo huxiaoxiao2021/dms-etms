@@ -551,7 +551,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
         }
         //5.写发货任务
-        pushBoardSendTask(domain,"7");
+        pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
         //6.写组板发货任务完成，调用TC执行关板
         try{
@@ -797,24 +797,23 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      * @return
      */
-    private boolean pushBoardSendTask(SendM domain,String keyWord1) {
+    private boolean pushBoardSendTask(SendM domain,Integer taskType) {
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoardCode());
         tTask.setBody(JsonHelper.toJson(domain));
         tTask.setCreateSiteCode(domain.getCreateSiteCode());
         tTask.setKeyword2(String.valueOf(domain.getSendType()));
         tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
-        tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
-        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
-        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
-        tTask.setKeyword1(keyWord1);// 7 组板发货任务  9 整板取消发货任务
-        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
+        tTask.setKeyword1(domain.getBoardCode());
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
         logger.info("组板发货任务推送成功：" + JsonHelper.toJson(tTask));
         tTaskService.add(tTask, true);
         //写redis记录任务状态
-        if("7".equals(keyWord1)) {
+        if(Task.TASK_TYPE_BOARD_SEND.equals(taskType)) {
             String redisKey = REDIS_PREFIX_BOARD_DELIVERY + domain.getBoardCode();
             redisManager.setex(redisKey, EXPIRE_REDIS_BOARD_TASK, domain.getBoardCode());
         }
@@ -1407,7 +1406,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             DeliveryResponse.MESSAGE_SEND_SITE_NOTMATCH_ERROR,null);
                 }
                 //2.校板是否已经发车
-                if(checkboardIsDepartured(tSendM)){
+                if(checkBoardIsDepartured(tSendM)){
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SENDED_ERROR,
                             DeliveryResponse.MESSAGE_BOARD_SENDED_ERROR,null);
@@ -1429,7 +1428,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                             DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR,null);
                 }
                 //生产一个按板号取消发货的任务
-                pushBoardSendTask(tSendM,"9");
+                pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
             // 改变箱子状态为分拣
@@ -1926,7 +1925,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      * @return
      */
-    private boolean checkboardIsDepartured(SendM domain){
+    private boolean checkBoardIsDepartured(SendM domain){
         SendM sendM = sendMDao.findSendMByBoardCode(domain);
         if(sendM != null && StringHelper.isNotEmpty(sendM.getSendUser())){
             return true;
@@ -4223,6 +4222,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("按板取消发货开始：" + JsonHelper.toJson(task));
         SendM domain = JsonHelper.fromJson(task.getBody(), SendM.class);
         List<String> boxCodeList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(domain);
+        boolean isSuccess = true;
         if(boxCodeList!=null && !boxCodeList.isEmpty()){
             for(String boxCode : boxCodeList){
                 try {
@@ -4236,14 +4236,15 @@ public class DeliveryServiceImpl implements DeliveryService {
                     dellCancelDeliveryMessage(domain, true);
                 }catch(Exception e){
                     logger.warn(String.format("按板取消发货，取消包裹/箱号{0}失败,失败原因{1}",boxCode,e.getMessage()));
-                    //TODO：拆开加重试
+                    //如果任务处理过程中有异常，任务重跑
+                    isSuccess = false;
                     continue;
                 }
             }
         }else{
             logger.error("按板取消发货,查询sendm中的发货明细为空：" + JsonHelper.toJson(domain));
         }
-        return true;
+        return isSuccess;
     }
 
     /**
