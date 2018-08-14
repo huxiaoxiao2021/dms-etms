@@ -166,9 +166,14 @@
                     </div>
                     <div style="clear: both;height: 0;line-height: 0;font-size: 0;"></div>
                 </div>
-                <div style="margin-top: 30px;">
+                <div">
                     <span style="color: red">
-                        注意：龙门架方案变更后，“启用龙门架”时，将清空所有的历史批次信息，接下来的发货将使用新的批次号。如果还未来得及打印历史批次，请前往“补打印界面”进行操作。
+                        注意1：龙门架方案变更后，“启用龙门架”时，将清空所有的历史批次信息，接下来的发货将使用新的批次号。如果还未来得及打印历史批次，请前往“补打印界面”进行操作。
+                    </span>
+                </div>
+                <div">
+                    <span style="color: red">
+                        注意2：切换龙门架方案之后，将会清空当前龙门架的所有站点批次，请确 保批次清理之后 再进行切换方案操作。
                     </span>
                 </div>
                 <div id="part-3" style="margin-top: 30px;">
