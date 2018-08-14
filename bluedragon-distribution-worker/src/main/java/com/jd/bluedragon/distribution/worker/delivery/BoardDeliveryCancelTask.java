@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.worker.delivery;
 
-import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
+import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Created by xumei3 on 2018/8/8.
  */
-public class BoardDeliveryCancelTask extends SendDBSingleScheduler {
+public class BoardDeliveryCancelTask extends DBSingleScheduler {
     @Autowired
     private DeliveryService deliveryService;
 
