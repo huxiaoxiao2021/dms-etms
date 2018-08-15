@@ -126,6 +126,14 @@
 					<!-- 龙门架自动发货 -->
 					<entry key="task_scanner_frame_7779_DMS" value="${jmq.task.topic.scannerFrame.dms}"/>
 					<entry key="task_scanner_frame_7779_PRE" value="${jmq.task.topic.scannerFrame.pre}"/>
+
+					<!-- 整板发货 -->
+					<entry key="task_board_send_1320_DMS" value="${jmq.task.topic.boardSend.dms}"/>
+					<entry key="task_board_send_1320_PRE" value="${jmq.task.topic.boardSend.pre}"/>
+
+					<!-- 整板取消发货 -->
+					<entry key="task_board_send_cancel_1321_DMS" value="${jmq.task.topic.boardSendCancel.dms}"/>
+					<entry key="task_board_send_cancel_1321_7779_PRE" value="${jmq.task.topic.boardSendCancel.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>
