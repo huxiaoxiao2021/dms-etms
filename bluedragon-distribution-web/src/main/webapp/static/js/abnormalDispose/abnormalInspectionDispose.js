@@ -115,13 +115,10 @@ $(function () {
                 visible: false
             },{
                 field: 'sealVehicleDate',
-                title: '解封车时间',
+                title: '实际发货时间',
                 formatter: function (value, row, index) {
                     return $.dateHelper.formateDateTimeOfTs(value);
                 }
-            }, {
-                field: 'sealSiteName',
-                title: '解封车分拣中心'
             }, {
                 field: 'waybillCode',
                 title: '运单号'
