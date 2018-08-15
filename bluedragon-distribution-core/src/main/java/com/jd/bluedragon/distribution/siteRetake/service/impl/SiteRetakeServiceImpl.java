@@ -78,6 +78,7 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         vendorOrder.setEndReason(siteRetakeOperation.getEndReason());
         vendorOrder.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
         vendorOrder.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
+        vendorOrder.setOperatorSource(3);//系统标识
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
         InvokeResult<String> result=new InvokeResult<String>();
         result.setCode(200);
