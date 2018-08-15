@@ -860,6 +860,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "DeliveryToFinanceTask";
         }else if(TASK_TYPE_POP_PRINT_INSPECTION.equals(type)){
             return "PopPrintInspectionTask";
+        }else if(TASK_TYPE_BOARD_SEND.equals(type)){
+            return "BoardDeliveryTask";
+        }else if(TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
+            return "BoardDeliveryCancelTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
