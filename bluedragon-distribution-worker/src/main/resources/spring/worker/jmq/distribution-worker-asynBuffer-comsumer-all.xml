@@ -515,7 +515,7 @@
                     <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
                           autowire="byType">
                         <constructor-arg name="target" ref="deliveryService"></constructor-arg>
-                        <constructor-arg name="methodName" value="doBoardDelivery"></constructor-arg>
+                        <constructor-arg name="methodName" value="doBoardDeliveryCancel"></constructor-arg>
                     </bean>
                 </entry>
 
