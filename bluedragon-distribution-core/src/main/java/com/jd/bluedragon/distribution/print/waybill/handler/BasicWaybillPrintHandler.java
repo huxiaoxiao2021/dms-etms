@@ -181,7 +181,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
             }
         }catch (Exception ex){
-            logger.error("标签打印接口异常",ex);
+            logger.error("标签打印接口异常，运单号:"+waybillCode,ex);
             interceptResult.toError();
         }
         return interceptResult;
