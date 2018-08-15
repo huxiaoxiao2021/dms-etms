@@ -1159,12 +1159,14 @@ public class WaybillResource implements DmsWaybillService {
 					preSortingSiteCode = waybill.getSiteCode();
 					//获得路由中的下一节点
 					String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybill.getWaybillCode());
-					String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
-					if(routers != null && routers.length > 0) {
-						for (int i = 0; i < routers.length - 1; i++) {
-							if(siteCode.equals(Integer.valueOf(routers[i]))){
-								nextRouterSiteCode = Integer.valueOf(routers[i+1]);
-								break;
+					if(StringUtils.isNotBlank(routerStr)){
+						String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+						if(routers != null && routers.length > 0) {
+							for (int i = 0; i < routers.length - 1; i++) {
+								if(siteCode.equals(Integer.valueOf(routers[i]))){
+									nextRouterSiteCode = Integer.valueOf(routers[i+1]);
+									break;
+								}
 							}
 						}
 					}

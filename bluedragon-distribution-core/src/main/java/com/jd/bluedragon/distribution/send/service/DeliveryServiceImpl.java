@@ -339,6 +339,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
 
+        String oldSendCode = getSendedCode(domain);
+        if (StringUtils.isNotBlank(oldSendCode)) {
+            return new SendResult(SendResult.CODE_SENDED, "箱子已经在批次" + oldSendCode + "中发货");
+        }
+
         Profiler.registerInfoEnd(temp_info1);
 
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
@@ -428,9 +433,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                 this.boardCombinationCancel(domain);
             }
         }
-
-        // 多次发货取消上次发货
-        this.multiSendCancelLast(domain);
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
         packageSend(domain);
