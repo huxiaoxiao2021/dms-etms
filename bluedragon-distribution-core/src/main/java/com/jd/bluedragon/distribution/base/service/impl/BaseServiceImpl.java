@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CarrierInfo;
@@ -639,15 +640,18 @@ public class BaseServiceImpl implements BaseService {
 			//快生项目：从订单中间件获得商品明细
 			try{
 				log.info("运单商品明细为空, 改调用订单接口");
-				List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getWaybillCode()));
-				for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
-					Product product = new Product();
-					product.setProductId(prod.getProductId());
-					product.setProductName(prod.getName());
-					product.setProductNum(prod.getQuantity());
-					product.setProductPrice(String.valueOf(prod.getPrice()));
-					product.setProductLoss("0");
-					proList.add(product);
+				//自营的订单才可以调用此接口
+				if(SerialRuleUtil.isMatchNumeric(waybillWS.getWaybillCode())){
+					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getWaybillCode()));
+					for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
+						Product product = new Product();
+						product.setProductId(prod.getProductId());
+						product.setProductName(prod.getName());
+						product.setProductNum(prod.getQuantity());
+						product.setProductPrice(String.valueOf(prod.getPrice()));
+						product.setProductLoss("0");
+						proList.add(product);
+					}
 				}
 			} catch (Exception e) {
 				log.error("BaseServiceImpl --> convWaybill, 调用订单接口获得商品明细异常：", e);

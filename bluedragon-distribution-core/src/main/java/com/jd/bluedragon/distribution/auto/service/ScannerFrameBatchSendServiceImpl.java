@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.RestHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -306,5 +307,13 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         result.setTotalSize((int) count);
         result.setData(scannerFrameBatchSendDao.queryAllUnPrint(request));
         return result;
+    }
+
+    @Override
+    public long updateYnByMachineId(String machineId) {
+        if (StringHelper.isEmpty(machineId)) {
+            return 0;
+        }
+        return scannerFrameBatchSendDao.updateYnByMachineId(machineId);
     }
 }
