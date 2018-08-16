@@ -6,8 +6,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
+import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
-import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendPrint;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArgument;
@@ -83,8 +83,7 @@ public class GantryAutoSendController {
     private AreaDestPlanService areaDestPlanService;
 
     @Autowired
-    private AreaDestService areaDestService;
-
+    private AreaDestPlanDetailService areaDestPlanDetailService;
 
     @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
@@ -229,6 +228,8 @@ public class GantryAutoSendController {
                         this.logger.error("锁定龙门架的方案失败");
                     }
                 }
+
+
             } catch (Exception e) {
                 logger.error("锁定龙门架操作失败..", e);
             }
@@ -272,6 +273,7 @@ public class GantryAutoSendController {
 //        sfbssa.setPlanId(request.getPlanId());
         sfbssa.setStartTime(new Date(new Date().getTime()-3*24*60*60*1000));
         sfbssa.setHasPrinted(false);
+        sfbssa.setYn(1);
         argumentPager.setData(sfbssa);
         try {
             Pager<List<ScannerFrameBatchSend>> pagerResult = scannerFrameBatchSendService.getCurrentSplitPageList(argumentPager);
@@ -556,39 +558,6 @@ public class GantryAutoSendController {
             result.setMessage("服务调用异常");
         }
         return result;
-    }
-
-    /**
-     * 根据sendDetail的boxCode去重
-     *
-     * @param sendDetails
-     * @return
-     */
-    private List<SendDetail> selectSendDetailsByBoxCode(List<SendDetail> sendDetails) {
-        List<SendDetail> results = new ArrayList<SendDetail>();
-        HashMap<String, Double> hashMap = new HashMap<String, Double>();
-
-
-        return results;
-    }
-
-    /**********************转换domain************************/
-    private GantryDeviceConfig transformDomainToGantryDeviceConfig(GantryDeviceConfigRequest request, String userCode, String userName, Integer userId) {
-        GantryDeviceConfig gantryDeviceConfig = new GantryDeviceConfig();
-        gantryDeviceConfig.setMachineId(String.valueOf(request.getMachineId()));
-        gantryDeviceConfig.setOperateUserId(userId);
-        gantryDeviceConfig.setOperateUserErp(userCode);//设置操作人员与更新人员
-        gantryDeviceConfig.setOperateUserName(userName);
-        gantryDeviceConfig.setCreateSiteCode(request.getCreateSiteCode());
-        gantryDeviceConfig.setCreateSiteName(request.getCreateSiteName());
-        gantryDeviceConfig.setBusinessType(request.getBusinessType());
-        gantryDeviceConfig.setBusinessTypeRemark(request.getOperateTypeRemark());
-        gantryDeviceConfig.setStartTime(new Date());
-        gantryDeviceConfig.setLockStatus(request.getLockStatus());
-        gantryDeviceConfig.setLockUserErp(userCode);
-        gantryDeviceConfig.setLockUserName(userName);
-        gantryDeviceConfig.setYn(1);
-        return gantryDeviceConfig;
     }
 
     /**

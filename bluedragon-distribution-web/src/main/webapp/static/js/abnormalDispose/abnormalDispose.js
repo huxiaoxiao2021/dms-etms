@@ -116,7 +116,7 @@ $(function () {
                 }
             }, {
                 field: 'notReceiveNum',
-                title: '已到未验单量',
+                title: '疑似未到单量',
                 formatter: function (value, row, index) {
                     if (value!='0'){
                         return "<a href='#' onclick='queryinspection(\"" + row.waveBusinessId + "\",\""+row.siteCode+"\"," + value + ")'>" + value + "</a>";
@@ -127,10 +127,10 @@ $(function () {
             }, {
                 field: 'notReceiveDisposeNum',
                 width: 100,
-                title: '已处理未验异常'
+                title: '已处理未到异常'
             }, {
                 field: 'notReceiveProgress',
-                title: '未验异常处理进度',
+                title: '未到异常处理进度',
                 formatter: function (value, row, index) {
                     if (value) {
                         return value + '%';

@@ -271,6 +271,24 @@
                         <constructor-arg name="methodName" value="scannerFrameDispatchProcess"/>
                     </bean>
                 </entry>
+
+                <!-- 整板发货 -->
+                <entry key="${jmq.task.topic.boardSend.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="deliveryService"></constructor-arg>
+                        <constructor-arg name="methodName" value="doBoardDelivery"></constructor-arg>
+                    </bean>
+                </entry>
+
+                <!-- 整板取消发货 -->
+                <entry key="${jmq.task.topic.boardSendCancel.pre}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="deliveryService"></constructor-arg>
+                        <constructor-arg name="methodName" value="doBoardDeliveryCancel"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>

@@ -4,7 +4,6 @@ import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
-import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 
@@ -13,7 +12,6 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -80,6 +78,15 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
+
+    /**
+     * 整板发货任务
+     */
+    public static final Integer TASK_TYPE_BOARD_SEND = 1320;
+    /**
+     * 整板取消发货任务
+     */
+    public static final Integer TASK_TYPE_BOARD_SEND_CANCEL = 1321;
 
     public static final Integer TASK_TYPE_GLOBAL_TRADE = 1340; // 全球购
 
@@ -169,6 +176,15 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_GLOBAL_TRADE = "task_global_trade";
     public static final String TABLE_NAME_MESSAGE="task_message";
     public static final String TABLE_NAME_SCANNER_FRAME="task_scanner_frame";
+
+    /**
+     * 整板发货任务表
+     */
+    public static final String TABLE_NAME_BOARD_SEND="task_board_send";
+    /**
+     * 整板取消发货任务表
+     */
+    public static final String TABLE_NAME_BOARD_SEND_CANCEL = "task_board_send_cancel";
 
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
@@ -540,6 +556,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_AR_RECEIVE;
         }else if (Task.TASK_TYPE_POP_PRINT_INSPECTION.equals(type)){
             return Task.TABLE_NAME_POP_PRINT_INSPECTION;
+        }else if (Task.TASK_TYPE_BOARD_SEND.equals(type)){
+            return Task.TABLE_NAME_BOARD_SEND;
+        }else if(Task.TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
+            return Task.TABLE_NAME_BOARD_SEND_CANCEL;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -840,6 +860,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "DeliveryToFinanceTask";
         }else if(TASK_TYPE_POP_PRINT_INSPECTION.equals(type)){
             return "PopPrintInspectionTask";
+        }else if(TASK_TYPE_BOARD_SEND.equals(type)){
+            return "BoardDeliveryTask";
+        }else if(TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
+            return "BoardDeliveryCancelTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
