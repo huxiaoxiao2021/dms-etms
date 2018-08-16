@@ -504,7 +504,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 一车一单发货数据落库，写相关的异步任务
      * @param domain
      */
-    private void packageSend(SendM domain){
+    public void packageSend(SendM domain){
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
@@ -547,7 +547,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 推分拣任务
      * @param domain
      */
-    private void pushSorting(SendM domain) {
+    public void pushSorting(SendM domain) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -1748,7 +1748,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendCode
      * @return
      */
-    private boolean checkSendCodeIsSealed(String sendCode) {
+    public boolean checkSendCodeIsSealed(String sendCode) {
         boolean result = false;
         try {
             String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);

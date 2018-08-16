@@ -1,25 +1,19 @@
 package com.jd.bluedragon.distribution.batchForward.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.BatchForwardRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,24 +31,25 @@ public class BatchForwardServiceImpl implements BatchForwardService {
     private final Logger logger = Logger.getLogger(BatchForwardServiceImpl.class);
 
     @Autowired
-    private RedisManager redisManager;
-    @Autowired
     private TaskService taskService;
-    @Autowired
-    private SendMDao sendMDao;
+
     @Autowired
     private DeliveryService deliveryService;
+
     @Autowired
-    private SiteService siteService;
-    @Autowired
-    private SendDatailDao sendDatailDao;
+    private DeliveryServiceImpl deliveryServiceImpl;
+
+    //自营
+    private static final Integer BUSINESSTYPE = 10;
+    //批次转发发货类型
+    private static final String SENDTYPE = "8";
 
     @Override
     public InvokeResult batchSend(BatchForwardRequest request) {
 
         InvokeResult result = new InvokeResult();
         //批次是否封车校验
-        if(checkSendCodeIsSealed(request.getNewSendCode())){
+        if(deliveryServiceImpl.checkSendCodeIsSealed(request.getNewSendCode())){
             result.customMessage(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
         }
         //插入批次转发的任务
@@ -89,7 +84,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if(oldSendMList != null &&oldSendMList.size() > 0){
             for(SendM oldSendM : oldSendMList){
                 domain.setBoxCode(oldSendM.getBoxCode());
-                packageSend(domain);
+                deliveryServiceImpl.packageSend(domain);
             }
             return true;
         }
@@ -113,68 +108,6 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         return true;
     }
 
-    /**
-     * 批次转发数据落库，写相关的异步任务
-     * @param domain
-     */
-    private void packageSend(SendM domain){
-        //插入SEND_M
-        this.sendMDao.insertSendM(domain);
-        // 判断是按箱发货还是包裹发货
-        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            // 按包裹 补分拣任务
-            pushSorting(domain);
-        }
-
-        // 判断是否是中转发货
-        deliveryService.transitSend(domain);
-        deliveryService.pushStatusTask(domain);
-    }
-
-    /**
-     * 推分拣任务
-     * @param domain
-     */
-    private void pushSorting(SendM domain) {
-        BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
-        String createSiteName = null != create ? create.getSiteName() : null;
-        BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
-        String receiveSiteName = null != receive ? receive.getSiteName() : null;
-        Task task = new Task();
-        task.setBoxCode(domain.getBoxCode());
-        task.setCreateSiteCode(domain.getCreateSiteCode());
-        task.setReceiveSiteCode(domain.getReceiveSiteCode());
-        task.setBusinessType(10);
-        task.setType(Task.TASK_TYPE_SORTING);
-        task.setTableName(Task.getTableName(Task.TASK_TYPE_SORTING));
-        task.setSequenceName(Task.getSequenceName(task.getTableName()));
-        task.setKeyword1(domain.getCreateSiteCode().toString());
-        task.setKeyword2(domain.getBoxCode());
-        task.setOperateTime(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME));
-        taskService.initFingerPrint(task);
-        task.setOwnSign(BusinessHelper.getOwnSign());
-        SortingRequest sortDomain = new SortingRequest();
-        sortDomain.setOperateTime(DateHelper.formatDateTimeMs(new Date(domain.getOperateTime().getTime()-Constants.DELIVERY_DELAY_TIME)));
-        sortDomain.setBoxCode(domain.getBoxCode());
-        sortDomain.setUserCode(domain.getCreateUserCode());
-        sortDomain.setUserName(domain.getCreateUser());
-        sortDomain.setPackageCode(domain.getBoxCode());
-        sortDomain.setSiteName(createSiteName);
-        sortDomain.setIsCancel(0);
-        sortDomain.setSiteCode(domain.getCreateSiteCode());
-        sortDomain.setBsendCode("");
-        sortDomain.setIsLoss(0);
-        sortDomain.setFeatureType(0);
-        sortDomain.setUserName(domain.getCreateUser());
-        sortDomain.setBusinessType(10);
-        sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
-        sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
-        sortDomain.setReceiveSiteName(receiveSiteName);
-        task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
-        taskService.add(task, true);
-        logger.info("批次转发插入task_sorting" + JsonHelper.toJson(task));
-    }
-
     private void insertBatchForwardTask(BatchForwardRequest request) {
 
         Task task = new Task();
@@ -184,12 +117,12 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         task.setCreateSiteCode(createSiteCode);
         task.setReceiveSiteCode(receiveSiteCode);
-        task.setBusinessType(10);
+        task.setBusinessType(BUSINESSTYPE);
         task.setType(Task.TASK_TYPE_SEND_DELIVERY);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
-        task.setKeyword1("8");// 8 批次转发
-        task.setKeyword2(String.valueOf(10));
+        task.setKeyword1(SENDTYPE);// 8 批次转发
+        task.setKeyword2(String.valueOf(BUSINESSTYPE));
         task.setFingerprint(request.getNewSendCode());
         task.setOperateTime(DateHelper.parseDate(request.getOperateTime()));
         task.setOwnSign(BusinessHelper.getOwnSign());
@@ -198,26 +131,5 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         taskService.add(task, true);
         logger.info("批次转发插入task_send" + JsonHelper.toJson(task));
     }
-
-    /**
-     * 校验批次号是否封车:默认返回false
-     * @param sendCode
-     * @return
-     */
-    private boolean checkSendCodeIsSealed(String sendCode) {
-        boolean result = false;
-        try {
-            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
-            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
-            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
-                result = true;
-            }
-        }catch (Throwable e){
-            logger.warn("redis取封车批次号失败："+e.getMessage());
-        }
-        return result;
-    }
-
-
 
 }
