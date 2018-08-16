@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -36,9 +35,6 @@ public class BatchForwardServiceImpl implements BatchForwardService {
     @Autowired
     private DeliveryService deliveryService;
 
-    @Autowired
-    private DeliveryServiceImpl deliveryServiceImpl;
-
     //自营
     private static final Integer BUSINESSTYPE = 10;
     //批次转发发货类型
@@ -49,7 +45,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         InvokeResult result = new InvokeResult();
         //批次是否封车校验
-        if(deliveryServiceImpl.checkSendCodeIsSealed(request.getNewSendCode())){
+        if(deliveryService.checkSendCodeIsSealed(request.getNewSendCode())){
             result.customMessage(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
         }
         //插入批次转发的任务
@@ -84,7 +80,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if(oldSendMList != null &&oldSendMList.size() > 0){
             for(SendM oldSendM : oldSendMList){
                 domain.setBoxCode(oldSendM.getBoxCode());
-                deliveryServiceImpl.packageSend(domain);
+                deliveryService.packageSend(domain);
             }
             return true;
         }
@@ -121,7 +117,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         task.setType(Task.TASK_TYPE_SEND_DELIVERY);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
-        task.setKeyword1(SENDTYPE);// 8 批次转发
+        task.setKeyword1(SENDTYPE);
         task.setKeyword2(String.valueOf(BUSINESSTYPE));
         task.setFingerprint(request.getNewSendCode());
         task.setOperateTime(DateHelper.parseDate(request.getOperateTime()));

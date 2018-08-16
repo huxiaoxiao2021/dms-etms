@@ -504,6 +504,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 一车一单发货数据落库，写相关的异步任务
      * @param domain
      */
+    @Override
     public void packageSend(SendM domain){
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
@@ -547,6 +548,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 推分拣任务
      * @param domain
      */
+    @Override
     public void pushSorting(SendM domain) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
@@ -1748,6 +1750,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendCode
      * @return
      */
+    @Override
     public boolean checkSendCodeIsSealed(String sendCode) {
         boolean result = false;
         try {
