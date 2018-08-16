@@ -52,8 +52,14 @@ public class KuGuanController {
 			model.addAttribute("errorMesage", "1");
 			logger.error("根据订单号获取库管单信息服务异常"+e);
 		}
-		model.addAttribute("kuguanLists", kuGuanDomain.getStockDetails());
-		model.addAttribute("kuGuanDomain", kuGuanDomain);
+		if(kuGuanDomain == null){
+            kuGuanDomain = new KuGuanDomain();
+            kuGuanDomain.setWaybillCode(null);
+            model.addAttribute("errorMesage", "未获取库管信息");
+        }else{
+            model.addAttribute("kuguanLists", kuGuanDomain.getStockDetails());
+            model.addAttribute("kuGuanDomain", kuGuanDomain);
+        }
 		return "kuguan/kuguan";
 	}
 	
