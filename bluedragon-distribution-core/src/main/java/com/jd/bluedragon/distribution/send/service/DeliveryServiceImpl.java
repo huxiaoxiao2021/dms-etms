@@ -4007,6 +4007,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
+            if (StringUtils.isNotBlank(getSendedCode(domain))) {
+                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            } else {
+                //插入SEND_M
+                this.sendMDao.insertSendM(domain);
+            }
 
             /**
              * modified at 2018/4/25
@@ -4014,19 +4020,11 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
             if (isForceSend) {
-                if (StringUtils.isNotBlank(getSendedCode(domain))) {
-                    new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-                }else{
-                    //插入SEND_M
-                    this.sendMDao.insertSendM(domain);
-                }
-
                 if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
                     if (uploadData.getBoxSiteCode() != null) {
                         domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
                     }
-
                     pushInspection(domain, uploadData.getPackageCode());
                     pushAutoSorting(domain, uploadData.getPackageCode());
                     return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -4035,11 +4033,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                     pushSorting(domain);
                 }
             } else {
-                // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
-                this.multiSendCancelLast(domain);
-
-                this.sendMDao.insertSendM(domain);
-
                 if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushSorting(domain);//大件写TASK_SORTING
                 } else {
