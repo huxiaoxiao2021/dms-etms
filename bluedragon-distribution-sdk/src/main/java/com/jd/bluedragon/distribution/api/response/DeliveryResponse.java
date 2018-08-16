@@ -45,6 +45,18 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CROUTER_ERROR =40007;
     public static final String MESSAGE_CROUTER_ERROR="批次目的地与运单路由不一致，是否继续？";
 
+    public static final Integer CODE_NO_BOARDSEND_DETAIL_ERROR =40008;
+    public static final String MESSAGE_NO_BOARDSEND_DETAIL_ERROR="无该板号的发货记录";
+
+    public static final Integer CODE_BOARD_SEND_NOT_FINISH_ERROR =40009;
+    public static final String MESSAGE_BOARD_SEND_NOT_FINISH_ERROR="按板发货正在处理，请稍后再操作取消发货";
+
+    public static final Integer CODE_SEND_SITE_NOTMATCH__ERROR =40010;
+    public static final String MESSAGE_SEND_SITE_NOTMATCH_ERROR="批次号始发ID与操作人所属单位ID不一致";
+
+    public static final Integer CODE_BOARD_SENDED_ERROR =40011;
+    public static final String MESSAGE_BOARD_SENDED_ERROR="板号已操作发车，不能取消发货";
+
     public static final Integer CODE_Delivery_NO_SORTING = 30002;
     public static final String MESSAGE_Delivery_NO_SORTING = "包裹没有分拣记录，是否发货？";
     

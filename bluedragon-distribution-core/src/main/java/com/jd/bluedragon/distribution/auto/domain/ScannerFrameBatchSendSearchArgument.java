@@ -40,6 +40,8 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     private Long planId;
 
+    private Integer yn;
+
     public String getMachineId() {
         return machineId;
     }
@@ -94,6 +96,14 @@ public class ScannerFrameBatchSendSearchArgument implements Serializable {
 
     public void setPlanId(Long planId) {
         this.planId = planId;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 
     @Override
