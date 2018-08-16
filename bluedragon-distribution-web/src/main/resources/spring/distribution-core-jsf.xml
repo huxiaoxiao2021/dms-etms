@@ -321,4 +321,8 @@
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
                   protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 外单打印接口 -->
+    <jsf:consumer id="waybillPrintApi" interface="com.jd.ldop.center.api.print.WaybillPrintApi"
+                  protocol="jsf" alias="${jsf.waybillPrintApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

@@ -1,19 +1,27 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.ResponseDTO;
+import com.jd.ldop.center.api.print.WaybillPrintApi;
+import com.jd.ldop.center.api.print.dto.PrintResultDTO;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
+import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +33,9 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private WaybillReverseApi waybillReverseApi;
+
+    @Autowired
+    private WaybillPrintApi waybillPrintApi;
 
     private final Logger logger = Logger.getLogger(LDOPManagerImpl.class);
     /**
@@ -140,7 +151,30 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.registerInfoEnd(info);
 
         }
-
-
     }
+
+    /**
+     * 根据商家编码和运单号调用外单接口获取打印信息
+     * @param customerCode
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LDOPManagerImpl.getPrintDataForCityOrder", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<WaybillPrintDataDTO> getPrintDataForCityOrder(String customerCode, String waybillCode){
+        WaybillPrintRequestDTO waybillPrintRequestDTO = new WaybillPrintRequestDTO();
+        waybillPrintRequestDTO.setCustomerCode(customerCode);
+        waybillPrintRequestDTO.setWaybillCode(waybillCode);
+        try {
+            PrintResultDTO printResultDto= waybillPrintApi.getPrintDataForCityOrder(waybillPrintRequestDTO);
+            if(printResultDto == null || printResultDto.getData() == null){
+                logger.error("根据商家编码和运单号调用外单接口获取打印信息为空.商家编码:" + customerCode + ", 运单号:" + waybillCode);
+                return Collections.emptyList();
+            }
+            return printResultDto.getData();
+        }catch (Exception e){
+            logger.error("根据商家编码和运单号调用外单接口获取打印信息异常.",e);
+        }
+        return Collections.emptyList();
+    }
+
 }

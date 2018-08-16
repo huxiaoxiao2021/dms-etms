@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.center;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -10,7 +12,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -18,9 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
@@ -47,6 +49,12 @@ public class CenterServiceResource {
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private LDOPManager ldopManager;
+
+	@Autowired
+	private BaseMinorManager baseMinorManager;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -154,5 +162,22 @@ public class CenterServiceResource {
 		waybill.setPromiseText(vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType,
 				startsiteCode, tositeCode, new Date()));
 		return waybill;
+	}
+
+	@GET
+	@Path("/centerService/getPrintDataForCityOrder/{busiId}/{waybillCode}")
+	public List<WaybillPrintDataDTO> getPrintDataForCityOrder(@PathParam("busiId") Integer busiId,
+											 @PathParam("waybillCode") String waybillCode) {
+		//调用外单接口，根据商家id获取商家编码
+		String busiCode = "";
+		BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(busiId);
+
+		if(basicTraderInfoDTO != null){
+			busiCode = basicTraderInfoDTO.getTraderCode();
+		}
+		if(StringHelper.isEmpty(busiCode)){
+			return Collections.emptyList();
+		}
+		return ldopManager.getPrintDataForCityOrder(busiCode,waybillCode);
 	}
 }

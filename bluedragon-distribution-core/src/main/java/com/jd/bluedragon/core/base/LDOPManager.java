@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.ldop.center.api.print.dto.PrintResultDTO;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
@@ -47,5 +49,14 @@ public interface LDOPManager {
      * @return
      */
     WaybillReverseResponseDTO queryReverseWaybill(WaybillReverseDTO waybillReverseDTO, StringBuilder errorMessage);
+
+    /**
+     * 根据商家编码和运单号调用外单接口获取打印信息
+     * @param customerCode
+     * @param waybillCode
+     * @return
+     */
+    List<WaybillPrintDataDTO> getPrintDataForCityOrder(String customerCode, String waybillCode);
+
 
     }
