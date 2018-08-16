@@ -19,7 +19,9 @@
     <script type="application/javascript" src="#springUrl('/static/js/popUp/popUp.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script
+##  添加重写ajax请求，用于处理erp更换后操作时导致不一致的问题
+    <script type="application/javascript" src="#springUrl('/static/js/jd/jd.ajax.js')"></script>
     <script type="text/javascript">
         document.write("<sc"+"ript type='text/javascript' src='/static/js/gantry/gantryAutoSendIndex.js?_t="
                 + new Date().valueOf() + "'></sc"+"ript>");
