@@ -179,5 +179,10 @@
     <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dms_operateHint_track" listener="operateHintTrackConsumer"/>
     </jmq:consumer>
+    <!-- B网半收终端提交协商再投MQ -->
+    <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_pack_sync_waybill" listener="packingConsumableConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

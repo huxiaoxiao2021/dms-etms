@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: WaybillConsumableRecordDaoImpl
@@ -17,5 +19,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("waybillConsumableRecordDao")
 public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRecord> implements WaybillConsumableRecordDao {
 
-
+    @Override
+    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecord condition) {
+        return sqlSession.selectOne(nameSpace+".queryByWaybillCode", condition);
+    }
 }

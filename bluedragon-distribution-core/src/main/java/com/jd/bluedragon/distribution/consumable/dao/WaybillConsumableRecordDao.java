@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.consumable.dao;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: WaybillConsumableRecordDao
@@ -13,5 +15,10 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface WaybillConsumableRecordDao extends Dao<WaybillConsumableRecord> {
 
-
+    /**
+     * 根据查询条件查询一条记录
+     * @param condition
+     * @return
+     */
+    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecord condition);
 }

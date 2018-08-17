@@ -31,4 +31,10 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 		return this.waybillConsumableRecordDao;
 	}
 
+    @Override
+    public WaybillConsumableRecord queryOneByWaybillCode(String waybillCode) {
+        WaybillConsumableRecord condition = new WaybillConsumableRecord();
+        condition.setWaybillCode(waybillCode);
+	    return waybillConsumableRecordDao.queryOneByCondition(condition);
+    }
 }
