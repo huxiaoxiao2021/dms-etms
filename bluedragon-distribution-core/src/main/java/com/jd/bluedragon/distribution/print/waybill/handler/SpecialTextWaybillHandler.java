@@ -111,6 +111,20 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                     BusinessHelper.isSignChar(waybillSign,16,'1') &&
                     BusinessHelper.isSignChar(waybillSign,31,'2')){
 
+                //设置始发站点及始发路由，并将笼车号设为空字符串
+                printInfo.setOriginalDmsCode(null);
+                printInfo.setOriginalDmsName("");
+                printInfo.setOriginalCrossCode("");
+                printInfo.setOriginalTabletrolley("");
+
+                //设置目的站点及目的路由，并将笼车号设为空字符串
+                printInfo.setPurposefulDmsCode(null);
+                printInfo.setPurposefulDmsName("");
+                printInfo.setPurposefulCrossCode("");
+                printInfo.setPurposefulTableTrolley("");
+
+                //设置模板
+                printInfo.setTemplateName("dms-vonebody-s1");
                 String busiCode = printInfo.getBusiCode();
                 String waybillCode = printInfo.getWaybillCode();
                 List<WaybillPrintDataDTO> waybillPrintData = ldopManager.getPrintDataForCityOrder(busiCode,waybillCode);
@@ -127,9 +141,6 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                     printInfo.setPurposefulDmsName(print.getEndCenterSiteName());
                     printInfo.setPurposefulCrossCode(print.getEndCenterSiteRouteCode());
                     printInfo.setPurposefulTableTrolley("");
-
-                    //设置模板
-                    printInfo.setTemplateName("dms-vonebody-s1");
                 }
             }
         }
