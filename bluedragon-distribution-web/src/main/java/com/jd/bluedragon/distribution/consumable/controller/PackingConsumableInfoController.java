@@ -42,17 +42,7 @@ public class PackingConsumableInfoController {
 	public String toIndex() {
 		return "/consumable/packingConsumableInfo";
 	}
-	/**
-	 * 根据id获取基本信息
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/detail/{id}")
-	public @ResponseBody JdResponse<PackingConsumableInfo> detail(@PathVariable("id") Long id) {
-		JdResponse<PackingConsumableInfo> rest = new JdResponse<PackingConsumableInfo>();
-		rest.setData(packingConsumableInfoService.findById(id));
-		return rest;
-	}
+
 	/**
 	 * 保存数据
 	 * @param packingConsumableInfo
@@ -62,6 +52,11 @@ public class PackingConsumableInfoController {
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackingConsumableInfo packingConsumableInfo) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
+
+			if (packingConsumableInfo.getCode() == null) {
+				//id生成，此处临时添加
+				packingConsumableInfo.setCode("HCTEST");
+			}
 			rest.setData(packingConsumableInfoService.saveOrUpdate(packingConsumableInfo));
 	} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);
@@ -69,22 +64,7 @@ public class PackingConsumableInfoController {
 		}
 		return rest;
 	}
-	/**
-	 * 根据id删除多条数据
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(value = "/deleteByIds")
-	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
-		JdResponse<Integer> rest = new JdResponse<Integer>();
-		try {
-			rest.setData(packingConsumableInfoService.deleteByIds(ids));
-		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
-			rest.toError("删除失败，服务异常！");
-		}
-		return rest;
-	}
+
 	/**
 	 * 根据条件分页查询数据信息
 	 * @param packingConsumableInfoCondition
@@ -95,5 +75,15 @@ public class PackingConsumableInfoController {
 		JdResponse<PagerResult<PackingConsumableInfo>> rest = new JdResponse<PagerResult<PackingConsumableInfo>>();
 		rest.setData(packingConsumableInfoService.queryByPagerCondition(packingConsumableInfoCondition));
 		return rest.getData();
+	}
+
+	@RequestMapping("/getModifyPage")
+	public String getModifyPage() {
+		return "consumable/packingConsumableInfoModify";
+	}
+
+	@RequestMapping("/getAddPage")
+	public String getAddPage() {
+		return "consumable/packingConsumableInfoAdd";
 	}
 }
