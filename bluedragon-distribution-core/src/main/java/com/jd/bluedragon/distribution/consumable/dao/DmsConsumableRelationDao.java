@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.consumable.dao;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: DmsConsumableRelationDao
@@ -13,5 +15,12 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface DmsConsumableRelationDao extends Dao<DmsConsumableRelation> {
 
+    /**
+     * 根据分拣中心查询信息
+     *
+     * @param dmsId
+     * @return
+     */
+    List getPackingConsumableInfoByDmsId(Integer dmsId);
 
 }

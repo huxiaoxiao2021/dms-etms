@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -10,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.dao.DmsConsumableRelationDao;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
+
+import java.util.List;
 
 /**
  *
@@ -31,4 +34,8 @@ public class DmsConsumableRelationServiceImpl extends BaseService<DmsConsumableR
 		return this.dmsConsumableRelationDao;
 	}
 
+	@Override
+	public List<PackingConsumableBaseInfo> getPackingConsumableInfoByDmsId(Integer dmsId) {
+		return dmsConsumableRelationDao.getPackingConsumableInfoByDmsId(dmsId);
+	}
 }

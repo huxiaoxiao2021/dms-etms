@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.dao.DmsConsumableRelationDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: DmsConsumableRelationDaoImpl
@@ -17,5 +19,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("dmsConsumableRelationDao")
 public class DmsConsumableRelationDaoImpl extends BaseDao<DmsConsumableRelation> implements DmsConsumableRelationDao {
 
-
+    @Override
+    public List getPackingConsumableInfoByDmsId(Integer dmsId) {
+        return this.getSqlSession().selectList(this.getNameSpace() + ".getPackingConsumableInfoByDmsId", dmsId);
+    }
 }

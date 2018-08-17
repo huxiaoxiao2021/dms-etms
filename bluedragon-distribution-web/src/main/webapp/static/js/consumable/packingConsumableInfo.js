@@ -1,8 +1,8 @@
 $(function() {
 	var saveUrl = '/consumable/packingConsumableInfo/save';
-	var deleteUrl = '/consumable/packingConsumableInfo/deleteByIds';
-  var detailUrl = '/consumable/packingConsumableInfo/detail/';
-  var queryUrl = '/consumable/packingConsumableInfo/listData';
+	var queryUrl = '/consumable/packingConsumableInfo/listData';
+	var modifyInfoPageUrl = '/consumable/packingConsumableInfo/getModifyPage';
+	var addInfoPageUrl = '/consumable/packingConsumableInfo/getAddPage';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -70,14 +70,101 @@ $(function() {
 		    return params;
 		};
 		oTableInit.tableColums = [ {
-				checkbox : true
-			}, {
-				field : 'typeCode',
-				title : '编码'
-			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+			field: 'id',
+			title: 'ID',
+			visible:false
+		},
+			{
+				field: 'code',
+				title: '耗材编号'
+			},
+			{
+				field: 'name',
+				title: '耗材名称'
+			},
+			{
+				field: 'type',
+				title: '耗材类型'
+			},
+			{
+				field: 'volume',
+				title: '体积'
+			},
+			{
+				field: 'volumeCoefficient',
+				title: '体积系数'
+			},
+			{
+				field: 'specification',
+				title: '体积'
+			},
+			{
+				field: 'unit',
+				title: '单位'
+			},
+			{
+				field: 'operateUserCode',
+				title: '操作人编号'
+			},
+			{
+				field: 'operateUserErp',
+				title: '操作人ERP'
+			},
+			{
+				field: 'operateTime',
+				title: '操作时间',
+				formatter : function (value, row, index) {
+					if(value == null){
+						return null;
+					}else {
+						return $.dateHelper.formatDateTime(new Date(value));
+					}
+				},
+				visible:false
+			},
+			{
+				field: 'op',
+				title: '操作',
+				formatter : function (value, row, index) {
+					return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改&nbsp;</a>';
+				},
+				events: {
+					'click .mdinfo': function(e, value, row, index) {
+						layer.open({
+							id:'modifyInfoFrame',
+							type: 2,
+							title:'耗材信息修改',
+							shadeClose: true,
+							shade: 0.7,
+							shadeClose: false,
+							maxmin: true,
+							area: ['800px', '380px'],
+							content: modifyInfoPageUrl,
+							success: function(layero, index){
+								var id = row.id;
+								var code = row.code;
+								var name = row.name;
+								var type = row.type;
+								var volume = row.volume;
+								var volumeCoefficient = row.volumeCoefficient;
+								var specification = row.specification;
+								var unit = row.unit;
+
+								var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
+								var frameWindow = $('#' + frameId)[0].contentWindow;
+								frameWindow.$('#id-value-input').val(id);
+								frameWindow.$('#code-value-input').val(code);
+								frameWindow.$('#name-value-input').val(name);
+								frameWindow.$('#type-value-input').val(type);
+								frameWindow.$('#volume-value-input').val(volume);
+								frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
+								frameWindow.$('#specification-value-input').val(specification);
+								frameWindow.$('#unit-value-input').val(unit);
+							}
+						});
+					}
+				}
+			}];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -86,75 +173,11 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
-			$('#dataEditDiv').hide();		
-		    $('#btn_query').click(function() {
-		    	tableInit().refresh();
-			});
-			$('#btn_add').click(function() {
-			    $('.edit-param').each(function () {
-			    	var _k = this.id;
-			        if(_k){
-			        	$(this).val('');
-			        }
-			    });
-			    $('#edit-form #typeGroup').val(null).trigger('change');
-			    $('#edit-form #parentId').val(null).trigger('change');
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-			// 修改操作
-			$('#btn_edit').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length > 1) {
-					alert("修改操作，只能选择一条数据");
-					return;
-				}
-				if (rows.length == 0) {
-					alert("请选择一条数据");
-					return;
-				}
-			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
-			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
-					    	var _k = this.id;
-					        var _v = res.data[_k];
-					        if(_k){
-					        	if(_v != null && _v != undefined){
-						        	$(this).val(_v);
-						        }else{
-						        	$(this).val('');
-						        }
-					        } 
-					    });
-			    	}
-			    });
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
+
+			$('#btn_query').click(function() {
+				tableInit().refresh();
 			});
 
-			// 删
-			$('#btn_delete').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length < 1) {
-					alert("错误，未选中数据");
-					return;
-				}
-				var flag = confirm("是否删除这些数据?");
-				if (flag == true) {
-					var params = [];
-					for(var i in rows){
-						params.push(rows[i].id);
-				    };
-					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,删除'+res.data+'条。');
-				    		tableInit().refresh();
-				    	}else{
-				    		alert('操作异常！');
-				    	}
-				    });
-				}
-			});
 			$('#btn_submit').click(function() {
 				var params = {};
 				$('.edit-param').each(function () {
@@ -185,4 +208,20 @@ $(function() {
 	
 	tableInit().init();
 	pageInit().init();
+
+	/*增加*/
+	$('#btn_add').click(function () {
+		layer.open({
+			id:'addInfoFrame',
+			type: 2,
+			title:'增加包装耗材信息',
+			shadeClose: true,
+			shade: 0.7,
+			maxmin: true,
+			shadeClose: false,
+			area: ['800px', '380px'],
+			content: addInfoPageUrl
+		});
+
+	});
 });
