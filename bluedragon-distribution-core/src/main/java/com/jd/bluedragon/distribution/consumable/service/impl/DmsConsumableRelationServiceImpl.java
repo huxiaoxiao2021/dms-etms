@@ -36,6 +36,6 @@ public class DmsConsumableRelationServiceImpl extends BaseService<DmsConsumableR
 
 	@Override
 	public List<PackingConsumableBaseInfo> getPackingConsumableInfoByDmsId(Integer dmsId) {
-		return null;
+		return dmsConsumableRelationDao.getPackingConsumableInfoByDmsId(dmsId);
 	}
 }
