@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.consumable.service;
 
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
+import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Service;
+
+import java.util.List;
 
 /**
  *
@@ -13,5 +16,6 @@ import com.jd.ql.dms.common.web.mvc.api.Service;
  */
 public interface DmsConsumableRelationService extends Service<DmsConsumableRelation> {
 
+    List<PackingConsumableBaseInfo> getPackingConsumableInfoByDmsId(Integer dmsId);
 
 }
