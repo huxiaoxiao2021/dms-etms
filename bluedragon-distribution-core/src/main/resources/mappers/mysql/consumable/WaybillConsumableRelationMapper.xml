@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao">
+
+	<resultMap id="WaybillConsumableRelation" type="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
+		operate_user_erp,operate_time,create_time,update_time,is_delete,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation">
+		insert into waybill_consumable_relation
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="consumableCode != null">
+					consumable_code,
+				</if>
+				<if test="receiveQuantity != null">
+					receive_quantity,
+				</if>
+				<if test="confirmQuantity != null">
+					confirm_quantity,
+				</if>
+				<if test="operateUserCode != null">
+					operate_user_code,
+				</if>
+				<if test="operateUserErp != null">
+					operate_user_erp,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableCode != null">
+					#{consumableCode,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveQuantity != null">
+					#{receiveQuantity,jdbcType=INTEGER},
+				</if>
+				<if test="confirmQuantity != null">
+					#{confirmQuantity,jdbcType=INTEGER},
+				</if>
+				<if test="operateUserCode != null">
+					#{operateUserCode,jdbcType=VARCHAR},
+				</if>
+				<if test="operateUserErp != null">
+					#{operateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into waybill_consumable_relation
+			(
+				waybill_code,consumable_code,receive_quantity,confirm_quantity,
+				operate_user_code,operate_user_erp,operate_time,create_time,update_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.consumableCode,jdbcType=VARCHAR},
+					#{item.receiveQuantity,jdbcType=INTEGER},
+					#{item.confirmQuantity,jdbcType=INTEGER},
+					#{item.operateUserCode,jdbcType=VARCHAR},
+					#{item.operateUserErp,jdbcType=VARCHAR},
+					#{item.operateTime,jdbcType=TIMESTAMP},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation">
+		update waybill_consumable_relation
+			<set>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableCode != null">
+					consumable_code = #{consumableCode,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveQuantity != null">
+					receive_quantity = #{receiveQuantity,jdbcType=INTEGER},
+				</if>
+				<if test="confirmQuantity != null">
+					confirm_quantity = #{confirmQuantity,jdbcType=INTEGER},
+				</if>
+				<if test="operateUserCode != null">
+					operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+				</if>
+				<if test="operateUserErp != null">
+					operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update waybill_consumable_relation
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update waybill_consumable_relation
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="WaybillConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  waybill_consumable_relation 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation" resultMap="WaybillConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  waybill_consumable_relation 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  waybill_consumable_relation 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  waybill_consumable_relation 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
