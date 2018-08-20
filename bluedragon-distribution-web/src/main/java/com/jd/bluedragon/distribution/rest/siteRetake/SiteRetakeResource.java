@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.apache.commons.logging.Log;
@@ -61,6 +62,7 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/updateOrderStatus")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1013,operateType = 101301)
     public InvokeResult<String> updateOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         return siteRetakeService.updateCommonOrderStatus(siteRetakeOperation);
 

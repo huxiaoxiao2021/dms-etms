@@ -118,6 +118,7 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
             logger.error(result.getMessage());
             logger.error("SiteRetakeManagerImpl.updateCommonOrderStatus失败1，vendorOrder:" + JsonHelper.toJson(vendorOrder) + ",code:" + result.getCode());
         }
+        logger.info("SiteRetakeManagerImpl.updateCommonOrderStatus成功，vendorOrder:" + JsonHelper.toJson(vendorOrder));
         return invokeResult;
     }
 }
