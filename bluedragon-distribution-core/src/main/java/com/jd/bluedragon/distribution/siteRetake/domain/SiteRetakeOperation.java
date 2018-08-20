@@ -18,6 +18,7 @@ public class SiteRetakeOperation {
     private Date requiredEndTime;
     private Integer siteCode;
     private String siteName;
+    private Date operatorTime;//操作时间，不能为空值
 
     public Integer getSiteCode() {
         return siteCode;
@@ -97,5 +98,13 @@ public class SiteRetakeOperation {
 
     public void setSiteName(String siteName) {
         this.siteName = siteName;
+    }
+
+    public Date getOperatorTime() {
+        return operatorTime;
+    }
+
+    public void setOperatorTime(Date operatorTime) {
+        this.operatorTime = operatorTime;
     }
 }

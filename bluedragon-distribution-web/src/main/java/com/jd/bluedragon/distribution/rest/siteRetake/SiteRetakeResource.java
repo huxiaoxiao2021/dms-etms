@@ -70,6 +70,7 @@ public class SiteRetakeResource {
         Assert.notNull(siteRetakeOperation.getStatus(), "status type must not be null");
         Assert.notNull(siteRetakeOperation.getOperatorId(), "operator type must not be null");
         Assert.notNull(siteRetakeOperation.getEndReason(), "endreson type must not be null");
+        Assert.notNull(siteRetakeOperation.getOperatorTime(), "operatortime type must not be null");
         return siteRetakeService.updateCommonOrderStatus(siteRetakeOperation);
 
     }
