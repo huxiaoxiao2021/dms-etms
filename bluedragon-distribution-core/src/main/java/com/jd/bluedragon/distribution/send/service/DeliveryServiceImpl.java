@@ -573,7 +573,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 一车一单发货数据落库，写相关的异步任务
      * @param domain
      */
-    private void packageSend(SendM domain){
+    @Override
+    public void packageSend(SendM domain){
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
@@ -679,7 +680,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 推分拣任务
      * @param domain
      */
-    private void pushSorting(SendM domain) {
+    @Override
+    public void pushSorting(SendM domain) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -1920,6 +1922,26 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else
             falge = true;
         return falge;
+    }
+
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    @Override
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
+            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
+            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            logger.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -4069,6 +4091,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
+            if (StringUtils.isNotBlank(getSendedCode(domain))) {
+                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            } else {
+                //插入SEND_M
+                this.sendMDao.insertSendM(domain);
+            }
 
             /**
              * modified at 2018/4/25
@@ -4076,19 +4104,11 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
             if (isForceSend) {
-                if (StringUtils.isNotBlank(getSendedCode(domain))) {
-                    new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-                }else{
-                    //插入SEND_M
-                    this.sendMDao.insertSendM(domain);
-                }
-
                 if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
                     if (uploadData.getBoxSiteCode() != null) {
                         domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
                     }
-
                     pushInspection(domain, uploadData.getPackageCode());
                     pushAutoSorting(domain, uploadData.getPackageCode());
                     return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
@@ -4097,11 +4117,6 @@ public class DeliveryServiceImpl implements DeliveryService {
                     pushSorting(domain);
                 }
             } else {
-                // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
-                this.multiSendCancelLast(domain);
-
-                this.sendMDao.insertSendM(domain);
-
                 if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
                     pushSorting(domain);//大件写TASK_SORTING
                 } else {
