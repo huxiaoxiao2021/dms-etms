@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +31,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
  */
 @Controller
 @RequestMapping("consumable/waybillConsumableRecord")
-public class WaybillConsumableRecordController {
+public class WaybillConsumableRecordController extends DmsBaseController{
 
 	private static final Log logger = LogFactory.getLog(WaybillConsumableRecordController.class);
 
@@ -86,6 +90,33 @@ public class WaybillConsumableRecordController {
 		return rest;
 	}
 	/**
+	 * 根据id确认多条数据
+	 * @param records
+	 * @return
+	 */
+	@RequestMapping(value = "/confirmByIds")
+	public @ResponseBody JdResponse<Integer> confirmByIds(@RequestBody List<WaybillConsumableRecord> records) {
+		JdResponse<Integer> rest = new JdResponse<Integer>();
+		try {
+            LoginUser loginUser = getLoginUser();
+            List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>(records.size());
+            for (WaybillConsumableRecord data : records){
+                WaybillConsumableRecord record = new WaybillConsumableRecord();
+                record.setId(data.getId());
+                record.setConfirmUserName(loginUser.getUserName());
+                record.setConfirmUserErp(loginUser.getUserErp());
+                record.setConfirmTime(new Date());
+                record.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
+                confirmRecords.add(record);
+            }
+			rest.setData(waybillConsumableRecordService.confirmByIds(confirmRecords));
+		} catch (Exception e) {
+			logger.error("fail to delete！"+e.getMessage(),e);
+			rest.toError("确认失败，服务异常！");
+		}
+		return rest;
+	}
+	/**
 	 * 根据条件分页查询数据信息
 	 * @param waybillConsumableRecordCondition
 	 * @return
@@ -93,6 +124,7 @@ public class WaybillConsumableRecordController {
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<WaybillConsumableRecord> listData(@RequestBody WaybillConsumableRecordCondition waybillConsumableRecordCondition) {
 		JdResponse<PagerResult<WaybillConsumableRecord>> rest = new JdResponse<PagerResult<WaybillConsumableRecord>>();
+		waybillConsumableRecordCondition.setDmsId(getLoginUser().getSiteCode());
 		rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 		return rest.getData();
 	}

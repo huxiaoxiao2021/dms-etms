@@ -185,6 +185,15 @@
 		</foreach>
 	</update>
 
+	<select id="queryByWaybillCodes" parameterType="List">
+		select waybill_code,
+        from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
+		where wcr.is_delete = 0 and  wcr.waybill_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
 	<select id="findById" parameterType="Long" resultMap="WaybillConsumableRelation">
 		select 
 		 <include refid="Base_Column_List"/>

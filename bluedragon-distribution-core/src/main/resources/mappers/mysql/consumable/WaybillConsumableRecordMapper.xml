@@ -12,7 +12,7 @@
 		<result column="receive_user_code" property="receiveUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_user_erp" property="receiveUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_user_name" property="receiveUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="confirm_user_code" property="confirmUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="confirm_user_name" property="confirmUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="confirm_user_erp" property="confirmUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_time" property="receiveTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="confirm_time" property="confirmTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -24,7 +24,7 @@
 
 	<sql id="Base_Column_List" >
 		id,dms_id,dms_name,waybill_code,confirm_status,modify_status,
-		receive_user_code,receive_user_erp,receive_user_name,confirm_user_code,confirm_user_erp,
+		receive_user_code,receive_user_erp,receive_user_name,confirm_user_name,confirm_user_erp,
 		receive_time,confirm_time,create_time,update_time,is_delete,
 		ts
 	</sql>
@@ -78,8 +78,8 @@
 				<if test="receiveUserName != null">
 					receive_user_name,
 				</if>
-				<if test="confirmUserCode != null">
-					confirm_user_code,
+				<if test="confirmUserName != null">
+					confirm_user_name,
 				</if>
 				<if test="confirmUserErp != null">
 					confirm_user_erp,
@@ -122,8 +122,8 @@
 				<if test="receiveUserName != null">
 					#{receiveUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="confirmUserCode != null">
-					#{confirmUserCode,jdbcType=VARCHAR},
+				<if test="confirmUserName != null">
+					#{confirmUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="confirmUserErp != null">
 					#{confirmUserErp,jdbcType=VARCHAR},
@@ -145,7 +145,7 @@
 		insert into waybill_consumable_record
 			(
 				dms_id,dms_name,waybill_code,confirm_status,
-				modify_status,receive_user_code,receive_user_erp,receive_user_name,confirm_user_code,
+				modify_status,receive_user_code,receive_user_erp,receive_user_name,confirm_user_name,
 				confirm_user_erp,receive_time,confirm_time,create_time,update_time,
 				is_delete,ts
 			)
@@ -160,7 +160,7 @@
 					#{item.receiveUserCode,jdbcType=VARCHAR},
 					#{item.receiveUserErp,jdbcType=VARCHAR},
 					#{item.receiveUserName,jdbcType=VARCHAR},
-					#{item.confirmUserCode,jdbcType=VARCHAR},
+					#{item.confirmUserName,jdbcType=VARCHAR},
 					#{item.confirmUserErp,jdbcType=VARCHAR},
 					#{item.receiveTime,jdbcType=TIMESTAMP},
 					#{item.confirmTime,jdbcType=TIMESTAMP},
@@ -193,8 +193,8 @@
 				<if test="receiveUserName != null">
 					receive_user_name = #{receiveUserName,jdbcType=VARCHAR},
 				</if>
-				<if test="confirmUserCode != null">
-					confirm_user_code = #{confirmUserCode,jdbcType=VARCHAR},
+				<if test="confirmUserName != null">
+					confirm_user_name = #{confirmUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="confirmUserErp != null">
 					confirm_user_erp = #{confirmUserErp,jdbcType=VARCHAR},

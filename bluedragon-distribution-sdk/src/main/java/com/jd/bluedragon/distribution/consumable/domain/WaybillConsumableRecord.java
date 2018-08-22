@@ -36,11 +36,11 @@ public class WaybillConsumableRecord extends DbEntity {
 	 /** 揽收人erp */
 	private String receiveUserErp;
 
-	 /**  */
+	 /** 揽收人Name */
 	private String receiveUserName;
 
 	 /** 确认人编号 */
-	private String confirmUserCode;
+	private String confirmUserName;
 
 	 /** 确认人erp */
 	private String confirmUserErp;
@@ -181,18 +181,18 @@ public class WaybillConsumableRecord extends DbEntity {
 
 	/**
 	 * The set method for confirmUserCode.
-	 * @param confirmUserCode
+	 * @param confirmUserName
 	 */
-	public void setConfirmUserCode(String confirmUserCode) {
-		this.confirmUserCode = confirmUserCode;
+	public void setConfirmUserName(String confirmUserName) {
+		this.confirmUserName = confirmUserName;
 	}
 
 	/**
-	 * The get method for confirmUserCode.
+	 * The get method for confirmUserName.
 	 * @return this.confirmUserCode
 	 */
-	public String getConfirmUserCode() {
-		return this.confirmUserCode;
+	public String getConfirmUserName() {
+		return this.confirmUserName;
 	}
 
 	/**

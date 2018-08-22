@@ -62,6 +62,7 @@
         <dd><a href="$!{mixedConfigUrl}?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
         <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
         <dd><a href="#springUrl('/abnormal/dmsOperateHint/toIndex')" target="mainFrame">PDA验货提示语</a></dd>
+        <dd><a href="#springUrl('/consumable/waybillConsumableRecord/toIndex')" target="mainFrame">B网包装耗材</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
         <dt><a href="#" class="curr">离线管理</a></dt>

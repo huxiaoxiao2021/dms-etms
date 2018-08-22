@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
+
+import java.util.List;
 
 /**
  *
@@ -17,5 +20,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("waybillConsumableRelationDao")
 public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableRelation> implements WaybillConsumableRelationDao {
 
-
+    @Override
+    public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
+        return sqlSession.selectList(this.nameSpace+".queryByWaybillCodes", waybillCodes);
+    }
 }

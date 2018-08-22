@@ -1,6 +1,6 @@
 $(function() {
 	var saveUrl = '/consumable/waybillConsumableRecord/save';
-	var deleteUrl = '/consumable/waybillConsumableRecord/deleteByIds';
+	var confirmUrl = '/consumable/waybillConsumableRecord/confirmByIds';
   var detailUrl = '/consumable/waybillConsumableRecord/detail/';
   var queryUrl = '/consumable/waybillConsumableRecord/listData';
 	var tableInit = function() {
@@ -60,33 +60,131 @@ $(function() {
 		    if (!_selector) {
 		        _selector = ".search-param";
 		    }
-		    $(_selector).each(function () {
-		    	var _k = this.id;
-		        var _v = $(this).val();
-		        if(_k && (_v != null && _v != '')){
-		        	params[_k] = _v;
-		        }
-		    });
+            $(_selector).each(function () {
+                var _k = this.id;
+                var _v = $(this).val();
+                if(_k && _v){
+                    if(_k == 'startTime' || _k =='endTime'){
+                        params[_k]=new Date(_v).getTime();;
+                    }else{
+                        params[_k]=_v;
+                    }
+                }
+            });
 		    return params;
 		};
-		oTableInit.tableColums = [ {
-				checkbox : true
-			}, {
-				field : 'typeCode',
-				title : '编码'
-			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
-		oTableInit.refresh = function() {
-			$('#dataTable').bootstrapTable('refresh');
-		};
-		return oTableInit;
-	};
+        oTableInit.tableColums = [ {
+            checkbox : true
+        },{
+            field: 'id',
+            title: 'ID',
+            visible:false
+        },{
+            field : 'waybillCode',
+            title : '运单号',
+            width:150,
+            class:'min_150'
+        },{
+            field : 'receiveTime',
+            title : '揽收时间',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            },
+            width:200,
+            class:'min_150'
+        },{
+            field : 'dmsName',
+            title : '始发转运中心',
+            width:150,
+            class:'min_150'
+        },{
+            field : 'receiveUserErp',
+            title : '揽收人员ERP',
+            width:150,
+            class:'min_100'
+        },{
+            field : 'confirmStatus',
+            title : '状态',
+            formatter : function(value,row,index){
+                return value==1?'已确认':'未确认';
+            },
+            width:150,
+            class:'min_100'
+        },{
+            field : 'confirmUserErp',
+            title : '确认人ERP',
+            width:150,
+            class:'min_100'
+        },{
+            field : 'confirmTime',
+            title : '确认时间',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            },
+            width:150,
+            class:'min_150'
+        },{
+            field : 'op',
+            title : '操作',
+            formatter : function (value, row, index) {
+                return '<a class="gpdetail" href="javascript:void(0)" ><i class="glyphicon glyphicon-list-alt"></i>&nbsp;耗材明细&nbsp;</a>';
+            },
+            events: {
+                'click .gpdetail': function(e, value, row, index) {
+                    layer.open({
+                        id:'detailFrame',
+                        type: 2,
+                        title:'耗材明细修改确认',
+                        shadeClose: true,
+                        shade: 0.7,
+                        shadeClose: false,
+                        maxmin: true,
+                        area: ['1100px', '670px'],
+                        content: detailPageUrl,
+                        success: function(layero, index){
+                            var infoId = row.waybillCode;
+                            var frameId = document.getElementById("detailFrame").getElementsByTagName("iframe")[0].id;
+                            var frameWindow = $('#' + frameId)[0].contentWindow;
+                            frameWindow.$('#infoId-value-input').val(infoId);
+                            frameWindow.$('#btn_query').click();
+                        }
+                    });
+                }
+            }
+        }];
+        oTableInit.refresh = function() {
+            $('#dataTable').bootstrapTable('refreshOptions',{pageNumber:1});
+            //$('#dataTable').bootstrapTable('refresh');
+        };
+        return oTableInit;
+    };
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
-			$('#dataEditDiv').hide();		
+            $('#dataEditDiv').hide();
+            /*起始时间*/ /*截止时间*/
+            $.datePicker.createNew({
+                elem: '#startTime',
+                theme: '#3f92ea',
+                type: 'datetime',
+                min: -60,//最近60天内
+                max: 0,//最近60天内
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+            $.datePicker.createNew({
+                elem: '#endTime',
+                theme: '#3f92ea',
+                type: 'datetime',
+                min: -60,//最近60天内
+                max: 0,//最近60天内
+                btns: ['now', 'confirm'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
@@ -132,22 +230,26 @@ $(function() {
 				$('#dataEditDiv').show();
 			});
 
-			// 删
-			$('#btn_delete').click(function() {
+			// 批量确认
+			$('#btn_confirm').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				if (rows.length < 1) {
 					alert("错误，未选中数据");
 					return;
 				}
-				var flag = confirm("是否删除这些数据?");
+				var flag = confirm("是否确认这些运单?");
 				if (flag == true) {
 					var params = [];
 					for(var i in rows){
-						params.push(rows[i].id);
+					    var data = {};
+					    data["id"] = rows[i].id;
+					    data["waybillCode"] = rows[i].waybillCode;
+					    data["dmsId"] = rows[i].dmsId;
+						params.push(data);
 				    };
-					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
+					$.ajaxHelper.doPostSync(confirmUrl,JSON.stringify(params),function(res){
 				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,删除'+res.data+'条。');
+				    		alert('操作成功,确认'+res.data+'条。');
 				    		tableInit().refresh();
 				    	}else{
 				    		alert('操作异常！');
@@ -182,7 +284,15 @@ $(function() {
 		};
 		return oInit;
 	};
-	
-	tableInit().init();
-	pageInit().init();
+
+    initDateQuery();
+    tableInit().init();
+    pageInit().init();
 });
+
+function initDateQuery(){
+    var startTime = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
+    var endTime = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+    $("#startTime").val(startTime);
+    $("#endTime").val(endTime);
+}

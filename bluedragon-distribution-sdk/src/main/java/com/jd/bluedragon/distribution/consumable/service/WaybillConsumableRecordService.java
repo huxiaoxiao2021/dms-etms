@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.consumable.service;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.List;
+
 /**
  *
  * @ClassName: WaybillConsumableRecordService
@@ -24,4 +26,13 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      * @return
      */
     public WaybillConsumableRecord queryOneByWaybillCode(String waybillCode);
+
+    /**
+     * 根据ID批量更新多条记录
+     * @param records
+     * @return
+     */
+    public int confirmByIds(List<WaybillConsumableRecord> records);
+
+
 }

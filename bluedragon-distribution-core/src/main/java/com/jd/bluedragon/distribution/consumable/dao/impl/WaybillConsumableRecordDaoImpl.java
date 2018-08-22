@@ -23,4 +23,9 @@ public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRec
     public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecord condition) {
         return sqlSession.selectOne(nameSpace+".queryByWaybillCode", condition);
     }
+
+    @Override
+    public int updateByIds(List<WaybillConsumableRecord> records) {
+        return sqlSession.update(nameSpace+".updateByIds", records);
+    }
 }

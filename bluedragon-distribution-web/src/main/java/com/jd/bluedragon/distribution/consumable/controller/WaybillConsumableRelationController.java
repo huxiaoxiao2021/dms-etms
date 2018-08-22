@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.consumable.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,12 +29,15 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
  */
 @Controller
 @RequestMapping("consumable/waybillConsumableRelation")
-public class WaybillConsumableRelationController {
+public class WaybillConsumableRelationController extends DmsBaseController{
 
 	private static final Log logger = LogFactory.getLog(WaybillConsumableRelationController.class);
 
 	@Autowired
 	private WaybillConsumableRelationService waybillConsumableRelationService;
+
+	@Autowired
+	private WaybillConsumableRecordService waybillConsumableRecordService;
 
 	/**
 	 * 返回主页面

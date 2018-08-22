@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
-import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
-
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import java.util.List;
 
 /**
  *
@@ -31,4 +32,8 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 		return this.waybillConsumableRelationDao;
 	}
 
+    @Override
+    public  List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
+        return waybillConsumableRelationDao.queryByWaybillCodes(waybillCodes);
+    }
 }
