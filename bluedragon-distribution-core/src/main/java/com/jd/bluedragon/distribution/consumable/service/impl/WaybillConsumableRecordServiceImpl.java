@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,26 +68,19 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int confirmByIds(List<WaybillConsumableRecord> confirmRecords) {
-        int result = waybillConsumableRecordDao.updateByIds(confirmRecords);
-        //TODO 查出明细，发送运单MQ
-        Map<String, WaybillConsumableDto> consumableDtoMap = new HashMap<String, WaybillConsumableDto>(confirmRecords.size());
+
+	    //1.更新主表信息
+        List<Long> ids = new ArrayList<Long>(confirmRecords.size());
         for (WaybillConsumableRecord record : confirmRecords){
-            WaybillConsumableDto dto = new WaybillConsumableDto();
-            dto.setWaybillCode(record.getWaybillCode());
-            dto.setDmsCode(record.getDmsId());
-            dto.setMessageType(WAYBILL_CONSUMABLE_MESSAGE_TYPE);
-            dto.setOperateUserErp(record.getConfirmUserErp());
-            dto.setOperateUserName(record.getConfirmUserName());
-            dto.setOperateTime(DateHelper.formatDateTime(record.getConfirmTime()));
-            dto.setPackingChargeList(new ArrayList<WaybillConsumableDetailDto>());
-            consumableDtoMap.put(record.getWaybillCode(), dto);
+            ids.add(record.getId());
+            record.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
         }
-        List<WaybillConsumableExportDto> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<String>(consumableDtoMap.keySet()));
-        for(WaybillConsumableExportDto dto : exportDtos){
+        int result = waybillConsumableRecordDao.updateByIds(confirmRecords);
 
-        }
+        //2.发送MQ通知运单
+        List<WaybillConsumableRecord> confirmedRecords = waybillConsumableRecordDao.findByIds(ids);
+        sendConfirmWaybillConsumableMq(confirmedRecords);
 
-        sendConfirmWaybillConsumableMq(new ArrayList<WaybillConsumableDto>(consumableDtoMap.values()));
         return result;
     }
 
@@ -101,9 +95,48 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
     /**
      * 发送确认明细MQ通知运单
-     * @param consumableDtos
+     * @param confirmedRecords
      */
-    private void sendConfirmWaybillConsumableMq(List<WaybillConsumableDto> consumableDtos){
-//        waybillConsumableRelationService.
+    private void sendConfirmWaybillConsumableMq(List<WaybillConsumableRecord> confirmedRecords){
+        Map<String, WaybillConsumableDto> consumableDtoMap = new HashMap<String, WaybillConsumableDto>();
+        for (WaybillConsumableRecord record : confirmedRecords){
+            //只发送修改过的数据
+            if(TREATED_STATE.equals(record.getModifyStatus())){
+                WaybillConsumableDto dto = new WaybillConsumableDto();
+                dto.setWaybillCode(record.getWaybillCode());
+                dto.setDmsCode(record.getDmsId());
+                dto.setMessageType(WAYBILL_CONSUMABLE_MESSAGE_TYPE);
+                dto.setOperateUserErp(record.getConfirmUserErp());
+                dto.setOperateUserName(record.getConfirmUserName());
+                dto.setOperateTime(DateHelper.formatDateTime(record.getConfirmTime()));
+                dto.setPackingChargeList(new ArrayList<WaybillConsumableDetailDto>());
+                consumableDtoMap.put(record.getWaybillCode(), dto);
+            }
+        }
+        //构建消息体明细
+        if(!consumableDtoMap.isEmpty()){
+            List<WaybillConsumableExportDto> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<String>(consumableDtoMap.keySet()));
+            for(WaybillConsumableExportDto dto : exportDtos){
+                WaybillConsumableDetailDto detailDto = new WaybillConsumableDetailDto();
+                detailDto.setPackingCode(dto.getCode());
+                detailDto.setPackingName(dto.getName());
+                detailDto.setPackingType(dto.getType());
+                detailDto.setPackingVolume(dto.getVolume().doubleValue());
+                detailDto.setVolumeCoefficient(dto.getVolumeCoefficient().doubleValue());
+                detailDto.setPackingSpecification(dto.getSpecification());
+                detailDto.setPackingUnit(dto.getUnit());
+                detailDto.setPackingNumber(dto.getConfirmQuantity());
+
+                consumableDtoMap.get(dto.getWaybillCode()).getPackingChargeList().add(detailDto);
+            }
+            //逐个运单发送MQ
+            for (WaybillConsumableDto dto : consumableDtoMap.values()){
+                try {
+                    waybillConsumableProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
+                }catch (Exception e){
+                    logger.error("B网包装耗材确认明细发送运单失败：" + JSON.toJSONString(dto), e);
+                }
+            }
+        }
     }
 }

@@ -122,7 +122,6 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                 record.setConfirmUserName(loginUser.getUserName());
                 record.setConfirmUserErp(loginUser.getUserErp());
                 record.setConfirmTime(new Date());
-                record.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
                 confirmRecords.add(record);
             }
 			rest.setData(waybillConsumableRecordService.confirmByIds(confirmRecords));

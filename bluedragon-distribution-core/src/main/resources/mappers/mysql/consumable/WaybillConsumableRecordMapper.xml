@@ -237,6 +237,17 @@
 		where id = #{id,jdbcType=BIGINT}
 	</select>
 
+	<select id="findByIds" parameterType="List" resultMap="WaybillConsumableRecord">
+		select
+		 <include refid="Base_Column_List"/>
+		from
+		  waybill_consumable_record
+        where is_delete = 0 and  id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+	</select>
+
 	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord" resultMap="WaybillConsumableRecord">
 		select 
 		 <include refid="Base_Column_List"/>

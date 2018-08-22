@@ -28,4 +28,9 @@ public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRec
     public int updateByIds(List<WaybillConsumableRecord> records) {
         return sqlSession.update(nameSpace+".updateByIds", records);
     }
+
+    @Override
+    public List<WaybillConsumableRecord> findByIds(List<Long> ids) {
+        return sqlSession.selectList(nameSpace+".updateByIds", ids);
+    }
 }
