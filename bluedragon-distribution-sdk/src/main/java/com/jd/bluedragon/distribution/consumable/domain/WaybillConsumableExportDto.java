@@ -82,4 +82,187 @@ public class WaybillConsumableExportDto  implements Serializable {
     /** 单位 */
     private String unit;
 
+    public Integer getDmsId() {
+        return dmsId;
+    }
+
+    public void setDmsId(Integer dmsId) {
+        this.dmsId = dmsId;
+    }
+
+    public String getDmsName() {
+        return dmsName;
+    }
+
+    public void setDmsName(String dmsName) {
+        this.dmsName = dmsName;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public Integer getConfirmStatus() {
+        return confirmStatus;
+    }
+
+    public void setConfirmStatus(Integer confirmStatus) {
+        this.confirmStatus = confirmStatus;
+    }
+
+    public Integer getModifyStatus() {
+        return modifyStatus;
+    }
+
+    public void setModifyStatus(Integer modifyStatus) {
+        this.modifyStatus = modifyStatus;
+    }
+
+    public String getReceiveUserCode() {
+        return receiveUserCode;
+    }
+
+    public void setReceiveUserCode(String receiveUserCode) {
+        this.receiveUserCode = receiveUserCode;
+    }
+
+    public String getReceiveUserErp() {
+        return receiveUserErp;
+    }
+
+    public void setReceiveUserErp(String receiveUserErp) {
+        this.receiveUserErp = receiveUserErp;
+    }
+
+    public String getReceiveUserName() {
+        return receiveUserName;
+    }
+
+    public void setReceiveUserName(String receiveUserName) {
+        this.receiveUserName = receiveUserName;
+    }
+
+    public String getConfirmUserName() {
+        return confirmUserName;
+    }
+
+    public void setConfirmUserName(String confirmUserName) {
+        this.confirmUserName = confirmUserName;
+    }
+
+    public String getConfirmUserErp() {
+        return confirmUserErp;
+    }
+
+    public void setConfirmUserErp(String confirmUserErp) {
+        this.confirmUserErp = confirmUserErp;
+    }
+
+    public Date getReceiveTime() {
+        return receiveTime;
+    }
+
+    public void setReceiveTime(Date receiveTime) {
+        this.receiveTime = receiveTime;
+    }
+
+    public Date getConfirmTime() {
+        return confirmTime;
+    }
+
+    public void setConfirmTime(Date confirmTime) {
+        this.confirmTime = confirmTime;
+    }
+
+    public Integer getReceiveQuantity() {
+        return receiveQuantity;
+    }
+
+    public void setReceiveQuantity(Integer receiveQuantity) {
+        this.receiveQuantity = receiveQuantity;
+    }
+
+    public Integer getConfirmQuantity() {
+        return confirmQuantity;
+    }
+
+    public void setConfirmQuantity(Integer confirmQuantity) {
+        this.confirmQuantity = confirmQuantity;
+    }
+
+    public String getOperateUserCode() {
+        return operateUserCode;
+    }
+
+    public void setOperateUserCode(String operateUserCode) {
+        this.operateUserCode = operateUserCode;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
+    }
+
+    public BigDecimal getVolumeCoefficient() {
+        return volumeCoefficient;
+    }
+
+    public void setVolumeCoefficient(BigDecimal volumeCoefficient) {
+        this.volumeCoefficient = volumeCoefficient;
+    }
+
+    public String getSpecification() {
+        return specification;
+    }
+
+    public void setSpecification(String specification) {
+        this.specification = specification;
+    }
+
+    public String getUnit() {
+        return unit;
+    }
+
+    public void setUnit(String unit) {
+        this.unit = unit;
+    }
 }

@@ -690,7 +690,16 @@ public class BusinessHelper {
 		return isSignChar(waybillSign, 66, '1');
 	}
 
-
+	/**
+	 * 通过运单标识 判断B网耗材
+	 *
+	 *  25 位 是3  标识 B网耗材不允许修改，只能操作确认
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isWaybillConsumableOnlyConfirm(String waybillSign){
+		return isSignChar(waybillSign, 25, '3');
+	}
 
 	/**
 	 * 校验运单总体积和总重量重泡比

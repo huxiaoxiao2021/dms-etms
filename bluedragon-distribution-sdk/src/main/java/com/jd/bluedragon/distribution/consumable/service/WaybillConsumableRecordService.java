@@ -16,9 +16,9 @@ import java.util.List;
 public interface WaybillConsumableRecordService extends Service<WaybillConsumableRecord> {
 
     //运单耗材记录表：未处理状态
-    int UNTREATED_STATE = 0;
+    Integer UNTREATED_STATE = 0;
     //运单耗材记录表：已处理状态
-    int TREATED_STATE = 1;
+    Integer TREATED_STATE = 1;
 
     /**
      * 根据运单号查询一条记录
@@ -34,5 +34,10 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      */
     public int confirmByIds(List<WaybillConsumableRecord> records);
 
-
+    /**
+     * 运单耗材是否支持修改
+     * @param waybillCode
+     * @return
+     */
+    public boolean canModifiy(String waybillCode);
 }
