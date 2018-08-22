@@ -29,13 +29,31 @@
 		ts
 	</sql>
 
+	<sql id="where_condition">
+		<where>
+			is_delete = 0
+			<if test="dmsId != null">
+				AND dms_id = #{dmsId,jdbcType=INTEGER}
+			</if>
+			<if test="confirmStatus != null">
+				AND confirm_status = #{confirmStatus,jdbcType=INTEGER}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+			<if test="startTime != null">
+				AND receive_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
+			</if>
+			<if test="endTime != null">
+				AND receive_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+			</if>
+		</where>
+	</sql>
+
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord">
 		insert into waybill_consumable_record
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
 				<if test="dmsId != null">
 					dms_id,
 				</if>
@@ -72,26 +90,14 @@
 				<if test="confirmTime != null">
 					confirm_time,
 				</if>
-				<if test="createTime != null">
 					create_time,
-				</if>
-				<if test="updateTime != null">
-					update_time,
-				</if>
-				<if test="isDelete != null">
 					is_delete,
-				</if>
-				<if test="ts != null">
 					ts
-				</if>
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
 				<if test="dmsId != null">
 					#{dmsId,jdbcType=INTEGER},
 				</if>
@@ -128,18 +134,9 @@
 				<if test="confirmTime != null">
 					#{confirmTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+                    now(),
+					0,
+					now()
 			</trim>
 			)
 	</insert>
@@ -178,14 +175,8 @@
 	<update id="update" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord">
 		update waybill_consumable_record
 			<set>
-				<if test="dmsId != null">
-					dms_id = #{dmsId,jdbcType=INTEGER},
-				</if>
 				<if test="dmsName != null">
 					dms_name = #{dmsName,jdbcType=VARCHAR},
-				</if>
-				<if test="waybillCode != null">
-					waybill_code = #{waybillCode,jdbcType=VARCHAR},
 				</if>
 				<if test="confirmStatus != null">
 					confirm_status = #{confirmStatus,jdbcType=TINYINT},
@@ -214,18 +205,11 @@
 				<if test="confirmTime != null">
 					confirm_time = #{confirmTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="createTime != null">
-					create_time = #{createTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="updateTime != null">
-					update_time = #{updateTime,jdbcType=TIMESTAMP},
-				</if>
+					update_time = now(),
 				<if test="isDelete != null">
 					is_delete = #{isDelete,jdbcType=TINYINT},
 				</if>
-				<if test="ts != null">
-					ts = #{ts,jdbcType=TIMESTAMP}
-				</if>
+					ts = now()
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
@@ -263,17 +247,12 @@
 		limit 1
 	</select>
 
-	<sql id="Base_Condition_Sql" >
-			and is_delete=0 
-	</sql>
-
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
 		select 
 		 count(1) as num
 		from 
 		  waybill_consumable_record 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		 <include refid="where_condition"/>
 	</select>
 
 	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableRecord">
@@ -281,9 +260,15 @@
 		 <include refid="Base_Column_List"/>
 		from 
 		  waybill_consumable_record 
-		where 1=1 
-		 <include refid="Base_Condition_Sql"/>
+		 <include refid="where_condition"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+	<select id="queryByWaybillCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord" resultMap="WaybillConsumableRecord">
+		select
+		 <include refid="Base_Column_List"/>
+		from
+		  waybill_consumable_record
+		 <include refid="where_condition"/>
 	</select>
 
 </mapper>

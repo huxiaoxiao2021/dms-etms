@@ -112,8 +112,7 @@
 		insert into waybill_consumable_relation
 			(
 				waybill_code,consumable_code,receive_quantity,confirm_quantity,
-				operate_user_code,operate_user_erp,operate_time,create_time,update_time,
-				is_delete,ts
+				operate_user_erp,operate_time,create_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -122,13 +121,11 @@
 					#{item.consumableCode,jdbcType=VARCHAR},
 					#{item.receiveQuantity,jdbcType=INTEGER},
 					#{item.confirmQuantity,jdbcType=INTEGER},
-					#{item.operateUserCode,jdbcType=VARCHAR},
 					#{item.operateUserErp,jdbcType=VARCHAR},
 					#{item.operateTime,jdbcType=TIMESTAMP},
-					#{item.createTime,jdbcType=TIMESTAMP},
-					#{item.updateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					now(),
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
