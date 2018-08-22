@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -21,16 +22,13 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -48,11 +46,6 @@ import com.jd.ql.basic.ws.BasicSecondaryWS;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
-    @Autowired
-    private DmsBaseDictService dmsBaseDictService;
-
-	@Autowired
-    private WaybillPrintService waybillPrintService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -65,9 +58,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private TransbillMService transbillMService;
-
-    @Autowired
-    private PopPrintService popPrintService;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -202,6 +192,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
+
+            //调用外单接口，根据商家id获取商家编码
+            BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
+            if(basicTraderInfoDTO != null){
+                commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
+            }
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
            // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段

@@ -24,6 +24,11 @@ public class BasePrintWaybill implements Serializable {
      * B商家ID
      */
     private Integer busiId ;
+
+	/**
+	 * 商家编码
+	 */
+	private String busiCode;
     /**
      * B商家名称
      */
@@ -653,5 +658,14 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setWeightFlagText(String weightFlagText) {
 		this.weightFlagText = weightFlagText;
+	}
+
+
+	public String getBusiCode() {
+		return busiCode;
+	}
+
+	public void setBusiCode(String busiCode) {
+		this.busiCode = busiCode;
 	}
 }
