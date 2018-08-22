@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.ldop.center.api.print.dto.PrintResultDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;

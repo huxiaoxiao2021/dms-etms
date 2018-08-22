@@ -103,10 +103,11 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         /** 调用外单接口获取始发站点、目的站点和路由信息 **/
         //获取waybillSign
         String waybillSign = printInfo.getWaybillSign();
-        if(StringHelper.isEmpty(printInfo.getWaybillSign())){
+        if(StringHelper.isEmpty(waybillSign)){
             logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
         } else {
             //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）
+            //// TODO: 2018/8/22 封装成一个方法 
             if(BusinessHelper.isSignChar(waybillSign,55,'0') &&
                     BusinessHelper.isSignChar(waybillSign,16,'1') &&
                     BusinessHelper.isSignChar(waybillSign,31,'2')){
@@ -134,13 +135,11 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                     printInfo.setOriginalDmsCode(print.getStartCenterSiteId());
                     printInfo.setOriginalDmsName(print.getStartCenterSiteName());
                     printInfo.setOriginalCrossCode(print.getStartCenterSiteRouteCode());
-                    printInfo.setOriginalTabletrolley("");
 
                     //设置目的站点及目的路由，并将笼车号设为空字符串
                     printInfo.setPurposefulDmsCode(print.getEndCenterSiteId());
                     printInfo.setPurposefulDmsName(print.getEndCenterSiteName());
                     printInfo.setPurposefulCrossCode(print.getEndCenterSiteRouteCode());
-                    printInfo.setPurposefulTableTrolley("");
                 }
             }
         }
