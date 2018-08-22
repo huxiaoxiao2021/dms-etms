@@ -1,11 +1,12 @@
 package com.jd.bluedragon.distribution.packingconsumable.domain;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by hanjiaxing1 on 2018/8/10.
  */
-public class DmsPackingConsumableInfo {
+public class DmsPackingConsumableInfo implements Serializable {
 
     /*快运或分拣中心id*/
     private Integer dmsId;

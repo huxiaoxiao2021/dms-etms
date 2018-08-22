@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.packingconsumable.domain;
 
+import java.io.Serializable;
+
 /**
  * Created by hanjiaxing1 on 2018/8/10.
  */
-public class PackingConsumableBaseInfo {
+public class PackingConsumableBaseInfo implements Serializable {
 
     /*耗材编号*/
     private String packingCode;
