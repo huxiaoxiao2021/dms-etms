@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.dao;
 
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
+import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 /**
@@ -13,5 +14,8 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface PackingConsumableInfoDao extends Dao<PackingConsumableInfo> {
 
-
+    /*
+    * 根据耗材编号获取信息
+    * */
+    PackingConsumableBaseInfo getPackingConsumableInfoByCode(String code);
 }

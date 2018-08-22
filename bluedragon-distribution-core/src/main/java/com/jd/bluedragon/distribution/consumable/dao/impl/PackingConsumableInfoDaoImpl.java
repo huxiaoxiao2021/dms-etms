@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
@@ -18,4 +19,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 public class PackingConsumableInfoDaoImpl extends BaseDao<PackingConsumableInfo> implements PackingConsumableInfoDao {
 
 
+    @Override
+    public PackingConsumableBaseInfo getPackingConsumableInfoByCode(String code) {
+        return this.getSqlSession().selectOne(this.getNameSpace() + ".getPackingConsumableInfoByCode", code);
+    }
 }

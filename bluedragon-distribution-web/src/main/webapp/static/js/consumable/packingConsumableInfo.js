@@ -69,26 +69,27 @@ $(function() {
 		    });
 		    return params;
 		};
-		oTableInit.tableColums = [ {
+		oTableInit.tableColums = [
+			{
 			field: 'id',
 			title: 'ID',
 			visible:false
-		},
+			},
 			{
 				field: 'code',
 				title: '耗材编号'
-			},
-			{
-				field: 'name',
-				title: '耗材名称'
 			},
 			{
 				field: 'type',
 				title: '耗材类型'
 			},
 			{
+				field: 'name',
+				title: '耗材名称'
+			},
+			{
 				field: 'volume',
-				title: '体积'
+				title: '体积（立方厘米）'
 			},
 			{
 				field: 'volumeCoefficient',
@@ -96,7 +97,7 @@ $(function() {
 			},
 			{
 				field: 'specification',
-				title: '体积'
+				title: '规格（厘米）'
 			},
 			{
 				field: 'unit',
@@ -104,7 +105,8 @@ $(function() {
 			},
 			{
 				field: 'operateUserCode',
-				title: '操作人编号'
+				title: '操作人编号',
+				visible:false
 			},
 			{
 				field: 'operateUserErp',

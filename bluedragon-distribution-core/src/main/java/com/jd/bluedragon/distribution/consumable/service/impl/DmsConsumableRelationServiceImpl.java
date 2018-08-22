@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,7 +15,10 @@ import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.dao.DmsConsumableRelationDao;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -37,5 +43,41 @@ public class DmsConsumableRelationServiceImpl extends BaseService<DmsConsumableR
 	@Override
 	public List<PackingConsumableBaseInfo> getPackingConsumableInfoByDmsId(Integer dmsId) {
 		return dmsConsumableRelationDao.getPackingConsumableInfoByDmsId(dmsId);
+	}
+
+	@Override
+	public PagerResult<DmsConsumableRelationDetailInfo> queryDetailInfoByPagerCondition(DmsConsumableRelationCondition dmsConsumableRelationCondition) {
+		return dmsConsumableRelationDao.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition);
+	}
+
+	@Override
+	public boolean enableByCodes(List<String> codes, DmsConsumableRelation dmsConsumableRelation) {
+
+		Date date = new Date();
+		dmsConsumableRelation.setOperateTime(date);
+		dmsConsumableRelation.setUpdateTime(date);
+		dmsConsumableRelation.setStatus(1);
+		for (String code : codes) {
+			dmsConsumableRelation.setConsumableCode(code);
+			int result = dmsConsumableRelationDao.updateByParams(dmsConsumableRelation);
+			if (result == 0) {
+				dmsConsumableRelation.setCreateTime(date);
+				dmsConsumableRelationDao.insert(dmsConsumableRelation);
+			}
+		}
+		return true;
+	}
+
+	@Override
+	public boolean disableByCodes(List<String> codes, DmsConsumableRelation dmsConsumableRelation) {
+		Date date = new Date();
+		dmsConsumableRelation.setOperateTime(date);
+		dmsConsumableRelation.setUpdateTime(date);
+		dmsConsumableRelation.setStatus(0);
+		for (String code : codes) {
+			dmsConsumableRelation.setConsumableCode(code);
+			dmsConsumableRelationDao.updateByParams(dmsConsumableRelation);
+		}
+		return true;
 	}
 }

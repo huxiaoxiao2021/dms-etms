@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumable.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
  */
 @Controller
 @RequestMapping("consumable/packingConsumableInfo")
-public class PackingConsumableInfoController {
+public class PackingConsumableInfoController extends DmsBaseController {
 
 	private static final Log logger = LogFactory.getLog(PackingConsumableInfoController.class);
 
@@ -52,11 +53,8 @@ public class PackingConsumableInfoController {
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackingConsumableInfo packingConsumableInfo) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
-
-			if (packingConsumableInfo.getCode() == null) {
-				//id生成，此处临时添加
-				packingConsumableInfo.setCode("HCTEST");
-			}
+			packingConsumableInfo.setOperateUserErp(this.getLoginUser().getUserErp());
+			packingConsumableInfo.setOperateUserCode(this.getLoginUser().getStaffNo().toString());
 			rest.setData(packingConsumableInfoService.saveOrUpdate(packingConsumableInfo));
 	} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);

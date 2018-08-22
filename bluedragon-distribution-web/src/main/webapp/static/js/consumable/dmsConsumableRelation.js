@@ -1,8 +1,10 @@
 $(function() {
 	var saveUrl = '/consumable/dmsConsumableRelation/save';
 	var deleteUrl = '/consumable/dmsConsumableRelation/deleteByIds';
-  var detailUrl = '/consumable/dmsConsumableRelation/detail/';
-  var queryUrl = '/consumable/dmsConsumableRelation/listData';
+  	var detailUrl = '/consumable/dmsConsumableRelation/detail/';
+  	var queryUrl = '/consumable/dmsConsumableRelation/listData';
+	var enableUrl = '/consumable/dmsConsumableRelation/enableByCodes';
+	var disableUrl = '/consumable/dmsConsumableRelation/disableByCodes';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -69,15 +71,88 @@ $(function() {
 		    });
 		    return params;
 		};
-		oTableInit.tableColums = [ {
-				checkbox : true
-			}, {
-				field : 'typeCode',
-				title : '编码'
-			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+		oTableInit.tableColums = [
+			{
+				checkbox: true
+			},
+			{
+				field: 'id',
+				title: 'ID',
+				visible:false
+			},
+			{
+				field: 'dmsId',
+				title: '分拣中心编号',
+				visible:false
+			},
+			{
+				field: 'dmsName',
+				title: '分拣中心名称'
+			},
+			{
+				field: 'code',
+				title: '耗材编号'
+			},
+			{
+				field: 'type',
+				title: '耗材类型'
+			},
+			{
+				field: 'name',
+				title: '耗材名称'
+			},
+			{
+				field: 'volume',
+				title: '体积（立方厘米）'
+			},
+			{
+				field: 'volumeCoefficient',
+				title: '体积系数'
+			},
+			{
+				field: 'specification',
+				title: '规格（厘米）'
+			},
+			{
+				field: 'unit',
+				title: '单位'
+			},
+			{
+				field: 'operateUserCode',
+				title: '操作人编号',
+				visible:false
+			},
+			{
+				field: 'operateUserErp',
+				title: '操作人ERP'
+			},
+			{
+				field: 'operateTime',
+				title: '操作时间',
+				formatter : function (value, row, index) {
+					if(value == null){
+						return null;
+					}else {
+						return $.dateHelper.formatDateTime(new Date(value));
+					}
+				},
+				visible:false
+			},
+			{
+				field: 'status',
+				title: '启用状态',
+				formatter : function (value, row, index) {
+					if(value == 0)
+					{
+						return '<span style="color: red;font-weight: bold;">未启用</span>';
+					} else if(value == 1){
+						return '<span style="color: green;font-weight: bold;">启用</span>';
+					} else {
+						return value;
+					}
+				}
+			}
+		];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -86,99 +161,61 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
-			$('#dataEditDiv').hide();		
 		    $('#btn_query').click(function() {
-		    	tableInit().refresh();
+				var queryParams = $.formHelper.serialize('query-form');
+				/*表格查询*/
+				$.bootGrid.refreshOptions('dataTable',queryUrl,queryParams);
 			});
-			$('#btn_add').click(function() {
-			    $('.edit-param').each(function () {
-			    	var _k = this.id;
-			        if(_k){
-			        	$(this).val('');
-			        }
-			    });
-			    $('#edit-form #typeGroup').val(null).trigger('change');
-			    $('#edit-form #parentId').val(null).trigger('change');
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-			// 修改操作
-			$('#btn_edit').click(function() {
-				var rows = $('#dataTable').bootstrapTable('getSelections');
-				if (rows.length > 1) {
-					alert("修改操作，只能选择一条数据");
-					return;
-				}
-				if (rows.length == 0) {
-					alert("请选择一条数据");
-					return;
-				}
-			    $.ajaxHelper.doPostSync(detailUrl+rows[0].id,null,function(res){
-			    	if(res&&res.succeed&&res.data){
-					    $('.edit-param').each(function () {
-					    	var _k = this.id;
-					        var _v = res.data[_k];
-					        if(_k){
-					        	if(_v != null && _v != undefined){
-						        	$(this).val(_v);
-						        }else{
-						        	$(this).val('');
-						        }
-					        } 
-					    });
-			    	}
-			    });
-				$('#dataTableDiv').hide();
-				$('#dataEditDiv').show();
-			});
-
-			// 删
-			$('#btn_delete').click(function() {
+			//启用
+			$('#btn_enable').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				if (rows.length < 1) {
-					alert("错误，未选中数据");
+					$.msg.error("错误，未选中数据！");
 					return;
 				}
-				var flag = confirm("是否删除这些数据?");
-				if (flag == true) {
+				$.msg.confirm('是否启用这些耗材信息？',function () {
 					var params = [];
 					for(var i in rows){
-						params.push(rows[i].id);
-				    };
-					$.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,删除'+res.data+'条。');
-				    		tableInit().refresh();
-				    	}else{
-				    		alert('操作异常！');
-				    	}
-				    });
-				}
+						params.push(rows[i].code);
+					};
+					$.ajaxHelper.doPostSync(enableUrl,JSON.stringify(params),function(res){
+						if(res&&res.succeed&&res.data){
+							$.msg.ok('操作成功！','',function () {
+								tableInit().refresh();
+							});
+
+						}else{
+							$.msg.error("操作异常！",res.data);
+						}
+					});
+				})
 			});
-			$('#btn_submit').click(function() {
-				var params = {};
-				$('.edit-param').each(function () {
-			    	var _k = this.id;
-			        var _v = $(this).val();
-			        if(_k && _v){
-			        	params[_k]=_v;
-			        }
-			    });
-				$.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
-			    	if(res&&res.succeed){
-			    		alert('操作成功');
-			    		tableInit().refresh();
-			    	}else{
-			    		alert('操作异常');
-			    	}
-			    });
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});	
-			$('#btn_return').click(function() {
-				$('#dataEditDiv').hide();
-				$('#dataTableDiv').show();
-			});		
+
+			//启用
+			$('#btn_disable').click(function() {
+				var rows = $('#dataTable').bootstrapTable('getSelections');
+				if (rows.length < 1) {
+					$.msg.error("错误，未选中数据！");
+					return;
+				}
+				$.msg.confirm('是否停用这些耗材信息？',function () {
+					var params = [];
+					for(var i in rows){
+						params.push(rows[i].code);
+					};
+					$.ajaxHelper.doPostSync(disableUrl,JSON.stringify(params),function(res){
+						if(res&&res.succeed&&res.data){
+							$.msg.ok('操作成功！','',function () {
+								tableInit().refresh();
+							});
+
+						}else{
+							$.msg.error("操作异常！",res.data);
+						}
+					});
+				})
+			});
+
 		};
 		return oInit;
 	};

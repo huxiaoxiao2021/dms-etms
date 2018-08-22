@@ -24,6 +24,9 @@ public class DmsConsumableRelationCondition extends BasePagerCondition {
 	 /** 耗材编号 */
 	private String consumableCode;
 
+	 /** 耗材名称 */
+	private String consumableName;
+
 	 /** 开启状态（0关闭，1开启） */
 	private Integer status;
 
@@ -82,6 +85,14 @@ public class DmsConsumableRelationCondition extends BasePagerCondition {
 	 */
 	public String getConsumableCode() {
 		return this.consumableCode;
+	}
+
+	public String getConsumableName() {
+		return consumableName;
+	}
+
+	public void setConsumableName(String consumableName) {
+		this.consumableName = consumableName;
 	}
 
 	/**

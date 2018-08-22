@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
+import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.packingconsumable.domain.DmsPackingConsumableInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
@@ -22,6 +23,9 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     @Autowired
     private DmsConsumableRelationService dmsConsumableRelationService;
+
+    @Autowired
+    private PackingConsumableInfoService packingConsumableInfoService;
 
     @Override
     public JdResponse<DmsPackingConsumableInfo> getPackingConsumableInfoByDmsId(Integer dmsId) {
@@ -57,6 +61,23 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
     @Override
     public JdResponse<PackingConsumableBaseInfo> getPackingConsumableInfoByCode(String consumableCode) {
-        return null;
+        JdResponse<PackingConsumableBaseInfo> jdResponse = new JdResponse<PackingConsumableBaseInfo>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+
+        if (consumableCode == null) {
+            logger.warn("获取耗材信息失败：编号不能为null");
+            jdResponse.setCode(JdResponse.CODE_FAIL);
+            jdResponse.setMessage("获取耗材信息失败：编号不能为null");
+            return jdResponse;
+        }
+        try {
+            PackingConsumableBaseInfo packingConsumableBaseInfo = packingConsumableInfoService.getPackingConsumableInfoByCode(consumableCode);
+            jdResponse.setData(packingConsumableBaseInfo);
+        } catch (Exception e) {
+            logger.error("获取耗材信息失败", e);
+            jdResponse.setCode(JdResponse.CODE_ERROR);
+            jdResponse.setMessage("获取耗材信息失败");
+        }
+
+        return jdResponse;
     }
 }

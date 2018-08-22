@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
@@ -7,6 +9,7 @@ import com.jd.bluedragon.distribution.consumable.dao.DmsConsumableRelationDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,5 +25,15 @@ public class DmsConsumableRelationDaoImpl extends BaseDao<DmsConsumableRelation>
     @Override
     public List getPackingConsumableInfoByDmsId(Integer dmsId) {
         return this.getSqlSession().selectList(this.getNameSpace() + ".getPackingConsumableInfoByDmsId", dmsId);
+    }
+
+    @Override
+    public PagerResult queryDetailInfoByPagerCondition(DmsConsumableRelationCondition dmsConsumableRelationCondition) {
+        return this.queryByPagerCondition("queryDetailInfoByPagerCondition", dmsConsumableRelationCondition);
+    }
+
+    @Override
+    public int updateByParams(DmsConsumableRelation dmsConsumableRelation) {
+        return this.getSqlSession().update(this.getNameSpace()+ ".updateByParams", dmsConsumableRelation);
     }
 }

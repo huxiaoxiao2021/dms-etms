@@ -19,20 +19,27 @@ $(function () {
         submitButtons: 'button[type="submit"]',
         message: '验证不通过',
         fields: {
-            // orgId: {
-            //     validators: {
-            //         notEmpty: {
-            //             message: '区域不能为空！'
-            //         }
-            //     }
-            // },
-            // dmsId: {
-            //     validators: {
-            //         notEmpty: {
-            //             message: '分拣中心不能为空！'
-            //         }
-            //     }
-            // }
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: '名称不能为空！'
+                    }
+                }
+            },
+            type: {
+                validators: {
+                    notEmpty: {
+                        message: '类型不能为空！'
+                    }
+                }
+            },
+            unit: {
+                validators: {
+                    notEmpty: {
+                        message: '单位不能为空！'
+                    }
+                }
+            }
         }
     });
 

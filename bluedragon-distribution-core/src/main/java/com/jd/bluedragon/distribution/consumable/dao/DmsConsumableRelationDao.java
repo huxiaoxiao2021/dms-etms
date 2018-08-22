@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.consumable.dao;
 
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -22,5 +25,21 @@ public interface DmsConsumableRelationDao extends Dao<DmsConsumableRelation> {
      * @return
      */
     List getPackingConsumableInfoByDmsId(Integer dmsId);
+
+    /**
+     * 根据条件查询关系明细信息
+     *
+     * @param dmsConsumableRelationCondition
+     * @return
+     */
+    PagerResult queryDetailInfoByPagerCondition(DmsConsumableRelationCondition dmsConsumableRelationCondition);
+
+    /**
+     * 更新
+     *
+     * @param
+     * @return
+     */
+    int updateByParams(DmsConsumableRelation dmsConsumableRelation);
 
 }

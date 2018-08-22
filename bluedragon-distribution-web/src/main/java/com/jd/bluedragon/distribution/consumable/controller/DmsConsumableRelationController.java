@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.consumable.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +29,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
  */
 @Controller
 @RequestMapping("consumable/dmsConsumableRelation")
-public class DmsConsumableRelationController {
+public class DmsConsumableRelationController extends DmsBaseController {
 
 	private static final Log logger = LogFactory.getLog(DmsConsumableRelationController.class);
 
@@ -91,9 +93,54 @@ public class DmsConsumableRelationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/listData")
-	public @ResponseBody PagerResult<DmsConsumableRelation> listData(@RequestBody DmsConsumableRelationCondition dmsConsumableRelationCondition) {
-		JdResponse<PagerResult<DmsConsumableRelation>> rest = new JdResponse<PagerResult<DmsConsumableRelation>>();
-		rest.setData(dmsConsumableRelationService.queryByPagerCondition(dmsConsumableRelationCondition));
+	public @ResponseBody PagerResult<DmsConsumableRelationDetailInfo> listData(@RequestBody DmsConsumableRelationCondition dmsConsumableRelationCondition) {
+		dmsConsumableRelationCondition.setDmsId(this.getLoginUser().getSiteCode());
+		JdResponse<PagerResult<DmsConsumableRelationDetailInfo>> rest = new JdResponse<PagerResult<DmsConsumableRelationDetailInfo>>();
+		rest.setData(dmsConsumableRelationService.queryDetailInfoByPagerCondition(dmsConsumableRelationCondition));
 		return rest.getData();
+	}
+
+	/**
+	 * 根据编号启用耗材信息
+	 * @param codes
+	 * @return
+	 */
+	@RequestMapping(value = "/enableByCodes")
+	public @ResponseBody JdResponse<Boolean> enableByCodes(@RequestBody List<String> codes) {
+		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		try {
+			DmsConsumableRelation dmsConsumableRelation = new DmsConsumableRelation();
+			dmsConsumableRelation.setDmsId(this.getLoginUser().getSiteCode());
+			dmsConsumableRelation.setOperateUserCode(this.getLoginUser().getStaffNo().toString());
+			dmsConsumableRelation.setOperateUserErp(this.getLoginUser().getUserErp());
+			dmsConsumableRelation.setDmsName(this.getLoginUser().getSiteName());
+			rest.setData(dmsConsumableRelationService.enableByCodes(codes, dmsConsumableRelation));
+		} catch (Exception e) {
+			logger.error("fail to enableByCodes！"+e.getMessage(),e);
+			rest.toError("启用失败，服务异常！");
+		}
+		return rest;
+	}
+
+	/**
+	 * 根据编号启用耗材信息
+	 * @param codes
+	 * @return
+	 */
+	@RequestMapping(value = "/disableByCodes")
+	public @ResponseBody JdResponse<Boolean> disableByCodes(@RequestBody List<String> codes) {
+		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		try {
+			DmsConsumableRelation dmsConsumableRelation = new DmsConsumableRelation();
+			dmsConsumableRelation.setDmsId(this.getLoginUser().getSiteCode());
+			dmsConsumableRelation.setOperateUserCode(this.getLoginUser().getStaffNo().toString());
+			dmsConsumableRelation.setOperateUserErp(this.getLoginUser().getUserErp());
+			dmsConsumableRelation.setDmsName(this.getLoginUser().getSiteName());
+			rest.setData(dmsConsumableRelationService.disableByCodes(codes, dmsConsumableRelation));
+		} catch (Exception e) {
+			logger.error("fail to disableByCodes！"+e.getMessage(),e);
+			rest.toError("停用失败，服务异常！");
+		}
+		return rest;
 	}
 }
