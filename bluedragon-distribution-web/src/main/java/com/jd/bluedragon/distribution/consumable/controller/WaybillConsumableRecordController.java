@@ -74,6 +74,22 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		return rest;
 	}
 	/**
+	 * 校验该运单是否支持修改
+	 * @param waybillConsumableRecord
+	 * @return
+	 */
+	@RequestMapping(value = "/check/canModifiy")
+	public @ResponseBody JdResponse<Boolean> canModifiy(@RequestBody WaybillConsumableRecord waybillConsumableRecord) {
+		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		try {
+			rest.setData(waybillConsumableRecordService.canModifiy(waybillConsumableRecord.getWaybillCode()));
+	} catch (Exception e) {
+			logger.error("fail to save！"+e.getMessage(),e);
+			rest.toError("保存失败，服务异常！");
+		}
+		return rest;
+	}
+	/**
 	 * 根据id删除多条数据
 	 * @param ids
 	 * @return

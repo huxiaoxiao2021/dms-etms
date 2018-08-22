@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
@@ -8,6 +10,7 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportD
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -39,6 +42,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
     @Autowired
     private WaybillConsumableRelationService waybillConsumableRelationService;
+
+    @Autowired
+    private WaybillCommonService waybillCommonService;
 
     @Autowired
     @Qualifier("waybillConsumableProducer")
@@ -82,6 +88,15 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
         sendConfirmWaybillConsumableMq(new ArrayList<WaybillConsumableDto>(consumableDtoMap.values()));
         return result;
+    }
+
+    @Override
+    public boolean canModifiy(String waybillCode) {
+        Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
+        if(waybill != null && BusinessHelper.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
+            return true;
+        }
+        return false;
     }
 
     /**

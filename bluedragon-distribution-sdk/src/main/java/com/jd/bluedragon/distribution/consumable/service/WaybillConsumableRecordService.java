@@ -34,5 +34,10 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      */
     public int confirmByIds(List<WaybillConsumableRecord> records);
 
-
+    /**
+     * 运单耗材是否支持修改
+     * @param waybillCode
+     * @return
+     */
+    public boolean canModifiy(String waybillCode);
 }
