@@ -19,6 +19,8 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
     Integer UNTREATED_STATE = 0;
     //运单耗材记录表：已处理状态
     Integer TREATED_STATE = 1;
+    //每次批量处理最大条数
+    Integer MAX_ROWS = 500;
 
     /**
      * 根据运单号查询一条记录
@@ -40,4 +42,11 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      * @return
      */
     public boolean canModifiy(String waybillCode);
+
+    /**
+     * 更新单条数据：必须有ID或者运单号
+     * @param record
+     * @return
+     */
+    public boolean updateByCondition(WaybillConsumableRecord record);
 }
