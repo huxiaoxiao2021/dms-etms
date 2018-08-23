@@ -31,6 +31,9 @@ public class JosServiceImpl implements JosService {
     @Override
     @JProfiler(jKey = "DMSWEB.JosServiceImpl.updateLoadBillStatus", mState = {JProEnum.TP})
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request) {
+        if(request != null) {
+            logger.info("全球购更新配载单状态获取到的appKey:" + request.getAppKey());
+        }
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
         try {
             if (request == null || StringUtils.isBlank(request.getReportId())
