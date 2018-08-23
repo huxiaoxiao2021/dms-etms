@@ -39,4 +39,5 @@ public interface DmsConsumableRelationService extends Service<DmsConsumableRelat
    * 批量停用耗材
    * */
     boolean disableByCodes(List<String> codes, DmsConsumableRelation dmsConsumableRelation);
+
 }

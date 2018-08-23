@@ -262,7 +262,7 @@
 		from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code
-			where pci.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			where pci.is_delete = 0 and wcr.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
 
 	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
@@ -270,7 +270,7 @@
 			from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code
-			where pci.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			where pci.is_delete = 0 and wcr.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 </mapper>

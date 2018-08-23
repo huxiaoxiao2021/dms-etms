@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
+import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +142,25 @@ public class DmsConsumableRelationController extends DmsBaseController {
 			logger.error("fail to disableByCodes！"+e.getMessage(),e);
 			rest.toError("停用失败，服务异常！");
 		}
+		return rest;
+	}
+
+	/**
+	 * 根据条件分页查询数据信息
+	 * @param
+	 * @return
+	 */
+	@RequestMapping(value = "/getConsumableInfoList")
+	public @ResponseBody JdResponse<List<PackingConsumableBaseInfo>> getConsumableInfoList() {
+
+		JdResponse<List<PackingConsumableBaseInfo>> rest = new JdResponse<List<PackingConsumableBaseInfo>>();
+		try {
+			rest.setData(dmsConsumableRelationService.getPackingConsumableInfoByDmsId(this.getLoginUser().getSiteCode()));
+		} catch (Exception e) {
+			logger.error("fail to disableByCodes！"+e.getMessage(),e);
+			rest.toError("获取失败，服务异常！");
+		}
+
 		return rest;
 	}
 }

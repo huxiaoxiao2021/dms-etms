@@ -8,8 +8,9 @@ $(function () {
     /*增删改查URL*/
     var saveUrl = '/consumable/waybillConsumableRelation/save';
     var deleteUrl = '/consumable/waybillConsumableRelation/deleteByIds';
-    var detailUrl = '/consumable/waybillConsumableRelation/detail/';
     var queryUrl = '/consumable/waybillConsumableRelation/listData';
+    var modifyInfoPageUrl = '/consumable/waybillConsumableRelation/getModifyPage';
+    var addInfoPageUrl = '/consumable/waybillConsumableRelation/getAddPage';
     /*****************************************/
     /*组件*/
     /*****************************************/
@@ -82,6 +83,9 @@ $(function () {
             return params;
         };
         oTableInit.tableColums = [
+            {
+                checkbox: true
+            },
             {
                 field: 'id',
                 title: 'ID',
@@ -158,17 +162,20 @@ $(function () {
                             shade: 0.7,
                             shadeClose: false,
                             maxmin: true,
-                            area: ['800px', '380px'],
+                            area: ['850px', '380px'],
                             content: modifyInfoPageUrl,
                             success: function(layero, index){
                                 var id = row.id;
-                                var code = row.code;
+                                var code = row.consumableCode;
                                 var name = row.name;
                                 var type = row.type;
                                 var volume = row.volume;
                                 var volumeCoefficient = row.volumeCoefficient;
                                 var specification = row.specification;
                                 var unit = row.unit;
+                                var receiveQuantity = row.receiveQuantity;
+                                var confirmQuantity = row.confirmQuantity;
+                                var waybillCode = row.waybillCode;
 
                                 var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
                                 var frameWindow = $('#' + frameId)[0].contentWindow;
@@ -180,6 +187,9 @@ $(function () {
                                 frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
                                 frameWindow.$('#specification-value-input').val(specification);
                                 frameWindow.$('#unit-value-input').val(unit);
+                                frameWindow.$('#receive-value-input').val(receiveQuantity);
+                                frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                frameWindow.$('#waybillCode-value-input').val(waybillCode);
                             }
                         });
                     }
@@ -243,9 +253,37 @@ $(function () {
             maxmin: true,
             shadeClose: false,
             area: ['800px', '380px'],
-            content: addInfoPageUrl
+            content: addInfoPageUrl,
+            success: function(layero, index){
+                var frameId = document.getElementById("addInfoFrame").getElementsByTagName("iframe")[0].id;
+                var frameWindow = $('#' + frameId)[0].contentWindow;
+                frameWindow.$('#waybillCode-value-input').val($('#waybillCode-value-input').val());
+            }
         });
 
     });
 
+    // 删
+    $('#btn_delete').click(function() {
+        var rows = $('#dataTable').bootstrapTable('getSelections');
+        if (rows.length < 1) {
+            alert("错误，未选中数据");
+            return;
+        }
+        var flag = confirm("是否删除这些数据?");
+        if (flag == true) {
+            var params = [];
+            for(var i in rows){
+                params.push(rows[i].id);
+            };
+            $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
+                if(res&&res.succeed&&res.data){
+                    alert('操作成功,删除'+res.data+'条。');
+                    tableInit().refresh();
+                }else{
+                    alert('操作异常！');
+                }
+            });
+        }
+    });
 });

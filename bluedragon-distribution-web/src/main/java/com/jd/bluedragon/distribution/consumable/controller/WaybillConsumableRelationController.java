@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -68,7 +69,16 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody WaybillConsumableRelation waybillConsumableRelation) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
-			rest.setData(waybillConsumableRelationService.saveOrUpdate(waybillConsumableRelation));
+			Date date = new Date();
+			waybillConsumableRelation.setUpdateTime(date);
+			waybillConsumableRelation.setOperateTime(date);
+			waybillConsumableRelation.setOperateUserCode(this.getLoginUser().getStaffNo().toString());
+			waybillConsumableRelation.setOperateUserErp(this.getLoginUser().getUserErp());
+			boolean result = waybillConsumableRelationService.saveOrUpdate(waybillConsumableRelation);
+			rest.setData(result);
+			if (result) {
+				//更新record表的状态
+			}
 	} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);
 			rest.toError("保存失败，服务异常！");
@@ -101,5 +111,15 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 		JdResponse<PagerResult<WaybillConsumableDetailInfo>> rest = new JdResponse<PagerResult<WaybillConsumableDetailInfo>>();
 		rest.setData(waybillConsumableRelationService.queryDetailByInfoPagerCondition(waybillConsumableRelationCondition));
 		return rest.getData();
+	}
+
+	@RequestMapping("/getModifyPage")
+	public String getModifyPage() {
+		return "consumable/waybillConsumableDetailModify";
+	}
+
+	@RequestMapping("/getAddPage")
+	public String getAddPage() {
+		return "consumable/waybillConsumableDetailAdd";
 	}
 }

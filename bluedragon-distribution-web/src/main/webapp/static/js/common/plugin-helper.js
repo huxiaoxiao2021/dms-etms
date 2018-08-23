@@ -174,6 +174,7 @@ jQuery.extend({
         appendData:function (domId,id,text) {
             var newOption = new Option(text, id, false, false);
             $('#' + domId).append(newOption).trigger('change');
+            return newOption;
         },
         createDefault:function (domId,placeHolderText,isMulti,width,data) {
             $('#' + domId).select2({
@@ -183,6 +184,12 @@ jQuery.extend({
                 data:data,
                 multiple:isMulti,
             });
+        },
+        clearAllSelected:function (domId) {
+            $('#' + domId).val(null).trigger('change');
+        },
+        setValues:function (domId,values) {
+            $('#' + domId).val(values).trigger('change');
         },
         getSelected:function (domId) {
             var data = $('#' + domId).select2("data");
@@ -337,6 +344,36 @@ jQuery.extend({
         close:function (blocker) {
             layer.close(blocker);
         }
-    }
+    },
 
+    /******************************/
+    /*excel*/
+    /******************************/
+    exportExcel:function(url){
+        this.exportFile("确定要导出为EXCEL吗？",url,1);
+
+    },
+    exportCsv:function(url){
+        alert(url);
+        this.exportFile("确定要导出为CSV吗？",url,2);
+
+    },
+    exportFile:function(title,url,exportType){
+        swal({
+            title : title,
+            type : "warning",
+            showCancelButton : true,
+            confirmButtonColor : "#DD6B55",
+            confirmButtonText : "确定",
+            cancelButtonText : "取消",
+            closeOnConfirm : true
+        }, function(){
+            if(url.indexOf("?")!=-1){
+                location.href = url+"&exportType="+exportType;
+            }else{
+                location.href = url+"?exportType="+exportType;
+            }
+        });
+
+    }
 });
