@@ -36,7 +36,7 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	}
 
     @Override
-    public  List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
+    public  List<WaybillConsumableDetailInfo> queryByWaybillCodes(List<String> waybillCodes) {
         return waybillConsumableRelationDao.queryByWaybillCodes(waybillCodes);
     }
 

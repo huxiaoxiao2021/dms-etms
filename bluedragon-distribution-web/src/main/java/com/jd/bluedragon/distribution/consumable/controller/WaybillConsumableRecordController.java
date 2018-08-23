@@ -68,7 +68,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
 			rest.setData(waybillConsumableRecordService.saveOrUpdate(waybillConsumableRecord));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
+            logger.error("B网耗材保存失败："+e.getMessage(),e);
 			rest.toError("保存失败，服务异常！");
 		}
 		return rest;
@@ -84,8 +84,8 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
 			rest.setData(waybillConsumableRecordService.canModifiy(waybillConsumableRecord.getWaybillCode()));
 	} catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
-			rest.toError("保存失败，服务异常！");
+			logger.error("校验该运单是否支持修改异常："+e.getMessage(),e);
+			rest.toError("校验失败，服务异常！");
 		}
 		return rest;
 	}
@@ -113,6 +113,9 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	@RequestMapping(value = "/confirmByIds")
 	public @ResponseBody JdResponse<Integer> confirmByIds(@RequestBody List<WaybillConsumableRecord> records) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
+		if(records.size() > 500){
+
+        }
 		try {
             LoginUser loginUser = getLoginUser();
             List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>(records.size());
@@ -125,8 +128,11 @@ public class WaybillConsumableRecordController extends DmsBaseController{
                 confirmRecords.add(record);
             }
 			rest.setData(waybillConsumableRecordService.confirmByIds(confirmRecords));
+		} catch (IllegalArgumentException e) {
+			logger.error("B网耗材批量确认失败，参数异常："+e.getMessage(),e);
+			rest.toError(e.getMessage());
 		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
+			logger.error("B网耗材批量确认失败："+e.getMessage(),e);
 			rest.toError("确认失败，服务异常！");
 		}
 		return rest;

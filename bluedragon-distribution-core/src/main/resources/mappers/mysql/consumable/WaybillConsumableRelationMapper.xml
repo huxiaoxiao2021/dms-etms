@@ -206,8 +206,8 @@
 		</foreach>
 	</update>
 
-	<select id="queryByWaybillCodes" parameterType="List">
-		select waybill_code,
+    <select id="queryByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
+        select waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,volume,volume_coefficient,specification,unit
         from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
 		where wcr.is_delete = 0 and  wcr.waybill_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">

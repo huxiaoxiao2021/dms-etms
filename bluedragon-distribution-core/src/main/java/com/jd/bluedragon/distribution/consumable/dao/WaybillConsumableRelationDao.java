@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.dao;
 
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
@@ -24,7 +23,7 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      * @param waybillCodes
      * @return
      */
-    public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes);
+    public List<WaybillConsumableDetailInfo> queryByWaybillCodes(List<String> waybillCodes);
 
 
     /**

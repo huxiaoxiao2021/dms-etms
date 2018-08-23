@@ -4,10 +4,7 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -79,6 +76,13 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int confirmByIds(List<WaybillConsumableRecord> confirmRecords) {
+	    if(confirmRecords == null || confirmRecords.isEmpty()){
+            return 0;
+        }
+        if(confirmRecords.size() > MAX_ROWS){
+	        logger.warn("批量确认数据超过最大支持量，数据总数：" + confirmRecords.size());
+            throw new IllegalArgumentException("批量确认最大支持数量：" + MAX_ROWS);
+        }
 
 	    //1.更新主表信息
         List<Long> ids = new ArrayList<Long>(confirmRecords.size());
@@ -131,8 +135,8 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
         //构建消息体明细
         if(!consumableDtoMap.isEmpty()){
-            List<WaybillConsumableExportDto> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<String>(consumableDtoMap.keySet()));
-            for(WaybillConsumableExportDto dto : exportDtos){
+            List<WaybillConsumableDetailInfo> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<String>(consumableDtoMap.keySet()));
+            for(WaybillConsumableDetailInfo dto : exportDtos){
                 WaybillConsumableDetailDto detailDto = new WaybillConsumableDetailDto();
                 detailDto.setPackingCode(dto.getCode());
                 detailDto.setPackingName(dto.getName());

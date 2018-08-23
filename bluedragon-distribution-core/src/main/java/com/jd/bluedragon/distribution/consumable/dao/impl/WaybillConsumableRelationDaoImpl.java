@@ -24,7 +24,7 @@ import java.util.List;
 public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableRelation> implements WaybillConsumableRelationDao {
 
     @Override
-    public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
+    public List<WaybillConsumableDetailInfo> queryByWaybillCodes(List<String> waybillCodes) {
         return sqlSession.selectList(this.nameSpace+".queryByWaybillCodes", waybillCodes);
     }
 
