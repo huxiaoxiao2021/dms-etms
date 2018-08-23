@@ -634,6 +634,14 @@ public class DeliveryServiceImpl implements DeliveryService {
         return null;
     }
 
+    /**
+     * 检测是否为有效发货
+     * 检测条件：本次发货与上次发货同一批次且操作时间相差一分钟以上
+     *
+     * @param sendM
+     * @param lastSendM
+     * @return
+     */
     private SendResult checkIsEffectiveDelivery(SendM sendM, SendM lastSendM) {
         if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
             long operateTime = sendM.getOperateTime().getTime();
@@ -4102,12 +4110,14 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
             if (isForceSend) {
+                // 分拣机自动发货
                 return this.sortMachineAutoPackageSend(domain, uploadData);
             } else {
+                // 龙门架自动发货
                 return this.scannerFrameAutoPackageSend(domain);
             }
         } catch (Exception e) {
-            logger.error("一车一单自动发货异常", e);
+            logger.error("一车一单自动发货异常，sendM：" + JsonHelper.toJson(domain), e);
             return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -4162,6 +4172,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             pushInspection(domain, null);
             pushSorting(domain);
         }
+        // 判断是否是中转发货
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
 
