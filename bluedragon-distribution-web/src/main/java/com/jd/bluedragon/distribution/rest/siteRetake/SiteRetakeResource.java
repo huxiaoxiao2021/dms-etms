@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.apache.commons.logging.Log;
@@ -55,13 +56,21 @@ public class SiteRetakeResource {
     @Path("/siteRetake/queryWaybillCode")
     public List<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
-        Assert.notNull(siteRetakeCondition.getSiteCode(), "traderId type must not be null");
+        Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
         return siteRetakeService.queryVendorOrderList(siteRetakeCondition);
     }
 
     @POST
     @Path("/siteRetake/updateOrderStatus")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1013,operateType = 101301)
     public InvokeResult<String> updateOrderStatus(SiteRetakeOperation siteRetakeOperation) {
+        Assert.notNull(siteRetakeOperation, "siteRetakeOperation must not be null");
+        Assert.notNull(siteRetakeOperation.getSiteCode(), "sitecode type must not be null");
+        Assert.notNull(siteRetakeOperation.getWaybillCode(), "waybillcode type must not be null");
+        Assert.notNull(siteRetakeOperation.getStatus(), "status type must not be null");
+        Assert.notNull(siteRetakeOperation.getOperatorId(), "operator type must not be null");
+        Assert.notNull(siteRetakeOperation.getEndReason(), "endreson type must not be null");
+        Assert.notNull(siteRetakeOperation.getOperatorTime(), "operatortime type must not be null");
         return siteRetakeService.updateCommonOrderStatus(siteRetakeOperation);
 
     }

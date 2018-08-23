@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -74,12 +75,15 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setStatus(siteRetakeOperation.getStatus());
         vendorOrder.setOperatorId(siteRetakeOperation.getOperatorId());
+        vendorOrder.setOperatorName(siteRetakeOperation.getOperatorName());
         vendorOrder.setSiteCode(siteRetakeOperation.getSiteCode());
+        vendorOrder.setSiteName(siteRetakeOperation.getSiteName());
         vendorOrder.setEndReason(siteRetakeOperation.getEndReason());
         vendorOrder.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
         vendorOrder.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
         vendorOrder.setOperatorSource(3);//系统标识
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
+        vendorOrder.setUpdateTime(siteRetakeOperation.getOperatorTime());
         InvokeResult<String> result=new InvokeResult<String>();
         result.setCode(200);
         result.setMessage("");

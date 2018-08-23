@@ -10,7 +10,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.center.api.print.WaybillPrintApi;
+import com.jd.ldop.center.api.print.dto.PrintResultDTO;
+import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -18,9 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
@@ -47,6 +50,12 @@ public class CenterServiceResource {
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+	private WaybillPrintApi waybillPrintApi;
+
+	@Autowired
+	private BaseMinorManager baseMinorManager;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -146,6 +155,33 @@ public class CenterServiceResource {
 	}
 
 	@GET
+	@Path("/centerService/getWaybillDataAll/{waybillCode}")
+	@GZIP
+	public BaseEntity<BigWaybillDto> getWaybillDataAll(@PathParam("waybillCode") String waybillCode) {
+		// 判断参数有效性
+		if (StringHelper.isEmpty(waybillCode))
+			return null;
+
+		WChoice choice = new WChoice();
+		choice.setQueryWaybillC(true);
+		choice.setQueryWaybillE(true);
+		choice.setQueryWaybillM(true);
+		choice.setQueryPackList(true);
+		choice.setQueryGoodList(true);
+		choice.setQueryWaybillExtend(true);
+		choice.setQueryPickupTask(true);
+		choice.setQueryServiceBillPay(true);
+
+		BaseEntity<BigWaybillDto> result = null;
+		try {
+			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
+		} catch (Exception e) {
+			logger.error("中心服务调用运单getDataByChoice出错", e);
+		}
+		return result;
+	}
+
+	@GET
 	@Path("/centerService/test/{configType}/{bizzType}/{startsiteCode}/{tositeCode}")
 	public PrintWaybill getDmsBaseSiteByCode(@PathParam("configType") Integer configType,
 			@PathParam("bizzType") Integer bizzType, @PathParam("startsiteCode") String startsiteCode,
@@ -154,5 +190,26 @@ public class CenterServiceResource {
 		waybill.setPromiseText(vrsRouteTransferRelationManager.queryRoutePredictDate(configType, bizzType,
 				startsiteCode, tositeCode, new Date()));
 		return waybill;
+	}
+
+	@GET
+	@Path("/centerService/getPrintDataForCityOrder/{busiId}/{waybillCode}")
+	@GZIP
+	public PrintResultDTO getPrintDataForCityOrder(@PathParam("busiId") Integer busiId,
+												   @PathParam("waybillCode") String waybillCode) {
+		//调用外单接口，根据商家id获取商家编码
+		String busiCode = "";
+		BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(busiId);
+
+		if(basicTraderInfoDTO != null){
+			busiCode = basicTraderInfoDTO.getTraderCode();
+		}
+		if(StringHelper.isEmpty(busiCode)){
+			return null;
+		}
+		WaybillPrintRequestDTO waybillPrintRequestDTO = new WaybillPrintRequestDTO();
+		waybillPrintRequestDTO.setCustomerCode(busiCode);
+		waybillPrintRequestDTO.setWaybillCode(waybillCode);
+		return waybillPrintApi.getPrintDataForCityOrder(waybillPrintRequestDTO);
 	}
 }
