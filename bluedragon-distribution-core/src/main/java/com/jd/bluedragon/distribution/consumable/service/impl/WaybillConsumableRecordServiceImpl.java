@@ -87,8 +87,13 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     public boolean canModifiy(String waybillCode) {
         Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
+        //1.标示为标识可以修改
         if(waybill != null && BusinessHelper.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
-            return true;
+            WaybillConsumableRecord oldRecord = queryOneByWaybillCode(waybillCode);
+            //2.且该运单未被确认
+            if(oldRecord != null && oldRecord.getId() != null && UNTREATED_STATE.equals(oldRecord.getConfirmStatus())){
+                return true;
+            }
         }
         return false;
     }
