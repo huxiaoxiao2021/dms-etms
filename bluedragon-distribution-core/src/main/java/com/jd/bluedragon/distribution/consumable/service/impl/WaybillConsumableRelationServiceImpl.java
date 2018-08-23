@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -36,4 +39,9 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
     public  List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
         return waybillConsumableRelationDao.queryByWaybillCodes(waybillCodes);
     }
+
+	@Override
+	public PagerResult<WaybillConsumableDetailInfo> queryDetailByInfoPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
+		return waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
+	}
 }

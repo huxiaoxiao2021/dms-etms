@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumable.controller;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -96,9 +97,9 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * @return
 	 */
 	@RequestMapping(value = "/listData")
-	public @ResponseBody PagerResult<WaybillConsumableRelation> listData(@RequestBody WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
-		JdResponse<PagerResult<WaybillConsumableRelation>> rest = new JdResponse<PagerResult<WaybillConsumableRelation>>();
-		rest.setData(waybillConsumableRelationService.queryByPagerCondition(waybillConsumableRelationCondition));
+	public @ResponseBody PagerResult<WaybillConsumableDetailInfo> listData(@RequestBody WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
+		JdResponse<PagerResult<WaybillConsumableDetailInfo>> rest = new JdResponse<PagerResult<WaybillConsumableDetailInfo>>();
+		rest.setData(waybillConsumableRelationService.queryDetailByInfoPagerCondition(waybillConsumableRelationCondition));
 		return rest.getData();
 	}
 }

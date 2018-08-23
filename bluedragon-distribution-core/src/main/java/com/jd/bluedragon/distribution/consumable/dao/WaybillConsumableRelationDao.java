@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.consumable.dao;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 
@@ -22,4 +25,12 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      * @return
      */
     public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes);
+
+
+    /**
+     * 根据查询条件获取运单耗材明细
+     * @param waybillConsumableRelationCondition
+     * @return
+     */
+    PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
 }

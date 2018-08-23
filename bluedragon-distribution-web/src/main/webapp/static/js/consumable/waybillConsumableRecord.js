@@ -1,8 +1,9 @@
 $(function() {
 	var saveUrl = '/consumable/waybillConsumableRecord/save';
 	var confirmUrl = '/consumable/waybillConsumableRecord/confirmByIds';
-  var detailUrl = '/consumable/waybillConsumableRecord/detail/';
-  var queryUrl = '/consumable/waybillConsumableRecord/listData';
+    var detailUrl = '/consumable/waybillConsumableRecord/detail/';
+    var queryUrl = '/consumable/waybillConsumableRecord/listData';
+	var detailPageUrl = '/consumable/waybillConsumableRelation/toIndex';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -139,13 +140,13 @@ $(function() {
                         shade: 0.7,
                         shadeClose: false,
                         maxmin: true,
-                        area: ['1100px', '670px'],
+                        area: ['1300px', '670px'],
                         content: detailPageUrl,
                         success: function(layero, index){
-                            var infoId = row.waybillCode;
+                            var waybillCode = row.waybillCode;
                             var frameId = document.getElementById("detailFrame").getElementsByTagName("iframe")[0].id;
                             var frameWindow = $('#' + frameId)[0].contentWindow;
-                            frameWindow.$('#infoId-value-input').val(infoId);
+							frameWindow.$('#waybillCode-value-input').val(waybillCode);
                             frameWindow.$('#btn_query').click();
                         }
                     });

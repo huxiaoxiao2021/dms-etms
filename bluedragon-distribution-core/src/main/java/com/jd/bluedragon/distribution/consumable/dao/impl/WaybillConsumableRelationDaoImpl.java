@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
@@ -23,5 +26,10 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     @Override
     public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes) {
         return sqlSession.selectList(this.nameSpace+".queryByWaybillCodes", waybillCodes);
+    }
+
+    @Override
+    public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
+        return this.queryByPagerCondition("queryDetailInfoByPagerCondition", waybillConsumableRelationCondition);
     }
 }

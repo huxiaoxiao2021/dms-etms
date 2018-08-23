@@ -17,6 +17,27 @@
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
+	<resultMap id="WaybillConsumableDetailInfo" type="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
 	<sql id="Base_Column_List" >
 		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
 		operate_user_erp,operate_time,create_time,update_time,is_delete,
@@ -235,4 +256,21 @@
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 
+	<select id="pageNum_queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select
+		count(1) as num
+		from packing_consumable_info pci
+			inner join waybill_consumable_relation wcr
+			on pci.code = wcr.consumable_code
+			where pci.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
+		select wcr.id,waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
+			from packing_consumable_info pci
+			inner join waybill_consumable_relation wcr
+			on pci.code = wcr.consumable_code
+			where pci.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
 </mapper>

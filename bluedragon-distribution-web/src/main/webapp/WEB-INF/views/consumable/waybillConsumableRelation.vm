@@ -15,23 +15,23 @@
         <li><a href="#">包装耗材信息管理</a></li>
         <li class="active">耗材明细</li>
     </ol>
+
     <!-- 查询条件 -->
     <div id="query-condition">
-        <form id="query-form" class="form-inline"  style="display:none;">
+        <form id="query-form" class="form-inline">
             <fieldset>
-                <div class="form-group" style="margin-left: 40px;">
-                    <label class="control-label" for="infoId-value-input">运单号 ：</label>
-                    <input type="text" id="infoId-value-input" class="form-control" name="infoId">
+                <div class="form-group" style="display: none">
+                    <input type="hidden" id="waybillCode-value-input" class="form-control" name="waybillCode" readonly="readonly">
                 </div>
             </fieldset>
         </form>
     </div>
-        <hr />
+
 	<!-- 主页面操作按钮 -->
     <div id="toolbar" class="btn-group">
         <button id="btn_query" type="button" class="btn btn-default">
-        	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
-        </button>
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+    </button>
         <button id="btn_add" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
         </button>
@@ -44,51 +44,6 @@
     </div>
     <table id="dataTable"></table>
 </div>
-<!-- 编辑表单 -->
-<div id="dataEditDiv" class="main" style="margin-left: 40px;">
-        <ol class="breadcrumb">
-            <li><a href="#">模块名称</a></li>
-            <li class="active">编辑</li>
-        </ol>
-        <div id="query-condition">
-            <form id="edit-form" class="form-horizontal  col-xs-12">
-                <fieldset>
-                <hr/>
-                <div class="row">
-                	<div class="col-xs-6">
-                		<div class="form-group">
-                    		<label class="col-xs-3 control-label">编码 ：</label>
-                    		<div class="col-xs-9">
-                    			<input type="hidden" class="form-control edit-param" id="id" name="id"/>
-                        		<input type="text" class="form-control edit-param" id="typeCode" name="typeCode" style="width: 300px;"/>
-                    		</div>
-                    	</div>
-	               		<div class="form-group">
-		                    <label class="col-xs-3 control-label">描述信息 ：</label>
-		                    <div class="col-xs-9">
-		                        <textarea rows="3" class="form-control edit-param" id="memo" name="memo" style="width: 300px; height: 80px;">
-		                        </textarea>
-		                    </div>
-	                	</div>
-                	</div>
-                <div class="col-xs-6">
-                	<div class="form-group">
-                   		<label class="col-xs-3 control-label">名称 ：</label>
-		                <div class="col-xs-9">
-		                	<input type="text" class="form-control edit-param" id="typeName" name="typeName" style="width: 300px;"/>
-		                </div>
-		           	</div>
-                </div>
-                </div>
-                <hr/>
-                <div class="form-group">
-                	<button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">提交</button>
-                	<button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
-                </div>
-                </fieldset>
-            </form>
-        </div>
-        <hr />
 </div>
 </body>
 </html>

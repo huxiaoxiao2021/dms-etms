@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.service;
 
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.*;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
@@ -23,5 +22,13 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
      * @return
      */
     public List<WaybillConsumableExportDto> queryByWaybillCodes(List<String> waybillCodes);
+
+
+    /**
+     * 根据查询条件获取运单耗材明细
+     * @param waybillConsumableRelationCondition
+     * @return
+     */
+    PagerResult<WaybillConsumableDetailInfo> queryDetailByInfoPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
 
 }
