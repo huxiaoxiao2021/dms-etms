@@ -32,6 +32,9 @@
 	<sql id="where_condition">
 		<where>
 			is_delete = 0
+			<if test="id != null">
+				AND id = #{id,jdbcType=BIGINT}
+			</if>
 			<if test="dmsId != null">
 				AND dms_id = #{dmsId,jdbcType=INTEGER}
 			</if>
@@ -211,7 +214,7 @@
 				</if>
 					ts = now()
 			</set>
-		where id = #{id,jdbcType=BIGINT}
+        <include refid="where_condition"/>
 	</update>
 
 	<update id="deleteById" parameterType="Long">

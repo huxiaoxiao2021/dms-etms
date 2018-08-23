@@ -12,9 +12,11 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,15 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         WaybillConsumableRecord condition = new WaybillConsumableRecord();
         condition.setWaybillCode(waybillCode);
 	    return waybillConsumableRecordDao.queryOneByCondition(condition);
+    }
+
+    @Override
+    public boolean updateByCondition(WaybillConsumableRecord record) {
+        if(record == null || record.getId() == null || StringUtils.isEmpty(record.getWaybillCode())){
+            logger.info("Bw网耗材数据更新失败，参数非法：" + JsonHelper.toJson(record));
+            return false;
+        }
+	    return waybillConsumableRecordDao.update(record);
     }
 
     @Override

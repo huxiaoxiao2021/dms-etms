@@ -40,4 +40,11 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      * @return
      */
     public boolean canModifiy(String waybillCode);
+
+    /**
+     * 更新单条数据：必须有ID或者运单号
+     * @param record
+     * @return
+     */
+    public boolean updateByCondition(WaybillConsumableRecord record);
 }
