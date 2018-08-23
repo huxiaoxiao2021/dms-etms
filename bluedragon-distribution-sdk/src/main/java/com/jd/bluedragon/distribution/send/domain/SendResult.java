@@ -7,34 +7,46 @@ import java.io.Serializable;
  */
 public class SendResult implements Serializable {
     private static final long serialVersionUID = -5706252377345301775L;
-    
-    public static final Integer CODE_OK = 1;//发货成功
+    /**
+     * 发货成功
+     */
+    public static final Integer CODE_OK = 1;
     public static final String MESSAGE_OK = "发货成功";
-    
+    /**
+     * 服务异常
+     */
     public static final Integer CODE_SERVICE_ERROR = 3;
     public static final String MESSAGE_SERVICE_ERROR = "服务异常";
-    
-    public static final Integer CODE_SENDED = 2;//发货失败
+    /**
+     * 发货失败
+     */
+    public static final Integer CODE_SENDED = 2;
     public static final String MESSAGE_SENDED = "箱子已经在该批次中发货";
+    /**
+     * 发货确认
+     */
+    public static final Integer CODE_CONFIRM = 4;
+    /**
+     * 发货警告,用于PDA发货加急提示语展示
+     */
+    public static final Integer CODE_WARN = 6;
 
-    public static final Integer CODE_CONFIRM = 4;//发货确认
-
-    public static final Integer CODE_WARN = 6;//发货警告,用于PDA发货加急提示语展示
-
-    public SendResult(){
+    public SendResult() {
 
     }
 
-    public SendResult(Integer k,String v){
-        this.key=k;
-        this.value=v;
+    public SendResult(Integer k, String v) {
+        this.key = k;
+        this.value = v;
     }
-    public SendResult(Integer k,String v,Integer interceptResultCode,Integer presortingSiteCode){
-        this.key=k;
-        this.value=v;
-        this.interceptCode=interceptResultCode;
-        this.receiveSiteCode=presortingSiteCode;
+
+    public SendResult(Integer k, String v, Integer interceptResultCode, Integer presortingSiteCode) {
+        this.key = k;
+        this.value = v;
+        this.interceptCode = interceptResultCode;
+        this.receiveSiteCode = presortingSiteCode;
     }
+
     /**
      * 操作结果【1：发货成功  2：发货失败  4：需要用户确认  6: 发货成功，但是有警告性提示信息展示】
      */
@@ -51,7 +63,7 @@ public class SendResult implements Serializable {
     private Integer receiveSiteCode;
 
     /**
-     *分拣拦截编号
+     * 分拣拦截编号
      */
     private Integer interceptCode;
 

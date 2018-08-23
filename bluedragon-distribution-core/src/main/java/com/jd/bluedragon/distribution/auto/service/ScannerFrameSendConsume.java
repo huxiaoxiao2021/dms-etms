@@ -99,6 +99,6 @@ public class ScannerFrameSendConsume implements ScannerFrameConsume {
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(uploadData.getScannerTime().getTime() + Constants.DELIVERY_DELAY_TIME));
         SendResult result = deliveryService.autoPackageSend(domain, isSortingSend,uploadData);
-        return result.getKey().equals(SendResult.CODE_OK);
+        return result.getKey().equals(SendResult.CODE_OK) || result.getKey().equals(SendResult.CODE_SENDED);
     }
 }
