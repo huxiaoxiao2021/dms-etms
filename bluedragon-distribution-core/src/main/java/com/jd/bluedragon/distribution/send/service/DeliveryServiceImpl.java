@@ -634,29 +634,34 @@ public class DeliveryServiceImpl implements DeliveryService {
         return null;
     }
 
+    private SendResult checkIsEffectiveDelivery(SendM sendM, SendM lastSendM) {
+        if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
+            long operateTime = sendM.getOperateTime().getTime();
+            long lastOperateTime = lastSendM.getOperateTime().getTime();
+            // 同一批次 一分钟内发两次货 则自动丢弃本次发货
+            if (lastSendM.getSendCode().equals(sendM.getSendCode()) && operateTime - lastOperateTime < DateHelper.ONE_MINUTES_MILLI) {
+                return new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            }
+        }
+        return null;
+    }
+
     /**
      * 多次发货若封车时间在当前时间一小时内或未封车,则取消上次发货
      *
      * @param domain
      */
-    private void multiSendCancelLast(SendM domain) {
-        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
-        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
-        if (null != lastSendM) {
-            if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
-                // 获取封车时间
-                Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(lastSendM.getSendCode());
-                // 判断是否已封车
-                if (sealCarTime != null) {
-                    // 已封车 发货时间在上次发货后封车时间1小时内，则取消上次发货
-                    if (domain.getOperateTime().getTime() - sealCarTime < DateHelper.ONE_HOUR_MILLI) {
-                        this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
-                    }
-                } else {
-                    // 未封车 直接取消上次发货
-                    this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
-                }
+    private void multiSendCancelLast(SendM domain, SendM lastSendM) {
+        if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
+            // 获取封车时间
+            Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(lastSendM.getSendCode());
+            long operateTime = domain.getOperateTime().getTime();
+            // 已封车 发货操作时间在上次发货后封车时间1小时内，则取消上次发货
+            if (sealCarTime != null && operateTime - sealCarTime > DateHelper.ONE_HOUR_MILLI) {
+                return;
             }
+            // 未封车 直接取消上次发货
+            this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
         }
     }
 
@@ -668,7 +673,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             sendM.setReceiveSiteCode(lastSendM.getReceiveSiteCode());
         }
         sendM.setSendType(lastSendM.getSendType());
-
         sendM.setUpdaterUser(domain.getCreateUser());
         sendM.setUpdateUserCode(domain.getCreateUserCode());
         sendM.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
@@ -4091,12 +4095,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
-            if (StringUtils.isNotBlank(getSendedCode(domain))) {
-                new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-            } else {
-                //插入SEND_M
-                this.sendMDao.insertSendM(domain);
-            }
 
             /**
              * modified at 2018/4/25
@@ -4104,34 +4102,65 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
             if (isForceSend) {
-                if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                    //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
-                    if (uploadData.getBoxSiteCode() != null) {
-                        domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
-                    }
-                    pushInspection(domain, uploadData.getPackageCode());
-                    pushAutoSorting(domain, uploadData.getPackageCode());
-                    return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-                } else {
-                    pushInspection(domain, null);
-                    pushSorting(domain);
-                }
+                return this.sortMachineAutoPackageSend(domain, uploadData);
             } else {
-                if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                    pushSorting(domain);//大件写TASK_SORTING
-                } else {
-                    SendDetail tSendDatail = new SendDetail();
-                    tSendDatail.setBoxCode(domain.getBoxCode());
-                    tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-                    tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-                    this.updateCancel(tSendDatail);//更新SEND_D状态
-                }
+                return this.scannerFrameAutoPackageSend(domain);
             }
-            this.transitSend(domain);//中转任务
-            this.pushStatusTask(domain);//全程跟踪任务
         } catch (Exception e) {
             logger.error("一车一单自动发货异常", e);
-            new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
+            return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    /**
+     * 龙门架自动发货逻辑
+     *
+     * @param domain
+     * @return
+     */
+    private SendResult scannerFrameAutoPackageSend(SendM domain) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (null != lastSendM) {
+            SendResult result = this.checkIsEffectiveDelivery(domain, lastSendM);
+            if (result != null) {
+                return result;
+            }
+            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+            this.multiSendCancelLast(domain, lastSendM);
+        }
+        // 发货
+        this.packageSend(domain);
+        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 分拣机自动发货逻辑
+     *
+     * @param domain
+     * @param uploadData
+     * @return
+     */
+    private SendResult sortMachineAutoPackageSend(SendM domain, UploadData uploadData) {
+        if (StringUtils.isNotBlank(getSendedCode(domain))) {
+            new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+        } else {
+            //插入SEND_M
+            this.sendMDao.insertSendM(domain);
+        }
+
+        if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+            if (uploadData.getBoxSiteCode() != null) {
+                domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+            }
+
+            pushInspection(domain, uploadData.getPackageCode());
+            pushAutoSorting(domain, uploadData.getPackageCode());
+            return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        } else {
+            pushInspection(domain, null);
+            pushSorting(domain);
         }
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
