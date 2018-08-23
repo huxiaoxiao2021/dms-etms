@@ -280,6 +280,7 @@
 		from
 		  waybill_consumable_record
 		 <include refid="where_condition"/>
+        limit 1
 	</select>
 
 </mapper>
