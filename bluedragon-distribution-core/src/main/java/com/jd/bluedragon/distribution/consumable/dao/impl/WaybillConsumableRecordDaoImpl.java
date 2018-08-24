@@ -38,11 +38,11 @@ public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRec
 
     @Override
     public int exportCountByWebCondition(WaybillConsumableRecordCondition condition) {
-        return 0;
+        return sqlSession.selectOne(nameSpace+".exportCountByWebCondition", condition);
     }
 
     @Override
     public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition) {
-        return null;
+        return sqlSession.selectList(nameSpace+".exportInfoByWebCondition", condition);
     }
 }

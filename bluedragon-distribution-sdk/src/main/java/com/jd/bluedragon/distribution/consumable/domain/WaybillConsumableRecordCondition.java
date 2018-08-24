@@ -60,7 +60,13 @@ public class WaybillConsumableRecordCondition extends BasePagerCondition {
     /** 发起外呼截止时间 */
     private Date endTime;
 
-	/**
+    /** 起始时间str */
+    private String startTimeStr;
+
+    /** 截止时间str */
+    private String endTimeStr;
+
+    /**
 	 * The set method for dmsId.
 	 * @param dmsId
 	 */
@@ -275,4 +281,20 @@ public class WaybillConsumableRecordCondition extends BasePagerCondition {
 	public void setId(Long id) {
 		this.id = id;
 	}
+
+    public String getStartTimeStr() {
+        return startTimeStr;
+    }
+
+    public void setStartTimeStr(String startTimeStr) {
+        this.startTimeStr = startTimeStr;
+    }
+
+    public String getEndTimeStr() {
+        return endTimeStr;
+    }
+
+    public void setEndTimeStr(String endTimeStr) {
+        this.endTimeStr = endTimeStr;
+    }
 }

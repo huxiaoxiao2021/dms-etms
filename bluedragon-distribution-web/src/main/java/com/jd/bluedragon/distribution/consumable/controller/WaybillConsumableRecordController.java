@@ -6,10 +6,12 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableExportCol;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcel;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -160,14 +162,22 @@ public class WaybillConsumableRecordController extends DmsBaseController{
      * @return
      */
 	@RequestMapping(value = "/export")
-	public @ResponseBody JdResponse<Boolean> exportByCondition(@RequestBody WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
+	public @ResponseBody JdResponse<Boolean> exportByCondition(WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
-        if (condition.getStartTime() == null || condition.getEndTime() == null) {
+        if (StringUtils.isEmpty(condition.getStartTimeStr()) || StringUtils.isEmpty(condition.getEndTimeStr()) ) {
             rest.toFail("导出参数未指定时间范围！");
             return rest;
+        }else{
+            /*设置时间*/
+            condition.setStartTime(DateHelper.parseDateTime(condition.getStartTimeStr()));
+            condition.setEndTime(DateHelper.parseDateTime(condition.getEndTimeStr()));
         }
         condition.setDmsId(getLoginUser().getSiteCode());
         int count = waybillConsumableRecordService.exportCountByWebCondition(condition);
+        if(count == 0){
+            rest.toFail("所选日期内没有可导出的数据！");
+            return rest;
+        }
         if(count > WaybillConsumableRecordService.MAX_ROWS){
             rest.toFail("导出数据量超过最大限制，请缩短导出时间段，最大限制：" + WaybillConsumableRecordService.MAX_ROWS);
             return rest;

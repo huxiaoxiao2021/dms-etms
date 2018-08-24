@@ -4,6 +4,12 @@ $(function() {
     var detailUrl = '/consumable/waybillConsumableRecord/detail/';
     var queryUrl = '/consumable/waybillConsumableRecord/listData';
 	var detailPageUrl = '/consumable/waybillConsumableRelation/toIndex';
+	var exportDataUrl = '/consumable/waybillConsumableRecord/export';
+
+    /*最多查询近x天数据*/
+    var PAST_LIMIT = 94;
+    var PERIOD_LIMIT = 32;
+
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -168,8 +174,8 @@ $(function() {
                 elem: '#startTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -60,//最近60天内
-                max: 0,//最近60天内
+                min: -PAST_LIMIT,//最近3个月内
+                max: 0,//最近3个月内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
@@ -179,8 +185,8 @@ $(function() {
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -60,//最近60天内
-                max: 0,//最近60天内
+                min: -PAST_LIMIT,//最近3个月内
+                max: 0,//最近3个月内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
@@ -281,8 +287,71 @@ $(function() {
 			$('#btn_return').click(function() {
 				$('#dataEditDiv').hide();
 				$('#dataTableDiv').show();
-			});		
-		};
+			});
+
+            /*表单验证*/
+            $.formValidator.createNew('query-form',{
+                excluded: [':disabled', ':hidden', ':not(:visible)'],
+                live: 'enabled',
+                submitButtons: 'button[type="submit"]',
+                message: '验证不通过',
+                fields: {
+                    startTime:{
+                        validators: {
+                            notEmpty: {
+                                message: '请您选择起始时间'
+                            }
+                        }
+                    },
+                    endTime:{
+                        validators: {
+                            notEmpty: {
+                                message: '请您选择截止时间'
+                            }
+                        }
+                    }
+                }
+            });
+            /*导出*/
+            $('#btn_export').click(function () {
+                var flag = $.formValidator.isValid('query-form');
+                if(flag == true) {
+                    /*时间校验*/
+                   var now = new Date();
+                    var startTimeStr = $.datePicker.getValue('startTime');
+                    var endTimeStr = $.datePicker.getValue('endTime');
+                    /* var startTime = $.dateHelper.parseDateTime(startTimeStr);
+                    var endTime = $.dateHelper.parseDateTime(endTimeStr);
+
+                    if(window.date.subtract(endTime,startTime).toDays() > PERIOD_LIMIT){
+                        $.msg.alert("时间范围有误：起始时间、截止时间间隔最大为1个月");
+                        return;
+                    }
+
+                    if(startTime >= endTime){
+                        $.msg.warn("起始时间必须小于截止时间！");
+                        return;
+                    }
+
+                    if(startTime > now || endTime > now){
+                        $.msg.warn("不能导出未来的数据！");
+                        return;
+                    }*/
+
+                    var confirmMessage = '确认按照当前条件进行数据导出吗？（单次最大支持导出50000条数据，如超过50000条，请缩短时间范围多次导出）';
+
+                    $.msg.confirm(confirmMessage,function () {
+                        /*获取参数*/
+                        var queryParams = $.formHelper.serialize('query-form');
+
+                        var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
+                        console.log(exportUrl);
+                        window.open(exportUrl);
+                    });
+                }else{
+                    $.msg.warn('导出查询条件有误','请您检查导出查询条件是否有误');
+                };
+            })};
 		return oInit;
 	};
 

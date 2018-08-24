@@ -17,7 +17,7 @@ public interface WaybillConsumableExportCol {
             "receiveQuantity",
             "confirmQuantity",
             "receiveUserErp",
-            "confirmStatus",
+            "confirmStatusStr",
             "confirmUserErp",
             "confirmTime"
     };
@@ -31,7 +31,7 @@ public interface WaybillConsumableExportCol {
             "揽收预计数量",
             "确认使用数量",
             "揽收人ERP",
-            "状态",
+            "确认状态",
             "确认人ERP",
             "确认时间"
     };
