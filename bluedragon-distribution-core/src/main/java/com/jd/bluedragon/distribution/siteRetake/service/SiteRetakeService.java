@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.siteRetake.service;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
+import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 
@@ -28,7 +29,7 @@ public interface SiteRetakeService {
      * @param siteRetakeCondition
      * @return
      */
-    List<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition);
+    Page<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page);
 
     /**
      * 更新状态

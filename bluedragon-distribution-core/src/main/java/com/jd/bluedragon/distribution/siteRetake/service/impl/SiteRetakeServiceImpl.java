@@ -37,8 +37,7 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         return siteRetakeManager.queryBasicTraderInfoByKey(key);
     }
 
-    public List<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition) {
-        List<VendorOrder> resultDate = new ArrayList<VendorOrder>();
+    public Page<VendorOrder>  queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page) {
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
         if (siteRetakeCondition.getVendorId()!=null){
@@ -49,26 +48,17 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         }else{
             vendorOrder.setWaybillCreateTime(siteRetakeCondition.getSelectTime());
         }
-        int totalPage = 1;//总页数
-        int currPage = 0;//翻页控制
-        while (currPage < totalPage) {
-            currPage++;//自动翻页查询
-            if (currPage > 100) {
-                break;//防止对面系统有BUG，导致我们循环
-            }
-            Page page = new Page();
-            page.setCurrentPage(currPage);
-            page.setPageSize(100);
-            Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
-            if (pageResult == null) {
-                break;
-            } else {
-                //获取总页数
-                totalPage = pageResult.getTotalPage();
-            }
-            resultDate.addAll(pageResult.getResult());
+        if (page==null){
+            page=new Page(1,100);
         }
-        return resultDate;
+        Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
+        pageResult.setCurrentPage(page.getCurrentPage());
+        pageResult.setPageSize(page.getPageSize());
+        return pageResult;
+
+
+
+
     }
 
     public InvokeResult<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {

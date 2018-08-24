@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeCondition;
 import com.jd.bluedragon.distribution.siteRetake.domain.SiteRetakeOperation;
 import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.orm.page.Page;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
@@ -54,10 +55,13 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
-    public List<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition, Page page) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
-        return siteRetakeService.queryVendorOrderList(siteRetakeCondition);
+        Assert.notNull(page, "sitecode type must not be null");
+        Assert.notNull(page.getCurrentPage(), "sitecode type must not be null");
+        Assert.notNull(page.getPageSize(), "sitecode type must not be null");
+        return siteRetakeService.queryVendorOrderList(siteRetakeCondition,page);
     }
 
     @POST
