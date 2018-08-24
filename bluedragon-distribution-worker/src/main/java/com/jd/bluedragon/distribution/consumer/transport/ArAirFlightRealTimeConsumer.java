@@ -132,15 +132,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         } else {
             logger.warn("调用运输接口[vosQueryWS.querySealCarByBatchCode()]根据批次号(" + sendCode + ")获取封车信息为null");
         }
-
-        String[] waybillArray = this.getWaybillBySendCode(sendCode);
-        if (waybillArray != null && waybillArray.length > 0) {
-            for (int i = 0, len = waybillArray.length; i < len; i++) {
-                airWaybillStatus.setWayBillCode(waybillArray[i]);
-                // 发送MQ消息
-                this.sendMQ(airWaybillStatus);
-            }
-        }
+        this.doSendMQ(sendCode, airWaybillStatus);
     }
 
     /**
@@ -149,18 +141,20 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      * @param sendCode
      * @return
      */
-    private String[] getWaybillBySendCode(String sendCode) {
+    private void doSendMQ(String sendCode, ArAirWaybillStatus airWaybillStatus) throws JMQException {
         List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(sendCode);
         if (null != sendDetailList && sendDetailList.size() > 0) {
-            Set<String> waybillSets = new HashSet<String>();
             for (SendDetail sendDetail : sendDetailList) {
-                waybillSets.add(sendDetail.getWaybillCode());
+                /* 运单号 */
+                airWaybillStatus.setWayBillCode(sendDetail.getWaybillCode());
+                /* 包裹号 */
+                airWaybillStatus.setPackageCode(sendDetail.getPackageBarcode());
+                // 发送MQ消息
+                this.sendMQ(airWaybillStatus);
             }
-            return waybillSets.toArray(new String[waybillSets.size()]);
         } else {
             logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据批次号获取发货明细为空，批次号：" + sendCode);
         }
-        return null;
     }
 
     /**
