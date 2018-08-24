@@ -88,48 +88,34 @@ $(function() {
             visible:false
         },{
             field : 'waybillCode',
-            title : '运单号',
-            width:150,
-            class:'min_150'
+            title : '运单号'
         },{
             field : 'receiveTime',
             title : '揽收时间',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
-            },
-            width:200,
-            class:'min_150'
+            }
         },{
             field : 'dmsName',
-            title : '始发转运中心',
-            width:150,
-            class:'min_150'
+            title : '始发转运中心'
         },{
             field : 'receiveUserErp',
-            title : '揽收人员ERP',
-            width:150,
-            class:'min_100'
+            title : '揽收人员ERP'
         },{
             field : 'confirmStatus',
             title : '状态',
             formatter : function(value,row,index){
                 return value==1?'已确认':'未确认';
-            },
-            width:150,
-            class:'min_100'
+            }
         },{
             field : 'confirmUserErp',
-            title : '确认人ERP',
-            width:150,
-            class:'min_100'
+            title : '确认人ERP'
         },{
             field : 'confirmTime',
             title : '确认时间',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
-            },
-            width:150,
-            class:'min_150'
+            }
         },{
             field : 'op',
             title : '操作',
@@ -248,20 +234,26 @@ $(function() {
 				if (flag == true) {
 					var params = [];
 					for(var i in rows){
-					    var data = {};
-					    data["id"] = rows[i].id;
-					    data["waybillCode"] = rows[i].waybillCode;
-					    data["dmsId"] = rows[i].dmsId;
-						params.push(data);
+					    if(rows[i].confirmStatus != 1){
+                            var data = {};
+                            data["id"] = rows[i].id;
+                            data["waybillCode"] = rows[i].waybillCode;
+                            data["dmsId"] = rows[i].dmsId;
+                            params.push(data);
+                        }
 				    };
-					$.ajaxHelper.doPostSync(confirmUrl,JSON.stringify(params),function(res){
-				    	if(res&&res.succeed&&res.data){
-				    		alert('操作成功,确认'+res.data+'条。');
-				    		tableInit().refresh();
-				    	}else{
-				    		alert('操作异常！');
-				    	}
-				    });
+					if(params.length == 0){
+                        alert("至少选中一条未确认的数据，已确认的运单不会重复确认！");
+                    }else{
+                        $.ajaxHelper.doPostSync(confirmUrl,JSON.stringify(params),function(res){
+                            if(res&&res.succeed&&res.data){
+                                alert('操作成功,确认'+res.data+'条。');
+                                tableInit().refresh();
+                            }else{
+                                alert('操作异常！');
+                            }
+                        });
+                    }
 				}
 			});
 			$('#btn_submit').click(function() {
@@ -320,6 +312,7 @@ $(function() {
                    var now = new Date();
                     var startTimeStr = $.datePicker.getValue('startTime');
                     var endTimeStr = $.datePicker.getValue('endTime');
+                    var receiveUserErp = $("#receiveUserErp").val();
                     /* var startTime = $.dateHelper.parseDateTime(startTimeStr);
                     var endTime = $.dateHelper.parseDateTime(endTimeStr);
 
@@ -345,6 +338,9 @@ $(function() {
                         var queryParams = $.formHelper.serialize('query-form');
 
                         var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
+                        if(receiveUserErp != ""){
+                            exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
+                        }
                         console.log(exportUrl);
                         window.open(exportUrl);
                     });
