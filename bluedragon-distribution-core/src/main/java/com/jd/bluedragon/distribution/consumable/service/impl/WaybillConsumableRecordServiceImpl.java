@@ -59,14 +59,14 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
     @Override
     public WaybillConsumableRecord queryOneByWaybillCode(String waybillCode) {
-        WaybillConsumableRecord condition = new WaybillConsumableRecord();
+        WaybillConsumableRecordCondition condition = new WaybillConsumableRecordCondition();
         condition.setWaybillCode(waybillCode);
 	    return waybillConsumableRecordDao.queryOneByCondition(condition);
     }
 
     @Override
     public boolean updateByCondition(WaybillConsumableRecord record) {
-        if(record == null || record.getId() == null || StringUtils.isEmpty(record.getWaybillCode())){
+        if(record == null || (record.getId() == null && StringUtils.isEmpty(record.getWaybillCode()))){
             logger.info("Bw网耗材数据更新失败，参数非法：" + JsonHelper.toJson(record));
             return false;
         }
@@ -111,13 +111,13 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
-    public boolean canModifiy(String waybillCode) {
-        Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
-        //1.标示为标识可以修改
-        if(waybill != null && ! BusinessHelper.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
-            WaybillConsumableRecord oldRecord = queryOneByWaybillCode(waybillCode);
-            //2.且该运单未被确认
-            if(oldRecord != null && oldRecord.getId() != null && UNTREATED_STATE.equals(oldRecord.getConfirmStatus())){
+    public boolean canModify(String waybillCode) {
+        WaybillConsumableRecord oldRecord = queryOneByWaybillCode(waybillCode);
+        //1.该运单未被确认
+        if(oldRecord != null && oldRecord.getId() != null && UNTREATED_STATE.equals(oldRecord.getConfirmStatus())){
+            Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
+            //1.标示为标识可以修改
+            if(waybill != null && ! BusinessHelper.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
                 return true;
             }
         }

@@ -22,7 +22,7 @@ import java.util.List;
 public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRecord> implements WaybillConsumableRecordDao {
 
     @Override
-    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecord condition) {
+    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecordCondition condition) {
         return sqlSession.selectOne(nameSpace+".queryByWaybillCode", condition);
     }
 

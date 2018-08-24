@@ -163,7 +163,7 @@ $(function () {
                                 $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
                             } else {
                                 if (res.data == false) {
-                                    $.msg.warn($('#waybillCode-value-input').val() + "已确认或为寄付运费运单，不允许增加耗材信息");
+                                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许修改耗材信息！");
                                 }
                                 else {
                                     layer.open({
@@ -269,7 +269,7 @@ $(function () {
                 $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
             } else {
                 if (res.data == false) {
-                    $.msg.warn($('#waybillCode-value-input').val() + "已确认或为寄付运费运单，不允许增加耗材信息");
+                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许增加耗材信息！");
                 }
                 else {
                     layer.open({

@@ -22,7 +22,7 @@ public interface WaybillConsumableRecordDao extends Dao<WaybillConsumableRecord>
      * @param condition
      * @return
      */
-    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecord condition);
+    public WaybillConsumableRecord queryOneByCondition(WaybillConsumableRecordCondition condition);
     /**
      * 根据ID批量更新多条记录
      * @param records

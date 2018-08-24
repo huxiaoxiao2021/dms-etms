@@ -72,6 +72,25 @@
 		</where>
 	</sql>
 
+	<sql id="where_update_condition">
+		<where>
+			is_delete = 0
+			<if test="id != null">
+				AND id = #{id,jdbcType=BIGINT}
+			</if>
+			<if test="dmsId != null">
+				AND dms_id = #{dmsId,jdbcType=INTEGER}
+			</if>
+			<if test="confirmStatus != null">
+				AND confirm_status = #{confirmStatus,jdbcType=INTEGER}
+			</if>
+			<if test="waybillCode != null">
+				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
+
+		</where>
+	</sql>
+
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord">
 		insert into waybill_consumable_record
 			(
@@ -233,7 +252,7 @@
 				</if>
 					ts = now()
 			</set>
-        <include refid="where_condition"/>
+        <include refid="where_update_condition"/>
 	</update>
 
 	<update id="deleteById" parameterType="Long">
