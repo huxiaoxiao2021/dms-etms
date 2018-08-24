@@ -25,6 +25,10 @@ $(function () {
                 validators: {
                     notEmpty: {
                         message: '确认数量不能为空！'
+                    },
+                    regexp:{
+                        regexp:/^0$|^[1-9]\d*$/,
+                        message:'只能输入数字'
                     }
                 }
             }

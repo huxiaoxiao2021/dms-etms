@@ -11,6 +11,7 @@ $(function () {
     var queryUrl = '/consumable/waybillConsumableRelation/listData';
     var modifyInfoPageUrl = '/consumable/waybillConsumableRelation/getModifyPage';
     var addInfoPageUrl = '/consumable/waybillConsumableRelation/getAddPage';
+    var checkModify = '/consumable/waybillConsumableRecord/check/canModify';
     /*****************************************/
     /*组件*/
     /*****************************************/
@@ -154,44 +155,59 @@ $(function () {
                 },
                 events: {
                     'click .mdinfo': function(e, value, row, index) {
-                        layer.open({
-                            id:'modifyInfoFrame',
-                            type: 2,
-                            title:'耗材信息修改',
-                            shadeClose: true,
-                            shade: 0.7,
-                            shadeClose: false,
-                            maxmin: true,
-                            area: ['850px', '380px'],
-                            content: modifyInfoPageUrl,
-                            success: function(layero, index){
-                                var id = row.id;
-                                var code = row.consumableCode;
-                                var name = row.name;
-                                var type = row.type;
-                                var volume = row.volume;
-                                var volumeCoefficient = row.volumeCoefficient;
-                                var specification = row.specification;
-                                var unit = row.unit;
-                                var receiveQuantity = row.receiveQuantity;
-                                var confirmQuantity = row.confirmQuantity;
-                                var waybillCode = row.waybillCode;
+                        var params = {waybillCode: $('#waybillCode-value-input').val()};
 
-                                var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
-                                var frameWindow = $('#' + frameId)[0].contentWindow;
-                                frameWindow.$('#id-value-input').val(id);
-                                frameWindow.$('#code-value-input').val(code);
-                                frameWindow.$('#name-value-input').val(name);
-                                frameWindow.$('#type-value-input').val(type);
-                                frameWindow.$('#volume-value-input').val(volume);
-                                frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
-                                frameWindow.$('#specification-value-input').val(specification);
-                                frameWindow.$('#unit-value-input').val(unit);
-                                frameWindow.$('#receive-value-input').val(receiveQuantity);
-                                frameWindow.$('#confirm-value-input').val(confirmQuantity);
-                                frameWindow.$('#waybillCode-value-input').val(waybillCode);
+                        $.ajaxHelper.doPostSync(checkModify,JSON.stringify(params),function(res){
+                            if(res.code != 200)
+                            {
+                                $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
+                            } else {
+                                if (res.data == false) {
+                                    $.msg.warn($('#waybillCode-value-input').val() + "已确认或为寄付运费运单，不允许增加耗材信息");
+                                }
+                                else {
+                                    layer.open({
+                                        id:'modifyInfoFrame',
+                                        type: 2,
+                                        title:'耗材信息修改',
+                                        shadeClose: true,
+                                        shade: 0.7,
+                                        shadeClose: false,
+                                        maxmin: true,
+                                        area: ['850px', '380px'],
+                                        content: modifyInfoPageUrl,
+                                        success: function(layero, index){
+                                            var id = row.id;
+                                            var code = row.consumableCode;
+                                            var name = row.name;
+                                            var type = row.type;
+                                            var volume = row.volume;
+                                            var volumeCoefficient = row.volumeCoefficient;
+                                            var specification = row.specification;
+                                            var unit = row.unit;
+                                            var receiveQuantity = row.receiveQuantity;
+                                            var confirmQuantity = row.confirmQuantity;
+                                            var waybillCode = row.waybillCode;
+
+                                            var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
+                                            var frameWindow = $('#' + frameId)[0].contentWindow;
+                                            frameWindow.$('#id-value-input').val(id);
+                                            frameWindow.$('#code-value-input').val(code);
+                                            frameWindow.$('#name-value-input').val(name);
+                                            frameWindow.$('#type-value-input').val(type);
+                                            frameWindow.$('#volume-value-input').val(volume);
+                                            frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
+                                            frameWindow.$('#specification-value-input').val(specification);
+                                            frameWindow.$('#unit-value-input').val(unit);
+                                            frameWindow.$('#receive-value-input').val(receiveQuantity);
+                                            frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                            frameWindow.$('#waybillCode-value-input').val(waybillCode);
+                                        }
+                                    });
+                                }
                             }
-                        });
+                        },'json');
+
                     }
                 }
             }];
@@ -244,22 +260,37 @@ $(function () {
 
     /*增加*/
     $('#btn_add').click(function () {
-        layer.open({
-            id:'addInfoFrame',
-            type: 2,
-            title:'增加包装耗材信息',
-            shadeClose: true,
-            shade: 0.7,
-            maxmin: true,
-            shadeClose: false,
-            area: ['800px', '380px'],
-            content: addInfoPageUrl,
-            success: function(layero, index){
-                var frameId = document.getElementById("addInfoFrame").getElementsByTagName("iframe")[0].id;
-                var frameWindow = $('#' + frameId)[0].contentWindow;
-                frameWindow.$('#waybillCode-value-input').val($('#waybillCode-value-input').val());
+
+        var params = {waybillCode: $('#waybillCode-value-input').val()};
+
+        $.ajaxHelper.doPostSync(checkModify,JSON.stringify(params),function(res){
+            if(res.code != 200)
+            {
+                $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
+            } else {
+                if (res.data == false) {
+                    $.msg.warn($('#waybillCode-value-input').val() + "已确认或为寄付运费运单，不允许增加耗材信息");
+                }
+                else {
+                    layer.open({
+                        id:'addInfoFrame',
+                        type: 2,
+                        title:'增加包装耗材信息',
+                        shadeClose: true,
+                        shade: 0.7,
+                        maxmin: true,
+                        shadeClose: false,
+                        area: ['800px', '380px'],
+                        content: addInfoPageUrl,
+                        success: function(layero, index){
+                            var frameId = document.getElementById("addInfoFrame").getElementsByTagName("iframe")[0].id;
+                            var frameWindow = $('#' + frameId)[0].contentWindow;
+                            frameWindow.$('#waybillCode-value-input').val($('#waybillCode-value-input').val());
+                        }
+                    });
+                }
             }
-        });
+        },'json');
 
     });
 

@@ -19,10 +19,14 @@ $(function () {
         submitButtons: 'button[type="submit"]',
         message: '验证不通过',
         fields: {
-            unit: {
+            confirmQuantity: {
                 validators: {
                     notEmpty: {
-                        message: '单位不能为空！'
+                        message: '确认数量不能为空！'
+                    },
+                    regexp:{
+                        regexp:/^0$|^[1-9]\d*$/,
+                        message:'只能输入数字'
                     }
                 }
             }

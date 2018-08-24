@@ -24,6 +24,7 @@ $(function () {
                     notEmpty: {
                         message: '名称不能为空！'
                     }
+
                 }
             },
             type: {
@@ -38,6 +39,18 @@ $(function () {
                     notEmpty: {
                         message: '单位不能为空！'
                     }
+                }
+            },
+            volume: {
+                regexp:{
+                    regexp:/^[0-9]+(.[0-9]{2})?$/,
+                    message:'体积为数字且最多两位小数'
+                }
+            },
+            volumeCoefficient: {
+                regexp:{
+                    regexp:/^[0-9]+(.[0-9]{2})?$/,
+                    message:'体积系数为数字且最多两位小数'
                 }
             }
         }
@@ -57,13 +70,13 @@ $(function () {
     /*****************************************/
     /*按钮动作*/
     /*****************************************/
-    /*修改*/
+    /*新增*/
     $('#btn_add').click(function () {
         /*进行查询参数校验*/
         var flag = $.formValidator.isValid('add-form');
         if(flag == true)
         {
-            $.msg.confirm('确认修改吗？',function () {
+            $.msg.confirm('确认新增吗？',function () {
 
                 var blocker = $.pageBlocker.block();
                 /*获取参数*/

@@ -15,6 +15,9 @@ public class WaybillConsumableRecordCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
 
+	/*主鍵*/
+	private Long id;
+
 	 /** 分拣中心编号 */
 	private Integer dmsId;
 
@@ -264,4 +267,12 @@ public class WaybillConsumableRecordCondition extends BasePagerCondition {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
 }

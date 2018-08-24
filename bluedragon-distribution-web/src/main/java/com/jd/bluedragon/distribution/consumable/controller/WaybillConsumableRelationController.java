@@ -4,7 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -78,6 +76,11 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 			rest.setData(result);
 			if (result) {
 				//更新record表的状态
+				WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
+				waybillConsumableRecord.setWaybillCode(waybillConsumableRelation.getWaybillCode());
+				//// FIXME: 2018/8/24 改为常量
+				waybillConsumableRecord.setModifyStatus(1);
+				waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 			}
 	} catch (Exception e) {
 			logger.error("fail to save！"+e.getMessage(),e);

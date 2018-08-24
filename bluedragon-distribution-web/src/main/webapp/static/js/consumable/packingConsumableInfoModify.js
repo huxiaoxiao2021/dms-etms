@@ -39,6 +39,18 @@ $(function () {
                         message: '单位不能为空！'
                     }
                 }
+            },
+            volume: {
+                regexp:{
+                    regexp:/^[0-9]+(.[0-9]{2})?$/,
+                    message:'体积为数字且最多两位小数'
+                }
+            },
+            volumeCoefficient: {
+                regexp:{
+                    regexp:/^[0-9]+(.[0-9]{2})?$/,
+                    message:'体积系数为数字且最多两位小数'
+                }
             }
         }
     });
