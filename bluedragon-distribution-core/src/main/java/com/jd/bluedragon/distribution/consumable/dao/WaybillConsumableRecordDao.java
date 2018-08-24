@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.consumable.dao;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
@@ -33,4 +35,18 @@ public interface WaybillConsumableRecordDao extends Dao<WaybillConsumableRecord>
      * @return
      */
     public List<WaybillConsumableRecord> findByIds(List<Long> ids);
+
+    /**
+     * 查询导出数据总量
+     * @param condition
+     * @return
+     */
+    public int exportCountByWebCondition(WaybillConsumableRecordCondition condition);
+
+    /**
+     * 查询导出数据明细
+     * @param condition
+     * @return
+     */
+    public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition);
 }

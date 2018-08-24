@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.dao.impl;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
@@ -32,5 +34,15 @@ public class WaybillConsumableRecordDaoImpl extends BaseDao<WaybillConsumableRec
     @Override
     public List<WaybillConsumableRecord> findByIds(List<Long> ids) {
         return sqlSession.selectList(nameSpace+".updateByIds", ids);
+    }
+
+    @Override
+    public int exportCountByWebCondition(WaybillConsumableRecordCondition condition) {
+        return 0;
+    }
+
+    @Override
+    public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition) {
+        return null;
     }
 }

@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableExportCol;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.utils.ExportExcel;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +19,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -148,5 +151,38 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		waybillConsumableRecordCondition.setDmsId(getLoginUser().getSiteCode());
 		rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
 		return rest.getData();
+	}
+
+    /**
+     * 导出
+     * @param condition
+     * @param response
+     * @return
+     */
+	@RequestMapping(value = "/export")
+	public @ResponseBody JdResponse<Boolean> exportByCondition(@RequestBody WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
+        JdResponse<Boolean> rest = new JdResponse<Boolean>();
+        if (condition.getStartTime() == null || condition.getEndTime() == null) {
+            rest.toFail("导出参数未指定时间范围！");
+            return rest;
+        }
+        condition.setDmsId(getLoginUser().getSiteCode());
+        int count = waybillConsumableRecordService.exportCountByWebCondition(condition);
+        if(count > WaybillConsumableRecordService.MAX_ROWS){
+            rest.toFail("导出数据量超过最大限制，请缩短导出时间段，最大限制：" + WaybillConsumableRecordService.MAX_ROWS);
+            return rest;
+        }
+        List rows = waybillConsumableRecordService.exportInfoByWebCondition(condition);
+		try {
+            ExportExcel.exportFile(response, WaybillConsumableExportCol.FILENAME,
+                    WaybillConsumableExportCol.PROPERTYS,
+                    WaybillConsumableExportCol.TITLES,
+                    rows, ExportExcel.EXPORT_TYPE_EXCEL);
+        }catch (Exception e){
+            logger.error("B网耗材明细导出失败：,导出条件：" + JsonHelper.toJson(condition) , e);
+            rest.toFail("导出失败，服务异常！");
+            return rest;
+        }
+        return null;
 	}
 }
