@@ -96,12 +96,15 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
 
 	    //1.更新主表信息
+        int result = 0;
         List<Long> ids = new ArrayList<Long>(confirmRecords.size());
         for (WaybillConsumableRecord record : confirmRecords){
-            ids.add(record.getId());
             record.setConfirmStatus(WaybillConsumableRecordService.TREATED_STATE);
+            if(waybillConsumableRecordDao.update(record)){
+                ids.add(record.getId());
+                result++;
+            }
         }
-        int result = waybillConsumableRecordDao.updateByIds(confirmRecords);
 
         //2.发送MQ通知运单
         List<WaybillConsumableRecord> confirmedRecords = waybillConsumableRecordDao.findByIds(ids);

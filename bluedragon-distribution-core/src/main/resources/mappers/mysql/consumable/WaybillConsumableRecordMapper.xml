@@ -82,9 +82,6 @@
 			<if test="dmsId != null">
 				AND dms_id = #{dmsId,jdbcType=INTEGER}
 			</if>
-			<if test="confirmStatus != null">
-				AND confirm_status = #{confirmStatus,jdbcType=INTEGER}
-			</if>
 			<if test="waybillCode != null">
 				AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 			</if>

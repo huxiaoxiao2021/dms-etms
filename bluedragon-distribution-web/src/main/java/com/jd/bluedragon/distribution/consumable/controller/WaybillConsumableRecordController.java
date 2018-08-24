@@ -118,9 +118,6 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	@RequestMapping(value = "/confirmByIds")
 	public @ResponseBody JdResponse<Integer> confirmByIds(@RequestBody List<WaybillConsumableRecord> records) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
-		if(records.size() > 500){
-
-        }
 		try {
             LoginUser loginUser = getLoginUser();
             List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>(records.size());
