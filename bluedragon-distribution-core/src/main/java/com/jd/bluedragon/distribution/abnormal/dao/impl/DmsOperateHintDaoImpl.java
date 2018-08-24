@@ -27,4 +27,15 @@ public class DmsOperateHintDaoImpl extends BaseDao<DmsOperateHint> implements Dm
 		return sqlSession.selectOne(nameSpace+".queryNeedReprintHintByWaybillCode", condition);
 	}
 
+
+	/**
+	 * 根据运单号获取处于开启状态的提示信息
+	 * @param dmsOperateHint
+	 * @return
+	 */
+	@Override
+	public DmsOperateHint getEnabledOperateHint(DmsOperateHint dmsOperateHint){
+		return sqlSession.selectOne(nameSpace+".getEnabledOperateHint", dmsOperateHint);
+	}
+
 }

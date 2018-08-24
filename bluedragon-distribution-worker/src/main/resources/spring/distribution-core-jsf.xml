@@ -314,4 +314,17 @@
                   protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.dmsLocalServer.token}" hide="true" />
     </jsf:consumer>
+    <!--运单 全程跟踪 查询接口 邱一良 -->
+
+    <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
+                  protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 商家基础资料接口-->
+    <jsf:consumer id="basicTraderInfoQueryApi" interface="com.jd.ldop.middle.api.basic.BasicTraderInfoQueryApi" protocol="jsf"
+                  alias="${ldop.basic.jsf.middle.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 查询揽收未分配列表 负责人 wangfei32-->
+    <jsf:consumer id="vendorOrderJsfService" interface="com.jd.ql.erp.jsf.VendorOrderJsfService" protocol="jsf"
+                  alias="${ql.erp.jsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

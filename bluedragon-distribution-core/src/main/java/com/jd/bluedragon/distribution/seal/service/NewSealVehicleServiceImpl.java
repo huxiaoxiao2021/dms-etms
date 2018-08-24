@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -189,7 +188,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return unsealCarOutArea;
     }
 
-	@Override
+    @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.unseal", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public CommonDto<String> unseal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception{
         List<SealCarDto> paramList = convertList(sealCars);
@@ -237,27 +236,50 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return tfcQueryWS.queryTransWorkItemBySimpleCode(simpleCode);
     }
 
+    @Override
     public boolean checkSendIsExist(String sendCode) {
 		SendM sendM = sendMDao.selectOneBySiteAndSendCode(null, sendCode);
 		return sendM != null;
 	}
 
+    @Override
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        if (this.getSealCarTimeBySendCode(sendCode) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public Long getSealCarTimeBySendCode(String sendCode) {
+        try {
+            String sealCarTime = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode);
+            logger.info("Redis取封车批次号" + sendCode + "的封车时间，结果：" + sealCarTime);
+            if (StringUtils.isNotBlank(sealCarTime) && Long.valueOf(sealCarTime) > 0) {
+                return Long.valueOf(sealCarTime);
+            }
+        } catch (Exception e) {
+            logger.warn("redis取封车批次号失败：" + e.getMessage());
+        }
+        return null;
+    }
 
     /**
      * 将封车的批次号缓存到Redis里
+     *
      * @param paramList
      */
     private void addRedisCache(List<SealCarDto> paramList) {
-        if(paramList == null || paramList.size() == 0){
+        if (paramList == null || paramList.size() == 0) {
             return;
         }
-        for(SealCarDto dto : paramList){
-            for(String sendCode : dto.getBatchCodes()){
-                try{
-                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode, Constants.TIME_SECONDS_ONE_WEEK, Constants.STRING_FLG_TRUE);
-                    logger.info("已封车批次号存入缓存成功:"+sendCode);
-                }catch (Throwable e){
-                    logger.warn("已封车批次号存入缓存失败:"+sendCode+";异常："+e.getMessage());
+        for (SealCarDto dto : paramList) {
+            for (String sendCode : dto.getBatchCodes()) {
+                try {
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode, Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getSealCarTime().getTime()));
+                    logger.info("已封车批次号存入缓存成功:" + sendCode);
+                } catch (Throwable e) {
+                    logger.warn("已封车批次号存入缓存失败:" + sendCode + ";异常：" + e.getMessage());
                 }
             }
         }

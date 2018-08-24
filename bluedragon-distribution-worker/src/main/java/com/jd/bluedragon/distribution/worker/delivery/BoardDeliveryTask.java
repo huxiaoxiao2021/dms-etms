@@ -1,10 +1,8 @@
 package com.jd.bluedragon.distribution.worker.delivery;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
@@ -16,7 +14,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
  * @date: 2018年3月29日 下午3:31:31
  *
  */
-public class BoardDeliveryTask extends SendDBSingleScheduler{
+public class BoardDeliveryTask extends DBSingleScheduler {
     @Autowired
     private DeliveryService deliveryService;
     

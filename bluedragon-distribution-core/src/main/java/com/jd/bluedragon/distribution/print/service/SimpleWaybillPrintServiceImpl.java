@@ -167,7 +167,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 result.error("查询运单信息为空");
             }
         }catch (Exception ex){
-            logger.error("标签打印接口异常",ex);
+            logger.error("标签打印接口异常，运单号:"+waybillCode,ex);
             result.error(ex);
         }
         return result;

@@ -22,11 +22,27 @@ public class DateHelper {
     };
     private static final Log LOGGER= LogFactory.getLog(DateHelper.class);
 
+    /**
+     * 十分钟的毫秒数
+     */
     public static final long TEN_MINUTES = 10 * 60 * 1000;
+
+    /**
+     * 一小时的毫秒数
+     */
+    public static final long ONE_HOUR_MILLI = 60 * 60 * 1000;
+
+    /**
+     * 一天的毫秒数
+     */
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
+
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS="yyyyMMddHHmmssSSS";
+
     public static final String DATE_FORMAT_YYYYMMDDHHmmssSS="yyyyMMddHHmmssSS";
+
     public static final String DATE_FORMAT_YYYYMMDDHHmmss="yyyyMMddHHmmss";
+
     public static Date add(final Date date, Integer field, Integer amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

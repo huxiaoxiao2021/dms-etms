@@ -63,6 +63,7 @@
               AND create_time<![CDATA[<=]]> #{operateTime,jdbcType=TIMESTAMP}
               AND machine_id=#{machineId,jdbcType=VARCHAR}
               AND receive_site_code=#{receiveSiteCode,jdbcType=INTEGER}
+              AND yn = #{yn,jdbcType=INTEGER}
         order by CREATE_TIME DESC
         limit 1
     </select>
@@ -97,6 +98,9 @@
         <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
             AND  PRINT_TIMES=0
         </if>
+        <if test="data.yn != null">
+            AND yn = #{data.yn,jdbcType=INTEGER}
+        </if>
     </sql>
     <select id="getSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
@@ -111,6 +115,25 @@
         FROM SCANNER_FRAME_BATCH_SEND
         <include refid="getSplitPageListWhere"/>
     </select>
+
+
+    <sql id="currentSplitPageWhere">
+        WHERE
+        sfbs.MACHINE_ID=#{data.machineId,jdbcType=VARCHAR}
+        <if test="data.receiveSiteCode!=null">
+            AND  sfbs.RECEIVE_SITE_CODE=#{data.receiveSiteCode,jdbcType=INTEGER}
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==true ">
+            AND  sfbs.PRINT_TIMES>0
+        </if>
+        <if test=" data.hasPrinted !=null and data.hasPrinted==false ">
+            AND  sfbs.PRINT_TIMES=0
+        </if>
+        <if test="data.planId != null">
+            AND  adc.PLAN_ID=#{data.planId,jdbcType=INTEGER}
+            AND adc.yn = 1
+        </if>
+    </sql>
     <select id="getCurrentSplitPageList" parameterType="com.jd.bluedragon.Pager" resultMap="resultListMap">
         SELECT
         <include refid="allFieldsExcludeTs"/>
@@ -184,5 +207,13 @@
       ORDER BY Id DESC
       LIMIT #{startIndex,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
     </select>
+
+    <update id="updateYnByMachineId">
+        UPDATE SCANNER_FRAME_BATCH_SEND
+        SET YN = 0
+        WHERE
+        MACHINE_ID = #{machineId,jdbcType=VARCHAR}
+        AND YN = 1
+    </update>
 
 </mapper>
