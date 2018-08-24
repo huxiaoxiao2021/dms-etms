@@ -50,10 +50,10 @@ public class WaybillConsumableExportDto  implements Serializable {
     private Date confirmTime;
 
     /** 揽收数量 */
-    private Integer receiveQuantity;
+    private Double receiveQuantity;
 
     /** 确认数量 */
-    private Integer confirmQuantity;
+    private Double confirmQuantity;
 
     /** 操作人编号 */
     private String operateUserCode;
@@ -178,19 +178,19 @@ public class WaybillConsumableExportDto  implements Serializable {
         this.confirmTime = confirmTime;
     }
 
-    public Integer getReceiveQuantity() {
+    public Double getReceiveQuantity() {
         return receiveQuantity;
     }
 
-    public void setReceiveQuantity(Integer receiveQuantity) {
+    public void setReceiveQuantity(Double receiveQuantity) {
         this.receiveQuantity = receiveQuantity;
     }
 
-    public Integer getConfirmQuantity() {
+    public Double getConfirmQuantity() {
         return confirmQuantity;
     }
 
-    public void setConfirmQuantity(Integer confirmQuantity) {
+    public void setConfirmQuantity(Double confirmQuantity) {
         this.confirmQuantity = confirmQuantity;
     }
 

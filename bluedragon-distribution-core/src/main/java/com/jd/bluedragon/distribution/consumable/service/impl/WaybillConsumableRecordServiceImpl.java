@@ -74,6 +74,17 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
+    public int exportCountByWebCondition(WaybillConsumableRecordCondition condition) {
+        return waybillConsumableRecordDao.exportCountByWebCondition(condition);
+    }
+
+    @Override
+    public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition) {
+        return waybillConsumableRecordDao.exportInfoByWebCondition(condition);
+
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int confirmByIds(List<WaybillConsumableRecord> confirmRecords) {
 	    if(confirmRecords == null || confirmRecords.isEmpty()){

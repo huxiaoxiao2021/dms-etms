@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.consumable.service;
 
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
@@ -21,6 +23,8 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
     Integer TREATED_STATE = 1;
     //每次批量处理最大条数
     Integer MAX_ROWS = 500;
+    //每次导出最大运单数
+    Integer EXPORT_ROW_LIMIT = 50000;
 
     /**
      * 根据运单号查询一条记录
@@ -49,4 +53,18 @@ public interface WaybillConsumableRecordService extends Service<WaybillConsumabl
      * @return
      */
     public boolean updateByCondition(WaybillConsumableRecord record);
+
+    /**
+     * 获取导出数据总量
+     * @param condition
+     * @return
+     */
+    public int exportCountByWebCondition(WaybillConsumableRecordCondition condition);
+    /**
+     * 查询导出数据明细
+     * @param condition
+     * @return
+     */
+    public List<WaybillConsumableExportDto> exportInfoByWebCondition(WaybillConsumableRecordCondition condition);
+
 }
