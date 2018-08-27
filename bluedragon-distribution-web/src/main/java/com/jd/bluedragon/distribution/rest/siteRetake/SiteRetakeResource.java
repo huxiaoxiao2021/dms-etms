@@ -56,17 +56,14 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
-    public  JdResponse<Page<VendorOrder>>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
 
         Page page=new Page();
         page.setCurrentPage(siteRetakeCondition.getCurrentPage());
         page.setPageSize(siteRetakeCondition.getPageSize());
-        JdResponse<Page<VendorOrder>> jdResponse=new JdResponse<Page<VendorOrder>>();
-        jdResponse.setCode(200);
-        jdResponse.setData(siteRetakeService.queryVendorOrderList(siteRetakeCondition,page));
-        return jdResponse;
+        return siteRetakeService.queryVendorOrderList(siteRetakeCondition,page);
     }
 
     @POST
