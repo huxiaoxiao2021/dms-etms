@@ -11,6 +11,7 @@ import com.jd.common.orm.page.Page;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,14 +56,17 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
-    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+    public  JdResponse<Page<VendorOrder>>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
 
         Page page=new Page();
         page.setCurrentPage(siteRetakeCondition.getCurrentPage());
         page.setPageSize(siteRetakeCondition.getPageSize());
-        return siteRetakeService.queryVendorOrderList(siteRetakeCondition,page);
+        JdResponse<Page<VendorOrder>> jdResponse=new JdResponse<Page<VendorOrder>>();
+        jdResponse.setCode(200);
+        jdResponse.setData(siteRetakeService.queryVendorOrderList(siteRetakeCondition,page));
+        return jdResponse;
     }
 
     @POST
