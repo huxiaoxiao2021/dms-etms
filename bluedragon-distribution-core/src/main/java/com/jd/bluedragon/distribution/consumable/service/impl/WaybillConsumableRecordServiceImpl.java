@@ -127,6 +127,15 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         return false;
     }
 
+    @Override
+    public Boolean isConfirmed(String waybillCode) {
+        WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
+        if(record != null && TREATED_STATE.equals(record.getConfirmStatus())){
+            return true;
+        }
+        return false;
+    }
+
     /**
      * 发送确认明细MQ通知运单
      * @param confirmedRecords

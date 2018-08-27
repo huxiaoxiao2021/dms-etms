@@ -157,4 +157,12 @@ public interface DmsInternalService {
      * @return
      */
     public BaseResponse login(String userName, String passwd);
+
+    /**
+     * 查询运单是否已经确认耗材
+     * @see ver DmsWebBaseClient#isConsumableConfirmed
+     * @param waybillCode
+     * @return
+     */
+    public Boolean isConsumableConfirmed(String waybillCode);
 }
