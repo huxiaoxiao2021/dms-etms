@@ -37,11 +37,21 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
 
     public Page<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page) {
         VendorOrder vendorOrder = new VendorOrder();
-        vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
-        vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
-        vendorOrder.setAssignTime(siteRetakeCondition.getAssignTime());
-        vendorOrder.setWaybillCreateTime(siteRetakeCondition.getWaybillCreateTime());
-        vendorOrder.setWaybillCode(siteRetakeCondition.getWaybillCode());
+        if (siteRetakeCondition.getSiteCode()!=null){
+            vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
+        }
+        if (siteRetakeCondition.getVendorId()!=null){
+            vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
+        }
+        if (siteRetakeCondition.getAssignTime()!=null){
+            vendorOrder.setAssignTime(siteRetakeCondition.getAssignTime());
+        }
+        if (siteRetakeCondition.getWaybillCreateTime()!=null){
+            vendorOrder.setWaybillCreateTime(siteRetakeCondition.getWaybillCreateTime());
+        }
+        if (siteRetakeCondition.getWaybillCode()!=null){
+            vendorOrder.setWaybillCode(siteRetakeCondition.getWaybillCode());
+        }
         Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
         pageResult.setCurrentPage(page.getCurrentPage());
         pageResult.setPageSize(page.getPageSize());
