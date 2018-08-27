@@ -693,12 +693,13 @@ public class BusinessHelper {
 	/**
 	 * 通过运单标识 判断B网耗材
 	 *
+	 * 72位：是否需要包装服务： 0---不需要 默认，1---需要包装服务
 	 *  25 位 是3  标识 B网耗材不允许修改，只能操作确认
 	 * @param waybillSign
 	 * @return
 	 */
 	public static boolean isWaybillConsumableOnlyConfirm(String waybillSign){
-		return isSignChar(waybillSign, 25, '3');
+		return isSignChar(waybillSign, 72, '1') && isSignChar(waybillSign, 25, '3');
 	}
 
 	/**

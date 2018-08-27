@@ -78,8 +78,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				//更新record表的状态
 				WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
 				waybillConsumableRecord.setWaybillCode(waybillConsumableRelation.getWaybillCode());
-				//// FIXME: 2018/8/24 改为常量
-				waybillConsumableRecord.setModifyStatus(1);
+				waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
 				waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 			}
 	} catch (Exception e) {
