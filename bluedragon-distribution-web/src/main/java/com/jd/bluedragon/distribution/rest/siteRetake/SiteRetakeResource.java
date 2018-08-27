@@ -11,7 +11,6 @@ import com.jd.common.orm.page.Page;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
-import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,19 +55,19 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
-    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
+    public Page<VendorOrder> queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
 
-        Page page=new Page();
+        Page page = new Page();
         page.setCurrentPage(siteRetakeCondition.getCurrentPage());
         page.setPageSize(siteRetakeCondition.getPageSize());
-        return siteRetakeService.queryVendorOrderList(siteRetakeCondition,page);
+        return siteRetakeService.queryVendorOrderList(siteRetakeCondition, page);
     }
 
     @POST
     @Path("/siteRetake/updateOrderStatus")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1013,operateType = 101301)
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1013, operateType = 101301)
     public InvokeResult<String> updateOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         Assert.notNull(siteRetakeOperation, "siteRetakeOperation must not be null");
         Assert.notNull(siteRetakeOperation.getSiteCode(), "sitecode type must not be null");
