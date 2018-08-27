@@ -55,12 +55,13 @@ public class SiteRetakeResource {
 
     @POST
     @Path("/siteRetake/queryWaybillCode")
-    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition, Page page) {
+    public  Page<VendorOrder>  queryWaybillCode(SiteRetakeCondition siteRetakeCondition) {
         Assert.notNull(siteRetakeCondition, "siteRetakeCondition must not be null");
         Assert.notNull(siteRetakeCondition.getSiteCode(), "sitecode type must not be null");
-        Assert.notNull(page, "sitecode type must not be null");
-        Assert.notNull(page.getCurrentPage(), "sitecode type must not be null");
-        Assert.notNull(page.getPageSize(), "sitecode type must not be null");
+
+        Page page=new Page();
+        page.setCurrentPage(siteRetakeCondition.getCurrentPage());
+        page.setPageSize(siteRetakeCondition.getPageSize());
         return siteRetakeService.queryVendorOrderList(siteRetakeCondition,page);
     }
 
