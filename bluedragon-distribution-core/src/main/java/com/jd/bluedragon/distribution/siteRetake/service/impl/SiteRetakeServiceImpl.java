@@ -12,8 +12,6 @@ import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -37,26 +35,17 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         return siteRetakeManager.queryBasicTraderInfoByKey(key);
     }
 
-    public Page<VendorOrder>  queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page) {
+    public Page<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page) {
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
-        if (siteRetakeCondition.getVendorId()!=null){
-            vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
-        }
-        if (SiteRetakeCondition.TIME_TYPE_ASSIGNTIME.equals(siteRetakeCondition.getTimeType())){
-            vendorOrder.setAssignTime(siteRetakeCondition.getSelectTime());
-        }else{
-            vendorOrder.setWaybillCreateTime(siteRetakeCondition.getSelectTime());
-        }
-        if (page==null){
-            page=new Page(1,100);
-        }
+        vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
+        vendorOrder.setAssignTime(siteRetakeCondition.getAssignTime());
+        vendorOrder.setWaybillCreateTime(siteRetakeCondition.getWaybillCreateTime());
+        vendorOrder.setWaybillCode(siteRetakeCondition.getWaybillCode());
         Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
         pageResult.setCurrentPage(page.getCurrentPage());
         pageResult.setPageSize(page.getPageSize());
         return pageResult;
-
-
 
 
     }
@@ -74,21 +63,21 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         vendorOrder.setOperatorSource(3);//系统标识
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
         vendorOrder.setUpdateTime(siteRetakeOperation.getOperatorTime());
-        InvokeResult<String> result=new InvokeResult<String>();
+        InvokeResult<String> result = new InvokeResult<String>();
         result.setCode(200);
         result.setMessage("");
-        String[] waybillcodes=siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
-        if (waybillcodes!=null&&waybillcodes.length>0){
+        String[] waybillcodes = siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
+        if (waybillcodes != null && waybillcodes.length > 0) {
 
-            for (String waybillCode:waybillcodes){
+            for (String waybillCode : waybillcodes) {
                 vendorOrder.setWaybillCode(waybillCode);
-                InvokeResult<String> resultOne= siteRetakeManager.updateCommonOrderStatus(vendorOrder);
-                if (resultOne.getCode()!=200){
+                InvokeResult<String> resultOne = siteRetakeManager.updateCommonOrderStatus(vendorOrder);
+                if (resultOne.getCode() != 200) {
                     result.setCode(101);
-                    result.setMessage(result.getMessage()+"运单["+waybillCode+"]保存失败："+resultOne.getMessage()+"\n");
+                    result.setMessage(result.getMessage() + "运单[" + waybillCode + "]保存失败：" + resultOne.getMessage() + "\n");
                 }
             }
-        }else{
+        } else {
             result.setCode(100);
             result.setMessage("无可操作运单");
         }
