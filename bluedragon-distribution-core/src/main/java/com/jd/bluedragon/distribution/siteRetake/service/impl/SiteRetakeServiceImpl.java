@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -60,7 +61,7 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
 
     }
 
-    public InvokeResult<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
+    public JdResponse<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setStatus(siteRetakeOperation.getStatus());
         vendorOrder.setOperatorId(siteRetakeOperation.getOperatorId());
@@ -73,7 +74,7 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         vendorOrder.setOperatorSource(3);//系统标识
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
         vendorOrder.setUpdateTime(siteRetakeOperation.getOperatorTime());
-        InvokeResult<String> result = new InvokeResult<String>();
+        JdResponse<String> result = new JdResponse<String>();
         result.setCode(200);
         result.setMessage("");
         String[] waybillcodes = siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
