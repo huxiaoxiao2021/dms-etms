@@ -48,7 +48,7 @@ public class WaybillConsumableDetailDto   implements Serializable {
     /**
      * 包装耗材数量
      */
-    private Integer packingNumber;
+    private Double packingNumber;
 
     /**
      * 包装耗材价格
@@ -111,11 +111,11 @@ public class WaybillConsumableDetailDto   implements Serializable {
         this.packingUnit = packingUnit;
     }
 
-    public Integer getPackingNumber() {
+    public Double getPackingNumber() {
         return packingNumber;
     }
 
-    public void setPackingNumber(Integer packingNumber) {
+    public void setPackingNumber(Double packingNumber) {
         this.packingNumber = packingNumber;
     }
 

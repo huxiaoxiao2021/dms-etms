@@ -27,8 +27,8 @@ $(function () {
                         message: '确认数量不能为空！'
                     },
                     regexp:{
-                        regexp:/^0$|^[1-9]\d*$/,
-                        message:'只能输入数字'
+                        regexp:/^[0-9]+(.[0-9]{1,2})?$/,
+                        message:'数量为数字且最多两位小数'
                     }
                 }
             }

@@ -12,10 +12,10 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
     private String consumableCode;
 
     /** 揽收数量 */
-    private Integer receiveQuantity;
+    private Double receiveQuantity;
 
     /** 确认数量 */
-    private Integer confirmQuantity;
+    private Double confirmQuantity;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -33,19 +33,19 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
         this.consumableCode = consumableCode;
     }
 
-    public Integer getReceiveQuantity() {
+    public Double getReceiveQuantity() {
         return receiveQuantity;
     }
 
-    public void setReceiveQuantity(Integer receiveQuantity) {
+    public void setReceiveQuantity(Double receiveQuantity) {
         this.receiveQuantity = receiveQuantity;
     }
 
-    public Integer getConfirmQuantity() {
+    public Double getConfirmQuantity() {
         return confirmQuantity;
     }
 
-    public void setConfirmQuantity(Integer confirmQuantity) {
+    public void setConfirmQuantity(Double confirmQuantity) {
         this.confirmQuantity = confirmQuantity;
     }
 }

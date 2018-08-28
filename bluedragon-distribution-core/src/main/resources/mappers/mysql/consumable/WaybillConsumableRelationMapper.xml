@@ -6,8 +6,8 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
@@ -21,8 +21,8 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />

@@ -30,8 +30,8 @@
         <result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
-        <result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
+        <result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
         <result column="receive_user_erp" property="receiveUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="confirm_status" property="confirmStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="confirm_status_str" property="confirmStatusStr" javaType="java.lang.String" jdbcType="VARCHAR" />

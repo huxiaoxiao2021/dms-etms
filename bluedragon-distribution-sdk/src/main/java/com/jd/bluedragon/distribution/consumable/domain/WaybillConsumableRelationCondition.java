@@ -22,10 +22,10 @@ public class WaybillConsumableRelationCondition extends BasePagerCondition {
 	private String consumableCode;
 
 	 /** 揽收数量 */
-	private Integer receiveQuantity;
+	private Double receiveQuantity;
 
 	 /** 确认数量 */
-	private Integer confirmQuantity;
+	private Double confirmQuantity;
 
 	 /** 操作人编号 */
 	private String operateUserCode;
@@ -72,7 +72,7 @@ public class WaybillConsumableRelationCondition extends BasePagerCondition {
 	 * The set method for receiveQuantity.
 	 * @param receiveQuantity
 	 */
-	public void setReceiveQuantity(Integer receiveQuantity) {
+	public void setReceiveQuantity(Double receiveQuantity) {
 		this.receiveQuantity = receiveQuantity;
 	}
 
@@ -80,7 +80,7 @@ public class WaybillConsumableRelationCondition extends BasePagerCondition {
 	 * The get method for receiveQuantity.
 	 * @return this.receiveQuantity
 	 */
-	public Integer getReceiveQuantity() {
+	public Double getReceiveQuantity() {
 		return this.receiveQuantity;
 	}
 
@@ -88,7 +88,7 @@ public class WaybillConsumableRelationCondition extends BasePagerCondition {
 	 * The set method for confirmQuantity.
 	 * @param confirmQuantity
 	 */
-	public void setConfirmQuantity(Integer confirmQuantity) {
+	public void setConfirmQuantity(Double confirmQuantity) {
 		this.confirmQuantity = confirmQuantity;
 	}
 
@@ -96,7 +96,7 @@ public class WaybillConsumableRelationCondition extends BasePagerCondition {
 	 * The get method for confirmQuantity.
 	 * @return this.confirmQuantity
 	 */
-	public Integer getConfirmQuantity() {
+	public Double getConfirmQuantity() {
 		return this.confirmQuantity;
 	}
 
