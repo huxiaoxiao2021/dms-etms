@@ -116,7 +116,24 @@ public class BusinessHelper {
 
 		return null;
 	}
+	/**
+	 * create by: yws
+	 * description: 把字符串中的任意一位转为integer类型
+	 * create time:
+	 *
+	 * @Param: s
+	 * @return
+	 */
+	public static Integer stringToInteger(String s,int startIndex){
+		Integer in=null;
+		if(StringHelper.isEmpty(s) || startIndex<0 || startIndex>=s.length()){
 
+		}
+		else{
+			in=Integer.valueOf(s.substring(startIndex,startIndex+1));
+		}
+		return in;
+	}
     /**
      * 判断输入字符串是否为包裹号码. 包裹号规则： 123456789N1S1
      *

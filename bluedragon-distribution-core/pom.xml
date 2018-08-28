@@ -783,7 +783,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.43-SNAPSHOT</version>
+			<version>1.2.51-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>
