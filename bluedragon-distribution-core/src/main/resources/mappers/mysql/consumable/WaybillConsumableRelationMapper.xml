@@ -99,10 +99,10 @@
 					#{consumableCode,jdbcType=VARCHAR},
 				</if>
 				<if test="receiveQuantity != null">
-					#{receiveQuantity,jdbcType=INTEGER},
+					#{receiveQuantity,jdbcType=DOUBLE},
 				</if>
 				<if test="confirmQuantity != null">
-					#{confirmQuantity,jdbcType=INTEGER},
+					#{confirmQuantity,jdbcType=DOUBLE},
 				</if>
 				<if test="operateUserCode != null">
 					#{operateUserCode,jdbcType=VARCHAR},
@@ -140,8 +140,8 @@
 				(
 					#{item.waybillCode,jdbcType=VARCHAR},
 					#{item.consumableCode,jdbcType=VARCHAR},
-					#{item.receiveQuantity,jdbcType=INTEGER},
-					#{item.confirmQuantity,jdbcType=INTEGER},
+					#{item.receiveQuantity,jdbcType=DOUBLE},
+					#{item.confirmQuantity,jdbcType=DOUBLE},
 					#{item.operateUserErp,jdbcType=VARCHAR},
 					#{item.operateTime,jdbcType=TIMESTAMP},
 					now(),
@@ -161,10 +161,10 @@
 					consumable_code = #{consumableCode,jdbcType=VARCHAR},
 				</if>
 				<if test="receiveQuantity != null">
-					receive_quantity = #{receiveQuantity,jdbcType=INTEGER},
+					receive_quantity = #{receiveQuantity,jdbcType=DOUBLE},
 				</if>
 				<if test="confirmQuantity != null">
-					confirm_quantity = #{confirmQuantity,jdbcType=INTEGER},
+					confirm_quantity = #{confirmQuantity,jdbcType=DOUBLE},
 				</if>
 				<if test="operateUserCode != null">
 					operate_user_code = #{operateUserCode,jdbcType=VARCHAR},

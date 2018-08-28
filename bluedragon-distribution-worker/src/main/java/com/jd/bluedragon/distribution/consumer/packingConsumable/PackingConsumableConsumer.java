@@ -225,7 +225,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         //耗材单位
         private String packingUnit;
         //耗材数量
-        private Integer consumeNumber;
+        private Double consumeNumber;
 
         public String getPackingCode() {
             return packingCode;
@@ -283,11 +283,11 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             this.packingUnit = packingUnit;
         }
 
-        public Integer getConsumeNumber() {
+        public Double getConsumeNumber() {
             return consumeNumber;
         }
 
-        public void setConsumeNumber(Integer consumeNumber) {
+        public void setConsumeNumber(Double consumeNumber) {
             this.consumeNumber = consumeNumber;
         }
     }
