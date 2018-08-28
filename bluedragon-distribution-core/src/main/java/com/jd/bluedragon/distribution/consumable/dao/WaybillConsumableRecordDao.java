@@ -41,7 +41,7 @@ public interface WaybillConsumableRecordDao extends Dao<WaybillConsumableRecord>
      * @param condition
      * @return
      */
-    public int exportCountByWebCondition(WaybillConsumableRecordCondition condition);
+    public Integer exportCountByWebCondition(WaybillConsumableRecordCondition condition);
 
     /**
      * 查询导出数据明细
