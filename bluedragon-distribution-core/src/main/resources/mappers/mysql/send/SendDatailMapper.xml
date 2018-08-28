@@ -169,13 +169,13 @@
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
 	</update>
-	
+
 	<update id="canCancelFuzzy" parameterType="SendDetail">
 		UPDATE Send_d 
 		SET is_cancel = 1, update_time = NOW()
 		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 			AND send_type = #{sendType,jdbcType=INTEGER}
-			AND package_barcode like '${packageBarcode}'
+			AND package_barcode like #{packageBarcode}
 		<if test="waybillCode != null">
 			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		</if>

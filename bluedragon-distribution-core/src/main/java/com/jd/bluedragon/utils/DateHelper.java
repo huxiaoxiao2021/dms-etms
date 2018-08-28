@@ -11,16 +11,22 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class DateHelper {
-	
-    public static final String[] DATE_TIME_FORMAT=new String[]{
-        "yyyy-MM-dd HH:mm:ss",
-        "yyyy/MM/dd HH:mm:ss",
-        "yyyy/MM/dd HH:mm:ss.SSS",
-        "yyyy-MM-dd HH:mm:ss.SSS",
-        "yyyyMMddHHmmss",
-        "yyyyMMddHHmmssSSS"
+
+    public static final String[] DATE_TIME_FORMAT = new String[]{
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy/MM/dd HH:mm:ss",
+            "yyyy/MM/dd HH:mm:ss.SSS",
+            "yyyy-MM-dd HH:mm:ss.SSS",
+            "yyyyMMddHHmmss",
+            "yyyyMMddHHmmssSSS"
     };
-    private static final Log LOGGER= LogFactory.getLog(DateHelper.class);
+
+    private static final Log LOGGER = LogFactory.getLog(DateHelper.class);
+
+    /**
+     * 一分钟的毫秒数
+     */
+    public static final long ONE_MINUTES_MILLI = 60 * 1000;
 
     /**
      * 十分钟的毫秒数
@@ -37,35 +43,35 @@ public class DateHelper {
      */
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
 
-    public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS="yyyyMMddHHmmssSSS";
+    public static final String DATE_FORMAT_YYYYMMDDHHmmssSSS = "yyyyMMddHHmmssSSS";
 
-    public static final String DATE_FORMAT_YYYYMMDDHHmmssSS="yyyyMMddHHmmssSS";
+    public static final String DATE_FORMAT_YYYYMMDDHHmmssSS = "yyyyMMddHHmmssSS";
 
-    public static final String DATE_FORMAT_YYYYMMDDHHmmss="yyyyMMddHHmmss";
+    public static final String DATE_FORMAT_YYYYMMDDHHmmss = "yyyyMMddHHmmss";
 
     public static Date add(final Date date, Integer field, Integer amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        
+
         calendar.add(field, amount);
-        
+
         return calendar.getTime();
     }
-    
+
     public static Date addDate(final Date date, Integer days) {
         return DateHelper.add(date, Calendar.DATE, days);
     }
-    
+
     public static String formatDate(Date date) {
         if (date == null) {
             return "";
         }
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
-        
+
         return sdf.format(date);
     }
-    
+
     /**
      * 将日期转换成为字符（yyyy-MM-dd）
      */
@@ -73,20 +79,20 @@ public class DateHelper {
         if (date == null) {
             return "";
         }
-        
+
         String format = formatString;
         if (StringHelper.isEmpty(formatString)) {
             format = Constants.DATE_FORMAT;
         }
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat(format);
-        
+
         return sdf.format(date);
     }
-    
+
     /**
      * 将日期转换成为字符（yyyy-MM-dd HH:mm:ss）
-     * 
+     *
      * @param date
      * @return
      */
@@ -94,68 +100,70 @@ public class DateHelper {
         if (date == null) {
             return "";
         }
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_TIME_FORMAT);
-        
+
         return sdf.format(date);
     }
 
     /**
      * 校正时间截
+     *
      * @param source 原时间截
      * @return JAVA时间截
      */
-    public static long adjustTimestampToJava(long source){
-        long target=source;
-        int timeLength=String.valueOf(System.currentTimeMillis()).length();
-        int clientTimeLength=String.valueOf(source).length();
-        if(clientTimeLength>timeLength){
-            target=(source / (long) Math.pow(10, clientTimeLength - timeLength));
-            if(LOGGER.isWarnEnabled()){
-                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}",DateHelper.formatDateTimeMs(new Date(source)),DateHelper.formatDateTimeMs(new Date(target)),source,target));
+    public static long adjustTimestampToJava(long source) {
+        long target = source;
+        int timeLength = String.valueOf(System.currentTimeMillis()).length();
+        int clientTimeLength = String.valueOf(source).length();
+        if (clientTimeLength > timeLength) {
+            target = (source / (long) Math.pow(10, clientTimeLength - timeLength));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
             }
-        }else if(timeLength>clientTimeLength){
-            target=(source*(long)Math.pow(10,timeLength-clientTimeLength));
-            if(LOGGER.isWarnEnabled()){
-                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}",DateHelper.formatDateTimeMs(new Date(source)),DateHelper.formatDateTimeMs(new Date(target)),source,target));
+        } else if (timeLength > clientTimeLength) {
+            target = (source * (long) Math.pow(10, timeLength - clientTimeLength));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
             }
         }
         return target;
     }
 
     public static void main(String[] args) {
-        long source=14738233921256L;
-        long target= adjustTimestampToJava(source);
+        long source = 14738233921256L;
+        long target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=14736094286801256L;
-        target= adjustTimestampToJava(source);
+        source = 14736094286801256L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=14736094286801L;
-        target= adjustTimestampToJava(source);
+        source = 14736094286801L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=14736097046982760L;
-        target= adjustTimestampToJava(source);
+        source = 14736097046982760L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=14736094604249413L;
-        target= adjustTimestampToJava(source);
+        source = 14736094604249413L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=1473824034L;
-        target= adjustTimestampToJava(source);
+        source = 1473824034L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
-        source=1473824030L;
-        target= adjustTimestampToJava(source);
+        source = 1473824030L;
+        target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
 
     }
+
     /**
      * 将日期转换成为字符（yyyy-MM-dd HH:mm:ss.SSS）
-     * 
+     *
      * @param date
      * @return
      */
@@ -163,67 +171,67 @@ public class DateHelper {
         if (date == null) {
             return "";
         }
-        
+
         SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_TIME_MS_FORMAT);
-        
+
         return sdf.format(date);
     }
-    
+
     public static Date getDateValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? (Date) object : null;
     }
-    
+
     /**
      * 字符转换为日期（yyyy-MM-dd）
-     * 
+     *
      * @param dateString
      * @return
      */
     public static Date parseDate(String dateString) {
         return DateHelper.parseDate(dateString, Constants.DATE_FORMAT);
     }
-    
+
     public static Date parseDate(String dateString, String format) {
         if (format == null) {
             return null;
         }
-        
+
         try {
             return new SimpleDateFormat(format).parse(dateString);
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     /**
      * 字符转换为日期（yyyy-MM-dd HH:mm:ss）
-     * 
+     *
      * @param dateString
      * @return
      */
     public static Date parseDateTime(String dateString) {
         return DateHelper.parseDate(dateString, Constants.DATE_TIME_FORMAT);
     }
-    
+
     public static Date toDate(Long date) {
         if (date == null) {
             return null;
         }
         return new Date(date);
     }
-    
+
     public static Date getSeverTime(String sPdaTime) {
         Date serverTime = new Date();
         if (StringHelper.isEmpty(sPdaTime)) {
             return serverTime;
         }
-        
+
         Date pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_MS_FORMAT);
-        
+
         if (pdaTime == null) {
             pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_FORMAT);
         }
-        
+
         Long interval = pdaTime.getTime() - serverTime.getTime();
         if (pdaTime.after(serverTime) && DateHelper.TEN_MINUTES < interval) {
             return serverTime;
@@ -231,22 +239,25 @@ public class DateHelper {
             return pdaTime;
         }
     }
+
     /**
      * 比较2个时间
      * <p>1、同时为空返回0
      * <p>2、都不为空，返回o1.compareTo(o2)比较结果
      * <p>3、o1为空o2不为空，返回-1
      * <p>4、o2为空哦o1不为空，返回1
+     *
      * @param date
      * @param date1
      * @return
      */
-    public static int compare(Date date,Date date1) {
-    	return ObjectHelper.compare(date, date1);
+    public static int compare(Date date, Date date1) {
+        return ObjectHelper.compare(date, date1);
     }
 
     /**
      * 比较参数时间 和 当前时间按days参数调整的后的时间
+     *
      * @param date 比较时间
      * @param days 调整天数（正数往前调整、负数往后调整）
      * @return
@@ -260,23 +271,24 @@ public class DateHelper {
 
     /**
      * 判断当前时间是否在基准时间前后rangeHours小时的范围内
+     *
      * @param standDate
      * @param rangeHours
      * @return
      */
     public static boolean currentTimeIsRangeHours(final Date standDate, Integer rangeHours) {
-        if(standDate == null){
+        if (standDate == null) {
             return false;
         }
-        Calendar calendar =Calendar.getInstance();
+        Calendar calendar = Calendar.getInstance();
         calendar.setTime(standDate);
         calendar.add(Calendar.HOUR_OF_DAY, rangeHours);
         long endTime = calendar.getTimeInMillis();
-        calendar.add(Calendar.HOUR_OF_DAY, -2*rangeHours);
+        calendar.add(Calendar.HOUR_OF_DAY, -2 * rangeHours);
         long startTime = calendar.getTimeInMillis();
 
         long currentTime = System.currentTimeMillis();
 
-        return startTime <= currentTime && currentTime <= endTime ;
+        return startTime <= currentTime && currentTime <= endTime;
     }
 }
