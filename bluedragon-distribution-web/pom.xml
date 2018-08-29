@@ -23,11 +23,6 @@
 	</properties>
 
 	<dependencies>
-        <dependency>
-            <groupId>org.apache.bval</groupId>
-            <artifactId>bval-jsr303</artifactId>
-            <version>0.5</version>
-        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -47,10 +42,6 @@
 				<exclusion>
 					<artifactId>slf4j-log4j12</artifactId>
 					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>json-lib</artifactId>
-					<groupId>net.sf.json-lib</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

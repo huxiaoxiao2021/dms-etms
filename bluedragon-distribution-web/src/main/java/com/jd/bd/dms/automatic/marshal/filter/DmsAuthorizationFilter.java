@@ -4,6 +4,7 @@ import com.jd.bd.dms.automatic.marshal.DmsRequestWrapper;
 import com.jd.bd.dms.automatic.marshal.GodHeader;
 import com.jd.bd.dms.automatic.marshal.filerList.PathAdaptor;
 import com.jd.bd.dms.automatic.marshal.filterchain.FilterContext;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
@@ -31,7 +32,7 @@ public class DmsAuthorizationFilter extends OncePerRequestFilter {
         DmsRequestWrapper requestWrapper = new DmsRequestWrapper(httpServletRequest);
         //在过渡阶段，不一定所有的客户端都能传authorization信息，为了不影响现场操作，判断如果authorization为空的则放行
         if (!this.pathAdaptor.accept(requestWrapper.getRequestURI()) ||
-                requestWrapper.getHeader(GodHeader.AUTHORIZATION) == null ||
+                StringUtils.isBlank(requestWrapper.getHeader(GodHeader.AUTHORIZATION)) ||
                 this.filterContext.doFilterChain(requestWrapper, httpServletResponse)) {
             filterChain.doFilter(requestWrapper, httpServletResponse);
         }
