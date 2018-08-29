@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -13,6 +14,10 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -65,6 +70,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public boolean updateByCondition(WaybillConsumableRecord record) {
         if(record == null || (record.getId() == null && StringUtils.isEmpty(record.getWaybillCode()))){
             logger.info("Bw网耗材数据更新失败，参数非法：" + JsonHelper.toJson(record));
@@ -85,7 +91,8 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+    @JProfiler(jKey = "DMSWEB.WaybillConsumableRecordService.confirmByIds", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public int confirmByIds(List<WaybillConsumableRecord> confirmRecords) {
 	    if(confirmRecords == null || confirmRecords.isEmpty()){
             return 0;
@@ -108,7 +115,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
         //2.发送MQ通知运单
         List<WaybillConsumableRecord> confirmedRecords = waybillConsumableRecordDao.findByIds(ids);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.WaybillConsumableRecordService.sendConfirmWaybillConsumableMq", false, true);
         sendConfirmWaybillConsumableMq(confirmedRecords);
+        Profiler.registerInfoEnd(info);
 
         return result;
     }

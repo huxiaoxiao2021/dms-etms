@@ -3,13 +3,14 @@ package com.jd.bluedragon.distribution.consumer.packingConsumable;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -21,7 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -58,7 +58,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             logger.warn(MessageFormat.format("PackingConsumableConsumer consume -->消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
         }
-        PackingWaybillInfoVo packingConsumable = JsonHelper.fromJson(message.getText(),PackingWaybillInfoVo.class);
+        WaybillConsumableDto packingConsumable = JsonHelper.fromJson(message.getText(), WaybillConsumableDto.class);
         if (packingConsumable == null) {
             this.logger.error("PackingConsumableConsumer consume -->消息转换对象失败：" + message.getText());
             return;
@@ -86,24 +86,19 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
      * @param packingConsumable
      * @return
      */
-    private WaybillConsumableRecord convert2WaybillConsumableRecord(PackingWaybillInfoVo packingConsumable){
+    private WaybillConsumableRecord convert2WaybillConsumableRecord(WaybillConsumableDto packingConsumable){
         WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
         waybillConsumableRecord.setWaybillCode(packingConsumable.getWaybillCode());
         //根据 packingConsumable.getDmsCode() 查询分拣中心信息
-        String siteCode = packingConsumable.getDmsCode();
-        BaseStaffSiteOrgDto dto = null;
-        if(NumberHelper.isNumber(siteCode)){
-            dto = baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(siteCode));
-        }else {
-            dto = baseMajorManager.getBaseSiteByDmsCode(siteCode);
-        }
+        Integer siteCode = packingConsumable.getDmsCode();
+        BaseStaffSiteOrgDto  dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
         waybillConsumableRecord.setDmsId(dto.getSiteCode());
         waybillConsumableRecord.setDmsName(dto.getSiteName());
 
         //waybillConsumableRecord.setReceiveUserCode(packingConsumable.getOperateUserErp());
         waybillConsumableRecord.setReceiveUserErp(packingConsumable.getOperateUserErp());
         waybillConsumableRecord.setReceiveUserName(packingConsumable.getOperateUserName());
-        waybillConsumableRecord.setReceiveTime(DateHelper.parseDateTime(packingConsumable.getOperatorTime()));
+        waybillConsumableRecord.setReceiveTime(DateHelper.parseDateTime(packingConsumable.getOperateTime()));
 
         waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.UNTREATED_STATE);
         waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.UNTREATED_STATE);
@@ -116,19 +111,19 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
      * @param packingConsumable
      * @return
      */
-    private List<WaybillConsumableRelation> convert2WaybillConsumableRelation(PackingWaybillInfoVo packingConsumable){
-        List<PackingInfoDto> packingChargeList = packingConsumable.getPackingChargeList();
+    private List<WaybillConsumableRelation> convert2WaybillConsumableRelation(WaybillConsumableDto packingConsumable){
+        List<WaybillConsumableDetailDto> packingChargeList = packingConsumable.getPackingChargeList();
         if(packingChargeList == null || packingChargeList.isEmpty()){
             return null;
         }
-        Date OperateTime = DateHelper.parseDateTime(packingConsumable.getOperatorTime());
+        Date OperateTime = DateHelper.parseDateTime(packingConsumable.getOperateTime());
         List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<WaybillConsumableRelation>(packingChargeList.size());
-        for(PackingInfoDto dto : packingChargeList){
+        for(WaybillConsumableDetailDto dto : packingChargeList){
             WaybillConsumableRelation relation = new WaybillConsumableRelation();
             relation.setWaybillCode(packingConsumable.getWaybillCode());
             relation.setConsumableCode(dto.getPackingCode());
-            relation.setReceiveQuantity(dto.getConsumeNumber());
-            relation.setConfirmQuantity(dto.getConsumeNumber());
+            relation.setReceiveQuantity(dto.getPackingNumber());
+            relation.setConfirmQuantity(dto.getPackingNumber());
             //relation.setOperateUserCode(packingConsumable.getOperateUserErp());
             String erp = packingConsumable.getOperateUserErp();
             erp = StringUtils.isBlank(erp) ? "" : erp;
@@ -138,158 +133,6 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         }
 
         return waybillConsumableRelationLst;
-    }
-
-    static class PackingWaybillInfoVo implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        private String waybillCode;//运单号不为空
-
-        private String dmsCode;//分拣中心编码
-
-        private String operateUserErp;//操作人账号
-
-        private String operateUserName;//操作人姓名
-
-        private String operatorTime;//操作时间
-
-        private List<PackingInfoDto> packingChargeList;//耗材明细
-
-
-        public String getWaybillCode() {
-            return waybillCode;
-        }
-
-        public void setWaybillCode(String waybillCode) {
-            this.waybillCode = waybillCode;
-        }
-
-        public String getDmsCode() {
-            return dmsCode;
-        }
-
-        public void setDmsCode(String dmsCode) {
-            this.dmsCode = dmsCode;
-        }
-
-        public String getOperateUserErp() {
-            return operateUserErp;
-        }
-
-        public void setOperateUserErp(String operateUserErp) {
-            this.operateUserErp = operateUserErp;
-        }
-
-        public String getOperateUserName() {
-            return operateUserName;
-        }
-
-        public void setOperateUserName(String operateUserName) {
-            this.operateUserName = operateUserName;
-        }
-
-        public String getOperatorTime() {
-            return operatorTime;
-        }
-
-        public void setOperatorTime(String operatorTime) {
-            this.operatorTime = operatorTime;
-        }
-
-        public List<PackingInfoDto> getPackingChargeList() {
-            return packingChargeList;
-        }
-
-        public void setPackingChargeList(List<PackingInfoDto> packingChargeList) {
-            this.packingChargeList = packingChargeList;
-        }
-
-
-    }
-    static  class PackingInfoDto  implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-        //耗材编号
-        private String packingCode;
-        //耗材名称
-        private String packingName;
-        //耗材类型
-        private String packingType;
-        //耗材体积
-        private Double packingVolume;
-        //体积系数
-        private Double volumeCoefficient;
-        //包装规格
-        private String packingSpecification;
-        //耗材单位
-        private String packingUnit;
-        //耗材数量
-        private Double consumeNumber;
-
-        public String getPackingCode() {
-            return packingCode;
-        }
-
-        public void setPackingCode(String packingCode) {
-            this.packingCode = packingCode;
-        }
-
-        public String getPackingName() {
-            return packingName;
-        }
-
-        public void setPackingName(String packingName) {
-            this.packingName = packingName;
-        }
-
-        public String getPackingType() {
-            return packingType;
-        }
-
-        public void setPackingType(String packingType) {
-            this.packingType = packingType;
-        }
-
-        public Double getPackingVolume() {
-            return packingVolume;
-        }
-
-        public void setPackingVolume(Double packingVolume) {
-            this.packingVolume = packingVolume;
-        }
-
-        public Double getVolumeCoefficient() {
-            return volumeCoefficient;
-        }
-
-        public void setVolumeCoefficient(Double volumeCoefficient) {
-            this.volumeCoefficient = volumeCoefficient;
-        }
-
-        public String getPackingSpecification() {
-            return packingSpecification;
-        }
-
-        public void setPackingSpecification(String packingSpecification) {
-            this.packingSpecification = packingSpecification;
-        }
-
-        public String getPackingUnit() {
-            return packingUnit;
-        }
-
-        public void setPackingUnit(String packingUnit) {
-            this.packingUnit = packingUnit;
-        }
-
-        public Double getConsumeNumber() {
-            return consumeNumber;
-        }
-
-        public void setConsumeNumber(Double consumeNumber) {
-            this.consumeNumber = consumeNumber;
-        }
     }
 
 }
