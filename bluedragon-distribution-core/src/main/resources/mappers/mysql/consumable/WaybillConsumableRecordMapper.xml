@@ -317,6 +317,9 @@
             <if test="receiveUserErp != null">
                 AND receive_user_erp = #{receiveUserErp,jdbcType=VARCHAR}
             </if>
+            <if test="waybillCode != null">
+                AND record.waybill_code = #{waybillCode,jdbcType=VARCHAR}
+            </if>
         </where>
 	</select>
 
@@ -343,6 +346,9 @@
             <if test="receiveUserErp != null">
                 AND receive_user_erp = #{receiveUserErp,jdbcType=VARCHAR}
             </if>
+			<if test="waybillCode != null">
+				AND record.waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			</if>
         </where>
 	</select>
 

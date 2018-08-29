@@ -160,26 +160,31 @@ $(function() {
                 elem: '#startTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -PAST_LIMIT,//最近3个月内
+                // min: -PAST_LIMIT,//最近3个月内
                 max: 0,//最近3个月内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    $('#query-form').data("bootstrapValidator").resetForm();
                 }
             });
             $.datePicker.createNew({
                 elem: '#endTime',
                 theme: '#3f92ea',
                 type: 'datetime',
-                min: -PAST_LIMIT,//最近3个月内
+                // min: -PAST_LIMIT,//最近3个月内
                 max: 0,//最近3个月内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
-                    /*重置表单验证状态*/
+                    $('#query-form').data("bootstrapValidator").resetForm();
                 }
             });
 		    $('#btn_query').click(function() {
-		    	tableInit().refresh();
+                var flag = $.formValidator.isValid('query-form');
+                if(flag == true){
+                    tableInit().refresh();
+                }else{
+                    $.msg.warn('查询条件有误','请您检查查询条件是否有误');
+                };
 			});
 			$('#btn_add').click(function() {
 			    $('.edit-param').each(function () {
@@ -313,6 +318,7 @@ $(function() {
                     var startTimeStr = $.datePicker.getValue('startTime');
                     var endTimeStr = $.datePicker.getValue('endTime');
                     var receiveUserErp = $("#receiveUserErp").val();
+                    var waybillCode = $("#waybillCode").val();
                     /* var startTime = $.dateHelper.parseDateTime(startTimeStr);
                     var endTime = $.dateHelper.parseDateTime(endTimeStr);
 
@@ -340,6 +346,9 @@ $(function() {
                         var exportUrl = exportDataUrl + '?startTimeStr=' + startTimeStr + '&endTimeStr=' + endTimeStr;
                         if(receiveUserErp != ""){
                             exportUrl = exportUrl + '&receiveUserErp=' + receiveUserErp;
+                        }
+                        if(waybillCode != ""){
+                            exportUrl = exportUrl + '&waybillCode=' + waybillCode;
                         }
                         console.log(exportUrl);
                         window.open(exportUrl);
