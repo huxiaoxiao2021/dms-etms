@@ -27,7 +27,7 @@ $(function() {
                 method : 'post', // 请求方式（*）
                 toolbar : '#toolbar', // 工具按钮用哪个容器
                 queryParams : oTableInit.getSearchParams, // 查询参数（*）
-                height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                // height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 uniqueId : "ID", // 每一行的唯一标识，一般为主键列
                 pagination : true, // 是否显示分页（*）
                 pageNumber : 1, // 初始化加载第一页，默认第一页

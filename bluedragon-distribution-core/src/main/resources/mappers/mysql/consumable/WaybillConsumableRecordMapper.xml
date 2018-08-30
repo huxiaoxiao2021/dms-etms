@@ -366,6 +366,7 @@
 		from
 		  waybill_consumable_record
 		 <include refid="where_condition"/>
+         ORDER BY confirm_status ASC,receive_time DESC
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 	<select id="queryByWaybillCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord" resultMap="WaybillConsumableRecord">
