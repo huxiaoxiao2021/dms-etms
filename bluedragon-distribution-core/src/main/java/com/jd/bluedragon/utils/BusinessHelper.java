@@ -699,7 +699,7 @@ public class BusinessHelper {
 	 * @return
 	 */
 	public static boolean isWaybillConsumableOnlyConfirm(String waybillSign){
-		return isSignChar(waybillSign, 72, '1') && isSignChar(waybillSign, 25, '3');
+		return isSignChar(waybillSign, 25, '3');
 	}
 
 	/**
