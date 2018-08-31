@@ -253,5 +253,10 @@
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
         <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
+
+        <!--储位暂存-->
+        <mapper resource="mappers/mysql/storage/StoragePackageDMapper.xml"/>
+        <mapper resource="mappers/mysql/storage/StoragePackageMMapper.xml"/>
+
     </mappers>
 </configuration>

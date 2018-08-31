@@ -645,7 +645,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 Map.Entry entry = (Map.Entry) iter.next();
                 String wayBillCode = (String) entry.getKey();
 
-                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode));
                 if(send==null){
                     continue;
                 }
@@ -674,7 +674,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     throw new Exception("调用报损订单接口失败, 运单号为" + wayBillCode);
                 }
 
-                ReverseSendWms send = makeReverseSendWmsAndInitSickFlag(wayBillCode, operCodeMap.get(wayBillCode));
+                ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode));
                 if(send==null){
                     continue;
                 }
@@ -731,12 +731,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     /**
-     * 获取回传运单信息 并初始化病单标识
+     * 获取回传运单信息
+     * 并初始化病单标识
+     * 初始化加履中心订单标识
      * @param wayBillCode 原单号
      * @param tWayBillCode 逆向单号
      * @return
      */
-    public ReverseSendWms makeReverseSendWmsAndInitSickFlag(String wayBillCode,String tWayBillCode){
+    public ReverseSendWms makeReverseSendWms(String wayBillCode,String tWayBillCode){
 
         ReverseSendWms send = null;//原单信息
         ReverseSendWms sendTwaybill = null;//T单信息
@@ -770,6 +772,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
         send.setSickWaybill(isSickWaybill);
+
+        //初始化加履中心订单
+
+        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+            send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
+        }
 
         return send;
     }

@@ -436,4 +436,9 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
     <bean id="abnormalQcDao"  parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
+
+    <bean id="storagePackageMDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageMDaoImpl"/>
+    <bean id="storagePackageDDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageDDaoImpl"/>
 </beans>

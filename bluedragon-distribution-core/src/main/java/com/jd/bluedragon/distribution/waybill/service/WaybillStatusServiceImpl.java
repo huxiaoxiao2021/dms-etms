@@ -246,7 +246,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setArriveZdName(waybillStatus.getReceiveSiteName());
 			extend.setArriveZdType(waybillStatus.getReceiveSiteType());
 			extend.setThirdWaybillCode(task.getBoxCode());//第三方订单号
-
+			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 		}

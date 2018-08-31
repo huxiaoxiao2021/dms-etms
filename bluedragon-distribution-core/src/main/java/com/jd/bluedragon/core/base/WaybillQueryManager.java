@@ -153,4 +153,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
+
+	/**
+	 * 根据父订单号（履约单号）查询所有子订单号
+	 * @param parentWaybillCode 父订单号（履约单号）
+	 * @return
+	 */
+	List<String> getOrderParentChildList(String parentWaybillCode);
 }

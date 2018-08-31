@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模块名称</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/storage/storagePackageM.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+        <ol class="breadcrumb">
+            <li><a href="#">上级菜单</a></li>
+            <li class="active">模块名称</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal">
+                <fieldset>
+                	<div class="row">
+                    	<div class="col-lg-12">
+                    		<div class="col-lg-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-lg-4">运单号/包裹号：</label>
+	                                <div class="col-lg-8">
+										<input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" style="width: 240px;">
+	                                </div>
+	                            </div>
+                        	</div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-4">储位号：</label>
+                                    <div class="col-lg-8">
+                                        <input type="text" id="storageCode" name="storageCode" class="form-control search-param" style="width: 240px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-4">状态：</label>
+                                    <div class="col-lg-8">
+                                        <select type="text" class="form-control search-param  " id="status" name="status">
+                                            <option value="" selected="selected"></option>
+                                            <option value="1">已上架</option>
+                                            <option value="2">可发货</option>
+                                            <option value="3">强制可发货</option>
+                                            <option value="4">已发货</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                   		</div>
+               		</div>
+                	<div class="row">
+                    	<div class="col-lg-12">
+                        	<div class="col-lg-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-lg-4">最近上架时间：</label>
+	                                <div class="col-lg-8">
+										<input type="text" id="putawayDateGEStr" name="putawayDateGEStr" class="form-control search-param" style="width: 240px;">
+	                                </div>
+	                            </div>
+                        	</div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label class="control-label col-lg-4">至</label>
+                                    <div class="col-lg-8">
+                                        <input type="text" id="putawayDateLEStr" name="putawayDateLEStr" class="form-control search-param" style="width: 240px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+               		</div>
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+	<!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+        	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+        </button>
+        <button id="btn_force_send" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;强制发货
+        </button>
+
+    </div>
+    <table id="dataTable"></table>
+</div>
+<!-- 编辑表单 -->
+<div id="dataEditDiv" class="main" style="margin-left: 40px;">
+        <ol class="breadcrumb">
+            <li><a href="#">模块名称</a></li>
+            <li class="active">编辑</li>
+        </ol>
+        <div id="query-condition">
+            <form id="edit-form" class="form-horizontal  col-lg-12">
+                <fieldset>
+                <hr/>
+                <div class="row">
+                	<div class="col-lg-6">
+                		<div class="form-group">
+                    		<label class="col-lg-3 control-label">编码 ：</label>
+                    		<div class="col-lg-9">
+                    			<input type="hidden" class="form-control edit-param" id="id" name="id"/>
+                        		<input type="text" class="form-control edit-param" id="typeCode" name="typeCode" style="width: 300px;"/>
+                    		</div>
+                    	</div>
+	               		<div class="form-group">
+		                    <label class="col-lg-3 control-label">描述信息 ：</label>
+		                    <div class="col-lg-9">
+		                        <textarea rows="3" class="form-control edit-param" id="memo" name="memo" style="width: 300px; height: 80px;">
+		                        </textarea>
+		                    </div>
+	                	</div>
+                	</div>
+                <div class="col-lg-6">
+                	<div class="form-group">
+                   		<label class="col-lg-3 control-label">名称 ：</label>
+		                <div class="col-lg-9">
+		                	<input type="text" class="form-control edit-param" id="typeName" name="typeName" style="width: 300px;"/>
+		                </div>
+		           	</div>
+                </div>
+                </div>
+                <hr/>
+                <div class="form-group">
+                	<button id="btn_submit" type="button" class="btn btn-primary" data-toggle="button">提交</button>
+                	<button id="btn_return" type="button" class="btn btn-primary" data-toggle="button">返回</button>
+                </div>
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+</div>
+
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">暂存详情</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>履约单号</th>
+                            <th>运单号</th>
+                            <th>包裹号</th>
+                            <th>储位号</th>
+                            <th>上架人</th>
+                            <th>上架时间</th>
+                        </tr>
+                    </thead>
+                    <tbody id = "storageDTbody">
+
+
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+</body>
+</html>
