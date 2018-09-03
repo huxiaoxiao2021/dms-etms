@@ -717,7 +717,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     throw e;
 
                 } finally {
-                    Profiler.functionError(info);
+                    Profiler.registerInfoEnd(info);
                 }
                 startNum = startNum + QUERY_BOARD_PAGE_SIZE;
             } while (startNum < totalNum);

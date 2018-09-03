@@ -9,20 +9,20 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 
@@ -158,13 +158,16 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         BaseDmsStore baseDmsStore = initBaseVo(request);
 
         CrossPackageTagNew crossPackageTag = null;
-
+        
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(labelPrinting.getPrepareSiteCode()>LabelPrintingService.PREPARE_SITE_CODE_NOTHING && !labelPrinting.getPrepareSiteCode().equals(LabelPrintingService.PREPARE_SITE_CODE_EMS_DIRECT)){
-            crossPackageTag = getCrossPackageTagByPara(baseDmsStore,labelPrinting.getPrepareSiteCode(),request.getDmsCode());
+        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore,labelPrinting.getPrepareSiteCode(),request.getDmsCode(),labelPrinting.getOriginalCrossType());
+            if(jdResult.isSucceed()) {
+            	crossPackageTag = jdResult.getData();
+            }else{
+            	log.warn("打印业务：获取滑道号笼车号信息为空！" + jdResult.getMessage());
+            }
         }
-
-
 
         if(crossPackageTag==null){
             log.warn(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
@@ -211,40 +214,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     }
 
     /**
-    * 查询基础资料大全表信息
-    * @param baseDmsStore
-    * @param prepareSiteCode
-    * @param dmsCode
-    * @return
-    */
-    public CrossPackageTagNew getCrossPackageTagByPara(BaseDmsStore baseDmsStore,Integer prepareSiteCode,Integer dmsCode){
-
-        CrossPackageTagNew tag = null;
-            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, prepareSiteCode, dmsCode);
-            if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
-                tag=baseResult.getData();
-            }else{
-                com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(dmsCode,prepareSiteCode);
-                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
-                    tag=new CrossPackageTagNew();
-                    tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
-                    tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
-                    tag.setOriginalCrossCode(reverseResult.getData().getOriginalCrossCode());
-                    tag.setOriginalDmsName(reverseResult.getData().getOriginalDmsName());
-                    tag.setOriginalTabletrolleyCode(reverseResult.getData().getOriginalTabletrolleyCode());
-                    tag.setOriginalDmsId(reverseResult.getData().getOriginalDmsId());
-                    tag.setDestinationCrossCode(reverseResult.getData().getDestinationCrossCode());
-                    tag.setDestinationDmsName(reverseResult.getData().getDestinationDmsName());
-                    tag.setDestinationTabletrolleyCode(reverseResult.getData().getDestinationTabletrolleyCode());
-                    tag.setDestinationDmsId(reverseResult.getData().getDestinationDmsId());
-                }else {
-                    log.warn("获取基础资料正向及逆向道口信息为失败");
-                }
-            }
-        return tag;
-    }
-
-    /**
      * 查询运单接口
      * @param request
      * @return
@@ -255,12 +224,12 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         if(context != null){
         	bigWaybillDto = context.getBigWaybillDto();
         }else{
-        /**查询运单*/
-        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
-        if(entity==null || entity.getData()==null){
-            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
-            return null;
-        }
+	        /**查询运单*/
+	        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getWaybillDataForPrint(request.getWaybillCode());
+	        if(entity==null || entity.getData()==null){
+	            log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
+	            return null;
+	        }
             bigWaybillDto = entity.getData();
         }
         if(bigWaybillDto==null){
@@ -284,7 +253,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         labelPrinting.setOriginalDmsCode(request.getDmsCode());
         labelPrinting.setOriginalDmsName(request.getDmsName());
-
+        labelPrinting.setOriginalCrossType(BusinessHelper.getOriginalCrossType(context.getWaybill().getWaybillSign(), context.getWaybill().getSendPay()));
         //扩展追加字段方法
         labelPrinting = waybillExtensional(request,labelPrinting,waybill);
 

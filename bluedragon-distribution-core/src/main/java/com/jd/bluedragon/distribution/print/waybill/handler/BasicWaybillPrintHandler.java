@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -22,6 +21,7 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
@@ -38,8 +38,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
@@ -192,7 +192,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
-
+            commonWaybill.setOriginalCrossType(BusinessHelper.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             //调用外单接口，根据商家id获取商家编码
             BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
             if(basicTraderInfoDTO != null){
@@ -406,24 +406,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
                 && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
-            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode());
-            if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
-                tag=baseResult.getData();
+        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
+            if(jdResult.isSucceed()) {
+                tag=jdResult.getData();
             }else{
-                com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(waybill.getOriginalDmsCode(),waybill.getPrepareSiteCode());
-                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
-                    tag=new CrossPackageTagNew();
-                    tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
-                    tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
-                    tag.setOriginalCrossCode(reverseResult.getData().getOriginalCrossCode());
-                    tag.setOriginalDmsName(reverseResult.getData().getOriginalDmsName());
-                    tag.setOriginalTabletrolleyCode(reverseResult.getData().getOriginalTabletrolleyCode());
-                    tag.setOriginalDmsId(reverseResult.getData().getOriginalDmsId());
-                    tag.setDestinationCrossCode(reverseResult.getData().getDestinationCrossCode());
-                    tag.setDestinationDmsName(reverseResult.getData().getDestinationDmsName());
-                    tag.setDestinationTabletrolleyCode(reverseResult.getData().getDestinationTabletrolleyCode());
-                    tag.setDestinationDmsId(reverseResult.getData().getDestinationDmsId());
-                }
+            	logger.warn("打印业务：未获取到滑道号及笼车号信息！"+jdResult.getMessage());
             }
         }
         if(null!=tag){
