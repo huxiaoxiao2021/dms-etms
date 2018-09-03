@@ -257,7 +257,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		try{
 			BaseResult<CrossPackageTagNew> crossPackageTagResult= basicSecondaryWS.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 			if(null != crossPackageTagResult
-					&& BaseResult.RESULT_SUCCESS==crossPackageTagResult.getResultCode()){
+					&& BaseResult.SUCCESS==crossPackageTagResult.getResultCode()){
                result.setData(crossPackageTagResult.getData());
                result.toSuccess(crossPackageTagResult.getMessage());
 			}else if(crossPackageTagResult != null){
@@ -293,7 +293,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		try{
 			BaseResult<CrossPackageTagNew> crossPackageTagResult= baseCrossPackageTagWS.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
 			if(null != crossPackageTagResult 
-					&& BaseResult.RESULT_SUCCESS==crossPackageTagResult.getResultCode()){
+					&& BaseResult.SUCCESS==crossPackageTagResult.getResultCode()){
                 result.setData(crossPackageTagResult.getData());
                 result.toSuccess(crossPackageTagResult.getMessage());
 			}else if(crossPackageTagResult != null){
