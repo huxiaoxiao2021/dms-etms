@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -203,6 +204,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
             commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
+            commonWaybill.setOriginalCrossType(BusinessHelper.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             if(bigWaybillDto.getWaybillState()!=null){
                 commonWaybill.setWaybillStatus(bigWaybillDto.getWaybillState().getWaybillState()); //增加返回运单状态
             }
@@ -374,59 +376,50 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
         }
     }
-
-    private final void loadBasicData(final PrintWaybill waybill){
+    /**
+     * 
+     * @param originalWaybill 源运单信息
+     * @param printWaybill 
+     */
+    private final void loadBasicData(final PrintWaybill printWaybill){
         BaseDmsStore baseDmsStore = new BaseDmsStore();
-        baseDmsStore.setStoreId(waybill.getStoreId());//库房编号
-        baseDmsStore.setCky2(waybill.getCky2());//cky2
-        baseDmsStore.setOrgId(waybill.getOrgId());//机构编号
-        baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
+        baseDmsStore.setStoreId(printWaybill.getStoreId());//库房编号
+        baseDmsStore.setCky2(printWaybill.getCky2());//cky2
+        baseDmsStore.setOrgId(printWaybill.getOrgId());//机构编号
+        baseDmsStore.setDmsId(printWaybill.getOriginalDmsCode());//分拣中心编号
         CrossPackageTagNew tag = null;
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
-        if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
-                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
-            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode());
-            if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
-                tag=baseResult.getData();
+        if(null!=printWaybill.getPrepareSiteCode()&&printWaybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
+                && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(printWaybill.getPrepareSiteCode())){
+            JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, printWaybill.getPrepareSiteCode(), printWaybill.getOriginalDmsCode(),printWaybill.getOriginalCrossType());
+            if(jdResult.isSucceed()) {
+                tag=jdResult.getData();
             }else{
-                com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(waybill.getOriginalDmsCode(),waybill.getPrepareSiteCode());
-                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
-                    tag=new CrossPackageTagNew();
-                    tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
-                    tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
-                    tag.setOriginalCrossCode(reverseResult.getData().getOriginalCrossCode());
-                    tag.setOriginalDmsName(reverseResult.getData().getOriginalDmsName());
-                    tag.setOriginalTabletrolleyCode(reverseResult.getData().getOriginalTabletrolleyCode());
-                    tag.setOriginalDmsId(reverseResult.getData().getOriginalDmsId());
-                    tag.setDestinationCrossCode(reverseResult.getData().getDestinationCrossCode());
-                    tag.setDestinationDmsName(reverseResult.getData().getDestinationDmsName());
-                    tag.setDestinationTabletrolleyCode(reverseResult.getData().getDestinationTabletrolleyCode());
-                    tag.setDestinationDmsId(reverseResult.getData().getDestinationDmsId());
-                }
+            	logger.warn("打印业务：未获取到滑道号及笼车号信息！"+jdResult.getMessage());
             }
         }
         if(null!=tag){
             if(tag.getIsAirTransport()!=null
                     && tag.getIsAirTransport()== ComposeService.AIR_TRANSPORT
-                    &&null!=waybill.getBusiId()&&waybill.getBusiId().compareTo(0)>0){
-                waybill.setIsAir(this.airTransportService.getAirSigns(waybill.getBusiId()));
+                    &&null!=printWaybill.getBusiId()&&printWaybill.getBusiId().compareTo(0)>0){
+                printWaybill.setIsAir(this.airTransportService.getAirSigns(printWaybill.getBusiId()));
             }
             //如果是自提柜，则打印的是自提柜的地址(基础资料大全表)，而非客户地址(运单系统)
             if(null!=tag.getIsZiTi()&&tag.getIsZiTi().equals(ComposeService.ARAYACAK_CABINET)){
-                waybill.setIsSelfService(true);
-                waybill.setPrintAddress(tag.getPrintAddress());
+                printWaybill.setIsSelfService(true);
+                printWaybill.setPrintAddress(tag.getPrintAddress());
             }
-            waybill.setPrepareSiteName(tag.getPrintSiteName());
-            waybill.setOriginalDmsCode(tag.getOriginalDmsId());
-            waybill.setOriginalDmsName(tag.getOriginalDmsName());
-            waybill.setPurposefulDmsCode(tag.getDestinationDmsId());
-            waybill.setPurposefulDmsName(tag.getDestinationDmsName());
+            printWaybill.setPrepareSiteName(tag.getPrintSiteName());
+            printWaybill.setOriginalDmsCode(tag.getOriginalDmsId());
+            printWaybill.setOriginalDmsName(tag.getOriginalDmsName());
+            printWaybill.setPurposefulDmsCode(tag.getDestinationDmsId());
+            printWaybill.setPurposefulDmsName(tag.getDestinationDmsName());
             //笼车号
-            waybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
-            waybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
+            printWaybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
+            printWaybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
             //道口号
-            waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
-            waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+            printWaybill.setOriginalCrossCode(tag.getOriginalCrossCode());
+            printWaybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
         }
     }
 
