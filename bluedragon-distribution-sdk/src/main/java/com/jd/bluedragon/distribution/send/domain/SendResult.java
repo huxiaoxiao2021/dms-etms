@@ -28,14 +28,7 @@ public class SendResult implements Serializable {
      * 发货确认
      */
     public static final Integer CODE_CONFIRM = 4;
-    /**
-     * 发货确认-是否取消上次发货
-     */
-    public static final Integer CODE_CONFIRM_CANCEL_LAST_SEND = 4001;
-    /**
-     * 发货确认-是否强制发货
-     */
-    public static final Integer CODE_CONFIRM_IS_FORCE_SEND = 4002;
+
     /**
      * 发货警告,用于PDA发货加急提示语展示
      */
@@ -138,38 +131,4 @@ public class SendResult implements Serializable {
         this.interceptCode = interceptCode;
     }
 
-    public class ConfirmMsgBox {
-        /**
-         * 确认状态码
-         */
-        private Integer code;
-        /**
-         * 确认信息
-         */
-        private String msg;
-
-        public ConfirmMsgBox() {
-        }
-
-        public ConfirmMsgBox(Integer code, String msg) {
-            this.code = code;
-            this.msg = msg;
-        }
-
-        public Integer getCode() {
-            return code;
-        }
-
-        public void setCode(Integer code) {
-            this.code = code;
-        }
-
-        public String getMsg() {
-            return msg;
-        }
-
-        public void setMsg(String msg) {
-            this.msg = msg;
-        }
-    }
 }

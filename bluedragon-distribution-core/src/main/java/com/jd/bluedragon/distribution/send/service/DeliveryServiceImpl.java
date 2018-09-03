@@ -51,6 +51,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
 import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
 import com.jd.bluedragon.distribution.send.domain.OrderInfo;
 import com.jd.bluedragon.distribution.send.domain.PackInfo;
@@ -136,9 +137,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
 
     private final int MAX_SHOW_NUM = 3;
-
-    @Resource(name = "cityDeliveryVerification")
-    private DeliveryVerification cityDeliveryVerification;
 
     @Autowired
     B2BRouterService b2bRouterService;
@@ -328,7 +326,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
-        if (!(isForceSend & isCancelLastSend)) {
+        if (!isForceSend && !isCancelLastSend) {
             // 发货验证
             SendResult sendResult = this.beforeSendVerification(domain, true);
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
@@ -341,18 +339,28 @@ public class DeliveryServiceImpl implements DeliveryService {
         return this.doPackageSend(domain);
     }
 
+    /**
+     * 一车一单发货逻辑，不包括多次发货取消上次发货校验和处理逻辑
+     *
+     * @param domain
+     * @param isForceSend
+     * @return
+     */
     @Override
     public SendResult packageSend(SendM domain, boolean isForceSend){
         logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
+        SendResult sendResult;
         if (!isForceSend) {
             // 发货验证
-            SendResult sendResult = this.beforeSendVerification(domain, false);
+            sendResult = this.beforeSendVerification(domain, false);
+            sendResult.setConfirmMsgBox(null);
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
                 return sendResult;
             }
         }
-        return this.doPackageSend(domain);
+        sendResult = this.doPackageSend(domain);
+        return sendResult;
     }
 
     /**
@@ -361,10 +369,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      */
     private void doCancelLastSend(SendM domain) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.doCancelLastSend", false, true);
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
             this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
         }
+        Profiler.registerInfoEnd(callerInfo);
     }
 
     /**
@@ -444,7 +454,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private SendResult beforeSendVerification(SendM domain, boolean isVerifyMultiSend) {
         SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-        result.setConfirmMsgBox(new ArrayList<SendResult.ConfirmMsgBox>());
+        result.setConfirmMsgBox(new ArrayList<ConfirmMsgBox>());
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         // 机构和操作人所属机构是否一致校验
@@ -459,6 +469,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return result;
             }
         } else {
+            // 原有的发货校验
             if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
                 result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
                 return result;
@@ -473,16 +484,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Profiler.registerInfoEnd(temp_info1);
 
         // 根据发货的条码类型进行校验
-        if (!sendVerificationByBarCodeType(domain, result)) {
-            return result;
-        }
-
-        DeliveryVerification.VerificationResult verificationResult = cityDeliveryVerification.verification(domain.getBoxCode(), domain.getReceiveSiteCode(), false);
-        if (!verificationResult.getCode()) {
-            //按照箱发货，校验派车单是否齐全，判断是否强制发货
-            result.init(SendResult.CODE_CONFIRM, verificationResult.getMessage());
-            result.getConfirmMsgBox().add(result.new ConfirmMsgBox(SendResult.CODE_CONFIRM_IS_FORCE_SEND, verificationResult.getMessage()));
-        }
+        this.sendVerificationByBarCodeType(domain, result);
         return result;
     }
 
@@ -501,12 +503,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (lastSendM != null) {
             String lastSendCode = lastSendM.getSendCode();
             if (domain.getSendCode().equals(lastSendCode)) {
-                result.init(SendResult.CODE_SENDED, "箱子已经在批次" + lastSendCode + "中发货");
+                result.init(SendResult.CODE_SENDED, "箱子已经在批次该批次中发货，请勿重复操作");
                 return false;
             } else {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
                     result.setKey(SendResult.CODE_CONFIRM);
-                    result.getConfirmMsgBox().add(result.new ConfirmMsgBox(SendResult.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                    result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
                 }
             }
         }
@@ -531,7 +534,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryResponse response = checkRouterForCBox(domain);
             if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), null);
-                result.getConfirmMsgBox().add(result.new ConfirmMsgBox(response.getCode(), response.getMessage()));
+                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
                 return false;
             }
         }
@@ -576,7 +579,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
 
             if (response.getCode() >= 39000) {
-                result.getConfirmMsgBox().add(result.new ConfirmMsgBox(response.getCode(), response.getMessage()));
+                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
             } else {
                 result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
@@ -731,15 +734,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         this.sendMDao.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            // 按包裹 补分拣任务
-            pushSorting(domain);//大件写TASK_SORTING
+            // 按包裹 补分拣任务 大件写TASK_SORTING
+            pushSorting(domain);
         } else {
             // 按箱
             SendDetail tSendDatail = new SendDetail();
             tSendDatail.setBoxCode(domain.getBoxCode());
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-            this.updateCancel(tSendDatail);//更新SEND_D状态
+            //更新SEND_D状态
+            this.updateCancel(tSendDatail);
         }
 
         // 判断是否是中转发货
