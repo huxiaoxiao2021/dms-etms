@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -52,7 +53,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     private WaybillCommonService waybillCommonService;
     
     @Autowired
-    private WaybillPrintService waybillPrintService;
+    HideInfoService hideInfoService;
     /**
      * 收件人联系方式需要突出显示的位数
      */
@@ -328,6 +329,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             labelPrinting.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
             labelPrinting.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
         }
+
+        //设置微笑
+        hideInfoService.setHideInfo(waybill.getWaybillSign(),labelPrinting);
 
         //支付方式为在线支付，金额显示在线支付；货到付款，金额显示具体金额
         labelPrinting.setPackagePrice(waybill.getCodMoney());

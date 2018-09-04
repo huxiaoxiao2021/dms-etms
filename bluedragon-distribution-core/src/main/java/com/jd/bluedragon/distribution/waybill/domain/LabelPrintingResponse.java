@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 
 /**
  * Created by yanghongqiang on 2015/11/30.
  */
-public class LabelPrintingResponse extends BasePrintWaybill {
+public class LabelPrintingResponse extends PrintWaybill {
 
     /**
      *
