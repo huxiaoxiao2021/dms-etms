@@ -333,7 +333,7 @@
     <jsf:consumer id="vendorOrderJsfService" interface="com.jd.ql.erp.jsf.VendorOrderJsfService" protocol="jsf"
                   alias="${ql.erp.jsf.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
-    <!--获取省市县地址、商家、门店等数据-->
+    <!--基础资料新接口-->
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
