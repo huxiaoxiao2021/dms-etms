@@ -150,4 +150,11 @@ public interface WaybillCommonService {
 	 * @return 运单不存在时返回null
 	 */
 	String getPerformanceCode(String waybillCode);
+
+	/**
+	 * 此运单是否为加履中心订单
+	 * @param waybillCode
+	 * @return
+	 */
+	boolean isPerformanceWaybill(String waybillCode);
 }

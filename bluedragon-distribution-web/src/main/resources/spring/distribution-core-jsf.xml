@@ -321,4 +321,9 @@
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
                   protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- automatic分拣自动化 -储位相关- 焦文强 -->
+    <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
+                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

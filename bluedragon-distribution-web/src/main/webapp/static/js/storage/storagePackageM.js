@@ -133,7 +133,7 @@ $(function() {
                 elem: '#putawayDateLEStr',
                 theme: '#3f92ea',
                 type: 'datetime',
-                //btns: ['clear','now'],
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
 
@@ -143,18 +143,10 @@ $(function() {
                 elem: '#putawayDateGEStr',
                 theme: '#3f92ea',
                 type: 'datetime',
+                btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/
 
-                }
-            });
-
-            $.datePicker.createNew({
-                elem: '#planStartDateLE',
-                theme: '#3f92ea',
-                btns: ['clear','now'],
-                done: function(value, date, endDate){
-                    /*重置表单验证状态*/
                 }
             });
 
@@ -240,7 +232,9 @@ $(function() {
 		};
 		return oInit;
 	};
-	
+
+
+    initDateQuery();
 	tableInit().init();
 	pageInit().init();
 
@@ -287,4 +281,12 @@ function showView(waybillCode,event){
 
     event.stopPropagation();
 
+}
+
+
+function initDateQuery(){
+    var v = $.dateHelper.formatDate(new Date());
+
+    $("#putawayDateGEStr").val(v+" 00:00:00");
+    $("#putawayDateLEStr").val(v+" 23:59:59");
 }

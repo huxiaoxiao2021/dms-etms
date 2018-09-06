@@ -22,14 +22,31 @@ public interface StoragePackageMDao extends Dao<StoragePackageM> {
     List<StoragePackageM> queryByPerformanceCode(String performanceCode);
 
     int updatePutawayPackageSum(StoragePackageM storagePackageM);
+    /**
+     * 更新运单的暂存状态为可发货
+     * @param waybillCode
+     * @return
+     */
+    int updateStoragePackageMStatusForCanSendOfPerformanceCode(String performanceCode);
+    /**
+     * 更新运单的暂存状态为可发货
+     * @param waybillCode
+     * @return
+     */
+    int updateStoragePackageMStatusForCanSendOfWaybill(String waybillCode);
+    /**
+     * 更新运单的暂存状态为可发货
+     * @param waybillCode
+     * @return
+     */
+    int updateStoragePackageMStatusForCanSendOfPackage(String waybillCode);
 
-    int updateStoragePackageMStatusForSendOfPerformanceCode(String performanceCode);
-
-    int updateStoragePackageMStatusForSendOfWaybill(String waybillCode);
-
-    int updateStoragePackageMStatusForSendOfPackage(String waybillCode);
-
-
+    /**
+     * 更新运单的暂存状态为已发货
+     * @param waybillCode
+     * @return
+     */
+    int updateStoragePackageMStatusForBeSendOfPWaybill(String waybillCode);
 
 
 }

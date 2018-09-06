@@ -791,4 +791,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         return null;
     }
+
+    /**
+     * 通过运单号获取履约单号
+     * @param waybillCode
+     * @return 不存在时返回null
+     */
+    @Override
+    public boolean isPerformanceWaybill(String waybillCode) {
+        if(StringHelper.isNotEmpty(waybillCode)){
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(baseEntity != null
+                    && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null){
+                //是加履中心的订单 才可以去查
+                if(BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

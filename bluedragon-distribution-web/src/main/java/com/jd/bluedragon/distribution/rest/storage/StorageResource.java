@@ -1,16 +1,20 @@
 package com.jd.bluedragon.distribution.rest.storage;
 
+import IceInternal.Ex;
 import com.jcloud.jss.service.StorageService;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.DmsLocalServerManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,8 +47,11 @@ public class StorageResource {
 
     @Autowired
     @Qualifier("storagePackageMService")
-    private StoragePackageMService StoragePackageMService;
+    private StoragePackageMService storagePackageMService;
 
+    @Autowired
+    @Qualifier("dmsLocalServerManager")
+    private DmsLocalServerManager dmsLocalServerManager;
     /**
      * 根据所属分拣中心 获取储位号
      *
@@ -54,16 +61,13 @@ public class StorageResource {
     @Path("/storage/getStorageInfo/{siteCode}")
     public InvokeResult<List<String>> getStorageInfo(@PathParam("siteCode") Long siteCode) {
         InvokeResult<List<String>> result = new InvokeResult<List<String>>();
-        List<String> data = new ArrayList<String>();
 
-        data.add("A001");
-        data.add("A002");
-        data.add("A003");
-        data.add("B001");
-        data.add("C001");
-        data.add("D001");
+        try {
+            result.setData(dmsLocalServerManager.getStorageCodeByDmsId(siteCode.intValue()));
+        }catch (Exception e){
+            result.error("获取储位信息失败");
+        }
 
-        result.setData(data);
         return result;
     }
 
@@ -75,11 +79,14 @@ public class StorageResource {
      */
     @GET
     @Path("/storage/getStorageInfo/{siteCode}/{storageCode}")
-    public InvokeResult<Boolean> checkStorage(@PathParam("siteCode") Long siteCode,@PathParam("storageCode") Long storageCode) {
+    public InvokeResult<Boolean> checkStorage(@PathParam("siteCode") Long siteCode,@PathParam("storageCode") String storageCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        try{
+            result.setData(dmsLocalServerManager.checkStorage(siteCode.intValue(),storageCode));
+        }catch (Exception e){
+            result.error("校验储位信息失败");
+        }
 
-
-        result.setData(true);
         return result;
     }
 
@@ -108,7 +115,7 @@ public class StorageResource {
             putawayDTO.setOrgName(site.getOrgName());
 
             //上架
-            StoragePackageMService.putaway(putawayDTO);
+            storagePackageMService.putaway(putawayDTO);
         }catch (StorageException e){
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage(e.getMessage());
@@ -137,8 +144,16 @@ public class StorageResource {
         if(BusinessHelper.isPackageCode(barCode)){
             waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(barCode);
         }
-
-        result.setData(StoragePackageMService.getExistStorageCode(waybillCode));
+        //先检查此包裹或者运单是否已经上架
+        StoragePackageD lastStoragePackageD = storagePackageMService.checkExistStorage(barCode);
+        if(lastStoragePackageD != null){
+            result.error("已上架，储位号："+lastStoragePackageD.getStorageCode());
+        }else{
+            String storageCode = storagePackageMService.getExistStorageCode(waybillCode);
+            if(!StringUtils.isBlank(storageCode)){
+                result.setData(storageCode);
+            }
+        }
 
         return result;
     }
@@ -148,7 +163,7 @@ public class StorageResource {
     public InvokeResult<Boolean> checkStatus(@PathParam("waybillCode") String waybillCode,@PathParam("waybillSign") String waybillSign){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         
-        result.setData(StoragePackageMService.checkWaybillCanSend(waybillCode,waybillSign));
+        result.setData(storagePackageMService.checkWaybillCanSend(waybillCode,waybillSign));
 
         return result;
     }

@@ -45,19 +45,23 @@ public class StoragePackageMDaoImpl extends BaseDao<StoragePackageM> implements 
     }
 
     @Override
-    public int updateStoragePackageMStatusForSendOfPerformanceCode(String performanceCode) {
+    public int updateStoragePackageMStatusForCanSendOfPerformanceCode(String performanceCode) {
         return sqlSession.update(this.nameSpace+".updateStoragePackageMStatusForSendOfPerformanceCode", performanceCode);
     }
 
     @Override
-    public int updateStoragePackageMStatusForSendOfWaybill(String waybillCode) {
+    public int updateStoragePackageMStatusForCanSendOfWaybill(String waybillCode) {
         return sqlSession.update(this.nameSpace+".updateStoragePackageMStatusForSendOfWaybill", waybillCode);
     }
 
     @Override
-    public int updateStoragePackageMStatusForSendOfPackage(String waybillCode) {
+    public int updateStoragePackageMStatusForCanSendOfPackage(String waybillCode) {
         return sqlSession.update(this.nameSpace+".updateStoragePackageMStatusForSendOfPackage", waybillCode);
     }
 
+    @Override
+    public int updateStoragePackageMStatusForBeSendOfPWaybill(String waybillCode) {
+        return sqlSession.update(this.nameSpace+".updateStoragePackageMStatusForBeSendOfPWaybill", waybillCode);
+    }
 
 }

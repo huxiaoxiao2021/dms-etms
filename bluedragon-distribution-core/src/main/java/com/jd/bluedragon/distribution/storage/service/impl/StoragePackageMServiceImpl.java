@@ -223,7 +223,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		//检查是否在其他分拣中心上架过
 		StoragePackageM otherStoragePackageM = checkExistStorageOfOtherSite(putawayDTO,baseEntity.getData().getWaybill().getParentOrderId());
 		if(otherStoragePackageM != null){
-			throw new StorageException("履约单已在"+otherStoragePackageM.getCreateSiteName()+"上架");
+			throw new StorageException("履约单已在【"+otherStoragePackageM.getCreateSiteName()+"】上架");
 		}
 
 		//存储暂存主表
@@ -285,23 +285,29 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 				}
 			}
 
+			boolean canMakeStatus = true;
 
 			//重新获取履约单下的所有运单
 			List<String> childWaybillCodes = waybillQueryManager.getOrderParentChildList(performanceCode);
 
-			if(storagePackageMs.size() == childWaybillCodes.size() - 1){
+			if(storagePackageMs.size() == childWaybillCodes.size()){
 				for(StoragePackageM storagePackageM :storagePackageMs){
 					// 履约单下运单关系 和 暂存的对应不上， 或者 运单的所有包裹未全部上架 的时候结束不需要去修改其他运单的暂存状态
 					if(!childWaybillCodes.contains(storagePackageM.getWaybillCode()) || !storagePackageM.getPackageSum().equals(storagePackageM.getPutawayPackageSum())){
-						return ;
+                        canMakeStatus = false;
 					}
 				}
+			}else{
+                //履约单下数量都对应不上肯定不需要更新状态
+                canMakeStatus = false;
+            }
+
+            if(canMakeStatus){
+                //修改履约单下运单的暂存状态 变更为可发货
+				storagePackageMDao.updateStoragePackageMStatusForCanSendOfPerformanceCode(performanceCode);
+
 			}
 
-			//修改运单的暂存状态 变更为可发货
-			for(StoragePackageM storagePackageM :storagePackageMs){
-				storagePackageMDao.updateStoragePackageMStatusForSendOfWaybill(storagePackageM.getWaybillCode());
-			}
 
 		}
 
@@ -330,7 +336,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	 * @param barCode
 	 * @return  储位号
 	 */
-	private StoragePackageD checkExistStorage(String barCode){
+	public StoragePackageD checkExistStorage(String barCode){
 		StoragePackageD lastStoragePackageD = null;
 		if(SerialRuleUtil.isMatchAllWaybillCode(barCode)){
 			lastStoragePackageD = storagePackageDDao.findLastStoragePackageDByWaybillCode(barCode);
@@ -342,6 +348,37 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			return lastStoragePackageD;
 		}
 		return null;
+	}
+
+	@Override
+	public void makeWaybillSend(String waybillCode) {
+		if(StringUtils.isNotBlank(waybillCode)){
+			storagePackageMDao.updateStoragePackageMStatusForBeSendOfPWaybill(waybillCode);
+		}
+	}
+
+	@Override
+	public void updateStatusOnSend(String waybillCode, String packageCode) {
+		String realWaybillCode = "";
+		if(StringUtils.isBlank(waybillCode)){
+
+			if(SerialRuleUtil.isMatchAllPackageNo(packageCode)){
+				realWaybillCode = SerialRuleUtil.getWaybillCode(packageCode);
+			}
+		}else{
+			realWaybillCode  = waybillCode;
+		}
+
+		if(StringUtils.isNotBlank(realWaybillCode)){
+			//查询是否为金鹏订单
+			if(waybillCommonService.isPerformanceWaybill(realWaybillCode)){
+
+				storagePackageMDao.updateStoragePackageMStatusForBeSendOfPWaybill(realWaybillCode);
+
+			}
+
+		}
+
 	}
 
 	/**
@@ -357,7 +394,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		List<StoragePackageM> storagePackageMs =  storagePackageMDao.queryByPerformanceCode(performanceCode);
 		for(StoragePackageM storagePackageM : storagePackageMs){
 			//上架分拣中心 与 当前操作不符 直接返回
-			if(!storagePackageM.getCreateSiteCode().equals(putawayDTO.getCreateSiteCode())){
+			if(!storagePackageM.getCreateSiteCode().equals(Long.valueOf(putawayDTO.getCreateSiteCode()))){
 				return storagePackageM;
 			}
 		}
@@ -518,7 +555,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}
 
 			//更新暂存状态 按履约单维度更新
-			storagePackageMDao.updateStoragePackageMStatusForSendOfPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
+			storagePackageMDao.updateStoragePackageMStatusForCanSendOfPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
 		}
 
 	}

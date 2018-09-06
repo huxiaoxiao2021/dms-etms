@@ -43,7 +43,7 @@ public class PerformanceRemoveConsumer  extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
 
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("[金鹏]消费履约单运单剔除-消息体非JSON格式，内容为【{0}】", message.getText()));
+            logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
         }
 
@@ -52,15 +52,15 @@ public class PerformanceRemoveConsumer  extends MessageBaseConsumer {
         for(WaybillOrderFlagMessage dto : dtos){
 
             if(StringUtils.isBlank(dto.getWaybillCode())){
-                logger.warn(MessageFormat.format("[金鹏]消费履约单运单剔除-运单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-运单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
                 break;
             }
             if(StringUtils.isBlank(dto.getFulfillmentOrderId())){
-                logger.warn(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
                 break;
             }
             if(dto.getOrderFlag() == null){
-                logger.warn(MessageFormat.format("[金鹏]消费履约单运单剔除-剔除类型为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-剔除类型为空，内容为【{0}】", JsonHelper.toJson(dto)));
                 break;
             }
             if(dto.needDeal()){
