@@ -11,11 +11,14 @@ public class SiteRetakeOperation {
     private  String waybillCode;
     private Integer status;//【5：揽件完成 6：揽件终止7：揽件再取 88.异常订单状态】
     private String remark;
-    private Integer operatorId;//配送员id
+    private Integer operatorId;//操作人id
+    private String operatorName;//操作人姓名
     private Integer endReason;//终止原因(再取原因)
     private Date requiredStartTime;
     private Date requiredEndTime;
     private Integer siteCode;
+    private String siteName;
+    private Date operatorTime;//操作时间，不能为空值
 
     public Integer getSiteCode() {
         return siteCode;
@@ -79,5 +82,29 @@ public class SiteRetakeOperation {
 
     public void setRequiredEndTime(Date requiredEndTime) {
         this.requiredEndTime = requiredEndTime;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
+    }
+
+    public String getSiteName() {
+        return siteName;
+    }
+
+    public void setSiteName(String siteName) {
+        this.siteName = siteName;
+    }
+
+    public Date getOperatorTime() {
+        return operatorTime;
+    }
+
+    public void setOperatorTime(Date operatorTime) {
+        this.operatorTime = operatorTime;
     }
 }

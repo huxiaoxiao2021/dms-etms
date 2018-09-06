@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.urban.domain.TransbillM;
+import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -20,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
@@ -66,6 +69,16 @@ public class SendCodeResource {
 	
 	@Autowired
     ReverseDeliveryService reverseDelivery;
+
+	@Resource(name = "transbillMService")
+	private TransbillMService transbillMService;
+
+	@GET
+	@Path("/trans/{waybillCode}")
+	public TransbillM checkSendCodeStatus(@PathParam("waybillCode") String waybillCode) {
+		return transbillMService.getByWaybillCode(waybillCode);
+
+	}
 
 	@GET
 	@Path("/departure/check")

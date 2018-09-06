@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.0.1-SNAPSHOT</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.0.5-SNAPSHOT</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -783,7 +783,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.43-SNAPSHOT</version>
+			<version>1.2.51-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>

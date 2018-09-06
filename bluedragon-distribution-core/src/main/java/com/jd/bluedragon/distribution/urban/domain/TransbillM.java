@@ -12,6 +12,7 @@ import java.util.Date;
  * @date 2017年04月28日 13:30:01
  *
  */
+
 public class TransbillM implements Serializable{
 
 	/**
@@ -35,7 +36,7 @@ public class TransbillM implements Serializable{
 	private String waybillCode;
 
 	/**
-	 * 订单异常标示
+	 * 订单异常标示  drop
 	 */
 	private Integer orderFlag;
 
@@ -45,7 +46,7 @@ public class TransbillM implements Serializable{
 	private String scheduleBillCode;
 
 	/**
-	 * 调度单中运输单数量
+	 * 调度单中运输单数量  drop
 	 */
 	private Integer scheduleAmount;
 
@@ -55,22 +56,22 @@ public class TransbillM implements Serializable{
 	private String truckSpot;
 
 	/**
-	 * 调度单配载顺序
+	 * 调度单配载顺序  drop
 	 */
 	private String allocateSequence;
 
 	/**
-	 * 妥投完成时间
+	 * 妥投完成时间  drop
 	 */
 	private Date arriveTime;
 
 	/**
-	 * 再投时间
+	 * 再投时间  drop
 	 */
 	private Date redeliveryTime;
 
 	/**
-	 * 再投地址
+	 * 再投地址  drop
 	 */
 	private String redeliveryAddress;
 

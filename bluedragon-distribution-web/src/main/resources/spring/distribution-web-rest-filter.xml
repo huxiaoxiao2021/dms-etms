@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <!-- web 的filter的实现的拦截-->
+    <bean id="filterContext" class="com.jd.bd.dms.automatic.marshal.filterchain.FilterContext">
+        <property name="requestFilters">
+            <list>
+                <bean class="com.jd.bd.dms.automatic.marshal.filterchain.impl.HMACRequestFilter" />
+                <bean class="com.jd.bd.dms.automatic.marshal.filterchain.impl.DateRequestFilter" >
+                    <property name="dateSpanMillisMax" value="1800000"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="pathAdaptor" class="com.jd.bd.dms.automatic.marshal.filerList.PathAdaptor" >
+        <property name="pathPatterns">
+            <list value-type="java.lang.String">
+                <value>/services/command/execute</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 注解方式实现的拦截：该配置对所有的@AutomaticInterceptor生效 -->
+    <bean class="com.jd.bd.dms.automatic.marshal.aspectj.handler.AutomaticRestInterceptHandler">
+        <property name="filterContext" ref="filterContext" />
+    </bean>
+
+</beans>

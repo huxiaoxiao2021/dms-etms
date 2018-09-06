@@ -9,10 +9,10 @@ import com.jd.bluedragon.distribution.siteRetake.service.SiteRetakeService;
 import com.jd.common.orm.page.Page;
 import com.jd.etms.erp.service.domain.VendorOrder;
 import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
+import com.jd.ql.dms.common.domain.JdResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -36,65 +36,59 @@ public class SiteRetakeServiceImpl implements SiteRetakeService {
         return siteRetakeManager.queryBasicTraderInfoByKey(key);
     }
 
-    public List<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition) {
-        List<VendorOrder> resultDate = new ArrayList<VendorOrder>();
+    public Page<VendorOrder> queryVendorOrderList(SiteRetakeCondition siteRetakeCondition, Page page) {
         VendorOrder vendorOrder = new VendorOrder();
-        vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
+        if (siteRetakeCondition.getSiteCode()!=null){
+            vendorOrder.setSiteCode(siteRetakeCondition.getSiteCode());
+        }
         if (siteRetakeCondition.getVendorId()!=null){
             vendorOrder.setSellerId(siteRetakeCondition.getVendorId());
         }
-        if (SiteRetakeCondition.TIME_TYPE_ASSIGNTIME.equals(siteRetakeCondition.getTimeType())){
-            vendorOrder.setAssignTime(siteRetakeCondition.getSelectTime());
-        }else{
-            vendorOrder.setWaybillCreateTime(siteRetakeCondition.getSelectTime());
+        if (siteRetakeCondition.getAssignTime()!=null){
+            vendorOrder.setAssignTime(siteRetakeCondition.getAssignTime());
         }
-        int totalPage = 1;//总页数
-        int currPage = 0;//翻页控制
-        while (currPage < totalPage) {
-            currPage++;//自动翻页查询
-            if (currPage > 100) {
-                break;//防止对面系统有BUG，导致我们循环
-            }
-            Page page = new Page();
-            page.setCurrentPage(currPage);
-            page.setPageSize(100);
-            Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
-            if (pageResult == null) {
-                break;
-            } else {
-                //获取总页数
-                totalPage = pageResult.getTotalPage();
-            }
-            resultDate.addAll(pageResult.getResult());
+        if (siteRetakeCondition.getWaybillCreateTime()!=null){
+            vendorOrder.setWaybillCreateTime(siteRetakeCondition.getWaybillCreateTime());
         }
-        return resultDate;
+        if (siteRetakeCondition.getWaybillCode()!=null){
+            vendorOrder.setWaybillCode(siteRetakeCondition.getWaybillCode());
+        }
+        Page<VendorOrder> pageResult = siteRetakeManager.selectVendorOrderList(vendorOrder, page);
+        pageResult.setCurrentPage(page.getCurrentPage());
+        pageResult.setPageSize(page.getPageSize());
+        return pageResult;
+
+
     }
 
-    public InvokeResult<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
+    public JdResponse<String> updateCommonOrderStatus(SiteRetakeOperation siteRetakeOperation) {
         VendorOrder vendorOrder = new VendorOrder();
         vendorOrder.setStatus(siteRetakeOperation.getStatus());
         vendorOrder.setOperatorId(siteRetakeOperation.getOperatorId());
+        vendorOrder.setOperatorName(siteRetakeOperation.getOperatorName());
         vendorOrder.setSiteCode(siteRetakeOperation.getSiteCode());
+        vendorOrder.setSiteName(siteRetakeOperation.getSiteName());
         vendorOrder.setEndReason(siteRetakeOperation.getEndReason());
         vendorOrder.setRequiredStartTime(siteRetakeOperation.getRequiredStartTime());
         vendorOrder.setRequiredEndTime(siteRetakeOperation.getRequiredEndTime());
         vendorOrder.setOperatorSource(3);//系统标识
         vendorOrder.setRemark(siteRetakeOperation.getRemark());
-        InvokeResult<String> result=new InvokeResult<String>();
+        vendorOrder.setUpdateTime(siteRetakeOperation.getOperatorTime());
+        JdResponse<String> result = new JdResponse<String>();
         result.setCode(200);
         result.setMessage("");
-        String[] waybillcodes=siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
-        if (waybillcodes!=null&&waybillcodes.length>0){
+        String[] waybillcodes = siteRetakeOperation.getWaybillCode().split(Constants.SEPARATOR_COMMA);
+        if (waybillcodes != null && waybillcodes.length > 0) {
 
-            for (String waybillCode:waybillcodes){
+            for (String waybillCode : waybillcodes) {
                 vendorOrder.setWaybillCode(waybillCode);
-                InvokeResult<String> resultOne= siteRetakeManager.updateCommonOrderStatus(vendorOrder);
-                if (resultOne.getCode()!=200){
+                InvokeResult<String> resultOne = siteRetakeManager.updateCommonOrderStatus(vendorOrder);
+                if (resultOne.getCode() != 200) {
                     result.setCode(101);
-                    result.setMessage(result.getMessage()+"运单["+waybillCode+"]保存失败："+resultOne.getMessage()+"\n");
+                    result.setMessage(result.getMessage() + "运单[" + waybillCode + "]保存失败：" + resultOne.getMessage() + "\n");
                 }
             }
-        }else{
+        } else {
             result.setCode(100);
             result.setMessage("无可操作运单");
         }
