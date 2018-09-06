@@ -136,7 +136,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 根据批次号获取运单号(去重)
+     * 根据批次号获取发货明细信息，组装实体发送包裹维度的MQ消息
      *
      * @param sendCode
      * @return
