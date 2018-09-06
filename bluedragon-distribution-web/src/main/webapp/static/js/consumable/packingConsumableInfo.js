@@ -81,6 +81,11 @@ $(function() {
 			},
 			{
 				field: 'type',
+				title: '耗材类型编号',
+				visible:false
+			},
+			{
+				field: 'typeName',
 				title: '耗材类型'
 			},
 			{

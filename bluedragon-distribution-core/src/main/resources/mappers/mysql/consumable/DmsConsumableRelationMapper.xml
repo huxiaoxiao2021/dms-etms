@@ -36,7 +36,7 @@
 		<result column="code" property="code" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="type_name" property="packingTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
         <result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
