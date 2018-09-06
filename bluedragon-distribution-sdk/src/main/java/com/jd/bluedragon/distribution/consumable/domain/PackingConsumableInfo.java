@@ -25,6 +25,9 @@ public class PackingConsumableInfo extends DbEntity {
 	 /** 类型 */
 	private String type;
 
+	/** 类型名称 */
+	private String typeName;
+
 	 /** 体积 */
 	private BigDecimal volume;
 
@@ -45,6 +48,9 @@ public class PackingConsumableInfo extends DbEntity {
 
 	 /** 操作时间 */
 	private Date operateTime;
+
+	public PackingConsumableInfo() {
+	}
 
 	/**
 	 * The set method for code.
@@ -92,6 +98,14 @@ public class PackingConsumableInfo extends DbEntity {
 	 */
 	public String getType() {
 		return this.type;
+	}
+
+	public String getTypeName() {
+		return typeName;
+	}
+
+	public void setTypeName(String typeName) {
+		this.typeName = typeName;
 	}
 
 	/**
@@ -205,6 +219,5 @@ public class PackingConsumableInfo extends DbEntity {
 	public Date getOperateTime() {
 		return this.operateTime;
 	}
-
 
 }

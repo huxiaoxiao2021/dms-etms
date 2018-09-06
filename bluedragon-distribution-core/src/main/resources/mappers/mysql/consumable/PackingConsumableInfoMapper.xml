@@ -7,6 +7,7 @@
 		<result column="code" property="code" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -24,6 +25,7 @@
 		<result column="code" property="packingCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="name" property="packingName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="packingType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="packingTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume" property="packingVolume" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="specification" property="packingSpecification" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -31,7 +33,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,code,name,type,volume,volume_coefficient,
+		id,code,name,type,type_name,volume,volume_coefficient,
 		specification,unit,operate_user_code,operate_user_erp,operate_time,
 		create_time,update_time,is_delete,ts
 	</sql>
@@ -48,6 +50,9 @@
 				</if>
 				<if test="type != null">
 					type,
+				</if>
+				<if test="typeName != null">
+					type_name,
 				</if>
 				<if test="volume != null">
 					volume,
@@ -96,6 +101,9 @@
 				<if test="type != null">
 					#{type,jdbcType=VARCHAR},
 				</if>
+				<if test="typeName != null">
+					#{typeName,jdbcType=VARCHAR},
+				</if>
 				<if test="volume != null">
 					#{volume,jdbcType=DECIMAL},
 				</if>
@@ -136,7 +144,7 @@
 	<insert id="batchInsert" parameterType="List">
 		insert into packing_consumable_info
 			(
-				code,name,type,volume,
+				code,name,type,type_name,volume,
 				volume_coefficient,specification,unit,operate_user_code,operate_user_erp,
 				operate_time,create_time,update_time,is_delete,ts
 			)
@@ -146,6 +154,7 @@
 					#{item.code,jdbcType=VARCHAR},
 					#{item.name,jdbcType=VARCHAR},
 					#{item.type,jdbcType=VARCHAR},
+				    #{item.typeName,jdbcType=VARCHAR},
 					#{item.volume,jdbcType=DECIMAL},
 					#{item.volumeCoefficient,jdbcType=DECIMAL},
 					#{item.specification,jdbcType=VARCHAR},
@@ -172,6 +181,9 @@
 				</if>
 				<if test="type != null">
 					type = #{type,jdbcType=VARCHAR},
+				</if>
+				<if test="typeName != null">
+					type_name = #{typeName,jdbcType=VARCHAR},
 				</if>
 				<if test="volume != null">
 					volume = #{volume,jdbcType=DECIMAL},
@@ -268,7 +280,7 @@
 
 	<select id="getPackingConsumableInfoByCode" resultMap="PackingConsumableBaseInfo" parameterType="String">
 		select
-		code,name,type,volume,volume_coefficient,specification,unit
+		code,name,type,type_name,volume,volume_coefficient,specification,unit
 		from packing_consumable_info
 		where code = #{code, jdbcType=VARCHAR} and is_delete = 0 limit 1
 	</select>

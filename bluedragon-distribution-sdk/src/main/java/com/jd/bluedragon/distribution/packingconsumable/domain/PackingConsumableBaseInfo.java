@@ -16,6 +16,9 @@ public class PackingConsumableBaseInfo implements Serializable {
     /*耗材类型*/
     private String packingType;
 
+    /*耗材类型名称*/
+    private String packingTypeName;
+
     /*体积*/
     private Double packingVolume;
 
@@ -52,6 +55,14 @@ public class PackingConsumableBaseInfo implements Serializable {
         this.packingType = packingType;
     }
 
+    public String getPackingTypeName() {
+        return packingTypeName;
+    }
+
+    public void setPackingTypeName(String packingTypeName) {
+        this.packingTypeName = packingTypeName;
+    }
+
     public Double getPackingVolume() {
         return packingVolume;
     }
@@ -83,4 +94,5 @@ public class PackingConsumableBaseInfo implements Serializable {
     public void setPackingUnit(String packingUnit) {
         this.packingUnit = packingUnit;
     }
+
 }
