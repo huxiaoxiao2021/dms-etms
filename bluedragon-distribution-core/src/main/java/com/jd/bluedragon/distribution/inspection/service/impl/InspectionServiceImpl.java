@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -24,6 +25,7 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -34,6 +36,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.basic.domain.BaseResult;
+import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -93,6 +98,15 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Autowired
 	private DmsStorageAreaService dmsStorageAreaService;
+
+    @Autowired
+	private WaybillCommonService waybillCommonService;
+
+	@Autowired
+	private BasicSecondaryWS basicSecondaryWS;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
 
 	/**
 	 * 运单包裹关联信息
@@ -681,4 +695,35 @@ public class InspectionServiceImpl implements InspectionService {
 			return null;
 		}
 	}
+
+	@Override
+	public String getHintMessage(Integer dmsSiteCode, String waybillCode) {
+
+		String hintMessage = "";
+		Integer preSiteCode = null;
+		Integer destinationDmsId = null;
+		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+		if(waybill != null){
+			//是否是金鹏订单
+			if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'9')){
+				//预分拣站点
+				preSiteCode = waybill.getSiteCode();
+				BaseResult<ReverseCrossPackageTag> reverseResult = basicSecondaryWS.getReverseCrossPackageTag(dmsSiteCode, preSiteCode);
+				if(null!=reverseResult && BaseResult.RESULT_SUCCESS == reverseResult.getResultCode()){
+					//末级分拣中心
+					destinationDmsId = reverseResult.getData().getDestinationDmsId();
+					//登陆人操作机构是否是末级分拣中心
+					if(dmsSiteCode.equals(destinationDmsId)){
+						//运单是否发货
+                        Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+                        if(!isCanSend){
+                            hintMessage = "暂存集齐后发货";
+                        }
+					}
+				}
+			}
+		}
+		return hintMessage;
+	}
+
 }

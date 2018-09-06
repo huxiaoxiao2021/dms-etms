@@ -319,4 +319,9 @@
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
                   protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- 组装系统 查询接口 郭海瑞 -->
+    <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
+                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="5000" check="false" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>
