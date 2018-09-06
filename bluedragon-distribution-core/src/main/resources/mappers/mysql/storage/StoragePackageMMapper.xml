@@ -393,4 +393,11 @@
 		WHERE  performance_code = #{performanceCode}
 		<include refid="Base_Condition_Sql"/>
 	</update>
+
+	<update id="updateStoragePackageMStatusForBeSendOfPWaybill" parameterType="String">
+		UPDATE storage_package_m
+		SET status = 4
+		WHERE  waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+	</update>
 </mapper>

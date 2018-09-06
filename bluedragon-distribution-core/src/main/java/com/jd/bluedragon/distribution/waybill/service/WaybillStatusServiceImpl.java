@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
@@ -69,6 +70,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	@Autowired
 	private SortingService sortingService;
 
+	@Autowired
+	private StoragePackageMService storagePackageMService;
+
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
 			return;
@@ -107,6 +111,34 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 		}
 
+
+		//额外做一些处理 ，此环节可针对某些特定更新运单状态时处理
+		doSomethingOnWaybillStatus(tasks);
+	}
+
+	/**
+	 * 额外业务逻辑
+	 * 1、当更新运单的状态为发货时，修改暂存上架的暂存状态
+	 * @param tasks
+	 */
+	private void doSomethingOnWaybillStatus(List<Task> tasks){
+		for (Task task : tasks) {
+			if (StringHelper.isEmpty(task.getBody())) {
+				continue;
+			}
+			if (task.getYn()!=null && task.getYn().equals(0)) {
+				continue;
+			}
+
+			WaybillStatus waybillStatus = JsonHelper.fromJson(task.getBody(), WaybillStatus.class);
+
+			//发货节点
+			if(waybillStatus!=null && waybillStatus.getOperateType()!=null && WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(waybillStatus.getOperateType())){
+				//同步暂存上架的运单状态
+				storagePackageMService.updateStatusOnSend(waybillStatus.getWaybillCode(),waybillStatus.getPackageCode());
+			}
+
+		}
 	}
 
 	public void sendModifyWaybillStatusFinished(Task task) throws Exception{

@@ -15,6 +15,7 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
+    public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING_RETURN = 60;
 

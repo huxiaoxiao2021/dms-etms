@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.storage.service;
 
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
@@ -54,4 +55,18 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      */
     boolean checkWaybillCanSend(String waybillCode,String waybillSign);
 
+    StoragePackageD checkExistStorage(String barCode);
+
+    /**
+     * 变更运单的暂存状态为已发货
+     * @param waybillCode
+     */
+    void makeWaybillSend(String waybillCode);
+
+    /**
+     * 更新暂存状态为已发货
+     * @param waybillCode
+     * @param packageCode
+     */
+    void updateStatusOnSend(String waybillCode,String packageCode);
 }

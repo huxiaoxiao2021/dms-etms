@@ -9,8 +9,8 @@
     #parse("system/common/baseImport.vm")
     <script src="/static/js/storage/storagePackageM.js"></script>
 </head>
-<body>
-<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+<body class="container-fluid">
+<div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">上级菜单</a></li>
             <li class="active">模块名称</li>
@@ -45,7 +45,7 @@
                                             <option value="" selected="selected"></option>
                                             <option value="1">已上架</option>
                                             <option value="2">可发货</option>
-                                            <option value="3">强制可发货</option>
+                                           #* <option value="3">强制可发货</option>*#
                                             <option value="4">已发货</option>
                                         </select>
                                     </div>
@@ -59,7 +59,7 @@
 	                            <div class="form-group">
 	                                <label class="control-label col-lg-4">最近上架时间：</label>
 	                                <div class="col-lg-8">
-										<input type="text" id="putawayDateGEStr" name="putawayDateGEStr" class="form-control search-param" style="width: 240px;">
+										<input type="text" id="putawayDateGEStr" name="putawayDateGEStr" readonly="readonly" class="form-control search-param" style="width: 240px;">
 	                                </div>
 	                            </div>
                         	</div>
@@ -67,7 +67,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-lg-4">至</label>
                                     <div class="col-lg-8">
-                                        <input type="text" id="putawayDateLEStr" name="putawayDateLEStr" class="form-control search-param" style="width: 240px;">
+                                        <input type="text" id="putawayDateLEStr" name="putawayDateLEStr" readonly="readonly" class="form-control search-param" style="width: 240px;">
                                     </div>
                                 </div>
                             </div>
@@ -82,9 +82,9 @@
         <button id="btn_query" type="button" class="btn btn-default">
         	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
         </button>
-        <button id="btn_force_send" type="button" class="btn btn-default">
+        #*<button id="btn_force_send" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;强制发货
-        </button>
+        </button>*#
 
     </div>
     <table id="dataTable"></table>
