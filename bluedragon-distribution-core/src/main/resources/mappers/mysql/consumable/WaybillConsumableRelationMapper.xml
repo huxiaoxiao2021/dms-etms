@@ -25,6 +25,7 @@
 		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -207,7 +208,7 @@
 	</update>
 
     <select id="queryByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
-        select waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,volume,volume_coefficient,specification,unit
+        select waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit
         from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
 		where wcr.is_delete = 0 and  wcr.waybill_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">

@@ -26,6 +26,11 @@ public class WaybillConsumableDetailDto   implements Serializable {
     private String packingType;
 
     /**
+     * 包装耗材类型名称
+     */
+    private String packingTypeName;
+
+    /**
      * 包装耗材体积
      */
     private Double packingVolume;
@@ -125,5 +130,13 @@ public class WaybillConsumableDetailDto   implements Serializable {
 
     public void setPackingCharge(Double packingCharge) {
         this.packingCharge = packingCharge;
+    }
+
+    public String getPackingTypeName() {
+        return packingTypeName;
+    }
+
+    public void setPackingTypeName(String packingTypeName) {
+        this.packingTypeName = packingTypeName;
     }
 }

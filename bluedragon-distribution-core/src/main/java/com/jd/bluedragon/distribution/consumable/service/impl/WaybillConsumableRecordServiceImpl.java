@@ -173,6 +173,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                 detailDto.setPackingCode(dto.getCode());
                 detailDto.setPackingName(dto.getName());
                 detailDto.setPackingType(dto.getType());
+                detailDto.setPackingTypeName(dto.getTypeName());
                 detailDto.setPackingVolume(dto.getVolume().doubleValue());
                 detailDto.setVolumeCoefficient(dto.getVolumeCoefficient().doubleValue());
                 detailDto.setPackingSpecification(dto.getSpecification());
