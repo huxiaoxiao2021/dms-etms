@@ -200,7 +200,7 @@ public class DateHelper {
         try {
             return new SimpleDateFormat(format).parse(dateString);
         } catch (Exception e) {
-            LOGGER.error("该日期格式无法解析，the date: " + dateString, e);
+            LOGGER.error("该日期格式无法解析，the date: " + dateString + "，the format: " + format, e);
             return null;
         }
     }
