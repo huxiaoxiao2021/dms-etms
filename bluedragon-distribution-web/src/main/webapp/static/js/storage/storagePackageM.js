@@ -153,7 +153,7 @@ $(function() {
 
 			// 强制发货
 			$('#btn_force_send').click(function() {
-				debugger;
+
 				var rows = $('#dataTable').bootstrapTable('getSelections');
 				var ids = [];
 				if (rows.length == 0) {
@@ -233,7 +233,7 @@ $(function() {
 		return oInit;
 	};
 
-
+    initOrg();
     initDateQuery();
 	tableInit().init();
 	pageInit().init();
@@ -289,4 +289,112 @@ function initDateQuery(){
 
     $("#putawayDateGEStr").val(v+" 00:00:00");
     $("#putawayDateLEStr").val(v+" 23:59:59");
+}
+
+function findSite(selectId,siteListUrl,initIdSelectId){
+    $(selectId).html("");
+    $.ajax({
+        type : "get",
+        url : siteListUrl,
+        data : {},
+        async : false,
+        success : function (data) {
+
+
+            var result = [];
+            if(data.length==1 && data[0].code!="200"){
+
+
+                result.push({id:"-999",text:data[0].message});
+
+            }else{
+                for(var i in data){
+                    if(data[i].siteCode && data[i].siteCode != ""){
+                        result.push({id:data[i].siteCode,text:data[i].siteName});
+                    }
+                }
+
+            }
+            if(initIdSelectId && result[0].id!="-999"){
+                $(initIdSelectId).val(result[0].id);
+            }
+
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择分拣中心',
+                allowClear:true,
+                data:result
+            });
+
+            if(initLogin){
+                //第一次登录 初始化登录人分拣中心
+                if($("#loginUserCreateSiteCode").val() != -1){
+                    //登录人大区
+                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
+                }
+            }
+            initLogin = false;
+
+        }
+    });
+}
+
+
+// 初始化大区下拉框
+function initOrg() {
+
+
+    var url = "/services/bases/allorgs";
+    var param = {};
+    $.ajax({
+        type: "get",
+        url: url,
+        data: param,
+        async: false,
+        success: function (data) {
+
+            var result = [];
+            for (var i in data) {
+                if (data[i].orgId && data[i].orgId != "") {
+                    result.push({id: data[i].orgId, text: data[i].orgName});
+
+                }
+
+            }
+
+            $('#site-group-select').select2({
+                width: '100%',
+                placeholder: '请选择机构',
+                allowClear: true,
+                data: result
+            });
+
+            $("#site-group-select")
+                .on("change", function (e) {
+                    $("#query-form #createSiteCode").val("");
+                    var orgId = $("#site-group-select").val();
+                    if (orgId) {
+                        var siteListUrl = '/services/bases/dms/' + orgId;
+                        findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
+                    }
+
+                });
+
+            $("#site-select").on("change", function (e) {
+                var _s = $("#site-select").val();
+                $("#query-form #createSiteCode").val(_s);
+            });
+
+
+            if ($("#loginUserOrgId").val() != -1) {
+                //登录人大区
+                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
+            } else {
+                $('#site-group-select').val(null).trigger('change');
+            }
+
+
+        }
+    });
+
 }
