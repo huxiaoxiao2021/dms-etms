@@ -1,19 +1,5 @@
 package com.jd.bluedragon.distribution.worker.offline;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -31,6 +17,18 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.fastjson.JSONArray;
 import com.jd.fastjson.JSONObject;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 
@@ -166,13 +164,12 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 	//空铁提货
                 	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
                 } else if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(offlineLogRequest.getTaskType())) {
-                	//空铁提货并发货
-                	resultCode = offlineArReceiveService.parseToTask(offlineLogRequest);
-                	//发货操作时间 +30
-                	Date operateTime = DateHelper.parseDate(offlineLogRequest.getOperateTime(),Constants.DATE_TIME_MS_FORMAT);
-                	String operateTimeStr = DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds),Constants.DATE_TIME_MS_FORMAT);
-                	offlineLogRequest.setOperateTime(operateTimeStr);
-                	resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
+                    //空铁提货并发货
+                    offlineArReceiveService.parseToTask(offlineLogRequest);
+                    Date operateTime = DateHelper.parseAllFormatDateTime(offlineLogRequest.getOperateTime());
+                    // 发货操作时间 +30
+                    offlineLogRequest.setOperateTime(DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds), Constants.DATE_TIME_MS_FORMAT));
+                    resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
                 }
                 if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
                         || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {

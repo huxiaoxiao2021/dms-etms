@@ -1,14 +1,14 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
-import com.jd.bluedragon.Constants;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 public class DateHelper {
 
@@ -199,6 +199,7 @@ public class DateHelper {
         try {
             return new SimpleDateFormat(format).parse(dateString);
         } catch (Exception e) {
+            LOGGER.error("该日期格式无法解析，the date: " + dateString, e);
             return null;
         }
     }
@@ -211,6 +212,20 @@ public class DateHelper {
      */
     public static Date parseDateTime(String dateString) {
         return DateHelper.parseDate(dateString, Constants.DATE_TIME_FORMAT);
+    }
+
+    /**
+     * 匹配DATE_TIME_FORMAT数组中所有格式的日期
+     *
+     * @param dateString
+     * @return
+     */
+    public static Date parseAllFormatDateTime(String dateString) {
+        try {
+            return DateUtils.parseDate(dateString, DateHelper.DATE_TIME_FORMAT);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("输入参数的日期格式无法解析，the date: " + dateString, e);
+        }
     }
 
     public static Date toDate(Long date) {
