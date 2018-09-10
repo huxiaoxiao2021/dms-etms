@@ -3,7 +3,7 @@ $(function() {
 	var deleteUrl = '/storage/storagePackageM/deleteByIds';
   	var forceSendUrl = '/storage/storagePackageM/forceSend';
   	var queryUrl = '/storage/storagePackageM/listData';
-
+	var cancelUrl = '/storage/storagePackageM/cancelPutaway'; //取消上架
 
 	var tableInit = function() {
 		var oTableInit = new Object();
@@ -182,6 +182,31 @@ $(function() {
 
 			});
 
+			//取消上架功能
+            $('#btn_cancel').click(function() {
+                var rows = $('#dataTable').bootstrapTable('getSelections');
+                if (rows.length < 1) {
+                    alert("错误，未选中数据");
+                    return;
+                }
+                var flag = confirm("是否取消上架这些数据?");
+                if (flag == true) {
+                    var params = [];
+                    for(var i in rows){
+                        params.push(rows[i].id);
+                    };
+                    $.ajaxHelper.doPostSync(cancelUrl,JSON.stringify(params),function(res){
+                        if(res&&res.succeed && res.data){
+                            alert('操作成功');
+                            tableInit().refresh();
+                        }else{
+                            alert('操作异常！');
+                        }
+                    });
+                }
+            });
+
+
 			// 删
 			$('#btn_delete').click(function() {
 				var rows = $('#dataTable').bootstrapTable('getSelections');
@@ -291,6 +316,7 @@ function initDateQuery(){
     $("#putawayDateLEStr").val(v+" 23:59:59");
 }
 
+var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({

@@ -179,4 +179,22 @@ public class StoragePackageMController {
 		}
 		return rest;
 	}
+
+
+    /**
+     * 撤销上架功能
+     * @param ids
+     * @return
+     */
+    @RequestMapping(value = "/cancelPutaway")
+    public @ResponseBody JdResponse<Boolean> cancelPutaway(@RequestBody List<Long> ids) {
+        JdResponse<Boolean> rest = new JdResponse<Boolean>();
+        try {
+            rest.setData(storagePackageMService.cancelPutaway(ids));
+        } catch (Exception e) {
+            logger.error("fail to delete！"+e.getMessage(),e);
+            rest.toError("删除失败，服务异常！");
+        }
+        return rest;
+    }
 }

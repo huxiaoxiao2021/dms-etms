@@ -39,4 +39,9 @@ public class StoragePackageDDaoImpl extends BaseDao<StoragePackageD> implements 
     public List<StoragePackageD> findByWaybill(String waybillCode) {
         return sqlSession.selectList(this.nameSpace+".findByWaybill", waybillCode);
     }
+
+    @Override
+    public int cancelPutaway(String waybillCode) {
+        return sqlSession.update(this.nameSpace+".cancelPutaway", waybillCode);
+    }
 }

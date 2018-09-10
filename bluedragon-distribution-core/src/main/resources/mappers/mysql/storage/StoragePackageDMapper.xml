@@ -212,6 +212,11 @@
 		</foreach>
 	</update>
 
+	<update id="cancelPutaway" parameterType="String">
+		update storage_package_d
+		set is_delete = 1
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</update>
 	<select id="findById" parameterType="Long" resultMap="StoragePackageD">
 		select 
 		 <include refid="Base_Column_List"/>
