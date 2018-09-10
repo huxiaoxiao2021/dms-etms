@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,7 +16,7 @@ public class HideInfoServiceImpl implements HideInfoService{
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
     private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
-    public void setHideInfo(String waybillSign,PrintWaybill waybill){
+    public void setHideInfo(String waybillSign,BasePrintWaybill waybill){
         //收件人信息隐藏，根据waybill_sign第37位判断
         if(StringUtils.isBlank(waybillSign) || waybillSign.length() < 37 || '0' == waybillSign.charAt(36)){
             return;
@@ -37,7 +37,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * @param hideType
      * @param waybill
      */
-    private void customerInfoHide(char hideType, PrintWaybill waybill){
+    private void customerInfoHide(char hideType, BasePrintWaybill waybill){
         switch(hideType) {
             case '1':
                 //1、隐藏姓名
@@ -83,7 +83,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * @param hideType
      * @param waybill
      */
-    private void consignerInfoHide(char hideType, PrintWaybill waybill){
+    private void consignerInfoHide(char hideType, BasePrintWaybill waybill){
         switch(hideType) {
             case '1':
                 //1、隐藏姓名
@@ -129,7 +129,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 第一个字+^_^
      * @param waybill
      */
-    private void hideConsignerName(PrintWaybill waybill){
+    private void hideConsignerName(BasePrintWaybill waybill){
         String consignerName = waybill.getConsigner();
         if(StringUtils.isNotBlank(consignerName)){
             waybill.setConsigner(consignerName.substring(0,1) + SMILE);
@@ -142,7 +142,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 前三位+^_^+后四位
      * @param waybill
      */
-    private void hideConsignerTel(PrintWaybill waybill){
+    private void hideConsignerTel(BasePrintWaybill waybill){
         String consignerTel = waybill.getConsignerTel();
         String consignerMobile = waybill.getConsignerMobile();
         //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
@@ -179,7 +179,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 否则，前9个字+^_^
      * @param waybill
      */
-    private void hideConsignerAddress(PrintWaybill waybill){
+    private void hideConsignerAddress(BasePrintWaybill waybill){
         String consignerAddress = waybill.getConsignerAddress();
         if(StringUtils.isNotBlank(consignerAddress) && consignerAddress.length() >= ADDRESS_SHOW_LENGTH){
             waybill.setConsignerAddress(consignerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
@@ -190,7 +190,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 设置客户姓名隐藏信息
      * @param waybill 运单
      */
-    private void hideCustomerName(PrintWaybill waybill){
+    private void hideCustomerName(BasePrintWaybill waybill){
         String customerName = waybill.getCustomerName();
         if(StringUtils.isNotBlank(customerName)){
             customerName = customerName.trim().substring(0, 1) + SMILE;
@@ -201,7 +201,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 设置客户电话隐藏信息
      * @param waybill 运单
      */
-    private static void hideCustomerContacts(PrintWaybill waybill){
+    private static void hideCustomerContacts(BasePrintWaybill waybill){
         String firstMobile = StringUtils.trimToEmpty(waybill.getMobileFirst());
         String lastMobile = StringUtils.trimToEmpty(waybill.getMobileLast());
         String firstTel = StringUtils.trimToEmpty(waybill.getTelFirst());
@@ -255,7 +255,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * 否则，前9个字+^_^
      * @param waybill
      */
-    private void hideCustomerAddress(PrintWaybill waybill){
+    private void hideCustomerAddress(BasePrintWaybill waybill){
         String customerAddress = waybill.getPrintAddress();
         if(StringUtils.isNotBlank(customerAddress) && customerAddress.length() >= ADDRESS_SHOW_LENGTH){
             waybill.setPrintAddress(customerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
@@ -267,7 +267,7 @@ public class HideInfoServiceImpl implements HideInfoService{
      * @param waybill
      * @return
      */
-    private static boolean setPhone(PrintWaybill waybill){
+    private static boolean setPhone(BasePrintWaybill waybill){
         String firstMobile = null;
         String firstTel = null;
         String contacts = waybill.getCustomerContacts();

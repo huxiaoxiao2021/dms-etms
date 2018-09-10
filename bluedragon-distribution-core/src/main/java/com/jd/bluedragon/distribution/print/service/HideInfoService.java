@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 
 public interface HideInfoService {
     /**
@@ -8,5 +8,5 @@ public interface HideInfoService {
      * @param waybillSign
      * @param waybill
      */
-    void setHideInfo(String waybillSign,PrintWaybill waybill);
+    void setHideInfo(String waybillSign,BasePrintWaybill waybill);
 }

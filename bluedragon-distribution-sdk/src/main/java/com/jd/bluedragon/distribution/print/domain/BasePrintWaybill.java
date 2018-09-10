@@ -11,6 +11,10 @@ import java.io.Serializable;
  *
  */
 public class BasePrintWaybill implements Serializable {
+
+	/**运单号*/
+	private String waybillCode;
+
     /**始发分拣中心编码*/
     private Integer originalDmsCode;
 
@@ -180,6 +184,34 @@ public class BasePrintWaybill implements Serializable {
 	 * B网面单备用站点名称
 	 */
 	private String backupSiteName;
+
+	/**标签打印地址*/
+	private String printAddress;
+
+	/**
+	 * 客户姓名
+	 */
+	private String customerName ;
+
+	/**客户联系方式*/
+	private String customerContacts;
+
+	/**
+	 * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
+	 */
+	private String mobileFirst;
+	private String mobileLast;
+
+	private String telFirst;
+	private String telLast;
+
+	public BasePrintWaybill(String waybillCode){
+		this.waybillCode = waybillCode;
+	}
+
+	public BasePrintWaybill(){
+
+	}
 
     
 	public String getBusiOrderCode() {
@@ -667,5 +699,69 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setBusiCode(String busiCode) {
 		this.busiCode = busiCode;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public String getPrintAddress() {
+		return printAddress;
+	}
+
+	public void setPrintAddress(String printAddress) {
+		this.printAddress = printAddress;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCustomerContacts() {
+		return customerContacts;
+	}
+
+	public void setCustomerContacts(String customerContacts) {
+		this.customerContacts = customerContacts;
+	}
+
+	public String getMobileFirst() {
+		return mobileFirst;
+	}
+
+	public void setMobileFirst(String mobileFirst) {
+		this.mobileFirst = mobileFirst;
+	}
+
+	public String getMobileLast() {
+		return mobileLast;
+	}
+
+	public void setMobileLast(String mobileLast) {
+		this.mobileLast = mobileLast;
+	}
+
+	public String getTelFirst() {
+		return telFirst;
+	}
+
+	public void setTelFirst(String telFirst) {
+		this.telFirst = telFirst;
+	}
+
+	public String getTelLast() {
+		return telLast;
+	}
+
+	public void setTelLast(String telLast) {
+		this.telLast = telLast;
 	}
 }
