@@ -51,8 +51,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     @Autowired
     private WaybillCommonService waybillCommonService;
     
-    @Autowired
-    private WaybillPrintService waybillPrintService;
     /**
      * 收件人联系方式需要突出显示的位数
      */

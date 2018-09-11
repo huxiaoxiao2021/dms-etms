@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 

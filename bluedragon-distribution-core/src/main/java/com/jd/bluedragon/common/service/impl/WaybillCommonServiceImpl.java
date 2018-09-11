@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
@@ -87,6 +88,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private WaybillPrintService waybillPrintService;
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
+
+    @Autowired
+    HideInfoService hideInfoService;
     
     
     public Waybill findByWaybillCode(String waybillCode) {
@@ -705,6 +709,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(waybill.getWaybillExt() != null){
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
         }
+        //设置微笑
+        hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
         return target;
     }
 
