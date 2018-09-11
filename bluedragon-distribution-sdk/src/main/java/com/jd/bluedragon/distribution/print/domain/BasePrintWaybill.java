@@ -181,7 +181,19 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String backupSiteName;
 
-    
+	/**
+	 * 京东字样
+	 * */
+	private String addressAndTel;
+
+	public String getAddressAndTel() {
+		return addressAndTel;
+	}
+
+	public void setAddressAndTel(String addressAndTel) {
+		this.addressAndTel = addressAndTel;
+	}
+
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
