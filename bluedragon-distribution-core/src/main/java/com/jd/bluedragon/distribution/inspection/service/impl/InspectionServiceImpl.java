@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.inspection.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -36,9 +37,9 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -102,11 +103,11 @@ public class InspectionServiceImpl implements InspectionService {
     @Autowired
 	private WaybillCommonService waybillCommonService;
 
-	@Autowired
-	private BasicSecondaryWS basicSecondaryWS;
-
     @Autowired
     private StoragePackageMService storagePackageMService;
+
+	@Autowired
+	private BaseMinorManager baseMinorManager;
 
 	/**
 	 * 运单包裹关联信息
@@ -708,17 +709,25 @@ public class InspectionServiceImpl implements InspectionService {
 			if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'9')){
 				//预分拣站点
 				preSiteCode = waybill.getSiteCode();
-				BaseResult<ReverseCrossPackageTag> reverseResult = basicSecondaryWS.getReverseCrossPackageTag(dmsSiteCode, preSiteCode);
-				if(null!=reverseResult && BaseResult.RESULT_SUCCESS == reverseResult.getResultCode()){
+
+				BaseDmsStore baseDmsStore = new BaseDmsStore();
+				baseDmsStore.setStoreId(waybill.getStoreId());
+				baseDmsStore.setCky2(waybill.getCky2());
+				baseDmsStore.setOrgId(waybill.getOrgId());
+				baseDmsStore.setDmsId(dmsSiteCode);
+				BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, preSiteCode, dmsSiteCode);
+
+				if(baseResult != null && BaseResult.SUCCESS == baseResult.getResultCode() &&
+						null!=baseResult.getData()){
 					//末级分拣中心
-					destinationDmsId = reverseResult.getData().getDestinationDmsId();
+					destinationDmsId = baseResult.getData().getDestinationDmsId();
 					//登陆人操作机构是否是末级分拣中心
 					if(dmsSiteCode.equals(destinationDmsId)){
 						//运单是否发货
-                        Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
-                        if(!isCanSend){
-                            hintMessage = "暂存集齐后发货";
-                        }
+						Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+						if(!isCanSend){
+							hintMessage = "暂存集齐后发货";
+						}
 					}
 				}
 			}
