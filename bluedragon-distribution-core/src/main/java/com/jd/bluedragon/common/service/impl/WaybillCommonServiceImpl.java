@@ -676,6 +676,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	target.appendRemark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
+        }else{
+            //兼容老逻辑：waybillsign 第31为1 打“航”逻辑
+            if(BusinessHelper.isSignY(waybill.getWaybillSign(), 31)){
+            	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+            }
         }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessHelper.isB2b(waybill.getWaybillSign()) &&
