@@ -30,7 +30,7 @@ public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,JdRes
 		if(context != null && context.getBigWaybillDto() !=null && context.getBigWaybillDto().getWaybill()!=null){
 			waybillSign=context.getBigWaybillDto().getWaybill().getWaybillSign();
 		}
-		hideInfoService.setHideInfo(waybillSign,context.getResponse());
+		//hideInfoService.setHideInfo(waybillSign,context.getResponse());
 		return context.getResult();
 	}
 }

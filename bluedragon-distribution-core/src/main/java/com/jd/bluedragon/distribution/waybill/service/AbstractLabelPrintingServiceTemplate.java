@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
-import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
