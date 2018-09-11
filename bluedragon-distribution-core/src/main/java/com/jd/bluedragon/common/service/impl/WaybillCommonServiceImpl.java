@@ -664,6 +664,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
+        //waybill_sign标识位，第二十九位为8，打C字标
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_C);
+            //一体化面单中商家ID，商家订单不显示
+            target.setBusiCode("");
+            target.setBusiOrderCode("");
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);

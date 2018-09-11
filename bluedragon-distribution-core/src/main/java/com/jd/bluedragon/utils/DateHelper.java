@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.text.MessageFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -199,7 +200,7 @@ public class DateHelper {
         try {
             return new SimpleDateFormat(format).parse(dateString);
         } catch (Exception e) {
-            LOGGER.error("该日期格式无法解析，the date: " + dateString, e);
+            LOGGER.error("该日期格式无法解析，the date: " + dateString + "，the format: " + format, e);
             return null;
         }
     }
@@ -223,7 +224,7 @@ public class DateHelper {
     public static Date parseAllFormatDateTime(String dateString) {
         try {
             return DateUtils.parseDate(dateString, DateHelper.DATE_TIME_FORMAT);
-        } catch (Exception e) {
+        } catch (ParseException e) {
             throw new IllegalArgumentException("输入参数的日期格式无法解析，the date: " + dateString, e);
         }
     }
@@ -240,17 +241,18 @@ public class DateHelper {
         if (StringHelper.isEmpty(sPdaTime)) {
             return serverTime;
         }
-
-        Date pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_MS_FORMAT);
-
-        if (pdaTime == null) {
-            pdaTime = DateHelper.parseDate(sPdaTime, Constants.DATE_TIME_FORMAT);
-        }
-
-        Long interval = pdaTime.getTime() - serverTime.getTime();
-        if (pdaTime.after(serverTime) && DateHelper.TEN_MINUTES < interval) {
-            return serverTime;
-        } else {
+        Date pdaTime = null;
+        try {
+            pdaTime = DateHelper.parseAllFormatDateTime(sPdaTime);
+        } catch (IllegalArgumentException e) {
+            LOGGER.error(e.getMessage(), e);
+        } finally {
+            if (pdaTime != null) {
+                Long interval = pdaTime.getTime() - serverTime.getTime();
+                if (pdaTime.after(serverTime) && DateHelper.TEN_MINUTES < interval) {
+                    return serverTime;
+                }
+            }
             return pdaTime;
         }
     }
