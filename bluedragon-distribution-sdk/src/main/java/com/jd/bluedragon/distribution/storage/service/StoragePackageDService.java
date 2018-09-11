@@ -17,4 +17,6 @@ public interface StoragePackageDService extends Service<StoragePackageD> {
 
 
     List<StoragePackageD> queryByWaybill(String waybillCode);
+
+    int cancelPutaway(String waybillCode);
 }

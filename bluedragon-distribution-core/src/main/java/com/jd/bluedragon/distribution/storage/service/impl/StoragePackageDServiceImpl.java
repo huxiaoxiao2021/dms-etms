@@ -37,4 +37,11 @@ public class StoragePackageDServiceImpl extends BaseService<StoragePackageD> imp
 	public List<StoragePackageD> queryByWaybill(String waybillCode) {
 		return storagePackageDDao.findByWaybill(waybillCode);
 	}
+
+	@Override
+	public int cancelPutaway(String waybillCode) {
+		return storagePackageDDao.cancelPutaway(waybillCode);
+	}
+
+
 }

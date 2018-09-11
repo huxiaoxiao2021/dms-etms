@@ -39,4 +39,5 @@ public interface StoragePackageDDao extends Dao<StoragePackageD> {
 
     List<StoragePackageD> findByWaybill(String waybillCode);
 
+    int cancelPutaway(String waybillCode);
 }

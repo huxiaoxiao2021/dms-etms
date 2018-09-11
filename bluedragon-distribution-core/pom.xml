@@ -811,7 +811,8 @@
 			<groupId>com.jd.jp.assemble</groupId>
 			<artifactId>jp-assemble-sdk</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+            <classifier>jdk16</classifier>
+        </dependency>
 
 	</dependencies>
 

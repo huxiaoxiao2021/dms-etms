@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +47,24 @@ public class StoragePackageMController {
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	public String toIndex(Model model) {
+
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode = "";
+		Long createSiteCode = new Long(-1);
+		Integer orgId = new Integer(-1);
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+				createSiteCode = new Long(bssod.getSiteCode());
+				orgId = bssod.getOrgId();
+			}
+		}
+
+		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+
 		return "/storage/storagePackageM";
 	}
 	/**
@@ -161,4 +179,22 @@ public class StoragePackageMController {
 		}
 		return rest;
 	}
+
+
+    /**
+     * 撤销上架功能
+     * @param ids
+     * @return
+     */
+    @RequestMapping(value = "/cancelPutaway")
+    public @ResponseBody JdResponse<Boolean> cancelPutaway(@RequestBody List<Long> ids) {
+        JdResponse<Boolean> rest = new JdResponse<Boolean>();
+        try {
+            rest.setData(storagePackageMService.cancelPutaway(ids));
+        } catch (Exception e) {
+            logger.error("fail to delete！"+e.getMessage(),e);
+            rest.toError("删除失败，服务异常！");
+        }
+        return rest;
+    }
 }

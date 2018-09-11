@@ -381,7 +381,29 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 	}
 
-	/**
+    /**
+     * 取消上架
+     * 当前先本系统处理，外单和加履中心无法配合。
+     * @param ids
+     * @return
+     */
+    @Override
+    public Boolean cancelPutaway(List<Long> ids) {
+
+        //逻辑删除明细表
+        for(Long id : ids){
+            StoragePackageM storagePackageM = getDao().findById(id);
+            if(storagePackageM!=null && StringUtils.isNotBlank(storagePackageM.getWaybillCode())){
+                storagePackageDDao.cancelPutaway(storagePackageM.getWaybillCode());
+            }
+        }
+        //逻辑删除主表
+        deleteByIds(ids);
+
+        return Boolean.TRUE;
+    }
+
+    /**
 	 * 检查改履约单是否在其他分拣中心上架
 	 * 通过暂存明细表中的数据判断
 	 * @param barCode

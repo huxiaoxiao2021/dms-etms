@@ -69,4 +69,6 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
      * @param packageCode
      */
     void updateStatusOnSend(String waybillCode,String packageCode);
+
+    Boolean cancelPutaway( List<Long> ids);
 }
