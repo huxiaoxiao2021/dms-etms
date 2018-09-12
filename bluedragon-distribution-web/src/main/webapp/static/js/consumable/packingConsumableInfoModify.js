@@ -8,9 +8,19 @@ $(function () {
     /*区域*/
 
     var saveInfoUrl = '/consumable/packingConsumableInfo/save';
+
+    var allTypeUrl = '/consumable/packingConsumableInfo/getAllPackingType';
+
     /*****************************************/
     /*组件*/
     /*****************************************/
+
+    $.combobox.createNew('type-select',{
+        width: '200',
+        placeholder:'请选择耗材类型',
+        data:[
+        ]
+    });
 
     /*表单验证*/
     $.formValidator.createNew('modify-form',{
@@ -24,6 +34,7 @@ $(function () {
                     notEmpty: {
                         message: '名称不能为空！'
                     }
+
                 }
             },
             type: {
@@ -40,10 +51,28 @@ $(function () {
                     }
                 }
             },
-            volume: {
+            length: {
+                validators: {
+                    regexp:{
+                        regexp:/^[0-9]+(.[0-9]{1,2})?$/,
+                        message:'长为数字且最多两位小数'
+                    }
+                }
+
+            },
+            with: {
+                validators: {
+                    regexp:{
+                        regexp:/^[0-9]+(.[0-9]{1,2})?$/,
+                        message:'宽为数字且最多两位小数'
+                    }
+                }
+
+            },
+            height: {
                 validators: {
                     notEmpty: {
-                        message: '单位不能为空！'
+                        message: '高不能为空！'
                     },
                     regexp:{
                         regexp:/^[0-9]+(.[0-9]{1,2})?$/,
@@ -54,12 +83,9 @@ $(function () {
             },
             volumeCoefficient: {
                 validators: {
-                    notEmpty: {
-                        message: '单位不能为空！'
-                    },
                     regexp:{
                         regexp:/^[0-9]+(.[0-9]{1,2})?$/,
-                        message:'体积为数字且最多两位小数'
+                        message:'体积系数为数字且最多两位小数'
                     }
                 }
             }
@@ -71,9 +97,63 @@ $(function () {
     /*****************************************/
     var initPageFunc = function () {
         var blocker = $.pageBlocker.block();
+        $.ajaxHelper.doPostSync(allTypeUrl,null,function(res){
+            if(res != null && res.code != 200) {
+                $.msg.error("获取类型列表失败")
+                return;
+            }
+            for(i in res.data){
+                var dataArr = res.data[i].split(",");
+                var option = $.combobox.appendData('type-select',i,dataArr[0]);
+                option.typeName = dataArr[0];
+                if (dataArr.length > 1) {
+                    option.unit = dataArr[1];
+                }
+                else {
+                    option.unit = null;
+                }
+            }
+        });
 
         $.pageBlocker.close(blocker);
     };
+
+    initPageFunc();
+
+    $('#type-select').on("select2:select", function (e){
+        var type =  $('#type-select').val();
+        var unitInput = $('#unit-value-input');
+        var volumeCoefficientInput =  $('#volume-coefficient-value-input');
+        var withInput = $('#with-value-input');
+        var lengthInput = $('#length-value-input');
+        var heightInput =  $('#height-value-input');
+
+        // unitInput.prop("readonly", true);
+        // withInput.prop("readonly", true);
+        // lengthInput.prop("readonly", true);
+        // heightInput.prop("readonly", true);
+        // volumeCoefficientInput.prop("readonly", true);
+        // withInput.val(null);
+        // lengthInput.val(null);
+        // heightInput.val(null);
+        // volumeCoefficientInput.val(null);
+        // if (type == "TY003" || type == "TY004" || type == "TY005") {
+        //     withInput.prop("readonly", false);
+        //     lengthInput.prop("readonly", false);
+        //     heightInput.prop("readonly", false);
+        //     volumeCoefficientInput.prop("readonly", false);
+        // }
+        var unit = e.params.data.element.unit;
+        if (unit != null) {
+            unitInput.val(unit);
+        } else {
+            unitInput.val(null);
+            unitInput.prop("readonly", false);
+        }
+
+        $('#type-name-value-input').val(e.params.data.element.typeName);
+
+    });
 
     initPageFunc();
 
@@ -89,15 +169,33 @@ $(function () {
             $.msg.confirm('确认修改吗？',function () {
 
                 var blocker = $.pageBlocker.block();
+
+                var withValue = $('#with-value-input').val();
+                var lengthValue = $('#length-value-input').val();
+                var heightValue =  $('#height-value-input').val();
+
                 /*获取参数*/
                 var formParams = $.formHelper.serialize('modify-form');
                 formParams.name = formParams.name.trim();
                 formParams.type = formParams.type.trim();
-                formParams.volume = formParams.volume.trim();
                 formParams.volumeCoefficient = formParams.volumeCoefficient.trim();
-                formParams.specification = formParams.specification.trim();
-                formParams.unit = formParams.unit.trim();
+                if (formParams.type == "TY001" || formParams.type == "TY002" || formParams.type == "TY007") {
+                    // if (formParams.volumeCoefficient == null || formParams.volumeCoefficient == "") {
+                    //     $.msg.warn('类型为' + formParams.typeName + '必须录入体积系数！');
+                    //     $.pageBlocker.close(blocker);
+                    //     return;
+                    // }
+                    if (withValue != null && withValue !="" && lengthValue != null && lengthValue !="" && heightValue != null && heightValue != "") {
+                        formParams.volume = withValue * lengthValue * heightValue;
+                        formParams.specification = lengthValue + "*" + withValue + "*" + heightValue;
+                    } else {
+                        $.msg.warn('类型为【' + formParams.typeName + ']需要计算标准体积' + '必须录入长、宽、高！');
+                        $.pageBlocker.close(blocker);
+                        return;
+                    }
 
+                }
+                formParams.unit = formParams.unit.trim();
                 var formJson = JSON.stringify(formParams);
 
                 /*提交表单*/

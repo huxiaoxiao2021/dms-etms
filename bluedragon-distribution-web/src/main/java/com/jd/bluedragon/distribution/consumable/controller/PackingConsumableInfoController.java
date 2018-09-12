@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
+import com.jd.ql.basic.domain.BaseResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,5 +86,18 @@ public class PackingConsumableInfoController extends DmsBaseController {
 	@RequestMapping("/getAddPage")
 	public String getAddPage() {
 		return "consumable/packingConsumableInfoAdd";
+	}
+
+	@RequestMapping("/getAllPackingType")
+	@ResponseBody
+	public JdResponse getAllPackingType() {
+		JdResponse<Map<String, String>> rest = new JdResponse<Map<String, String>>();
+		try {
+			rest.setData(PackingTypeEnum.getEnumMap());
+		} catch (Exception e) {
+			logger.error("获取包装类型失败" + e.getMessage(), e);
+			rest.toError("获取包装类型失败，服务异常！");
+		}
+		return rest;
 	}
 }

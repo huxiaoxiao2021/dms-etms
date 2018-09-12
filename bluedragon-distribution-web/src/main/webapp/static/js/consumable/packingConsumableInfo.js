@@ -145,13 +145,14 @@ $(function() {
 							shade: 0.7,
 							shadeClose: false,
 							maxmin: true,
-							area: ['800px', '380px'],
+							area: ['800px', '420px'],
 							content: modifyInfoPageUrl,
 							success: function(layero, index){
 								var id = row.id;
 								var code = row.code;
 								var name = row.name;
 								var type = row.type;
+								var typeName = row.typeName;
 								var volume = row.volume;
 								var volumeCoefficient = row.volumeCoefficient;
 								var specification = row.specification;
@@ -162,11 +163,27 @@ $(function() {
 								frameWindow.$('#id-value-input').val(id);
 								frameWindow.$('#code-value-input').val(code);
 								frameWindow.$('#name-value-input').val(name);
+								frameWindow.$.combobox.setValues('type-select', type);
+								// if (type != "TY001" || type == "TY002" || type == "TY007") {
+								// 	frameWindow.$('#with-value-input').prop("readonly", false);
+								// 	frameWindow.$('#length-value-input').prop("readonly", false);
+								// 	frameWindow.$('#height-value-input').prop("readonly", false);
+								// 	frameWindow.$('#volume-coefficient-value-input').prop("readonly", false);
+								// }
 								frameWindow.$('#type-value-input').val(type);
+								frameWindow.$('#type-name-value-input').val(typeName);
 								frameWindow.$('#volume-value-input').val(volume);
 								frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
 								frameWindow.$('#specification-value-input').val(specification);
 								frameWindow.$('#unit-value-input').val(unit);
+								if (specification != null && specification != "") {
+									var dataArr = specification.split("*");
+									if (dataArr.length == 3) {
+										frameWindow.$('#length-value-input').val(dataArr[0]);
+										frameWindow.$('#with-value-input').val(dataArr[1]);
+										frameWindow.$('#height-value-input').val(dataArr[2]);
+									}
+								}
 							}
 						});
 					}
@@ -226,7 +243,7 @@ $(function() {
 			shade: 0.7,
 			maxmin: true,
 			shadeClose: false,
-			area: ['800px', '380px'],
+			area: ['800px', '420px'],
 			content: addInfoPageUrl
 		});
 
