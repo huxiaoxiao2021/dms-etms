@@ -205,6 +205,18 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		if(baseEntity.getData().getPackageList() == null || baseEntity.getData().getPackageList().size() == 0){
 			throw new StorageException("无包裹信息");
 		}
+		if(!isWaybillCode){
+			boolean packageNotExist = true;
+			for(DeliveryPackageD deliveryPackageD :baseEntity.getData().getPackageList()){
+				if(putawayDTO.getBarCode().equals(deliveryPackageD.getPackageBarcode())){
+					packageNotExist = false;
+					break;
+				}
+			}
+			if(packageNotExist){
+				throw new StorageException("包裹不存在，请检查!");
+			}
+		}
 
 		if(!BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
 			throw new StorageException("非加履中心订单");
