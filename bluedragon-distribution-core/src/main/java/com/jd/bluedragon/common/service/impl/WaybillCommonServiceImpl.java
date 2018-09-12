@@ -673,7 +673,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //根据始发道口号类型，判断打‘航’还是‘航填’
         if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
-        	target.appendRemark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
         }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
         }else{
