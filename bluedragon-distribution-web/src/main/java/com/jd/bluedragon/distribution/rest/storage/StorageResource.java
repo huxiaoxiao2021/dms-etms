@@ -13,7 +13,10 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -99,10 +102,14 @@ public class StorageResource {
      */
     @POST
     @Path("/storage/putaway")
+    @BusinessLog(sourceSys = 1,bizType = 2000,operateType = 2000001)
     public InvokeResult<Boolean> putaway(PutawayDTO putawayDTO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.success();
+        CallerInfo info = null;
         try{
+            info = Profiler.registerInfo( "DMSWEB.StorageResource.putaway",false, true);
+
             //初始化 基础数据
             BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(putawayDTO.getCreateSiteCode().toString());
             if(site == null || site.getsId() == null){
@@ -123,6 +130,9 @@ public class StorageResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage("暂存失败！系统异常");
             logger.error("暂存失败！"+putawayDTO.getBarCode(),e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }
