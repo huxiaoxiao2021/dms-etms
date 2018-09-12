@@ -354,6 +354,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (!isForceSend) {
             // 发货验证
             sendResult = this.beforeSendVerification(domain, false);
+            // 兼容旧接口 校验完成后将确认消息盒子置空
             sendResult.setConfirmMsgBox(null);
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
                 return sendResult;
@@ -509,6 +510,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
                     result.setKey(SendResult.CODE_CONFIRM);
                     result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                    result.setReceiveSiteCode(domain.getReceiveSiteCode());
                     result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
                 }
             }
