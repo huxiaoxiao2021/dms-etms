@@ -553,7 +553,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //联通华盛面单模板不显示京东字样
         if(!BusinessHelper.isSignChar(waybill.getWaybillSign(),69,'0') ){
-            target.setAddressAndTel("");
+            target.setJdwlUrl("");
+            target.setCustomerTel("");
+        }else{
+            target.setJdwlUrl("http://www/jdwl.com");
+            target.setCustomerTel("客服电话：400-603-3600");
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
