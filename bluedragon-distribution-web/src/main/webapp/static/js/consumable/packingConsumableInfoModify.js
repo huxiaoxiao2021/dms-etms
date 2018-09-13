@@ -71,9 +71,6 @@ $(function () {
             },
             height: {
                 validators: {
-                    notEmpty: {
-                        message: '高不能为空！'
-                    },
                     regexp:{
                         regexp:/^[0-9]+(.[0-9]{1,2})?$/,
                         message:'体积为数字且最多两位小数'
@@ -179,7 +176,7 @@ $(function () {
                 formParams.name = formParams.name.trim();
                 formParams.type = formParams.type.trim();
                 formParams.volumeCoefficient = formParams.volumeCoefficient.trim();
-                if (formParams.type == "TY001" || formParams.type == "TY002" || formParams.type == "TY007") {
+                if (formParams.type == "TY001") {
                     // if (formParams.volumeCoefficient == null || formParams.volumeCoefficient == "") {
                     //     $.msg.warn('类型为' + formParams.typeName + '必须录入体积系数！');
                     //     $.pageBlocker.close(blocker);

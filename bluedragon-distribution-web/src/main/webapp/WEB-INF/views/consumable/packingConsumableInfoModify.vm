@@ -82,7 +82,7 @@
             </div>
             <hr/>
             <div class="form-group" style="margin-left: 30px;">
-                <label class="control-label" for="unit-value-input">1.纸箱、编织袋、珍珠棉需要计算标准体积，必须录入长、宽、高！</label>
+                <label class="control-label" for="unit-value-input">1.纸箱需要计算标准体积，必须录入长、宽、高！</label>
             </div>
             <hr/>
             <div class="form-group" style="margin-left: 30px;">

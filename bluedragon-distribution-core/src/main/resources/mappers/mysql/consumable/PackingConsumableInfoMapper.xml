@@ -280,7 +280,7 @@
 
 	<select id="getPackingConsumableInfoByCode" resultMap="PackingConsumableBaseInfo" parameterType="String">
 		select
-		code,name,type,type_name,volume,volume_coefficient,specification,unit
+		code,name,type,type_name,volume/1000000 as volume,volume_coefficient,specification,unit
 		from packing_consumable_info
 		where code = #{code, jdbcType=VARCHAR} and is_delete = 0 limit 1
 	</select>

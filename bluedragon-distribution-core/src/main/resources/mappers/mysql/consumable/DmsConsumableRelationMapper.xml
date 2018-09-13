@@ -264,7 +264,7 @@
 
 	<select id="getPackingConsumableInfoByDmsId" resultMap="PackingConsumableBaseInfo" parameterType="Integer">
 		select
-		code,name,type,type_name,volume,volume_coefficient,specification,unit
+		code,name,type,type_name,volume/1000000 as volume,volume_coefficient,specification,unit
 		from dms_consumable_relation dcr left join packing_consumable_info pci
 		on code = consumable_code
 		where dms_id = #{dmsId, jdbcType=INTEGER} and status = 1 and pci.is_delete = 0
