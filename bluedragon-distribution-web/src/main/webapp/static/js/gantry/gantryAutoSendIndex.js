@@ -426,6 +426,7 @@ function enOrDisGantry(params) {
             return;
         }else if(params.businessType == 12 || params.businessType == 13 || params.businessType == 14 || params.businessType == 15){
             jquery.message.alert("错误：", "‘量方’、‘应付量方’不可同时使用！！！", "error");
+            return;
         } else if (params.businessType == 0) {
             return;
         }
