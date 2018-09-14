@@ -280,6 +280,7 @@ function gantryStateInit(gantryConfig) {
     var inspectionObj = $("#inspection");   //验货复选框
     var sendObj = $("#send");               //发货复选框
     var measureObj = $("#measure");         //量方复选框
+    var paymeasureObj = $("#paymeasure");   //应付量方复选框
     if (gantryConfig != null && gantryConfig.lockStatus != null && gantryConfig.businessType != null) {
         var businessType = gantryConfig.businessType; //龙门架的操作类型 按位求于,1验货，2发货，4量方。5验货+量方。6发货+量方 添加3验货+发货
         var lockStatus = gantryConfig.lockStatus;     //锁定状态 0释放状态 1启用状态
@@ -320,6 +321,29 @@ function gantryStateInit(gantryConfig) {
                 sendObj.prop("checked", true);
                 measureObj.prop("checked", true);
                 inspectionObj.attr("disabled", true);
+                break;
+            case 8 :
+                inspectionObj.prop("checked", false);
+                sendObj.prop("checked", false);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                measureObj.attr("disable",true);
+                break;
+            case 9 :
+                inspectionObj.prop("checked", true);
+                sendObj.prop("checked", false);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                sendObj.attr("disable",true);
+                measureObj.attr("disable",true);
+                break;
+            case 10 :
+                inspectionObj.prop("checked", false);
+                sendObj.prop("checked", true);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                inspectionObj.attr("disable",true);
+                measureObj.attr("disable",true);
                 break;
         }
         if ((businessType & 2) == 2) {//是否包含发货功能
@@ -394,9 +418,14 @@ function enOrDisGantry(params) {
         if (params.businessType == 4) {
             jQuery.messager.alert("错误：", "‘量方’不可单独使用！！！", "error");
             return;
+        }else if(params.businessType == 8){
+            jQuery.messager.alert("错误：", "‘应付量方’不可单独使用！！！", "error");
+            return;
         } else if (params.businessType == 3 || params.businessType == 7) {
             jQuery.messager.alert("错误：", "‘发货’、‘验货’不可同时使用！！！", "error");
             return;
+        }else if(params.businessType == 12 || params.businessType == 13 || params.businessType == 14 || params.businessType == 15){
+            jquery.message.alert("错误：", "‘量方’、‘应付量方’不可同时使用！！！", "error");
         } else if (params.businessType == 0) {
             return;
         }
@@ -460,6 +489,30 @@ function getGantryParams(lockStatus) {
 
         case 7:
             operateTypeRemark = "验货+发货+量方";
+            break;
+        case 8:
+            operateTypeRemark = "应付量方";
+            break;
+        case 9:
+            operateTypeRemark = "验货+应付量方";
+            break;
+        case 10:
+            operateTypeRemark = "发货+应付量方";
+            break;
+        case 11:
+            operateTypeRemark = "验货+发货+应付量方";
+            break;
+        case 12:
+            operateTypeRemark = "量方+应付量方";
+            break;
+        case 13:
+            operateTypeRemark = "验货+量方+应付量方";
+            break;
+        case 14:
+            operateTypeRemark = "发货+量方+应付量方";
+            break;
+        case 15:
+            operateTypeRemark = "验货+发货+量方+应付量方";
             break;
         default:
             break;
