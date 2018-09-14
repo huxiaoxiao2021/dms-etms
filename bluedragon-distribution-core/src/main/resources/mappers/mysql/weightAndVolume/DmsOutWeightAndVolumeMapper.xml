@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolumeDao">
+
+	<resultMap id="DmsOutWeightAndVolume" type="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="bar_code" property="barCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="bar_code_type" property="barCodeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="length" property="length" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="width" property="width" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="high" property="high" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="operate_type" property="operateType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+
+		<result column="weight_user_code" property="weightUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="weight_user_name" property="weightUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="weight_time" property="weightTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+
+		<result column="measure_user_code" property="measureUserCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="measure_user_name" property="measureUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="measure_time" property="measureTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,bar_code,bar_code_type,
+		weight,volume,
+		length,width,high,
+		operate_type,create_site_code,
+		weight_user_code,weight_user_name,weight_time,
+		measure_user_code,measure_user_name,measure_time,
+		create_time,update_time,
+		ts,is_delete
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
+		insert into dms_out_weight_volume
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="barCode != null">
+					bar_code,
+				</if>
+				<if test="barCodeType != null">
+					bar_code_type,
+				</if>
+				<if test="weight != null">
+					weight,
+				</if>
+				<if test="volume != null">
+					volume,
+				</if>
+				<if test="length != null">
+					length,
+				</if>
+				<if test="width != null">
+					width,
+				</if>
+				<if test="high != null">
+					high,
+				</if>
+				<if test="operateType != null">
+					operate_type,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="weightUserCode != null">
+					weight_user_code,
+				</if>
+				<if test="weightUserName != null">
+					weight_user_name,
+				</if>
+				<if test="weightTime != null">
+					weight_time,
+				</if>
+				<if test="measureUserCode != null">
+					measure_user_code,
+				</if>
+				<if test="measureUserName != null">
+					measure_user_name,
+				</if>
+				<if test="measureTime != null">
+					measure_time,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="ts != null">
+					ts,
+				</if>
+				<if test="isDelete != null">
+					is_delete
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT}
+				</if>
+				<if test="barCode != null">
+					#{barCode,jdbcType=VARCHAR}
+				</if>
+				<if test="barCodeType != null">
+					#{barCodeType,jdbcType=TINYINT}
+				</if>
+				<if test="weight != null">
+					#{weight,jdbcType=DOUBLE}
+				</if>
+				<if test="volume != null">
+					#{volume,jdbcType=DOUBLE}
+				</if>
+				<if test="length != null">
+					#{length,jdbcType=DOUBLE}
+				</if>
+				<if test="width != null">
+					#{width,jdbcType=DOUBLE}
+				</if>
+				<if test="high != null">
+					#{high,jdbcType=DOUBLE}
+				</if>
+				<if test="operateType != null">
+					#{operateType,jdbcType=TINYINT}
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=INTEGER}
+				</if>
+				<if test="weightUserCode != null">
+					#{weightUserCode,jdbcType=INTEGER}
+				</if>
+				<if test="weightUserName != null">
+					#{weightUserName,jdbcType=VARCHAR}
+				</if>
+				<if test="weightTime != null">
+					#{weightTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="measureUserCode != null">
+					#{measureUserCode,jdbcType=INTEGER}
+				</if>
+				<if test="measureUserName != null">
+					#{measureUserName,jdbcType=VARCHAR}
+				</if>
+				<if test="measureTime != null">
+					#{measureTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
+		update dms_out_weight_volume
+			<set>
+				<if test="barCodeType != null">
+					#{barCodeType,jdbcType=TINYINT}
+				</if>
+				<if test="weight != null">
+					#{weight,jdbcType=DOUBLE}
+				</if>
+				<if test="volume != null">
+					#{volume,jdbcType=DOUBLE}
+				</if>
+				<if test="length != null">
+					#{length,jdbcType=DOUBLE}
+				</if>
+				<if test="width != null">
+					#{width,jdbcType=DOUBLE}
+				</if>
+				<if test="high != null">
+					#{high,jdbcType=DOUBLE}
+				</if>
+				<if test="operateType != null">
+					#{operateType,jdbcType=TINYINT}
+				</if>
+				<if test="weightUserCode != null">
+					#{weightUserCode,jdbcType=INTEGER}
+				</if>
+				<if test="weightUserName != null">
+					#{weightUserName,jdbcType=VARCHAR}
+				</if>
+				<if test="weightTime != null">
+					#{weightTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="measureUserCode != null">
+					#{measureUserCode,jdbcType=INTEGER}
+				</if>
+				<if test="measureUserName != null">
+					#{measureUserName,jdbcType=VARCHAR}
+				</if>
+				<if test="measureTime != null">
+					#{measureTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP}
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT}
+				</if>
+			</set>
+		where bar_code = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
+	</update>
+
+
+	<select id="queryByBarCode" parameterType="java.util.Map" resultMap="DmsWeightFlow">
+		select 
+		 <include refid="Base_Column_List"/>
+		from
+		  dms_out_weight_volume
+		where is_delete != 1
+		  and bar_code = #{barCode,jdbcType=VARCHAR}
+		  and create_site_code = #{barCode,jdbcType=Integer}
+	</select>
+</mapper>
