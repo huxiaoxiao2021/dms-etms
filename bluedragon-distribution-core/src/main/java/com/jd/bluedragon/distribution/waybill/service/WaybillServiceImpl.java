@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -8,9 +9,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -29,14 +28,11 @@ public class WaybillServiceImpl implements WaybillService {
     @Autowired
     private WaybillStatusService waybillStatusService;
     @Autowired
-    WaybillQueryApi waybillQueryApi;
-    @Autowired
     private WaybillPackageApi waybillPackageApi;
     @Autowired
     private BoxService boxService;
-
-//    @Autowired
-//    private WaybillPackageDao waybillPackageDao;
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
 
     public BigWaybillDto getWaybill(String waybillCode) {
         String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
@@ -46,7 +42,7 @@ public class WaybillServiceImpl implements WaybillService {
         wChoice.setQueryWaybillE(true);
         wChoice.setQueryWaybillM(true);
         wChoice.setQueryPackList(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
@@ -58,7 +54,7 @@ public class WaybillServiceImpl implements WaybillService {
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
         wChoice.setQueryWaybillC(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
@@ -68,7 +64,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillM(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;

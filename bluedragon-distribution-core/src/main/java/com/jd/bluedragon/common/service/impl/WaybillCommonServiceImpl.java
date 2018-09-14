@@ -42,7 +42,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -63,9 +62,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     private ProductService productService;
 
-    /* 运单查询 */
-    @Autowired
-    private WaybillQueryApi waybillQueryApi;
     /**
      * 运单包裹查询
      */
@@ -106,7 +102,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(true);
             wChoice.setQueryWaybillM(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), false, false);
@@ -134,7 +130,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillE(true);
             wChoice.setQueryWaybillM(true);
             wChoice.setQueryPackList(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
@@ -162,7 +158,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillE(QueryWaybillE);
             wChoice.setQueryWaybillM(QueryWaybillM);
             wChoice.setQueryPackList(isQueryPackList);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
@@ -192,7 +188,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillE(true);
             wChoice.setQueryWaybillM(true);
             wChoice.setQueryPackList(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getReturnWaybillByOldWaybillCode(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getReturnWaybillByOldWaybillCode(
                     oldWaybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
@@ -454,7 +450,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             wChoice.setQueryWaybillM(true);
             wChoice.setQueryGoodList(true);
 
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), false, false);

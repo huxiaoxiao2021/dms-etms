@@ -25,7 +25,6 @@ import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -65,9 +64,6 @@ public class BaseServiceImpl implements BaseService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 	
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
@@ -577,8 +573,7 @@ public class BaseServiceImpl implements BaseService {
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
 			wChoice.setQueryPackList(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(orderCode,
-			        wChoice);
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(orderCode,wChoice);
 			if (baseEntity != null && baseEntity.getData() != null) {
 				reverseSendWms = convWaybill(baseEntity.getData());
 				if (reverseSendWms == null) {

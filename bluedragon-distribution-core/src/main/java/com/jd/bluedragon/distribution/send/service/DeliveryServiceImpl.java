@@ -90,7 +90,6 @@ import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -158,9 +157,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private BoxService boxService;
-
-    @Autowired
-    WaybillQueryApi waybillQueryApi;
 
     @Autowired
     private SortingService tSortingService;
@@ -2593,6 +2589,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         tOrderInfo.setPackInfoList(list);
     }
 
+    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
+        BaseEntity<List<BigWaybillDto>> results = waybillQueryManager.getDatasByChoice(waybills, queryWChoice);
+        if (results != null && results.getResultCode() > 0) {
+            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
+            List<BigWaybillDto> datas = results.getData();
+            if (datas != null && !datas.isEmpty()) {
+                for (BigWaybillDto dto : datas) {
+                    datalist.add(dto);
+                }
+            }
+        }
+    }
+
     @Override
     public List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice, List<String> waybillCodes) {
         List<BigWaybillDto> datalist = new ArrayList<BigWaybillDto>();
@@ -2622,19 +2631,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("取件单基础信息调用异常-------");
         }
         return datalist;
-    }
-
-    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
-        BaseEntity<List<BigWaybillDto>> results = waybillQueryApi.getDatasByChoice(waybills, queryWChoice);
-        if (results != null && results.getResultCode() > 0) {
-            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
-            List<BigWaybillDto> datas = results.getData();
-            if (datas != null && !datas.isEmpty()) {
-                for (BigWaybillDto dto : datas) {
-                    datalist.add(dto);
-                }
-            }
-        }
     }
 
     /**
