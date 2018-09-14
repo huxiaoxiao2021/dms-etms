@@ -213,7 +213,20 @@ public class BasePrintWaybill implements Serializable {
 
 	}
 
-    
+
+	/**
+	 * 京东物流网址和客服电话
+	 * */
+	private String additionalComment;
+
+	public String getAdditionalComment() {
+		return additionalComment;
+	}
+
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
+	}
+
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
