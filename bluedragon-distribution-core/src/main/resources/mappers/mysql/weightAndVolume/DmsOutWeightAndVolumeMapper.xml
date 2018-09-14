@@ -231,13 +231,13 @@
 	</update>
 
 
-	<select id="queryByBarCode" parameterType="java.util.Map" resultMap="DmsWeightFlow">
+	<select id="queryByBarCode" parameterType="java.util.Map" resultMap="DmsOutWeightAndVolume">
 		select 
 		 <include refid="Base_Column_List"/>
 		from
 		  dms_out_weight_volume
 		where is_delete != 1
 		  and bar_code = #{barCode,jdbcType=VARCHAR}
-		  and create_site_code = #{barCode,jdbcType=Integer}
+		  and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 </mapper>

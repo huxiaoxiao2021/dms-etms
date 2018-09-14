@@ -29,6 +29,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
         if(weightAndVolumeList == null || weightAndVolumeList.size()<1){
             dmsOutWeightAndVolumeDao.add(dmsOutWeightAndVolume);
         }else{
+            dmsOutWeightAndVolume.setCreateTime(null);
             dmsOutWeightAndVolumeDao.update(dmsOutWeightAndVolume);
         }
     }

@@ -590,4 +590,14 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+
+    /**
+     * 应付动态量方条码barcode类型 扫描到的号码类型1：包裹号 2：箱号 3：板号
+     */
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE = 1;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
+
+
+
 }
