@@ -43,7 +43,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
-@Service
+@Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
@@ -83,7 +83,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
-    private final static Integer ASM_TYPE = Integer.parseInt(PropertiesHelper.newInstance().getValue("asm_type"));
+    public final static Integer ASM_TYPE = Integer.parseInt(PropertiesHelper.newInstance().getValue("asm_type"));
 
     /**
      * 一次批量查询运单数据的大小
@@ -702,7 +702,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         return selectUniquesSendDetails(sendDetails);
     }
 
-    private String getWaybillType(int waybillType) {
+    public String getWaybillType(int waybillType) {
         if (waybillType == 0) {
             return "一般订单";
         } else if (waybillType == 127) {
@@ -749,7 +749,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         return "一般订单";
     }
 
-    private String getSendPay(int payment) {
+    public String getSendPay(int payment) {
         if (payment == 1) {
             return "货到付款";
         } else if (payment == 2) {

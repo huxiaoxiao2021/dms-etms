@@ -19,4 +19,8 @@ public interface SendPrintService {
 	BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends);
 	
 	BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria);
+
+	String getWaybillType(int waybillType);
+
+	String getSendPay(int payment);
 }
