@@ -65,7 +65,7 @@ public class WeightAndMeasureResource {
 
         //从dms_out_weight_volume表中查询本分拣中心是否已经对该barCode进行过称重量方录入操作
         //如果已经录入，返回给pda显示出来；否则返回空
-        DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getByBarCodeAndDms(barCode,dmsCode);
+        DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(barCode,dmsCode);
         if(weightAndVolume != null){
             response.setBarCode(weightAndVolume.getBarCode());
             response.setSiteCode(weightAndVolume.getCreateSiteCode());
