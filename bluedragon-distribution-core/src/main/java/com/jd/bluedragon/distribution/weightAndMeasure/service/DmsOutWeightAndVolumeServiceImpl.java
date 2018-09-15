@@ -21,10 +21,7 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @return
      */
     public void saveOrUpdate(DmsOutWeightAndVolume dmsOutWeightAndVolume){
-        Map<String,Object> param = new HashMap<String,Object>();
-        param.put("barCode",dmsOutWeightAndVolume.getBarCode());
-        param.put("createSiteCode",dmsOutWeightAndVolume.getCreateSiteCode());
-        List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(param);
+        List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);
 
         if(weightAndVolumeList == null || weightAndVolumeList.size()<1){
             dmsOutWeightAndVolumeDao.add(dmsOutWeightAndVolume);
@@ -35,20 +32,35 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
     }
 
     /**
-     * 查询这个分拣中心对该箱号/包裹的查询记录
+     * 查询这个分拣中心对该箱号/包裹的所有记录
      * @param barCode
      * @param dmsCode
      * @return
      */
-    public DmsOutWeightAndVolume getByBarCodeAndDms(String barCode,Integer dmsCode){
-        Map<String,Object> param = new HashMap<String,Object>();
-        param.put("barCode",barCode);
-        param.put("createSiteCode",dmsCode);
-        List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(param);
+    public List<DmsOutWeightAndVolume> getListByBarCodeAndDms(String barCode,Integer dmsCode){
+        DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
+        dmsOutWeightAndVolume.setBarCode(barCode);
+        dmsOutWeightAndVolume.setCreateSiteCode(dmsCode);
+
+        List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);
         if(weightAndVolumeList == null && weightAndVolumeList.size() < 1){
             return null;
         }
-        return weightAndVolumeList.get(0);
+        return weightAndVolumeList;
+    }
+
+    /**
+     * 查询这个分拣中心对该箱号/包裹的一条记录
+     * @param barCode
+     * @param dmsCode
+     * @return
+     */
+    public DmsOutWeightAndVolume getOneByBarCodeAndDms(String barCode,Integer dmsCode){
+        DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
+        dmsOutWeightAndVolume.setBarCode(barCode);
+        dmsOutWeightAndVolume.setCreateSiteCode(dmsCode);
+
+        return dmsOutWeightAndVolumeDao.queryOneByBarCode(dmsOutWeightAndVolume);
     }
 
 }
