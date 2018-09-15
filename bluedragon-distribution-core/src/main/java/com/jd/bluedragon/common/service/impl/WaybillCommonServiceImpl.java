@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -57,7 +58,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     
-    private static final int REST_CODE_SUC = 1; 
+    private static final int REST_CODE_SUC = 1;
 
     @Autowired
     private ProductService productService;
@@ -91,8 +92,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     @Autowired
     HideInfoService hideInfoService;
+
     
-    
+    @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：400-603-3600}")
+    private String additionalComment;
+
+
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -554,6 +559,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityCode(siteInfo.getCityId());
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
+        }
+        //联通华盛面单模板不显示京东字样
+        if(!BusinessHelper.isSignChar(waybill.getWaybillSign(),69,'0') ){
+            target.setAdditionalComment("");
+        }else{
+            target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
