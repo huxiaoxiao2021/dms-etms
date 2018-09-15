@@ -21,7 +21,7 @@ import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECO
  * @author jinjingcheng
  * @date 2018/9/14.
  */
-@Service("scannerFrameInspectionConsume")
+@Service("scannerFrameDynamicVolumeConsume")
 public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
     @Autowired
     DmsOutWeightAndVolumeService dmsOutWeightAndVolumeService;
