@@ -288,4 +288,9 @@
         <property name="topic" value="${jmq.topic.operateHint.track}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 签单返回合单mq，提供新单号和旧单号列表 -->
+    <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>
