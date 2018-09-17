@@ -66,24 +66,26 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
-        ArSendRegister sendRegister = arSendRegisterService.getByFlightInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
-        if (sendRegister != null) {
-            List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
-            if (sendCodes != null && sendCodes.size() > 0) {
-                for (ArSendCode sendCode : sendCodes) {
-                    SealCarDto sealCarDto = null;
-                    try {
-                        sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
-                        this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
-                    } catch (Exception e) {
-                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
-                        SystemLogUtil.log(sendCode.getSendCode(), realTimeStatus.getFlightNumber(), sealCarDto == null ? "" : sealCarDto.getTransportCode(), sendRegister.getId().longValue(),
-                                message.getText(), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
-                        throw e;
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
+        if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+            for (ArSendRegister sendRegister : sendRegisterList) {
+                List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
+                if (sendCodes != null && sendCodes.size() > 0) {
+                    for (ArSendCode sendCode : sendCodes) {
+                        SealCarDto sealCarDto = null;
+                        try {
+                            sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
+                            this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
+                        } catch (Exception e) {
+                            logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
+                            SystemLogUtil.log(sendCode.getSendCode(), realTimeStatus.getFlightNumber(), sealCarDto == null ? "" : sealCarDto.getTransportCode(), sendRegister.getId().longValue(),
+                                    message.getText(), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
+                            throw e;
+                        }
                     }
+                } else {
+                    logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次号列表为空或null");
                 }
-            } else {
-                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次号列表为空或null");
             }
         } else {
             logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFlightDate()) + ")获取发货登记信息为null");

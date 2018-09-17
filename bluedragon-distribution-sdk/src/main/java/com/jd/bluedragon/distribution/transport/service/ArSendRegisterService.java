@@ -123,10 +123,10 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
     /**
      * 根据航班号、飞行日期获取发货登记信息
      *
-     * @param flightNumber
-     * @param flightDate
+     * @param transportName
+     * @param sendDate
      * @return
      */
-   ArSendRegister getByFlightInfo(String flightNumber, Date flightDate);
+   List<ArSendRegister> getListByTransInfo(String transportName, Date sendDate);
 
 }

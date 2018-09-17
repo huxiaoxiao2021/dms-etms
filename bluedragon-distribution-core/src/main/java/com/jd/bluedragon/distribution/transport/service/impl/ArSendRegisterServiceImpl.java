@@ -421,12 +421,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     @Override
-    public ArSendRegister getByFlightInfo(String flightNumber, Date flightDate) {
+    public List<ArSendRegister> getListByTransInfo(String transportName, Date sendDate) {
         Map<String, Object> parameter = new HashMap<String, Object>();
-        if (StringUtils.isNotEmpty(flightNumber) && flightDate != null) {
-            parameter.put("transportName", flightNumber);
-            parameter.put("sendDate", flightDate);
-            return arSendRegisterDao.getByFlightInfo(parameter);
+        if (StringUtils.isNotEmpty(transportName) && sendDate != null) {
+            parameter.put("transportName", transportName);
+            parameter.put("sendDate", sendDate);
+            return arSendRegisterDao.getListByTransInfo(parameter);
         }
         return null;
     }
