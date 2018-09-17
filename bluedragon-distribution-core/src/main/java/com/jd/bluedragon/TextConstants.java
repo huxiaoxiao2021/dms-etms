@@ -53,15 +53,15 @@ public class TextConstants {
 
     /**
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
-     * 此时，waybill_sign第80位等于1时，面单打印“经济快运”
+     * 此时，waybill_sign第80位等于1时，面单打印“特惠运”
      */
-    public static final String B2B_CHEAP_TRANSPORT ="经济快运";
+    public static final String B2B_CHEAP_TRANSPORT ="特惠运";
 
     /**
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
-     * 此时，waybill_sign第40位等于2时，面单打标“精准快运”
+     * 此时，waybill_sign第80位等于2时，面单打标“特准运”
      */
-    public static final String B2B_TIMELY_TRANSPORT ="精准快运";
+    public static final String B2B_TIMELY_TRANSPORT ="特准运";
 
 
 }

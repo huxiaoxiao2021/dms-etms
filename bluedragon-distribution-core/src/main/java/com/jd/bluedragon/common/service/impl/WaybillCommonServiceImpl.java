@@ -662,13 +662,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         /**
          * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
-         * 1.waybill_sign第80位等于1时，面单打印“经济快运”
-         * 2.waybill_sign第40位等于2时，面单打标“精准快运”
+         * 1.waybill_sign第80位等于1时，面单打印“特惠运”
+         * 2.waybill_sign第80位等于2时，面单打标“特准运”
          */
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),62,'1')){
             if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'1')){
                 target.setjZDFlag(TextConstants.B2B_CHEAP_TRANSPORT);
-            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),40,'2')){
+            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'2')){
                 target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
             }
         }
