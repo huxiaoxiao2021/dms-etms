@@ -10,7 +10,7 @@
 		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="length" property="length" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="width" property="width" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="high" property="high" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="height" property="height" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="operate_type" property="operateType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 
@@ -31,7 +31,7 @@
 	<sql id="Base_Column_List" >
 		id,barcode,barcode_type,
 		weight,volume,
-		length,width,high,
+		length,width,height,
 		operate_type,create_site_code,
 		weight_user_code,weight_user_name,weight_time,
 		measure_user_code,measure_user_name,measure_time,
@@ -64,8 +64,8 @@
 				<if test="width != null">
 					width,
 				</if>
-				<if test="high != null">
-					high,
+				<if test="height != null">
+					height,
 				</if>
 				<if test="operateType != null">
 					operate_type,
@@ -129,8 +129,8 @@
 				<if test="width != null">
 					#{width,jdbcType=DOUBLE}
 				</if>
-				<if test="high != null">
-					#{high,jdbcType=DOUBLE}
+				<if test="height != null">
+					#{height,jdbcType=DOUBLE}
 				</if>
 				<if test="operateType != null">
 					#{operateType,jdbcType=TINYINT}
@@ -190,8 +190,8 @@
 				<if test="width != null">
 					#{width,jdbcType=DOUBLE}
 				</if>
-				<if test="high != null">
-					#{high,jdbcType=DOUBLE}
+				<if test="height != null">
+					#{height,jdbcType=DOUBLE}
 				</if>
 				<if test="operateType != null">
 					#{operateType,jdbcType=TINYINT}
