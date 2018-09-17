@@ -4,8 +4,8 @@
 
 	<resultMap id="DmsOutWeightAndVolume" type="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="bar_code" property="barCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="bar_code_type" property="barCodeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="barcode" property="barCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="barcode_type" property="barCodeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="length" property="length" javaType="java.lang.Double" jdbcType="DOUBLE" />
@@ -29,7 +29,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,bar_code,bar_code_type,
+		id,barcode,barcode_type,
 		weight,volume,
 		length,width,high,
 		operate_type,create_site_code,
