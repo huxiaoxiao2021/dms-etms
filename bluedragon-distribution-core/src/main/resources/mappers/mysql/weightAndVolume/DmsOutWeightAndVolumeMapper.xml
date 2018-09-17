@@ -97,9 +97,6 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
-				<if test="ts != null">
-					ts,
-				</if>
 				<if test="isDelete != null">
 					is_delete
 				</if>
@@ -161,9 +158,6 @@
 				</if>
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP}
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
 				</if>
 				<if test="isDelete != null">
 					#{isDelete,jdbcType=TINYINT}
