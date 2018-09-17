@@ -24,7 +24,6 @@
 
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 	</resultMap>
 
@@ -36,7 +35,7 @@
 		weight_user_code,weight_user_name,weight_time,
 		measure_user_code,measure_user_name,measure_time,
 		create_time,update_time,
-		ts,is_delete
+		is_delete
 	</sql>
 
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
@@ -213,9 +212,6 @@
 				</if>
 				<if test="updateTime != null">
 					#{updateTime,jdbcType=TIMESTAMP},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP},
 				</if>
 				<if test="isDelete != null">
 					#{isDelete,jdbcType=TINYINT}
