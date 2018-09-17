@@ -47,10 +47,10 @@
 					id,
 				</if>
 				<if test="barCode != null">
-					bar_code,
+					barcode,
 				</if>
 				<if test="barCodeType != null">
-					bar_code_type,
+					barcode_type,
 				</if>
 				<if test="weight != null">
 					weight,
@@ -227,7 +227,7 @@
 					#{isDelete,jdbcType=TINYINT}
 				</if>
 			</set>
-		where bar_code = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
+		where barcode = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
 	</update>
 
 
@@ -237,7 +237,7 @@
 		from
 		  dms_out_weight_volume
 		where is_delete = 0
-		  and bar_code = #{barCode,jdbcType=VARCHAR}
+		  and barcode = #{barCode,jdbcType=VARCHAR}
 		  and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 
@@ -247,7 +247,7 @@
 		from
 		dms_out_weight_volume
 		where is_delete = 0
-		and bar_code = #{barCode,jdbcType=VARCHAR}
+		and barcode = #{barCode,jdbcType=VARCHAR}
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		order by create_time DESC
 		limit 1
