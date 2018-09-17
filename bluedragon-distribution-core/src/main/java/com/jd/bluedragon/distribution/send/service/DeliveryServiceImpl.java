@@ -503,8 +503,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
             String lastSendCode = lastSendM.getSendCode();
-            if (domain.getSendCode().equals(lastSendCode)) {
-                result.init(SendResult.CODE_SENDED, "箱子已经在批次该批次中发货，请勿重复操作");
+            if (domain.getReceiveSiteCode().equals(lastSendM.getReceiveSiteCode())) {
+                if (domain.getSendCode().equals(lastSendCode)) {
+                    result.init(SendResult.CODE_SENDED, "箱子已经在该批次中发货，请勿重复操作");
+                } else {
+                    result.init(SendResult.CODE_SENDED, "箱子已经在批次[" + lastSendCode + "]中发货");
+                }
                 return false;
             } else {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
