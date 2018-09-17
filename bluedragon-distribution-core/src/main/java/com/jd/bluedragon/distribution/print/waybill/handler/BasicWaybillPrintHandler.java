@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -67,6 +70,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private AirTransportService airTransportService;
+
+    @Autowired
+    private PopPrintService popPrintService;
     /**
      * 奢侈品订单打标位起始值
      */
@@ -134,6 +140,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
     /**
+     * 包裹补打操作类型操作类型
+     */
+    public static Integer PACKAGE_AGAIN_PRINT_TYPE = 100103;
+
+    /**
      * 换单打印的操作类型
      */
     private static final Integer OPERATE_TYPE_EXCHANGE_PRINT = 100104;
@@ -156,6 +167,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
             		return interceptResult;
             	}
+                //包裹补打印1小时校验
+                if(checkPackageRePrint(context)){
+                    logger.warn("包裹"+context.getRequest().getBarCode()+"补打印在1小时内重复打印！");
+                    interceptResult.toError(InterceptResult.CODE_ERROR, "包裹补打印在1小时内重复打印！");
+                    return interceptResult;
+                }
             	//获取运单数据正常，设置打印基础信息
                 context.setBigWaybillDto(baseEntity.getData());
                 context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false));
@@ -176,6 +193,24 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
         return interceptResult;
 	}
+
+    /**
+     * 校验包裹补打印是否在1小时内重复打印
+     * @param context
+     * @return
+     */
+    private Boolean checkPackageRePrint(WaybillPrintContext context){
+        Integer operateType = context.getRequest().getOperateType();
+        if(PACKAGE_AGAIN_PRINT_TYPE.equals(operateType)){
+            String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
+            PopPrint popPrint = popPrintService.findByWaybillCode(waybillCode);
+            if(popPrint != null){
+                return DateHelper.currentTimeIsRangeHours(popPrint.getPrintPackTime(),1);
+            }
+        }
+
+        return false;
+    }
     /**
      * 加载运单基础数据
      * @param context

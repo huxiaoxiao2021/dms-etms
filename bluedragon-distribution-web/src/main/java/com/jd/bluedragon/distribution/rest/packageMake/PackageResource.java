@@ -44,27 +44,41 @@ public class PackageResource {
                                   @PathParam("siteId") Integer siteId,
                                   @PathParam("operateName") String operateName){
         JdResponse jdResponse = new JdResponse();
+        if(barCode == null || "".equals(barCode)){
+            logger.error("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
+            jdResponse.setMessage("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
+        }
+        if(operateName == null || "".equals(operateName)){
+            logger.error("操作人"+operateName+"为空，不能触发包裹补打的全程跟踪!");
+            jdResponse.setMessage("操作人"+operateName+"为空，不能触发包裹补打的全程跟踪!");
+        }
         try{
-            BaseStaffSiteOrgDto bDto = null;
-            Integer siteType = 0;
-            if(siteId != null){
-                bDto = baseMajorManager.getBaseSiteBySiteId(siteId);
-            }
-            if(bDto != null){
-                siteType = bDto.getSiteType();
-            }
-            if(siteType != 0 && StringHelper.isNotEmpty(waybillSign)){
-                //操作人所在机构是配送站并且waybillSign第八位是1或2或3的触发全程跟踪
-                if(siteType == 4 && (BusinessHelper.isSignChar(waybillSign,8,'1' ) || // 1 仅修改地址
-                        BusinessHelper.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
-                        BusinessHelper.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
-                )){
-                    if(barCode != null && operateName != null){
-                        taskService.add(this.toTask(barCode, operateName));
-                        jdResponse.setCode(200);
-                        return jdResponse;
-                    }
-                }
+//            BaseStaffSiteOrgDto bDto = null;
+//            Integer siteType = 0;
+//            if(siteId != null){
+//                bDto = baseMajorManager.getBaseSiteBySiteId(siteId);
+//            }
+//            if(bDto != null){
+//                siteType = bDto.getSiteType();
+//            }
+//            if(siteType != 0 && StringHelper.isNotEmpty(waybillSign)){
+//                //操作人所在机构是配送站并且waybillSign第八位是1或2或3的触发全程跟踪
+//                if(siteType == 4 && (BusinessHelper.isSignChar(waybillSign,8,'1' ) || // 1 仅修改地址
+//                        BusinessHelper.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
+//                        BusinessHelper.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
+//                )){
+//                    if(barCode != null && operateName != null){
+//                        taskService.add(this.toTask(barCode, operateName));
+//                        jdResponse.setCode(200);
+//                        return jdResponse;
+//                    }
+//                }
+//            }
+            if(barCode != null && operateName != null){
+                taskService.add(this.toTask(barCode, operateName));
+                jdResponse.setCode(200);
+                logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+                return jdResponse;
             }
         }catch (Exception e){
             this.logger.warn("包裹补打触发全程跟踪失败",e);
