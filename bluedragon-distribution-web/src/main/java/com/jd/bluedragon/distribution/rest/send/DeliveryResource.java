@@ -385,6 +385,11 @@ public class DeliveryResource implements DmsDeliveryService {
             DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
             if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
                 response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+                //快运发货金鹏订单拦截提示
+                if(response.getCode()==JdResponse.CODE_OK && BusinessHelper.isPackageCode(request.getBoxCode())){
+                    String waybillCode = BusinessHelper.getWaybillCode(request.getBoxCode());
+                    response = deliveryService.dealJpWaybill(request.getSiteCode(),waybillCode);
+                }
             }
             return response;
         } catch (Exception ex) {

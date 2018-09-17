@@ -68,6 +68,7 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -285,6 +286,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     SysConfigService sysConfigService;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -4240,5 +4244,35 @@ public class DeliveryServiceImpl implements DeliveryService {
         /**查询箱子发货记录*/
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryParam);
         return sendMList;
+    }
+
+    @Override
+    public DeliveryResponse dealJpWaybill(Integer dmsSiteCode, String waybillCode) {
+
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        Integer preSiteCode = null;
+        Integer destinationDmsId = null;
+        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        if(waybill != null){
+            //是否是金鹏订单
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'9')){
+                //预分拣站点
+                preSiteCode = waybill.getSiteCode();
+                BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
+                if(bDto != null && bDto.getDmsId() != null){
+                    //末级分拣中心
+                    destinationDmsId = bDto.getDmsId();
+                }
+                //登陆人操作机构是否是末级分拣中心
+                if(dmsSiteCode.equals(destinationDmsId)){
+                    //运单是否发货
+                    Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+                    if(!isCanSend){
+                       response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,DeliveryResponse.MESSAGE_Delivery_SAVE);
+                    }
+                }
+            }
+        }
+        return response;
     }
 }
