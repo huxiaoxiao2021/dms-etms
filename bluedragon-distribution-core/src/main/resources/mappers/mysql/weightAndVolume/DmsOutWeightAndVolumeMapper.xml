@@ -39,7 +39,7 @@
 		ts,is_delete
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
 		insert into dms_out_weight_volume
 			(
 			<trim suffixOverrides=",">
