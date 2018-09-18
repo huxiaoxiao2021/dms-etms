@@ -104,6 +104,7 @@ public class WeightAndMeasureResource {
 
         //组装对象
         try {
+            Date now = new Date();
             DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
             dmsOutWeightAndVolume.setBarCode(request.getBarCode());
             if (BusinessHelper.isBoxcode(request.getBarCode())) {
@@ -117,11 +118,16 @@ public class WeightAndMeasureResource {
             dmsOutWeightAndVolume.setCreateSiteCode(request.getSiteCode());
             dmsOutWeightAndVolume.setWeightUserCode(request.getUserCode());
             dmsOutWeightAndVolume.setWeightUserName(request.getUserName());
-            dmsOutWeightAndVolume.setWeightTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+            if(StringUtils.isNotBlank(request.getOperateTime())){
+                dmsOutWeightAndVolume.setWeightTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+                dmsOutWeightAndVolume.setMeasureTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+            }else{
+                dmsOutWeightAndVolume.setWeightTime(now);
+                dmsOutWeightAndVolume.setMeasureTime(now);
+            }
+
             dmsOutWeightAndVolume.setMeasureUserCode(request.getUserCode());
             dmsOutWeightAndVolume.setMeasureUserName(request.getUserName());
-            dmsOutWeightAndVolume.setMeasureTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
-            Date now = new Date();
             dmsOutWeightAndVolume.setCreateTime(now);
             dmsOutWeightAndVolume.setUpdateTime(now);
 
