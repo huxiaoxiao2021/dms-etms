@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
@@ -221,6 +222,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         SealBox tSealBox = this.tSealBoxService.findByBoxCode(sendDetail.getBoxCode());
         if (tSealBox != null) {
             basicQueryEntity.setSealNo(tSealBox.getCode());
+            basicQueryEntity.setSealTime(DateHelper.formatDateTime(tSealBox.getCreateTime()));
         }
     }
 
@@ -268,6 +270,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         basicQueryEntity.setWaybillType(waybill.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : sendPrintService.getWaybillType(waybill.getWaybillType()));
         basicQueryEntity.setReceiverName(waybill.getReceiverName());
         basicQueryEntity.setWaybillSendPay(waybill.getSendPay());
+        basicQueryEntity.setRoadCode(waybill.getRoadCode());
 
         //设置FCNo
         if (waybillState != null && waybillState.getStoreId() != null) {

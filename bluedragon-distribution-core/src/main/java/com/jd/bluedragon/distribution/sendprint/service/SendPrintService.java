@@ -11,8 +11,10 @@ import java.util.List;
 public interface SendPrintService {
 
     SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria);
+	SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
+	BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria);
 

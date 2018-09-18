@@ -1167,4 +1167,191 @@ public class SendPrintServiceImpl implements SendPrintService {
         return tBasicQueryEntityResponse;
     }
 
+
+    public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria){
+        Date startDate = new Date();
+        logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
+        BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+        try {
+            List<BasicQueryEntity> data = new ArrayList<BasicQueryEntity>();//
+            // TODO: 2018/9/18 查es接口获取值
+            tBasicQueryEntityResponse.setData(data);
+        } catch (Exception e) {
+            logger.error("打印明细基本查询异常", e);
+            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
+            return tBasicQueryEntityResponse;
+        }
+        Date endDate = new Date();
+        logger.info("打印交接清单-基本信息查询结束-" + (startDate.getTime() - endDate.getTime()));
+        return tBasicQueryEntityResponse;
+    }
+    /**
+     * 批次汇总&&批次汇总打印 -- 新接口
+     */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria) {
+        SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
+
+        // TODO: 2018/9/17 查es接口
+        List<BasicQueryEntity> basicQueryEntityList = new ArrayList<BasicQueryEntity>();
+
+        //没有查到相关数据的情况
+        if (basicQueryEntityList == null || basicQueryEntityList.size() < 1) {
+            tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK_NULL);
+            tSummaryPrintResultResponse.setMessage(JdResponse.MESSAGE_OK_NULL);
+            return tSummaryPrintResultResponse;
+        }
+
+        //按批次分类
+        Map<String,List<BasicQueryEntity>> sendBaseMap = new HashMap<String, List<BasicQueryEntity>>();
+        for (BasicQueryEntity basicQueryEntity : basicQueryEntityList) {
+            String sendCode = basicQueryEntity.getSendCode();
+            if(sendBaseMap.containsKey(sendCode)){
+                sendBaseMap.get(sendCode).add(basicQueryEntity);
+            }else {
+                List<BasicQueryEntity> entities =  new ArrayList<BasicQueryEntity>();
+                entities.add(basicQueryEntity);
+                sendBaseMap.put(sendCode,entities);
+            }
+        }
+
+        //遍历批次，分别组装
+        Map<String,SummaryPrintResult> summaryPrintResultMap = new HashMap<String, SummaryPrintResult>();
+        for(String sendCode : sendBaseMap.keySet()){
+            SummaryPrintResult summaryPrintResult = new SummaryPrintResult();
+            summaryPrintResult.setSendCode(sendCode);
+            summaryPrintResult.setSendSiteName(toSiteName(criteria.getSiteCode()));
+            summaryPrintResult.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
+
+            summaryPrintResultMap.put(sendCode,singleSendSummary(summaryPrintResult,sendBaseMap.get(sendCode)));
+        }
+
+        //map转成list
+        tSummaryPrintResultResponse.setData(new ArrayList<SummaryPrintResult>(summaryPrintResultMap.values()));
+
+        return tSummaryPrintResultResponse;
+
+    }
+
+    /**
+     * 单批次数据汇总
+     * @param summaryPrintResult
+     * @param basicQueryEntityList
+     * @return
+     */
+    private SummaryPrintResult singleSendSummary(SummaryPrintResult summaryPrintResult,List<BasicQueryEntity> basicQueryEntityList){
+        Map<String, SummaryPrintBoxEntity> boxMap = new HashMap<String, SummaryPrintBoxEntity>();
+        List<SummaryPrintBoxEntity> details = new ArrayList<SummaryPrintBoxEntity>();
+
+        Integer totalBoxNum = 0 ; //单个批次内的箱子数量
+        Integer totalPackageBarNum = 0; //单个批次内的包裹数量
+        Double totalBoardVolume = 0.0;  //总的板体积
+        Double totalOutVolumeDy = 0.0;  //总的应付自动测量体积
+        Double totalOutVolumeSt = 0.0;  //总的应付人工测量体积
+        Double totalInVolume = 0.0;     //总的应收体积
+
+        String roadCode  = null; //路区号
+        String sendTime = "";//发货时间
+
+        /** 已经处理过的板号集合，每条记录的托盘体积都是整个托盘的体积，所以只需记一次 **/
+        Set<String> boardVolumeSet = new HashSet<String>();
+        /** 已经处理过的箱号集合，每条记录的箱体积都是整个箱的体积，所以只需记一次 **/
+        Set<String> boxVolumeSet = new HashSet<String>();
+
+        //循环处理批次内的每一条记录完成统计功能
+        for(BasicQueryEntity basicQueryEntity : basicQueryEntityList) {
+            if(com.jd.common.util.StringUtils.isBlank(roadCode) && com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getRoadCode())){
+                roadCode = basicQueryEntity.getRoadCode();
+            }
+            if(com.jd.common.util.StringUtils.isBlank(sendTime) && com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getOperateTime())){
+                sendTime = basicQueryEntity.getOperateTime();
+            }
+            SummaryPrintBoxEntity summaryEntity = null;
+            //如果是按箱处理的，把箱里的包裹进行组装
+            if (BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())) {
+                if (boxMap.containsKey(basicQueryEntity.getBoxCode())) {
+                    summaryEntity = boxMap.get(basicQueryEntity.getBoxCode());
+                    summaryEntity.setWaybillNum(summaryEntity.getWaybillNum() + 1);
+                    summaryEntity.setPackageBarNum(summaryEntity.getPackageBarNum() + 1);
+                    summaryEntity.setPackageBarRecNum(summaryEntity.getPackageBarRecNum() + 1);
+                } else {
+                    summaryEntity = new SummaryPrintBoxEntity();
+                    summaryEntity.setBoxCode(basicQueryEntity.getBoxCode());
+                    summaryEntity.setWaybillNum(1);
+                    summaryEntity.setPackageBarNum(1);
+                    summaryEntity.setPackageBarRecNum(1);
+                    boxMap.put(basicQueryEntity.getBoxCode(),summaryEntity);
+                }
+
+                //设置封签号、封车时间和箱的体积
+                summaryEntity.setSealNo1(basicQueryEntity.getSealNo());
+                summaryEntity.setSealNo2("");
+                summaryEntity.setLockTime(basicQueryEntity.getSealTime());//封车时间
+                Box box = null;
+                try {
+                    box = boxService.findBoxByCode(basicQueryEntity.getBoxCode());
+                } catch (Exception e) {
+                    logger.error("打印交接清单获取箱号失败", e);
+                }
+                if (null != box && null != box.getLength() && null != box.getWidth() && null != box.getHeight()
+                        && box.getLength() > 0 && box.getWidth() > 0 && box.getHeight() > 0) {
+                    summaryEntity.setVolume(Double.valueOf(box.getLength() * box.getWidth() * box.getHeight()));
+                }
+
+                totalBoxNum ++;
+            } else {
+                //按包裹号处理的
+                summaryEntity.setBoxCode(basicQueryEntity.getBoxCode());
+                summaryEntity.setWaybillNum(1);
+                summaryEntity.setPackageBarNum(1);
+                summaryEntity.setPackageBarRecNum(1);
+                summaryEntity.setSealNo1("");
+                summaryEntity.setSealNo2("");
+                summaryEntity.setVolume(basicQueryEntity.getGoodVolume());
+
+                details.add(summaryEntity);
+
+                totalPackageBarNum++;
+            }
+
+            //如果有板的体积，把已经计算过体积的板号写入boardVolumeSet，避免重复计算
+            if(com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getBoardCode())){
+                if(!boardVolumeSet.contains(basicQueryEntity.getBoardCode())){
+                    boardVolumeSet.add(basicQueryEntity.getBoxCode());
+                    totalBoardVolume += basicQueryEntity.getBoardVolume();
+                }
+            }else if(com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getBoxCode()) && BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())){
+                //按箱测量的
+                if(!boxVolumeSet.contains(basicQueryEntity.getBoardCode())){
+                    boxVolumeSet.add(basicQueryEntity.getBoxCode());
+                    totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
+                    totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
+                }
+            }else{
+                //按包裹测量
+                totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
+                totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
+            }
+
+            //应收体积
+            totalInVolume += basicQueryEntity.getGoodVolume();
+        }
+
+        //map转换成list
+        details.addAll(boxMap.values());
+
+        summaryPrintResult.setSendTime(sendTime);
+        summaryPrintResult.setRoadCode(roadCode);
+        summaryPrintResult.setTotalBoxNum(totalBoxNum);
+        summaryPrintResult.setTotalpackageBarNum(totalPackageBarNum);
+        summaryPrintResult.setTotalBoardVolume(totalBoardVolume);
+        summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
+        summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt+totalBoardVolume);
+        summaryPrintResult.setTotalInVolume(totalInVolume);
+        summaryPrintResult.setDetails(details);
+
+        return summaryPrintResult;
+    }
 }

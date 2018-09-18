@@ -130,6 +130,10 @@ public class BasicQueryEntity implements Serializable{
 
 	private String waybillSendPay;
 
+	private String roadCode;
+
+	private String sealTime;
+
 	public Double getGoodWeight2() {
 		return goodWeight2;
 	}
@@ -448,5 +452,21 @@ public class BasicQueryEntity implements Serializable{
 
 	public void setWaybillSendPay(String waybillSendPay) {
 		this.waybillSendPay = waybillSendPay;
+	}
+
+	public String getRoadCode() {
+		return roadCode;
+	}
+
+	public void setRoadCode(String roadCode) {
+		this.roadCode = roadCode;
+	}
+
+	public String getSealTime() {
+		return sealTime;
+	}
+
+	public void setSealTime(String sealTime) {
+		this.sealTime = sealTime;
 	}
 }

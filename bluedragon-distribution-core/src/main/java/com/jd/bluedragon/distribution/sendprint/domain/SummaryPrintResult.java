@@ -32,6 +32,15 @@ public class SummaryPrintResult implements Serializable {
 	/** 合计托盘体积 */
 	private Double totalBoardVolume;
 
+	/** 合计动态测量体积 **/
+	private Double totalOutVolumeDynamic;
+
+	/** 合计静态测量体积 **/
+	private Double totalOutVolumeStatic;
+
+	/** 合计应收体积 **/
+	private Double totalInVolume;
+
 	public List<SummaryPrintBoxEntity> getDetails() {
 		return details;
 	}
@@ -109,4 +118,28 @@ public class SummaryPrintResult implements Serializable {
     public void setTotalBoardVolume(Double totalBoardVolume) {
         this.totalBoardVolume = totalBoardVolume;
     }
+
+	public Double getTotalOutVolumeDynamic() {
+		return totalOutVolumeDynamic;
+	}
+
+	public void setTotalOutVolumeDynamic(Double totalOutVolumeDynamic) {
+		this.totalOutVolumeDynamic = totalOutVolumeDynamic;
+	}
+
+	public Double getTotalOutVolumeStatic() {
+		return totalOutVolumeStatic;
+	}
+
+	public void setTotalOutVolumeStatic(Double totalOutVolumeStatic) {
+		this.totalOutVolumeStatic = totalOutVolumeStatic;
+	}
+
+	public Double getTotalInVolume() {
+		return totalInVolume;
+	}
+
+	public void setTotalInVolume(Double totalInVolume) {
+		this.totalInVolume = totalInVolume;
+	}
 }
