@@ -169,52 +169,52 @@
 		update dms_out_weight_volume
 			<set>
 				<if test="barCodeType != null">
-					#{barCodeType,jdbcType=TINYINT},
+					barcode_type=#{barCodeType,jdbcType=TINYINT},
 				</if>
 				<if test="weight != null">
-					#{weight,jdbcType=DOUBLE},
+					weight=#{weight,jdbcType=DOUBLE},
 				</if>
 				<if test="volume != null">
-					#{volume,jdbcType=DOUBLE},
+					volume=#{volume,jdbcType=DOUBLE},
 				</if>
 				<if test="length != null">
-					#{length,jdbcType=DOUBLE},
+					length=#{length,jdbcType=DOUBLE},
 				</if>
 				<if test="width != null">
-					#{width,jdbcType=DOUBLE},
+					width=#{width,jdbcType=DOUBLE},
 				</if>
 				<if test="height != null">
-					#{height,jdbcType=DOUBLE},
+					height=#{height,jdbcType=DOUBLE},
 				</if>
 				<if test="operateType != null">
-					#{operateType,jdbcType=TINYINT},
+					operate_type=#{operateType,jdbcType=TINYINT},
 				</if>
 				<if test="weightUserCode != null">
-					#{weightUserCode,jdbcType=INTEGER},
+					weight_user_code=#{weightUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="weightUserName != null">
-					#{weightUserName,jdbcType=VARCHAR},
+					weight_user_name=#{weightUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="weightTime != null">
-					#{weightTime,jdbcType=TIMESTAMP},
+					weight_time=#{weightTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="measureUserCode != null">
-					#{measureUserCode,jdbcType=INTEGER},
+					measure_user_code=#{measureUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="measureUserName != null">
-					#{measureUserName,jdbcType=VARCHAR},
+					measure_user_name=#{measureUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="measureTime != null">
-					#{measureTime,jdbcType=TIMESTAMP},
+					measure_time=#{measureTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP},
+					create_time=#{createTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP},
+					update_time=#{updateTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT}
+					is_delete=#{isDelete,jdbcType=TINYINT}
 				</if>
 			</set>
 		where barcode = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
