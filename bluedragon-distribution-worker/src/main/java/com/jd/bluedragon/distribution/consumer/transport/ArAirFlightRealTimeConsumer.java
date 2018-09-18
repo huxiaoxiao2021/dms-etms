@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.transport.domain.ArAirFlightRealTimeStatus
 import com.jd.bluedragon.distribution.transport.domain.ArAirWaybillStatus;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -66,7 +67,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
-        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
         if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
             for (ArSendRegister sendRegister : sendRegisterList) {
                 List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());

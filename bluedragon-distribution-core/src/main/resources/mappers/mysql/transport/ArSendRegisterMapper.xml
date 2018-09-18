@@ -511,6 +511,12 @@
         where
         transport_name = #{transportName,jdbcType=VARCHAR}
         and DATE_FORMAT(send_date, '%Y-%m-%d') = DATE_FORMAT(#{sendDate,jdbcType=TIMESTAMP}, '%Y-%m-%d')
+        <if test="transportType != null">
+            and transport_type = #{transportType,jdbcType=SMALLINT}
+        </if>
+        <if test="siteOrder != null">
+            and site_order = #{siteOrder,jdbcType=VARCHAR}
+        </if>
         order by create_time
     </select>
 

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
@@ -122,9 +123,9 @@ public class ArReceiveResource implements DmsArReceiveService {
     }
 
     @Override
-    public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(String transportName, Date sendDate) {
+    public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
-        if (StringUtils.isEmpty(transportName)) {
+        if (StringUtils.isEmpty(transName)) {
             response.toFail("运力名称不能为null或空字符串");
         }
 
@@ -133,7 +134,7 @@ public class ArReceiveResource implements DmsArReceiveService {
         }
 
         try {
-            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(transportName, sendDate);
+            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
             if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
                 for (ArSendRegister sendRegister : sendRegisterList) {
                     List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
