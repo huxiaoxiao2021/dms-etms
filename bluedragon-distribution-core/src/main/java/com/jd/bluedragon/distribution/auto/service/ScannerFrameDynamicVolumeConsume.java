@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE;
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE;
+import static com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume.OPERATE_TYPE_DYNAMIC;
 
 /**
  * @Description 应付动态量方
@@ -80,7 +81,7 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         //量方操作人青龙id
         dmsOutWeightAndVolume.setMeasureUserCode(config.getOperateUserId());
         // 操作类型 1动态量方
-        dmsOutWeightAndVolume.setOperateType(1);
+        dmsOutWeightAndVolume.setOperateType(OPERATE_TYPE_DYNAMIC);
         //称重时间
         dmsOutWeightAndVolume.setWeightTime(uploadData.getScannerTime());
         //量方操作人名称
