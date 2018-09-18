@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturn;
+import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillMessage;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -105,9 +106,18 @@ public class MergeWaybillCodeReturnResource {
                 if(result.getData()!=null&&returnDto.getData().getReturnWaybillCode()!=null){
                     newWaybillCode = returnDto.getData().getReturnWaybillCode();
                     //给运单发消息
-                    mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,"");
+                    MergeWaybillMessage message = new MergeWaybillMessage();
+                    message.setNewWaybillCode(newWaybillCode);
+                    message.setWaybillCodeList(JSON.toJSONString(returnDto.getData().getWaybillCodeList()));
+                    message.setOperateTime(mergeWaybillCodeReturn.getOperateTime());
+                    message.setOperatorName(mergeWaybillCodeReturn.getOperatorName());
+                    message.setOperatorNo(mergeWaybillCodeReturn.getOperatorNo());
+                    message.setSiteCode(mergeWaybillCodeReturn.getOperateUnitId());
+                    message.setSiteName(mergeWaybillCodeReturn.getSiteName());
+                    this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + JSON.toJSONString(message));
+                    mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,JSON.toJSONString(returnDto.getData()));
                     //发全程跟踪
-
+                    mergeWaybillCodeReturnService.sendTrace(message);
                 }
             }
         }catch (Exception e){

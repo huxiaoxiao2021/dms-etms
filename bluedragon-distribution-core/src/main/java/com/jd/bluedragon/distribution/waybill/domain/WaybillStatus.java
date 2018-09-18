@@ -154,6 +154,12 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_STATUS_CONSULT = 135;
 
+    /**
+     *  签单返回合单
+     * */
+    public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD = 8000;
+    public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW = 9000;
+
     private Long id;
 
     private String sendCode;
