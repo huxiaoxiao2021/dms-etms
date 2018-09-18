@@ -36,28 +36,29 @@ public class WeightAndMeasureResource {
 
     /**
      * 根据扫描的包裹号/箱号+操作站点获取重量体积信息
+     *
      * @param request
      * @return
      */
     @POST
     @Path("/weightAndMeasure/getWeightAndVolume")
     public DmsOutWeightAndVolumeResponse getWeightAndVolume(WeightMeasureRequest request) {
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
 
-        DmsOutWeightAndVolumeResponse response = new DmsOutWeightAndVolumeResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        DmsOutWeightAndVolumeResponse response = new DmsOutWeightAndVolumeResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
         String barCode = request.getBarCode();
         Integer dmsCode = request.getSiteCode();
 
         //校验barCode和DmsCode是否有效
-        if(StringUtils.isBlank(barCode)){
+        if (StringUtils.isBlank(barCode)) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("请输入包裹号/箱号");
             return response;
         }
-        if(dmsCode == null || dmsCode <= 0){
+        if (dmsCode == null || dmsCode <= 0) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage("分拣中心编码为空");
             return response;
@@ -65,8 +66,8 @@ public class WeightAndMeasureResource {
 
         //从dms_out_weight_volume表中查询本分拣中心是否已经对该barCode进行过称重量方录入操作
         //如果已经录入，返回给pda显示出来；否则返回空
-        DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(barCode,dmsCode);
-        if(weightAndVolume != null){
+        DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(barCode, dmsCode);
+        if (weightAndVolume != null) {
             response.setBarCode(weightAndVolume.getBarCode());
             response.setSiteCode(weightAndVolume.getCreateSiteCode());
             response.setWeight(weightAndVolume.getWeight());
@@ -81,22 +82,23 @@ public class WeightAndMeasureResource {
 
     /**
      * 保存人工测量应付体积
+     *
      * @param request
      * @return
      */
     @POST
     @Path("/weightAndMeasure/dmsOutVolumeAdd")
     public DmsOutWeightAndVolumeResponse dmsOutVolumeAdd(WeightMeasureRequest request) {
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
 
-        DmsOutWeightAndVolumeResponse response = new DmsOutWeightAndVolumeResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        DmsOutWeightAndVolumeResponse response = new DmsOutWeightAndVolumeResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
         //参数校验
         String errStr = requestCheck(request);
-        if(StringUtils.isNotBlank(errStr)){
-            logger.error("保存人工测量应付体积失败.参数错误:" + errStr + JsonHelper.toJsonUseGson(request) );
+        if (StringUtils.isNotBlank(errStr)) {
+            logger.error("保存人工测量应付体积失败.参数错误:" + errStr + JsonHelper.toJsonUseGson(request));
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(errStr);
             return response;
@@ -112,29 +114,42 @@ public class WeightAndMeasureResource {
             } else {
                 dmsOutWeightAndVolume.setBarCodeType(DmsOutWeightAndVolume.BARCODE_TYPE_PACKAGECODE);
             }
-            dmsOutWeightAndVolume.setWeight(NumberHelper.doubleFormat(request.getWeight()));
+
+            //设置重量及称重操作人和操作时间
+            if (request.getWeight() != null && request.getWeight() > 0) {
+                dmsOutWeightAndVolume.setWeight(NumberHelper.doubleFormat(request.getWeight()));
+                dmsOutWeightAndVolume.setWeightUserCode(request.getUserCode());
+                dmsOutWeightAndVolume.setWeightUserName(request.getUserName());
+                if (StringUtils.isNotBlank(request.getOperateTime())) {
+                    dmsOutWeightAndVolume.setWeightTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+                } else {
+                    dmsOutWeightAndVolume.setWeightTime(now);
+                }
+            }
+
+            //设置体积及量方操作人和操作时间
             dmsOutWeightAndVolume.setVolume(NumberHelper.doubleFormat(request.getVolume()));
-            dmsOutWeightAndVolume.setOperateType(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC);
-            dmsOutWeightAndVolume.setCreateSiteCode(request.getSiteCode());
-            dmsOutWeightAndVolume.setWeightUserCode(request.getUserCode());
-            dmsOutWeightAndVolume.setWeightUserName(request.getUserName());
-            if(StringUtils.isNotBlank(request.getOperateTime())){
-                dmsOutWeightAndVolume.setWeightTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+            dmsOutWeightAndVolume.setMeasureUserCode(request.getUserCode());
+            dmsOutWeightAndVolume.setMeasureUserName(request.getUserName());
+            if (StringUtils.isNotBlank(request.getOperateTime())) {
                 dmsOutWeightAndVolume.setMeasureTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
-            }else{
-                dmsOutWeightAndVolume.setWeightTime(now);
+            } else {
                 dmsOutWeightAndVolume.setMeasureTime(now);
             }
 
-            dmsOutWeightAndVolume.setMeasureUserCode(request.getUserCode());
-            dmsOutWeightAndVolume.setMeasureUserName(request.getUserName());
+            //设置操作类型和操作站点
+            dmsOutWeightAndVolume.setOperateType(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC);
+            dmsOutWeightAndVolume.setCreateSiteCode(request.getSiteCode());
+
             dmsOutWeightAndVolume.setCreateTime(now);
             dmsOutWeightAndVolume.setUpdateTime(now);
 
+            dmsOutWeightAndVolume.setIsDelete(0);
+
             //写入数据库
             dmsOutWeightAndVolumeService.saveOrUpdate(dmsOutWeightAndVolume);
-        }catch(Exception e){
-            logger.error("保存人工测量应付体积失败.",e);
+        } catch (Exception e) {
+            logger.error("保存人工测量应付体积失败.", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage("服务器异常.");
         }
@@ -144,28 +159,29 @@ public class WeightAndMeasureResource {
 
     /**
      * 参数校验
+     *
      * @param weightMeasureRequest
      * @return
      */
-    private String requestCheck(WeightMeasureRequest weightMeasureRequest){
+    private String requestCheck(WeightMeasureRequest weightMeasureRequest) {
         String errStr = "";
-        if(weightMeasureRequest == null){
+        if (weightMeasureRequest == null) {
             errStr = "weightMeasureRequest为空.";
-        }else{
+        } else {
             //校验分拣中心编码是否有效
-            if(weightMeasureRequest.getSiteCode() == null || weightMeasureRequest.getSiteCode() <=0){
+            if (weightMeasureRequest.getSiteCode() == null || weightMeasureRequest.getSiteCode() <= 0) {
                 errStr += "分拣中心编码为空";
             }
 
             //校验扫描到的箱号/包裹号是否满足正则
             String barCode = weightMeasureRequest.getBarCode();
-            if(StringUtils.isBlank(barCode)){
+            if (StringUtils.isBlank(barCode)) {
                 errStr += "请扫描箱号/包裹号";
-            }else if(!BusinessHelper.isBoxcode(barCode) && !BusinessHelper.isPackageCode(barCode)){
+            } else if (!BusinessHelper.isBoxcode(barCode) && !BusinessHelper.isPackageCode(barCode)) {
                 errStr += "箱号/包裹号不符合规则";
             }
 
-            if(weightMeasureRequest.getVolume() == null || weightMeasureRequest.getVolume() <=0){
+            if (weightMeasureRequest.getVolume() == null || weightMeasureRequest.getVolume() <= 0) {
                 errStr += "请输入体积";
             }
         }

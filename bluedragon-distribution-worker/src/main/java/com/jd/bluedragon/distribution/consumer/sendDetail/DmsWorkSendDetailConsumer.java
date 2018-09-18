@@ -51,7 +51,7 @@ import java.util.List;
  */
 @Service("dmsWorkSendDetailConsumer")
 public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
-    private static final Log logger = LogFactory.getLog(GantryScanPackageConsumer.class);
+    private static final Log logger = LogFactory.getLog(DmsWorkSendDetailConsumer.class);
     @Autowired
     private SendDatailDao sendDatailDao;
 
@@ -97,12 +97,13 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
             }
 
             /**将mq消息体转换成SendDetail对象**/
-            SendDetail sendDetailMQ = JsonHelper.jsonToObject(message.getText(), SendDetail.class);
+            SendDetail sendDetailMQ = JsonHelper.fromJson(message.getText(), SendDetail.class);
             if (sendDetailMQ == null || StringHelper.isEmpty(sendDetailMQ.getPackageBarcode())) {
                 logger.error("DmsWorkSendDetailConsumer:消息体[" + message.getText() + "]转换实体失败或没有合法的包裹号");
                 return;
             }
 
+            /**组装baicQueryEntity对象，写入es**/
             BasicQueryEntity basicQueryEntity = buildBasicQueryEntity(sendDetailMQ);
         }catch(Exception e){
             logger.error("消费发货消息转换成BasicQueryEntity失败.",e);
@@ -360,7 +361,9 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
                     //如果获取到的称重流水不为空，则设置体积
                     if (null != packOpeFlow && null != packOpeFlow.getpLength() && null != packOpeFlow.getpWidth() && null != packOpeFlow.getpHigh()
                             && packOpeFlow.getpLength() > 0 && packOpeFlow.getpWidth() > 0 && packOpeFlow.getpHigh() > 0) {
-                        basicQueryEntity.setGoodVolume( packOpeFlow.getpLength() * packOpeFlow.getpWidth() * packOpeFlow.getpHigh());
+                        basicQueryEntity.setGoodVolume(packOpeFlow.getpLength() * packOpeFlow.getpWidth() * packOpeFlow.getpHigh());
+                    } else{
+                        basicQueryEntity.setGoodVolume(0.0);
                     }
                     break;
                 }
@@ -382,7 +385,7 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         SendM sendM = sendMDao.selectOneByBoxCode(sendMQuery);
 
         //有板号，调TC接口查询是否称过
-        if(StringUtils.isNotBlank(sendM.getBoardCode())){
+        if(sendM != null && StringUtils.isNotBlank(sendM.getBoardCode())){
             List<String> boardCodeList = new ArrayList<String> ();
             boardCodeList.add(sendM.getBoardCode());
 
@@ -396,17 +399,23 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
 
     /**
      * 填充应付（出分拣中心）的体积
+     * 如果包裹装在箱里，按照箱操作过应付量方，该包裹的体积赋值为箱的体积
+     * 如果没有装在箱里，则赋值为包裹的应付体积
      * @param basicQueryEntity
      * @param sendDetail
      */
     private void buildDmsOutVolume(BasicQueryEntity basicQueryEntity, SendDetail sendDetail){
         DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendDetail.getBoxCode(),sendDetail.getCreateSiteCode());
-
-        Integer operateType = weightAndVolume.getOperateType();
-        if(operateType.equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)){
-            basicQueryEntity.setDmsOutVolumeStatic(weightAndVolume.getVolume());
-        } else if(operateType.equals(DmsOutWeightAndVolume.OPERATE_TYPE_DYNAMIC)){
-            basicQueryEntity.setDmsOutVolumeDynamic(weightAndVolume.getVolume());
+        if(weightAndVolume == null && BusinessHelper.isBoxcode(sendDetail.getBoxCode())){
+            weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendDetail.getPackageBarcode(),sendDetail.getCreateSiteCode());
+        }
+        if(weightAndVolume != null) {
+            Integer operateType = weightAndVolume.getOperateType();
+            if (operateType.equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
+                basicQueryEntity.setDmsOutVolumeStatic(weightAndVolume.getVolume());
+            } else if (operateType.equals(DmsOutWeightAndVolume.OPERATE_TYPE_DYNAMIC)) {
+                basicQueryEntity.setDmsOutVolumeDynamic(weightAndVolume.getVolume());
+            }
         }
     }
 

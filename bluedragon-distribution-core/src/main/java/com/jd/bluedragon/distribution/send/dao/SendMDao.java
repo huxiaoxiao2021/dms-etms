@@ -218,7 +218,7 @@ public  class SendMDao extends BaseDao<SendM>  {
 	 * @return
 	 */
 	public SendM selectOneByBoxCode(SendM sendM){
-		if(sendM == null || sendM.getCreateSiteCode() == null || sendM.getReceiveSiteCode() == null || StringUtils.isBlank(sendM.getBoardCode())){
+		if(sendM == null || sendM.getCreateSiteCode() == null || sendM.getReceiveSiteCode() == null || StringUtils.isBlank(sendM.getBoxCode())){
 			throw new IllegalArgumentException("始发分拣中心、目的分拣中心、箱号不能为空.");
 		}
 		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectOneByBoxCode",sendM);

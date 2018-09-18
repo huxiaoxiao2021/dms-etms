@@ -4,10 +4,10 @@ import com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolume
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service("dmsOutWeightAndVolumeService")
 public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeService{
@@ -20,13 +20,13 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
      * @param dmsOutWeightAndVolume
      * @return
      */
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public void saveOrUpdate(DmsOutWeightAndVolume dmsOutWeightAndVolume){
         List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);
 
         if(weightAndVolumeList == null || weightAndVolumeList.size()<1){
             dmsOutWeightAndVolumeDao.add(dmsOutWeightAndVolume);
         }else{
-            dmsOutWeightAndVolume.setCreateTime(null);
             dmsOutWeightAndVolumeDao.update(dmsOutWeightAndVolume);
         }
     }
@@ -61,6 +61,20 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
         dmsOutWeightAndVolume.setCreateSiteCode(dmsCode);
 
         return dmsOutWeightAndVolumeDao.queryOneByBarCode(dmsOutWeightAndVolume);
+    }
+
+    /**
+     * 将数据置成无效is_delete=1
+     * @param barCode
+     * @param dmsCode
+     */
+    public void deleteByBarCodeAndDms(String barCode,Integer dmsCode){
+        DmsOutWeightAndVolume dmsOutWeightAndVolume = new DmsOutWeightAndVolume();
+        dmsOutWeightAndVolume.setBarCode(barCode);
+        dmsOutWeightAndVolume.setCreateSiteCode(dmsCode);
+        dmsOutWeightAndVolume.setIsDelete(1);
+
+        dmsOutWeightAndVolumeDao.update(dmsOutWeightAndVolume);
     }
 
 }

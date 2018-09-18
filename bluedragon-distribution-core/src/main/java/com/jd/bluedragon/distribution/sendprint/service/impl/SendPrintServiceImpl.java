@@ -22,6 +22,8 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
+import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
+import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -80,6 +82,9 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
     BoardCombinationService boardCombinationService;
+
+    @Autowired
+    private DmsOutWeightAndVolumeService dmsOutWeightAndVolumeService;
 
     private static int PARAM_CM3_M3 = 1000000;//立方厘米和立方米的换算基数
 
@@ -1218,18 +1223,18 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
         //遍历批次，分别组装
-        Map<String,SummaryPrintResult> summaryPrintResultMap = new HashMap<String, SummaryPrintResult>();
+        List<SummaryPrintResult> summaryPrintResultList = new ArrayList<SummaryPrintResult>();
         for(String sendCode : sendBaseMap.keySet()){
             SummaryPrintResult summaryPrintResult = new SummaryPrintResult();
             summaryPrintResult.setSendCode(sendCode);
             summaryPrintResult.setSendSiteName(toSiteName(criteria.getSiteCode()));
             summaryPrintResult.setReceiveSiteName(toSiteName(criteria.getReceiveSiteCode()));
 
-            summaryPrintResultMap.put(sendCode,singleSendSummary(summaryPrintResult,sendBaseMap.get(sendCode)));
+            summaryPrintResultList.add(singleSendSummary(summaryPrintResult,sendBaseMap.get(sendCode)));
         }
 
-        //map转成list
-        tSummaryPrintResultResponse.setData(new ArrayList<SummaryPrintResult>(summaryPrintResultMap.values()));
+        //设置返回值的data
+        tSummaryPrintResultResponse.setData(summaryPrintResultList);
 
         return tSummaryPrintResultResponse;
 
@@ -1262,12 +1267,15 @@ public class SendPrintServiceImpl implements SendPrintService {
 
         //循环处理批次内的每一条记录完成统计功能
         for(BasicQueryEntity basicQueryEntity : basicQueryEntityList) {
-            if(com.jd.common.util.StringUtils.isBlank(roadCode) && com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getRoadCode())){
+            //取每个批次中第一单的路区号
+            if(StringUtils.isBlank(roadCode) && StringUtils.isNotBlank(basicQueryEntity.getRoadCode())){
                 roadCode = basicQueryEntity.getRoadCode();
             }
-            if(com.jd.common.util.StringUtils.isBlank(sendTime) && com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getOperateTime())){
+            //发货时间
+            if(StringUtils.isBlank(sendTime) && StringUtils.isNotBlank(basicQueryEntity.getOperateTime())){
                 sendTime = basicQueryEntity.getOperateTime();
             }
+
             SummaryPrintBoxEntity summaryEntity = null;
             //如果是按箱处理的，把箱里的包裹进行组装
             if (BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())) {
@@ -1303,6 +1311,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                 totalBoxNum ++;
             } else {
                 //按包裹号处理的
+                summaryEntity = new SummaryPrintBoxEntity();
                 summaryEntity.setBoxCode(basicQueryEntity.getBoxCode());
                 summaryEntity.setWaybillNum(1);
                 summaryEntity.setPackageBarNum(1);
@@ -1316,19 +1325,45 @@ public class SendPrintServiceImpl implements SendPrintService {
                 totalPackageBarNum++;
             }
 
+            /**
+             * 体积汇总逻辑：
+             * 有板体积以板的体积为主；
+             * 没有板体积，有箱体积，则以箱体积为主；
+             * 没有板体积，也没有箱体积，则以包裹体积为主；
+             *
+             * 注意：（1）板体积有两种情况：有或者没有，所以比较好处理
+             *      （2）箱体积没有单独存储，可能存的是整箱的体积，也可能存的是包裹的体积，现做如下判断：
+             *          如果boxCode字段为箱号，则从出库重量体积表dms_out_weight_volume看是否有箱维度的体积，如果有，并且=basicQueryEntity的体积，则按箱体积计算
+             *            否则，按照包裹维度计算
+             *
+             */
+
             //如果有板的体积，把已经计算过体积的板号写入boardVolumeSet，避免重复计算
-            if(com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getBoardCode())){
+            if(StringUtils.isNotBlank(basicQueryEntity.getBoardCode()) && NumberHelper.gt0(basicQueryEntity.getBoardVolume())){
                 if(!boardVolumeSet.contains(basicQueryEntity.getBoardCode())){
-                    boardVolumeSet.add(basicQueryEntity.getBoxCode());
+                    boardVolumeSet.add(basicQueryEntity.getBoardCode());
                     totalBoardVolume += basicQueryEntity.getBoardVolume();
+                    totalOutVolumeSt += basicQueryEntity.getBoardVolume(); //板的体积算作静态测量体积
                 }
-            }else if(com.jd.common.util.StringUtils.isNotBlank(basicQueryEntity.getBoxCode()) && BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())){
-                //按箱测量的
-                if(!boxVolumeSet.contains(basicQueryEntity.getBoardCode())){
+            }else if(StringUtils.isNotBlank(basicQueryEntity.getBoxCode()) && BusinessHelper.isBoxcode(basicQueryEntity.getBoxCode())){
+                //没有板号，或者板的体积为空，但是有箱号（box_code字段为箱号）
+                if(boxVolumeSet.contains(basicQueryEntity.getBoxCode())){
+                    continue;
+                }
+                Double volume = basicQueryEntity.getDmsOutVolumeDynamic() + basicQueryEntity.getDmsOutVolumeStatic();
+                if(!NumberHelper.gt0(volume)){
+                    continue;
+                }
+                //从dms_out_weight_volume表中查出箱的记录
+                DmsOutWeightAndVolume dmsOutWeightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(basicQueryEntity.getBoxCode(),basicQueryEntity.getSiteCode());
+                if(dmsOutWeightAndVolume != null && volume.equals(dmsOutWeightAndVolume.getVolume())){
+                    //说明按箱测量过应付体积，则以箱的体积为准
                     boxVolumeSet.add(basicQueryEntity.getBoxCode());
-                    totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
-                    totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
+
                 }
+                totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
+                totalOutVolumeSt += basicQueryEntity.getDmsOutVolumeStatic();
+
             }else{
                 //按包裹测量
                 totalOutVolumeDy += basicQueryEntity.getDmsOutVolumeStatic();
@@ -1348,7 +1383,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         summaryPrintResult.setTotalpackageBarNum(totalPackageBarNum);
         summaryPrintResult.setTotalBoardVolume(totalBoardVolume);
         summaryPrintResult.setTotalOutVolumeDynamic(totalOutVolumeDy);
-        summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt+totalBoardVolume);
+        summaryPrintResult.setTotalOutVolumeStatic(totalOutVolumeSt);
         summaryPrintResult.setTotalInVolume(totalInVolume);
         summaryPrintResult.setDetails(details);
 

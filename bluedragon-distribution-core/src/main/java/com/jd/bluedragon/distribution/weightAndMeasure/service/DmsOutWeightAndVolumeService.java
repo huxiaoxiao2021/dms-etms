@@ -27,4 +27,11 @@ public interface DmsOutWeightAndVolumeService {
      * @return
      */
     DmsOutWeightAndVolume getOneByBarCodeAndDms(String barCode,Integer dmsCode);
+
+    /**
+     * 将数据置成无效is_delete=1
+     * @param barCode
+     * @param dmsCode
+     */
+    void deleteByBarCodeAndDms(String barCode,Integer dmsCode);
 }
