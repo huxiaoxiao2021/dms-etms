@@ -217,7 +217,7 @@
 					is_delete=#{isDelete,jdbcType=TINYINT}
 				</if>
 			</set>
-		where barcode = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
+		where barcode = #{barCode,jdbcType=VARCHAR} and create_site_code=#{createSiteCode,jdbcType=INTEGER}
 	</update>
 
 
