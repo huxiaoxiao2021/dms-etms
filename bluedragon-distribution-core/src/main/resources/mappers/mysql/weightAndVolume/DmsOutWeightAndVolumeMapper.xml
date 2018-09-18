@@ -4,13 +4,13 @@
 
 	<resultMap id="DmsOutWeightAndVolume" type="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
-		<result column="bar_code" property="barCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="bar_code_type" property="barCodeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="barcode" property="barCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="barcode_type" property="barCodeType" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="length" property="length" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="width" property="width" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="high" property="high" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="height" property="height" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="operate_type" property="operateType" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 
@@ -24,22 +24,21 @@
 
 		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,bar_code,bar_code_type,
+		id,barcode,barcode_type,
 		weight,volume,
-		length,width,high,
+		length,width,height,
 		operate_type,create_site_code,
 		weight_user_code,weight_user_name,weight_time,
 		measure_user_code,measure_user_name,measure_time,
 		create_time,update_time,
-		ts,is_delete
+		is_delete
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume">
 		insert into dms_out_weight_volume
 			(
 			<trim suffixOverrides=",">
@@ -47,10 +46,10 @@
 					id,
 				</if>
 				<if test="barCode != null">
-					bar_code,
+					barcode,
 				</if>
 				<if test="barCodeType != null">
-					bar_code_type,
+					barcode_type,
 				</if>
 				<if test="weight != null">
 					weight,
@@ -64,8 +63,8 @@
 				<if test="width != null">
 					width,
 				</if>
-				<if test="high != null">
-					high,
+				<if test="height != null">
+					height,
 				</if>
 				<if test="operateType != null">
 					operate_type,
@@ -97,9 +96,6 @@
 				<if test="updateTime != null">
 					update_time,
 				</if>
-				<if test="ts != null">
-					ts,
-				</if>
 				<if test="isDelete != null">
 					is_delete
 				</if>
@@ -109,61 +105,58 @@
 			(
 			<trim suffixOverrides=",">
 				<if test="id != null">
-					#{id,jdbcType=BIGINT}
+					#{id,jdbcType=BIGINT},
 				</if>
 				<if test="barCode != null">
-					#{barCode,jdbcType=VARCHAR}
+					#{barCode,jdbcType=VARCHAR},
 				</if>
 				<if test="barCodeType != null">
-					#{barCodeType,jdbcType=TINYINT}
+					#{barCodeType,jdbcType=TINYINT},
 				</if>
 				<if test="weight != null">
-					#{weight,jdbcType=DOUBLE}
+					#{weight,jdbcType=DOUBLE},
 				</if>
 				<if test="volume != null">
-					#{volume,jdbcType=DOUBLE}
+					#{volume,jdbcType=DOUBLE},
 				</if>
 				<if test="length != null">
-					#{length,jdbcType=DOUBLE}
+					#{length,jdbcType=DOUBLE},
 				</if>
 				<if test="width != null">
-					#{width,jdbcType=DOUBLE}
+					#{width,jdbcType=DOUBLE},
 				</if>
-				<if test="high != null">
-					#{high,jdbcType=DOUBLE}
+				<if test="height != null">
+					#{height,jdbcType=DOUBLE},
 				</if>
 				<if test="operateType != null">
-					#{operateType,jdbcType=TINYINT}
+					#{operateType,jdbcType=TINYINT},
 				</if>
 				<if test="createSiteCode != null">
-					#{createSiteCode,jdbcType=INTEGER}
+					#{createSiteCode,jdbcType=INTEGER},
 				</if>
 				<if test="weightUserCode != null">
-					#{weightUserCode,jdbcType=INTEGER}
+					#{weightUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="weightUserName != null">
-					#{weightUserName,jdbcType=VARCHAR}
+					#{weightUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="weightTime != null">
-					#{weightTime,jdbcType=TIMESTAMP}
+					#{weightTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="measureUserCode != null">
-					#{measureUserCode,jdbcType=INTEGER}
+					#{measureUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="measureUserName != null">
-					#{measureUserName,jdbcType=VARCHAR}
+					#{measureUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="measureTime != null">
-					#{measureTime,jdbcType=TIMESTAMP}
+					#{measureTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP}
+					#{createTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP}
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
+					#{updateTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="isDelete != null">
 					#{isDelete,jdbcType=TINYINT}
@@ -176,58 +169,55 @@
 		update dms_out_weight_volume
 			<set>
 				<if test="barCodeType != null">
-					#{barCodeType,jdbcType=TINYINT}
+					barcode_type=#{barCodeType,jdbcType=TINYINT},
 				</if>
 				<if test="weight != null">
-					#{weight,jdbcType=DOUBLE}
+					weight=#{weight,jdbcType=DOUBLE},
 				</if>
 				<if test="volume != null">
-					#{volume,jdbcType=DOUBLE}
+					volume=#{volume,jdbcType=DOUBLE},
 				</if>
 				<if test="length != null">
-					#{length,jdbcType=DOUBLE}
+					length=#{length,jdbcType=DOUBLE},
 				</if>
 				<if test="width != null">
-					#{width,jdbcType=DOUBLE}
+					width=#{width,jdbcType=DOUBLE},
 				</if>
-				<if test="high != null">
-					#{high,jdbcType=DOUBLE}
+				<if test="height != null">
+					height=#{height,jdbcType=DOUBLE},
 				</if>
 				<if test="operateType != null">
-					#{operateType,jdbcType=TINYINT}
+					operate_type=#{operateType,jdbcType=TINYINT},
 				</if>
 				<if test="weightUserCode != null">
-					#{weightUserCode,jdbcType=INTEGER}
+					weight_user_code=#{weightUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="weightUserName != null">
-					#{weightUserName,jdbcType=VARCHAR}
+					weight_user_name=#{weightUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="weightTime != null">
-					#{weightTime,jdbcType=TIMESTAMP}
+					weight_time=#{weightTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="measureUserCode != null">
-					#{measureUserCode,jdbcType=INTEGER}
+					measure_user_code=#{measureUserCode,jdbcType=INTEGER},
 				</if>
 				<if test="measureUserName != null">
-					#{measureUserName,jdbcType=VARCHAR}
+					measure_user_name=#{measureUserName,jdbcType=VARCHAR},
 				</if>
 				<if test="measureTime != null">
-					#{measureTime,jdbcType=TIMESTAMP}
+					measure_time=#{measureTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="createTime != null">
-					#{createTime,jdbcType=TIMESTAMP}
+					create_time=#{createTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="updateTime != null">
-					#{updateTime,jdbcType=TIMESTAMP}
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
+					update_time=#{updateTime,jdbcType=TIMESTAMP},
 				</if>
 				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT}
+					is_delete=#{isDelete,jdbcType=TINYINT}
 				</if>
 			</set>
-		where bar_code = #{barCode,jdbcType=VARCHAR} and create_site_code=${#createSiteCode,jdbcType=INTEGER}
+		where barcode = #{barCode,jdbcType=VARCHAR} and create_site_code=#{createSiteCode,jdbcType=INTEGER}
 	</update>
 
 
@@ -237,7 +227,7 @@
 		from
 		  dms_out_weight_volume
 		where is_delete = 0
-		  and bar_code = #{barCode,jdbcType=VARCHAR}
+		  and barcode = #{barCode,jdbcType=VARCHAR}
 		  and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 	</select>
 
@@ -247,7 +237,7 @@
 		from
 		dms_out_weight_volume
 		where is_delete = 0
-		and bar_code = #{barCode,jdbcType=VARCHAR}
+		and barcode = #{barCode,jdbcType=VARCHAR}
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		order by create_time DESC
 		limit 1
