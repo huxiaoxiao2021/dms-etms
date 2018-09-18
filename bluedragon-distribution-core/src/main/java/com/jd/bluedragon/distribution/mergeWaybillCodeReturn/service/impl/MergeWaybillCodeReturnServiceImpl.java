@@ -92,7 +92,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         tTask.setOwnSign(ownSign);
 
         WaybillStatus status=new WaybillStatus();
-        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD);
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW);
         status.setWaybillCode(message.getNewWaybillCode());
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
@@ -107,7 +107,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
 
     private void toTask(MergeWaybillMessage message, String waybillCode) {
         Task tTask = new Task();
-        tTask.setKeyword1(message.getNewWaybillCode());
+        tTask.setKeyword1(waybillCode);
         tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD));
         tTask.setCreateSiteCode(message.getSiteCode());
         tTask.setCreateTime(new Date(message.getOperateTime()));

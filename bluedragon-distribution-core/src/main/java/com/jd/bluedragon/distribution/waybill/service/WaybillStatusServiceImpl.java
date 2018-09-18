@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
@@ -51,6 +52,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final Integer SITE_TYPE_SPWMS = 903;
+	private static final String MERGE_WAYBILL_RETURN_COUNT = "mergeWaybillReturnCount";
 
 	@Autowired
 	private TaskService taskService;
@@ -372,8 +374,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
                 List<String> list = JSONArray.parseArray(tWaybillStatus.getRemark(), String.class);
-                if(list.size()>10){
-                    bdTraceDto.setOperatorDesp("反单合单，运单号"+tWaybillStatus.getWaybillCode());
+                int maxSize = Integer.valueOf(PropertiesHelper.newInstance().getValue(MERGE_WAYBILL_RETURN_COUNT));
+                if(list.size() > maxSize ){
+                    String temp = "";
+                    for(int i=0; i<maxSize; i++){
+                        temp += list.get(i)+",";
+                        if(i == maxSize-1){
+                            temp += list.get(i)+"等";
+                        }
+                    }
+                    bdTraceDto.setOperatorDesp("反单合单，原运单号"+temp);
 				}
 				bdTraceDto.setOperatorDesp("反单合单，运单号"+tWaybillStatus.getWaybillCode());
 				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
