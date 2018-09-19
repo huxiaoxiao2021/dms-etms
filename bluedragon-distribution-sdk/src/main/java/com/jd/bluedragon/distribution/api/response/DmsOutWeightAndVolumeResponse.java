@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.api.response;
 
-import com.jd.bluedragon.distribution.api.JdResponse;
+public class DmsOutWeightAndVolumeResponse{
+    private static final long serialVersionUID = 1L;
 
-public class DmsOutWeightAndVolumeResponse  extends JdResponse {
     /**
      * 箱号/包裹号
      */
@@ -35,10 +35,6 @@ public class DmsOutWeightAndVolumeResponse  extends JdResponse {
      * 量方人姓名
      */
     private String measureUserName;
-
-    public DmsOutWeightAndVolumeResponse(Integer code,String message){
-        super(code,message);
-    }
 
     public Double getWeight() {
         return weight;
