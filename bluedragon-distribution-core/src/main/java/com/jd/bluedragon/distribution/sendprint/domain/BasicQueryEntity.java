@@ -128,10 +128,14 @@ public class BasicQueryEntity implements Serializable{
 	 */
 	private Double dmsOutVolumeStatic;
 
-	private String waybillSendPay;
-
+    /**
+     * 路区号
+     */
 	private String roadCode;
 
+    /**
+     * 封车时间
+     */
 	private String sealTime;
 
 	public Double getGoodWeight2() {
@@ -444,14 +448,6 @@ public class BasicQueryEntity implements Serializable{
 
 	public void setDmsOutVolumeStatic(Double dmsOutVolumeStatic) {
 		this.dmsOutVolumeStatic = dmsOutVolumeStatic;
-	}
-
-	public String getWaybillSendPay() {
-		return waybillSendPay;
-	}
-
-	public void setWaybillSendPay(String waybillSendPay) {
-		this.waybillSendPay = waybillSendPay;
 	}
 
 	public String getRoadCode() {

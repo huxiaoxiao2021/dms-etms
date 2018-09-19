@@ -270,7 +270,6 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
         basicQueryEntity.setPackageBarNum(waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber());
         basicQueryEntity.setWaybillType(waybill.getWaybillType() == null ? SendPrintConstants.TEXT_GENERAL_ORDER : sendPrintService.getWaybillType(waybill.getWaybillType()));
         basicQueryEntity.setReceiverName(waybill.getReceiverName());
-        basicQueryEntity.setWaybillSendPay(waybill.getSendPay());
         basicQueryEntity.setRoadCode(waybill.getRoadCode());
 
         //设置FCNo
