@@ -20,6 +20,7 @@ import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
+import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -179,6 +180,85 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             this.logger.error("根据任务简码获取任务信息：任务简码->" + simpleCode, e);
+        }
+        return sealVehicleResponse;
+    }
+
+    /**
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     */
+    @POST
+    @Path("/new/vehicle/seal/workitem/query")
+    @Override
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101104)
+    public TransWorkItemResponse getVehicleNumberOrItemCodeByParam(NewSealVehicleRequest request) {
+        TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            if (request == null || StringUtils.isEmpty(request.getUserErp()) || StringUtils.isEmpty(request.getDmsCode()) ||
+                    (StringUtils.isEmpty(request.getTransWorkItemCode()) && StringUtils.isEmpty(request.getVehicleNumber()))) {
+                this.logger.error("NewSealVehicleResource workitem query--> 传入参数非法" + JsonHelper.toJson(request));
+                sealVehicleResponse.setCode(TransWorkItemResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
+            }
+            TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
+            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());
+            transWorkItemWsDto.setVehicleNumber(request.getVehicleNumber());
+            transWorkItemWsDto.setOperateUserCode(request.getUserErp());
+            transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());
+            com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> returnCommonDto = newsealVehicleService.getVehicleNumberOrItemCodeByParam(transWorkItemWsDto);
+            logger.debug("根据车牌号获取派车明细编码或根据派车明细编码获取车牌号：" + JsonHelper.toJson(returnCommonDto));
+            if(returnCommonDto != null){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null){
+                    sealVehicleResponse = getVehicleNumBySimpleCode(returnCommonDto.getData().getTransWorkItemCode());
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                    sealVehicleResponse.setTransWorkItemCode(returnCommonDto.getData().getTransWorkItemCode());
+                    sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
+                }else{
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
+                    sealVehicleResponse.setData(returnCommonDto.getData());
+                }
+            }
+        } catch (Exception e) {
+            this.logger.error("根据车牌号获取派车明细编码或根据派车明细编码获取车牌号-error", e);
+        }
+        return sealVehicleResponse;
+    }
+
+    /**
+     * 根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新
+     */
+    @POST
+    @Path("/new/vehicle/seal/workitem/check")
+    @Override
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 101104)
+    public TransWorkItemResponse checkTransportCode(NewSealVehicleRequest request) {
+        TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            if (request == null || (StringUtils.isEmpty(request.getTransWorkItemCode()) && StringUtils.isEmpty(request.getTransportCode()))) {
+                this.logger.error("NewSealVehicleResource workitem check --> 传入参数非法" + JsonHelper.toJson(request));
+                sealVehicleResponse.setCode(TransWorkItemResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
+            }
+
+            com.jd.tms.tfc.dto.CommonDto<String> returnCommonDto = newsealVehicleService.checkTransportCode(request.getTransWorkItemCode(), request.getTransportCode());
+            logger.debug("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新：" + JsonHelper.toJson(returnCommonDto));
+            if(returnCommonDto != null){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null){
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                    sealVehicleResponse.setData(returnCommonDto.getData());
+                }else{
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage("["+returnCommonDto.getCode()+":"+returnCommonDto.getMessage()+"]");
+                    sealVehicleResponse.setData(returnCommonDto.getData());
+                }
+            }
+        } catch (Exception e) {
+            this.logger.error("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新-error", e);
         }
         return sealVehicleResponse;
     }
