@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybill
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
@@ -32,8 +33,8 @@ import javax.ws.rs.core.MediaType;
 import java.util.Date;
 
 /**
- * @ClassName: 123
- * @Description: 123
+ * @ClassName: MergeWaybillCodeReturnResource
+ * @Description: 签单返回合单
  * @author: hujiping
  * @date: 2018/9/15 17:07
  */
@@ -61,23 +62,33 @@ public class MergeWaybillCodeReturnResource {
                                                       @PathParam("secondWaybillCode") String secondWaybillCode){
         JdResponse result = new JdResponse();
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-
-        if(waybillCode!=null && secondWaybillCode != null){
-            Boolean flage = false;
-            if(!waybillCode.equals(secondWaybillCode)){
-                try {
-                    ResponseDTO<ReturnSignatureMessageDTO>  responseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
-                    ResponseDTO<ReturnSignatureMessageDTO>  secondResponseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(secondWaybillCode);
+        if(!SerialRuleUtil.isMatchAllWaybillCode(waybillCode) ||
+                !SerialRuleUtil.isMatchAllWaybillCode(secondWaybillCode)){
+            this.logger.error(InvokeResult.PARAM_ERROR);
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        try {
+            ResponseDTO<ReturnSignatureMessageDTO>  responseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
+            ResponseDTO<ReturnSignatureMessageDTO>  secondResponseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(secondWaybillCode);
+            if(responseDto!=null && responseDto.getData()!=null &&
+                    secondResponseDto!=null && secondResponseDto.getData()!=null){
+                Boolean flage = false;
+                if(!waybillCode.equals(secondWaybillCode)){
                     flage = mergeWaybillCodeReturnService.compare(responseDto.getData(),secondResponseDto.getData());
-
                     if(!flage){
                         result.setCode(InvokeResult.RESULT_MULTI_ERROR);
                     }
-                } catch (Exception e) {
-                    this.logger.error("根据运单号"+waybillCode+"调用外单接口失败",e);
-                    result.setCode(InvokeResult.RESULT_MULTI_ERROR);
                 }
+            }else{
+                result.setCode(InvokeResult.RESULT_NULL_CODE);
+                result.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
             }
+        } catch (Exception e) {
+            this.logger.error("根据运单号"+waybillCode+"调用外单接口失败",e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
 
         return result;
@@ -89,6 +100,10 @@ public class MergeWaybillCodeReturnResource {
 
         JdResponse result = new JdResponse();
         result.setCode(InvokeResult.RESULT_MULTI_ERROR);
+        if(mergeWaybillCodeReturn==null){
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
+        }
         String newWaybillCode = null;
         //提交合单
         ResponseDTO<ReturnSignatureResult> returnDto = null;
@@ -122,7 +137,8 @@ public class MergeWaybillCodeReturnResource {
             }
         }catch (Exception e){
             this.logger.error("通过旧单号集合获取新单号失败"+ JSON.toJSONString(mergeWaybillCodeReturn.getWaybillCodeList()),e);
-            result.setCode(InvokeResult.RESULT_MULTI_ERROR);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
     }

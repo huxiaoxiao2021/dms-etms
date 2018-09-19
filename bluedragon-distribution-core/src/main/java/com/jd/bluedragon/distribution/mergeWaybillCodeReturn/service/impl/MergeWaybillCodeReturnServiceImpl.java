@@ -12,6 +12,7 @@ import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.util.Date;
@@ -24,6 +25,7 @@ import java.util.List;
  * @author: hujiping
  * @date: 2018/9/17 20:32
  */
+@Service("MergeWaybillCodeReturnService")
 public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturnService{
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -81,7 +83,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     private void toTask(MergeWaybillMessage message) {
         Task tTask = new Task();
         tTask.setKeyword1(message.getNewWaybillCode());
-        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW));
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN));
         tTask.setCreateSiteCode(message.getSiteCode());
         tTask.setCreateTime(new Date(message.getOperateTime()));
 //        tTask.setReceiveSiteCode(0);
@@ -92,7 +94,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         tTask.setOwnSign(ownSign);
 
         WaybillStatus status=new WaybillStatus();
-        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW);
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN);
         status.setWaybillCode(message.getNewWaybillCode());
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
@@ -108,7 +110,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     private void toTask(MergeWaybillMessage message, String waybillCode) {
         Task tTask = new Task();
         tTask.setKeyword1(waybillCode);
-        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD));
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN));
         tTask.setCreateSiteCode(message.getSiteCode());
         tTask.setCreateTime(new Date(message.getOperateTime()));
 //        tTask.setReceiveSiteCode(0);
@@ -119,7 +121,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         tTask.setOwnSign(ownSign);
 
         WaybillStatus status=new WaybillStatus();
-        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD);
+        status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN);
         status.setWaybillCode(waybillCode);
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
