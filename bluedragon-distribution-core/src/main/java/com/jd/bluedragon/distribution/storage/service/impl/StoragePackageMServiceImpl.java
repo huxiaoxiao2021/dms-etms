@@ -330,7 +330,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 		if(BusinessHelper.isPerformanceOrder(waybillSign)){
 			StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
-            if(storagePackageM != null && StoragePackageMStatusEnum.CAN_SEND_2.getCode().equals(storagePackageM.getStatus().toString())){
+            if(storagePackageM != null && (StoragePackageMStatusEnum.CAN_SEND_2.getCode().equals(storagePackageM.getStatus().toString())
+			|| StoragePackageMStatusEnum.SEND_4.getCode().equals(storagePackageM.getStatus().toString()))){
 				return true;
 			}
 			return false;
