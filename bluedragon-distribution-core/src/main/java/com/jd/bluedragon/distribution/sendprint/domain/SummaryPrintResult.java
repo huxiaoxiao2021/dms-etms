@@ -26,19 +26,28 @@ public class SummaryPrintResult implements Serializable {
 	/** 合计箱数 */
 	private int totalBoxNum;
 
+	/** 合计原包个数 */
+	private int totalPackageNum;
+
+	/** 合计数量=箱数+包裹数 */
+	private int totalBoxAndPackageNum;
+
 	/** 合计应发包裹总数 */
-	private int totalpackageBarNum;
+	private int totalShouldSendPackageNum;
+
+	/** 合计实发包裹总数 */
+	private int totalRealSendPackageNum;
 
 	/** 合计托盘体积 */
 	private Double totalBoardVolume;
 
-	/** 合计动态测量体积 **/
+	/** 合计动态测量体积 */
 	private Double totalOutVolumeDynamic;
 
-	/** 合计静态测量体积 **/
+	/** 合计静态测量体积 */
 	private Double totalOutVolumeStatic;
 
-	/** 合计应收体积 **/
+	/** 合计应收体积 */
 	private Double totalInVolume;
 
 	public List<SummaryPrintBoxEntity> getDetails() {
@@ -89,12 +98,36 @@ public class SummaryPrintResult implements Serializable {
 		this.totalBoxNum = totalBoxNum;
 	}
 
-	public int getTotalpackageBarNum() {
-		return totalpackageBarNum;
+	public int getTotalPackageNum() {
+		return totalPackageNum;
 	}
 
-	public void setTotalpackageBarNum(int totalpackageBarNum) {
-		this.totalpackageBarNum = totalpackageBarNum;
+	public void setTotalPackageNum(int totalPackageNum) {
+		this.totalPackageNum = totalPackageNum;
+	}
+
+	public int getTotalBoxAndPackageNum() {
+		return totalBoxAndPackageNum;
+	}
+
+	public void setTotalBoxAndPackageNum(int totalBoxAndPackageNum) {
+		this.totalBoxAndPackageNum = totalBoxAndPackageNum;
+	}
+
+	public int getTotalShouldSendPackageNum() {
+		return totalShouldSendPackageNum;
+	}
+
+	public void setTotalShouldSendPackageNum(int totalShouldSendPackageNum) {
+		this.totalShouldSendPackageNum = totalShouldSendPackageNum;
+	}
+
+	public int getTotalRealSendPackageNum() {
+		return totalRealSendPackageNum;
+	}
+
+	public void setTotalRealSendPackageNum(int totalRealSendPackageNum) {
+		this.totalRealSendPackageNum = totalRealSendPackageNum;
 	}
 
 	/**
