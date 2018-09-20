@@ -111,7 +111,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<WaybillConsumableDetailInfo> listData(@RequestBody WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
 		JdResponse<PagerResult<WaybillConsumableDetailInfo>> rest = new JdResponse<PagerResult<WaybillConsumableDetailInfo>>();
-		rest.setData(waybillConsumableRelationService.queryDetailByInfoPagerCondition(waybillConsumableRelationCondition));
+		rest.setData(waybillConsumableRelationService.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition));
 		return rest.getData();
 	}
 

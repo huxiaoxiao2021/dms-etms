@@ -267,7 +267,7 @@
 	</select>
 
 	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
-		select wcr.id,waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
+		select wcr.id,waybill_code,receive_quantity,confirm_quantity,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
 			from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code

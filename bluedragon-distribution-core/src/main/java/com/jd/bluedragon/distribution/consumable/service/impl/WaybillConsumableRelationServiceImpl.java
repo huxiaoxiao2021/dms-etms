@@ -41,7 +41,7 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
     }
 
 	@Override
-	public PagerResult<WaybillConsumableDetailInfo> queryDetailByInfoPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
+	public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
 		return waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
 	}
 }

@@ -31,6 +31,6 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
      * @param waybillConsumableRelationCondition
      * @return
      */
-    PagerResult<WaybillConsumableDetailInfo> queryDetailByInfoPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
+    PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
 
 }
