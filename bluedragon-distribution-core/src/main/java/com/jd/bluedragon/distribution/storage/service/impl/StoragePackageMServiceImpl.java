@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.storage.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.StorageException;
 import com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -68,6 +70,9 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	@Autowired
 	@Qualifier("taskService")
 	private TaskService taskService;
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	@Override
 	public Dao<StoragePackageM> getDao() {
@@ -233,9 +238,20 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		}
 
 		//检查是否在其他分拣中心上架过
-		StoragePackageM otherStoragePackageM = checkExistStorageOfOtherSite(putawayDTO,baseEntity.getData().getWaybill().getParentOrderId());
+		/*StoragePackageM otherStoragePackageM = checkExistStorageOfOtherSite(putawayDTO,baseEntity.getData().getWaybill().getParentOrderId());
 		if(otherStoragePackageM != null){
 			throw new StorageException("履约单已在【"+otherStoragePackageM.getCreateSiteName()+"】上架");
+		}*/
+
+		//末级分拣中心
+		Integer destinationDmsId = null;
+		BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(baseEntity.getData().getWaybill().getOldSiteId());
+		if(bDto != null && bDto.getDmsId() != null){
+			//末级分拣中心
+			destinationDmsId = bDto.getDmsId();
+		}
+		if( destinationDmsId==null || !destinationDmsId.equals(putawayDTO.getCreateSiteCode())){
+			throw new StorageException("只允许在末级分拣中心上架");
 		}
 
 		//存储暂存主表
@@ -633,21 +649,4 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		taskService.add(tTask);
 	}
 
-	public static void main(String[] args) {
-		PutawayDTO a = new PutawayDTO();
-
-		a.setBarCode("1234");
-		a.setCreateSiteCode(910);
-		a.setCreateSiteName("马驹桥分拣中心");
-		a.setCreateSiteType(64);
-		a.setStorageCode("A001");
-		a.setOperatorId(10053);
-		a.setOperatorErp("bjxings");
-		a.setOperatorName("惺忪");
-		a.setOperateTime(System.currentTimeMillis());
-		a.setOrgId(6);
-		a.setOrgName("总公司");
-
-		System.out.println(JsonHelper.toJson(a));
-	}
 }

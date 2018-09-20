@@ -3734,6 +3734,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         @Autowired
         private SendDatailDao sendDatailDao;
 
+        @Autowired
+        private WaybillCommonService waybillCommonService;
+
         @Override
         public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
             Collections.sort(list, new Comparator<SendDetail>() {
@@ -3774,6 +3777,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                     hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
                     lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
                     pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
+                    if(pacageSumShoudBe == 0){ //特殊包裹号，包裹总数位是0时，从运单获取包裹总数
+                        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(lastWaybillCode);
+                        if(waybill!=null && waybill.getPackList()!=null && waybill.getPackList().size()>0){
+                            pacageSumShoudBe = waybill.getPackList().size();
+                        }
+                    }
+
                     scanCount = 0;
                 }
                 ++scanCount;//扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
@@ -3881,12 +3891,25 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 2：利用包裹号进行对比【差异结果不准确-当条码包裹号与运单中的不一致时】
      */
     public static class ForwardSendDiffrence extends AbstructDiffrenceComputer {
+
+        @Autowired
+        private WaybillCommonService waybillCommonService;
+
         @Override
         public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
-                hasDiff = 1;
-                List<String> geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
+                List<String> geneList = null;
+                if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
+                    geneList = new ArrayList<String>(waybill.getPackList().size());
+                    for (Pack p : waybill.getPackList()) {
+                        geneList.add(p.getPackCode());
+                    }
+                }else{
+                    geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                }
+
                 for (int index = scanCount; index > 0; --index) {
                     geneList.remove(diffrenceList.get(diffrenceList.size() - index).getPackageBarcode());
                 }
@@ -3898,6 +3921,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     noScanDetail.setMark(AbstructDiffrenceComputer.NO_SCANEd);
                     noScanDetail.setIsWaybillFull(0);
                     noScanList.add(noScanDetail);
+                    ++hasDiff;
                 }
                 if (noScanList.size() > 0) {
                     for (int index = scanCount; index > 0; --index) {

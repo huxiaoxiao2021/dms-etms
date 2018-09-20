@@ -115,6 +115,7 @@ public class StorageResource {
             if(site == null || site.getsId() == null){
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setMessage("未获取到对应站点信息");
+                return result;
             }
             putawayDTO.setCreateSiteName(site.getSiteName());
             putawayDTO.setCreateSiteType(site.getSiteType());
