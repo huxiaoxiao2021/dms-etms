@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -63,6 +64,7 @@ public class InspectionServiceImpl implements InspectionService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	private final String DMS_SITE_CODE = "dmsSiteCode";
 
 	@Autowired
 	private InspectionDao inspectionDao;
@@ -712,14 +714,18 @@ public class InspectionServiceImpl implements InspectionService {
 					//末级分拣中心
 					destinationDmsId = bDto.getDmsId();
 				}
-				//登陆人操作机构是否是末级分拣中心
-				if(dmsSiteCode.equals(destinationDmsId)){
-					//运单是否发货
-					Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
-					if(!isCanSend){
-						hintMessage = "暂存集齐后发货";
+				if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE)) ||
+						Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE))){
+					//登陆人操作机构是否是末级分拣中心
+					if(dmsSiteCode.equals(destinationDmsId)){
+						//运单是否发货
+						Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+						if(!isCanSend){
+							hintMessage = "暂存集齐后发货";
+						}
 					}
 				}
+
 			}
 		}
 		return hintMessage;

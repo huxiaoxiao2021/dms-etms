@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -83,6 +84,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
@@ -137,6 +139,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
 
     private final int MAX_SHOW_NUM = 3;
+
+    private final String DMS_SITE_CODE = "dmsSiteCode";
 
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
@@ -4263,12 +4267,15 @@ public class DeliveryServiceImpl implements DeliveryService {
                     //末级分拣中心
                     destinationDmsId = bDto.getDmsId();
                 }
-                //登陆人操作机构是否是末级分拣中心
-                if(dmsSiteCode.equals(destinationDmsId)){
-                    //运单是否发货
-                    Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
-                    if(!isCanSend){
-                       response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,DeliveryResponse.MESSAGE_Delivery_SAVE);
+                if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE)) ||
+                        Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE))){
+                    //登陆人操作机构是否是末级分拣中心
+                    if(dmsSiteCode.equals(destinationDmsId)){
+                        //运单是否发货
+                        Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+                        if(!isCanSend){
+                            response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,DeliveryResponse.MESSAGE_Delivery_SAVE);
+                        }
                     }
                 }
             }
