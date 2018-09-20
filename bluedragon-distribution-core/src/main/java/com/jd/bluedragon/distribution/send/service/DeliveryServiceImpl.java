@@ -140,7 +140,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final int MAX_SHOW_NUM = 3;
 
-    private final String DMS_SITE_CODE = "dmsSiteCode";
+    private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
     @Resource(name = "cityDeliveryVerification")
     private DeliveryVerification cityDeliveryVerification;
@@ -4257,9 +4257,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         Integer preSiteCode = null;
         Integer destinationDmsId = null;
         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
-        if(waybill != null){
+        if(waybill != null && waybill.getWaybillSign() != null){
             //是否是金鹏订单
-            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'9')){
+            if(BusinessHelper.isPerformanceOrder(waybill.getWaybillSign())){
                 //预分拣站点
                 preSiteCode = waybill.getSiteCode();
                 BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
@@ -4267,8 +4267,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     //末级分拣中心
                     destinationDmsId = bDto.getDmsId();
                 }
-                if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE)) ||
-                        Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(DMS_SITE_CODE))){
+                if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH)) ||
+                        Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH))){
                     //登陆人操作机构是否是末级分拣中心
                     if(dmsSiteCode.equals(destinationDmsId)){
                         //运单是否发货
