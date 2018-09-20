@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.rma.domain;
 
 import java.util.Date;
+import java.util.List;
 
 /**
+ *  RMA交接清单打印主表-运单维度
  * <p>
  * Created by lixin39 on 2018/9/20.
  */
@@ -147,6 +149,11 @@ public class RmaHandoverWaybill {
      * 是否删除 0-已删除，1-未删除
      */
     private Integer yn;
+
+    /**
+     * RMA交接明细记录
+     */
+    private List<RmaHandoverDetail> rmaHandoverDetail;
 
     public Long getId() {
         return id;
@@ -370,5 +377,13 @@ public class RmaHandoverWaybill {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public List<RmaHandoverDetail> getRmaHandoverDetail() {
+        return rmaHandoverDetail;
+    }
+
+    public void setRmaHandoverDetail(List<RmaHandoverDetail> rmaHandoverDetail) {
+        this.rmaHandoverDetail = rmaHandoverDetail;
     }
 }

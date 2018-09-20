@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rma.domain;
 import java.util.Date;
 
 /**
+ * RMA交接清单打印子表-商品明细维度
  * <p>
  * Created by lixin39 on 2018/9/20.
  */
