@@ -1,16 +1,13 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
-import com.jd.common.util.StringUtils;
-import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao;
+import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
+import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.ql.dms.common.web.mvc.BaseService;
-
+import com.jd.ql.dms.common.web.mvc.api.Dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao;
-import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +62,14 @@ public class ArSendCodeServiceImpl extends BaseService<ArSendCode> implements Ar
 	public List<ArSendCode> getBySendRegisterId(Long sendRegisterId) {
 		if (sendRegisterId != null && sendRegisterId > 0){
 			return arSendCodeDao.getBySendRegisterId(sendRegisterId);
+		}
+		return null;
+	}
+
+	@Override
+	public List<ArSendCode> getBySendRegisterIds(List<Long> sendRegisterIds) {
+		if (sendRegisterIds != null && !sendRegisterIds.isEmpty()){
+			return arSendCodeDao.getBySendRegisterIds(sendRegisterIds);
 		}
 		return null;
 	}

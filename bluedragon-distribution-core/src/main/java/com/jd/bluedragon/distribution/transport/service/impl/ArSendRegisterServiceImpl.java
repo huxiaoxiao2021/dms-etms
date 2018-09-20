@@ -427,8 +427,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             if (transportType != null) {
                 parameter.put("transportType ", transportType.getCode());
             }
+            if (StringUtils.isNotEmpty(siteCode)) {
+                parameter.put("siteCode", siteCode);
+            }
             parameter.put("transportName", transportName);
-            parameter.put("siteCode", transportName);
             parameter.put("sendDate", sendDate);
             return arSendRegisterDao.getListByTransInfo(parameter);
         }
