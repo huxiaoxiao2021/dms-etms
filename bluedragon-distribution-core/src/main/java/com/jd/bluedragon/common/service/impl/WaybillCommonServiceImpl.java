@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
@@ -15,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -56,7 +58,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
     
-    private static final int REST_CODE_SUC = 1; 
+    private static final int REST_CODE_SUC = 1;
 
     @Autowired
     private ProductService productService;
@@ -87,8 +89,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private WaybillPrintService waybillPrintService;
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
+
+    @Autowired
+    HideInfoService hideInfoService;
+
     
-    
+    @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：400-603-3600}")
+    private String additionalComment;
+
+
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
 
@@ -551,6 +560,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
+        //联通华盛面单模板不显示京东字样
+        if(!BusinessHelper.isSignChar(waybill.getWaybillSign(),69,'0') ){
+            target.setAdditionalComment("");
+        }else{
+            target.setAdditionalComment(additionalComment);
+        }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
         {
@@ -660,6 +675,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
+        //waybill_sign标识位，第二十九位为8，打C字标
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_C);
+            //一体化面单中商家ID，商家订单不显示
+            target.setBusiCode("");
+            target.setBusiOrderCode("");
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
@@ -693,11 +715,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
+            //一体化面单，显示城际快送
+            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_INTERCITY_EXPRESS);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
         }
+        //设置微笑
+        hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
         return target;
     }
 

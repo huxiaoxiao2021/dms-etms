@@ -14,11 +14,21 @@ public class PackageSendRequest extends DeliveryRequest {
      */
     private boolean isForceSend;
 
+    private Boolean isCancelLastSend;
+
     public boolean getIsForceSend() {
         return isForceSend;
     }
 
     public void setIsForceSend(boolean isForceSend) {
         this.isForceSend = isForceSend;
+    }
+
+    public Boolean getIsCancelLastSend() {
+        return isCancelLastSend;
+    }
+
+    public void setIsCancelLastSend(Boolean cancelLastSend) {
+        isCancelLastSend = cancelLastSend;
     }
 }

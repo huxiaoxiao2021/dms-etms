@@ -448,6 +448,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //道口号
             waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
             waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
+                waybill.setOriginalDmsName("");
+                waybill.setPurposefulDmsName("");
+                waybill.setOriginalTabletrolley("");
+                waybill.setPurposefulTableTrolley("");
+                waybill.setOriginalCrossCode("");
+                waybill.setPurposefulCrossCode("");
+            }
         }
     }
     /**

@@ -159,7 +159,11 @@ public class DeliveryResource implements DmsDeliveryService {
                 result.setData(deliveryService.boardSend(domain));
             }else{//一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                if (request.getIsCancelLastSend() == null){
+                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                } else {
+                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                }
             }
         } catch (Exception ex) {
             result.error(ex);
