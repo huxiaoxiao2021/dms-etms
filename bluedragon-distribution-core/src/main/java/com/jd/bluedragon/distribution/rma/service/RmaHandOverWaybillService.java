@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rma.service;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.ql.dms.common.domain.PrintStatusEnum;
 
 import java.util.List;
@@ -81,4 +82,10 @@ public interface RmaHandOverWaybillService {
      */
     void updatePrintStatus(Long id, PrintStatusEnum status);
 
+    /**
+     * dmsWorkSendDetail报文消费增加
+     *
+     * @param sendDetail
+     */
+    void addConsumer(SendDetail sendDetail);
 }

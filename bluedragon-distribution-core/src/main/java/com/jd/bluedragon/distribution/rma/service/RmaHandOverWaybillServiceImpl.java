@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rma.service;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.FreshWaybill;
 import com.jd.bluedragon.distribution.waybill.service.FreshWaybillService;
 import com.jd.ql.dms.common.domain.PrintStatusEnum;
@@ -56,6 +57,11 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Override
     public void updatePrintStatus(Long id, PrintStatusEnum status) {
+
+    }
+
+    @Override
+    public void addConsumer(SendDetail sendDetail) {
 
     }
 }

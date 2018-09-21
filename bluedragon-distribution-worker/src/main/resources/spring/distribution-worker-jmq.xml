@@ -179,5 +179,9 @@
     <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dms_operateHint_track" listener="operateHintTrackConsumer"/>
     </jmq:consumer>
+    <!-- 消费topic：dmsWorkSendDetail，waybill内容-->
+    <jmq:consumer id="jmq.dmsWorkSendDetail" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetail"/>
+    </jmq:consumer>
 </beans>
 

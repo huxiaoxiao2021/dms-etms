@@ -24,7 +24,12 @@
 	<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
 	<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css" />
 	<script type="text/javascript" src="#springUrl('/static/js/waybill/rma/list.js')"></script>
+    <style type="text/css">
 
+        .txtCenter{border:1px solid red;text-align: center;}
+
+
+    </style>
 	<script type="text/javascript">
 	    $(document).ready(function(){
             main();
@@ -88,12 +93,12 @@
 				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
 					<THEAD>
 						<TR align="center" >
-							<TH align="center" field="checkboxField" checkbox="true" rowspan="2">
+							<TH class="txtCenter" field="checkboxField" checkbox="true" rowspan="2">
 								<input type="checkbox" id="checkAll" name="checkAll">
 							</TH>
-							<TH align="center" rowspan="2">运单号</TH>
-							<TH align="center" rowspan="2">收件地址</TH>
-							<TH align="center" rowspan="2">打印状态</TH>
+							<TH class="txtCenter" rowspan="2">运单号</TH>
+							<TH class="txtCenter" rowspan="2">收件地址</TH>
+							<TH class="txtCenter" rowspan="2">打印状态</TH>
                         </TR>
                     </THEAD>
 					<TBODY>

@@ -58,7 +58,6 @@ function main() {
     initDateQuery();
 	queryBtn(1);
 }
-
 function initDateQuery(){
     var sendDateStart = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
     var sendDateEnd = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
@@ -77,7 +76,6 @@ function checkboxclick() {
 /**
  * 选择后打印
  */
-
 function printBtn() {
 
     var checkedKeys = $( "#paperTable  tbody input[type=checkbox][name='record']:checked");
@@ -108,7 +106,6 @@ function printBtn() {
         alert("请选择要打印的记录！");
     }
 }
-
 /**
  * 查询
  * @param pageNo
@@ -121,7 +118,6 @@ function queryBtn(pageNo) {
 
 function getParams() {
 	var params = {};
-
 	params.sendDateStart = $.trim($("#sendDateStart").val());
 	params.sendDateEnd = $.trim($("#sendDateEnd").val());
 	params.hasPrint = $.trim($("#hasPrint").val());
@@ -136,7 +132,6 @@ function doQuery(params) {
             jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
             return;
         }
-
 		if (data.code == 1) {
 			var pager = data.data;
 			var resultList = pager.data;
@@ -166,7 +161,6 @@ function doQuery(params) {
 					temp += "</tr>";
 				}
 			}
-
 			$("#paperTable tbody").html(temp);
 			$("#pager").html(
 				PageBar.getHtml("queryBtn", pager.totalSize, pager.pageNo,pager.totalNo));
@@ -175,7 +169,6 @@ function doQuery(params) {
 		}
 	});
 }
-
 
 function add0(m) {
 	return m < 10 ? '0' + m : m;
@@ -195,7 +188,7 @@ function dateFormat(date) {
 function receiverAddressQuery(waybillCode) {
     var contextPath = $("#contextPath").val();
     var url = contextPath + "/waybill/rma/receiverAddressQuery";
-    debugger;
+
     jQuery.ajax({
         type: 'post',
         url: url,
