@@ -98,6 +98,11 @@ public class RmaHandoverWaybill implements Serializable {
     private String targetCityName;
 
     /**
+     * B商家ID
+     */
+    private Integer busiId;
+
+    /**
      * 商家名称
      */
     private String busiName;
@@ -120,7 +125,7 @@ public class RmaHandoverWaybill implements Serializable {
     /**
      * 是否已打印 0-未打印，1-已打印
      */
-    private Integer hasPrint;
+    private Integer printStatus;
 
     /**
      * 打印时间
@@ -293,6 +298,14 @@ public class RmaHandoverWaybill implements Serializable {
         this.targetCityName = targetCityName;
     }
 
+    public Integer getBusiId() {
+        return busiId;
+    }
+
+    public void setBusiId(Integer busiId) {
+        this.busiId = busiId;
+    }
+
     public String getBusiName() {
         return busiName;
     }
@@ -325,12 +338,12 @@ public class RmaHandoverWaybill implements Serializable {
         this.receiverAddress = receiverAddress;
     }
 
-    public Integer getHasPrint() {
-        return hasPrint;
+    public Integer getPrintStatus() {
+        return printStatus;
     }
 
-    public void setHasPrint(Integer hasPrint) {
-        this.hasPrint = hasPrint;
+    public void setPrintStatus(Integer printStatus) {
+        this.printStatus = printStatus;
     }
 
     public Date getPrintTime() {

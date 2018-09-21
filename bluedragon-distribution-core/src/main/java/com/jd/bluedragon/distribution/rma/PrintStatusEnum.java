@@ -1,21 +1,15 @@
-package com.jd.ql.dms.common.domain;
-
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+package com.jd.bluedragon.distribution.rma;
 
 public enum PrintStatusEnum {
 
     /**
-     * 全部
-     */
-    PRINT_ALL(0, "全部"),
-    /**
      * 已打印
      */
-    PRINT_YES(1, "已打印"),
+    HAD_PRINTED(1, "已打印"),
     /**
      * 未打印
      */
-    PRINT_NO(2, "未打印");
+    NOT_PRINTED(0, "未打印");
 
     private int code;
 

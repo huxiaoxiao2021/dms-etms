@@ -15,7 +15,7 @@ public interface RmaHandOverDetailService {
      *
      * @param detail
      */
-    void add(RmaHandoverDetail detail);
+    boolean add(RmaHandoverDetail detail);
 
     /**
      * 批量新增
@@ -30,6 +30,6 @@ public interface RmaHandOverDetailService {
      * @param waybillId
      * @return
      */
-    List<RmaHandoverDetail> getListByWaybillId(Long waybillId);
+    List<RmaHandoverDetail> getListByHandoverWaybillId(Long waybillId);
 
 }

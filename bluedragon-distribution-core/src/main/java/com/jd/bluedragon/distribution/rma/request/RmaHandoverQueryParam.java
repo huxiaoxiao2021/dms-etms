@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.rma.domain;
+package com.jd.bluedragon.distribution.rma.request;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -24,7 +24,7 @@ public class RmaHandoverQueryParam implements Serializable {
     /**
      * 是否已打印
      */
-    private Integer hasPrint;
+    private Integer printStatus;
 
     /**
      * 操作分拣中心编号
@@ -57,12 +57,12 @@ public class RmaHandoverQueryParam implements Serializable {
         this.sendDateEnd = sendDateEnd;
     }
 
-    public Integer getHasPrint() {
-        return hasPrint;
+    public Integer getPrintStatus() {
+        return printStatus;
     }
 
-    public void setHasPrint(Integer hasPrint) {
-        this.hasPrint = hasPrint;
+    public void setPrintStatus(Integer printStatus) {
+        this.printStatus = printStatus;
     }
 
     public Integer getCreateSiteCode() {
@@ -88,5 +88,4 @@ public class RmaHandoverQueryParam implements Serializable {
     public void setReceiverAddress(String receiverAddress) {
         this.receiverAddress = receiverAddress;
     }
-
 }

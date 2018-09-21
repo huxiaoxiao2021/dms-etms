@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.rma.service;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.rma.domain.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.ql.dms.common.domain.PrintStatusEnum;
+import com.jd.bluedragon.distribution.rma.request.PrintInfoParam;
+import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
+import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 
 import java.util.List;
 
@@ -20,14 +20,14 @@ public interface RmaHandOverWaybillService {
      *
      * @param rmaHandoverWaybill
      */
-    void add(RmaHandoverWaybill rmaHandoverWaybill);
+    boolean add(RmaHandoverWaybill rmaHandoverWaybill);
 
     /**
      * 更新
      *
      * @param rmaHandoverWaybill
      */
-    void update(RmaHandoverWaybill rmaHandoverWaybill);
+    boolean update(RmaHandoverWaybill rmaHandoverWaybill);
 
     /**
      * 获取分页数据集合-不带有明细数据
@@ -36,7 +36,7 @@ public interface RmaHandOverWaybillService {
      * @param pager
      * @return
      */
-    Pager<List<RmaHandoverWaybill>> getListWithoutDetail(RmaHandoverQueryParam param, Pager pager);
+    Pager<List<RmaHandoverWaybill>> getListWithoutDetail(RmaHandoverQueryParam param, Pager<List<RmaHandoverWaybill>> pager);
 
     /**
      * 根据Id查询
@@ -54,7 +54,7 @@ public interface RmaHandOverWaybillService {
      * @param needDetail
      * @return
      */
-    Pager<List<RmaHandoverWaybill>> getList(List<Long> ids, boolean needDetail);
+    List<RmaHandoverWaybill> getList(List<Long> ids, boolean needDetail);
 
     /**
      * 根据参数获取最新操作数据
@@ -70,22 +70,24 @@ public interface RmaHandOverWaybillService {
      * 根据运单号获取收货人地址
      *
      * @param waybillCode
+     * @param createSiteCode
      * @return
      */
-    String getReceiverAddressByWaybillCode(String waybillCode);
+    String getReceiverAddressByWaybillCode(String waybillCode, Integer createSiteCode);
 
     /**
-     * 更新打印状态
+     * 更新打印信息
      *
-     * @param id
-     * @param status
+     * @param printInfoParam
      */
-    void updatePrintStatus(Long id, PrintStatusEnum status);
+    void updatePrintInfo(PrintInfoParam printInfoParam);
 
     /**
-     * dmsWorkSendDetail报文消费增加
+     * 获取打印数据接口
      *
-     * @param sendDetail
+     * @param ids
+     * @return
      */
-    void addConsumer(SendDetail sendDetail);
+    List<RmaHandoverPrint> getPrintInfo(List<Long> ids);
+
 }

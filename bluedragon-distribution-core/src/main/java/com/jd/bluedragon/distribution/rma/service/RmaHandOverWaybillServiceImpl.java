@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.rma.service;
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.rma.domain.RmaHandoverQueryParam;
+import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.waybill.domain.FreshWaybill;
-import com.jd.bluedragon.distribution.waybill.service.FreshWaybillService;
 import com.jd.ql.dms.common.domain.PrintStatusEnum;
 import org.springframework.stereotype.Service;
 

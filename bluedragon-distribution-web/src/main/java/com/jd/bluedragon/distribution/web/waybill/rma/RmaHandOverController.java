@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.web.waybill.rma;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmabillInfoResponse;
-import com.jd.bluedragon.distribution.rma.domain.RmaHandoverQueryParam;
+import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.common.web.LoginContext;
@@ -77,7 +77,7 @@ public class RmaHandOverController {
             SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             rmaHandoverQueryParam.setSendDateStart(sdf.parse(rmaHandoverQueryRequest.getSendDateStart()));
             rmaHandoverQueryParam.setSendDateEnd(sdf.parse(rmaHandoverQueryRequest.getSendDateEnd()));
-            rmaHandoverQueryParam.setHasPrint(rmaHandoverQueryRequest.getHasPrint());
+            rmaHandoverQueryParam.setPrintStatus(rmaHandoverQueryRequest.getHasPrint());
 
 //                Pager<List<RmaHandoverWaybill>> pager=rmaHandOverWaybillService.getListWithoutDetail(rmaHandoverQueryRequest,page);
 
@@ -88,13 +88,13 @@ public class RmaHandOverController {
             rmaHandoverWaybill.setId(1L);
             rmaHandoverWaybill.setWaybillCode("asdfg");
             rmaHandoverWaybill.setReceiverAddress("XXXX地址");
-            rmaHandoverWaybill.setHasPrint(1);
+            rmaHandoverWaybill.setPrintStatus(1);
             rmaHandoverWaybillList.add(rmaHandoverWaybill);
             RmaHandoverWaybill rmaHandoverWaybill1=new  RmaHandoverWaybill();
             rmaHandoverWaybill1.setId(2L);
             rmaHandoverWaybill1.setWaybillCode("asdfg11111");
             rmaHandoverWaybill1.setReceiverAddress("XXXX地址22222");
-            rmaHandoverWaybill1.setHasPrint(1);
+            rmaHandoverWaybill1.setPrintStatus(1);
 
             rmaHandoverWaybillList.add(rmaHandoverWaybill1);
 
