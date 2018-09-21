@@ -59,6 +59,7 @@ $(function () {
                 var option = $.combobox.appendData('code-select',data[i].packingCode,data[i].packingCode);
                 option.name= data[i].packingName;
                 option.type= data[i].packingType;
+                option.typeName= data[i].packingTypeName;
                 option.volume= data[i].packingVolume;
                 option.volumeCoefficient= data[i].volumeCoefficient;
                 option.specification= data[i].packingSpecification;
@@ -79,13 +80,14 @@ $(function () {
 
         var name = e.params.data.element.name;
         var type = e.params.data.element.type;
+        var typeName = e.params.data.element.typeName;
         var volume = e.params.data.element.volume;
         var volumeCoefficient = e.params.data.element.volumeCoefficient;
         var specification = e.params.data.element.specification;
         var unit = e.params.data.element.unit;
 
         $('#name-value-input').val(name);
-        $('#type-value-input').val(type);
+        $('#type-value-input').val(typeName);
         $('#volume-value-input').val(volume);
         $('#volume-coefficient-value-input').val(volumeCoefficient);
         $('#specification-value-input').val(specification);

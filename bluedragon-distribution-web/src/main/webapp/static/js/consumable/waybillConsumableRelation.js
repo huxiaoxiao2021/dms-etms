@@ -186,6 +186,7 @@ $(function () {
                                             var code = row.consumableCode;
                                             var name = row.name;
                                             var type = row.type;
+                                            var typeName = row.typeName;
                                             var volume = row.volume;
                                             var volumeCoefficient = row.volumeCoefficient;
                                             var specification = row.specification;
@@ -199,7 +200,7 @@ $(function () {
                                             frameWindow.$('#id-value-input').val(id);
                                             frameWindow.$('#code-value-input').val(code);
                                             frameWindow.$('#name-value-input').val(name);
-                                            frameWindow.$('#type-value-input').val(type);
+                                            frameWindow.$('#type-value-input').val(typeName);
                                             frameWindow.$('#volume-value-input').val(volume);
                                             frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
                                             frameWindow.$('#specification-value-input').val(specification);
