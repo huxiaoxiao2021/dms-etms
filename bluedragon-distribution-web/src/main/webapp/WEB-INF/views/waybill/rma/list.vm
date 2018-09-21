@@ -44,11 +44,11 @@
 						<tr>
                             <td align="right">发货时间：</td>
                             <td>
-                                <input type="text" id="startTime" name="startTime" >&nbsp至&nbsp<input type="text" id="endTime" name="endTime" >
+                                <input type="text" id="sendDateStart" name="sendDateStart" >&nbsp至&nbsp<input type="text" id="sendDateEnd" name="sendDateEnd" >
                             </td>
                             <td align="right">打印状态：</td>
                             <td>
-                                <select type="text" class="form-control " id="printStatus" name="printStatus">
+                                <select type="text" class="form-control " id="hasPrint" name="hasPrint">
                                     <option value="0">全部</option>
                                     <option value="1" selected>未打印</option>
                                     <option value="2">已打印</option>
@@ -64,11 +64,11 @@
                     <tr>
                         <td align="right">包裹号/运单号：</td>
                         <td>
-                            <input type="text" id="billno" name="billno" >
+                            <input type="text" id="waybillCode" name="waybillCode" >
                         </td>
                         <td align="right">收件地址：</td>
                         <td>
-                            <input type="text" id="addStr" size="50" name="addStr" >
+                            <input type="text" id="receiverAddress" size="50" name="receiverAddress" >
                         </td>
                         <td>
                             <input type="button" id="search" name="search" value="查询" class="btn_c"  onclick="queryBtn(1)"/>
@@ -87,19 +87,13 @@
 			<div class="tbl-bg">
 				<TABLE  id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
 					<THEAD>
-						<TR>
-							<TH field="checkboxField" checkbox="true" rowspan="2">
+						<TR align="center" >
+							<TH align="center" field="checkboxField" checkbox="true" rowspan="2">
 								<input type="checkbox" id="checkAll" name="checkAll">
 							</TH>
-							<TH rowspan="2">运单号</TH>
-							<TH rowspan="2">收件地址</TH>
-							<TH rowspan="2">打印状态</TH>
-							<TH rowspan="2">中转网点3</TH>
-							<TH rowspan="2">中转网点4</TH>
-							<TH rowspan="2">中转网点5</TH>
-							<TH rowspan="2">目的网点</TH>
-							<TH rowspan="2">操作人</TH>
-							<TH rowspan="2">操作时间</TH>
+							<TH align="center" rowspan="2">运单号</TH>
+							<TH align="center" rowspan="2">收件地址</TH>
+							<TH align="center" rowspan="2">打印状态</TH>
                         </TR>
                     </THEAD>
 					<TBODY>
@@ -109,7 +103,7 @@
             </div>
         </div>
 
-         <div id="pager">
+         <div id="pager" name="pager">
 
         </div>
 	 </div>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rma.domain;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,8 +8,8 @@ import java.util.Date;
  * <p>
  * Created by lixin39 on 2018/9/20.
  */
-public class RmaHandoverDetail {
-
+public class RmaHandoverDetail implements Serializable {
+    private static final long serialVersionUID = -7800839106682310757L;
     /**
      * 主键ID
      */

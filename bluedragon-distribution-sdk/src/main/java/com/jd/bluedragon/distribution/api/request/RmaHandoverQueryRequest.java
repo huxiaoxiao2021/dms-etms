@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.rma.domain;
+package com.jd.bluedragon.distribution.api.request;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -8,18 +8,18 @@ import java.util.Date;
  * <p>
  * Created by lixin39 on 2018/9/20.
  */
-public class RmaHandoverQueryParam implements Serializable {
+public class RmaHandoverQueryRequest implements Serializable {
     private static final long serialVersionUID = -7800839106682310757L;
 
     /**
      * 发货开始时间
      */
-    private Date sendDateStart;
+    private String sendDateStart;
 
     /**
      * 发货结束时间
      */
-    private Date sendDateEnd;
+    private String sendDateEnd;
 
     /**
      * 是否已打印
@@ -41,19 +41,19 @@ public class RmaHandoverQueryParam implements Serializable {
      */
     private String receiverAddress;
 
-    public Date getSendDateStart() {
+    public String getSendDateStart() {
         return sendDateStart;
     }
 
-    public void setSendDateStart(Date sendDateStart) {
+    public void setSendDateStart(String sendDateStart) {
         this.sendDateStart = sendDateStart;
     }
 
-    public Date getSendDateEnd() {
+    public String getSendDateEnd() {
         return sendDateEnd;
     }
 
-    public void setSendDateEnd(Date sendDateEnd) {
+    public void setSendDateEnd(String sendDateEnd) {
         this.sendDateEnd = sendDateEnd;
     }
 

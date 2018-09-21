@@ -1,108 +1,125 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class RmaBillInfo implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long sysno;
     /**
      * 出库编码
      */
-    private Long waybill_code;
+    private String waybillCode;
+
+    /**
+     * 包裹号
+     */
+    private String package_barcode;
+
+    /**
+     * 订单类型 1-RMA
+     */
+    private Long waybill_type;
+
 
     /**
      * 出库单号 -- getSkuSnListByOrderId - orderId
      */
-    private Long outbound_order_code;
+    private Long outboundOrderCode;
 
     /**
      * 商品编码  -- getSkuSnListByOrderId - skuCode
      */
-    private String sku_code;
+    private String skuCode;
 
     /**
      * 备件条码  -- 运单接口 -- Goods -- sku
      */
-    private String spare_code;
+    private String spareCode;
 
     /**
      * 商品名称  -- 运单接口 -- Goods -- sku
      */
-    private String good_name;
+    private String goodName;
 
+    /**
+     * 商品数量
+     */
+    private Long goodCount;
     /**
      * 异常备注
      */
-    private String execption_remark;
+    private String execptionRemark;
 
     /**
      * 包裹数 -- 运单接口 -- waybill -- goodNumber
      */
-    private Long package_num;
+    private Long packageNum;
 
     /**
      * 发货城市编号 ?
      */
-    private Long send_city_id;
+    private Long sendCityId;
 
     /**
      * 发货城市名称  ?
      */
-    private String send_city_name;
+    private String sendCityName;
 
     /**
      * 操作站点编号
      */
-    private String create_site_code;
+    private String createSiteCode;
 
     /**
      * 操作站点名称
      */
-    private String create_site_name;
+    private String createSiteName;
+
+    /**
+     * 目的省编号省
+     */
+    private Long targetProvinceId;
 
     /**
      * 省
      */
-    private Long target_province_id;
-
-    /**
-     * 省
-     */
-    private String target_province_name;
+    private String targetProvinceName;
 
     /**
      * 目的城市编号，一级 + 二级  ?
      */
-    private Long target_city_id;
+    private Long targetCityId;
 
     /**
      * 目的城市，一级 + 二级  ?
      */
-    private String target_city_name;
+    private String targetCityName;
 
     /**
      * 发货操作人编号  -- 发货mq
      */
-    private String send_operator_code;
+    private String sendOperatorCode;
 
     /**
      * 发货操作人 --发货mq
      */
-    private String send_operator_name;
+    private String sendOperatorName;
 
     /**
      * 发货操作人erp  --发货mq
      */
-    private String send_operator_erp;
+    private String sendOperatorErp;
 
     /**
      * 分拣发货人电话 -- 暂时不取
      */
-    private String send_operator_tel;
+    private String sendOperatorTel;
 
     /**
      * 商家名称  -- 运单接口 -- waybill
      */
-    private String busi_name;
+    private String busiName;
 
     /**
      * 收货人
@@ -112,176 +129,222 @@ public class RmaBillInfo implements Serializable {
     /**
      * 收货人电话
      */
-    private String receiver_mobile;
+    private String receiverMobile;
 
     /**
      * 收货人地址
      */
-    private String receiver_address;
+    private String receiverAddress;
 
     /**
      * 是否打印
      */
-    private Long is_print;
+    private Long isPrint;
 
-    public Long getWaybill_code() {
-        return waybill_code;
+
+    /**
+     * 打印操作人编号  写入es
+     */
+    private String printOperatorCode;
+
+    /**
+     * 打印日期   写入es
+     */
+    private Date printDate;
+
+    /**
+     * 发货时间
+     */
+    private Date sendDate;
+
+    /**
+     * 发货开始结束时间
+     */
+    public String startDate;
+    public String endDate;
+
+    public String getWaybillCode() {
+        return waybillCode;
     }
 
-    public void setWaybill_code(Long waybill_code) {
-        this.waybill_code = waybill_code;
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 
-    public Long getOutbound_order_code() {
-        return outbound_order_code;
+    public String getPackage_barcode() {
+        return package_barcode;
     }
 
-    public void setOutbound_order_code(Long outbound_order_code) {
-        this.outbound_order_code = outbound_order_code;
+    public void setPackage_barcode(String package_barcode) {
+        this.package_barcode = package_barcode;
     }
 
-    public String getSku_code() {
-        return sku_code;
+    public Long getWaybill_type() {
+        return waybill_type;
     }
 
-    public void setSku_code(String sku_code) {
-        this.sku_code = sku_code;
+    public void setWaybill_type(Long waybill_type) {
+        this.waybill_type = waybill_type;
     }
 
-    public String getSpare_code() {
-        return spare_code;
+    public Long getOutboundOrderCode() {
+        return outboundOrderCode;
     }
 
-    public void setSpare_code(String spare_code) {
-        this.spare_code = spare_code;
+    public void setOutboundOrderCode(Long outboundOrderCode) {
+        this.outboundOrderCode = outboundOrderCode;
     }
 
-    public String getGood_name() {
-        return good_name;
+    public String getSkuCode() {
+        return skuCode;
     }
 
-    public void setGood_name(String good_name) {
-        this.good_name = good_name;
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
     }
 
-    public String getExecption_remark() {
-        return execption_remark;
+    public String getSpareCode() {
+        return spareCode;
     }
 
-    public void setExecption_remark(String execption_remark) {
-        this.execption_remark = execption_remark;
+    public void setSpareCode(String spareCode) {
+        this.spareCode = spareCode;
     }
 
-    public Long getPackage_num() {
-        return package_num;
+    public String getGoodName() {
+        return goodName;
     }
 
-    public void setPackage_num(Long package_num) {
-        this.package_num = package_num;
+    public void setGoodName(String goodName) {
+        this.goodName = goodName;
     }
 
-    public Long getSend_city_id() {
-        return send_city_id;
+    public Long getGoodCount() {
+        return goodCount;
     }
 
-    public void setSend_city_id(Long send_city_id) {
-        this.send_city_id = send_city_id;
+    public void setGoodCount(Long goodCount) {
+        this.goodCount = goodCount;
     }
 
-    public String getSend_city_name() {
-        return send_city_name;
+    public String getExecptionRemark() {
+        return execptionRemark;
     }
 
-    public void setSend_city_name(String send_city_name) {
-        this.send_city_name = send_city_name;
+    public void setExecptionRemark(String execptionRemark) {
+        this.execptionRemark = execptionRemark;
     }
 
-    public String getCreate_site_code() {
-        return create_site_code;
+    public Long getPackageNum() {
+        return packageNum;
     }
 
-    public void setCreate_site_code(String create_site_code) {
-        this.create_site_code = create_site_code;
+    public void setPackageNum(Long packageNum) {
+        this.packageNum = packageNum;
     }
 
-    public String getCreate_site_name() {
-        return create_site_name;
+    public Long getSendCityId() {
+        return sendCityId;
     }
 
-    public void setCreate_site_name(String create_site_name) {
-        this.create_site_name = create_site_name;
+    public void setSendCityId(Long sendCityId) {
+        this.sendCityId = sendCityId;
     }
 
-    public Long getTarget_province_id() {
-        return target_province_id;
+    public String getSendCityName() {
+        return sendCityName;
     }
 
-    public void setTarget_province_id(Long target_province_id) {
-        this.target_province_id = target_province_id;
+    public void setSendCityName(String sendCityName) {
+        this.sendCityName = sendCityName;
     }
 
-    public String getTarget_province_name() {
-        return target_province_name;
+    public String getCreateSiteCode() {
+        return createSiteCode;
     }
 
-    public void setTarget_province_name(String target_province_name) {
-        this.target_province_name = target_province_name;
+    public void setCreateSiteCode(String createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 
-    public Long getTarget_city_id() {
-        return target_city_id;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setTarget_city_id(Long target_city_id) {
-        this.target_city_id = target_city_id;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 
-    public String getTarget_city_name() {
-        return target_city_name;
+    public Long getTargetProvinceId() {
+        return targetProvinceId;
     }
 
-    public void setTarget_city_name(String target_city_name) {
-        this.target_city_name = target_city_name;
+    public void setTargetProvinceId(Long targetProvinceId) {
+        this.targetProvinceId = targetProvinceId;
     }
 
-    public String getSend_operator_code() {
-        return send_operator_code;
+    public String getTargetProvinceName() {
+        return targetProvinceName;
     }
 
-    public void setSend_operator_code(String send_operator_code) {
-        this.send_operator_code = send_operator_code;
+    public void setTargetProvinceName(String targetProvinceName) {
+        this.targetProvinceName = targetProvinceName;
     }
 
-    public String getSend_operator_name() {
-        return send_operator_name;
+    public Long getTargetCityId() {
+        return targetCityId;
     }
 
-    public void setSend_operator_name(String send_operator_name) {
-        this.send_operator_name = send_operator_name;
+    public void setTargetCityId(Long targetCityId) {
+        this.targetCityId = targetCityId;
     }
 
-    public String getSend_operator_erp() {
-        return send_operator_erp;
+    public String getTargetCityName() {
+        return targetCityName;
     }
 
-    public void setSend_operator_erp(String send_operator_erp) {
-        this.send_operator_erp = send_operator_erp;
+    public void setTargetCityName(String targetCityName) {
+        this.targetCityName = targetCityName;
     }
 
-    public String getSend_operator_tel() {
-        return send_operator_tel;
+    public String getSendOperatorCode() {
+        return sendOperatorCode;
     }
 
-    public void setSend_operator_tel(String send_operator_tel) {
-        this.send_operator_tel = send_operator_tel;
+    public void setSendOperatorCode(String sendOperatorCode) {
+        this.sendOperatorCode = sendOperatorCode;
     }
 
-    public String getBusi_name() {
-        return busi_name;
+    public String getSendOperatorName() {
+        return sendOperatorName;
     }
 
-    public void setBusi_name(String busi_name) {
-        this.busi_name = busi_name;
+    public void setSendOperatorName(String sendOperatorName) {
+        this.sendOperatorName = sendOperatorName;
+    }
+
+    public String getSendOperatorErp() {
+        return sendOperatorErp;
+    }
+
+    public void setSendOperatorErp(String sendOperatorErp) {
+        this.sendOperatorErp = sendOperatorErp;
+    }
+
+    public String getSendOperatorTel() {
+        return sendOperatorTel;
+    }
+
+    public void setSendOperatorTel(String sendOperatorTel) {
+        this.sendOperatorTel = sendOperatorTel;
+    }
+
+    public String getBusiName() {
+        return busiName;
+    }
+
+    public void setBusiName(String busiName) {
+        this.busiName = busiName;
     }
 
     public String getReceiver() {
@@ -292,27 +355,67 @@ public class RmaBillInfo implements Serializable {
         this.receiver = receiver;
     }
 
-    public String getReceiver_mobile() {
-        return receiver_mobile;
+    public String getReceiverMobile() {
+        return receiverMobile;
     }
 
-    public void setReceiver_mobile(String receiver_mobile) {
-        this.receiver_mobile = receiver_mobile;
+    public void setReceiverMobile(String receiverMobile) {
+        this.receiverMobile = receiverMobile;
     }
 
-    public String getReceiver_address() {
-        return receiver_address;
+    public String getReceiverAddress() {
+        return receiverAddress;
     }
 
-    public void setReceiver_address(String receiver_address) {
-        this.receiver_address = receiver_address;
+    public void setReceiverAddress(String receiverAddress) {
+        this.receiverAddress = receiverAddress;
     }
 
-    public Long getIs_print() {
-        return is_print;
+    public Long getIsPrint() {
+        return isPrint;
     }
 
-    public void setIs_print(Long is_print) {
-        this.is_print = is_print;
+    public void setIsPrint(Long isPrint) {
+        this.isPrint = isPrint;
+    }
+
+    public String getPrintOperatorCode() {
+        return printOperatorCode;
+    }
+
+    public void setPrintOperatorCode(String printOperatorCode) {
+        this.printOperatorCode = printOperatorCode;
+    }
+
+    public Date getPrintDate() {
+        return printDate;
+    }
+
+    public void setPrintDate(Date printDate) {
+        this.printDate = printDate;
+    }
+
+    public Date getSendDate() {
+        return sendDate;
+    }
+
+    public void setSendDate(Date sendDate) {
+        this.sendDate = sendDate;
+    }
+
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 }

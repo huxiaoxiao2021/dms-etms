@@ -35,7 +35,7 @@ public interface RmaHandOverWaybillService {
      * @param pager
      * @return
      */
-    Pager<RmaHandoverWaybill> getListWithoutDetail(RmaHandoverQueryParam param, Pager pager);
+    Pager<List<RmaHandoverWaybill>> getListWithoutDetail(RmaHandoverQueryParam param, Pager pager);
 
     /**
      * 根据Id查询
@@ -53,7 +53,7 @@ public interface RmaHandOverWaybillService {
      * @param needDetail
      * @return
      */
-    List<RmaHandoverWaybill> getList(List<Long> ids, boolean needDetail);
+    Pager<List<RmaHandoverWaybill>> getList(List<Long> ids, boolean needDetail);
 
     /**
      * 根据参数获取最新操作数据
