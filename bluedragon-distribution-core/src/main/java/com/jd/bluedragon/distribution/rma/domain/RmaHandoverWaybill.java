@@ -10,6 +10,7 @@ import java.util.List;
  * Created by lixin39 on 2018/9/20.
  */
 public class RmaHandoverWaybill implements Serializable {
+
     private static final long serialVersionUID = -7800839106682310757L;
 
     /**

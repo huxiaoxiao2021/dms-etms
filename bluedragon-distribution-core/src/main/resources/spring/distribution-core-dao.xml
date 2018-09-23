@@ -436,4 +436,13 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
     <bean id="abnormalQcDao"  parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
+
+    <!-- RMA -->
+    <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="rmaHandOverDetailDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverDetailDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>

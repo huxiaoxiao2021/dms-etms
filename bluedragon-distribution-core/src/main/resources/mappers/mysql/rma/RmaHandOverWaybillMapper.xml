@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
+    <resultMap id="rmaHandoverWaybill" type="RmaHandoverWaybill">
+        <result column="id" property="id"/>
+        <result column="waybill_code" property="waybillCode"/>
+        <result column="package_count" property="packageCount"/>
+        <result column="send_user_name" property="sendUserName"/>
+        <result column="send_user_code" property="sendUserCode"/>
+        <result column="send_user_mobile" property="sendUserMobile"/>
+        <result column="send_date" property="sendDate"/>
+        <result column="create_site_code" property="createSiteCode"/>
+        <result column="create_site_name" property="createSiteName"/>
+        <result column="send_province_id" property="sendProvinceId"/>
+        <result column="send_province_name" property="sendProvinceName"/>
+        <result column="send_city_id" property="sendCityId"/>
+        <result column="send_city_name" property="sendCityName"/>
+        <result column="target_province_id" property="targetProvinceId"/>
+        <result column="target_province_name" property="targetProvinceName"/>
+        <result column="target_city_id" property="targetCityId"/>
+        <result column="target_city_name" property="targetCityName"/>
+        <result column="busi_id" property="busiId"/>
+        <result column="busi_name" property="busiName"/>
+        <result column="receiver" property="receiver"/>
+        <result column="receiver_mobile" property="receiverMobile"/>
+        <result column="receiver_address" property="receiverAddress"/>
+        <result column="print_status" property="printStatus"/>
+        <result column="print_time" property="printTime"/>
+        <result column="print_user_name" property="printUserName"/>
+        <result column="print_user_code" property="printUserCode"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="yn" property="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        waybill_code,
+        package_count,
+        send_user_name,
+        send_user_code,
+        send_user_mobile,
+        send_date,
+        create_site_code,
+        create_site_name,
+        send_province_id,
+        send_province_name,
+        send_city_id,
+        send_city_name,
+        target_province_id,
+        target_province_name,
+        target_city_id,
+        target_city_name,
+        busi_id,
+        busi_name,
+        receiver,
+        receiver_mobile,
+        receiver_address,
+        print_status,
+        print_time,
+        print_user_name,
+        print_user_code,
+        create_time,
+        update_time,
+        yn
+    </sql>
+
+    <insert id="add" parameterType="RmaHandoverWaybill" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rma_handover_waybill (
+        waybill_code,
+        package_count,
+        send_user_name,
+        send_user_code,
+        send_user_mobile,
+        send_date,
+        create_site_code,
+        create_site_name,
+        send_province_id,
+        send_province_name,
+        send_city_id,
+        send_city_name,
+        target_province_id,
+        target_province_name,
+        target_city_id,
+        target_city_name,
+        busi_id,
+        busi_name,
+        receiver,
+        receiver_mobile,
+        receiver_address,
+        print_status,
+        print_time,
+        print_user_name,
+        print_user_code,
+        create_time,
+        update_time,
+        yn
+        ) VALUES (
+        #{waybillCode,jdbcType=VARCHAR},
+        #{packageCount,jdbcType=INTEGER},
+        #{sendUserName,jdbcType=VARCHAR},
+        #{sendUserCode,jdbcType=INTEGER},
+        #{sendUserMobile,jdbcType=VARCHAR},
+        #{sendDate,jdbcType=TIMESTAMP},
+        #{createSiteCode,jdbcType=INTEGER},
+        #{createSiteName,jdbcType=VARCHAR},
+        #{sendProvinceId,jdbcType=INTEGER},
+        #{sendProvinceName,jdbcType=VARCHAR},
+        #{sendCityId,jdbcType=INTEGER},
+        #{sendCityName,jdbcType=VARCHAR},
+        #{targetProvinceId,jdbcType=INTEGER},
+        #{targetProvinceName,jdbcType=VARCHAR},
+        #{targetCityId,jdbcType=INTEGER},
+        #{targetCityName,jdbcType=VARCHAR},
+        #{busiId,jdbcType=INTEGER},
+        #{busiName,jdbcType=VARCHAR},
+        #{receiver,jdbcType=VARCHAR},
+        #{receiverMobile,jdbcType=VARCHAR},
+        #{receiverAddress,jdbcType=VARCHAR},
+        #{printStatus,jdbcType=INTEGER},
+        #{printTime,jdbcType=TIMESTAMP},
+        #{printUserName,jdbcType=VARCHAR},
+        #{printUserCode,jdbcType=INTEGER},
+        NOW(),
+        NOW(),
+        1)
+    </insert>
+
+    <update id="update" parameterType="RmaHandoverWaybill">
+        UPDATE rma_handover_waybill
+        SET
+        <if test="waybillCode != null">
+            waybill_code = #{waybillCode,jdbcType=VARCHAR},
+        </if>
+        <if test="packageCount != null">
+            package_count = #{packageCount,jdbcType=INTEGER},
+        </if>
+        <if test="sendUserName != null">
+            send_user_name = #{sendUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="sendUserCode != null">
+            send_user_code = #{sendUserCode,jdbcType=INTEGER},
+        </if>
+        <if test="sendUserMobile != null">
+            send_user_mobile = #{sendUserMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="sendDate != null">
+            send_date = #{sendDate,jdbcType=TIMESTAMP},
+        </if>
+        <if test="createSiteCode != null">
+            create_site_code = #{createSiteCode,jdbcType=INTEGER},
+        </if>
+        <if test="createSiteName != null">
+            create_site_name = #{createSiteName,jdbcType=VARCHAR},
+        </if>
+        <if test="sendProvinceId != null">
+            send_province_id = #{sendProvinceId,jdbcType=INTEGER},
+        </if>
+        <if test="sendProvinceName != null">
+            send_province_name = #{sendProvinceName,jdbcType=VARCHAR},
+        </if>
+        <if test="sendCityId != null">
+            send_city_id = #{sendCityId,jdbcType=INTEGER},
+        </if>
+        <if test="sendCityName != null">
+            send_city_name = #{sendCityName,jdbcType=VARCHAR},
+        </if>
+        <if test="targetProvinceId != null">
+            target_province_id = #{targetProvinceId,jdbcType=INTEGER},
+        </if>
+        <if test="targetProvinceName != null">
+            target_province_name = #{targetProvinceName,jdbcType=VARCHAR},
+        </if>
+        <if test="targetCityId != null">
+            target_city_id = #{targetCityId,jdbcType=INTEGER},
+        </if>
+        <if test="targetCityName != null">
+            target_city_name = #{targetCityName,jdbcType=VARCHAR},
+        </if>
+        <if test="busiId != null">
+            busi_id = #{busiId,jdbcType=INTEGER},
+        </if>
+        <if test="busiName != null">
+            busi_name = #{busiName,jdbcType=VARCHAR},
+        </if>
+        <if test="receiver != null">
+            receiver = #{receiver,jdbcType=VARCHAR},
+        </if>
+        <if test="receiverMobile != null">
+            receiver_mobile = #{receiverMobile,jdbcType=VARCHAR},
+        </if>
+        <if test="receiverAddress != null">
+            receiver_address = #{receiverAddress,jdbcType=VARCHAR},
+        </if>
+        <if test="printStatus != null">
+            print_status = #{printStatus,jdbcType=INTEGER},
+        </if>
+        <if test="printTime != null">
+            print_time = #{printTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="printUserName != null">
+            print_user_name = #{printUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="printUserCode != null">
+            print_user_code = #{printUserCode,jdbcType=INTEGER},
+        </if>
+        update_time = NOW()
+        WHERE yn = 1
+        AND id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="getById" parameterType="Long" resultMap="rmaHandoverWaybill">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM rma_handover_waybill
+        WHERE yn = 1
+        AND id = #{id,jdbcType=BIGINT}
+    </select>
+
+    <select id="getListByIds" parameterType="List" resultMap="rmaHandoverWaybill">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM rma_handover_waybill
+        WHERE yn = 1
+        AND id IN
+        <foreach collection="list" item="id" index="index"
+                 separator=",">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </select>
+
+    <select id="getListByParams" parameterType="Map" resultMap="rmaHandoverWaybill">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM rma_handover_waybill
+        WHERE yn = 1
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="printStatus != null">
+            AND print_status = #{printStatus,jdbcType=INTEGER}
+        </if>
+        <if test="receiverAddress != null">
+            AND receiver_address LIKE CONCAT('%',#{receiverAddress,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sendDateStart != null">
+            AND send_date <![CDATA[ >= ]]> #{sendDateStart,jdbcType=TIMESTAMP}
+        </if>
+        <if test="sendDateEnd != null">
+            AND send_date <![CDATA[ <= ]]> #{sendDateEnd,jdbcType=TIMESTAMP}
+        </if>
+        ORDER BY create_time DESC
+        <if test="startIndex != null">
+            LIMIT #{startIndex},#{pageSize}
+        </if>
+    </select>
+
+    <select id="getCountByParams" parameterType="Map" resultType="java.lang.Integer">
+        SELECT
+        COUNT(*)
+        FROM rma_handover_waybill
+        WHERE yn = 1
+        AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="waybillCode != null">
+            AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        </if>
+        <if test="printStatus != null">
+            AND print_status = #{printStatus,jdbcType=INTEGER}
+        </if>
+        <if test="receiverAddress != null">
+            AND receiver_address LIKE CONCAT('%',#{receiverAddress,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="sendDateStart != null">
+            AND send_date <![CDATA[ >= ]]> #{sendDateStart,jdbcType=TIMESTAMP}
+        </if>
+        <if test="sendDateEnd != null">
+            AND send_date <![CDATA[ <= ]]> #{sendDateEnd,jdbcType=TIMESTAMP}
+        </if>
+    </select>
+
+    <update id="updatePrintInfo" parameterType="java.util.Map">
+        UPDATE rma_handover_waybill
+        SET update_time = NOW(),
+        print_status = #{printStatus,jdbcType=INTEGER},
+        print_time = #{printTime,jdbcType=TIMESTAMP},
+        print_user_name = #{printUserName,jdbcType=VARCHAR},
+        print_user_code = #{printUserCode,jdbcType=INTEGER}
+        WHERE yn = 1
+        AND id IN
+        <foreach collection="ids" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=BIGINT}
+        </foreach>
+    </update>
+
+</mapper>

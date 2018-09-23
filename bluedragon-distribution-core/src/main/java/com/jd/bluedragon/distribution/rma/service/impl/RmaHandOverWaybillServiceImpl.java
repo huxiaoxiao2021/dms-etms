@@ -11,12 +11,14 @@ import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,13 +72,17 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         Map<String, Object> parameter = new HashMap<String, Object>();
         parameter.put("sendDateStart", param.getSendDateStart());
         parameter.put("sendDateEnd", param.getSendDateEnd());
-        Integer printStatus = param.getPrintStatus();
-        if (printStatus != null) {
-            parameter.put("isPrinted", PrintStatusEnum.getEnum(printStatus));
-        }
         parameter.put("createSiteCode", param.getCreateSiteCode());
         parameter.put("waybillCode", param.getWaybillCode());
-        parameter.put("receiverAddress", param.getReceiverAddress());
+        Integer printStatus = param.getPrintStatus();
+        if (printStatus != null) {
+            parameter.put("printStatus", printStatus);
+        }
+        String receiverAddress = param.getReceiverAddress();
+        if (StringHelper.isNotEmpty(receiverAddress)){
+            parameter.put("receiverAddress", receiverAddress);
+        }
+
         int count = rmaHandOverWaybillDao.getCountByParams(parameter);
         if (count > 0) {
             pager.setTotalSize(count);
@@ -86,6 +92,8 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             //查询符合条件的记录
             List<RmaHandoverWaybill> list = rmaHandOverWaybillDao.getListByParams(parameter);
             pager.setData(list);
+        } else {
+            pager.setData(Collections.EMPTY_LIST);
         }
         return pager;
     }
