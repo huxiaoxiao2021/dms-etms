@@ -806,6 +806,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setLossQuantity(lossCount);
         send.setSendCode(sendM.getSendCode());
         send.setOrderId(wallBillCode);
+        //金鹏退仓修改字段 OrderId
+        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+            BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(wallBillCode,true,true,true,false);
+            if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
+                send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
+            }
+
+        }
         send.setIsInStore(0);
         send.setToken(send.isSickWaybill() ? taskId : "");//病单加token标识（仓储只关注是否为空，任务号方便我方根据报文核查）
         try {
