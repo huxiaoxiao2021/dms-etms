@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.RmabillInfoResponse;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
+import com.jd.common.print.PrintHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.erp.service.dto.CommonDto;
 import org.apache.log4j.Logger;
@@ -16,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,20 +144,22 @@ public class RmaHandOverController {
         }
         return rmabillInfoResponse;
     }
+
     /**
      * 打印
      * @return
-     * @param idList
+     * @param request
      */
-    @RequestMapping("/printWaybillRma")
-    @ResponseBody
-    public CommonDto<String> printWaybillRma(@RequestBody List<Integer> idList) {
+    @RequestMapping(value = "/printWaybillRma")
+    public CommonDto<String> printWaybillRma(HttpServletRequest request, HttpServletResponse response) {
         CommonDto<String> rmabillInfoResponse = new CommonDto<String>();
         rmabillInfoResponse.setCode(CommonDto.CODE_FAIL);
-
         try {
-            //todo 准备打印方法
-            rmabillInfoResponse.setData("xxxx地址");
+            String billsNos = request.getParameter("billsNos");
+            String[] arrbillsNos = billsNos.split(",");
+            PrintHelper.getPrintWaybillRma("123",response.getOutputStream());
+            //todo 更新是否已打印状态，根据id
+
         } catch (Exception e) {
             e.printStackTrace();
             rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
