@@ -56,7 +56,7 @@ function main() {
     };
     pageInit().init();
     initDateQuery();
-	queryBtn(1);
+	// queryBtn(1);
 }
 function initDateQuery(){
     var sendDateStart = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
@@ -186,7 +186,17 @@ function receiverAddressQuery(waybillCode) {
         data : JSON.stringify(waybillCode),
         async : false,
         success: function (msg) {
-
+            debugger;
+            if(msg==null){
+                jQuery.messager.alert('查询地址信息失败');
+                return;
+            }
+            if(msg.code==1){
+                $("#receiverAddress").val(msg.data)
+            }else{
+                jQuery.messager.alert('查询地址信息失败');
+                return;
+            }
         }
     });
 	

@@ -59,15 +59,12 @@ public class RmaHandOverController {
         RmabillInfoResponse<Pager<List<RmaHandoverWaybill>>> rmabillInfoResponse = new RmabillInfoResponse<Pager<List<RmaHandoverWaybill>>>();
         rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_NORMAL);
         try {
-
             if(rmaHandoverQueryRequest==null){
                 rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_EXCEPTION);
                 rmabillInfoResponse.setData(null);
                 rmabillInfoResponse.setMessage("查询条件不能为空");
                 return rmabillInfoResponse;
             }
-
-
             if(rmaHandoverQueryRequest.getSendDateStart()==null && rmaHandoverQueryRequest.getSendDateEnd()==null){
                 rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_EXCEPTION);
                 rmabillInfoResponse.setData(null);
@@ -107,32 +104,8 @@ public class RmaHandOverController {
 
             Pager<List<RmaHandoverWaybill>> pager=rmaHandOverWaybillService.getListWithoutDetail(rmaHandoverQueryParam,page);
 
-//            mock 数据
-            List<RmaHandoverWaybill> rmaHandoverWaybillList=new ArrayList<RmaHandoverWaybill>();
-
-            RmaHandoverWaybill rmaHandoverWaybill=new  RmaHandoverWaybill();
-            rmaHandoverWaybill.setId(1L);
-            rmaHandoverWaybill.setWaybillCode("asdfg");
-            rmaHandoverWaybill.setReceiverAddress("XXXX地址");
-            rmaHandoverWaybill.setPrintStatus(1);
-            rmaHandoverWaybillList.add(rmaHandoverWaybill);
-            RmaHandoverWaybill rmaHandoverWaybill1=new  RmaHandoverWaybill();
-            rmaHandoverWaybill1.setId(2L);
-            rmaHandoverWaybill1.setWaybillCode("asdfg11111");
-            rmaHandoverWaybill1.setReceiverAddress("XXXX地址22222");
-            rmaHandoverWaybill1.setPrintStatus(1);
-
-            rmaHandoverWaybillList.add(rmaHandoverWaybill1);
-
-        // 设置分页对象
-            if (page == null) {
-                page = new Pager<List<RmaHandoverWaybill>>(Pager.DEFAULT_PAGE_NO);
-            }
-            page.setData(rmaHandoverWaybillList);
-            rmabillInfoResponse.setData(page);
-
-            if (page == null) {
-                page = new Pager<List<RmaHandoverWaybill>>(Pager.DEFAULT_PAGE_NO);
+            if (pager == null) {
+                pager = new Pager<List<RmaHandoverWaybill>>(Pager.DEFAULT_PAGE_NO);
             }
             rmabillInfoResponse.setData(pager);
             rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_NORMAL);
@@ -160,6 +133,7 @@ public class RmaHandOverController {
             try {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 String receiverAddress=rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode,dto.getSiteCode());
+
                 rmabillInfoResponse.setData(receiverAddress);
                 rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
             } catch (Exception e) {
@@ -185,7 +159,6 @@ public class RmaHandOverController {
             String[] arrbillsNos = billsNos.split(",");
             PrintHelper.getPrintWaybillRma("123",response.getOutputStream());
             //todo 更新是否已打印状态，根据id
-
         } catch (Exception e) {
             e.printStackTrace();
             rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
