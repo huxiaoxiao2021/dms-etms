@@ -88,12 +88,18 @@ public class RmaHandOverController {
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     rmaHandoverQueryParam.setCreateSiteCode(dto.getSiteCode());
                 } catch (Exception e) {
-                    rmabillInfoResponse.setMessage("查询地址不能为空");
+                    rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_EXCEPTION);
+                    rmabillInfoResponse.setData(null);
+                    rmabillInfoResponse.setMessage("获取当前场站为空");
                     return rmabillInfoResponse;
                 }
+            }else{
+                rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_EXCEPTION);
+                rmabillInfoResponse.setData(null);
+                rmabillInfoResponse.setMessage("获取当前场站为空");
+                return rmabillInfoResponse;
             }
 
-            rmaHandoverQueryParam.setReceiverAddress(rmaHandoverQueryRequest.getReceiverAddress());
             SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             rmaHandoverQueryParam.setSendDateStart(sdf.parse(rmaHandoverQueryRequest.getSendDateStart()));
             rmaHandoverQueryParam.setSendDateEnd(sdf.parse(rmaHandoverQueryRequest.getSendDateEnd()));
@@ -154,10 +160,9 @@ public class RmaHandOverController {
             try {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 String receiverAddress=rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode,dto.getSiteCode());
-            rmabillInfoResponse.setData(receiverAddress);
+                rmabillInfoResponse.setData(receiverAddress);
                 rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
             } catch (Exception e) {
-                e.printStackTrace();
                 rmabillInfoResponse.setMessage("查询地址失败，单号无效");
             }
         }

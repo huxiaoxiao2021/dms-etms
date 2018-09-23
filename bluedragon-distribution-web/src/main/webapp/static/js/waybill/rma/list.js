@@ -116,6 +116,7 @@ function getParams() {
 function doQuery(params) {
 	var url =  "/waybill/rma/query";
 	CommonClient.post(url, params, function(data) {
+	    debugger;
 		if (data == undefined || data == null) {
             jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
             return;

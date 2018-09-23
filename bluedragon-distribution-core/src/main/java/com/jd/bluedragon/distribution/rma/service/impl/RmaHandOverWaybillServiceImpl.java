@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rma.service.impl;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
@@ -12,6 +13,10 @@ import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +44,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Autowired
     private RmaHandOverWaybillDao rmaHandOverWaybillDao;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private RmaHandOverDetailService rmaHandOverDetailService;
@@ -73,12 +81,13 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         Map<String, Object> parameter = new HashMap<String, Object>();
         parameter.put("sendDateStart", param.getSendDateStart());
         parameter.put("sendDateEnd", param.getSendDateEnd());
-        parameter.put("createSiteCode", param.getCreateSiteCode());
-        parameter.put("waybillCode", param.getWaybillCode());
         Integer printStatus = param.getPrintStatus();
         if (printStatus != null) {
-            parameter.put("printStatus", printStatus);
+            parameter.put("isPrinted", PrintStatusEnum.getEnum(printStatus));
         }
+        parameter.put("createSiteCode", param.getCreateSiteCode());
+        parameter.put("waybillCode", param.getWaybillCode());
+
         String receiverAddress = param.getReceiverAddress();
         if (StringHelper.isNotEmpty(receiverAddress)){
             parameter.put("receiverAddress", receiverAddress);
@@ -190,7 +199,32 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Override
     public void addConsumer(SendDetail sendDetail) {
+        try {
+            String waybillCode=sendDetail.getWaybillCode();
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(true);
+            choice.setQueryWaybillE(true);
+            choice.setQueryWaybillM(true);
+            choice.setQueryPackList(true);
+            choice.setQueryGoodList(true);
+            choice.setQueryWaybillExtend(true);
+            choice.setQueryPickupTask(true);
+            choice.setQueryServiceBillPay(true);
+            BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
+            Waybill waybill =bigWaybillDtoBaseEntity.getData().getWaybill();
+            String sendPay=waybill.getSendPay();
+            if(sendPay.substring(32,1)=="1"){
+                RmaHandoverWaybill rmaHandOverWaybill=new RmaHandoverWaybill();
 
+                int rmaHandOverWaybillId=rmaHandOverWaybillDao.add(rmaHandOverWaybill);
+
+                RmaHandoverDetail rmaHandoverDetail=new RmaHandoverDetail();
+                rmaHandoverDetail.setHandoverWaybillId(new Long(rmaHandOverWaybillId));
+                rmaHandOverDetailService.add(rmaHandoverDetail);
+            }
+        } catch (Exception e) {
+
+        }
     }
 
     private RmaHandoverPrint buildPrintInfo(RmaHandoverWaybill handoverWaybill) {

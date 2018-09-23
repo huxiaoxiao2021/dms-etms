@@ -20,7 +20,7 @@ import java.text.MessageFormat;
  * 运单报文消费dmsWorkSendDetail
  * Created by zhanghao141 on 2018/9/21
  */
-@Service("sendCarConsumer")
+@Service("dmsWorkSendDetail")
 public class WayBillConsumer extends MessageBaseConsumer {
 
     private static final Log logger= LogFactory.getLog(WayBillConsumer.class);
@@ -35,8 +35,6 @@ public class WayBillConsumer extends MessageBaseConsumer {
             return;
         }
         SendDetail context=JsonHelper.fromJsonUseGson(message.getText(),SendDetail.class);
-        //判断第31位是否是1
-        //todo
         try {
             rmaHandOverWaybillService.addConsumer(context);
         } catch (Exception e) {
