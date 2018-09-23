@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
@@ -185,6 +186,11 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             return new ArrayList<RmaHandoverPrint>(result.values());
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public void addConsumer(SendDetail sendDetail) {
+
     }
 
     private RmaHandoverPrint buildPrintInfo(RmaHandoverWaybill handoverWaybill) {

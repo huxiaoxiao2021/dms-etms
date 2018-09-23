@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.request.PrintInfoParam;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 import java.util.List;
 
@@ -89,5 +90,12 @@ public interface RmaHandOverWaybillService {
      * @return
      */
     List<RmaHandoverPrint> getPrintInfo(List<Long> ids);
+
+    /**
+     * dmsWorkSendDetail报文消费增加
+     *
+     * @param sendDetail
+     */
+    void addConsumer(SendDetail sendDetail);
 
 }

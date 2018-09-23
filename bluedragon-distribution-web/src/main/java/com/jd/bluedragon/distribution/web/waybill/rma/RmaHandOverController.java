@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.web.waybill.rma;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmabillInfoResponse;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.common.print.PrintHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.erp.service.dto.CommonDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -16,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +36,9 @@ public class RmaHandOverController {
 
     @Autowired
     private RmaHandOverWaybillService rmaHandOverWaybillService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     private static final Logger logger = Logger.getLogger(RmaHandOverController.class);
     /**
@@ -71,15 +81,25 @@ public class RmaHandOverController {
                 return rmabillInfoResponse;
             }
             RmaHandoverQueryParam rmaHandoverQueryParam=new RmaHandoverQueryParam();
-            LoginContext loginContext=LoginContext.getLoginContext();
-            rmaHandoverQueryParam.setCreateSiteCode(rmaHandoverQueryRequest.getCreateSiteCode());
+
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                try {
+                    BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                    rmaHandoverQueryParam.setCreateSiteCode(dto.getSiteCode());
+                } catch (Exception e) {
+                    rmabillInfoResponse.setMessage("查询地址不能为空");
+                    return rmabillInfoResponse;
+                }
+            }
+
             rmaHandoverQueryParam.setReceiverAddress(rmaHandoverQueryRequest.getReceiverAddress());
             SimpleDateFormat sdf=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             rmaHandoverQueryParam.setSendDateStart(sdf.parse(rmaHandoverQueryRequest.getSendDateStart()));
             rmaHandoverQueryParam.setSendDateEnd(sdf.parse(rmaHandoverQueryRequest.getSendDateEnd()));
             rmaHandoverQueryParam.setPrintStatus(rmaHandoverQueryRequest.getHasPrint());
 
-//                Pager<List<RmaHandoverWaybill>> pager=rmaHandOverWaybillService.getListWithoutDetail(rmaHandoverQueryRequest,page);
+            Pager<List<RmaHandoverWaybill>> pager=rmaHandOverWaybillService.getListWithoutDetail(rmaHandoverQueryParam,page);
 
 //            mock 数据
             List<RmaHandoverWaybill> rmaHandoverWaybillList=new ArrayList<RmaHandoverWaybill>();
@@ -108,7 +128,7 @@ public class RmaHandOverController {
             if (page == null) {
                 page = new Pager<List<RmaHandoverWaybill>>(Pager.DEFAULT_PAGE_NO);
             }
-            rmabillInfoResponse.setData(page);
+            rmabillInfoResponse.setData(pager);
             rmabillInfoResponse.setCode(RmabillInfoResponse.CODE_NORMAL);
 
         } catch (Exception e) {
@@ -129,31 +149,38 @@ public class RmaHandOverController {
     public CommonDto<String> queryAddstrBybillNo(@RequestBody String waybillCode) {
         CommonDto<String> rmabillInfoResponse = new CommonDto<String>();
         rmabillInfoResponse.setCode(CommonDto.CODE_FAIL);
-
-        try {
-            String receiverAddress=rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser != null) {
+            try {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                String receiverAddress=rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode,dto.getSiteCode());
             rmabillInfoResponse.setData(receiverAddress);
-            rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
-        } catch (Exception e) {
-            e.printStackTrace();
-            rmabillInfoResponse.setMessage("查询地址失败，单号无效");
+                rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);
+            } catch (Exception e) {
+                e.printStackTrace();
+                rmabillInfoResponse.setMessage("查询地址失败，单号无效");
+            }
         }
+
+
         return rmabillInfoResponse;
     }
+
     /**
      * 打印
      * @return
-     * @param idList
+     * @param request
      */
-    @RequestMapping("/printWaybillRma")
-    @ResponseBody
-    public CommonDto<String> printWaybillRma(@RequestBody List<Integer> idList) {
+    @RequestMapping(value = "/printWaybillRma")
+    public CommonDto<String> printWaybillRma(HttpServletRequest request, HttpServletResponse response) {
         CommonDto<String> rmabillInfoResponse = new CommonDto<String>();
         rmabillInfoResponse.setCode(CommonDto.CODE_FAIL);
-
         try {
-            //todo 准备打印方法
-            rmabillInfoResponse.setData("xxxx地址");
+            String billsNos = request.getParameter("billsNos");
+            String[] arrbillsNos = billsNos.split(",");
+            PrintHelper.getPrintWaybillRma("123",response.getOutputStream());
+            //todo 更新是否已打印状态，根据id
+
         } catch (Exception e) {
             e.printStackTrace();
             rmabillInfoResponse.setCode(CommonDto.CODE_NORMAL);

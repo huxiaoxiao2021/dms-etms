@@ -82,23 +82,11 @@ function printBtn() {
 
     if(checkedKeys) {
         if (checkedKeys.length > 0) {
-                var contextPath = $("#contextPath").val();
                 var idList = new Array();
                 for(var i=0;i<checkedKeys.length;i++){
                     idList[i] = $(checkedKeys[i]).val();
                 }
-                var url = contextPath + "/waybill/rma/printWaybillRma";
-                jQuery.ajax({
-                    type: 'post',
-                    url: url,
-                    dataType : "json",//必须json
-                    contentType : "application/json", // 指定这个协议很重要
-                    data : JSON.stringify(idList),
-                    async : false,
-                    success: function (msg) {
-
-                    }
-                });
+            window.open("/waybill/rma/printWaybillRma?sysnos="+JSON.stringify(idList));
         }else{
             alert("请选择要打印的记录！");
         }
