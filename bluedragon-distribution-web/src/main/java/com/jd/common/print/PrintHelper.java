@@ -6,13 +6,7 @@ import com.itextpdf.text.pdf.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.*;
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.List;
 
 /**
  * 打印帮助类
