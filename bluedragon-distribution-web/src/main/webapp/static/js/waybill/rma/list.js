@@ -56,11 +56,13 @@ function main() {
     };
     pageInit().init();
     initDateQuery();
-	// queryBtn(1);
+
 }
 function initDateQuery(){
-    var sendDateStart = $.dateHelper.formatDateTime(new Date(new Date().toLocaleDateString()));
-    var sendDateEnd = $.dateHelper.formatDateTime(new Date(new Date(new Date().toLocaleDateString()).getTime()+24*60*60*1000-1));
+    var curDate = new Date();
+    var preDate = new Date(curDate.getTime() - 24*60*60*1000*3);
+    var sendDateStart = $.dateHelper.formatDateTime(new Date(preDate.toLocaleDateString()));
+    var sendDateEnd = $.dateHelper.formatDateTime(new Date(new Date(curDate.toLocaleDateString()).getTime()+24*60*60*1000-1));
     $("#sendDateStart").val(sendDateStart);
     $("#sendDateEnd").val(sendDateEnd);
 }
@@ -116,9 +118,9 @@ function getParams() {
 function doQuery(params) {
 	var url =  "/waybill/rma/query";
 	CommonClient.post(url, params, function(data) {
-	    debugger;
+
 		if (data == undefined || data == null) {
-            jQuery.messager.alert('提示:', 'HTTP请求无数据返回！', 'info');
+            alert("查询失败");
             return;
         }
 		if (data.code == 1) {
@@ -154,26 +156,11 @@ function doQuery(params) {
 			$("#pager").html(
 				PageBar.getHtml("queryBtn", pager.totalSize, pager.pageNo,pager.totalNo));
 		} else {
-			alert('提示:', data.message, 'info');
+			alert(data.message);
 		}
 	});
 }
 
-function add0(m) {
-	return m < 10 ? '0' + m : m;
-}
-function dateFormat(date) {
-	var time = new Date(date);
-	var y = time.getFullYear();
-	var m = time.getMonth() + 1;
-	var d = time.getDate();
-	var h = time.getHours();
-	var mm = time.getMinutes();
-	var s = time.getSeconds();
-
-	return y + '-' + add0(m) + '-' + add0(d) + ' ' + add0(h) + ':' + add0(mm)
-		+ ':' + add0(s);
-}
 function receiverAddressQuery(waybillCode) {
     var contextPath = $("#contextPath").val();
     var url = contextPath + "/waybill/rma/receiverAddressQuery";
@@ -186,15 +173,14 @@ function receiverAddressQuery(waybillCode) {
         data : JSON.stringify(waybillCode),
         async : false,
         success: function (msg) {
-            debugger;
             if(msg==null){
-                jQuery.messager.alert('查询地址信息失败');
+                alert('查询地址信息失败');
                 return;
             }
             if(msg.code==1){
                 $("#receiverAddress").val(msg.data)
             }else{
-                jQuery.messager.alert('查询地址信息失败');
+               alert('查询地址信息失败');
                 return;
             }
         }
