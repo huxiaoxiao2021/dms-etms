@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://code.jd.com/schema/jmq
-	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
-	    http://www.springframework.org/schema/util
-	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd">
+
 	<!-- jmq transport配置区 -->
 	<jmq:transport id="jmq.BlueDragonDistribution.transport"
 	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
@@ -179,9 +177,10 @@
     <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dms_operateHint_track" listener="operateHintTrackConsumer"/>
     </jmq:consumer>
-    <!-- 消费topic：dmsWorkSendDetail，waybill内容-->
-    <jmq:consumer id="jmq.dmsWorkSendDetail" transport="jmq.BlueDragonDistribution.transport">
-        <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetail"/>
+
+    <!-- 消费发货明细MQ 用于RMA项目打印 -->
+    <jmq:consumer id="jmq.sendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="sendDetailConsumer"/>
     </jmq:consumer>
 </beans>
 

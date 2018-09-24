@@ -22,6 +22,7 @@
         <result column="busi_id" property="busiId"/>
         <result column="busi_name" property="busiName"/>
         <result column="receiver" property="receiver"/>
+        <result column="receiver_id" property="receiverId"/>
         <result column="receiver_mobile" property="receiverMobile"/>
         <result column="receiver_address" property="receiverAddress"/>
         <result column="print_status" property="printStatus"/>
@@ -54,6 +55,7 @@
         busi_id,
         busi_name,
         receiver,
+        receiver_id,
         receiver_mobile,
         receiver_address,
         print_status,
@@ -86,6 +88,7 @@
         busi_id,
         busi_name,
         receiver,
+        receiver_id,
         receiver_mobile,
         receiver_address,
         print_status,
@@ -115,6 +118,7 @@
         #{busiId,jdbcType=INTEGER},
         #{busiName,jdbcType=VARCHAR},
         #{receiver,jdbcType=VARCHAR},
+        #{receiverId,jdbcType=VARCHAR},
         #{receiverMobile,jdbcType=VARCHAR},
         #{receiverAddress,jdbcType=VARCHAR},
         #{printStatus,jdbcType=INTEGER},
@@ -185,6 +189,9 @@
         </if>
         <if test="receiver != null">
             receiver = #{receiver,jdbcType=VARCHAR},
+        </if>
+        <if test="receiverId != null">
+            receiver_id = #{receiverId,jdbcType=VARCHAR},
         </if>
         <if test="receiverMobile != null">
             receiver_mobile = #{receiverMobile,jdbcType=VARCHAR},

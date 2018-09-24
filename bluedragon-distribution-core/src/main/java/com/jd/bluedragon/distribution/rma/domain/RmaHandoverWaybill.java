@@ -5,7 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- *  RMA交接清单打印主表-运单维度
+ * RMA交接清单打印主表-运单维度
  * <p>
  * Created by lixin39 on 2018/9/20.
  */
@@ -112,6 +112,11 @@ public class RmaHandoverWaybill implements Serializable {
      * 收货人
      */
     private String receiver;
+
+    /**
+     * 收货人ID
+     */
+    private String receiverId;
 
     /**
      * 收货人电话
@@ -321,6 +326,14 @@ public class RmaHandoverWaybill implements Serializable {
 
     public void setReceiver(String receiver) {
         this.receiver = receiver;
+    }
+
+    public String getReceiverId() {
+        return receiverId;
+    }
+
+    public void setReceiverId(String receiverId) {
+        this.receiverId = receiverId;
     }
 
     public String getReceiverMobile() {

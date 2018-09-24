@@ -773,6 +773,19 @@ public class BusinessHelper {
 		return null;
 	}
 
+	/**
+	 * 是否是RMA标识的运单
+	 *
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isRMA(String waybillSign) {
+		if (isSignChar(waybillSign, 32, '1')) {
+			return true;
+		}
+		return false;
+	}
+
 	public static void main(String[] args){
 		System.out.println(isWaybillCode("WA1019140201989931008"));
 		System.out.println(SerialRuleUtil.isMatchAllWaybillCode("WA1019140201989931008"));

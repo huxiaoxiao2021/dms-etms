@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.rma.service.impl;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
+import com.jd.bluedragon.distribution.rma.RmaConsumerException;
 import com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
@@ -12,19 +14,22 @@ import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +56,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     @Autowired
     private RmaHandOverDetailService rmaHandOverDetailService;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean add(RmaHandoverWaybill rmaHandoverWaybill) {
@@ -58,6 +66,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             if (rmaHandOverWaybillDao.add(rmaHandoverWaybill) > 0) {
                 List<RmaHandoverDetail> details = rmaHandoverWaybill.getRmaHandoverDetail();
                 if (details != null && !details.isEmpty()) {
+                    for (RmaHandoverDetail detail : details) {
+                        detail.setHandoverWaybillId(rmaHandoverWaybill.getId());
+                    }
                     rmaHandOverDetailService.batchAdd(details);
                 }
                 return true;
@@ -199,26 +210,133 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Override
     public void addConsumer(SendDetail sendDetail) {
-        try {
-            String waybillCode = sendDetail.getWaybillCode();
-            WChoice choice = new WChoice();
-            choice.setQueryWaybillC(true);
-            choice.setQueryWaybillE(true);
-            choice.setQueryWaybillM(true);
-            choice.setQueryGoodList(true);
-            BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
-            Waybill waybill = bigWaybillDtoBaseEntity.getData().getWaybill();
-            String sendPay = waybill.getSendPay();
-            if (sendPay.substring(32, 1) == "1") {
-                RmaHandoverWaybill rmaHandOverWaybill = new RmaHandoverWaybill();
-                int rmaHandOverWaybillId = rmaHandOverWaybillDao.add(rmaHandOverWaybill);
-                RmaHandoverDetail rmaHandoverDetail = new RmaHandoverDetail();
-                rmaHandoverDetail.setHandoverWaybillId(new Long(rmaHandOverWaybillId));
-                rmaHandOverDetailService.add(rmaHandoverDetail);
+        String waybillCode = sendDetail.getWaybillCode();
+        WChoice choice = new WChoice();
+        choice.setQueryWaybillC(true);
+        choice.setQueryWaybillE(true);
+        choice.setQueryWaybillM(true);
+        choice.setQueryGoodList(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+        if (baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+            Waybill waybill = baseEntity.getData().getWaybill();
+            if (BusinessHelper.isRMA(waybill.getWaybillSign())) {
+                RmaHandoverWaybill rmaHandoverWaybill = this.buildHandoverObject(waybill, baseEntity.getData().getGoodsList(), sendDetail);
+                if (!this.add(rmaHandoverWaybill)) {
+                    throw new RmaConsumerException("RMA消费发货明细MQ消息，执行新增入库时失败");
+                }
             }
-        } catch (Exception e) {
-
+        } else {
+            throw new RmaConsumerException("RMA消费发货明细MQ消息，根据运单号获取运单信息为空");
         }
+
+    }
+
+    private RmaHandoverWaybill buildHandoverObject(Waybill waybill, List<Goods> goodsList, SendDetail sendDetail) {
+        RmaHandoverWaybill rmaHandOverWaybill = new RmaHandoverWaybill();
+        this.buildSendDetailAttribute(rmaHandOverWaybill, sendDetail);
+        this.buildWaybillAttribute(rmaHandOverWaybill, waybill);
+        if (goodsList != null && !goodsList.isEmpty()) {
+            this.buildGoodsDetailAttribute(rmaHandOverWaybill, goodsList);
+        }
+        return rmaHandOverWaybill;
+    }
+
+    /**
+     * 构建RMA交接信息发货明细属性
+     *
+     * @param rmaHandOverWaybill
+     * @param sendDetail
+     */
+    private void buildSendDetailAttribute(RmaHandoverWaybill rmaHandOverWaybill, SendDetail sendDetail) {
+        /** 发货人编号 */
+        rmaHandOverWaybill.setSendUserCode(sendDetail.getCreateUserCode());
+        /** 发货人姓名 */
+        rmaHandOverWaybill.setSendUserName(sendDetail.getCreateUser());
+        BaseStaffSiteOrgDto userDto = baseMajorManager.getBaseStaffByStaffIdNoCache(sendDetail.getCreateUserCode());
+        if (userDto != null) {
+            /** 发货人手机号 */
+            rmaHandOverWaybill.setSendUserMobile(userDto.getPhone());
+        }
+        /** 操作站点编号 */
+        rmaHandOverWaybill.setCreateSiteCode(sendDetail.getCreateSiteCode());
+        BaseStaffSiteOrgDto siteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+        if (siteDto != null) {
+            /** 操作站点名称 */
+            rmaHandOverWaybill.setCreateSiteName(siteDto.getSiteName());
+            /** 操作站点所属省ID */
+            rmaHandOverWaybill.setSendProvinceId(siteDto.getProvinceId());
+            /** 操作站点所属省 */
+            rmaHandOverWaybill.setSendProvinceName(siteDto.getProvinceName());
+            /** 操作站点所属城市ID */
+            rmaHandOverWaybill.setSendCityId(siteDto.getCityId());
+            /** 操作站点所属城市 */
+            rmaHandOverWaybill.setSendCityName(siteDto.getCityName());
+        }
+        /** 发货时间 */
+        rmaHandOverWaybill.setSendDate(sendDetail.getOperateTime());
+    }
+
+    /**
+     * 构建RMA交接信息运单属性
+     *
+     * @param rmaHandOverWaybill
+     * @param waybill
+     */
+    private void buildWaybillAttribute(RmaHandoverWaybill rmaHandOverWaybill, Waybill waybill) {
+        /** 运单号 */
+        rmaHandOverWaybill.setWaybillCode(waybill.getWaybillCode());
+        /** 包裹数量 */
+        rmaHandOverWaybill.setPackageCount(waybill.getGoodNumber());
+        /** 目的省ID */
+        rmaHandOverWaybill.setTargetProvinceId(waybill.getProvinceId());
+        /** 目的省 */
+        rmaHandOverWaybill.setTargetProvinceName(waybill.getProvinceName());
+        /** 目的城市ID */
+        rmaHandOverWaybill.setTargetCityId(waybill.getCityId());
+        /** 目的城市名称 */
+        rmaHandOverWaybill.setTargetCityName(waybill.getCityName());
+        /** 商家ID */
+        rmaHandOverWaybill.setBusiId(waybill.getBusiId());
+        /** 商家名称 */
+        rmaHandOverWaybill.setBusiName(waybill.getBusiName());
+        /** 收货人 */
+        rmaHandOverWaybill.setReceiver(waybill.getReceiverName());
+        /** 收货人ID */
+        rmaHandOverWaybill.setReceiverId(waybill.getReceiverId());
+        /** 收货人电话号 */
+        rmaHandOverWaybill.setReceiverMobile(waybill.getReceiverMobile());
+        /** 收货人地址 */
+        rmaHandOverWaybill.setReceiverAddress(waybill.getReceiverAddress());
+    }
+
+    private void buildGoodsDetailAttribute(RmaHandoverWaybill rmaHandOverWaybill, List<Goods> goodsList) {
+        BaseEntity<List<SkuSn>> baseEntity = waybillQueryManager.getSkuSnListByOrderId(rmaHandOverWaybill.getWaybillCode());
+        if (baseEntity.getData() != null && !baseEntity.getData().isEmpty()) {
+            Map<String, String> skuSnMap = this.convertMap(baseEntity.getData());
+            List<RmaHandoverDetail> detailList = new ArrayList<RmaHandoverDetail>(goodsList.size());
+            for (Goods goods : goodsList) {
+                RmaHandoverDetail detail = new RmaHandoverDetail();
+                detail.setWaybillCode(goods.getWaybillCode());
+                detail.setGoodCount(goods.getGoodCount());
+                detail.setGoodName(goods.getGoodName());
+                detail.setSkuCode(goods.getSku());
+                /** 获取备件条码 CodeType为2 */
+                detail.setSpareCode(skuSnMap.get(goods.getSku() + "-2"));
+                /** 获取出库单号 CodeType为3 */
+                detail.setOutboundOrderCode(skuSnMap.get(goods.getSku() + "-3"));
+                detail.setExceptionRemark(goods.getRemark());
+                detailList.add(detail);
+            }
+            rmaHandOverWaybill.setRmaHandoverDetail(detailList);
+        }
+    }
+
+    private Map<String, String> convertMap(List<SkuSn> skuSnList) {
+        Map<String, String> resultMap = new HashMap<String, String>(skuSnList.size());
+        for (SkuSn skuSn : skuSnList) {
+            resultMap.put(skuSn.getSkuCode() + "-" + skuSn.getCodeType(), skuSn.getSnCode());
+        }
+        return resultMap;
     }
 
     private RmaHandoverPrint buildPrintInfo(RmaHandoverWaybill handoverWaybill) {
@@ -256,4 +374,5 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         printInfo.setPrintDate(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDD));
         return printInfo;
     }
+
 }

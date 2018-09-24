@@ -1,11 +1,8 @@
-package com.jd.bluedragon.distribution.consumer.wayBill;
+package com.jd.bluedragon.distribution.consumer.senddetail;
 
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.batch.service.BatchSendService;
-import com.jd.bluedragon.distribution.consumer.sendCar.SendCarContext;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
@@ -20,25 +17,26 @@ import java.text.MessageFormat;
  * 运单报文消费dmsWorkSendDetail
  * Created by zhanghao141 on 2018/9/21
  */
-@Service("dmsWorkSendDetail")
-public class WayBillConsumer extends MessageBaseConsumer {
+@Service("sendDetailConsumer")
+public class SendDetailConsumer extends MessageBaseConsumer {
 
-    private static final Log logger= LogFactory.getLog(WayBillConsumer.class);
+    private static final Log logger = LogFactory.getLog(SendDetailConsumer.class);
 
     @Autowired
     private RmaHandOverWaybillService rmaHandOverWaybillService;
 
     @Override
     public void consume(Message message) {
-        if(!JsonHelper.isJsonString(message.getText())){
-            logger.warn(MessageFormat.format("运单报文消费dmsWorkSendDetailMQ-消息体非JSON格式，内容为【{0}】",message.getText()));
+        if (!JsonHelper.isJsonString(message.getText())) {
+            logger.warn(MessageFormat.format("发货明细消费[dmsWorkSendDetail]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
         }
-        SendDetail context=JsonHelper.fromJsonUseGson(message.getText(),SendDetail.class);
+        SendDetail context = JsonHelper.fromJsonUseGson(message.getText(), SendDetail.class);
         try {
             rmaHandOverWaybillService.addConsumer(context);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

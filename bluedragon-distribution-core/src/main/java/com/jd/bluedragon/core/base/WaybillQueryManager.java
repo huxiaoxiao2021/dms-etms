@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -153,4 +154,12 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
+
+	/**
+	 * 根据运单号查询运单sn码和69码
+	 *
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode);
 }
