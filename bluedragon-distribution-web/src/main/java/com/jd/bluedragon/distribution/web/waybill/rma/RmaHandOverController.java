@@ -97,7 +97,6 @@ public class RmaHandOverController {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 if (dto != null) {
                     queryParam.setCreateSiteCode(dto.getSiteCode());
-//            queryParam.setCreateSiteCode(910);
                 } else {
                     response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
                     return response;
@@ -154,9 +153,13 @@ public class RmaHandOverController {
                 try {
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     if (dto != null) {
-                    response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
-//                        response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, 910));
-                        response.setCode(RmaHandoverResponse.CODE_NORMAL);
+                        String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode());
+                        if (StringUtils.isEmpty(receiverAddress)) {
+                            response.toFail("根据运单号查询收货地址为空");
+                        } else {
+                            response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+                            response.setCode(RmaHandoverResponse.CODE_NORMAL);
+                        }
                     } else {
                         response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
                     }
@@ -186,23 +189,25 @@ public class RmaHandOverController {
         try {
             String billsNos = request.getParameter("sysnos");
             String[] arrbillsNos = billsNos.split(",");
-            List<Long> idLs=new ArrayList<Long>();
-            for(String id:arrbillsNos){
-                Long idL=new Long(id);
+            List<Long> idLs = new ArrayList<Long>();
+            for (String id : arrbillsNos) {
+                Long idL = new Long(id);
                 idLs.add(idL);
             }
-            List<RmaHandoverPrint> rmaHandoverPrintList=rmaHandOverWaybillService.getPrintInfo(idLs);
-            PrintHelper.getPrintWaybillRma(rmaHandoverPrintList,response.getOutputStream());
-            Date date=new Date();
+            List<RmaHandoverPrint> rmaHandoverPrintList = rmaHandOverWaybillService.getPrintInfo(idLs);
+            PrintHelper.getPrintWaybillRma(rmaHandoverPrintList, response.getOutputStream());
+            Date date = new Date();
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            for(Long id:idLs){
-                RmaHandoverWaybill rmaHandoverWaybill=new RmaHandoverWaybill();
-                rmaHandoverWaybill.setId(id);
-                rmaHandoverWaybill.setPrintStatus(2);
-                rmaHandoverWaybill.setPrintTime(date);
-                rmaHandoverWaybill.setPrintUserCode(erpUser.getUserId());
-                rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
-                rmaHandOverWaybillService.update(rmaHandoverWaybill);
+            if (erpUser != null) {
+                for (Long id : idLs) {
+                    RmaHandoverWaybill rmaHandoverWaybill = new RmaHandoverWaybill();
+                    rmaHandoverWaybill.setId(id);
+                    rmaHandoverWaybill.setPrintStatus(PrintStatusEnum.HAD_PRINTED.getCode());
+                    rmaHandoverWaybill.setPrintTime(date);
+                    rmaHandoverWaybill.setPrintUserCode(erpUser.getUserId());
+                    rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
+                    rmaHandOverWaybillService.update(rmaHandoverWaybill);
+                }
             }
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
@@ -214,31 +219,32 @@ public class RmaHandOverController {
 
     /**
      * 打印
-     * @return
+     *
      * @param idList
+     * @return
      */
     @RequestMapping("/printWaybillRmaPage")
     @ResponseBody
     public RmaHandoverResponse<List<List<Long>>> printWaybillRmaPage(@RequestBody String idList) {
-        RmaHandoverResponse<List<List<Long>>>rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
+        RmaHandoverResponse<List<List<Long>>> rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
         rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
         try {
             String[] arrbillsNos = idList.split(",");
-            List<Long> idLs=new ArrayList<Long>();
-            for(String id:arrbillsNos){
-                Long idL=new Long(id);
+            List<Long> idLs = new ArrayList<Long>();
+            for (String id : arrbillsNos) {
+                Long idL = new Long(id);
                 idLs.add(idL);
             }
-            List<RmaHandoverPrint> rmaHandoverPrints=rmaHandOverWaybillService.getPrintInfo(idLs);
-            List<List<Long>> lists=new ArrayList<List<Long>>();
-            if(rmaHandoverPrints!=null&&rmaHandoverPrints.size()>0){
-                for(RmaHandoverPrint rmaHandoverPrint:rmaHandoverPrints){
-                      lists.add(rmaHandoverPrint.getIds());
+            List<RmaHandoverPrint> rmaHandoverPrints = rmaHandOverWaybillService.getPrintInfo(idLs);
+            List<List<Long>> lists = new ArrayList<List<Long>>();
+            if (rmaHandoverPrints != null && rmaHandoverPrints.size() > 0) {
+                for (RmaHandoverPrint rmaHandoverPrint : rmaHandoverPrints) {
+                    lists.add(rmaHandoverPrint.getIds());
                 }
-                if(lists.size()>0){
+                if (lists.size() > 0) {
                     rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
                     rmaHandoverResponse.setData(lists);
-                }else{
+                } else {
 
                 }
             }

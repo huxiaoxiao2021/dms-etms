@@ -171,13 +171,12 @@ function doQuery(params) {
 					temp += "</td>";
 
 					temp += "<td>";
-					if (resultList[i].isPrint != null)
+					if (resultList[i].printStatus != null)
 					    if(resultList[i].printStatus==1){
                             temp += "已打印";
                         }else{
                             temp += "未打印";
                         }
-						// temp += resultList[i].printStatus;
 					temp += "</td>";
 
 					temp += "</tr>";
@@ -215,5 +214,5 @@ function receiverAddressQuery(waybillCode) {
             }
         }
     });
-	
+
 }

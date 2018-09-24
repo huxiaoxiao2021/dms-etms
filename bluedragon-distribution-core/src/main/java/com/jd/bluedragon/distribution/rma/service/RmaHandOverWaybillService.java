@@ -6,6 +6,9 @@ import com.jd.bluedragon.distribution.rma.request.PrintInfoParam;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.Waybill;
 
 import java.util.List;
 
@@ -92,10 +95,13 @@ public interface RmaHandOverWaybillService {
     List<RmaHandoverPrint> getPrintInfo(List<Long> ids);
 
     /**
-     * dmsWorkSendDetail报文消费增加
+     * 构建逻辑RMA数据对象及数据存储
      *
      * @param sendDetail
+     * @param waybill
+     * @param goods
+     * @return
      */
-    void addConsumer(SendDetail sendDetail);
+    boolean buildAndStorage(SendDetailMessage sendDetail, Waybill waybill, List<Goods> goods);
 
 }
