@@ -102,9 +102,9 @@ function printBtn() {
                         return;
                     }
                     if (msg.code == 1) {
-                        resultList=msg.data;
+                        var resultList=msg.data;
                         for (var i = 0; i < resultList.length; i++) {
-                            window.open("/waybill/rma/printWaybillRma?sysnos="+JSON.stringify(resultList.get(i+1+"")));
+                            window.open("/waybill/rma/printWaybillRma?sysnos="+JSON.stringify(resultList[i]));
                         }
                     } else {
                         alert(data.message);

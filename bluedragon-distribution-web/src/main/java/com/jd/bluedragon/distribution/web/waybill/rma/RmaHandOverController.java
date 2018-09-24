@@ -181,8 +181,8 @@ public class RmaHandOverController {
         RmaHandoverResponse<String> rmaResponse = new RmaHandoverResponse<String>();
         rmaResponse.setCode(RmaHandoverResponse.CODE_FAIL);
         try {
-            String billsNos = request.getParameter("billsNos");
-            String[] arrbillsNos = billsNos.split(",");
+            String billsNos = request.getParameter("sysnos");
+            String[] arrbillsNos = billsNos.replace("[","").replace("]","").split(",");
             List<Long> idLs=new ArrayList<Long>();
             for(String id:arrbillsNos){
                 Long idL=new Long(id);
@@ -194,7 +194,7 @@ public class RmaHandOverController {
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
             rmaResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
-            rmaResponse.setMessage("查询地址失败，单号无效");
+            rmaResponse.setMessage("打印失败，请联系管理员");
         }
         return rmaResponse;
     }
@@ -206,8 +206,8 @@ public class RmaHandOverController {
      */
     @RequestMapping("/printWaybillRmaPage")
     @ResponseBody
-    public RmaHandoverResponse<String> printWaybillRmaPage(@RequestBody String ids) {
-        RmaHandoverResponse<String> rmaHandoverResponse = new RmaHandoverResponse<String>();
+    public RmaHandoverResponse<List<List<Long>>> printWaybillRmaPage(@RequestBody String ids) {
+        RmaHandoverResponse<List<List<Long>>>rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
         rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
         try {
             String[] arrbillsNos = ids.split(",");
@@ -217,25 +217,38 @@ public class RmaHandOverController {
                 idLs.add(idL);
             }
             List<RmaHandoverPrint> rmaHandoverPrints=rmaHandOverWaybillService.getPrintInfo(idLs);
+            List<List<Long>> lists=new ArrayList<List<Long>>();
             if(rmaHandoverPrints!=null&&rmaHandoverPrints.size()>0){
-                HashMap<String,List<Long>> hashMap=new HashMap<String,List<Long>>();
+
                 Integer pages=0;
                 for(RmaHandoverPrint rmaHandoverPrint:rmaHandoverPrints){
                     pages++;
                     // TODO: 2018/9/24 此处增加id放入map中
-                    hashMap.put(pages.toString(),rmaHandoverPrint.getIds());
+                      lists.add(rmaHandoverPrint.getIds());
                 }
-                if(hashMap.size()>0){
+                if(lists.size()>0){
                     rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
-                    rmaHandoverResponse.setData(JsonHelper.toJson(hashMap));
+                    rmaHandoverResponse.setData(lists);
                 }else{
                     //未作处理
                 }
             }
+//            List<List<Long>> lists=new ArrayList<List<Long>>();
+//            List<Long> a=new ArrayList<Long>();
+//            a.add(1L);
+//            a.add(2L);
+//            lists.add(a);
+//            List<Long> b=new ArrayList<Long>();
+//            b.add(3L);
+//            b.add(4L);
+//            lists.add(b);
+//
+//            rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
+//            rmaHandoverResponse.setData(lists);
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
             rmaHandoverResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
-            rmaHandoverResponse.setMessage("查询地址失败，单号无效");
+            rmaHandoverResponse.setMessage("打印失败，请联系管理员");
         }
         return rmaHandoverResponse;
     }
