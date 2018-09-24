@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -190,7 +191,17 @@ public class RmaHandOverController {
             }
             List<RmaHandoverPrint> rmaHandoverPrintList=rmaHandOverWaybillService.getPrintInfo(idLs);
             PrintHelper.getPrintWaybillRma(rmaHandoverPrintList,response.getOutputStream());
-            //todo 更新是否已打印状态，根据id
+            Date date=new Date();
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            for(Long id:idLs){
+                RmaHandoverWaybill rmaHandoverWaybill=new RmaHandoverWaybill();
+                rmaHandoverWaybill.setId(id);
+                rmaHandoverWaybill.setPrintStatus(2);
+                rmaHandoverWaybill.setPrintTime(date);
+                rmaHandoverWaybill.setPrintUserCode(erpUser.getUserId());
+                rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
+                rmaHandOverWaybillService.update(rmaHandoverWaybill);
+            }
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
             rmaResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
@@ -219,32 +230,16 @@ public class RmaHandOverController {
             List<RmaHandoverPrint> rmaHandoverPrints=rmaHandOverWaybillService.getPrintInfo(idLs);
             List<List<Long>> lists=new ArrayList<List<Long>>();
             if(rmaHandoverPrints!=null&&rmaHandoverPrints.size()>0){
-
-                Integer pages=0;
                 for(RmaHandoverPrint rmaHandoverPrint:rmaHandoverPrints){
-                    pages++;
-                    // TODO: 2018/9/24 此处增加id放入map中
                       lists.add(rmaHandoverPrint.getIds());
                 }
                 if(lists.size()>0){
                     rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
                     rmaHandoverResponse.setData(lists);
                 }else{
-                    //未作处理
+
                 }
             }
-//            List<List<Long>> lists=new ArrayList<List<Long>>();
-//            List<Long> a=new ArrayList<Long>();
-//            a.add(1L);
-//            a.add(2L);
-//            lists.add(a);
-//            List<Long> b=new ArrayList<Long>();
-//            b.add(3L);
-//            b.add(4L);
-//            lists.add(b);
-//
-//            rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
-//            rmaHandoverResponse.setData(lists);
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
             rmaHandoverResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);

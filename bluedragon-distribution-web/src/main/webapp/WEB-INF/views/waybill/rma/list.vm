@@ -54,9 +54,9 @@
                         <td align="right">打印状态：</td>
                         <td>
                             <select type="text" class="select20" style="width:70px" id="printStatus" name="printStatus">
-                                <option value="0">全部</option>
-                                <option value="1" selected>未打印</option>
-                                <option value="2">已打印</option>
+                                <option value="99">全部</option>
+                                <option value="0" selected>未打印</option>
+                                <option value="1">已打印</option>
                             </select>
                         </td>
                     </tr>

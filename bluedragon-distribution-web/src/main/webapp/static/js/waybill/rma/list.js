@@ -132,7 +132,7 @@ function getParams() {
 	var params = {};
 	params.sendDateStart = $.trim($("#sendDateStart").val());
 	params.sendDateEnd = $.trim($("#sendDateEnd").val());
-	params.hasPrint = $.trim($("#hasPrint").val());
+	params.printStatus = $.trim($("#printStatus").val());
 	params.receiverAddress = $.trim($("#receiverAddress").val());
 	return params;
 }
