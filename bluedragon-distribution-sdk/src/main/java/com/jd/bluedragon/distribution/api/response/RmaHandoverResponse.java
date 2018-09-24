@@ -2,17 +2,25 @@ package com.jd.bluedragon.distribution.api.response;
 
 import java.io.Serializable;
 
-public class RmabillInfoResponse <T> implements Serializable {
+public class RmaHandoverResponse<T> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    /** 异常编码  **/
+    /**
+     * 异常编码
+     **/
     public static final int CODE_EXCEPTION = 0;
-    /** 正常编码  **/
+    /**
+     * 正常编码
+     **/
     public static final int CODE_NORMAL = 1;
-    /** 警告编码  **/
+    /**
+     * 警告编码
+     **/
     public static final int CODE_WARN = 2;
-    /** 失败编码  **/
+    /**
+     * 失败编码
+     **/
     public static final int CODE_FAIL = 3;
 
     private T data;
@@ -21,7 +29,7 @@ public class RmabillInfoResponse <T> implements Serializable {
 
     private String message;
 
-    public RmabillInfoResponse(){
+    public RmaHandoverResponse() {
     }
 
     public T getData() {

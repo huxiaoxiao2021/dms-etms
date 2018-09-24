@@ -9,6 +9,7 @@ import java.util.Date;
  * Created by lixin39 on 2018/9/20.
  */
 public class RmaHandoverQueryRequest implements Serializable {
+
     private static final long serialVersionUID = -7800839106682310757L;
 
     /**
@@ -24,7 +25,7 @@ public class RmaHandoverQueryRequest implements Serializable {
     /**
      * 是否已打印
      */
-    private Integer hasPrint;
+    private Integer printStatus;
 
     /**
      * 操作分拣中心编号
@@ -57,12 +58,12 @@ public class RmaHandoverQueryRequest implements Serializable {
         this.sendDateEnd = sendDateEnd;
     }
 
-    public Integer getHasPrint() {
-        return hasPrint;
+    public Integer getPrintStatus() {
+        return printStatus;
     }
 
-    public void setHasPrint(Integer hasPrint) {
-        this.hasPrint = hasPrint;
+    public void setPrintStatus(Integer printStatus) {
+        this.printStatus = printStatus;
     }
 
     public Integer getCreateSiteCode() {

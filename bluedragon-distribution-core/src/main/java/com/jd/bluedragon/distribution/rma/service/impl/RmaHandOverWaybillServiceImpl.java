@@ -81,13 +81,12 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         Map<String, Object> parameter = new HashMap<String, Object>();
         parameter.put("sendDateStart", param.getSendDateStart());
         parameter.put("sendDateEnd", param.getSendDateEnd());
-        Integer printStatus = param.getPrintStatus();
-        if (printStatus != null) {
-            parameter.put("isPrinted", PrintStatusEnum.getEnum(printStatus));
-        }
         parameter.put("createSiteCode", param.getCreateSiteCode());
         parameter.put("waybillCode", param.getWaybillCode());
-
+        Integer printStatus = param.getPrintStatus();
+        if (printStatus != null) {
+            parameter.put("printStatus", printStatus);
+        }
         String receiverAddress = param.getReceiverAddress();
         if (StringHelper.isNotEmpty(receiverAddress)){
             parameter.put("receiverAddress", receiverAddress);
@@ -161,7 +160,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         List<Long> ids = printInfoParam.getIds();
         PrintStatusEnum printStatus = printInfoParam.getPrintStatus();
         if (ids != null && ids.size() > 0 && printStatus != null) {
-            Map<String, Object> parameter = new HashMap<String, Object>();
+            Map<String, Object> parameter = new HashMap<String, Object>(5);
             parameter.put("ids", printInfoParam.getIds());
             parameter.put("printTime", printInfoParam.getPrintTime());
             parameter.put("printUserName", printInfoParam.getPrintUserName());
