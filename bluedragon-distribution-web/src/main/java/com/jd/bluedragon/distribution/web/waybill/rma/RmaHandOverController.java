@@ -3,16 +3,19 @@ package com.jd.bluedragon.distribution.web.waybill.rma;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
-import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
+import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
+import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +28,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -178,9 +183,14 @@ public class RmaHandOverController {
         try {
             String billsNos = request.getParameter("billsNos");
             String[] arrbillsNos = billsNos.split(",");
-            PrintHelper.getPrintWaybillRma("123", response.getOutputStream());
+            List<Long> idLs=new ArrayList<Long>();
+            for(String id:arrbillsNos){
+                Long idL=new Long(id);
+                idLs.add(idL);
+            }
+            List<RmaHandoverPrint> rmaHandoverPrintList=rmaHandOverWaybillService.getPrintInfo(idLs);
+            PrintHelper.getPrintWaybillRma(rmaHandoverPrintList,response.getOutputStream());
             //todo 更新是否已打印状态，根据id
-
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
             rmaResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
@@ -189,4 +199,44 @@ public class RmaHandOverController {
         return rmaResponse;
     }
 
+    /**
+     * 打印
+     * @return
+     * @param ids
+     */
+    @RequestMapping("/printWaybillRmaPage")
+    @ResponseBody
+    public RmaHandoverResponse<String> printWaybillRmaPage(@RequestBody String ids) {
+        RmaHandoverResponse<String> rmaHandoverResponse = new RmaHandoverResponse<String>();
+        rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
+        try {
+            String[] arrbillsNos = ids.split(",");
+            List<Long> idLs=new ArrayList<Long>();
+            for(String id:arrbillsNos){
+                Long idL=new Long(id);
+                idLs.add(idL);
+            }
+            List<RmaHandoverPrint> rmaHandoverPrints=rmaHandOverWaybillService.getPrintInfo(idLs);
+            if(rmaHandoverPrints!=null&&rmaHandoverPrints.size()>0){
+                HashMap<String,List<Long>> hashMap=new HashMap<String,List<Long>>();
+                Integer pages=0;
+                for(RmaHandoverPrint rmaHandoverPrint:rmaHandoverPrints){
+                    pages++;
+                    // TODO: 2018/9/24 此处增加id放入map中
+                    hashMap.put(pages.toString(),rmaHandoverPrint.getIds());
+                }
+                if(hashMap.size()>0){
+                    rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
+                    rmaHandoverResponse.setData(JsonHelper.toJson(hashMap));
+                }else{
+                    //未作处理
+                }
+            }
+        } catch (Exception e) {
+            logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
+            rmaHandoverResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
+            rmaHandoverResponse.setMessage("查询地址失败，单号无效");
+        }
+        return rmaHandoverResponse;
+    }
 }

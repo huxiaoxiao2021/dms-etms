@@ -3,10 +3,13 @@ package com.jd.common.print;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
 
+import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
+import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.*;
+import java.util.List;
 
 /**
  * 打印帮助类
@@ -18,7 +21,13 @@ public class PrintHelper {
 
 	private static final Logger log = LogManager.getLogger(PrintHelper.class);
 
-    public static void getPrintWaybillRma(String arg,OutputStream outputStream) throws DocumentException, IOException {
+    public static void getPrintWaybillRma(List<RmaHandoverPrint> rmaHandoverPrints, OutputStream outputStream) throws Exception {
+        if(rmaHandoverPrints==null){
+            throw new Exception("获取打印数据为空");
+        }
+        RmaHandoverPrint rmaHandoverPrint=rmaHandoverPrints.get(0);
+
+        List<RmaHandoverDetail> handoverDetails=rmaHandoverPrint.getHandoverDetails();
         // 定义A4页面大小
         Rectangle rectPageSize = new Rectangle(PageSize.A4);
         Document document = new Document(rectPageSize, 30, 30, 30, 30);
@@ -66,9 +75,9 @@ public class PrintHelper {
         PdfPCell cellA1 = new PdfPCell(new Paragraph("发货城市", FontChinese12));
         PdfPCell cellA2 = new PdfPCell(new Paragraph("发货场地", FontChinese12));
         PdfPCell cellA3 = new PdfPCell(new Paragraph("目的城市", FontChinese12));
-        PdfPCell cellA11 = new PdfPCell(new Paragraph("北京", FontChinese12));
-        PdfPCell cellA22 = new PdfPCell(new Paragraph("北京TC", FontChinese12));
-        PdfPCell cellA33 = new PdfPCell(new Paragraph("通州", FontChinese12));
+        PdfPCell cellA11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendCityName(), FontChinese12));
+        PdfPCell cellA22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getCreateSiteName(), FontChinese12));
+        PdfPCell cellA33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getTargetCityName(), FontChinese12));
         cellA1.setMinimumHeight(16);
         table1.addCell(cellA1);
         table1.addCell(cellA11);
@@ -80,9 +89,9 @@ public class PrintHelper {
         PdfPCell cellB1 = new PdfPCell(new Paragraph("发货联系人", FontChinese12));
         PdfPCell cellB2 = new PdfPCell(new Paragraph("联系电话", FontChinese12));
         PdfPCell cellB3 = new PdfPCell(new Paragraph("商家名称", FontChinese12));
-        PdfPCell cellB11 = new PdfPCell(new Paragraph("张三", FontChinese12));
-        PdfPCell cellB22 = new PdfPCell(new Paragraph("1234567890", FontChinese12));
-        PdfPCell cellB33 = new PdfPCell(new Paragraph("北京京东商城", FontChinese12));
+        PdfPCell cellB11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendUserName(), FontChinese12));
+        PdfPCell cellB22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendUserMobile(), FontChinese12));
+        PdfPCell cellB33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getBusiName(), FontChinese12));
         cellB1.setMinimumHeight(16);
         table2.addCell(cellB1);
         table2.addCell(cellB11);
@@ -95,9 +104,9 @@ public class PrintHelper {
         PdfPCell cellC1 = new PdfPCell(new Paragraph("收货人", FontChinese12));
         PdfPCell cellC2 = new PdfPCell(new Paragraph("联系电话", FontChinese12));
         PdfPCell cellC3 = new PdfPCell(new Paragraph("收货地址", FontChinese12));
-        PdfPCell cellC11 = new PdfPCell(new Paragraph("李四", FontChinese12));
-        PdfPCell cellC22 = new PdfPCell(new Paragraph("9012345678", FontChinese12));
-        PdfPCell cellC33 = new PdfPCell(new Paragraph("北京通州马驹桥", FontChinese12));
+        PdfPCell cellC11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiver(), FontChinese12));
+        PdfPCell cellC22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiverMobile(), FontChinese12));
+        PdfPCell cellC33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiverAddress(), FontChinese12));
         cellC1.setMinimumHeight(16);
         table2.addCell(cellC1);
         table2.addCell(cellC11);
@@ -117,9 +126,9 @@ public class PrintHelper {
         PdfPCell cellD1 = new PdfPCell(new Paragraph("运单数量", FontChinese12));
         PdfPCell cellD2 = new PdfPCell(new Paragraph("包裹数", FontChinese12));
         PdfPCell cellD3 = new PdfPCell(new Paragraph("备件数量", FontChinese12));
-        PdfPCell cellD11 = new PdfPCell(new Paragraph("4", FontChinese12));
-        PdfPCell cellD22 = new PdfPCell(new Paragraph("230", FontChinese12));
-        PdfPCell cellD33 = new PdfPCell(new Paragraph("460", FontChinese12));
+        PdfPCell cellD11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getWaybillCount().toString(), FontChinese12));
+        PdfPCell cellD22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getPackageCount().toString(), FontChinese12));
+        PdfPCell cellD33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSpareCount().toString(), FontChinese12));
         cellD1.setMinimumHeight(16);
         table4.addCell(cellD1);
         table4.addCell(cellD11);
@@ -147,25 +156,24 @@ public class PrintHelper {
             table.addCell(cell);
         }
         //循环表格填充数据--Object换成遍历对象
-//        for(Object dd : new ArrayList<Object>()){
-        for(int i=0;i<100;i++){
-            PdfPCell cell01 = new PdfPCell(new Paragraph(new Integer(i).toString(), FontChinese10));
+        for(RmaHandoverDetail rmaHandoverDetail:handoverDetails){
+            PdfPCell cell01 = new PdfPCell(new Paragraph(rmaHandoverDetail.getSpareCode(), FontChinese10));
             cell01.setMinimumHeight(16);
             table.addCell(cell01);
 
-            PdfPCell cell02 = new PdfPCell(new Paragraph("2", FontChinese10));
+            PdfPCell cell02 = new PdfPCell(new Paragraph(rmaHandoverDetail.getWaybillCode(), FontChinese10));
             table.addCell(cell02);
 
-            PdfPCell cell03 = new PdfPCell(new Paragraph("3", FontChinese10));
+            PdfPCell cell03 = new PdfPCell(new Paragraph(rmaHandoverDetail.getOutboundOrderCode(), FontChinese10));
             table.addCell(cell03);
 
-            PdfPCell cell04 = new PdfPCell(new Paragraph("4", FontChinese10));
+            PdfPCell cell04 = new PdfPCell(new Paragraph(rmaHandoverDetail.getSkuCode(), FontChinese10));
             table.addCell(cell04);
 
-            PdfPCell cell05 = new PdfPCell(new Paragraph("5", FontChinese10));
+            PdfPCell cell05 = new PdfPCell(new Paragraph(rmaHandoverDetail.getGoodName(), FontChinese10));
             table.addCell(cell05);
 
-            PdfPCell cell06 = new PdfPCell(new Paragraph("6", FontChinese10));
+            PdfPCell cell06 = new PdfPCell(new Paragraph(rmaHandoverDetail.getExceptionRemark(), FontChinese10));
             table.addCell(cell06);
         }
         document.add(table);
