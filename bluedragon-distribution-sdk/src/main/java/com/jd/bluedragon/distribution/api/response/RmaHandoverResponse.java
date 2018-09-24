@@ -32,6 +32,11 @@ public class RmaHandoverResponse<T> implements Serializable {
     public RmaHandoverResponse() {
     }
 
+    public RmaHandoverResponse(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
     public T getData() {
         return data;
     }
@@ -55,4 +60,26 @@ public class RmaHandoverResponse<T> implements Serializable {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public void init(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public void toNormal(String message) {
+        this.init(RmaHandoverResponse.CODE_NORMAL, message);
+    }
+
+    public void toException(String message) {
+        this.init(RmaHandoverResponse.CODE_EXCEPTION, message);
+    }
+
+    public void toFail(String message) {
+        this.init(RmaHandoverResponse.CODE_FAIL, message);
+    }
+
+    public void toWarn(String message) {
+        this.init(RmaHandoverResponse.CODE_WARN, message);
+    }
+
 }

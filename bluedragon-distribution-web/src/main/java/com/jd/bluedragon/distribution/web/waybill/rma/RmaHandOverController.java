@@ -64,28 +64,24 @@ public class RmaHandOverController {
         response.setCode(RmaHandoverResponse.CODE_NORMAL);
         try {
             if (rmaHandoverQueryRequest == null) {
-                response.setCode(RmaHandoverResponse.CODE_FAIL);
-                response.setMessage("查询条件不能为空");
+                response.toWarn("查询条件不能为空");
                 return response;
             }
 
             if (rmaHandoverQueryRequest.getSendDateStart() == null && rmaHandoverQueryRequest.getSendDateEnd() == null) {
-                response.setCode(RmaHandoverResponse.CODE_FAIL);
-                response.setMessage("发货时间条件不能为空");
+                response.toWarn("发货时间条件不能为空");
                 return response;
             }
 
             if (!StringUtils.isEmpty(rmaHandoverQueryRequest.getWaybillCode())) {
                 if (!SerialRuleUtil.isWaybillOrPackageNo(rmaHandoverQueryRequest.getWaybillCode())) {
-                    response.setCode(RmaHandoverResponse.CODE_FAIL);
-                    response.setMessage("运单号格式错误，请重新核对后输入");
+                    response.toWarn("运单号/包裹号输入错误，请核对后重新输入");
                     return response;
                 }
             }
 
             if (StringUtils.isEmpty(rmaHandoverQueryRequest.getReceiverAddress())) {
-                response.setCode(RmaHandoverResponse.CODE_FAIL);
-                response.setMessage("请输入收货地址");
+                response.toWarn("请输入收货地址");
                 return response;
             }
 
@@ -96,13 +92,11 @@ public class RmaHandOverController {
                 if (dto != null) {
                     queryParam.setCreateSiteCode(dto.getSiteCode());
                 } else {
-                    response.setCode(RmaHandoverResponse.CODE_FAIL);
-                    response.setMessage("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
+                    response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
                     return response;
                 }
             } else {
-                response.setCode(RmaHandoverResponse.CODE_FAIL);
-                response.setMessage("获取当前登录用户信息失败，请重新登录ERP后尝试");
+                response.toFail("获取当前登录用户信息失败，请重新登录ERP后尝试");
                 return response;
             }
 
@@ -115,8 +109,7 @@ public class RmaHandOverController {
             response.setCode(RmaHandoverResponse.CODE_NORMAL);
         } catch (Exception e) {
             logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
-            response.setCode(RmaHandoverResponse.CODE_EXCEPTION);
-            response.setMessage("根据查询条件获取RMA交接清单打印信息异常：" + e.getMessage());
+            response.toException("根据查询条件获取RMA交接清单打印信息异常：" + e.getMessage());
         }
         return response;
     }
@@ -144,19 +137,30 @@ public class RmaHandOverController {
     @ResponseBody
     public RmaHandoverResponse<String> getReceiverAddressQuery(@RequestBody String waybillCode) {
         RmaHandoverResponse<String> response = new RmaHandoverResponse<String>();
-        response.setCode(RmaHandoverResponse.CODE_FAIL);
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        if (erpUser != null) {
-            try {
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode());
-                response.setData(receiverAddress);
-                response.setCode(RmaHandoverResponse.CODE_NORMAL);
-            } catch (Exception e) {
-                response.setMessage("根据运单号获取收货人地址异常");
+        if (!StringUtils.isEmpty(waybillCode)) {
+            if (!SerialRuleUtil.isWaybillOrPackageNo(waybillCode)) {
+                response.toWarn("运单号/包裹号输入错误，请核对后重新输入");
+                return response;
+            }
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                try {
+                    BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                    if (dto != null) {
+                        response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+                        response.setCode(RmaHandoverResponse.CODE_NORMAL);
+                    } else {
+                        response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
+                    }
+                } catch (Exception e) {
+                    logger.error("根据运单号获取收货人地址时发生异常，运单号：" + waybillCode, e);
+                    response.toException("根据运单号获取收货人地址时发生异常");
+                }
+            } else {
+                response.toFail("获取当前登录用户信息失败，请重新登录ERP后尝试");
             }
         } else {
-            response.setMessage("获取当前登录用户信息失败，请重新登录ERP后尝试");
+            response.setCode(RmaHandoverResponse.CODE_NORMAL);
         }
         return response;
     }

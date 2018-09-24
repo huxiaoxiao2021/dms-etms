@@ -13,6 +13,11 @@ import java.util.List;
 public class RmaHandoverPrint {
 
     /**
+     * 主表id
+     */
+    private List<Long> ids;
+
+    /**
      * 打印日期
      */
     private String printDate;
@@ -81,6 +86,14 @@ public class RmaHandoverPrint {
      * 交接明细列表明细
      */
     private List<RmaHandoverDetail> handoverDetails;
+
+    public List<Long> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Long> ids) {
+        this.ids = ids;
+    }
 
     public String getPrintDate() {
         return printDate;

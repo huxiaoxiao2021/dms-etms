@@ -88,7 +88,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             parameter.put("printStatus", printStatus);
         }
         String receiverAddress = param.getReceiverAddress();
-        if (StringHelper.isNotEmpty(receiverAddress)){
+        if (StringHelper.isNotEmpty(receiverAddress)) {
             parameter.put("receiverAddress", receiverAddress);
         }
 
@@ -179,6 +179,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             String key = handoverWaybill.getBusiId() + "-" + handoverWaybill.getReceiverAddress();
             RmaHandoverPrint printInfo = result.get(key);
             if (printInfo != null) {
+                printInfo.getIds().add(handoverWaybill.getId());
                 // 已存在则将明细添加
                 List<RmaHandoverDetail> details = handoverWaybill.getRmaHandoverDetail();
                 printInfo.getHandoverDetails().addAll(details);
@@ -199,25 +200,19 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     @Override
     public void addConsumer(SendDetail sendDetail) {
         try {
-            String waybillCode=sendDetail.getWaybillCode();
+            String waybillCode = sendDetail.getWaybillCode();
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(true);
             choice.setQueryWaybillE(true);
             choice.setQueryWaybillM(true);
-            choice.setQueryPackList(true);
             choice.setQueryGoodList(true);
-            choice.setQueryWaybillExtend(true);
-            choice.setQueryPickupTask(true);
-            choice.setQueryServiceBillPay(true);
-            BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
-            Waybill waybill =bigWaybillDtoBaseEntity.getData().getWaybill();
-            String sendPay=waybill.getSendPay();
-            if(sendPay.substring(32,1)=="1"){
-                RmaHandoverWaybill rmaHandOverWaybill=new RmaHandoverWaybill();
-
-                int rmaHandOverWaybillId=rmaHandOverWaybillDao.add(rmaHandOverWaybill);
-
-                RmaHandoverDetail rmaHandoverDetail=new RmaHandoverDetail();
+            BaseEntity<BigWaybillDto> bigWaybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+            Waybill waybill = bigWaybillDtoBaseEntity.getData().getWaybill();
+            String sendPay = waybill.getSendPay();
+            if (sendPay.substring(32, 1) == "1") {
+                RmaHandoverWaybill rmaHandOverWaybill = new RmaHandoverWaybill();
+                int rmaHandOverWaybillId = rmaHandOverWaybillDao.add(rmaHandOverWaybill);
+                RmaHandoverDetail rmaHandoverDetail = new RmaHandoverDetail();
                 rmaHandoverDetail.setHandoverWaybillId(new Long(rmaHandOverWaybillId));
                 rmaHandOverDetailService.add(rmaHandoverDetail);
             }
@@ -228,6 +223,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     private RmaHandoverPrint buildPrintInfo(RmaHandoverWaybill handoverWaybill) {
         RmaHandoverPrint printInfo = new RmaHandoverPrint();
+        List ids = new ArrayList<Long>();
+        ids.add(handoverWaybill.getId());
+        printInfo.setIds(ids);
         /** 发货城市 */
         printInfo.setSendCityName(handoverWaybill.getSendCityName());
         /** 发货场地 */
