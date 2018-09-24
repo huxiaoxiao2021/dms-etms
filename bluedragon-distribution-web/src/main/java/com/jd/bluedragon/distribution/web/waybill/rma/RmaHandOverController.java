@@ -97,6 +97,7 @@ public class RmaHandOverController {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                 if (dto != null) {
                     queryParam.setCreateSiteCode(dto.getSiteCode());
+//            queryParam.setCreateSiteCode(910);
                 } else {
                     response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
                     return response;
@@ -153,7 +154,8 @@ public class RmaHandOverController {
                 try {
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     if (dto != null) {
-                        response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+                    response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+//                        response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, 910));
                         response.setCode(RmaHandoverResponse.CODE_NORMAL);
                     } else {
                         response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
@@ -183,7 +185,7 @@ public class RmaHandOverController {
         rmaResponse.setCode(RmaHandoverResponse.CODE_FAIL);
         try {
             String billsNos = request.getParameter("sysnos");
-            String[] arrbillsNos = billsNos.replace("[","").replace("]","").split(",");
+            String[] arrbillsNos = billsNos.split(",");
             List<Long> idLs=new ArrayList<Long>();
             for(String id:arrbillsNos){
                 Long idL=new Long(id);
@@ -213,15 +215,15 @@ public class RmaHandOverController {
     /**
      * 打印
      * @return
-     * @param ids
+     * @param idList
      */
     @RequestMapping("/printWaybillRmaPage")
     @ResponseBody
-    public RmaHandoverResponse<List<List<Long>>> printWaybillRmaPage(@RequestBody String ids) {
+    public RmaHandoverResponse<List<List<Long>>> printWaybillRmaPage(@RequestBody String idList) {
         RmaHandoverResponse<List<List<Long>>>rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
         rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
         try {
-            String[] arrbillsNos = ids.split(",");
+            String[] arrbillsNos = idList.split(",");
             List<Long> idLs=new ArrayList<Long>();
             for(String id:arrbillsNos){
                 Long idL=new Long(id);

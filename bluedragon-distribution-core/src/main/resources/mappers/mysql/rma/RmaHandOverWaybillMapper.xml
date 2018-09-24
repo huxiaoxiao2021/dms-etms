@@ -230,8 +230,7 @@
         FROM rma_handover_waybill
         WHERE yn = 1
         AND id IN
-        <foreach collection="list" item="id" index="index"
-                 separator=",">
+        <foreach collection="list" item="id" index="index" open="(" separator="," close=")">
             #{id,jdbcType=BIGINT}
         </foreach>
     </select>

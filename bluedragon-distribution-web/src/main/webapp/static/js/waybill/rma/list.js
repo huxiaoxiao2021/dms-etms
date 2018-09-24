@@ -84,9 +84,13 @@ function printBtn() {
 
     if(checkedKeys) {
         if (checkedKeys.length > 0) {
-            var idList = new Array();
+            var idList = "";
             for(var i=0;i<checkedKeys.length;i++){
-                idList[i] = $(checkedKeys[i]).val();
+                if(idList==""){
+                    idList=$(checkedKeys[i]).val();
+                }else{
+                    idList=idList+","+$(checkedKeys[i]).val()
+                }
             }
             var url="/waybill/rma/printWaybillRmaPage";
             jQuery.ajax({
@@ -94,7 +98,7 @@ function printBtn() {
                 url: url,
                 dataType : "json",//必须json
                 contentType : "application/json", // 指定这个协议很重要
-                data : JSON.stringify(idList),
+                data : idList,
                 async : false,
                 success: function (msg) {
                     if (msg == undefined || msg == null) {
@@ -104,7 +108,7 @@ function printBtn() {
                     if (msg.code == 1) {
                         var resultList=msg.data;
                         for (var i = 0; i < resultList.length; i++) {
-                            window.open("/waybill/rma/printWaybillRma?sysnos="+JSON.stringify(resultList[i]));
+                            window.open("/waybill/rma/printWaybillRma?sysnos="+resultList[i]);
                         }
                     } else {
                         alert(data.message);
@@ -168,7 +172,12 @@ function doQuery(params) {
 
 					temp += "<td>";
 					if (resultList[i].isPrint != null)
-						temp += resultList[i].isPrint;
+					    if(resultList[i].printStatus==1){
+                            temp += "已打印";
+                        }else{
+                            temp += "未打印";
+                        }
+						// temp += resultList[i].printStatus;
 					temp += "</td>";
 
 					temp += "</tr>";
@@ -191,7 +200,7 @@ function receiverAddressQuery(waybillCode) {
         url: url,
         dataType : "json",//必须json
         contentType : "application/json", // 指定这个协议很重要
-        data : JSON.stringify(waybillCode),
+        data : waybillCode,
         async : false,
         success: function (msg) {
             if(msg==null){
