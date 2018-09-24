@@ -16,9 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.common.util.JacksonUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -779,6 +781,41 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
         }
 
+
+        //金鹏退仓修改字段 OrderId 初始化商品信息
+        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+
+            try{
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
+                if(oldWaybill!=null && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
+
+                    BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(oldWaybill.getData().getWaybillCode(),true,true,true,true,true,false,false);
+                    if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
+
+                        send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
+
+                        if(bigWaybill.getData().getGoodsList()!=null&&bigWaybill.getData().getGoodsList().size()>0){
+                            List<com.jd.bluedragon.distribution.reverse.domain.Product> proList = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
+                            for (Goods good : bigWaybill.getData().getGoodsList()) {
+                                com.jd.bluedragon.distribution.reverse.domain.Product product = new com.jd.bluedragon.distribution.reverse.domain.Product();
+                                product.setProductId(good.getSku());
+                                product.setProductName(good.getGoodName());
+                                product.setProductNum(good.getGoodCount());
+                                product.setProductPrice(good.getGoodPrice());
+                                product.setProductLoss("0");
+                                proList.add(product);
+                            }
+                            send.setProList(proList);//存入原单的商品明细
+                        }
+                    }
+                }
+            }catch (Exception e){
+                logger.error("金鹏逆向发货异常 "+wayBillCode,e);
+            }
+
+
+        }
+
         return send;
     }
 
@@ -805,14 +842,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setUserName(sendM.getCreateUser());
         send.setLossQuantity(lossCount);
         send.setSendCode(sendM.getSendCode());
-        send.setOrderId(wallBillCode);
-        //金鹏退仓修改字段 OrderId
-        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
-            BaseEntity<BigWaybillDto> bigWaybill= waybillQueryManager.getDataByChoice(wallBillCode,true,true,true,false);
-            if(bigWaybill!=null && bigWaybill.getData() != null && bigWaybill.getData().getWaybill() != null){
-                send.setOrderId(bigWaybill.getData().getWaybill().getBusiOrderCode());
-            }
 
+        //非金鹏退仓修改字段 OrderId  以后应该也要改掉
+        if(!BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+            send.setOrderId(wallBillCode);
         }
         send.setIsInStore(0);
         send.setToken(send.isSickWaybill() ? taskId : "");//病单加token标识（仓储只关注是否为空，任务号方便我方根据报文核查）
