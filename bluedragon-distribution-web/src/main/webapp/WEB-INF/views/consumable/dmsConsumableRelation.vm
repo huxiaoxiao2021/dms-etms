@@ -12,7 +12,7 @@
 <body>
 <div id="dataTableDiv" class="main" style="margin-left: 20px;">
         <ol class="breadcrumb">
-            <li><a href="#">分拣中心包装耗材信息</a></li>
+            <li><a href="#">快运中心包装耗材信息</a></li>
             <li class="active">包装耗材信息</li>
         </ol>
 		<!-- 查询条件 -->
