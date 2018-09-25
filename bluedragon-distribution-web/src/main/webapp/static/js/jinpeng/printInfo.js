@@ -76,7 +76,7 @@ $(function() {
                                 // temp += "<td>SKU:"+item.skuId+" "+item.skuName+" PO:"+item.poNo+" "+item.skuNum+"件</td>";
                                 temp += "<td style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
                                     "<td style='text-align: left;border-right-style: none;border-left-style: none'>"+item.skuName+"</td>"+
-                                    "<td style='text-align: left;border-right-style: none;border-left-style: none'>PO："+item.poNo+"</td>"+
+                                    "<td style='text-align: left;border-right-style: none;border-left-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
                                     "<td style='text-align: left;border-left-style: none'>"+item.skuNum+"件</td>";
                                 temp += "</tr>";
                             }
