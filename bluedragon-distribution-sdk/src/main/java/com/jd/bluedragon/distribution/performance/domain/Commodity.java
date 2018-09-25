@@ -16,6 +16,15 @@ public class Commodity implements Serializable {
     private Integer skuNum;
     private String boxCode;
     private String waybillCode;
+    private String orderId;
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
 
     public String getBoxCode() {
         return boxCode;
@@ -74,6 +83,7 @@ public class Commodity implements Serializable {
                 ", skuNum=" + skuNum +
                 ", boxCode='" + boxCode + '\'' +
                 ", waybillCode='" + waybillCode + '\'' +
+                ", orderId='" + orderId + '\'' +
                 '}';
     }
 }

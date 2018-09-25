@@ -159,6 +159,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 commodity.setSkuId(dto.getSkuId());
                 commodity.setBoxCode(dto.getContainerId());
                 commodity.setWaybillCode(dto.getDeliveryOrderId());
+                commodity.setOrderId(dto.getOrderId());
                 //箱号不包含就添加进去
                 if(!boxMap.containsKey(dto.getContainerId())){
                     List<Commodity> skuList =new ArrayList<Commodity>();
