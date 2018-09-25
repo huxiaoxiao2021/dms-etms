@@ -3,12 +3,11 @@ package com.jd.bluedragon.distribution.web.waybill.rma;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
+import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -30,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -193,9 +191,9 @@ public class RmaHandOverController {
         rmaResponse.setCode(RmaHandoverResponse.CODE_FAIL);
         try {
             String billsNos = request.getParameter("sysnos");
-            String[] arrbillsNos = billsNos.split(",");
+            String[] idsArray = billsNos.split(",");
             List<Long> idLs = new ArrayList<Long>();
-            for (String id : arrbillsNos) {
+            for (String id : idsArray) {
                 Long idL = new Long(id);
                 idLs.add(idL);
             }
@@ -215,9 +213,8 @@ public class RmaHandOverController {
                 }
             }
         } catch (Exception e) {
-            logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
-            rmaResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
-            rmaResponse.setMessage("打印失败，请联系管理员");
+            logger.error("[RMA交接清单打印]生成打印页面时发生异常", e);
+            rmaResponse.toException("生成打印页面时发生异常，请联系管理员");
         }
         return rmaResponse;
     }
@@ -234,9 +231,9 @@ public class RmaHandOverController {
         RmaHandoverResponse<List<List<Long>>> rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
         rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
         try {
-            String[] arrbillsNos = idList.split(",");
+            String[] idsArray = idList.split(",");
             List<Long> idLs = new ArrayList<Long>();
-            for (String id : arrbillsNos) {
+            for (String id : idsArray) {
                 Long idL = new Long(id);
                 idLs.add(idL);
             }
@@ -249,14 +246,11 @@ public class RmaHandOverController {
                 if (lists.size() > 0) {
                     rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
                     rmaHandoverResponse.setData(lists);
-                } else {
-
                 }
             }
         } catch (Exception e) {
-            logger.error("根据查询条件获取RMA交接清单打印信息异常", e);
-            rmaHandoverResponse.setCode(RmaHandoverResponse.CODE_EXCEPTION);
-            rmaHandoverResponse.setMessage("打印失败，请联系管理员");
+            logger.error("[RMA交接清单打印]获取打印页面分组信息时发生异常", e);
+            rmaHandoverResponse.toException("获取打印页面分组信息时发生异常，请联系管理员");
         }
         return rmaHandoverResponse;
     }

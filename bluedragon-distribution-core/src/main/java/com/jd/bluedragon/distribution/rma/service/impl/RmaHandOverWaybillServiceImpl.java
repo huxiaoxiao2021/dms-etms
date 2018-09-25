@@ -4,7 +4,6 @@ import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
-import com.jd.bluedragon.distribution.rma.RmaConsumerException;
 import com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
@@ -13,18 +12,13 @@ import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -145,7 +139,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             }
             return rmaHandoverWaybills;
         }
-        return null;
+        return Collections.EMPTY_LIST;
     }
 
     @Override
@@ -338,6 +332,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
                 detail.setWaybillCode(goods.getWaybillCode());
                 /** 商品数量 */
                 detail.setGoodCount(goods.getGoodCount());
+                /** 商品名称 */
                 detail.setGoodName(goods.getGoodName());
                 detail.setSkuCode(goods.getSku());
                 /** 获取备件条码 */
