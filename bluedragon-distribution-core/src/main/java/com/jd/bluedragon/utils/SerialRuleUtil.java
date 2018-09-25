@@ -276,7 +276,7 @@ public class SerialRuleUtil {
         Matcher match = RULE_PACKAGE_OWN_REGEX.matcher(input.trim());
         if (match.matches()) {   //校验老规则
 
-            result.setMatch(Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
+            result.setMatch((Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3))||Integer.valueOf(match.group(3)) == 0));
             result.setResult(match.group(1));
         }
         return result;
@@ -326,7 +326,7 @@ public class SerialRuleUtil {
         if (match.matches()) {
             String waybillNo = match.group(1).trim();
             result.setResult(waybillNo);
-            result.setMatch(Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
+            result.setMatch((Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3))) || Integer.valueOf(match.group(3)) == 0);
 
         }
         return result;
