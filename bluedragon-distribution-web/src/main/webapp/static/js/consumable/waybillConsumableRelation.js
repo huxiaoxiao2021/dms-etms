@@ -304,23 +304,39 @@ $(function () {
     $('#btn_delete').click(function() {
         var rows = $('#dataTable').bootstrapTable('getSelections');
         if (rows.length < 1) {
-            alert("错误，未选中数据");
+            $.msg.warn("错误，未选中数据");
             return;
         }
-        var flag = confirm("是否删除这些数据?");
-        if (flag == true) {
-            var params = [];
-            for(var i in rows){
-                params.push(rows[i].id);
-            };
-            $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
-                if(res&&res.succeed&&res.data){
-                    alert('操作成功,删除'+res.data+'条。');
-                    tableInit().refresh();
-                }else{
-                    alert('操作异常！');
+
+        $.msg.confirm('是否删除这些数据？',function () {
+            var blocker = $.pageBlocker.block();
+            var params = {waybillCode: $('#waybillCode-value-input').val()};
+
+            $.ajaxHelper.doPostSync(checkModify, JSON.stringify(params), function (res) {
+                if (res.code != 200) {
+                    $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
+                } else {
+                    if (res.data == false) {
+                        $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许删除耗材信息！");
+                    }
+                    else {
+                        var params = [];
+                        for(var i in rows){
+                            params.push(rows[i].id);
+                        };
+                        $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
+                            if(res&&res.succeed&&res.data){
+                                $.msg.ok('操作成功,删除'+res.data+'条。');
+                                tableInit().refresh();
+                            }else{
+                                $.msg.error('操作异常！');
+                            }
+                        });
+                    }
                 }
-            });
-        }
+            }, 'json');
+            $.pageBlocker.close(blocker);
+        });
+
     });
 });
