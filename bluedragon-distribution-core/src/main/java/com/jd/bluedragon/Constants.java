@@ -590,6 +590,19 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+    
+    /**
+     * 始发道口号类型-1-普通
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
+    /**
+     * 始发道口号类型-2-航空
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_AIR= 2;
+    /**
+     * 始发道口号类型-3-填仓
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_FILL= 3;
 
     /**
      * 快运中心支持包装耗材状态标识

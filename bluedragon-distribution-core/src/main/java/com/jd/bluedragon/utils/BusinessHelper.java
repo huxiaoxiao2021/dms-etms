@@ -782,9 +782,25 @@ public class BusinessHelper {
 		}
 		return null;
 	}
-
-	public static void main(String[] args){
-		System.out.println(isWaybillCode("WA1019140201989931008"));
-		System.out.println(SerialRuleUtil.isMatchAllWaybillCode("WA1019140201989931008"));
+	/**
+	 * 获取始发道口号类型
+	 * <p>自营：sendpay137位为1，则为航运订单标识，航填,其他为普通
+	 * <p>外单：waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
+	 * @param waybillSign
+	 * @param sendPay
+	 * @return
+	 */
+	public static Integer getOriginalCrossType(String waybillSign,String sendPay){
+		//外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
+		if(isSignChar(waybillSign, 31, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_AIR;
+		}else if(isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_FILL;
+		}
+		//自营-sendpay137位为1，则为航运订单标识，航填
+		if(isSignChar(sendPay, 137, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_FILL;
+		}
+		return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
 	}
 }
