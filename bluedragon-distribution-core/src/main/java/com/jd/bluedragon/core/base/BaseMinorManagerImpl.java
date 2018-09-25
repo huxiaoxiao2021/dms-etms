@@ -9,6 +9,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
@@ -52,6 +53,11 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@Autowired
 	@Qualifier("baseCrossPackageTagWS")
 	private BaseCrossPackageTagWS baseCrossPackageTagWS;
+    /**
+     * 是否使用基础资料新接口，默认启用
+     */
+	@Value("${beans.BaseMinorManagerImpl.useNewCrossPackageTagWS:true}")
+	private boolean useNewCrossPackageTagWS;
 
 	/**
 	 * 
@@ -324,6 +330,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	public JdResult<CrossPackageTagNew> queryCrossPackageTag(
 			BaseDmsStore baseDmsStore, Integer targetSiteId,
 			Integer originalDmsId, Integer originalCrossType) {
+		if(!useNewCrossPackageTagWS){
+			return this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
+		}
 		//航空或者航填，调用新接口
 		if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType)
 				|| Constants.ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType)){
