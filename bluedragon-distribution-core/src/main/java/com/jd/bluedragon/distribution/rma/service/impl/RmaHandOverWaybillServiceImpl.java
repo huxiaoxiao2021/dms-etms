@@ -334,15 +334,16 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             List<RmaHandoverDetail> detailList = new ArrayList<RmaHandoverDetail>(goodsList.size());
             for (Goods goods : goodsList) {
                 RmaHandoverDetail detail = new RmaHandoverDetail();
+                /** 运单号 */
                 detail.setWaybillCode(goods.getWaybillCode());
+                /** 商品数量 */
                 detail.setGoodCount(goods.getGoodCount());
                 detail.setGoodName(goods.getGoodName());
                 detail.setSkuCode(goods.getSku());
-                /** 获取备件条码 CodeType为2 */
-                detail.setSpareCode(skuSnMap.get(goods.getSku() + "-2"));
-                /** 获取出库单号 CodeType为3 */
-                detail.setOutboundOrderCode(skuSnMap.get(goods.getSku() + "-3"));
-                detail.setExceptionRemark(goods.getRemark());
+                /** 获取备件条码 */
+                detail.setSpareCode(goods.getSku());
+                /** 获取备件库出库单号 */
+                detail.setOutboundOrderCode(skuSnMap.get(goods.getSku()));
                 detailList.add(detail);
             }
             rmaHandOverWaybill.setRmaHandoverDetail(detailList);
@@ -352,7 +353,10 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     private Map<String, String> convertMap(List<SkuSn> skuSnList) {
         Map<String, String> resultMap = new HashMap<String, String>(skuSnList.size());
         for (SkuSn skuSn : skuSnList) {
-            resultMap.put(skuSn.getSkuCode() + "-" + skuSn.getCodeType(), skuSn.getSnCode());
+            // codeType为3 是备件库出库单号
+            if (skuSn.getCodeType() == 3){
+                resultMap.put(skuSn.getSkuCode(), skuSn.getSnCode());
+            }
         }
         return resultMap;
     }

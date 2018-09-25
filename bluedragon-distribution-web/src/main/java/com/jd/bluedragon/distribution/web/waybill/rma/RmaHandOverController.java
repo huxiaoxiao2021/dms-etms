@@ -110,6 +110,11 @@ public class RmaHandOverController {
             if (page == null) {
                 page = new Pager<List<AreaDest>>(Pager.DEFAULT_PAGE_NO);
             }
+            // 设置默认分页大小
+            if (page.getPageSize() == null || page.getPageSize() <= 0) {
+                page.setPageSize(Pager.DEFAULT_PAGE_SIZE);
+            }
+
             Pager<List<RmaHandoverWaybill>> pager = rmaHandOverWaybillService.getListWithoutDetail(queryParam, page);
             response.setData(pager);
             response.setCode(RmaHandoverResponse.CODE_NORMAL);
@@ -153,7 +158,7 @@ public class RmaHandOverController {
                 try {
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     if (dto != null) {
-                        String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode());
+                        String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(SerialRuleUtil.getWaybillCode(waybillCode), dto.getSiteCode());
                         if (StringUtils.isEmpty(receiverAddress)) {
                             response.toFail("根据运单号查询收货地址为空");
                         } else {

@@ -91,10 +91,18 @@
         receiver_id,
         receiver_mobile,
         receiver_address,
-        print_status,
-        print_time,
-        print_user_name,
-        print_user_code,
+        <if test="printStatus != null">
+            print_status,
+        </if>
+        <if test="printTime != null">
+            print_time,
+        </if>
+        <if test="printUserName != null">
+            print_user_name,
+        </if>
+        <if test="printUserCode != null">
+            print_user_code,
+        </if>
         create_time,
         update_time,
         yn
@@ -121,10 +129,18 @@
         #{receiverId,jdbcType=VARCHAR},
         #{receiverMobile,jdbcType=VARCHAR},
         #{receiverAddress,jdbcType=VARCHAR},
-        #{printStatus,jdbcType=INTEGER},
-        #{printTime,jdbcType=TIMESTAMP},
-        #{printUserName,jdbcType=VARCHAR},
-        #{printUserCode,jdbcType=INTEGER},
+        <if test="printStatus != null">
+            #{printStatus,jdbcType=INTEGER},
+        </if>
+        <if test="printTime != null">
+            #{printTime,jdbcType=TIMESTAMP},
+        </if>
+        <if test="printUserName != null">
+            #{printUserName,jdbcType=VARCHAR},
+        </if>
+        <if test="printUserCode != null">
+            #{printUserCode,jdbcType=INTEGER},
+        </if>
         NOW(),
         NOW(),
         1)

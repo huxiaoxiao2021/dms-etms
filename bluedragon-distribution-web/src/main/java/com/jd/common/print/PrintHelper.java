@@ -13,44 +13,44 @@ import java.util.List;
 
 /**
  * 打印帮助类
- * 
+ *
  * @author Administrator
- * 
  */
 public class PrintHelper {
 
-	private static final Logger log = LogManager.getLogger(PrintHelper.class);
+    private static final Logger log = LogManager.getLogger(PrintHelper.class);
 
     public static void getPrintWaybillRma(List<RmaHandoverPrint> rmaHandoverPrints, OutputStream outputStream) throws Exception {
-        if(rmaHandoverPrints==null){
+        if (rmaHandoverPrints == null) {
             throw new Exception("获取打印数据为空");
         }
-        RmaHandoverPrint rmaHandoverPrint=rmaHandoverPrints.get(0);
+        RmaHandoverPrint rmaHandoverPrint = rmaHandoverPrints.get(0);
 
-        List<RmaHandoverDetail> handoverDetails=rmaHandoverPrint.getHandoverDetails();
+        List<RmaHandoverDetail> handoverDetails = rmaHandoverPrint.getHandoverDetails();
         // 定义A4页面大小
         Rectangle rectPageSize = new Rectangle(PageSize.A4);
         Document document = new Document(rectPageSize, 30, 30, 30, 30);
-        PdfWriter.getInstance(document,outputStream);
+        PdfWriter.getInstance(document, outputStream);
         BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-        Font FontChinese14 = new Font(bfChinese, 14, Font.NORMAL);
+        Font FontChinese14 = new Font(bfChinese, 14, Font.BOLD);
         Font FontChinese12 = new Font(bfChinese, 12, Font.NORMAL);
         Font FontChinese10 = new Font(bfChinese, 10, Font.NORMAL);
+        Font FontChinese8 = new Font(bfChinese, 8, Font.NORMAL);
         document.open();
-         //表头
-        Paragraph p1 = new Paragraph("JD发货交接单",FontChinese14);
+        //表头
+        Paragraph p1 = new Paragraph("JD发货交接单", FontChinese14);
         p1.setAlignment(Element.ALIGN_CENTER);
         document.add(p1);
         //日期靠右--当前时间
-        Paragraph p2 = new Paragraph("2018-09-21",FontChinese14);
+        Paragraph p2 = new Paragraph("打印日期：" + rmaHandoverPrint.getPrintDate(), FontChinese8);
         p2.setAlignment(Element.ALIGN_RIGHT);
         document.add(p2);
 
-        Paragraph p3 = new Paragraph("地址信息",FontChinese12);
+        Paragraph p3 = new Paragraph("地址信息", FontChinese12);
         p3.setAlignment(Element.ALIGN_LEFT);
         document.add(p3);
 
-        float[] width1 = {90f,90f,90f,90f,90f,180f};
+        float[] width1 = {90f, 90f, 90f, 90f, 90f, 180f};
         PdfPTable table1 = new PdfPTable(width1);
         PdfPTable table2 = new PdfPTable(width1);
         PdfPTable table3 = new PdfPTable(width1);
@@ -119,7 +119,7 @@ public class PrintHelper {
         document.add(table2);
         document.add(table3);
 
-        Paragraph p4 = new Paragraph("货物信息",FontChinese12);
+        Paragraph p4 = new Paragraph("货物信息", FontChinese12);
         p4.setAlignment(Element.ALIGN_LEFT);
         document.add(p4);
         //发货联系人\联系电话\商家名称
@@ -138,25 +138,25 @@ public class PrintHelper {
         table4.addCell(cellD33);
         table4.setSpacingBefore(10);
         document.add(table4);
-        Paragraph p5 = new Paragraph("JD发货明细交接单",FontChinese14);
+        Paragraph p5 = new Paragraph("JD发货明细交接单", FontChinese14);
         p5.setAlignment(Element.ALIGN_CENTER);
         p5.setSpacingBefore(10);
         document.add(p5);
 
-        float[] width2 = {90f,90f,90f,90f,180f,90f};
+        float[] width2 = {90f, 90f, 90f, 90f, 180f, 90f};
         PdfPTable table = new PdfPTable(width2);
         table.setSpacingBefore(10);
         table.setTotalWidth(535);
         table.setLockedWidth(true);
-        String[] titles = new String[]{"备件条码","运单号","出库单号","商品编号","商品名称","异常备注"};
-        for(String s : titles){
+        String[] titles = new String[]{"备件条码", "运单号", "出库单号", "商品编号", "商品名称", "异常备注"};
+        for (String s : titles) {
             PdfPCell cell = new PdfPCell(new Paragraph(s, FontChinese12));
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             cell.setMinimumHeight(16);
             table.addCell(cell);
         }
         //循环表格填充数据--Object换成遍历对象
-        for(RmaHandoverDetail rmaHandoverDetail:handoverDetails){
+        for (RmaHandoverDetail rmaHandoverDetail : handoverDetails) {
             PdfPCell cell01 = new PdfPCell(new Paragraph(rmaHandoverDetail.getSpareCode(), FontChinese10));
             cell01.setMinimumHeight(16);
             table.addCell(cell01);
