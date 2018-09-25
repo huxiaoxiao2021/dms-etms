@@ -42,6 +42,19 @@ public class WaybillPrintContext implements Context{
 	private Waybill waybill;
 
 	/**
+	 * 商家id
+	 * */
+	private String busiCode;
+
+	public String getBusiCode() {
+		return busiCode;
+	}
+
+	public void setBusiCode(String busiCode) {
+		this.busiCode = busiCode;
+	}
+
+	/**
 	 * 记录全局状态
 	 */
 	private int status = InterceptResult.STATUS_PASSED;

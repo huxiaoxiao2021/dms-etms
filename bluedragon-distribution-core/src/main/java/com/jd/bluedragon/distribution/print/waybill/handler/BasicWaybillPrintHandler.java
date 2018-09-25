@@ -197,6 +197,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
             if(basicTraderInfoDTO != null){
                 commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
+                context.setBusiCode(basicTraderInfoDTO.getTraderCode());
             }
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
