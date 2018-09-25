@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.consumable.dao.DmsConsumableRelationDao">
+
+	<resultMap id="DmsConsumableRelation" type="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="dms_id" property="dmsId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_name" property="dmsName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="PackingConsumableBaseInfo" type="com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo" >
+		<result column="code" property="packingCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="name" property="packingName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type" property="packingType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="packingTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="volume" property="packingVolume" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="specification" property="packingSpecification" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="unit" property="packingUnit" javaType="java.lang.String" jdbcType="VARCHAR" />
+	</resultMap>
+
+	<resultMap id="DmsConsumableRelationDetailInfo" type="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="dms_id" property="dmsId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="dms_name" property="dmsName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="code" property="code" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+        <result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,dms_id,dms_name,consumable_code,status,operate_user_code,
+		operate_user_erp,operate_time,create_time,update_time,is_delete,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation">
+		insert into dms_consumable_relation
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="dmsId != null">
+					dms_id,
+				</if>
+				<if test="dmsName != null">
+					dms_name,
+				</if>
+				<if test="consumableCode != null">
+					consumable_code,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="operateUserCode != null">
+					operate_user_code,
+				</if>
+				<if test="operateUserErp != null">
+					operate_user_erp,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="dmsId != null">
+					#{dmsId,jdbcType=INTEGER},
+				</if>
+				<if test="dmsName != null">
+					#{dmsName,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableCode != null">
+					#{consumableCode,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=TINYINT},
+				</if>
+				<if test="operateUserCode != null">
+					#{operateUserCode,jdbcType=VARCHAR},
+				</if>
+				<if test="operateUserErp != null">
+					#{operateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into dms_consumable_relation
+			(
+				dms_id,dms_name,consumable_code,status,
+				operate_user_code,operate_user_erp,operate_time,create_time,update_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.dmsId,jdbcType=INTEGER},
+					#{item.dmsName,jdbcType=VARCHAR},
+					#{item.consumableCode,jdbcType=VARCHAR},
+					#{item.status,jdbcType=TINYINT},
+					#{item.operateUserCode,jdbcType=VARCHAR},
+					#{item.operateUserErp,jdbcType=VARCHAR},
+					#{item.operateTime,jdbcType=TIMESTAMP},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation">
+		update dms_consumable_relation
+			<set>
+				<if test="dmsId != null">
+					dms_id = #{dmsId,jdbcType=INTEGER},
+				</if>
+				<if test="dmsName != null">
+					dms_name = #{dmsName,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableCode != null">
+					consumable_code = #{consumableCode,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="operateUserCode != null">
+					operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+				</if>
+				<if test="operateUserErp != null">
+					operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update dms_consumable_relation
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update dms_consumable_relation
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="DmsConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_consumable_relation 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation" resultMap="DmsConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_consumable_relation 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete = 0
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  dms_consumable_relation 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsConsumableRelation">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  dms_consumable_relation 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="getPackingConsumableInfoByDmsId" resultMap="PackingConsumableBaseInfo" parameterType="Integer">
+		select
+		code,name,type,type_name,volume/1000000 as volume,volume_coefficient,specification,unit
+		from dms_consumable_relation dcr left join packing_consumable_info pci
+		on code = consumable_code
+		where dms_id = #{dmsId, jdbcType=INTEGER} and status = 1 and pci.is_delete = 0
+
+	</select>
+
+	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="DmsConsumableRelationDetailInfo">
+		select dcr.id,dms_id,dms_name,status,code,name,type,type_name,volume,volume_coefficient,specification,unit,dcr.operate_time,dcr.operate_user_code,dcr.operate_user_erp,dcr.create_time,dcr.update_time,dcr.is_delete
+		from packing_consumable_info pci
+		left join
+		(select * from dms_consumable_relation where dms_id = #{dmsId,jdbcType=INTEGER} and is_delete = 0) dcr
+		on pci.code = dcr.consumable_code
+		where
+		pci.is_delete = 0
+		<if test="consumableName != null">
+		and name like CONCAT('%',#{consumableName, jdbcType=VARCHAR},'%')
+		</if>
+		order by status desc,code asc
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="pageNum_queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select count(1) as num
+		from packing_consumable_info pci
+		left join
+		(select * from dms_consumable_relation where dms_id = #{dmsId,jdbcType=INTEGER} and is_delete = 0) dcr
+		on pci.code = dcr.consumable_code
+		where
+		pci.is_delete = 0
+		<if test="consumableName != null">
+			and name like CONCAT('%',#{consumableName, jdbcType=VARCHAR},'%')
+		</if>
+	</select>
+
+	<update id="updateByParams" parameterType="com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation">
+		update dms_consumable_relation
+		<set>
+			<if test="status != null">
+				status = #{status,jdbcType=TINYINT},
+			</if>
+			<if test="operateUserCode != null">
+				operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserErp != null">
+				operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				operate_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="isDelete != null">
+				is_delete = #{isDelete,jdbcType=TINYINT},
+			</if>
+		</set>
+		where
+			consumable_code = #{consumableCode,jdbcType=VARCHAR} and dms_id = #{dmsId,jdbcType=INTEGER}
+
+	</update>
+</mapper>

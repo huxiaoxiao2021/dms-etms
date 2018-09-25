@@ -603,4 +603,34 @@ public class Constants {
      * 始发道口号类型-3-填仓
      */
     public static final Integer ORIGINAL_CROSS_TYPE_FILL= 3;
+
+    /**
+     * 快运中心支持包装耗材状态标识
+     */
+    public static final Integer DMS_SUPPORT_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心不支持包装耗材状态标识
+     */
+    public static final Integer DMS_NOT_SUPPORT_PACKING_STATUS = 0;
+
+    /**
+     * 快运中心启用包装耗材状态标识
+     */
+    public static final Integer DMS_ENABLE_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心停用包装耗材状态标识
+     */
+    public static final Integer DMS_DISABLE_PACKING_STATUS = 0;
+
+    /**
+     * 包装耗材编号前缀
+     */
+    public static final String PACKING_PRE_CODE = "HC";
+
+    /**
+     * 包装耗材编号占位符
+     */
+    public static final String PACKING_PLACEHOLDER = "%03d";
 }

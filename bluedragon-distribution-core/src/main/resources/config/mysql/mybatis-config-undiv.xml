@@ -253,5 +253,11 @@
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
         <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
+
+        <!-- hanjiaxing3 -->
+        <mapper resource="mappers/mysql/consumable/DmsConsumableRelationMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/PackingConsumableInfoMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/WaybillConsumableRecordMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/WaybillConsumableRelationMapper.xml"/>
     </mappers>
 </configuration>
