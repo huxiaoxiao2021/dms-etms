@@ -63,7 +63,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                     }
                 }
             } else {
-                throw new RuntimeException("[消费发货明细MQ消息]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode);
+                logger.warn("[消费发货明细MQ消息]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode);
             }
         } else {
             logger.warn("[消费发货明细MQ消息]无效的运单号/包裹号，packageBarCode:" + packageBarCode);
