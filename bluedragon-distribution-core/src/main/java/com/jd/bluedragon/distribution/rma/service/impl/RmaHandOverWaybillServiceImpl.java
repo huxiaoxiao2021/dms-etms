@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rma.service.impl;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
@@ -19,6 +20,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,6 +59,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private BaseService baseService;
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
@@ -296,11 +302,25 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         /** 目的省ID */
         rmaHandOverWaybill.setTargetProvinceId(waybill.getProvinceId());
         /** 目的省 */
-        rmaHandOverWaybill.setTargetProvinceName(waybill.getProvinceName());
+        if (StringUtils.isEmpty(waybill.getProvinceName())){
+            Assort assort = baseService.getAssortById(waybill.getProvinceId());
+            if (assort != null) {
+                rmaHandOverWaybill.setTargetProvinceName(assort.getAssName());
+            }
+        } else {
+            rmaHandOverWaybill.setTargetProvinceName(waybill.getProvinceName());
+        }
         /** 目的城市ID */
         rmaHandOverWaybill.setTargetCityId(waybill.getCityId());
         /** 目的城市名称 */
-        rmaHandOverWaybill.setTargetCityName(waybill.getCityName());
+        if (StringUtils.isEmpty(waybill.getCityName())){
+            Assort assort = baseService.getAssortById(waybill.getCityId());
+            if (assort != null) {
+                rmaHandOverWaybill.setTargetCityName(assort.getAssName());
+            }
+        } else {
+            rmaHandOverWaybill.setTargetCityName(waybill.getCityName());
+        }
         /** 商家ID */
         rmaHandOverWaybill.setBusiId(waybill.getBusiId());
         /** 商家名称 */
