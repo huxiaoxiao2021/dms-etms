@@ -82,7 +82,8 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 运单耗材装换
+     * 运单耗材装换:将MQ消息体转换为分拣实体VO
+     *
      * @param packingConsumable
      * @return
      */
@@ -107,7 +108,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 运单耗材明细转换
+     * 运单耗材明细转换:将MQ消息体转换为分拣实体VO
      * @param packingConsumable
      * @return
      */
@@ -116,7 +117,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         if(packingChargeList == null || packingChargeList.isEmpty()){
             return null;
         }
-        Date OperateTime = DateHelper.parseDateTime(packingConsumable.getOperateTime());
+        Date operateTime = DateHelper.parseDateTime(packingConsumable.getOperateTime());
         List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<WaybillConsumableRelation>(packingChargeList.size());
         for(WaybillConsumableDetailDto dto : packingChargeList){
             WaybillConsumableRelation relation = new WaybillConsumableRelation();
@@ -128,7 +129,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             String erp = packingConsumable.getOperateUserErp();
             erp = StringUtils.isBlank(erp) ? "" : erp;
             relation.setOperateUserErp(erp);
-            relation.setOperateTime(OperateTime);
+            relation.setOperateTime(operateTime);
             waybillConsumableRelationLst.add(relation);
         }
 

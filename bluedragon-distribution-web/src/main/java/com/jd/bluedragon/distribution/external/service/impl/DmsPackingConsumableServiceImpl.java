@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.consumable.service.PackingConsumableInfoService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
@@ -44,10 +45,11 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
 
             dmsPackingConsumableInfo.setDmsId(dmsId);
             dmsPackingConsumableInfo.setPackingConsumableBaseInfoList(packingConsumableBaseInfoList);
+            //集合不为空则更新字段为支持包装耗材
             if (packingConsumableBaseInfoList != null && packingConsumableBaseInfoList.size() > 0) {
-                dmsPackingConsumableInfo.setSupportStatus(1);
+                dmsPackingConsumableInfo.setSupportStatus(Constants.DMS_SUPPORT_PACKING_STATUS);
             } else {
-                dmsPackingConsumableInfo.setSupportStatus(0);
+                dmsPackingConsumableInfo.setSupportStatus(Constants.DMS_NOT_SUPPORT_PACKING_STATUS);
             }
             jdResponse.setData(dmsPackingConsumableInfo);
         } catch (Exception e) {

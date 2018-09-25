@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
@@ -56,7 +57,7 @@ public class DmsConsumableRelationServiceImpl extends BaseService<DmsConsumableR
 		Date date = new Date();
 		dmsConsumableRelation.setOperateTime(date);
 		dmsConsumableRelation.setUpdateTime(date);
-		dmsConsumableRelation.setStatus(1);
+		dmsConsumableRelation.setStatus(Constants.DMS_ENABLE_PACKING_STATUS);
 		for (String code : codes) {
 			dmsConsumableRelation.setConsumableCode(code);
 			int result = dmsConsumableRelationDao.updateByParams(dmsConsumableRelation);
@@ -73,7 +74,7 @@ public class DmsConsumableRelationServiceImpl extends BaseService<DmsConsumableR
 		Date date = new Date();
 		dmsConsumableRelation.setOperateTime(date);
 		dmsConsumableRelation.setUpdateTime(date);
-		dmsConsumableRelation.setStatus(0);
+		dmsConsumableRelation.setStatus(Constants.DMS_DISABLE_PACKING_STATUS);
 		for (String code : codes) {
 			dmsConsumableRelation.setConsumableCode(code);
 			dmsConsumableRelationDao.updateByParams(dmsConsumableRelation);

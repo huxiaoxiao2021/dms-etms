@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -49,8 +50,8 @@ public class PackingConsumableInfoServiceImpl extends BaseService<PackingConsuma
 
 			//根据插入返回的id，更新包装耗材编码
 			Long id = packingConsumableInfo.getId();
-			String preCode = "HC";
-			String code = String.format(preCode + "%03d", id);
+			//根据前缀和占位符生产耗材编号
+			String code = String.format(Constants.PACKING_PRE_CODE + Constants.PACKING_PLACEHOLDER, id);
 
 			packingConsumableInfo.setCode(code);
 			packingConsumableInfo.setCreateTime(date);
