@@ -803,4 +803,17 @@ public class BusinessHelper {
 		}
 		return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
 	}
+
+    /**
+     * 是否是RMA标识的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isRMA(String waybillSign) {
+        if (isSignChar(waybillSign, 32, '1')) {
+            return true;
+        }
+        return false;
+    }
 }
