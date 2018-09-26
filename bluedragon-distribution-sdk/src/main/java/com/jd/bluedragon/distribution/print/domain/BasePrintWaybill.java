@@ -40,7 +40,11 @@ public class BasePrintWaybill implements Serializable {
 	/**始发城市编码*/
     private Integer originalCityCode;
     /**始发城市名称*/
-    private String originalCityName; 
+    private String originalCityName;
+    /**
+     * 始发滑道号类型
+     */
+    private Integer originalCrossType;
     /**
      * 运输产品
      */
@@ -307,6 +311,20 @@ public class BasePrintWaybill implements Serializable {
 	public void setOriginalCityName(String originalCityName) {
 		this.originalCityName = originalCityName;
 	}
+	/**
+	 * @return the originalCrossType
+	 */
+	public Integer getOriginalCrossType() {
+		return originalCrossType;
+	}
+
+	/**
+	 * @param originalCrossType the originalCrossType to set
+	 */
+	public void setOriginalCrossType(Integer originalCrossType) {
+		this.originalCrossType = originalCrossType;
+	}
+
 	/**
 	 * @return the transportMode
 	 */

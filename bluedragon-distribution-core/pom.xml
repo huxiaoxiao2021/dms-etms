@@ -119,7 +119,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.1.3-SNAPSHOT</version>
+			<version>1.1.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -368,7 +368,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.1.19-SNAPSHOT</version>
+			<version>1.2.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>

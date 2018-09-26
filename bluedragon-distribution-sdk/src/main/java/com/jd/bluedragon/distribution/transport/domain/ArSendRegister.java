@@ -181,6 +181,11 @@ public class ArSendRegister extends DbEntity {
      */
     private String sendCode;
 
+    /**
+     * 批次号列表
+     */
+    private List<String> sendCodes;
+
     public Integer getStatus() {
         return status;
     }
@@ -443,6 +448,14 @@ public class ArSendRegister extends DbEntity {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public List<String> getSendCodes() {
+        return sendCodes;
+    }
+
+    public void setSendCodes(List<String> sendCodes) {
+        this.sendCodes = sendCodes;
     }
 
 }

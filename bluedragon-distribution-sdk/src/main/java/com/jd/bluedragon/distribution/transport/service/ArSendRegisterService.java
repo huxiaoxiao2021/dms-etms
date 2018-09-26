@@ -118,15 +118,17 @@ public interface ArSendRegisterService extends Service<ArSendRegister> {
      * @param aging
      * @return
      */
-   Date getPlanDate(Date sendDate, String time, Integer aging);
+    Date getPlanDate(Date sendDate, String time, Integer aging);
 
     /**
-     * 根据航班号、飞行日期获取发货登记信息
+     * 根据运输类型、航班号、铁路站序、飞行日期获取发货登记信息
      *
-     * @param flightNumber
-     * @param flightDate
+     * @param transportType
+     * @param transportName
+     * @param siteCode
+     * @param sendDate
      * @return
      */
-   ArSendRegister getByFlightInfo(String flightNumber, Date flightDate);
+    List<ArSendRegister> getListByTransInfo(ArTransportTypeEnum transportType, String transportName, String siteCode, Date sendDate);
 
 }

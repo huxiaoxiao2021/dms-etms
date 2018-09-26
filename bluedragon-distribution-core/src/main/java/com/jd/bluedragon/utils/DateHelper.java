@@ -50,6 +50,8 @@ public class DateHelper {
 
     public static final String DATE_FORMAT_YYYYMMDDHHmmss = "yyyyMMddHHmmss";
 
+    public static final String DATE_FORMAT_YYYYMMDD = "yyyy-MM-dd";
+
     public static Date add(final Date date, Integer field, Integer amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

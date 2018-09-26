@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.rma.dao.RmaHandOverDetailDao">
+    <resultMap id="rmaHandoverDetail" type="RmaHandoverDetail">
+        <result column="id" property="id"/>
+        <result column="handover_waybill_id" property="handoverWaybillId"/>
+        <result column="waybill_code" property="waybillCode"/>
+        <result column="outbound_order_code" property="outboundOrderCode"/>
+        <result column="sku_code" property="skuCode"/>
+        <result column="spare_code" property="spareCode"/>
+        <result column="good_name" property="goodName"/>
+        <result column="good_count" property="goodCount"/>
+        <result column="exception_remark" property="exceptionRemark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="yn" property="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        handover_waybill_id,
+        waybill_code,
+        outbound_order_code,
+        sku_code,
+        spare_code,
+        good_name,
+        good_count,
+        exception_remark,
+        create_time,
+        update_time,
+        yn
+    </sql>
+
+    <insert id="add" parameterType="RmaHandoverDetail">
+        INSERT INTO rma_handover_detail (
+        handover_waybill_id,
+        waybill_code,
+        outbound_order_code,
+        sku_code,
+        spare_code,
+        good_name,
+        good_count,
+        exception_remark,
+        create_time,
+        update_time,
+        yn
+        ) VALUES (
+        #{handoverWaybillId,jdbcType=BIGINT},
+        #{waybillCode,jdbcType=VARCHAR},
+        #{outboundOrderCode,jdbcType=VARCHAR},
+        #{skuCode,jdbcType=VARCHAR},
+        #{spareCode,jdbcType=VARCHAR},
+        #{goodName,jdbcType=VARCHAR},
+        #{goodCount,jdbcType=INTEGER},
+        #{exceptionRemark,jdbcType=VARCHAR},
+        NOW(),
+        NOW(),
+        1)
+    </insert>
+
+    <insert id="batchAdd" parameterType="RmaHandoverDetail">
+        INSERT INTO rma_handover_detail (
+        handover_waybill_id,
+        waybill_code,
+        outbound_order_code,
+        sku_code,
+        spare_code,
+        good_name,
+        good_count,
+        exception_remark,
+        create_time,
+        update_time,
+        yn
+        ) VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.handoverWaybillId,jdbcType=BIGINT},
+            #{item.waybillCode,jdbcType=VARCHAR},
+            #{item.outboundOrderCode,jdbcType=VARCHAR},
+            #{item.skuCode,jdbcType=VARCHAR},
+            #{item.spareCode,jdbcType=VARCHAR},
+            #{item.goodName,jdbcType=VARCHAR},
+            #{item.goodCount,jdbcType=INTEGER},
+            #{item.exceptionRemark,jdbcType=VARCHAR},
+            NOW(),
+            NOW(),
+            1
+            )
+        </foreach>
+    </insert>
+
+    <select id="getListByHandoverWaybillId" parameterType="Long" resultMap="rmaHandoverDetail">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM rma_handover_detail
+        WHERE yn = 1
+        AND handover_waybill_id = #{handoverWaybillId,jdbcType=BIGINT}
+    </select>
+
+</mapper>

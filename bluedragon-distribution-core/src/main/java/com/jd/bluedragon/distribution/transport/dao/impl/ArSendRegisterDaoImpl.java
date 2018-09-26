@@ -48,7 +48,7 @@ public class ArSendRegisterDaoImpl extends BaseDao<ArSendRegister> implements Ar
     }
 
     @Override
-    public ArSendRegister getByFlightInfo(Map<String, Object> parameter) {
-        return sqlSession.selectOne(this.nameSpace + ".getByFlightInfo", parameter);
+    public List<ArSendRegister> getListByTransInfo(Map<String, Object> parameter) {
+        return sqlSession.selectList(this.nameSpace + ".getListByTransInfo", parameter);
     }
 }

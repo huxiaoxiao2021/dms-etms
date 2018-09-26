@@ -503,15 +503,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
             String lastSendCode = lastSendM.getSendCode();
-            if (domain.getSendCode().equals(lastSendCode)) {
-                result.init(SendResult.CODE_SENDED, "箱子已经在批次该批次中发货，请勿重复操作");
-                return false;
-            } else {
+            if (StringUtils.isNotEmpty(lastSendCode)) {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
-                    result.setKey(SendResult.CODE_CONFIRM);
-                    result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
-                    result.setReceiveSiteCode(domain.getReceiveSiteCode());
-                    result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    if (domain.getReceiveSiteCode().equals(lastSendM.getReceiveSiteCode())) {
+                        if (domain.getSendCode().equals(lastSendCode)) {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在该批次中发货，请勿重复操作");
+                        } else {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在批次[" + lastSendCode + "]中发货");
+                        }
+                    } else {
+                        result.setKey(SendResult.CODE_CONFIRM);
+                        result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                        result.setReceiveSiteCode(domain.getReceiveSiteCode());
+                        result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    }
+                    return false;
                 }
             }
         }
