@@ -118,7 +118,7 @@ public class MergeWaybillCodeReturnResource {
             returnDto = waybillReturnSignatureApi.waybillReturnSignature(dto);
             if(returnDto!=null&&returnDto.getStatusCode()==0){
                 result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                if(result.getData()!=null&&returnDto.getData().getReturnWaybillCode()!=null){
+                if(returnDto.getData()!=null&&returnDto.getData().getReturnWaybillCode()!=null){
                     newWaybillCode = returnDto.getData().getReturnWaybillCode();
                     //给运单发消息
                     MergeWaybillMessage message = new MergeWaybillMessage();
@@ -130,7 +130,7 @@ public class MergeWaybillCodeReturnResource {
                     message.setSiteCode(mergeWaybillCodeReturn.getOperateUnitId());
                     message.setSiteName(mergeWaybillCodeReturn.getSiteName());
                     this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + JSON.toJSONString(message));
-                    mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,JSON.toJSONString(returnDto.getData()));
+                    mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,JSON.toJSONString(message));
                     //发全程跟踪
                     mergeWaybillCodeReturnService.sendTrace(message);
                 }

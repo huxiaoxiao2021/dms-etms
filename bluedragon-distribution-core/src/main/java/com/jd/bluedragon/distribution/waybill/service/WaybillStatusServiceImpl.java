@@ -362,7 +362,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
 				if(tWaybillStatus.getRemark().equals("签单返回合单")){
-					bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getWaybillCode());
+					bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getSendCode());
 				}else {
 					List<String> list = JSONArray.parseArray(tWaybillStatus.getRemark(), String.class);
 					int maxSize = Integer.valueOf(PropertiesHelper.newInstance().getValue(MERGE_WAYBILL_RETURN_COUNT));
@@ -371,6 +371,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 						for(int i=0; i<maxSize; i++){
 							if(i == maxSize-1){
 								temp += list.get(i)+"等";
+								break;
 							}else {
 								temp += list.get(i)+",";
 							}
@@ -385,7 +386,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 							}
 						}
 					}
-					bdTraceDto.setOperatorDesp("反单合单，原运单号"+temp);
+					bdTraceDto.setOperatorDesp("返单合单，原运单号"+temp);
 				}
 				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);

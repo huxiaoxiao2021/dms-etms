@@ -76,7 +76,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         //旧单号发全程跟踪
         List<String> WaybillCodeList = JSONArray.parseArray(message.getWaybillCodeList(), String.class);
         for(String waybillCode : WaybillCodeList){
-            toTask(message, waybillCode);
+            toTask(message, waybillCode,message.getNewWaybillCode());
         }
     }
 
@@ -107,7 +107,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         taskService.add(tTask);
     }
 
-    private void toTask(MergeWaybillMessage message, String waybillCode) {
+    private void toTask(MergeWaybillMessage message, String waybillCode,String newWaybillCode) {
         Task tTask = new Task();
         tTask.setKeyword1(waybillCode);
         tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN));
@@ -123,6 +123,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         WaybillStatus status=new WaybillStatus();
         status.setOperateType(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN);
         status.setWaybillCode(waybillCode);
+        status.setSendCode(newWaybillCode);//将新单号存到sendCode字段中
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
 //        status.setOperatorId(message.getOperatorNo());
