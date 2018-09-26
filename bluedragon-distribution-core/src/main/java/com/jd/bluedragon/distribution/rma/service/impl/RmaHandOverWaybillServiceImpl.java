@@ -300,27 +300,15 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         /** 包裹数量 */
         rmaHandOverWaybill.setPackageCount(waybill.getGoodNumber());
         /** 目的省ID */
-        rmaHandOverWaybill.setTargetProvinceId(waybill.getProvinceId());
+        Integer provinceId = waybill.getProvinceId();
+        rmaHandOverWaybill.setTargetProvinceId(provinceId);
         /** 目的省 */
-        if (StringUtils.isEmpty(waybill.getProvinceName())){
-            Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
-            if (assort != null) {
-                rmaHandOverWaybill.setTargetProvinceName(assort.getAssDis());
-            }
-        } else {
-            rmaHandOverWaybill.setTargetProvinceName(waybill.getProvinceName());
-        }
+        rmaHandOverWaybill.setTargetProvinceName(this.getLocationName(waybill.getProvinceName(), provinceId));
         /** 目的城市ID */
-        rmaHandOverWaybill.setTargetCityId(waybill.getCityId());
+        Integer cityId = waybill.getCityId();
+        rmaHandOverWaybill.setTargetCityId(cityId);
         /** 目的城市名称 */
-        if (StringUtils.isEmpty(waybill.getCityName())){
-            Assort assort = baseService.getOneAssortById(waybill.getCityId());
-            if (assort != null) {
-                rmaHandOverWaybill.setTargetCityName(assort.getAssDis());
-            }
-        } else {
-            rmaHandOverWaybill.setTargetCityName(waybill.getCityName());
-        }
+        rmaHandOverWaybill.setTargetCityName(this.getLocationName(waybill.getCityName(), cityId));
         /** 商家ID */
         rmaHandOverWaybill.setBusiId(waybill.getBusiId());
         /** 商家名称 */
@@ -333,6 +321,23 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         rmaHandOverWaybill.setReceiverMobile(waybill.getReceiverMobile());
         /** 收货人地址 */
         rmaHandOverWaybill.setReceiverAddress(waybill.getReceiverAddress());
+    }
+
+    /**
+     * 获取位置名称，若名称不为空则直接返回，为空则根据位置id调用基础资料获取名称返回
+     *
+     * @param name
+     * @param id
+     * @return
+     */
+    private String getLocationName(String name, Integer id) {
+        if (StringUtils.isEmpty(name) && id != null) {
+            Assort assort = baseService.getOneAssortById(id);
+            if (assort != null) {
+                return assort.getAssDis();
+            }
+        }
+        return name;
     }
 
     /**
@@ -369,7 +374,7 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         Map<String, String> resultMap = new HashMap<String, String>(skuSnList.size());
         for (SkuSn skuSn : skuSnList) {
             // codeType为3 是备件库出库单号
-            if (skuSn.getCodeType() == 3){
+            if (skuSn.getCodeType() == 3) {
                 resultMap.put(skuSn.getSkuCode(), skuSn.getSnCode());
             }
         }

@@ -253,12 +253,21 @@ public interface BaseService {
 	 */
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
 
+	/**
+	 * 根据assId获取单条省市县信息
+	 * 注意：Assort对象中的中文名称取值assDis属性，非assName属性，使用者请注意
+	 *
+	 * @param assortId
+	 * @return
+	 */
     public Assort getAssortById(Integer assortId);
 
 	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode);
 
 	/**
 	 * 根据assId获取单条省市县信息
+	 * 注意：Assort对象中的中文名称取值assDis属性，非assName属性，使用者请注意
+	 *
 	 * @param assId
 	 * @return
 	 */
