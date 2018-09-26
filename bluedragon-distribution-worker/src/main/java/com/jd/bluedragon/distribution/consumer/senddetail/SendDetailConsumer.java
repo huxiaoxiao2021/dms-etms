@@ -46,7 +46,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             this.doConsume(context);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         }
     }
@@ -79,8 +78,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private BaseEntity<BigWaybillDto> getWaybillBaseEntity(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
-        choice.setQueryWaybillE(true);
-        choice.setQueryWaybillM(true);
+        choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
