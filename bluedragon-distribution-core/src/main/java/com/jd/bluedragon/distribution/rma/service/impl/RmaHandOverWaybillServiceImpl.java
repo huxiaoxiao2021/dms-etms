@@ -303,9 +303,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         rmaHandOverWaybill.setTargetProvinceId(waybill.getProvinceId());
         /** 目的省 */
         if (StringUtils.isEmpty(waybill.getProvinceName())){
-            Assort assort = baseService.getAssortById(waybill.getProvinceId());
+            Assort assort = baseService.getOneAssortById(waybill.getProvinceId());
             if (assort != null) {
-                rmaHandOverWaybill.setTargetProvinceName(assort.getAssName());
+                rmaHandOverWaybill.setTargetProvinceName(assort.getAssDis());
             }
         } else {
             rmaHandOverWaybill.setTargetProvinceName(waybill.getProvinceName());
@@ -314,9 +314,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         rmaHandOverWaybill.setTargetCityId(waybill.getCityId());
         /** 目的城市名称 */
         if (StringUtils.isEmpty(waybill.getCityName())){
-            Assort assort = baseService.getAssortById(waybill.getCityId());
+            Assort assort = baseService.getOneAssortById(waybill.getCityId());
             if (assort != null) {
-                rmaHandOverWaybill.setTargetCityName(assort.getAssName());
+                rmaHandOverWaybill.setTargetCityName(assort.getAssDis());
             }
         } else {
             rmaHandOverWaybill.setTargetCityName(waybill.getCityName());
