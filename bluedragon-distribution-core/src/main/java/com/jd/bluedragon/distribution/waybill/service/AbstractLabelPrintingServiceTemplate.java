@@ -268,7 +268,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         labelPrinting.setOriginalDmsCode(request.getDmsCode());
         labelPrinting.setOriginalDmsName(request.getDmsName());
-        labelPrinting.setOriginalCrossType(BusinessHelper.getOriginalCrossType(context.getWaybill().getWaybillSign(), context.getWaybill().getSendPay()));
+        labelPrinting.setOriginalCrossType(BusinessHelper.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay()));
         //扩展追加字段方法
         labelPrinting = waybillExtensional(request,labelPrinting,waybill);
 
