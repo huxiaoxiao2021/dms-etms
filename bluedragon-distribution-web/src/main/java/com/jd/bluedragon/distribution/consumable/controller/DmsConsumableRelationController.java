@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.consumable.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/dmsConsumableRelation";
