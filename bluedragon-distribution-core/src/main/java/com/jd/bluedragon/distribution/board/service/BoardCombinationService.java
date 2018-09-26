@@ -19,6 +19,10 @@ public interface BoardCombinationService {
      */
     public BoardResponse getBoardByBoardCode(String boardCode) throws Exception;
 
+    /**
+     * 校验板号是否可以操作发货
+     */
+    public BoardResponse checkBoardCanSend(String boardCode) throws Exception ;
 
     /**
      * 回传板标绑定的箱号或包裹号

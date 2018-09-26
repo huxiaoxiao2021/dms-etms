@@ -60,6 +60,6 @@ public interface ArSendRegisterDao extends Dao<ArSendRegister> {
      * @param parameter
      * @return
      */
-    ArSendRegister getByFlightInfo(Map<String, Object> parameter);
+    List<ArSendRegister> getListByTransInfo(Map<String, Object> parameter);
 
 }

@@ -356,6 +356,7 @@ function planShow() {
             if (data.code == 200) {
                 var plan = data.data;
                 planId = plan.planId;
+                gantryParams.planId = planId;
             }
         }
     })
@@ -417,6 +418,7 @@ function enOrDisGantry(params) {
         if (data.code == 200) {
             gantryStateInit(data.data);
             gantryParams = data.data;
+            flashByFiveM();//刷新一次页面
         } else {
             jQuery.messager.alert("提示：", "数据请求失败！", "info");
         }
@@ -506,6 +508,7 @@ function queryBatchSendSub(pageNo) {
     var params = {};
     if (gantryParams != undefined && gantryParams != null) {
         params.machineId = gantryParams.machineId;
+        params.planId = gantryParams.planId;
     }
     params.pageNo = pageNo;
     queryBatchSendCodes(params);

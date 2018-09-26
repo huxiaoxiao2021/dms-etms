@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.abnormal.service;
 
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
@@ -20,7 +22,7 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      *
      * @return
      */
-    public JdResponse<String> queryAndReport(AbnormalUnknownWaybill abnormalUnknownWaybill);
+    public JdResponse<String> queryAndReport(AbnormalUnknownWaybill abnormalUnknownWaybill, LoginUser loginUser);
 
     /**
      * 二次上报
@@ -47,4 +49,11 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * @return
      */
     public List<List<Object>> getExportData(AbnormalUnknownWaybillCondition arBookingSpaceCondition);
+
+    /**
+     * 加载数据
+     * @param abnormalUnknownWaybillCondition
+     * @return
+     */
+    public PagerResult<AbnormalUnknownWaybill> queryByPagerCondition(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition);
 }

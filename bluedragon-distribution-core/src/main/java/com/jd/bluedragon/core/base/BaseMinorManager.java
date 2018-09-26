@@ -2,9 +2,14 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ql.basic.domain.*;
-import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.domain.AirTransport;
+import com.jd.ql.basic.domain.BaseDmsStore;
+import com.jd.ql.basic.domain.BaseSiteGoods;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 
 
 public interface BaseMinorManager {
@@ -16,7 +21,6 @@ public interface BaseMinorManager {
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionDmsCodeSiteCode(Integer dmsID,String flage, Integer siteCode) ;
 	
 	public List<BaseGoodsPositionDto> getBaseGoodsPositionTaskAreaNoDmsId(Integer dmsID,String flage, Integer taskAreaNo) ;
-	public BaseResult<CrossPackageTagNew> getCrossPackageTagByPara(BaseDmsStore bds, Integer siteCode, Integer startDmsCode);
 	
 	public List<BasicTraderInfoDTO> getBaseAllTrader();
 	
@@ -37,5 +41,30 @@ public interface BaseMinorManager {
 
 
 	public BasicTraderInfoDTO getTraderInfoByPopCode(String popCode);
-
+	/**
+	 * 逆向-根据始发分拣中心和目的站点获取目的分拣中心、道口号、笼车号信息
+	 * @param originalDmsId
+	 * @param targetSiteId
+	 * @return
+	 */
+	 JdResult<ReverseCrossPackageTag> getReverseCrossPackageTag(Integer originalDmsId,Integer targetSiteId);
+	 /**
+	  * 根据库房、目的站点ID、始发分拣中心ID、始发道口类型，获取取包裹标签打印信息,支持 1 -- 普通 2 -- 航空 3 -- 填仓
+	  * @param baseDmsStore  库房
+	  * @param targetSiteId  目的站点ID -- 必填
+	  * @param originalDmsId 始发分拣中心ID
+	  * @param originalCrossType 始发道口类型  1 -- 普通 2 -- 航空 3 -- 填仓
+	  * @return
+	  */
+	 JdResult<CrossPackageTagNew> queryCrossPackageTag(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId, Integer originalCrossType);
+	/**
+	  * 打印业务-根据库房、目的站点ID、始发分拣中心ID、始发道口类型，获取取包裹标签打印信息
+	  * 先调用正向业务，获取不到数据会调用逆向接口
+	  * @param baseDmsStore  库房
+	  * @param targetSiteId  目的站点ID -- 必填
+	  * @param originalDmsId 始发分拣中心ID
+	  * @param originalCrossType 始发道口类型  1 -- 普通 2 -- 航空 3 -- 填仓
+	  * @return
+	  */
+	 JdResult<CrossPackageTagNew> queryCrossPackageTagForPrint(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId, Integer originalCrossType);
 }

@@ -283,4 +283,14 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
     </bean>
+    <!--验货/发货提示语追踪mq，记录提示的分拣中心和提示环节-->
+    <bean id="operateHintTrackMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.operateHint.track}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- B网包装耗材确认消息推送运单-->
+    <bean id="waybillConsumableProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable}"/>
+    </bean>
 </beans>

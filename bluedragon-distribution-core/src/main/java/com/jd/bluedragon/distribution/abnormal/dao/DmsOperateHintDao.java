@@ -18,4 +18,12 @@ public interface DmsOperateHintDao extends Dao<DmsOperateHint> {
 	 * @return
 	 */
 	DmsOperateHint queryNeedReprintHintByWaybillCode(String waybillCode);
+
+	/**
+	 * 根据运单号获取处于开启状态的提示信息
+	 * @param dmsOperateHint
+	 * @return
+     */
+	DmsOperateHint getEnabledOperateHint(DmsOperateHint dmsOperateHint);
+
 }

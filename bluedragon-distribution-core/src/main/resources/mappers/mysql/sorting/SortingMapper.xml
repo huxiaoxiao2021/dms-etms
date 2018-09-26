@@ -186,7 +186,7 @@
 		WHERE yn=1 AND is_cancel = 0
 		    AND create_site_code = #{createSiteCode} 
 			AND sorting_type = #{type}
-			AND package_code like '${packageCode}'
+			AND package_code like #{packageCode}
 		<if test="waybillCode != null">
 			AND waybill_code = #{waybillCode}
 		</if>

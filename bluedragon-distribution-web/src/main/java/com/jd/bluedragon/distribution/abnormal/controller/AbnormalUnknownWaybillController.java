@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -30,7 +32,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("abnormal/abnormalUnknownWaybill")
-public class AbnormalUnknownWaybillController {
+public class AbnormalUnknownWaybillController extends DmsBaseController{
 
     private static final Log logger = LogFactory.getLog(AbnormalUnknownWaybillController.class);
 
@@ -82,7 +84,11 @@ public class AbnormalUnknownWaybillController {
     JdResponse<String> save(@RequestBody AbnormalUnknownWaybill abnormalUnknownWaybill) {
         JdResponse<String> rest = new JdResponse<String>();
         try {
-            return abnormalUnknownWaybillService.queryAndReport(abnormalUnknownWaybill);
+            LoginUser loginUser=getLoginUser();
+            if (loginUser==null){
+                rest.toError("保存失败，用户未登录。");
+            }
+            return abnormalUnknownWaybillService.queryAndReport(abnormalUnknownWaybill,loginUser);
         } catch (Exception e) {
             logger.error("fail to save！" + e.getMessage(), e);
             rest.toError("保存失败，服务异常！");
@@ -127,7 +133,6 @@ public class AbnormalUnknownWaybillController {
         rest.setData(abnormalUnknownWaybillService.queryByPagerCondition(abnormalUnknownWaybillCondition));
         return rest.getData();
     }
-
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
         try {

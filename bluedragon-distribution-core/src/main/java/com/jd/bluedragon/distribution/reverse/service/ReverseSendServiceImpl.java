@@ -16,6 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.common.util.JacksonUtils;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.fastjson.JSON;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -513,7 +519,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode)) {
+                if (!isSpecial(send, wallBillCode,sendM)) {
                 	newsend.setBusiOrderCode(operCodeMap.get(wallBillCode));
                 	ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
                 }
@@ -646,7 +652,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wayBillCode)) {
+                if (!isSpecial(send,wayBillCode,sendM)) {
                     send.setBusiOrderCode(operCodeMap.get(wayBillCode));
                     ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, 0, bDto, taskId,wayBillCode);
                 }
@@ -1412,7 +1418,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param send
      * @return <code>true</code> 如果是迷你仓、eclp订单
      */
-    private Boolean isSpecial(ReverseSendWms send, String wayBillCode) {
+    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM) {
 
         if (StringHelper.isNotEmpty(send.getWaybillSign())) {
             //迷你仓新需求，waybillsign第一位=8的 不推送库房， 因为不属于逆向 guoyongzhi
@@ -1445,6 +1451,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			sendmodel.setWaybillCode(wayBillCode);
 			sendmodel.setRejType(3);
 			sendmodel.setRejRemark("分拣中心逆向分拣ECLP");
+			if(sendM.getOperateTime()!=null){
+                sendmodel.setOperateTime(sendM.getOperateTime().getTime());
+            }else{
+                sendmodel.setOperateTime(System.currentTimeMillis());
+            }
+            sendmodel.setOperator(sendM.getCreateUser());
+			//组装拒收原因
+            makeRefuseReason(sendmodel);
 			String jsonStr = JsonHelper.toJson(sendmodel);
 			logger.info("推送ECLP的 MQ消息体 " + jsonStr);
 
@@ -1583,4 +1597,81 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
         return  isBatchSendSuccess;
     }
+
+    /**
+     * 组装拒收原因字段
+     *
+     * 第一步 根据新单号获取旧单号
+     * 第二步 通过旧单号获取拒收原因ID
+     * 第三步 根据拒收原因ID获取拒收原因名称
+     *
+     * @param reverseSendMQToECLP
+     */
+    private void makeRefuseReason(ReverseSendMQToECLP reverseSendMQToECLP){
+        String waybillCode = reverseSendMQToECLP.getWaybillCode();
+        //拒收编码
+        Integer refuseReasonId = null;
+        //旧运单号
+        String oldWaybillCode = null;
+        //拒收原因
+        String refuseReasonName = null;
+        try{
+
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
+
+
+            if(oldWaybill!=null && oldWaybill.getData() != null){
+                //获取旧运单号
+                oldWaybillCode = oldWaybill.getData().getWaybillCode();
+            }else{
+                logger.error("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                return;
+            }
+            if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){
+                logger.error("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                return;
+            }
+
+
+            List<BillBusinessTraceAndExtendDTO> BillBusinessTraceAndExtendDTOs =waybillQueryManager.queryBillBTraceAndExtendByOperatorCode(oldWaybillCode,WaybillStatus.WAYBILL_TRACK_RCD.toString());
+            if(BillBusinessTraceAndExtendDTOs!= null && BillBusinessTraceAndExtendDTOs.size()>0){
+                String extendProperties = BillBusinessTraceAndExtendDTOs.get(BillBusinessTraceAndExtendDTOs.size()-1).getExtendProperties();
+                //防止存在拒收无拒收原因异常
+                if(StringUtils.isNotBlank(extendProperties) && ((Map)JSON.parse(extendProperties)).get("reasonId") != null){
+                    refuseReasonId = Integer.parseInt(((Map)JSON.parse(extendProperties)).get("reasonId").toString());
+                }
+
+
+            }else{
+                logger.info("退ECLP增加拒收原因处理时，获取旧运单数据拒收原因为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" oldWaybillCode="+oldWaybillCode);
+                return;
+            }
+            if(refuseReasonId == null){
+                logger.error("退ECLP增加拒收原因处理时，拒收原因编码为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" oldWaybillCode="+oldWaybillCode);
+                return;
+            }
+
+
+
+            //获取拒收编码描述
+            BaseDataDict refuseReason = baseMajorManager.getValidBaseDataDictListToMap(
+                    13,2,13).get(refuseReasonId);
+            if(refuseReason!=null){
+                refuseReasonName = refuseReason.getTypeName();
+            }else{
+                logger.error("退ECLP增加拒收原因处理时，从基础资料获取拒收原因名称为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" refuseReasonId="+refuseReasonId);
+                return;
+            }
+
+
+
+            reverseSendMQToECLP.setRefuseReasonId(refuseReasonId);
+            reverseSendMQToECLP.setRefuseReasonName(refuseReasonName);
+
+        }catch (Exception e){
+            logger.error("退ECLP增加拒收原因处理时失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode,e);
+        }
+
+    }
+
 }

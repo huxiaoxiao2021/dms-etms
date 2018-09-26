@@ -17,6 +17,7 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
     private static final String MACHINE_ID = "machineId";
     private static final String RECEIVE_SITE_CODE = "receiveSiteCode";
     private static final String OPERATE_TIME = "operateTime";
+    private static final String YN = "yn";
     private static final String OPERATE_TIME_SUB_24_HOURS = "operateTimeSub24Hours";
     private static final String UPDATE_PRINT_TIMES_SQL = NAMESPACE + ".updatePrintTimes";
     public static final String GET_SPLIT_PAGE_LIST = NAMESPACE + ".getSplitPageList";
@@ -42,6 +43,7 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
         map.put(RECEIVE_SITE_CODE, receiveSiteCode);
         map.put(OPERATE_TIME, operateTime);
         map.put(OPERATE_TIME_SUB_24_HOURS, DateHelper.add(operateTime, Calendar.HOUR, -24));
+        map.put(YN,1);//查询有效的批次（批次在龙门架更换方案之后，会全部置为无效）
         return super.getSqlSession().selectOne(selectCurrentBatchSend_ID, map);
     }
 
@@ -89,5 +91,9 @@ public class ScannerFrameBatchSendDao extends BaseDao<ScannerFrameBatchSend> {
 
     public List<ScannerFrameBatchSend> queryAllUnPrint(Pager<ScannerFrameBatchSendSearchArgument> argumentPager) {
         return super.getSqlSession().selectList(NAMESPACE + ".queryAllUnPrint", argumentPager);
+    }
+
+    public long updateYnByMachineId(String machineId){
+        return super.getSqlSession().update(NAMESPACE + ".updateYnByMachineId",machineId);
     }
 }

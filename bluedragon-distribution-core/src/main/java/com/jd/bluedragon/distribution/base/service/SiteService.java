@@ -79,4 +79,11 @@ public interface SiteService {
 	 * @return
 	 */
 	public List<BaseStaffSiteOrgDto> getDmsListByAreaId(Integer areaId);
+
+	/**
+	 * 根据站点id获取站点名称
+	 * @param siteCode
+	 * @return
+     */
+	String getSiteNameByCode(Integer siteCode);
 }
