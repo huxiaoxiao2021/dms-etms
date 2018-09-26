@@ -45,7 +45,7 @@ import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
-    private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
+	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -142,21 +142,21 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * 半收的运单状态
      */
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
-    @Override
-    public InterceptResult<String> handle(WaybillPrintContext context) {
-        InterceptResult<String> interceptResult = context.getResult();
+	@Override
+	public InterceptResult<String> handle(WaybillPrintContext context) {
+		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = BusinessHelper.getWaybillCode(context.getRequest().getBarCode());
         try {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
-                //运单数据为空，直接返回运单数据为空异常
-                if(baseEntity.getData() == null
-                        ||baseEntity.getData().getWaybill() == null){
-                    interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
-                    logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
-                    return interceptResult;
-                }
-                //获取运单数据正常，设置打印基础信息
+            	//运单数据为空，直接返回运单数据为空异常
+            	if(baseEntity.getData() == null
+            			||baseEntity.getData().getWaybill() == null){
+            		interceptResult.toFail(WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_WAYBILL_NULL.formatMsg());
+            		logger.warn("调用运单接口获取运单数据为空，waybillCode："+waybillCode);
+            		return interceptResult;
+            	}
+            	//获取运单数据正常，设置打印基础信息
                 context.setBigWaybillDto(baseEntity.getData());
                 context.setWaybill(waybillCommonService.convWaybillWS(baseEntity.getData(), true, true,true,false));
                 loadWaybillInfo(context);
@@ -175,196 +175,196 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             interceptResult.toError();
         }
         return interceptResult;
-    }
+	}
     /**
      * 加载运单基础数据
      * @param context
      */
     private final void loadWaybillInfo(WaybillPrintContext context){
-        Integer dmsCode = context.getRequest().getDmsSiteCode();
-        WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
-        context.setResponse(commonWaybill);
-        BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
-        com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
-        WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
-        commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
-        commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
-        commonWaybill.setPopSupName(tmsWaybill.getConsigner());
-        commonWaybill.setBusiId(tmsWaybill.getBusiId());
-        commonWaybill.setBusiName(tmsWaybill.getBusiName());
+    		Integer dmsCode = context.getRequest().getDmsSiteCode();
+    		WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
+            context.setResponse(commonWaybill);
+    		BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+            com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
+            WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
+            commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
+            commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
+            commonWaybill.setPopSupName(tmsWaybill.getConsigner());
+            commonWaybill.setBusiId(tmsWaybill.getBusiId());
+            commonWaybill.setBusiName(tmsWaybill.getBusiName());
 
-        //调用外单接口，根据商家id获取商家编码
-        BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
-        if(basicTraderInfoDTO != null){
-            commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
-        }
-        commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
-        commonWaybill.setOrderCode(tmsWaybill.getVendorId());
-        // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
-        commonWaybill.setOriginalDmsCode(dmsCode);
-        commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
-        commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
-        commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
-        commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
-        commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
-        commonWaybill.setSendPay(tmsWaybill.getSendPay());
-        commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
-        if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
-            char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
-            commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
-            commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((BusinessHelper.isSignY(tmsWaybill.getSendPay(),56) || BusinessHelper.isSignY(tmsWaybill.getSendPay(),52)) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
-        }
+            //调用外单接口，根据商家id获取商家编码
+            BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
+            if(basicTraderInfoDTO != null){
+                commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
+            }
+            commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
+            commonWaybill.setOrderCode(tmsWaybill.getVendorId());
+           // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
+            commonWaybill.setOriginalDmsCode(dmsCode);
+            commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
+            commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
+            commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
+            commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
+            commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
+            commonWaybill.setSendPay(tmsWaybill.getSendPay());
+            commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
+            if(StringUtils.isNotBlank(tmsWaybill.getSendPay())&&tmsWaybill.getSendPay().length()>QUICK_SIGN_BIT_ONE) {
+                char luxurySign = tmsWaybill.getSendPay().charAt(LUXURY_SIGN_BIT);
+                commonWaybill.setLuxuryText(luxurySign <= LUXURY_SIGN_END && luxurySign >= LUXURY_SIGN_START ? LUXURY_SIGN_TEXT : StringUtils.EMPTY);
+                commonWaybill.setLuxuryText(commonWaybill.getLuxuryText() + ((BusinessHelper.isSignY(tmsWaybill.getSendPay(),56) || BusinessHelper.isSignY(tmsWaybill.getSendPay(),52)) ? QUICK_SIGN_TEXT : StringUtils.EMPTY));
+            }
             /*值=1，打“普”字，
 			     值=3，打“电”，
 			     值=2,4,8，或字段为空，打“无”
 			*/
-        commonWaybill.setNormalText(INVOICE_TYPE_NULL_TEXT);
+            commonWaybill.setNormalText(INVOICE_TYPE_NULL_TEXT);
 
-        if(StringUtils.isNotBlank(tmsWaybill.getSpareColumn1())&& NumberUtils.isNumber(tmsWaybill.getSpareColumn1().trim())){
-            Integer value=Integer.MIN_VALUE;
-            try {
-                value= NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
-            }catch (NumberFormatException exception){
-                value=Integer.MIN_VALUE;/*不符合integer*/
+            if(StringUtils.isNotBlank(tmsWaybill.getSpareColumn1())&& NumberUtils.isNumber(tmsWaybill.getSpareColumn1().trim())){
+                Integer value=Integer.MIN_VALUE;
+                try {
+                    value= NumberUtils.createInteger(tmsWaybill.getSpareColumn1().trim());
+                }catch (NumberFormatException exception){
+                    value=Integer.MIN_VALUE;/*不符合integer*/
+                }
+                if(logger.isInfoEnabled()){
+                    logger.info(MessageFormat.format("原值：{0}转换后:{1}",tmsWaybill.getSpareColumn1(),value));
+                }
+                switch (value){
+                    case 1:
+                        commonWaybill.setNormalText(INVOICE_TYPE_COMMON_TEXT);
+                        break;
+                    case 3:
+                        commonWaybill.setNormalText(INVOICE_TYPE_ELECTRONIC_TEXT);
+                        break;
+                    default:
+                        break;
+                }
             }
             if(logger.isInfoEnabled()){
-                logger.info(MessageFormat.format("原值：{0}转换后:{1}",tmsWaybill.getSpareColumn1(),value));
+                logger.info(commonWaybill.getNormalText());
             }
-            switch (value){
-                case 1:
-                    commonWaybill.setNormalText(INVOICE_TYPE_COMMON_TEXT);
-                    break;
-                case 3:
-                    commonWaybill.setNormalText(INVOICE_TYPE_ELECTRONIC_TEXT);
-                    break;
-                default:
-                    break;
-            }
-        }
-        if(logger.isInfoEnabled()){
-            logger.info(commonWaybill.getNormalText());
-        }
             /*，62=金牌用户，105=钻石会员，110=VIP会员，在面单上展示“V”。
 				90=企业用户，面单上展示“企”。
 			*/
-        commonWaybill.setUserLevel(StringUtils.EMPTY);
-        if(null!=tmsWaybill.getUserLevel()){
-            switch (tmsWaybill.getUserLevel()){
-                case 62:
-                case 105:
-                case 110:
+            commonWaybill.setUserLevel(StringUtils.EMPTY);
+            if(null!=tmsWaybill.getUserLevel()){
+                switch (tmsWaybill.getUserLevel()){
+                    case 62:
+                    case 105:
+                    case 110:
+                        commonWaybill.setUserLevel(USER_LEVEL_VIP);
+                        break;
+                    case 90:
+                        commonWaybill.setUserLevel(USER_LEVEL_COMPANY);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if(StringUtils.isNotBlank(tmsWaybill.getFlagInfo())&&tmsWaybill.getFlagInfo().length()>19){
+                String plusFlag=tmsWaybill.getFlagInfo().substring(16,19);
+                if(plusFlag.equals(USER_PLUS_FLAG_A)||plusFlag.equals(USER_PLUS_FLAG_B)){
                     commonWaybill.setUserLevel(USER_LEVEL_VIP);
-                    break;
-                case 90:
-                    commonWaybill.setUserLevel(USER_LEVEL_COMPANY);
-                    break;
-                default:
-                    break;
-            }
-        }
-        if(StringUtils.isNotBlank(tmsWaybill.getFlagInfo())&&tmsWaybill.getFlagInfo().length()>19){
-            String plusFlag=tmsWaybill.getFlagInfo().substring(16,19);
-            if(plusFlag.equals(USER_PLUS_FLAG_A)||plusFlag.equals(USER_PLUS_FLAG_B)){
-                commonWaybill.setUserLevel(USER_LEVEL_VIP);
-            }
-        }
-        commonWaybill.setType(tmsWaybill.getWaybillType());
-        commonWaybill.appendRemark(tmsWaybill.getImportantHint());
-        String roadCode = "";
-        if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
-            String scheduleCode = "";
-            TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
-            if(transbillM != null){
-                if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){
-                    scheduleCode = transbillM.getScheduleBillCode();
-                }
-                //城配运单设置路区号-为卡位号
-                if(StringHelper.isNotEmpty(transbillM.getTruckSpot())){
-                    roadCode = transbillM.getTruckSpot();
                 }
             }
+            commonWaybill.setType(tmsWaybill.getWaybillType());
+            commonWaybill.appendRemark(tmsWaybill.getImportantHint());
+            String roadCode = "";
+            if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
+                String scheduleCode = "";
+                TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
+                if(transbillM != null){
+                	if(StringHelper.isNotEmpty(transbillM.getScheduleBillCode())){
+                		scheduleCode = transbillM.getScheduleBillCode();
+                	}
+                	//城配运单设置路区号-为卡位号
+                	if(StringHelper.isNotEmpty(transbillM.getTruckSpot())){
+                		roadCode = transbillM.getTruckSpot();
+                	}
+                }
 //                String str = StringUtils.isNotBlank(tmsWaybill.getImportantHint())? tmsWaybill.getImportantHint():"";
-            commonWaybill.appendRemark(scheduleCode);
-        }
-        //sendpay的第153位为“1”，remark追加【合并送】
-        if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
-            commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
-        }
-        //路区-为空尝试从运单里获取
-        if(StringHelper.isEmpty(roadCode)){
-            if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
-                roadCode = tmsWaybill.getRoadCode();
-            }else{
-                roadCode = "0";
+                commonWaybill.appendRemark(scheduleCode);
             }
-        }
-        commonWaybill.setRoad(roadCode);
-        if(tmsWaybill.getPayment()!=null){
-            if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
-                commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
+            //sendpay的第153位为“1”，remark追加【合并送】
+            if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
+                commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
-        }
-        commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
-        commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
-        //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
-        String receiverMobile = tmsWaybill.getReceiverMobile();
-        String receiverTel = tmsWaybill.getReceiverTel();
-        if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
-            commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
-        }
-        if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
-            commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
-        }
-        if(null!=tmsWaybillManageDomain){
-            commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
-            //commonWaybill.setStoreName(tmsWaybillManageDomain);
-        }
-        if(null!=bigWaybillDto.getPackageList()){
-            List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
-                for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
-                    PrintPackage pack=new PrintPackage();
-                    pack.setPackageCode(item.getPackageBarcode());
-                    pack.setWeight(item.getGoodWeight());
-                    packageList.add(pack);
+        	//路区-为空尝试从运单里获取
+        	if(StringHelper.isEmpty(roadCode)){
+        		if(StringHelper.isNotEmpty(tmsWaybill.getRoadCode())){
+        			roadCode = tmsWaybill.getRoadCode();
+        		}else{
+        			roadCode = "0";
+        		}
+        	}
+        	commonWaybill.setRoad(roadCode);
+            if(tmsWaybill.getPayment()!=null){
+                if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
+                    commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
                 }
             }
-            commonWaybill.setPackList(packageList);
-        }
-        //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
-        if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
-            commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
-        }
-
-        //B网面单设置已称标识
-        if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){
-            //如果waybillSign第25位等于3时，表示运费支付方式为寄付，打印【已称】
-            //waybillSign第66位等于1时，为信任运单，打印【已称】
-            if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
-                    BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                    OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
-                commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
+            commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
+            commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
+            String receiverMobile = tmsWaybill.getReceiverMobile();
+            String receiverTel = tmsWaybill.getReceiverTel();
+            if (StringHelper.isNotEmpty(receiverMobile) && receiverMobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setMobileFirst(receiverMobile.substring(0, receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setMobileLast(receiverMobile.substring(receiverMobile.length() - PHONE_HIGHLIGHT_NUMBER));
             }
-            //半收的不打印【已称】，这里需要判断原单的状态
-            if(OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
-                //获取原运单号
-                BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
-                if(oldWaybill != null && oldWaybill.getData()!=null){
-                    String oldWaybillCode = oldWaybill.getData().getWaybillCode();
-                    //查询原单号的状态
-                    if(StringHelper.isNotEmpty(oldWaybillCode)){
-                        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
-                        if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
-                            if(WAYBILL_STATE_HALF_RECEIVE.equals(baseEntity.getData().getWaybillState().getWaybillState())){
-                                commonWaybill.setWeightFlagText("");
-                            }
-                        }
+            if (StringHelper.isNotEmpty(receiverTel) && receiverTel.length() >= PHONE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setTelFirst(receiverTel.substring(0, receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+                commonWaybill.setTelLast(receiverTel.substring(receiverTel.length() - PHONE_HIGHLIGHT_NUMBER));
+            }
+            if(null!=tmsWaybillManageDomain){
+                commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
+                //commonWaybill.setStoreName(tmsWaybillManageDomain);
+            }
+            if(null!=bigWaybillDto.getPackageList()){
+                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
+                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
+                        PrintPackage pack=new PrintPackage();
+                        pack.setPackageCode(item.getPackageBarcode());
+                        pack.setWeight(item.getGoodWeight());
+                        packageList.add(pack);
                     }
                 }
+                commonWaybill.setPackList(packageList);
             }
-        }
-        waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
+            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
+            if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
+            	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
+            }
+
+           //B网面单设置已称标识
+           if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){
+               //如果waybillSign第25位等于3时，表示运费支付方式为寄付，打印【已称】
+               //waybillSign第66位等于1时，为信任运单，打印【已称】
+               if(BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
+                       BusinessHelper.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
+                       OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+                   commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
+               }
+               //半收的不打印【已称】，这里需要判断原单的状态
+               if(OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+                   //获取原运单号
+                   BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
+                   if(oldWaybill != null && oldWaybill.getData()!=null){
+                       String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+                       //查询原单号的状态
+                       if(StringHelper.isNotEmpty(oldWaybillCode)){
+                           BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
+                           if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
+                               if(WAYBILL_STATE_HALF_RECEIVE.equals(baseEntity.getData().getWaybillState().getWaybillState())){
+                                   commonWaybill.setWeightFlagText("");
+                               }
+                           }
+                       }
+                   }
+               }
+           }
+           waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
         StringBuilder sb=new StringBuilder();
@@ -385,11 +385,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param context
      */
     private final void loadPrintedData(WaybillPrintContext context){
-        WaybillPrintResponse printWaybill = context.getResponse();
-        printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
+    	WaybillPrintResponse printWaybill = context.getResponse();
+    	printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
         for (int i = 0; i < printWaybill.getPackList().size(); i++) {
-            printWaybill.getPackList().get(i).setIsPrintPack(
-                    context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);
+        	printWaybill.getPackList().get(i).setIsPrintPack(
+        			context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);
         }
     }
     /**
@@ -463,8 +463,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 for(PrintPackage pack : commonWaybill.getPackList()){
                     DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
                     if(deliveryPackageD != null){
-                        //设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
-                        if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
+                    	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
+                    	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
                             pack.setWeight(deliveryPackageD.getAgainWeight());
                         }
                     }
