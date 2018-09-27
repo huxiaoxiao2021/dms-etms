@@ -126,7 +126,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
 
                 //设置模板
                 printInfo.setTemplateName("dms-vonebody-s1");
-                String busiCode = printInfo.getBusiCode();
+                String busiCode = context.getBusiCode();
                 String waybillCode = printInfo.getWaybillCode();
                 List<WaybillPrintDataDTO> waybillPrintData = ldopManager.getPrintDataForCityOrder(busiCode,waybillCode);
                 if(!waybillPrintData.isEmpty()){

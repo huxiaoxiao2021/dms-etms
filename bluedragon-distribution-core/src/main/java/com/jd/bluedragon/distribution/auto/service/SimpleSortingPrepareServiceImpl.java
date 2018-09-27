@@ -1,5 +1,15 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -9,6 +19,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.batch.service.BatchSendService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingException;
@@ -20,18 +31,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by wangtingwei on 2014/10/16.
@@ -90,9 +90,10 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         }
 
         BaseDmsStore bds = new BaseDmsStore();
-        BaseResult<CrossPackageTagNew> br = baseMinorManager.getCrossPackageTagByPara(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode());
+        Integer originalCrossType = BusinessHelper.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
+        JdResult<CrossPackageTagNew> br = baseMinorManager.queryCrossPackageTag(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode(),originalCrossType);
         log.info("自动分拣：获取目的分拣中心"+(null==br?"获取目的分拣中心对象为NULL":JsonHelper.toJson(br)));
-        if(br!=null&&br.getData()!=null
+        if(br.isSucceed() && br.getData()!=null
                 &&br.getData().getDestinationDmsId()!=null
                 &&br.getData().getDestinationDmsId()>0
                 &&!br.getData().getDestinationDmsId().equals(entity.getCreateSiteCode())){

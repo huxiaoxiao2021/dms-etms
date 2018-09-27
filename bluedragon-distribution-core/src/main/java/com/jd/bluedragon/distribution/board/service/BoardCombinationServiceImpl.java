@@ -15,7 +15,6 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.service.DeliveryVerification;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -51,10 +50,8 @@ import java.util.List;
 
 @Service("boardCombinationService")
 public class BoardCombinationServiceImpl implements BoardCombinationService {
-    private static final Log logger = LogFactory.getLog(BoardCombinationServiceImpl.class);
 
-    @Resource(name = "cityDeliveryVerification")
-    private DeliveryVerification cityDeliveryVerification;
+    private static final Log logger = LogFactory.getLog(BoardCombinationServiceImpl.class);
 
     @Autowired
     private SendMDao sendMDao;
@@ -257,16 +254,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             addSystemLog(request, logInfo);
             return JdResponse.CODE_FAIL;
-        }
-
-        //一单多件不齐校验
-        if (!request.getIsForceCombination()) {
-            DeliveryVerification.VerificationResult verificationResult = cityDeliveryVerification.verification(request.getBoxOrPackageCode(), null, false);
-            if (!verificationResult.getCode()) {//按照箱发货，校验派车单是否齐全，判断是否强制发货
-                boardResponse.addStatusInfo(BoardResponse.CODE_PACAGES_NOT_ENOUGH, verificationResult.getMessage());
-
-                return JdResponse.CODE_CONFIRM;
-            }
         }
 
         //调Ver的接口进行组板拦截
@@ -717,7 +704,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     throw e;
 
                 } finally {
-                    Profiler.functionError(info);
+                    Profiler.registerInfoEnd(info);
                 }
                 startNum = startNum + QUERY_BOARD_PAGE_SIZE;
             } while (startNum < totalNum);

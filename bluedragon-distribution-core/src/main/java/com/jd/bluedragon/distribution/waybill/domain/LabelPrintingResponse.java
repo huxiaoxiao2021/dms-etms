@@ -27,8 +27,7 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**订单号*/
     public String orderCode;
 
-    /**运单号*/
-    public String waybillCode;
+
 
     /**客户订单地址*/
     private String orderAddress;
@@ -63,24 +62,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**标签类型 0：有纸化，1：无纸化*/
     private Integer labelType;
 
-    /**标签打印地址*/
-    private String printAddress;
-
-    /**客户姓名*/
-    private String customerName;
-
-    /**客户联系方式*/
-    private String customerContacts;
-
-    /**
-     * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
-     */
-    private String mobileFirst;
-    private String mobileLast;
-
-    private String telFirst;
-    private String telLast;
-
     /**包裹价格*/
     private String packagePrice;
 
@@ -98,8 +79,7 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     }
 
     public LabelPrintingResponse(String waybillCode) {
-        super();
-        this.waybillCode = waybillCode;
+        super(waybillCode);
     }
 
     public String getOrderCode() {
@@ -108,14 +88,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
-    }
-
-    public String getWaybillCode() {
-        return waybillCode;
-    }
-
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
     }
 
     public String getOrderAddress() {
@@ -207,30 +179,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
         this.labelType = labelType;
     }
 
-    public String getPrintAddress() {
-        return printAddress;
-    }
-
-    public void setPrintAddress(String printAddress) {
-        this.printAddress = printAddress;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
-    public String getCustomerContacts() {
-        return customerContacts;
-    }
-
-    public void setCustomerContacts(String customerContacts) {
-        this.customerContacts = customerContacts;
-    }
-
     public String getPackagePrice() {
         return packagePrice;
     }
@@ -261,37 +209,5 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setPromiseText(String promiseText) {
         this.promiseText = promiseText;
-    }
-
-    public String getMobileFirst() {
-        return mobileFirst;
-    }
-
-    public void setMobileFirst(String mobileFirst) {
-        this.mobileFirst = mobileFirst;
-    }
-
-    public String getMobileLast() {
-        return mobileLast;
-    }
-
-    public void setMobileLast(String mobileLast) {
-        this.mobileLast = mobileLast;
-    }
-
-    public String getTelFirst() {
-        return telFirst;
-    }
-
-    public void setTelFirst(String telFirst) {
-        this.telFirst = telFirst;
-    }
-
-    public String getTelLast() {
-        return telLast;
-    }
-
-    public void setTelLast(String telLast) {
-        this.telLast = telLast;
     }
 }
