@@ -41,6 +41,12 @@ public class LoginUser implements Serializable{
 	 * 当前登录用户站点名称
 	 */
 	private String siteName;
+
+    /**
+     * 当前登录用户站点7位编码
+     */
+    private String dmsSiteCode;
+
 	/**
 	 * @return the userId
 	 */
@@ -149,4 +155,12 @@ public class LoginUser implements Serializable{
 	public void setSiteName(String siteName) {
 		this.siteName = siteName;
 	}
+
+    public String getDmsSiteCode() {
+        return dmsSiteCode;
+    }
+
+    public void setDmsSiteCode(String dmsSiteCode) {
+        this.dmsSiteCode = dmsSiteCode;
+    }
 }
