@@ -26,7 +26,7 @@ $(function() {
                 var boxCount = 0;
                 var boxSum = 0;
                 for(var performance in data){
-                    temp += "<tr><td colspan='6' style='font-size: 18px'>履约单号："+performance+"</td></tr>";
+                    temp += "<tr><td colspan='7' style='font-size: 18px'>履约单号："+performance+"</td></tr>";
                     for(var waybill in data[performance]){
                         waybillCount++;
                         for(var boxCode in data[performance][waybill]){
@@ -76,7 +76,8 @@ $(function() {
                                 // temp += "<td>SKU:"+item.skuId+" "+item.skuName+" PO:"+item.poNo+" "+item.skuNum+"件</td>";
                                 temp += "<td style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
                                     "<td style='text-align: left;border-right-style: none;border-left-style: none'>"+item.skuName+"</td>"+
-                                    "<td style='text-align: left;border-right-style: none;border-left-style: none'>PO："+item.poNo+"</td>"+
+                                    "<td style='text-align: left;border-right-style: none;border-left-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
+                                    "<td style='text-align: left;border-right-style: none;border-left-style: none'>子单号："+item.orderId+"</td>"+
                                     "<td style='text-align: left;border-left-style: none'>"+item.skuNum+"件</td>";
                                 temp += "</tr>";
                             }
