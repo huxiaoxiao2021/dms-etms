@@ -394,11 +394,11 @@ public class AbnormalDisposeServiceImpl implements AbnormalDisposeService {
         abnormalDisposeMain.setNotSendNum(transferWaveMonitorResp.getNoSendWaybillCount());
         abnormalDisposeMain.setNotSendDisposeNum(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
         abnormalDisposeMain.setNotSendProgress(countProgress(noSendTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getNoSendWaybillCount()));
-        abnormalDisposeMain.setNotReceiveNum(transferWaveMonitorResp.getActualArriveNoInspection());
+        abnormalDisposeMain.setNotReceiveNum(transferWaveMonitorResp.getMayNoArrive());
         abnormalDisposeMain.setNotReceiveDisposeNum(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()));
-        abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getActualArriveNoInspection()));
+        abnormalDisposeMain.setNotReceiveProgress(countProgress(noInspectionTotalMap.get(transferWaveMonitorResp.getWaveBusinessId()), transferWaveMonitorResp.getMayNoArrive()));
         abnormalDisposeMain.setDateTime(transferWaveMonitorResp.getDateTime());
-        abnormalDisposeMain.setTotalProgress(countProgress(getInteger(abnormalDisposeMain.getNotReceiveDisposeNum()) + getInteger(abnormalDisposeMain.getNotSendDisposeNum()), transferWaveMonitorResp.getNoSendWaybillCount() + transferWaveMonitorResp.getActualArriveNoInspection()));
+        abnormalDisposeMain.setTotalProgress(countProgress(getInteger(abnormalDisposeMain.getNotReceiveDisposeNum()) + getInteger(abnormalDisposeMain.getNotSendDisposeNum()), transferWaveMonitorResp.getNoSendWaybillCount() + transferWaveMonitorResp.getMayNoArrive()));
         abnormalDisposeMains.add(abnormalDisposeMain);
     }
 

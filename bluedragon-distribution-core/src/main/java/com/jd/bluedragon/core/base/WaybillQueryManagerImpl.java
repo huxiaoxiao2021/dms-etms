@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.Constants;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
@@ -309,6 +310,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return null;
 	}
 
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuSnListByOrderId",
+			mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+	@Override
+	public BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode) {
+		return waybillQueryApi.getSkuSnListByOrderId(waybillCode);
+	}
 
 	/**
 	 * 获取履约单下所有运单

@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.waybill.service;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.jd.bluedragon.common.domain.RepeatPrint;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -13,6 +16,7 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
+import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
@@ -36,7 +40,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
@@ -53,7 +56,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private TaskService taskService;
 	
 	@Autowired
-    WaybillSyncApi waybillSyncApi;
+	private WaybillSyncApi waybillSyncApi;
 
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
@@ -70,6 +73,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	@Autowired
 	private SortingService sortingService;
 
+	@Autowired
+	private ReversePrintService reversePrintService;
 	@Autowired
 	private StoragePackageMService storagePackageMService;
 
@@ -429,6 +434,26 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+
+                /**
+                 * create by: yangwenshu
+                 * description:把新运单号加入ExtendParameter  Map里，用于换单打印场景
+                 * create time:
+                 *
+                  * @Param: tasks
+                 * @return
+                 */
+				InvokeResult<RepeatPrint> target=reversePrintService.getNewWaybillCode1(tWaybillStatus.getWaybillCode(),true);
+				if(target.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=target.getData()){
+					String newWaybillCode =target.getData().getNewWaybillCode();
+					Map<String,Object> map=new HashMap<String, Object>();
+					map.put("returnWaybillCode",newWaybillCode);
+					bdTraceDto.setExtendParameter(map);
+				}
+				else{
+					logger.warn("根据旧运单号"+tWaybillStatus.getWaybillCode()+"获取新运单号失败");
+				}
+
                 this.logger.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);

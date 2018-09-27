@@ -52,6 +52,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
 import com.jd.bluedragon.distribution.send.domain.BoxInfo;
+import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
 import com.jd.bluedragon.distribution.send.domain.OrderInfo;
 import com.jd.bluedragon.distribution.send.domain.PackInfo;
@@ -142,9 +143,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
-    @Resource(name = "cityDeliveryVerification")
-    private DeliveryVerification cityDeliveryVerification;
-
     @Autowired
     B2BRouterService b2bRouterService;
 
@@ -188,7 +186,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private OperationLogService operationLogService;
 
     @Autowired
-    private InspectionExceptionService inspectionExcetionService;
+    private InspectionExceptionService inspectionExceptionService;
 
     @Autowired
     private InspectionService inspectionService;
@@ -310,6 +308,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Integer BATCH_NUM = 999;
     private final Integer BATCH_NUM_M = 99;
 
+    //组板发货任务的Redis缓存key的前缀
+    private final String REDIS_PREFIX_BOARD_DELIVERY= "BoardDelivery-";
+    //组板发货任务的Redis过期时间
+    private final int EXPIRE_REDIS_BOARD_TASK = 60;
+
     /**
      * 运单路由字段使用的分隔符
      */
@@ -328,143 +331,310 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult packageSend(SendM domain, boolean isForceSend) {
-        logger.info("packageSend-箱号/包裹号:" + domain.getBoxCode() +
-                ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() +
-                ",是否强制操作：" + isForceSend);
-
-        CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
-        if (!checkSendM(domain)) {
-            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
-        }
-
-        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-            return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
-        }
-
-        Profiler.registerInfoEnd(temp_info1);
-
-        CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
-        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            //大件分拣拦截验证
-            SortingCheck sortingCheck = new SortingCheck();
-            sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
-            sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
-            sortingCheck.setBoxCode(domain.getBoxCode());
-            sortingCheck.setPackageCode(domain.getBoxCode());
-            sortingCheck.setBusinessType(domain.getSendType());
-            sortingCheck.setOperateUserCode(domain.getCreateUserCode());
-            sortingCheck.setOperateUserName(domain.getCreateUser());
-            sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
-            //// FIXME: 2018/3/26 待校验后做修改
-            if (domain.getCreateSiteCode() != null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
-                //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
-                BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode() + "");
-                if (siteInfo == null || siteInfo.getSiteType() != 64) {
-                    sortingCheck.setOperateType(1);
-                } else {
-                    sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
-                }
-            } else {
-                sortingCheck.setOperateType(1);
-            }
-            SortingJsfResponse response = null;
-            CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
-            try {
-                response = jsfSortingResourceService.check(sortingCheck);
-            } catch (Exception ex) {
-                logger.error("调用总部VER验证JSF服务失败", ex);
-                return new SendResult(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
-            } finally {
-                Profiler.registerInfoEnd(info1);
-            }
-            if (!response.getCode().equals(200)) {
-                //如果校验不OK
-                //获得运单的预分拣站点
-                Integer preSortingSiteCode = null;
-                CallerInfo infoSendfindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
-                try {
-                    com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(domain.getBoxCode()), true, false, false, false);
-                    if (null != waybill) {
-                        preSortingSiteCode = waybill.getSiteCode();
-                    }
-                } catch (Throwable e) {
-                    logger.error("一车一单获取预分拣站点异常", e);
-                } finally {
-                    Profiler.registerInfoEnd(infoSendfindByWaybillCode);
-                }
-
-                if (response.getCode() >= 39000) {
-                    if (!isForceSend)
-                        return new SendResult(DeliveryResponse.CODE_Delivery_SEND_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
-                } else {
-                    return new SendResult(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
-                }
-            }
-        } else if (siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
-            //按箱发货，从箱中取出一单校验
-            DeliveryResponse response = checkRouterForCBox(domain);
-            if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode()) && !isForceSend) {
-                SendResult result = new SendResult();
-                result.setKey(DeliveryResponse.CODE_Delivery_SEND_CONFIRM);
-                result.setValue(response.getMessage());
-                result.setInterceptCode(response.getCode());
-                return result;
+    public SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend) {
+        logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
+        // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
+        if (!isForceSend && !isCancelLastSend) {
+            // 发货验证
+            SendResult sendResult = this.beforeSendVerification(domain, true);
+            if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
+                return sendResult;
             }
         }
-        Profiler.registerInfoEnd(temp_info2);
+        if (isCancelLastSend) {
+            this.doCancelLastSend(domain);
+        }
+        return this.doPackageSend(domain);
+    }
+
+    /**
+     * 一车一单发货逻辑，不包括多次发货取消上次发货校验和处理逻辑
+     *
+     * @param domain
+     * @param isForceSend
+     * @return
+     */
+    @Override
+    public SendResult packageSend(SendM domain, boolean isForceSend){
+        logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
+        // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
+        SendResult sendResult;
         if (!isForceSend) {
-            DeliveryVerification.VerificationResult verificationResult = cityDeliveryVerification.verification(domain.getBoxCode(), domain.getReceiveSiteCode(), false);
-            if (!verificationResult.getCode()) {
-                //按照箱发货，校验派车单是否齐全，判断是否强制发货
-                return new SendResult(SendResult.CODE_CONFIRM, verificationResult.getMessage());
+            // 发货验证
+            sendResult = this.beforeSendVerification(domain, false);
+            // 兼容旧接口 校验完成后将确认消息盒子置空
+            sendResult.setConfirmMsgBox(null);
+            if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
+                return sendResult;
             }
         }
+        sendResult = this.doPackageSend(domain);
+        return sendResult;
+    }
 
+    /**
+     * 执行取消上次发货逻辑
+     *
+     * @param domain
+     */
+    private void doCancelLastSend(SendM domain) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.doCancelLastSend", false, true);
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (lastSendM != null) {
+            this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
+        }
+        Profiler.registerInfoEnd(callerInfo);
+    }
+
+    /**
+     * 执行一车一单发货所有业务逻辑
+     *
+     * @param domain
+     * @return
+     */
+    private SendResult doPackageSend(SendM domain) {
+        SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        // 自动取消组板
+        this.autoBoardCombinationCancel(domain);
+
+        CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
+        // 一车一单发货逻辑
+        this.packageSend(domain);
+        Profiler.registerInfoEnd(temp_info3);
+
+        //获取发货提示语
+        CallerInfo temp_info4 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info4", false, true);
+        String hints = this.getPdaHints(domain);
+        Profiler.registerInfoEnd(temp_info4);
+
+        if (StringUtils.isNotBlank(hints)) {
+            //发货环节产生加急提示，发加急提示追踪的mq消息
+            this.sendDmsOperateHintTrackMQ(domain);
+            sendResult.setKey(SendResult.CODE_WARN);
+            sendResult.setValue(hints);
+        }
+        return sendResult;
+    }
+
+    /**
+     * 自动取消组板
+     *
+     * @param domain
+     */
+    private void autoBoardCombinationCancel(SendM domain){
         //判断是否进行过组板，如果已经组板则从板中取消，并发送取消组板的全称跟踪
         SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES);
         if (content != null) {
             logger.info("从sysConfig表中获取key=" + Constants.SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES +
                     "的配置为:" + content + "操作单位:" + domain.getCreateSiteCode());
-
             if (content.getMasterSwitch() || content.getSiteCodes().contains(domain.getCreateSiteCode())) {
                 this.boardCombinationCancel(domain);
             }
         }
+    }
 
-        // 多次发货取消上次发货
-        this.multiSendCancelLast(domain);
+    /**
+     * 发货环节产生加急提示，发加急提示追踪的mq消息
+     *
+     * @param domain
+     */
+    private void sendDmsOperateHintTrackMQ(SendM domain) {
+        try {
+            DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+            dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
+            dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
+            dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
+            dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
+            dmsOperateHintTrack.setHintTime(new Date());
+            String mqText = JSON.toJSONString(dmsOperateHintTrack);
+            this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息内容: " + mqText);
+            this.operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), mqText);
+        } catch (Exception e) {
+            logger.error("发货提示语发mq异常,异常原因:" + e);
+        }
+    }
 
-        CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
-        packageSend(domain);
-        Profiler.registerInfoEnd(temp_info3);
-        //获取发货提示语
-        CallerInfo temp_info4 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info4", false, true);
-        String hints = getPdaHints(domain);
-        Profiler.registerInfoEnd(temp_info4);
+    /**
+     * 发货校验
+     *
+     * @param domain
+     * @param isVerifyMultiSend 是否校验多次发货取消上次发货
+     * @return
+     */
+    private SendResult beforeSendVerification(SendM domain, boolean isVerifyMultiSend) {
+        SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        result.setConfirmMsgBox(new ArrayList<ConfirmMsgBox>());
 
-        SendResult result = null;
-        if (StringUtils.isNotBlank(hints)) {
-            //发货环节产生加急提示，发加急提示追踪的mq消息
+        CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
+        // 机构和操作人所属机构是否一致校验
+        if (!checkSendM(domain)) {
+            result.init(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
+            return result;
+        }
+
+        if (isVerifyMultiSend) {
+            // 多次发货取消上次发货校验
+            if (!multiSendVerification(domain, result)) {
+                return result;
+            }
+        } else {
+            // 原有的发货校验
+            if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
+                result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+                return result;
+            }
+            String oldSendCode = getSendedCode(domain);
+            if (StringUtils.isNotBlank(oldSendCode)) {
+                result.init(SendResult.CODE_SENDED, "箱子已经在批次" + oldSendCode + "中发货");
+                return result;
+            }
+        }
+
+        Profiler.registerInfoEnd(temp_info1);
+
+        // 根据发货的条码类型进行校验
+        this.sendVerificationByBarCodeType(domain, result);
+        return result;
+    }
+
+    /**
+     * 多次发货是否需要取消上次发货校验
+     * 条件：若封车时间在当前时间一小时内或未封车,则提示是否取消上次发货
+     * 说明：方法返回值true为继续走校验逻辑，false为校验不通过返回提示信息
+     *
+     * @param domain
+     * @param result
+     * @return
+     */
+    private boolean multiSendVerification(SendM domain, SendResult result) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (lastSendM != null) {
+            String lastSendCode = lastSendM.getSendCode();
+            if (StringUtils.isNotEmpty(lastSendCode)) {
+                if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
+                    if (domain.getReceiveSiteCode().equals(lastSendM.getReceiveSiteCode())) {
+                        if (domain.getSendCode().equals(lastSendCode)) {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在该批次中发货，请勿重复操作");
+                        } else {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在批次[" + lastSendCode + "]中发货");
+                        }
+                    } else {
+                        result.setKey(SendResult.CODE_CONFIRM);
+                        result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                        result.setReceiveSiteCode(domain.getReceiveSiteCode());
+                        result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    }
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 根据条码类型进行校验
+     * 说明：方法返回值true为继续走校验逻辑，false为校验不通过返回提示信息
+     *
+     * @param domain
+     * @param result
+     * @return
+     */
+    private boolean sendVerificationByBarCodeType(SendM domain, SendResult result) {
+        CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
+        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            // 按包裹发货分拣校验
+            return this.sortingVerificationByPackage(this.getSortingCheck(domain), result);
+        } else if (siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
+            // 按箱发货，从箱中取出一单校验
+            DeliveryResponse response = checkRouterForCBox(domain);
+            if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
+                result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), null);
+                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
+                return false;
+            }
+        }
+        Profiler.registerInfoEnd(temp_info2);
+        return true;
+    }
+
+    /**
+     * 按包裹发货执行分拣校验
+     * 说明：方法返回值true为继续走校验逻辑，false为校验不通过返回提示信息
+     *
+     * @param sortingCheck
+     * @return
+     */
+    private boolean sortingVerificationByPackage(SortingCheck sortingCheck, SendResult result) {
+        CallerInfo info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.callsortingcheck", false, true);
+        SortingJsfResponse response;
+        try {
+            response = jsfSortingResourceService.check(sortingCheck);
+        } catch (Exception ex) {
+            logger.error("调用总部VER验证JSF服务失败", ex);
+            result.init(DeliveryResponse.CODE_VER_CHECK_EXCEPTION, DeliveryResponse.MESSAGE_VER_CHECK_EXCEPTION, 100, 0);
+            return false;
+        } finally {
+            Profiler.registerInfoEnd(info1);
+        }
+
+        if (!response.getCode().equals(200)) {
+            //如果校验不OK
+            CallerInfo infoSendFindByWaybillCode = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.findByWaybillCode", false, true);
+            //获得运单的预分拣站点
+            Integer preSortingSiteCode = null;
             try {
-                DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
-                dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
-                dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
-                dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
-                dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
-                dmsOperateHintTrack.setHintTime(new Date());
-                String mqText = JSON.toJSONString(dmsOperateHintTrack);
-                this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息内容: " + mqText);
-                this.operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), mqText);
-            }catch(Exception e){
-                logger.error("发货提示语发mq异常,异常原因:" +e);
+                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(sortingCheck.getBoxCode()), true, false, false, false);
+                if (null != waybill) {
+                    preSortingSiteCode = waybill.getSiteCode();
+                }
+            } catch (Throwable e) {
+                logger.error("一车一单获取预分拣站点异常", e);
+            } finally {
+                Profiler.registerInfoEnd(infoSendFindByWaybillCode);
             }
 
-            result = new SendResult(SendResult.CODE_WARN, hints);
-        } else {
-            result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+            if (response.getCode() >= 39000) {
+                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
+                result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
+            } else {
+                result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
+            }
+            return false;
         }
-        return result;
+        return true;
+    }
+
+    /**
+     * 获取分拣校验对象
+     *
+     * @param domain
+     * @return
+     */
+    private SortingCheck getSortingCheck(SendM domain) {
+        //大件分拣拦截验证
+        SortingCheck sortingCheck = new SortingCheck();
+        sortingCheck.setReceiveSiteCode(domain.getReceiveSiteCode());
+        sortingCheck.setCreateSiteCode(domain.getCreateSiteCode());
+        sortingCheck.setBoxCode(domain.getBoxCode());
+        sortingCheck.setPackageCode(domain.getBoxCode());
+        sortingCheck.setBusinessType(domain.getSendType());
+        sortingCheck.setOperateUserCode(domain.getCreateUserCode());
+        sortingCheck.setOperateUserName(domain.getCreateUser());
+        sortingCheck.setOperateTime(DateHelper.formatDateTime(new Date()));
+        //// FIXME: 2018/3/26 待校验后做修改
+        if (domain.getCreateSiteCode() != null && siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
+            //判断批次号目的地的站点类型，是64的走新逻辑，非64的走老逻辑
+            BaseStaffSiteOrgDto siteInfo = baseService.queryDmsBaseSiteByCode(domain.getReceiveSiteCode() + "");
+            if (siteInfo == null || siteInfo.getSiteType() != 64) {
+                sortingCheck.setOperateType(1);
+            } else {
+                sortingCheck.setOperateType(OPERATE_TYPE_NEW_PACKAGE_SEND);
+            }
+        } else {
+            sortingCheck.setOperateType(1);
+        }
+        return sortingCheck;
     }
 
     /**
@@ -531,13 +701,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!checkSendM(domain)){
             return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
         }
+        //2.判断批次号是否已经封车
         if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
             return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
         }
         String boardCode = domain.getBoardCode();
 
+        //3.校验板号是否有效
         try{
-            BoardResponse boardResponse = boardCombinationService.getBoardByBoardCode(boardCode);
+            BoardResponse boardResponse = boardCombinationService.checkBoardCanSend(boardCode);
             logger.info("组板发货查板号信息：" + JsonHelper.toJson(boardResponse));
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
                 return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
@@ -547,10 +719,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             return new SendResult(SendResult.CODE_SENDED, "服务异常：组板发货板号校验失败!");
         }
 
-        //2.写发货任务
-        pushBoardSendTask(domain);
+        //4.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
+        if(sendMDao.checkSendByBoard(domain)){
+            return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
+        }
+        //5.写发货任务
+        pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
-        //3.写组板发货任务完成，调用TC执行关板
+        //6.写组板发货任务完成，调用TC执行关板
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
@@ -568,20 +744,22 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 一车一单发货数据落库，写相关的异步任务
      * @param domain
      */
-    private void packageSend(SendM domain){
+    @Override
+    public void packageSend(SendM domain){
         //插入SEND_M
         this.sendMDao.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-            // 按包裹 补分拣任务
-            pushSorting(domain);//大件写TASK_SORTING
+            // 按包裹 补分拣任务 大件写TASK_SORTING
+            pushSorting(domain);
         } else {
             // 按箱
             SendDetail tSendDatail = new SendDetail();
             tSendDatail.setBoxCode(domain.getBoxCode());
             tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
             tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-            this.updateCancel(tSendDatail);//更新SEND_D状态
+            //更新SEND_D状态
+            this.updateCancel(tSendDatail);
         }
 
         // 判断是否是中转发货
@@ -629,29 +807,23 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 多次发货若封车时间在当前时间一小时内或未封车,则取消上次发货
+     * 判断发货时间是否在封车一小时后
      *
-     * @param domain
+     * @param sendCode
+     * @param operateTime
+     * @return
      */
-    private void multiSendCancelLast(SendM domain) {
-        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
-        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
-        if (null != lastSendM) {
-            if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
-                // 获取封车时间
-                Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(lastSendM.getSendCode());
-                // 判断是否已封车
-                if (sealCarTime != null) {
-                    // 已封车 发货时间在上次发货后封车时间1小时内，则取消上次发货
-                    if (domain.getOperateTime().getTime() - sealCarTime < DateHelper.ONE_HOUR_MILLI) {
-                        this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
-                    }
-                } else {
-                    // 未封车 直接取消上次发货
-                    this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
-                }
+    private boolean sendSealTimeIsOverOneHour(String sendCode, Date operateTime) {
+        // 获取封车时间
+        Long sealCarTime = newSealVehicleService.getSealCarTimeBySendCode(sendCode);
+        if (operateTime != null) {
+            long operateTimeMilli = operateTime.getTime();
+            // 已封车 发货操作时间在上次发货后封车时间1小时内，则取消上次发货
+            if (sealCarTime != null && operateTimeMilli - sealCarTime > DateHelper.ONE_HOUR_MILLI) {
+                return true;
             }
         }
+        return false;
     }
 
     private SendM getCancelSendM(SendM lastSendM, SendM domain) {
@@ -662,7 +834,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             sendM.setReceiveSiteCode(lastSendM.getReceiveSiteCode());
         }
         sendM.setSendType(lastSendM.getSendType());
-
         sendM.setUpdaterUser(domain.getCreateUser());
         sendM.setUpdateUserCode(domain.getCreateUserCode());
         sendM.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
@@ -674,7 +845,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 推分拣任务
      * @param domain
      */
-    private void pushSorting(SendM domain) {
+    @Override
+    public void pushSorting(SendM domain) {
         BaseStaffSiteOrgDto create = siteService.getSite(domain.getCreateSiteCode());
         String createSiteName = null != create ? create.getSiteName() : null;
         BaseStaffSiteOrgDto receive = siteService.getSite(domain.getReceiveSiteCode());
@@ -794,22 +966,26 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      * @return
      */
-    private boolean pushBoardSendTask(SendM domain) {
+    private boolean pushBoardSendTask(SendM domain,Integer taskType) {
         Task tTask = new Task();
         tTask.setBoxCode(domain.getBoardCode());
         tTask.setBody(JsonHelper.toJson(domain));
         tTask.setCreateSiteCode(domain.getCreateSiteCode());
         tTask.setKeyword2(String.valueOf(domain.getSendType()));
         tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
-        tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
-        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
-        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
-        tTask.setKeyword1("7");// 7 组板发货任务
-        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword1()));
+        tTask.setKeyword1(domain.getBoardCode());
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
         logger.info("组板发货任务推送成功：" + JsonHelper.toJson(tTask));
         tTaskService.add(tTask, true);
+        //写redis记录任务状态
+        if(Task.TASK_TYPE_BOARD_SEND.equals(taskType)) {
+            String redisKey = REDIS_PREFIX_BOARD_DELIVERY + domain.getBoardCode();
+            redisManager.setex(redisKey, EXPIRE_REDIS_BOARD_TASK, domain.getBoardCode());
+        }
         return true;
     }
 
@@ -1237,7 +1413,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if (sendDatailist != null && !sendDatailist.isEmpty()) {
                         response.setMessage(StringHelper.getStringValue(sendDatailist.size()));
                     }
-                    if (inspectionExcetionService.queryExceptions(tSendM.getCreateSiteCode(),tSendM.getReceiveSiteCode(),tSendM.getBoxCode()) > 0) {
+                    if (inspectionExceptionService.queryExceptions(tSendM.getCreateSiteCode(),tSendM.getReceiveSiteCode(),tSendM.getBoxCode()) > 0) {
                         // 第三方发货验证是否存在异常
                         response.setCode(DeliveryResponse.CODE_Delivery_ALL_CHECK);
                         response.setMessage(DeliveryResponse.MESSAGE_Delivery_ALL_CHECK);
@@ -1339,17 +1515,19 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 生成取消发货数据处理
      * updated by wangtingwei@jd.com
-     * edit:将取消发货分为两类，一类为按箱号，另一类为按包裹（包括按运单、包裹、取件单）
-     *
+     * edit:将取消发货分为三类
+     * 一类为按板号
+     * 一类为按箱号
+     * 一类为按包裹（包括按运单、包裹、取件单）
      * @param tSendM 发货相关数据
      */
     @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancel", mState = {JProEnum.TP})
     @Override
     public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ) {
         try {
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setBoxCode(tSendM.getBoxCode());
-            tSendDatail.setCreateSiteCode(tSendM.getCreateSiteCode());
+            SendDetail tSendDetail = new SendDetail();
+            tSendDetail.setBoxCode(tSendM.getBoxCode());
+            tSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
             // 按照运单取消处理
             if (BusinessHelper.isWaybillCode(tSendM.getBoxCode())
                     || BusinessHelper.isPickupCode(tSendM.getBoxCode())
@@ -1378,7 +1556,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
-                ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDatail, sendMList);
+                ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDetail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
                     SendDetail queryDetail = new SendDetail();
                     queryDetail.setBoxCode(tSendM.getBoxCode());
@@ -1388,6 +1566,39 @@ public class DeliveryServiceImpl implements DeliveryService {
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
+            } else if (SerialRuleUtil.isBoardCode(tSendM.getBoxCode())){
+                tSendM.setBoardCode(tSendM.getBoxCode());
+                //1.组板发货批次，板号校验（强校验）
+                if(!checkSendM(tSendM)){
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_SEND_SITE_NOTMATCH__ERROR,
+                            DeliveryResponse.MESSAGE_SEND_SITE_NOTMATCH_ERROR,null);
+                }
+                //2.校板是否已经发车
+                if(checkBoardIsDepartured(tSendM)){
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_BOARD_SENDED_ERROR,
+                            DeliveryResponse.MESSAGE_BOARD_SENDED_ERROR,null);
+                }
+
+                //3.校验是否有板号和批次号对应的发货数据
+                List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
+                if(sendMList == null || sendMList.size()<1){
+                    //提示没有找到板号的发货明细
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_NO_BOARDSEND_DETAIL_ERROR,
+                            DeliveryResponse.MESSAGE_NO_BOARDSEND_DETAIL_ERROR, null);
+                }
+                //4.校验是否有同一板号的发货任务没有跑完
+                String redisKey = REDIS_PREFIX_BOARD_DELIVERY + tSendM.getBoxCode();
+                if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
+                    return new ThreeDeliveryResponse(
+                            DeliveryResponse.CODE_BOARD_SEND_NOT_FINISH_ERROR,
+                            DeliveryResponse.MESSAGE_BOARD_SEND_NOT_FINISH_ERROR,null);
+                }
+                //生产一个按板号取消发货的任务
+                pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
+                return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
             // 改变箱子状态为分拣
         } catch (Exception e) {
@@ -1878,6 +2089,38 @@ public class DeliveryServiceImpl implements DeliveryService {
         return falge;
     }
 
+    /**
+     * 校验批次号是否封车:默认返回false
+     * @param sendCode
+     * @return
+     */
+    @Override
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        boolean result = false;
+        try {
+            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
+            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
+            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
+                result = true;
+            }
+        }catch (Throwable e){
+            logger.warn("redis取封车批次号失败："+e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 校验板号是否已经发车
+     * @param domain
+     * @return
+     */
+    private boolean checkBoardIsDepartured(SendM domain){
+        SendM sendM = sendMDao.findSendMByBoardCode(domain);
+        if(sendM != null && StringHelper.isNotEmpty(sendM.getSendUser())){
+            return true;
+        }
+        return false;
+    }
     /**
      * 校验sendm中的批次号
      * @param sendm
@@ -3935,7 +4178,6 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     }
 
-
     /**
      * 逆向发货差异对比
      * 1：针对退库房订单进行处理
@@ -4044,48 +4286,106 @@ public class DeliveryServiceImpl implements DeliveryService {
              * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
              * */
             if (isForceSend) {
-                if (StringUtils.isNotBlank(getSendedCode(domain))) {
-                    new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
-                }else{
-                    //插入SEND_M
-                    this.sendMDao.insertSendM(domain);
-                }
-
-                if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                    //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
-                    if (uploadData.getBoxSiteCode() != null) {
-                        domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
-                    }
-
-                    pushInspection(domain, uploadData.getPackageCode());
-                    pushAutoSorting(domain, uploadData.getPackageCode());
-                    return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-                } else {
-                    pushInspection(domain, null);
-                    pushSorting(domain);
-                }
+                // 分拣机自动发货
+                return this.sortMachineAutoPackageSend(domain, uploadData);
             } else {
-                // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
-                this.multiSendCancelLast(domain);
-
-                this.sendMDao.insertSendM(domain);
-
-                if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
-                    pushSorting(domain);//大件写TASK_SORTING
-                } else {
-                    SendDetail tSendDatail = new SendDetail();
-                    tSendDatail.setBoxCode(domain.getBoxCode());
-                    tSendDatail.setCreateSiteCode(domain.getCreateSiteCode());
-                    tSendDatail.setReceiveSiteCode(domain.getReceiveSiteCode());
-                    this.updateCancel(tSendDatail);//更新SEND_D状态
-                }
+                // 龙门架自动发货
+                return this.scannerFrameAutoPackageSend(domain);
             }
-            this.transitSend(domain);//中转任务
-            this.pushStatusTask(domain);//全程跟踪任务
         } catch (Exception e) {
-            logger.error("一车一单自动发货异常", e);
-            new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
+            logger.error("一车一单自动发货异常，sendM：" + JsonHelper.toJson(domain), e);
+            return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    /**
+     * 龙门架自动发货逻辑
+     *
+     * @param domain
+     * @return
+     */
+    private SendResult scannerFrameAutoPackageSend(SendM domain) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (null != lastSendM) {
+            SendResult result = this.checkIsEffectiveDelivery(domain, lastSendM);
+            if (result != null) {
+                return result;
+            }
+            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+            this.autoMultiSendCancelLast(domain, lastSendM);
+        }
+        // 发货
+        this.packageSend(domain);
+        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 检测是否为有效发货
+     * 检测条件：本次发货与上次发货同一批次且操作时间相差一分钟以上
+     *
+     * @param sendM
+     * @param lastSendM
+     * @return
+     */
+    private SendResult checkIsEffectiveDelivery(SendM sendM, SendM lastSendM) {
+        if (StringUtils.isNotBlank(lastSendM.getSendCode())) {
+            long operateTime = sendM.getOperateTime().getTime();
+            long lastOperateTime = lastSendM.getOperateTime().getTime();
+            // 同一批次 一分钟内发两次货 则自动丢弃本次发货
+            if (lastSendM.getSendCode().equals(sendM.getSendCode()) && operateTime - lastOperateTime < DateHelper.ONE_MINUTES_MILLI) {
+                return new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 多次发货若封车时间在当前时间一小时内或未封车,则取消上次发货
+     *
+     * @param domain
+     */
+    private void autoMultiSendCancelLast(SendM domain, SendM lastSendM) {
+        String lastSendCode = lastSendM.getSendCode();
+        if (StringUtils.isNotBlank(lastSendCode)) {
+            if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
+                // 未封车 直接取消上次发货
+                this.dellCancelDeliveryMessage(getCancelSendM(lastSendM, domain), true);
+            }
+        }
+    }
+
+    /**
+     * 分拣机自动发货逻辑
+     *
+     * @param domain
+     * @param uploadData
+     * @return
+     */
+    private SendResult sortMachineAutoPackageSend(SendM domain, UploadData uploadData) {
+        if (StringUtils.isNotBlank(getSendedCode(domain))) {
+            new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
+        } else {
+            //插入SEND_M
+            this.sendMDao.insertSendM(domain);
+        }
+
+        if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+            //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
+            if (uploadData.getBoxSiteCode() != null) {
+                domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
+            }
+
+            pushInspection(domain, uploadData.getPackageCode());
+            pushAutoSorting(domain, uploadData.getPackageCode());
+            return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+        } else {
+            pushInspection(domain, null);
+            pushSorting(domain);
+        }
+        // 判断是否是中转发货
+        this.transitSend(domain);
+        this.pushStatusTask(domain);
         return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
 
@@ -4177,9 +4477,45 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.warn("组板发货,逐单发货查询板标明细出错,组板发货任务：" + JsonHelper.toJson(domain));
             logger.warn("组板发货,逐单发货查询板标明细出错，查询明细结果：" + JsonHelper.toJson(tcResponse));
         }
-		return true;
+        //发货任务处理完毕，删除缓存
+        redisManager.del(REDIS_PREFIX_BOARD_DELIVERY +domain.getBoardCode());
+        return true;
 	}
 
+    /**
+     * 按板取消发货任务
+     * @param task 任务实体
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.DeliveryServiceImpl.doBoardDeliveryCancel", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean doBoardDeliveryCancel(Task task){
+        logger.info("按板取消发货开始：" + JsonHelper.toJson(task));
+        SendM domain = JsonHelper.fromJson(task.getBody(), SendM.class);
+        List<String> boxCodeList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(domain);
+        boolean isSuccess = true;
+        if(boxCodeList!=null && !boxCodeList.isEmpty()){
+            for(String boxCode : boxCodeList){
+                try {
+                    domain.setSendMId(null);
+                    domain.setBoxCode(boxCode);
+                    if (BusinessHelper.isBoxcode(boxCode)) {
+                        domain.setReceiveSiteCode(null);
+                    } else{
+                        domain.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()));
+                    }
+                    dellCancelDeliveryMessage(domain, true);
+                }catch(Exception e){
+                    logger.warn(String.format("按板取消发货，取消包裹/箱号{0}失败,失败原因{1}",boxCode,e.getMessage()));
+                    //如果任务处理过程中有异常，任务重跑
+                    isSuccess = false;
+                    continue;
+                }
+            }
+        }else{
+            logger.error("按板取消发货,查询sendm中的发货明细为空：" + JsonHelper.toJson(domain));
+        }
+        return isSuccess;
+    }
 
     /**
      * 批量取消组板，老发货用

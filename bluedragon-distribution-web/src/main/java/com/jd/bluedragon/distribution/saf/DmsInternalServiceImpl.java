@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.audit.AuditResource;
@@ -58,6 +59,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private PopPrintResource popPrintResource;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -115,6 +119,23 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         }
     }
 
+    /**
+     * 查询运单是否已经确认耗材
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isConsumableConfirmed",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Boolean isConsumableConfirmed(String waybillCode) {
+        logger.info("isConsumableConfirmed param " + waybillCode);
+        try {
+            return waybillConsumableRecordService.isConfirmed(waybillCode);
+        } catch (Exception e) {
+            logger.error("isConsumableConfirmed error:" + waybillCode, e);
+            return null;
+        }
+
+    }
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getBelongSiteCode",mState = JProEnum.TP)

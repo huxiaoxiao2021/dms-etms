@@ -17,10 +17,12 @@ import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 public interface TransbillMService {
 	/**
 	 * 保存一条记录，不出在执行insert，存在则update
-	 * 
+	 *
 	 * @param transbillM
 	 * @return
+	 * description：以后不再使用
 	 */
+	@Deprecated
 	boolean saveOrUpdate(TransbillM transbillM);
 	/**
 	 * 根据运单号获取城配运单数据
@@ -33,6 +35,8 @@ public interface TransbillMService {
 	 * 
 	 * @param scheduleBillCode-派车单号
 	 * @return
+	 * description:关于派车单号和运单号集齐验证不再使用
 	 */
+	@Deprecated
 	List<String> getEffectWaybillCodesByScheduleBillCode(String scheduleBillCode);
 }

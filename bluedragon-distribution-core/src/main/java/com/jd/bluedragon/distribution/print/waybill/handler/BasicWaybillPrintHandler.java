@@ -21,16 +21,14 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -40,19 +38,14 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
-    @Autowired
-    private DmsBaseDictService dmsBaseDictService;
-
-	@Autowired
-    private WaybillPrintService waybillPrintService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -65,9 +58,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private TransbillMService transbillMService;
-
-    @Autowired
-    private PopPrintService popPrintService;
 
     @Autowired
     private BaseMinorManager baseMinorManager;
@@ -202,6 +192,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
+            commonWaybill.setOriginalCrossType(BusinessHelper.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
+            //调用外单接口，根据商家id获取商家编码
+            BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
+            if(basicTraderInfoDTO != null){
+                commonWaybill.setBusiCode(basicTraderInfoDTO.getTraderCode());
+                context.setBusiCode(basicTraderInfoDTO.getTraderCode());
+            }
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
            // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
@@ -410,24 +407,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
         if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
                 && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
-            BaseResult<CrossPackageTagNew> baseResult = baseMinorManager.getCrossPackageTagByPara(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode());
-            if(BaseResult.SUCCESS==baseResult.getResultCode()&&null!=baseResult.getData()) {
-                tag=baseResult.getData();
+        	JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
+            if(jdResult.isSucceed()) {
+                tag=jdResult.getData();
             }else{
-                com.jd.ql.basic.domain.BaseResult<ReverseCrossPackageTag> reverseResult= basicSecondaryWS.getReverseCrossPackageTag(waybill.getOriginalDmsCode(),waybill.getPrepareSiteCode());
-                if(null!=reverseResult&&com.jd.ql.basic.domain.BaseResult.RESULT_SUCCESS==reverseResult.getResultCode()){
-                    tag=new CrossPackageTagNew();
-                    tag.setTargetSiteName(reverseResult.getData().getTargetStoreName());
-                    tag.setTargetSiteId(reverseResult.getData().getTargetStoreId());
-                    tag.setOriginalCrossCode(reverseResult.getData().getOriginalCrossCode());
-                    tag.setOriginalDmsName(reverseResult.getData().getOriginalDmsName());
-                    tag.setOriginalTabletrolleyCode(reverseResult.getData().getOriginalTabletrolleyCode());
-                    tag.setOriginalDmsId(reverseResult.getData().getOriginalDmsId());
-                    tag.setDestinationCrossCode(reverseResult.getData().getDestinationCrossCode());
-                    tag.setDestinationDmsName(reverseResult.getData().getDestinationDmsName());
-                    tag.setDestinationTabletrolleyCode(reverseResult.getData().getDestinationTabletrolleyCode());
-                    tag.setDestinationDmsId(reverseResult.getData().getDestinationDmsId());
-                }
+            	logger.warn("打印业务：未获取到滑道号及笼车号信息！"+jdResult.getMessage());
             }
         }
         if(null!=tag){
@@ -452,6 +436,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //道口号
             waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
             waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
+                waybill.setOriginalDmsName("");
+                waybill.setPurposefulDmsName("");
+                waybill.setOriginalTabletrolley("");
+                waybill.setPurposefulTableTrolley("");
+                waybill.setOriginalCrossCode("");
+                waybill.setPurposefulCrossCode("");
+            }
         }
     }
     /**

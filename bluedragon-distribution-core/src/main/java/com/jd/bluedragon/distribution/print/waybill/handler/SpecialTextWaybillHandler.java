@@ -1,18 +1,23 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+
+import java.util.List;
+
 /**
  * 
  * @ClassName: SpecialSiteWaybillHandler
@@ -52,11 +57,12 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
      * 预分拣站点名称-EMS全国直发(999999999)
      */
     private static String PREPARE_SITE_NAME_EMS_DIRECT = "EMS全国直发";
-	@Autowired
-	@Qualifier("specialSiteComposeService")
-	private ComposeService specialSiteComposeService;
+
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    private LDOPManager ldopManager;
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-站点名称显示处理");
@@ -91,6 +97,50 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(prepareSiteCode);
             if(null!=site){
                 printInfo.setPrepareSiteName(site.getSiteName());
+            }
+        }
+
+        /** 调用外单接口获取始发站点、目的站点和路由信息 **/
+        //获取waybillSign
+        String waybillSign = printInfo.getWaybillSign();
+        if(StringHelper.isEmpty(waybillSign)){
+            logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
+        } else {
+            //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）
+            //// TODO: 2018/8/22 封装成一个方法 
+            if(BusinessHelper.isSignChar(waybillSign,55,'0') &&
+                    BusinessHelper.isSignChar(waybillSign,16,'1') &&
+                    BusinessHelper.isSignChar(waybillSign,31,'2')){
+
+                //设置始发站点及始发路由，并将笼车号设为空字符串
+                printInfo.setOriginalDmsCode(null);
+                printInfo.setOriginalDmsName("");
+                printInfo.setOriginalCrossCode("");
+                printInfo.setOriginalTabletrolley("");
+
+                //设置目的站点及目的路由，并将笼车号设为空字符串
+                printInfo.setPurposefulDmsCode(null);
+                printInfo.setPurposefulDmsName("");
+                printInfo.setPurposefulCrossCode("");
+                printInfo.setPurposefulTableTrolley("");
+
+                //设置模板
+                printInfo.setTemplateName("dms-vonebody-s1");
+                String busiCode = context.getBusiCode();
+                String waybillCode = printInfo.getWaybillCode();
+                List<WaybillPrintDataDTO> waybillPrintData = ldopManager.getPrintDataForCityOrder(busiCode,waybillCode);
+                if(!waybillPrintData.isEmpty()){
+                    WaybillPrintDataDTO print = waybillPrintData.get(0);
+                    //设置始发站点及始发路由，并将笼车号设为空字符串
+                    printInfo.setOriginalDmsCode(print.getStartCenterSiteId());
+                    printInfo.setOriginalDmsName(print.getStartCenterSiteName());
+                    printInfo.setOriginalCrossCode(print.getStartCenterSiteRouteCode());
+
+                    //设置目的站点及目的路由，并将笼车号设为空字符串
+                    printInfo.setPurposefulDmsCode(print.getEndCenterSiteId());
+                    printInfo.setPurposefulDmsName(print.getEndCenterSiteName());
+                    printInfo.setPurposefulCrossCode(print.getEndCenterSiteRouteCode());
+                }
             }
         }
 		return context.getResult();

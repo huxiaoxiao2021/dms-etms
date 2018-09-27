@@ -99,6 +99,10 @@
         <typeAlias type="com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode" alias="B2BRouterNode"/>
         <!--  tangchunqing-->
         <typeAlias type="com.jd.bluedragon.distribution.abnormalDispose.domain.AbnormalQc" alias="abnormalQc"/>
+
+        <!-- RMA -->
+        <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill" alias="RmaHandoverWaybill"/>
+        <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail" alias="RmaHandoverDetail"/>
     </typeAliases>
 
     <plugins>
@@ -253,6 +257,16 @@
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
         <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
+
+        <!-- RMA -->
+        <mapper resource="mappers/mysql/rma/RmaHandOverWaybillMapper.xml"/>
+        <mapper resource="mappers/mysql/rma/RmaHandOverDetailMapper.xml"/>
+
+        <!-- hanjiaxing3 -->
+        <mapper resource="mappers/mysql/consumable/DmsConsumableRelationMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/PackingConsumableInfoMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/WaybillConsumableRecordMapper.xml"/>
+        <mapper resource="mappers/mysql/consumable/WaybillConsumableRelationMapper.xml"/>
 
         <!--储位暂存-->
         <mapper resource="mappers/mysql/storage/StoragePackageDMapper.xml"/>

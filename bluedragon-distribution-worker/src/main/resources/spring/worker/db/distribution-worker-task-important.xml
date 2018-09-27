@@ -159,8 +159,28 @@
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="BoardDeliveryTask"/>
         <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1300"/>
-        <property name="keyType" value="7"/>
+        <property name="type" value="1320"/>
         <property name="desc" value="组板发货"/>
+    </bean>
+
+    <bean id="batchForwardTask" class="com.jd.bluedragon.distribution.worker.batchForward.BatchForwardTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="BatchForwardTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1300"/>
+        <property name="keyType" value="8"/>
+        <property name="desc" value="批次转发"/>
+    </bean>
+
+    <bean id="boardDeliveryCancelTask" class="com.jd.bluedragon.distribution.worker.delivery.BoardDeliveryCancelTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="BoardDeliveryCancelTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1321"/>
+        <property name="desc" value="组板取消发货"/>
     </bean>
 </beans>

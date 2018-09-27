@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模块名称</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/consumable/waybillConsumableRelation.js"></script>
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" >
+    <ol class="breadcrumb">
+        <li><a href="#">包装耗材信息管理</a></li>
+        <li class="active">耗材明细</li>
+    </ol>
+
+    <!-- 查询条件 -->
+    <div id="query-condition">
+        <form id="query-form" class="form-inline">
+            <fieldset>
+                <div class="form-group" style="display: none">
+                    <input type="hidden" id="waybillCode-value-input" class="form-control" name="waybillCode" readonly="readonly">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+	<!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+    </button>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+        </button>
+        <button id="btn_delete" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>删除
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</div>
+</body>
+</html>

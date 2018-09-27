@@ -16,6 +16,10 @@ public class ReverseSendMQToECLP {
     private Integer refuseReasonId;
     /*拒收原因描述*/
     private String refuseReasonName;
+    /*操作时间*/
+    private Long operateTime;
+    /*操作人姓名*/
+    private String operator;
 
     public String getJdOrderCode() {
         return jdOrderCode;
@@ -79,5 +83,21 @@ public class ReverseSendMQToECLP {
 
     public void setRefuseReasonName(String refuseReasonName) {
         this.refuseReasonName = refuseReasonName;
+    }
+
+    public Long getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Long operateTime) {
+        this.operateTime = operateTime;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 }

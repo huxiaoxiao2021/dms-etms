@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分拣中心包装耗材信息</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/consumable/dmsConsumableRelation.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+        <ol class="breadcrumb">
+            <li><a href="#">快运中心包装耗材信息</a></li>
+            <li class="active">包装耗材信息</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-inline">
+                <fieldset>
+                    <div class="form-group" style="margin-left: 31px;">
+                        <label class="control-label">名称 ：</label>
+                        <input type="text" id="name-value-input" name="consumableName" class="form-control search-param" style="width: 240px;">
+                        <button id="btn_query" type="button" class="btn btn-default">
+                            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+                        </button>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+	<!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_enable" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>启用
+        </button>
+        <button id="btn_disable" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>停用
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>

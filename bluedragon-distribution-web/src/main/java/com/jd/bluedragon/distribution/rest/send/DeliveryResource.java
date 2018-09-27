@@ -159,7 +159,11 @@ public class DeliveryResource implements DmsDeliveryService {
                 result.setData(deliveryService.boardSend(domain));
             }else{//一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                if (request.getIsCancelLastSend() == null){
+                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                } else {
+                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                }
             }
         } catch (Exception ex) {
             result.error(ex);
@@ -579,6 +583,7 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setUpdaterUser(request.getUserName());
         sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
+        sendM.setSendCode(request.getSendCode());
         if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
             sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         }

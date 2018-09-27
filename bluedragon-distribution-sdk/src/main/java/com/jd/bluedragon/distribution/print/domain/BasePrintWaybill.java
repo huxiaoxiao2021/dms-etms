@@ -11,6 +11,10 @@ import java.io.Serializable;
  *
  */
 public class BasePrintWaybill implements Serializable {
+
+	/**运单号*/
+	private String waybillCode;
+
     /**始发分拣中心编码*/
     private Integer originalDmsCode;
 
@@ -24,6 +28,11 @@ public class BasePrintWaybill implements Serializable {
      * B商家ID
      */
     private Integer busiId ;
+
+	/**
+	 * 商家编码
+	 */
+	private String busiCode;
     /**
      * B商家名称
      */
@@ -31,7 +40,11 @@ public class BasePrintWaybill implements Serializable {
 	/**始发城市编码*/
     private Integer originalCityCode;
     /**始发城市名称*/
-    private String originalCityName; 
+    private String originalCityName;
+    /**
+     * 始发滑道号类型
+     */
+    private Integer originalCrossType;
     /**
      * 运输产品
      */
@@ -176,7 +189,48 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String backupSiteName;
 
-    
+	/**标签打印地址*/
+	private String printAddress;
+
+	/**
+	 * 客户姓名
+	 */
+	private String customerName ;
+
+	/**客户联系方式*/
+	private String customerContacts;
+
+	/**
+	 * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
+	 */
+	private String mobileFirst;
+	private String mobileLast;
+
+	private String telFirst;
+	private String telLast;
+
+	public BasePrintWaybill(String waybillCode){
+		this.waybillCode = waybillCode;
+	}
+
+	public BasePrintWaybill(){
+
+	}
+
+
+	/**
+	 * 京东物流网址和客服电话
+	 * */
+	private String additionalComment;
+
+	public String getAdditionalComment() {
+		return additionalComment;
+	}
+
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
+	}
+
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -257,6 +311,20 @@ public class BasePrintWaybill implements Serializable {
 	public void setOriginalCityName(String originalCityName) {
 		this.originalCityName = originalCityName;
 	}
+	/**
+	 * @return the originalCrossType
+	 */
+	public Integer getOriginalCrossType() {
+		return originalCrossType;
+	}
+
+	/**
+	 * @param originalCrossType the originalCrossType to set
+	 */
+	public void setOriginalCrossType(Integer originalCrossType) {
+		this.originalCrossType = originalCrossType;
+	}
+
 	/**
 	 * @return the transportMode
 	 */
@@ -653,5 +721,78 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setWeightFlagText(String weightFlagText) {
 		this.weightFlagText = weightFlagText;
+	}
+
+
+	public String getBusiCode() {
+		return busiCode;
+	}
+
+	public void setBusiCode(String busiCode) {
+		this.busiCode = busiCode;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public String getPrintAddress() {
+		return printAddress;
+	}
+
+	public void setPrintAddress(String printAddress) {
+		this.printAddress = printAddress;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCustomerContacts() {
+		return customerContacts;
+	}
+
+	public void setCustomerContacts(String customerContacts) {
+		this.customerContacts = customerContacts;
+	}
+
+	public String getMobileFirst() {
+		return mobileFirst;
+	}
+
+	public void setMobileFirst(String mobileFirst) {
+		this.mobileFirst = mobileFirst;
+	}
+
+	public String getMobileLast() {
+		return mobileLast;
+	}
+
+	public void setMobileLast(String mobileLast) {
+		this.mobileLast = mobileLast;
+	}
+
+	public String getTelFirst() {
+		return telFirst;
+	}
+
+	public void setTelFirst(String telFirst) {
+		this.telFirst = telFirst;
+	}
+
+	public String getTelLast() {
+		return telLast;
+	}
+
+	public void setTelLast(String telLast) {
+		this.telLast = telLast;
 	}
 }

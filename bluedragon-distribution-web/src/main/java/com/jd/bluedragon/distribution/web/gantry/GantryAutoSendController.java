@@ -6,7 +6,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
 import com.jd.bluedragon.distribution.api.request.SendExceptionRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
-import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanService;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
@@ -218,18 +217,6 @@ public class GantryAutoSendController {
                 gantryDeviceConfig.setStartTime(new Date());
                 count = gantryDeviceConfigService.add(gantryDeviceConfig);
                 if ((request.getBusinessType() & 2) == 2) {
-                    /*
-                    锁定龙门架之后增加逻辑：将原来的该machine_id的所有批次的置为无效（scanner_frame_batch_send.yn = 0）,锁定之后在有货物时将使用新的批次号
-                     */
-                    AreaDestPlanDetail areaDestPlan = areaDestPlanDetailService
-                            .getByScannerTime(request.getMachineId(),request.getCreateSiteCode(),new Date());
-                    /*
-                    如果流水表的最后一条发货计划，不是现在更新的发货计划，那么说明用户正在改发货计划，此时需要更新所有批次为无效的批次
-                     */
-                    if (areaDestPlan == null || request.getPlanId()==null || request.getPlanId() != (long)areaDestPlan.getPlanId()) {
-                        logger.info("用户正在尝试修改方案，需要将原来的站点置为无效，龙门架为:" + request.getMachineId());
-                        scannerFrameBatchSendService.updateYnByMachineId(String.valueOf(request.getMachineId()));
-                    }
                     Boolean j = areaDestPlanService.modifyGantryPlan(request.getMachineId(), request.getPlanId(), userId, request.getCreateSiteCode());
                     if (j) {
                         Long planId = request.getPlanId();

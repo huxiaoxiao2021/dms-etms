@@ -22,6 +22,14 @@ public interface ArSendCodeDao extends Dao<ArSendCode> {
     List<ArSendCode> getBySendRegisterId(Long sendRegisterId);
 
     /**
+     * 根据单号获取批次号
+     *
+     * @param sendRegisterIds
+     * @return
+     */
+    List<ArSendCode> getBySendRegisterIds(List<Long> sendRegisterIds);
+
+    /**
      * 根据单号删除批次号
      *
      * @param sendRegisterId

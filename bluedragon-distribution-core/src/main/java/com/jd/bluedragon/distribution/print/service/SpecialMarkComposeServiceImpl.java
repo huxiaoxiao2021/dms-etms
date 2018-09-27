@@ -79,10 +79,6 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         if(BusinessHelper.isSignY(waybill.getWaybillSign(), 35)){
             waybill.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
-        //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 31)){
-            waybill.appendSpecialMark(SPECIAL_MARK_AIRTRANSPORT);
-        }
         if(waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
             waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_CABINET);
         }

@@ -321,6 +321,23 @@
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
                   protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 外单打印接口 -->
+    <jsf:consumer id="waybillPrintApi" interface="com.jd.ldop.center.api.print.WaybillPrintApi"
+                  protocol="jsf" alias="${jsf.waybillPrintApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 商家基础资料接口-->
+    <jsf:consumer id="basicTraderInfoQueryApi" interface="com.jd.ldop.middle.api.basic.BasicTraderInfoQueryApi" protocol="jsf"
+                  alias="${ldop.basic.jsf.middle.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 查询揽收未分配列表 负责人 wangfei32-->
+    <jsf:consumer id="vendorOrderJsfService" interface="com.jd.ql.erp.jsf.VendorOrderJsfService" protocol="jsf"
+                  alias="${ql.erp.jsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!--基础资料新接口-->
+    <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
+                  alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${jsf.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
+    </jsf:consumer>
     <!-- 加履系统 查询接口 郭海瑞 -->
     <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
                   protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="5000" check="false" retries="${jsf.retries}">

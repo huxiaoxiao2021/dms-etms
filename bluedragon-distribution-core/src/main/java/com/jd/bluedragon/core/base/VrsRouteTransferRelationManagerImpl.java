@@ -200,8 +200,8 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     public PageDto<TransferWaveMonitorDetailResp> getArrivedButNoCheckDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
-        try {
-            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getArrivedButNoCheckDetail(baseDto, page, waveBusinessId);
+        try {//调用路由 查疑似未到的单子 说更准
+            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getMayNoArriveDetail(baseDto, page, waveBusinessId);
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
                 logger.warn("批次清零异常未验明细统计失败,参数列表：page:" + JsonHelper.toJson(page) + ",waveBusinessId:" + waveBusinessId);

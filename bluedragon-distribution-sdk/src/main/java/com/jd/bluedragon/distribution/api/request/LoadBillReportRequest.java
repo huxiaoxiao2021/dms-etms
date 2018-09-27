@@ -34,6 +34,9 @@ public class LoadBillReportRequest implements Serializable {
 	/** 国检布控状态  0:不需查验;1:需查验 */
 	private Integer ciqCheckFlag;
 
+	/** 为了区分不同的调用方 */
+	private String appKey;
+
 	public String getReportId() {
 		return reportId;
 	}
@@ -105,4 +108,12 @@ public class LoadBillReportRequest implements Serializable {
     public void setCiqCheckFlag(Integer ciqCheckFlag) {
         this.ciqCheckFlag = ciqCheckFlag;
     }
+
+	public String getAppKey() {
+		return appKey;
+	}
+
+	public void setAppKey(String appKey) {
+		this.appKey = appKey;
+	}
 }

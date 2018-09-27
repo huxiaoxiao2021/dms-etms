@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <meta http-equiv="pragma" content="no-cach"/>
+    <meta http-equiv="cache-control" content="no-cache"/>
+    <meta http-equiv="expires" content="0"/>
+##    #parse("system/common/baseImport.vm")
+    <title>RMA交接单</title>
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpbase.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/erpmanage.css" media="all">
+    <link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jModal.css" media="all">
+    <link rel="stylesheet" type="text/css"
+          href="#springUrl('/static/js/plugins/jquery-easyui/themes/default/easyui.css')">
+    <link rel="stylesheet" type="text/css" href="#springUrl('/static/js/plugins/jquery-easyui/themes/icon.css')">
+
+    <script type="text/javascript" src="#springUrl('/static/js/jquery-1.8.0.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery-easyui/jquery.easyui.min.js')"></script>
+    <script type="text/javascript"
+            src="#springUrl('/static/js/plugins/jquery-easyui/locale/easyui-lang-zh_CN.js')"></script>
+
+    <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/plugins/jquery.blockUI.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/imports/plugin/npmutil/date-and-time.min.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
+    <style type="text/css"></style>
+</head>
+
+<body class="container-fluid">
+<script type="text/javascript" src="#springUrl('')/static/js/jquery-plugins/jquery.autocomplete.js"></script>
+<link rel="stylesheet" type="text/css" href="#springUrl('')/static/css/jquery.autocomplete.css"/>
+<script type="text/javascript" src="#springUrl('/static/js/waybill/rma/list.js')"></script>
+<style type="text/css">
+    .txtCenter {
+        border: 1px solid red;
+        text-align: center;
+    }
+</style>
+<script type="text/javascript">
+    $(document).ready(function () {
+        main();
+    });
+</script>
+<div id="breadcrumb">
+    <p><a href="#">快运中心相关功能</a>&nbsp;&gt;&nbsp;<a href="#">RMA交接清单打印</a></p>
+</div>
+<!--[if !ie]>breadcrumb<![endif]-->
+<div id="content" width="100%">
+    <input type="hidden" id="contextPath" value="#springUrl('')">
+    <div class="m">
+        <div class="tbl-n">
+            <form id="dataForm" name="dataForm" action="" method="post">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tbody>
+                    <tr>
+                        <td align="right">发货时间：</td>
+                        <td>
+##                            <input type="text" id="sendDateStart" name="sendDateStart"/>&nbsp&nbsp&nbsp至&nbsp&nbsp&nbsp
+##                            <input type="text" id="sendDateEnd" name="sendDateEnd"/>
+                            <input id="sendDateStart" name="sendDateStart" class="Wdate" type="text" readonly="readonly"
+                                   onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:180px">
+                            <span style="text-align: center;width: 20px;display: inline-block">至</span>
+                            <input id="sendDateEnd" name="sendDateEnd" class="Wdate" type="text" readonly="readonly"
+                                   onfocus="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'})" style="width:180px">
+                        </td>
+                        <td align="right">打印状态：</td>
+                        <td>
+                            <select type="text" class="select20" style="width:70px" id="printStatus" name="printStatus">
+                                <option value="-1">全部</option>
+                                <option value="0" selected>未打印</option>
+                                <option value="1">已打印</option>
+                            </select>
+                        </td>
+                        <td>
+                            <span style="display: inline-block;margin-left: 20px;">每页显示条数：</span>
+                            <input id="pageSize" name="pageSize" type="text" style="width:50px">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="right">包裹号/运单号：</td>
+                        <td>
+                            <input type="text" id="waybillCode" name="waybillCode">
+                        </td>
+                        <td align="right">收件地址：</td>
+                        <td>
+                            <input type="text" id="receiverAddress" size="50" name="receiverAddress">
+                        </td>
+                        <td>
+                            <input type="button" id="search" name="search" value="查询" class="btn_c"
+                                   onclick="queryBtn(1)"/>
+                            <input type="button" id="add" name="add" value="打印" class="btn_c" onclick="printBtn()"/>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    <!--[if !ie]>tbl-n<![endif]-->
+    <div id="opening">
+        <div class="tbl-list">
+            <div class="tbl-bg">
+                <TABLE id="paperTable" cellSpacing=0 cellPadding=0 width="100%" class="tb-x1">
+                    <THEAD>
+                    <TR align="center">
+                        <TH class="txtCenter" field="checkboxField" checkbox="true" rowspan="2">
+                            <input type="checkbox" id="checkAll" name="checkAll">
+                        </TH>
+                        <TH class="txtCenter" rowspan="2">运单号</TH>
+                        <TH class="txtCenter" rowspan="2">收件地址</TH>
+                        <TH class="txtCenter" rowspan="2">打印状态</TH>
+                    </TR>
+                    </THEAD>
+                    <TBODY>
+
+                    </TBODY>
+                </TABLE>
+            </div>
+        </div>
+
+        <div id="pager" name="pager">
+
+        </div>
+    </div>
+</div>
+</body>
+</html>
