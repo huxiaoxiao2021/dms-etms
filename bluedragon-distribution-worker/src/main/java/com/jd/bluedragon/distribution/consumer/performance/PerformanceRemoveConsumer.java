@@ -50,20 +50,19 @@ public class PerformanceRemoveConsumer  extends MessageBaseConsumer {
         List<WaybillOrderFlagMessage> dtos = JsonHelper.fromJsonUseGson(message.getText(), LIST_TYPE);
 
         for(WaybillOrderFlagMessage dto : dtos){
-
-            if(StringUtils.isBlank(dto.getWaybillCode())){
-                logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-运单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
-                break;
-            }
-            if(StringUtils.isBlank(dto.getFulfillmentOrderId())){
-                logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
-                break;
-            }
             if(dto.getOrderFlag() == null){
                 logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-剔除类型为空，内容为【{0}】", JsonHelper.toJson(dto)));
                 break;
             }
             if(dto.needDeal()){
+                if(StringUtils.isBlank(dto.getWaybillCode())){
+                    logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-运单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                    break;
+                }
+                if(StringUtils.isBlank(dto.getFulfillmentOrderId())){
+                    logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                    break;
+                }
                 storagePackageMService.removeWaybill(dto.getWaybillCode(),dto.getFulfillmentOrderId());
             }
 
