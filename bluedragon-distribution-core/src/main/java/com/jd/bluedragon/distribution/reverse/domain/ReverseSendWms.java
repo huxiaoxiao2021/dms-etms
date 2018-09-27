@@ -56,6 +56,10 @@ public class ReverseSendWms {
 
 	private String token;//防重码 取 task_send 表task_id
 
+	private String orderSource; // 订单来源
+
+	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
+
     public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -208,5 +212,13 @@ public class ReverseSendWms {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getOrderSource() {
+		return orderSource;
+	}
+
+	public void setOrderSource(String orderSource) {
+		this.orderSource = orderSource;
 	}
 }

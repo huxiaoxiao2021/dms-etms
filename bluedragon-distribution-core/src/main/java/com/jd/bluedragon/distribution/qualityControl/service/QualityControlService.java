@@ -18,9 +18,12 @@ import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +54,9 @@ public class QualityControlService {
 
     @Autowired
 	private WaybillTraceApi waybillTraceApi;
+
+    @Autowired
+    private WaybillSyncApi waybillSyncApi;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -126,11 +132,28 @@ public class QualityControlService {
 
     /** 发质控和全程跟踪 */
     public void toQualityControlAndWaybillTrace(List<SendDetail> sendDetails, QualityControlRequest request, String boxCode){
+        //获取 同步运单状态接口需要的额外参数
+        BaseStaffSiteOrgDto operateSite =  baseMajorManager.getBaseSiteBySiteId(request.getDistCenterID());
+
+        //过滤数据，按运单维度处理
+        //已经处理过的运单
+        List<String> doWaybillCodes = new ArrayList<String>();
+
         for(SendDetail sendDetail : sendDetails){
-            BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
+
+            //过滤数据，按运单维度处理
+            if(doWaybillCodes.contains(sendDetail.getWaybillCode())){
+                continue;
+            }
+            doWaybillCodes.add(sendDetail.getWaybillCode());
+
+
+            //BdTraceDto bdTraceDto = convert2WaybillTrace(sendDetail, request);
             QualityControl qualityControl = convert2QualityControl(sendDetail, request, boxCode);
             logger.info("分拣中心异常页面发质控和全程跟踪开始，消息体：" + JsonHelper.toJson(qualityControl));
-            waybillTraceApi.sendBdTrace(bdTraceDto);   // 推全程跟踪
+            //waybillTraceApi.sendBdTrace(bdTraceDto);
+            // 更新运单状态
+            updateWaybillStatus(sendDetail,request,operateSite);
             //messageClient.sendMessage(MessageDestinationConstant.QualityControlMQ.getName(), JsonHelper.toJson(qualityControl),request.getQcValue());   // 推质控
             bdExceptionToQcMQ.sendOnFailPersistent(request.getQcValue(), JsonHelper.toJson(qualityControl));
 
@@ -171,6 +194,59 @@ public class QualityControlService {
 //        bdTraceDto.setOperatorDesp("包裹记录【" + request.getQcName() + "】异常");
         bdTraceDto.setOperatorDesp(request.getTrackContent());
         return bdTraceDto;
+    }
+
+    /**
+     * 更新运单异常状态
+     * 此节点节点运单只接收运单维度
+     * @param sendDetail
+     * @param request
+     * @param operateSite
+     */
+    private void updateWaybillStatus(SendDetail sendDetail,QualityControlRequest request,BaseStaffSiteOrgDto operateSite){
+
+
+        Task tTask = new Task();
+        tTask.setBoxCode(sendDetail.getBoxCode());
+
+        tTask.setCreateSiteCode(request.getDistCenterID());
+        tTask.setKeyword2(sendDetail.getWaybillCode());
+        tTask.setReceiveSiteCode(request.getDistCenterID());
+        tTask.setType(WaybillStatus.WAYBILL_TRACK_QC);
+        tTask.setTableName(Task.TABLE_NAME_WAYBILL);
+        tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
+        tTask.setOwnSign(BusinessHelper.getOwnSign());
+        tTask.setKeyword1(sendDetail.getWaybillCode());//回传运单状态
+        tTask.setFingerprint(Md5Helper.encode(request.getDistCenterID() + "_" + WaybillStatus.WAYBILL_TRACK_QC + "_"
+                + sendDetail.getWaybillCode() + "-" + request.getOperateTime() ));
+
+
+        WaybillStatus tWaybillStatus = new WaybillStatus();
+        tWaybillStatus.setOperatorId(request.getUserID());
+        tWaybillStatus.setOperator(request.getUserName());
+        tWaybillStatus.setOperateTime(request.getOperateTime());
+        tWaybillStatus.setCreateSiteCode(request.getDistCenterID());
+        tWaybillStatus.setCreateSiteName(request.getDistCenterName());
+        tWaybillStatus.setCreateSiteType(operateSite.getSiteType());
+        tWaybillStatus.setOrgId(operateSite.getOrgId());
+        tWaybillStatus.setOrgName(operateSite.getOrgName());
+        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_QC);
+        tWaybillStatus.setWaybillCode(sendDetail.getWaybillCode());
+
+        //组装异常原因
+        String qcName = request.getQcName();
+        if(StringUtils.isNotBlank(qcName) && qcName.indexOf('-') != -1 && qcName.split("-").length == 2){
+
+            tWaybillStatus.setReasonId(Integer.valueOf(qcName.split("-")[0]));
+            tWaybillStatus.setRemark(qcName.split("-")[1]);
+
+        }
+
+        tWaybillStatus.setPackageCode(sendDetail.getWaybillCode()); //异常 节点运单只接收运单维度
+
+        tTask.setBody(JsonHelper.toJson(tWaybillStatus));
+
+        taskService.add(tTask);
     }
 
 

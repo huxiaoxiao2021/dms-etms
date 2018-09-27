@@ -682,6 +682,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiCode("");
             target.setBusiOrderCode("");
         }
+        /**
+         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+         * 1.waybill_sign第80位等于1时，面单打印“特惠运”
+         * 2.waybill_sign第80位等于2时，面单打标“特准运”
+         */
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),62,'1')){
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'1')){
+                target.setjZDFlag(TextConstants.B2B_CHEAP_TRANSPORT);
+            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'2')){
+                target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
+            }
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
@@ -693,11 +705,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             //一体化面单，显示生鲜专送
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_FRESH_SEND);
         }
-        //waybill_sign标识位，第三十一位为0且第六十七位为1，打航填标
-        if(!BusinessHelper.isSignInChars(waybill.getWaybillSign(),1,'1','Y') &&
-                BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'0') &&
-                BusinessHelper.isSignChar(waybill.getWaybillSign(),67,'1')){
-            target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
+        //根据始发道口号类型，判断打‘航’还是‘航填’
+        if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(target.getOriginalCrossType())){
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+        }else if(Constants.ORIGINAL_CROSS_TYPE_FILL.equals(target.getOriginalCrossType())){
+        	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT_FILL);
+        }else{
+            //兼容老逻辑：waybillsign 第31为1 打“航”逻辑
+            if(BusinessHelper.isSignY(waybill.getWaybillSign(), 31)){
+            	target.appendSpecialMark(ComposeService.SPECIAL_MARK_AIRTRANSPORT);
+            }
         }
         //waybill_sign标识位，第十六位为1且第三十一位为2且第五十五位为0，打同字标
         if(!BusinessHelper.isB2b(waybill.getWaybillSign()) &&
@@ -715,6 +732,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
+            //一体化面单，显示城际快送
+            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_INTERCITY_EXPRESS);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
@@ -791,5 +810,49 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMSWEB.waybillCommonService.getPickupTask", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
 	public BaseEntity<PickupTask> getPickupTask(String oldWaybillCode){
 	    return waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
+    }
+
+    /**
+     * 通过运单号获取履约单号
+     * @param waybillCode
+     * @return 不存在时返回null
+     */
+    @Override
+    public String getPerformanceCode(String waybillCode) {
+        if(StringHelper.isNotEmpty(waybillCode)){
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(baseEntity != null
+                    && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null){
+                //是加履中心的订单 才可以去查
+                if(BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+                    if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getParentOrderId())){
+                        return baseEntity.getData().getWaybill().getParentOrderId();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 通过运单号获取履约单号
+     * @param waybillCode
+     * @return 不存在时返回null
+     */
+    @Override
+    public boolean isPerformanceWaybill(String waybillCode) {
+        if(StringHelper.isNotEmpty(waybillCode)){
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(baseEntity != null
+                    && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null){
+                //是加履中心的订单 才可以去查
+                if(BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

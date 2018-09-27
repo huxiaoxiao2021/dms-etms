@@ -124,7 +124,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     // 推送全程跟踪
                     this.sendTrack(arSendRegister, sendCodes);
 
-                    sendDetailMQTask(arSendRegister,sendCodes);
+                    sendDetailMQTask(arSendRegister, sendCodes);
                     // 调用TMS BASIC订阅实时航班JSF接口
                     try {
                         CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(arSendRegister.getTransportName(), arSendRegister.getSendDate());
@@ -421,12 +421,18 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     @Override
-    public ArSendRegister getByFlightInfo(String flightNumber, Date flightDate) {
-        Map<String, Object> parameter = new HashMap<String, Object>();
-        if (StringUtils.isNotEmpty(flightNumber) && flightDate != null) {
-            parameter.put("transportName", flightNumber);
-            parameter.put("sendDate", flightDate);
-            return arSendRegisterDao.getByFlightInfo(parameter);
+    public List<ArSendRegister> getListByTransInfo(ArTransportTypeEnum transportType, String transportName, String siteCode, Date sendDate) {
+        if (StringUtils.isNotEmpty(transportName) && sendDate != null) {
+            Map<String, Object> parameter = new HashMap<String, Object>(4);
+            if (transportType != null) {
+                parameter.put("transportType ", transportType.getCode());
+            }
+            if (StringUtils.isNotEmpty(siteCode)) {
+                parameter.put("siteCode", siteCode);
+            }
+            parameter.put("transportName", transportName);
+            parameter.put("sendDate", sendDate);
+            return arSendRegisterDao.getListByTransInfo(parameter);
         }
         return null;
     }
@@ -522,29 +528,26 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         return null;
     }
 
-    private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes){
-        if(sendCodes.length==0){
+    private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes) {
+        if (sendCodes.length == 0) {
             logger.error("空铁发货登记批次号为空");
             return;
         }
         Task tTask = new Task();
-        //tTask.setBoxCode(sendM.getSendCode());
-        //tTask.setBody(sendM.getSendCode())
         StringBuilder sb = new StringBuilder();
-        for(String sendCode : sendCodes){
+        for (String sendCode : sendCodes) {
             sb.append(sendCode);
             sb.append(Constants.SEPARATOR_COMMA);
         }
-        tTask.setBody(sb.substring(0,sb.length()-1));
-        //tTask.setCreateSiteCode(sendM.getCreateSiteCode());
+        tTask.setBody(sb.substring(0, sb.length() - 1));
         tTask.setKeyword2(String.valueOf(arSendRegister.getId()));
-        //tTask.setReceiveSiteCode(sendM.getReceiveSiteCode());
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
         String ownSign = BusinessHelper.getOwnSign();
         tTask.setOwnSign(ownSign);
-        tTask.setKeyword1("6");// 发送新发货明细MQ任务
+        // 发送新发货明细MQ任务
+        tTask.setKeyword1("6");
         tTask.setFingerprint(arSendRegister.getId() + "_" + tTask.getKeyword1());
         taskService.add(tTask, false);
     }

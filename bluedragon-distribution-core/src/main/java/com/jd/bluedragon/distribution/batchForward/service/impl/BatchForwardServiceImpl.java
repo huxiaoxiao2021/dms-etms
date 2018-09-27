@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BatchForwardRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batchForward.service.BatchForwardService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -35,6 +36,9 @@ public class BatchForwardServiceImpl implements BatchForwardService {
     @Autowired
     private DeliveryService deliveryService;
 
+    @Autowired
+    private NewSealVehicleService newSealVehicleService;
+
     //自营
     private static final Integer BUSINESSTYPE = 10;
     //批次转发发货类型
@@ -45,7 +49,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
 
         InvokeResult result = new InvokeResult();
         //批次是否封车校验
-        if(deliveryService.checkSendCodeIsSealed(request.getNewSendCode())){
+        if (newSealVehicleService.checkSendCodeIsSealed(request.getNewSendCode())) {
             result.customMessage(SendResult.CODE_SENDED, "新批次号已操作封车，请换批次！");
         }
         //插入批次转发的任务

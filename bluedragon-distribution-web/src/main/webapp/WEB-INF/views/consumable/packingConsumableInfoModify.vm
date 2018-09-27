@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增包装耗材信息</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+##    引入公共样式和组件
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/consumable/packingConsumableInfoModify.js"></script>
+    <style>
+        hr{
+            padding: 0;
+            margin: 4px;
+        }
+        #modify-form input{
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="main" style="margin-left: 10px;">
+    <ol class="breadcrumb">
+        <li>包装耗材信息</li>
+        <li>修改包装耗材信息</li>
+    </ol>
+    <div id="modify-form-wrapper">
+        <form id="modify-form" class="form-inline">
+            <fieldset>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="name-value-input">耗材名称 ：</label>
+                    <input type="text" id="name-value-input" class="form-control" name="name" style="display:inline;width: 200px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="type-select">耗材类型 ：</label>
+                    <select id="type-select" name="type" class="form-control" style="display:inline;width: 200px;"></select>
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="volume-coefficient-value-input">体积系数 ：</label>
+                    <input type="text" id="volume-coefficient-value-input" class="form-control" name="volumeCoefficient" style="display:inline;width: 200px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <label class="control-label" for="unit-value-input">耗材单位 ：</label>
+                    <input type="text" id="unit-value-input" class="form-control" name="unit" style="display:inline;width: 200px;" readonly="readonly">
+                </div>
+                <hr/>
+                <div class="form-group" style="margin-left: 30px;">
+                    <input type="hidden" id="specification-value-input" class="form-control" name="specification" style="display:inline;width: 250px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <input type="hidden" id="volume-value-input" class="form-control" name="volume" style="display:inline;width: 250px;">
+                </div>
+                <div class="form-group" style="margin-left: 30px;">
+                    <input type="hidden" id="type-name-value-input" class="form-control" name="typeName" style="display:inline;width: 250px;">
+                </div>
+                <div class="form-group" style="display: none">
+                    <input type="hidden" id="id-value-input" class="form-control" name="id" readonly="readonly">
+                </div>
+                <div class="form-group" style="display: none">
+                    <input type="hidden" id="code-value-input" class="form-control" name="code" readonly="readonly">
+                </div>
+            </fieldset>
+        </form>
+        <form class="form-inline">
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="length-value-input">长（厘米） ：</label>
+                <input type="text" id="length-value-input" class="form-control" name="length" style="display:inline;width: 50px;>
+            </div>
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="with-value-input">宽（厘米） ：</label>
+                <input type="text" id="with-value-input" class="form-control" name="with" style="display:inline;width: 50px;" >
+            </div>
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="height-value-input">高（厘米） ：</label>
+                <input type="text" id="height-value-input" class="form-control" name="height" style="display:inline;width: 50px;" >
+            </div>
+            <hr/>
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="unit-value-input">注意：</label>
+            </div>
+            <hr/>
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="unit-value-input">1.纸箱需要计算标准体积，必须录入长、宽、高！</label>
+            </div>
+            <hr/>
+            <div class="form-group" style="margin-left: 30px;">
+                <label class="control-label" for="unit-value-input">2.如果耗材没有高度请填“1”！</label>
+            </div>
+        </form>
+    </div>
+    <hr />
+
+    <div id="toolbar" class="btn-group" style="float:right;margin-right: 60px;margin-top: 45px;">
+        <button id="btn_modify" type="button" class="btn btn-primary">
+            <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>&nbsp;保存修改
+        </button>
+        <button id="btn_cancel" type="button" class="btn btn-default" style="margin-left: 20px;">
+            <span aria-hidden="true"></span>&nbsp;取消
+        </button>
+
+    </div>
+</div>
+
+</body>
+</html>

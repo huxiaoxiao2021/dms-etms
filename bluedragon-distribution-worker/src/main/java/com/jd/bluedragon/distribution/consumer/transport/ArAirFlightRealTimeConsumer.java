@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.transport.domain.ArAirFlightRealTimeStatus
 import com.jd.bluedragon.distribution.transport.domain.ArAirWaybillStatus;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
+import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -27,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,28 +68,48 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
-        ArSendRegister sendRegister = arSendRegisterService.getByFlightInfo(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
-        if (sendRegister != null) {
-            List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
-            if (sendCodes != null && sendCodes.size() > 0) {
-                for (ArSendCode sendCode : sendCodes) {
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
+        if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+            List<Long> sendRegisterIds = getRegisterIdList(sendRegisterList);
+            List<String> sendCodes = this.getSendCodes(sendRegisterIds);
+            if (!sendCodes.isEmpty()) {
+                for (String sendCode : sendCodes) {
                     SealCarDto sealCarDto = null;
                     try {
-                        sealCarDto = vosManager.querySealCarByBatchCode(sendCode.getSendCode());
-                        this.buildAirWaybillAndSendMQ(sendCode.getSendCode(), realTimeStatus, sealCarDto);
+                        sealCarDto = vosManager.querySealCarByBatchCode(sendCode);
+                        this.buildAirWaybillAndSendMQ(sendCode, realTimeStatus, sealCarDto);
                     } catch (Exception e) {
-                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode.getSendCode() + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
-                        SystemLogUtil.log(sendCode.getSendCode(), realTimeStatus.getFlightNumber(), sealCarDto == null ? "" : sealCarDto.getTransportCode(), sendRegister.getId().longValue(),
+                        logger.error("[空铁项目]消费航班起飞降落实时MQ-批次号(" + sendCode + ")-根据批次号封装运单维度消息体并发送给路由时发生异常", e);
+                        SystemLogUtil.log(sendCode, realTimeStatus.getFlightNumber(), sealCarDto == null ? "" : sealCarDto.getTransportCode(), null,
                                 message.getText(), SystemLogContants.TYPE_AR_AIR_FLIGHT_REAL_TIME);
                         throw e;
                     }
                 }
             } else {
-                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegister.getId() + ")获取批次号列表为空或null");
+                logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据发货登记信息ID(" + sendRegisterIds.toString() + ")获取批次号列表为空或null");
             }
         } else {
             logger.warn("[空铁项目]消费航班起飞降落实时MQ-根据航班号(" + realTimeStatus.getFlightNumber() + ")和飞行日期(" + DateHelper.formatDate(realTimeStatus.getFlightDate()) + ")获取发货登记信息为null");
         }
+    }
+
+    private List<Long> getRegisterIdList(List<ArSendRegister> sendRegisterList) {
+        List<Long> ids = new ArrayList<Long>(sendRegisterList.size());
+        for (ArSendRegister arSendRegister : sendRegisterList) {
+            ids.add(arSendRegister.getId());
+        }
+        return ids;
+    }
+
+    private List<String> getSendCodes(List<Long> sendRegisterIds) {
+        Set<String> sendCodes = new HashSet<String>();
+        List<ArSendCode> arSendCodeList = arSendCodeService.getBySendRegisterIds(sendRegisterIds);
+        if (arSendCodeList != null && arSendCodeList.size() > 0) {
+            for (ArSendCode arSendCode : arSendCodeList) {
+                sendCodes.add(arSendCode.getSendCode());
+            }
+        }
+        return new ArrayList<String>(sendCodes);
     }
 
     /**
