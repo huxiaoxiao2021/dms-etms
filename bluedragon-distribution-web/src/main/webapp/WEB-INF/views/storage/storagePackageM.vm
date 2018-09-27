@@ -115,7 +115,7 @@
         #*<button id="btn_force_send" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;强制发货
         </button>*#
-        <button id="btn_cancel" type="button" class="btn btn-default">
+        <button id="btn_cancel" type="button" class="btn btn-default" style="display: none">
                 &nbsp;取消上架（上线后隐藏）
         </button>
     </div>
