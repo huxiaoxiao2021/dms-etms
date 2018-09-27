@@ -362,4 +362,13 @@ public interface DeliveryService {
 	 * @return
 	 */
     List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode);
+
+
+	/**
+	 *  快运发货金鹏订单拦截提示
+	 * @param siteCode 站点id
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
 }
