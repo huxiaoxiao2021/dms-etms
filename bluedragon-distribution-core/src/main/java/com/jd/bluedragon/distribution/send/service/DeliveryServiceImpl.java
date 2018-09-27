@@ -2090,26 +2090,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
-     * 校验批次号是否封车:默认返回false
-     * @param sendCode
-     * @return
-     */
-    @Override
-    public boolean checkSendCodeIsSealed(String sendCode) {
-        boolean result = false;
-        try {
-            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
-            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
-            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
-                result = true;
-            }
-        }catch (Throwable e){
-            logger.warn("redis取封车批次号失败："+e.getMessage());
-        }
-        return result;
-    }
-
-    /**
      * 校验板号是否已经发车
      * @param domain
      * @return

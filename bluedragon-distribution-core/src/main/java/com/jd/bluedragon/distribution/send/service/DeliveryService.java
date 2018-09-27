@@ -45,13 +45,6 @@ public interface DeliveryService {
 	void pushSorting(SendM domain);
 
 	/**
-	 * 校验批次号是否封车:默认返回false
-	 * @param sendCode
-	 * @return
-	 */
-	boolean checkSendCodeIsSealed(String sendCode);
-
-	/**
 	 * 一车一单离线发货
 	 * @param domain
      * @return
