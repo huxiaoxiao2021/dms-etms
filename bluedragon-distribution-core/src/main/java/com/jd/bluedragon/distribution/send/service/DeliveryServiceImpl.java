@@ -472,6 +472,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
+        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
+            result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+            return result;
+        }
+
         if (isVerifyMultiSend) {
             // 多次发货取消上次发货校验
             if (!multiSendVerification(domain, result)) {
@@ -479,10 +484,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         } else {
             // 原有的发货校验
-            if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-                result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
-                return result;
-            }
             String oldSendCode = getSendedCode(domain);
             if (StringUtils.isNotBlank(oldSendCode)) {
                 result.init(SendResult.CODE_SENDED, "箱子已经在批次" + oldSendCode + "中发货");
