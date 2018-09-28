@@ -33,6 +33,7 @@ jQuery.extend({
                 data:paramObject,
                 url:apiUrl,
                 async:true,
+                cache:false,
                 dataType:'json',
                 contentType: 'application/json',
                 error:function(XMLHttpRequest, textStatus, errorThrown){
@@ -50,6 +51,7 @@ jQuery.extend({
                 data:paramObject,
                 url:apiUrl,
                 async:false,
+                cache:false,
                 dataType:'json',
                 error:function(XMLHttpRequest, textStatus, errorThrown){
                     console.log('involk failded');

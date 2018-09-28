@@ -26,7 +26,8 @@ public class ReceiveRequest {
     private String packageCode;
 	/** 取件单号 */
 	private String pickWareCode;
-
+	/** 运单号 */
+	private String waybillCode;
 	//收货类型
     private String receiveType;
 	//拒收编码
@@ -154,7 +155,11 @@ public class ReceiveRequest {
 		this.userName = userName;
 	}
 
-    
-    
-    
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
 }

@@ -22,6 +22,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,8 +74,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			xrequest = (ReceiveRequest) XmlHelper.toObject(messageContent, ReceiveRequest.class);
 			this.logger.info("逆向收货消息ReverseReceiveRequest：" + xrequest.toString());
 			reverseReceive.setSendCode(xrequest.getSendCode());
-			reverseReceive.setPackageCode(xrequest.getOrderId());
-			reverseReceive.setOrderId(xrequest.getOrderId());
+			if(StringUtils.isNotBlank(xrequest.getWaybillCode())){
+				//运单号字段非空  用运单号处理
+				//Fixme 找时间统一orderId  packageCode waybillCode 含义 避免后续开发人员看不懂
+				reverseReceive.setPackageCode(xrequest.getWaybillCode());
+				reverseReceive.setOrderId(xrequest.getWaybillCode());
+			}else{
+				reverseReceive.setPackageCode(xrequest.getOrderId());
+				reverseReceive.setOrderId(xrequest.getOrderId());
+			}
 			reverseReceive.setReceiveType(Integer.parseInt(xrequest.getReceiveType()));
 			reverseReceive.setReceiveTime(DateHelper.parseDateTime(xrequest.getOperateTime()));
 			reverseReceive.setOperatorName(xrequest.getUserName());

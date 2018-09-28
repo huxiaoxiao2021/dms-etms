@@ -187,5 +187,10 @@
     <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_pack_sync_waybill" listener="packingConsumableConsumer"/>
     </jmq:consumer>
+    <!--履约单剔除消息-->
+    <jmq:consumer id="jmq.performanceRemoveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="waybill_order_flag" listener="performanceRemoveConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
