@@ -15,6 +15,7 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
+    public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING_RETURN = 60;
 
@@ -155,6 +156,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7500;
 
     /**
+     * 暂存上架 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_PUTAWAY= 8400;
+
+    /**
      * 审核完成状态
      */
     public static final Integer WAYBILL_STATUS_CONSULT = 135;
@@ -181,6 +187,8 @@ public class WaybillStatus {
     private String operator;
     private Integer operateType;
     private Date operateTime;
+
+    private Integer reasonId;
 
     private String remark;
 
@@ -328,4 +336,11 @@ public class WaybillStatus {
         this.remark = remark;
     }
 
+    public Integer getReasonId() {
+        return reasonId;
+    }
+
+    public void setReasonId(Integer reasonId) {
+        this.reasonId = reasonId;
+    }
 }

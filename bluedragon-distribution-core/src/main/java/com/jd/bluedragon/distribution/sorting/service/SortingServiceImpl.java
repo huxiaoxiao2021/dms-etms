@@ -809,8 +809,8 @@ public class SortingServiceImpl implements SortingService {
 		if (sendDs.size() > 0) {
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
-			// 获取sendM表中的发货数据
-			this.setSendMListByBoxCode(sorting, sendMs, transitSendMs);
+			// 获取直接发货和中转发货的SendM数据
+			this.setListByTransitOrDirect(sorting, sendMs, transitSendMs);
 			// 判断是否存在跨分拣发货数据，则视为先发货后分拣，需要补中转的sendD发货明细数据和全程跟踪
 			if (transitSendMs.size() > 0) {
 				List<SendDetail> transitSendDs = new ArrayList<SendDetail>();
@@ -832,11 +832,9 @@ public class SortingServiceImpl implements SortingService {
             // 判断直发分拣类型是否已经发货，若存在sendM数据，则视为先发货后分拣，需要补直发的sendD发货明细数据和全程跟踪
 			if (sendMs.size() > 0) {
 				// 正常情况，分拣与发货一致的sendM仅有一条数据
-				for (SendM sendM : sendMs) {
-					for (SendDetail sendDetail : sendDs) {
-						// 补全发货数据
-						this.fixSendDetail(sendDetail, sendM);
-					}
+				for (SendDetail sendDetail : sendDs) {
+					// 补全发货数据
+					this.fixSendDetail(sendDetail, sendMs.get(0));
 				}
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
@@ -851,18 +849,23 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sendMs
 	 * @param transitSendMs
 	 */
-	private void setSendMListByBoxCode(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
+	private void setListByTransitOrDirect(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
 		List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
 		if (null != sendList && sendList.size() > 0) {
 			Iterator<SendM> iterator = sendList.iterator();
 			while (iterator.hasNext()) {
 				SendM sendM = iterator.next();
 				// 判断分拣始发站点与箱号的始发站点，目的站点是否都一致，不一致则为中转发货
-				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())){
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+					// 避免第一次发货封车一小时后再次发货，获取到第一次的批次号和操作信息
+					if (sendM.getOperateTime().before(sorting.getOperateTime())) {
+						logger.info("[分拣任务]过滤发货在前，分拣在后数据，运单号：" + sorting.getWaybillCode());
+						continue;
+					}
 					// 直发分拣
 					logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
 					sendMs.add(sendM);
-				}else {
+				} else {
 					// 跨分拣发货
 					transitSendMs.add(sendM);
 					logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());

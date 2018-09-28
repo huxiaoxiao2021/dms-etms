@@ -162,4 +162,11 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode);
+
+	/**
+	 * 根据父订单号（履约单号）查询所有子订单号
+	 * @param parentWaybillCode 父订单号（履约单号）
+	 * @return
+	 */
+	List<String> getOrderParentChildList(String parentWaybillCode);
 }

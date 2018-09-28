@@ -451,4 +451,9 @@
     <bean id="packingConsumableInfoDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.PackingConsumableInfoDaoImpl"/>
     <bean id="waybillConsumableRecordDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.WaybillConsumableRecordDaoImpl"/>
     <bean id="waybillConsumableRelationDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.WaybillConsumableRelationDaoImpl"/>
+
+    <bean id="storagePackageMDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageMDaoImpl"/>
+    <bean id="storagePackageDDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageDDaoImpl"/>
 </beans>

@@ -143,4 +143,18 @@ public interface WaybillCommonService {
 	boolean hasTotalWeight(String waybillCode);
 
     BaseEntity<PickupTask> getPickupTask(String oldWaybillCode);
+
+	/**
+	 * 通过运单号获取履约单号
+	 * @param waybillCode
+	 * @return 运单不存在时返回null
+	 */
+	String getPerformanceCode(String waybillCode);
+
+	/**
+	 * 此运单是否为加履中心订单
+	 * @param waybillCode
+	 * @return
+	 */
+	boolean isPerformanceWaybill(String waybillCode);
 }

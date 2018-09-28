@@ -127,4 +127,12 @@ public interface InspectionService {
 	 * @throws Exception
 	 */
 	public boolean popPrintInspection(Task task, String ownSign) throws Exception;
+
+	/**
+	 * 获取金鹏订单提示语
+	 * @param dmsSiteCode
+	 * @param waybillCode
+	 * @return
+	 */
+	String getHintMessage(Integer dmsSiteCode, String waybillCode);
 }
