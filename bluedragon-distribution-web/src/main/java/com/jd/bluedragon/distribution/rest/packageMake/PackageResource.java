@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -121,7 +120,13 @@ public class PackageResource {
 
     private Task toAddressModTask(String barCode, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
-        waybillStatus.setWaybillCode(barCode);
+
+        if(BusinessHelper.isPackageCode(barCode)){
+            waybillStatus.setWaybillCode(BusinessHelper.getWaybillCode(barCode));
+            waybillStatus.setPackageCode(barCode);
+        }else
+            waybillStatus.setWaybillCode(barCode);
+
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE);
 
@@ -139,7 +144,13 @@ public class PackageResource {
         WaybillStatus waybillStatus = new WaybillStatus();
         waybillStatus.setCreateSiteCode(createSiteCode);
         waybillStatus.setCreateSiteName(createSiteName);
-        waybillStatus.setWaybillCode(barCode);
+
+        if(BusinessHelper.isPackageCode(barCode)){
+            waybillStatus.setWaybillCode(BusinessHelper.getWaybillCode(barCode));
+            waybillStatus.setPackageCode(barCode);
+        }else
+            waybillStatus.setWaybillCode(barCode);
+
         waybillStatus.setOperatorId(operatorId);
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_PACK_REPRINT);
