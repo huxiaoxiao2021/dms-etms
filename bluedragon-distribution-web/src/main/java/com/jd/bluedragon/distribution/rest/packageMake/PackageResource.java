@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.packageMake;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -8,7 +9,9 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,9 @@ public class PackageResource {
     @Autowired
     private RedisManager redisManager;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
     @Path("/packageMake/packageRePrint/{barCode}/{waybillSign}/{siteId}/{operateName}")
@@ -46,16 +52,53 @@ public class PackageResource {
             logger.error("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
             jdResponse.setCode(400);
             jdResponse.setMessage("包裹号"+barCode+"为空，不能触发包裹补打的全程跟踪!");
+            return jdResponse;
         }
+        BaseStaffSiteOrgDto staffSiteOrgDto = null;
+        Integer operatorId = null;
         if(StringHelper.isEmpty(operateName)){
-            operateName = "-1";
+            operateName="-1";
+        }else{
+            staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(operateName);
+            if(null!=staffSiteOrgDto){//实际是erp账号
+                operateName = staffSiteOrgDto.getStaffName();
+                operatorId = staffSiteOrgDto.getStaffNo();
+            }else{
+                operatorId=-1;
+            }
         }
 
-        redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
+        //1.修改客户地址补打,发送全程跟踪,用于在商城前台显示
+        BaseStaffSiteOrgDto bDto = null;
+        try{
+            Integer siteType = 0;
+            if(siteId != null){
+                bDto = baseMajorManager.getBaseSiteBySiteId(siteId);
+            }
+            if(bDto != null){
+                siteType = bDto.getSiteType();
+            }
+            if(siteType != 0 && StringHelper.isNotEmpty(waybillSign)){
+                //操作人所在机构是配送站并且waybillSign第八位是1或2或3的触发全程跟踪
+                if(siteType == 4 && (BusinessHelper.isSignChar(waybillSign,8,'1' ) || // 1 仅修改地址
+                        BusinessHelper.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
+                        BusinessHelper.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
+                )){
+                    if(barCode != null && operateName != null){
+                        taskService.add(this.toAddressModTask(barCode, operateName));
+                    }
+                }
+            }
+        }catch (Exception e){
+            this.logger.warn("修改客户地址包裹补打触发全程跟踪失败",e);
+        }
 
-        taskService.add(this.toTask(barCode, operateName));
+        //2.所有补打的包裹,发送全程跟踪,用于在青龙全程跟踪显示
+        redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
+        taskService.add(this.toPackReprintTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
         jdResponse.setCode(JdResponse.CODE_OK);
         logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+
         return jdResponse;
     }
 
@@ -76,11 +119,30 @@ public class PackageResource {
         return jdResponse;
     }
 
-    private Task toTask(String barCode, String operateName){
+    private Task toAddressModTask(String barCode, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
         waybillStatus.setWaybillCode(barCode);
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE);
+
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setBody(JsonHelper.toJson(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
+    }
+
+    private Task toPackReprintTask(String barCode, Integer createSiteCode, String createSiteName, Integer operatorId, String operateName){
+        WaybillStatus waybillStatus = new WaybillStatus();
+        waybillStatus.setCreateSiteCode(createSiteCode);
+        waybillStatus.setCreateSiteName(createSiteName);
+        waybillStatus.setWaybillCode(barCode);
+        waybillStatus.setOperatorId(operatorId);
+        waybillStatus.setOperator(operateName);
+        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_PACK_REPRINT);
 
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);
