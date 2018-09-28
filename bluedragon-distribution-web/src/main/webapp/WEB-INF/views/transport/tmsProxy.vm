@@ -22,20 +22,20 @@
             <fieldset>
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="transBookCode">委托书号</label>
-                    <input type="text" id="transBookCode" class="form-control search-param" name="boxCode" style="width: 200px;">
+                    <input type="text" id="transBookCode" class="form-control search-param" name="transBookCode" style="width: 200px;">
                 </div>
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="billCode">批次号</label>
-                    <input type="text" id="billCode" class="form-control search-param" name="boxCode" style="width: 200px;">
+                    <input type="text" id="billCode" class="form-control search-param" name="billCode" style="width: 200px;">
                 </div>
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="vehicleNumber">车牌号</label>
-                    <input type="text" id="vehicleNumber" class="form-control search-param" name="boxCode" style="width: 200px;">
+                    <input type="text" id="vehicleNumber" class="form-control search-param" name="vehicleNumber" style="width: 200px;">
                 </div>
                 <hr />
                 <div class="form-group" style="margin-left: 20px;">
                     <label class="control-label" for="endNodeCode">目的网点</label>
-                    <select id="endNodeCode" class="form-control search-param" name="siteCode" ></select>
+                    <input type="text" id="endNodeCode" class="form-control search-param" name="endNodeCode" style="width: 200px;"></input>
                 </div>
                 <div class="form-group" style="margin-left: 29px;">
                     <label class="control-label" for="requirePickupTimeBegin"><span style="color: red;">*</span>预约提货时间</label>

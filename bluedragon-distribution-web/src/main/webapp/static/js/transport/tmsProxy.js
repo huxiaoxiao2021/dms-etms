@@ -123,24 +123,24 @@ $(function() {
             align:'center',
             switchable:false,
             formatter:function(value){
-                window.open(value, '_blank','menubar=no,toolbar=no, status=no,scrollbars=yes');
+                return "<a href='javascript:;' onclick='print(\""+value+"\")'>打印</a>";
             }
         }];
         oTableInit.refresh = function() {
             var temp = oTableInit.getSearchCondition();
             if(!temp['requirePickupTimeBegin']){
-                Jd.alert('开始时间不允许为空');
+                alert('开始时间不允许为空');
                 return;
             }
             if(!temp['requirePickupTimeEnd']){
-                Jd.alert('结束时间不允许为空');
+                alert('结束时间不允许为空');
                 return;
             }
-            var dates = Math.abs((temp['requirePickupTimeEnd'] - temp['requirePickupTimeBegin']))/(1000*60*60*24);
+            /*var dates = Math.abs((temp['requirePickupTimeEnd'] - temp['requirePickupTimeBegin']))/(1000*60*60*24);
             if(dates>30){
-                Jd.alert("时间间隔不允许超过30天");
+                alert("时间间隔不允许超过30天");
                 return;
-            }
+            }*/
             // dates=Math.abs((new  Date()- temp['requirePickupTimeBegin']))/(1000*60*60*24);
             // if(dates>30){
             //     Jd.alert("只允许查询30天内的数据");
@@ -199,6 +199,9 @@ function initDateQuery(){
     $("#requirePickupTimeBegin").val(requirePickupTimeBegin);
     $("#requirePickupTimeEnd").val(requirePickupTimeEnd);
 }
+function print(url){
+    window.open(url, '_blank','menubar=no,toolbar=no, status=no,scrollbars=yes');
+}
 
 //加载分拣中心
 var loadSite = function (params) {
@@ -217,18 +220,12 @@ var loadSite = function (params) {
                     }
                 }
             }
-            $("#siteCodeMain").empty();
+            $("#endNodeCode").empty();
             $("#query-form #endNodeCode").select2({
-                width: '100%',
                 placeholder: '请选择',
-                allowClear: false,
+                allowClear: true,
                 data: result
             });
-            if (result.length > 0) {
-                $("#query-form #siteCodeMain").val(result[0].id).trigger('change');
-            } else {
-                $("#query-form #siteCodeMain").val(null).trigger('change');
-            }
         }
     });
 }

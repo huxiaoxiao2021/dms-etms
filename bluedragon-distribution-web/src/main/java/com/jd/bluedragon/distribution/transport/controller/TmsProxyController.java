@@ -13,6 +13,7 @@ import com.jd.tms.tfc.dto.CommonDto;
 import com.jd.tms.tfc.dto.PageDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransBookBillResultDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -125,9 +126,15 @@ public class TmsProxyController extends DmsBaseController{
     private TransBookBillQueryDto convertQueryDto(TmsProxyCondition condition){
         TransBookBillQueryDto dto = new TransBookBillQueryDto();
         LoginUser loginUser = getLoginUser();
-        dto.setTransBookCode(condition.getTransBookCode());
-        dto.setBillCode(condition.getBillCode());
-        dto.setVehicleNumber(condition.getVehicleNumber());
+        if(StringUtils.isNotBlank(condition.getTransBookCode())){
+            dto.setTransBookCode(condition.getTransBookCode().trim());
+        }
+        if(StringUtils.isNotBlank(condition.getBillCode())){
+            dto.setBillCode(condition.getBillCode().trim());
+        }
+        if(StringUtils.isNotBlank(condition.getVehicleNumber())){
+            dto.setVehicleNumber(condition.getVehicleNumber().trim());
+        }
         dto.setBeginNodeCode(loginUser.getDmsSiteCode());
         dto.setBeginNodeName(loginUser.getSiteName());
         dto.setEndNodeCode(condition.getEndNodeCode());
