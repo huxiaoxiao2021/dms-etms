@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 public class FBarCodeRequest extends JdRequest {
@@ -40,9 +39,12 @@ public class FBarCodeRequest extends JdRequest {
 		this.quantity = quantity;
 	}
 
+	@Override
 	public String toString() {
-		return Objects.toStringHelper(FBarCodeRequest.class).	addValue(this.createSiteCode)
-                .addValue(this.createSiteName).addValue(this.quantity).toString();
+		return "FBarCodeRequest{" +
+				"createSiteCode=" + createSiteCode +
+				", createSiteName='" + createSiteName + '\'' +
+				", quantity=" + quantity +
+				'}';
 	}
-
 }

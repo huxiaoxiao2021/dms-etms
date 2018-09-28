@@ -56,6 +56,19 @@ public class SealVehicleRequest extends JdRequest {
 	/** 批次号 , 可以传多个, 逗号隔开 */
 	private String sendCodes;
 
+	private List<String> split(String str) {
+		List<String> list = new ArrayList<String>();
+		if (str != null) {
+			String array[] = sealCodes.trim().split(",");
+			for (String s : array) {
+				if (str != null && "".equals(s)) {
+					list.add(str);
+				}
+			}
+		}
+		return list;
+	}
+
 	public String getSealCodes() {
 		return sealCodes;
 	}
@@ -68,30 +81,31 @@ public class SealVehicleRequest extends JdRequest {
 		return sendCodes;
 	}
 
+
 	public List<String> getSealCodeList() {
-		if (null == sealCodes) {
-			return new ArrayList<String>();
-		}
-		List<String> sealCodeList = new ArrayList<String>();
-		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sealCodes);
-		Set<String> set = Sets.newTreeSet(it);
-		for (String s : set) {
-			sealCodeList.add(s);
-		}
-		return sealCodeList;
+//		if (null == sealCodes) {
+//			return new ArrayList<String>();
+//		}
+//		List<String> sealCodeList = new ArrayList<String>();
+//		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sealCodes);
+//		Set<String> set = Sets.newTreeSet(it);
+//		for (String s : set) {
+//			sealCodeList.add(s);
+//		}
+		return this.split(sealCodes);
 	}
 
 	public List<String> getSendCodeList() {
-		if (null == sendCodes) {
-			return new ArrayList<String>();
-		}
-		List<String> sendCodeList = new ArrayList<String>();
-		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sendCodes);
-		Set<String> set = Sets.newTreeSet(it);
-		for (String s : set) {
-			sendCodeList.add(s);
-		}
-		return sendCodeList;
+//		if (null == sendCodes) {
+//			return new ArrayList<String>();
+//		}
+//		List<String> sendCodeList = new ArrayList<String>();
+//		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sendCodes);
+//		Set<String> set = Sets.newTreeSet(it);
+//		for (String s : set) {
+//			sendCodeList.add(s);
+//		}
+		return this.split(sendCodes);
 	}
 
 	public void setSendCodes(String sendCodes) {
