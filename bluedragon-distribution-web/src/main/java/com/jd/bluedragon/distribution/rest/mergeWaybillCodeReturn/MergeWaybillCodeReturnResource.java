@@ -76,7 +76,8 @@ public class MergeWaybillCodeReturnResource {
                     secondResponseDto!=null && secondResponseDto.getData()!=null){
                 Boolean flage = false;
                 if(!waybillCode.equals(secondWaybillCode)){
-                    flage = mergeWaybillCodeReturnService.compare(responseDto.getData(),secondResponseDto.getData());
+//                    flage = mergeWaybillCodeReturnService.compare(responseDto.getData(),secondResponseDto.getData());
+                    flage = mergeWaybillCodeReturnService.compareWith(responseDto.getData(),secondResponseDto.getData());
                     if(!flage){
                         result.setCode(InvokeResult.RESULT_MULTI_ERROR);
                     }

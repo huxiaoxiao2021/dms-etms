@@ -15,4 +15,6 @@ public interface MergeWaybillCodeReturnService {
     Boolean compare(ReturnSignatureMessageDTO data, ReturnSignatureMessageDTO data1) throws IllegalAccessException;
 
     void sendTrace(MergeWaybillMessage message);
+
+    Boolean compareWith(ReturnSignatureMessageDTO data, ReturnSignatureMessageDTO data1);
 }

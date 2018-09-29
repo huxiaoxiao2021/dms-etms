@@ -66,6 +66,28 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     }
 
     /**
+     * 判断是否相同
+     * @param data
+     * @param secondData
+     * @return
+     */
+    @Override
+    public Boolean compareWith(ReturnSignatureMessageDTO data, ReturnSignatureMessageDTO secondData) {
+        if (data.getRealName().equals(secondData.getRealName())) {
+            if (data.getPhone().equals(secondData.getPhone())) {
+                if (data.getAddress().getAddress().equals(secondData.getAddress().getAddress())) {
+                    if (data.getTraderCode().equals(secondData.getTraderCode())) {
+                        if (data.getTraderName().equals(secondData.getTraderName())) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * 发全程跟踪
      * @param message
      */
