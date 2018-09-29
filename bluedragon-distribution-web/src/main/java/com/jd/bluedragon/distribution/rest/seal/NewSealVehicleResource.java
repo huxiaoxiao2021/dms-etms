@@ -247,7 +247,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
             com.jd.tms.tfc.dto.CommonDto<String> returnCommonDto = newsealVehicleService.checkTransportCode(request.getTransWorkItemCode(), request.getTransportCode());
             logger.debug("根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新：" + JsonHelper.toJson(returnCommonDto));
             if(returnCommonDto != null){
-                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null){
+                if(Constants.RESULT_SUCCESS == returnCommonDto.getCode()){
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
                     sealVehicleResponse.setData(returnCommonDto.getData());
