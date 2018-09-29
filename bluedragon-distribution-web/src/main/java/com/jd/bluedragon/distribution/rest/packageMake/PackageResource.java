@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.Date;
 
 /**
  * Created by hujiping on 2018/4/4.
@@ -127,6 +128,7 @@ public class PackageResource {
         }else
             waybillStatus.setWaybillCode(barCode);
 
+        waybillStatus.setOperateTime(new Date());
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE);
 
@@ -151,6 +153,7 @@ public class PackageResource {
         }else
             waybillStatus.setWaybillCode(barCode);
 
+        waybillStatus.setOperateTime(new Date());
         waybillStatus.setOperatorId(operatorId);
         waybillStatus.setOperator(operateName);
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_PACK_REPRINT);
