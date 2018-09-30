@@ -647,7 +647,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             CallerInfo info = null;
             try {
                 info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getOutVolume",Constants.UMP_APP_NAME_DMSWEB,false, true);
-                DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoardCode(), sendM.getCreateSiteCode());
+                DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(), sendM.getCreateSiteCode());
                 if (weightAndVolume != null) {
                     if (weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
                         outVolumeStatic = weightAndVolume.getVolume();
