@@ -374,7 +374,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				task.setYn(0);
 			}
 
-			//包裹补打 发全程跟踪 新增节点2400
+			//包裹补打 客户改址 发全程跟踪 新增节点2400
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
 				//单独发送全程跟踪消息，供其给前台消费
@@ -384,6 +384,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
 						tWaybillStatus.getOperator(), null);
 //				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
+			//包裹补打 发全程跟踪 新增节点1000
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_PACK_REPRINT))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator()
+						+ "包裹补打");
+				this.logger.info("向运单系统回传全程跟踪，包裹补打调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，包裹补打调用sendOrderTrace：" );
 				task.setYn(0);
 			}
 
