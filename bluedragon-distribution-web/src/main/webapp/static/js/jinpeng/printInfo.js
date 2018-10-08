@@ -92,14 +92,14 @@ $(function() {
                                 }
                                 }
                                 for(var k in item.map){
-                                    temp += "<td rowspan='"+itemSum+"' style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
-                                        "<td rowspan='"+itemSum+"' style='text-align: left;border-right-style: none;border-left-style: none'>"+item.skuName+"</td>"+
-                                        "<td rowspan='"+itemSum+"' width='200px' style='text-align: left;border-right-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
+                                    temp += "<td rowspan='"+itemSum+"' width='200px' style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
+                                        "<td width='300px' rowspan='"+itemSum+"' style='text-align: left;border-right-style: none;border-left-style: none'>"+item.skuName+"</td>"+
+                                        "<td rowspan='"+itemSum+"' width='150px' style='text-align: left;border-right-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
                                         //start
-                                    "<td style='text-align: left;border-right-style: none'>子单号："+k+"</td>"+
-                                    "<td style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
+                                    "<td width='250px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>"+
+                                    "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
                                         //end
-                                    "<td rowspan='"+itemSum+"' width='80px' style='text-align: left'>"+item.skuNum+"件</td>";
+                                    "<td rowspan='"+itemSum+"' width='60px' style='text-align: left'>"+item.skuNum+"件</td>";
                                     delete item.map[k];
                                     break;
                                 }
@@ -108,8 +108,8 @@ $(function() {
                                 if(itemSum>1){
                                     for(var k in item.map){
                                         temp += "<tr>" +
-                                            "<td style='text-align: left;border-right-style: none'>子单号："+k+"</td>" +
-                                            "<td style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
+                                            "<td width='250px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>" +
+                                            "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
                                         "</tr>";
                                     }
                                 }
