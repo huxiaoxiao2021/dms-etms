@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @ClassName: 123
@@ -11,12 +12,21 @@ import java.io.Serializable;
 public class MergeWaybillMessage implements Serializable {
 
     private String operatorNo;
+    private Integer operatorUserId;
     private String operatorName;
     private Integer siteCode;
     private String siteName;
     private Long operateTime;
     private String newWaybillCode;
-    private String waybillCodeList;
+    private List waybillCodeList;
+
+    public Integer getOperatorUserId() {
+        return operatorUserId;
+    }
+
+    public void setOperatorUserId(Integer operatorUserId) {
+        this.operatorUserId = operatorUserId;
+    }
 
     public String getOperatorNo() {
         return operatorNo;
@@ -66,11 +76,11 @@ public class MergeWaybillMessage implements Serializable {
         this.newWaybillCode = newWaybillCode;
     }
 
-    public String getWaybillCodeList() {
+    public List getWaybillCodeList() {
         return waybillCodeList;
     }
 
-    public void setWaybillCodeList(String waybillCodeList) {
+    public void setWaybillCodeList(List waybillCodeList) {
         this.waybillCodeList = waybillCodeList;
     }
 }

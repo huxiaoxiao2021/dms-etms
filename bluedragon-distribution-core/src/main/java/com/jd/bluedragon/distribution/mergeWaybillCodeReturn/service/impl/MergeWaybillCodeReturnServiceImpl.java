@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.impl;
 
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillMessage;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -96,7 +96,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         //新单号发全程跟踪
         toTask(message);
         //旧单号发全程跟踪
-        List<String> WaybillCodeList = JSONArray.parseArray(message.getWaybillCodeList(), String.class);
+        List<String> WaybillCodeList = message.getWaybillCodeList();
         for(String waybillCode : WaybillCodeList){
             toTask(message, waybillCode,message.getNewWaybillCode());
         }
@@ -120,8 +120,8 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         status.setWaybillCode(message.getNewWaybillCode());
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
-//        status.setOperatorId(message.getOperatorNo());
-        status.setRemark(message.getWaybillCodeList());
+        status.setOperatorId(message.getOperatorUserId());
+        status.setRemark(JSON.toJSONString(message.getWaybillCodeList()));
         status.setCreateSiteCode(message.getSiteCode());
         status.setCreateSiteName(message.getSiteName());
 //        status.setPackageCode(domain.getOldCode());
@@ -148,7 +148,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         status.setSendCode(newWaybillCode);//将新单号存到sendCode字段中
         status.setOperateTime(new Date(message.getOperateTime()));
         status.setOperator(message.getOperatorName());
-//        status.setOperatorId(message.getOperatorNo());
+        status.setOperatorId(message.getOperatorUserId());
         status.setRemark("签单返回合单");
         status.setCreateSiteCode(message.getSiteCode());
         status.setCreateSiteName(message.getSiteName());

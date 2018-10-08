@@ -76,7 +76,6 @@ public class MergeWaybillCodeReturnResource {
                     secondResponseDto!=null && secondResponseDto.getData()!=null){
                 Boolean flage = false;
                 if(!waybillCode.equals(secondWaybillCode)){
-//                    flage = mergeWaybillCodeReturnService.compare(responseDto.getData(),secondResponseDto.getData());
                     flage = mergeWaybillCodeReturnService.compareWith(responseDto.getData(),secondResponseDto.getData());
                     if(!flage){
                         result.setCode(InvokeResult.RESULT_MULTI_ERROR);
@@ -100,11 +99,6 @@ public class MergeWaybillCodeReturnResource {
     public JdResponse mergeWaybill(MergeWaybillCodeReturn mergeWaybillCodeReturn){
 
         JdResponse result = new JdResponse();
-        result.setCode(InvokeResult.RESULT_MULTI_ERROR);
-        if(mergeWaybillCodeReturn==null){
-            result.setMessage(InvokeResult.PARAM_ERROR);
-            return result;
-        }
         String newWaybillCode = null;
         //提交合单
         ResponseDTO<ReturnSignatureResult> returnDto = null;
@@ -117,23 +111,30 @@ public class MergeWaybillCodeReturnResource {
             dto.setOperateUserId(mergeWaybillCodeReturn.getOperateUserId());
             dto.setWaybillCodeList(mergeWaybillCodeReturn.getWaybillCodeList());
             returnDto = waybillReturnSignatureApi.waybillReturnSignature(dto);
-            if(returnDto!=null&&returnDto.getStatusCode()==0){
-                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                if(returnDto.getData()!=null&&returnDto.getData().getReturnWaybillCode()!=null){
-                    newWaybillCode = returnDto.getData().getReturnWaybillCode();
-                    //给运单发消息
-                    MergeWaybillMessage message = new MergeWaybillMessage();
-                    message.setNewWaybillCode(newWaybillCode);
-                    message.setWaybillCodeList(JSON.toJSONString(returnDto.getData().getWaybillCodeList()));
-                    message.setOperateTime(mergeWaybillCodeReturn.getOperateTime());
-                    message.setOperatorName(mergeWaybillCodeReturn.getOperatorName());
-                    message.setOperatorNo(mergeWaybillCodeReturn.getOperatorNo());
-                    message.setSiteCode(mergeWaybillCodeReturn.getOperateUnitId());
-                    message.setSiteName(mergeWaybillCodeReturn.getSiteName());
-                    this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + JSON.toJSONString(message));
-                    mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,JSON.toJSONString(message));
-                    //发全程跟踪
-                    mergeWaybillCodeReturnService.sendTrace(message);
+            if(returnDto!=null){
+                if(returnDto.getStatusCode()==0){
+                    result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                    if(returnDto.getData()!=null&&returnDto.getData().getReturnWaybillCode()!=null){
+                        newWaybillCode = returnDto.getData().getReturnWaybillCode();
+                        //给运单发消息
+                        MergeWaybillMessage message = new MergeWaybillMessage();
+                        message.setNewWaybillCode(newWaybillCode);
+                        message.setWaybillCodeList(mergeWaybillCodeReturn.getWaybillCodeList());
+                        message.setOperateTime(mergeWaybillCodeReturn.getOperateTime());
+                        message.setOperatorName(mergeWaybillCodeReturn.getOperatorName());
+                        message.setOperatorNo(mergeWaybillCodeReturn.getOperatorNo());
+                        message.setOperatorUserId(mergeWaybillCodeReturn.getOperateUserId());
+                        message.setSiteCode(mergeWaybillCodeReturn.getOperateUnitId());
+                        message.setSiteName(mergeWaybillCodeReturn.getSiteName());
+                        this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + JSON.toJSONString(message));
+                        mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode,JSON.toJSONString(message));
+                        //发全程跟踪
+                        mergeWaybillCodeReturnService.sendTrace(message);
+                    }
+                }else{
+                    this.logger.error(returnDto.getStatusMessage());
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setMessage(returnDto.getStatusMessage());
                 }
             }
         }catch (Exception e){
