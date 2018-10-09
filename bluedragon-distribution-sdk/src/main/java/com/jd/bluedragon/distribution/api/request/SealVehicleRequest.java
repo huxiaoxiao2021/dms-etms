@@ -2,10 +2,6 @@ package com.jd.bluedragon.distribution.api.request;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import com.google.common.base.Splitter;
-import com.google.common.collect.Sets;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 public class SealVehicleRequest extends JdRequest {
