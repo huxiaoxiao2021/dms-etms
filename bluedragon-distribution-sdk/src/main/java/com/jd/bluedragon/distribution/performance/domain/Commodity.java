@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.performance.domain;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * @ClassName: Commodity
@@ -16,14 +17,14 @@ public class Commodity implements Serializable {
     private Integer skuNum;
     private String boxCode;
     private String waybillCode;
-    private String orderId;
+    private Map map;
 
-    public String getOrderId() {
-        return orderId;
+    public Map getMap() {
+        return map;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setMap(Map map) {
+        this.map = map;
     }
 
     public String getBoxCode() {
@@ -83,7 +84,7 @@ public class Commodity implements Serializable {
                 ", skuNum=" + skuNum +
                 ", boxCode='" + boxCode + '\'' +
                 ", waybillCode='" + waybillCode + '\'' +
-                ", orderId='" + orderId + '\'' +
+                ", map=" + map +
                 '}';
     }
 }
