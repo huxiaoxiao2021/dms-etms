@@ -543,4 +543,16 @@
 		limit 1
 	</select>
 
+	<select id="selectOneByBoxCode" parameterType="SendM"  resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from  send_m
+		where yn=1
+		and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		and send_type = #{sendType,jdbcType=INTEGER}
+		and board_code = #{boardCode,jdbcType=VARCHAR}
+		order by create_time DESC
+		limit 1
+	</select>
+
 </mapper>

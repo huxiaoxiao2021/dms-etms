@@ -839,4 +839,19 @@
             and create_site_code = #{createSiteCode}
         </if>
     </select>
+
+	<select id="queryOneSendDetailByPackageCode" parameterType="SendDetail"
+			resultMap="SendDetail">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM send_d
+		<where>
+			create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			and package_barcode = #{packageBarcode}
+			and is_cancel=0
+			order by create_time desc
+			LIMIT 1
+		</where>
+	</select>
 </mapper>
