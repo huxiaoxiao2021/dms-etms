@@ -747,6 +747,10 @@ public class SendPrintServiceImpl implements SendPrintService {
                     if (StringUtils.isNotBlank(sendM.getBoardCode())) {
                         tBasicQueryEntity.setBoardCode(sendM.getBoardCode());
                         tBasicQueryEntity.setBoardVolume(boardMap.get(sendM.getBoardCode()));
+                        //板体积不为null或0 应付静态量方取板体积
+                        if(tBasicQueryEntity.getBoardVolume()  != null && NumberHelper.gt0(tBasicQueryEntity.getBoardVolume())){
+                            tBasicQueryEntity.setDmsOutVolumeStatic(tBasicQueryEntity.getBoardVolume());
+                        }
                     }
                     fzList.add(tBasicQueryEntity);
                 }
