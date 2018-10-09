@@ -1,32 +1,11 @@
 package com.jd.bluedragon.distribution.rest.pop;
 
-import java.util.Date;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -37,11 +16,23 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrintSmsMsg;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.JsonUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.*;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.Date;
+import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)
@@ -72,7 +63,11 @@ public class PopPrintResource {
     @Autowired
     @Qualifier("popPrintToSmsProducer")
     private DefaultJMQProducer popPrintToSmsProducer;
-	
+
+    @Autowired
+    @Qualifier("zhuchangPrintToTerminalProducer")
+    private DefaultJMQProducer zhuchangPrintToTerminalProducer;
+
 	private static boolean isRedisModeAllowed = false;
 	
 	/**
@@ -206,18 +201,34 @@ public class PopPrintResource {
 				}
 				//操作站点类型 是站点的情况下 发送全程跟踪
 				BaseStaffSiteOrgDto bDto = null;
+				BaseStaffSiteOrgDto userDto=null;
 				try {
 					bDto = this.baseMajorManager.getBaseSiteBySiteId(popPrintRequest.getOperateSiteCode());
 				} catch (Exception e) {
 					logger.error("驻厂打印时获取站点失败 站点编号："+popPrintRequest.getOperateSiteCode()+"  "+e.getMessage());
 				}
+				try {
+					userDto=baseMajorManager.getBaseStaffByStaffId(popPrintRequest.getOperatorCode());
+				} catch (Exception e) {
+					logger.error("获取操作人资料失败："+popPrintRequest.getOperatorCode()+"  "+e.getMessage());
+				}
+
 				if(bDto==null){
 					logger.error("驻厂打印时获取站点为空 站点编号："+popPrintRequest.getOperateSiteCode());
+				}else if (userDto==null){
+					logger.error("获取操作人资料为空 id："+popPrintRequest.getOperatorCode());
 				}else{
 					if(BusinessHelper.isSiteType(bDto.getSiteType())){
+						Date operatorTime=new Date(System.currentTimeMillis()-30000L);
 						//操作站点类型符合 是站点
-						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",new Date(System.currentTimeMillis()-30000L));
-						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",new Date(System.currentTimeMillis()-30000L));
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_UP_DELIVERY,"订单/包裹已接货",operatorTime);
+						toTask(popPrintRequest,WaybillStatus.WAYBILL_TRACK_COMPLETE_DELIVERY,"配送员"+popPrintRequest.getOperatorName()+"揽收完成",operatorTime);
+						//驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
+						Map<String,Object> msgBody=Maps.newHashMap();
+						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
+						msgBody.put("operatorErp",userDto.getErp());
+						msgBody.put("operatorTime",operatorTime);
+						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
 					}
 				}
 
@@ -239,7 +250,6 @@ public class PopPrintResource {
 					e.getMessage());
 		}
 	}
-
 	/**
 	 * 保存POP打印信息
 	 * 
