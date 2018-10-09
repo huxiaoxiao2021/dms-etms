@@ -97,9 +97,9 @@ $(function() {
                                         "<td rowspan='"+itemSum+"' width='150px' style='text-align: left;border-right-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
                                         //start
                                     "<td width='250px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>"+
-                                    "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
+                                    "<td width='70px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
                                         //end
-                                    "<td rowspan='"+itemSum+"' width='60px' style='text-align: left'>"+item.skuNum+"件</td>";
+                                    "<td rowspan='"+itemSum+"' width='70px' style='text-align: left'>"+item.skuNum+"件</td>";
                                     delete item.map[k];
                                     break;
                                 }
@@ -109,7 +109,7 @@ $(function() {
                                     for(var k in item.map){
                                         temp += "<tr>" +
                                             "<td width='250px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>" +
-                                            "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
+                                            "<td width='70px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
                                         "</tr>";
                                     }
                                 }
