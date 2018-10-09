@@ -237,7 +237,7 @@ public class NewSealVehicleResource implements DmsNewSealVehicleService {
     public TransWorkItemResponse checkTransportCode(NewSealVehicleRequest request) {
         TransWorkItemResponse sealVehicleResponse = new TransWorkItemResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
-            if (request == null || (StringUtils.isEmpty(request.getTransWorkItemCode()) && StringUtils.isEmpty(request.getTransportCode()))) {
+            if (request == null || StringUtils.isEmpty(request.getTransWorkItemCode()) || StringUtils.isEmpty(request.getTransportCode())) {
                 this.logger.error("NewSealVehicleResource workitem check --> 传入参数非法" + JsonHelper.toJson(request));
                 sealVehicleResponse.setCode(TransWorkItemResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(TransWorkItemResponse.MESSAGE_PARAM_ERROR);
