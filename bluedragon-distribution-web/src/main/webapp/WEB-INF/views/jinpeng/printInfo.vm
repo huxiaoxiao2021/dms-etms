@@ -25,7 +25,9 @@
             border:1px
             solid black;
             text-align: center;
-            font-size: 15px;
+            font-size: 22px;
+            word-wrap:break-word;
+            word-break:break-all;
         }
     </style>
     <script src="#springUrl('/static/js/jinpeng/html2canvas.js')"></script>

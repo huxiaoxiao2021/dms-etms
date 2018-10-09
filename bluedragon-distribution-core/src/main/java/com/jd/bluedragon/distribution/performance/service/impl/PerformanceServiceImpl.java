@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +138,7 @@ public class PerformanceServiceImpl implements PerformanceService {
         GenericResult<List<HandoverDetailDto>> result = null;
         try {
             handoverBillPrint.setFulfillmentOrderId(performanceCode);
-            result = handoverBillResource.print(handoverBillPrint);
+            result = handoverBillResource.dismantlePrint(handoverBillPrint);
         }catch (Exception e){
             this.logger.error("通过履约单号" + performanceCode + "获得加履单详情失败",e);
             return JsonHelper.toJson(invokeResult);
@@ -146,11 +147,11 @@ public class PerformanceServiceImpl implements PerformanceService {
 
             //-----------------封装数据start-----------------
             //key:箱号，value:该箱号下所有的商品
-            Map<String,List<Commodity>> boxMap = new HashMap<String, List<Commodity>>();
+            Map<String,List<Commodity>> boxMap = new LinkedHashMap<String, List<Commodity>>();
             //key:运单号，value:该运单号下所有箱号
-            Map<String,Map<String,List<Commodity>>> waybillMap = new HashMap<String,Map<String,List<Commodity>>>();
+            Map<String,Map<String,List<Commodity>>> waybillMap = new LinkedHashMap<String,Map<String,List<Commodity>>>();
             //key:履约单号，value:该履约单号下所有运单号
-            Map<String,Map<String,Map<String,List<Commodity>>>> performanceMap = new HashMap<String,Map<String,Map<String,List<Commodity>>>>();
+            Map<String,Map<String,Map<String,List<Commodity>>>> performanceMap = new LinkedHashMap<String,Map<String,Map<String,List<Commodity>>>>();
             for(HandoverDetailDto dto : result.getValue()){
                 Commodity commodity = new Commodity();
                 commodity.setPoNo(dto.getPoNo());
@@ -159,7 +160,7 @@ public class PerformanceServiceImpl implements PerformanceService {
                 commodity.setSkuId(dto.getSkuId());
                 commodity.setBoxCode(dto.getContainerId());
                 commodity.setWaybillCode(dto.getDeliveryOrderId());
-                commodity.setOrderId(dto.getOrderId());
+                commodity.setMap(dto.getOrderMap());
                 //箱号不包含就添加进去
                 if(!boxMap.containsKey(dto.getContainerId())){
                     List<Commodity> skuList =new ArrayList<Commodity>();
