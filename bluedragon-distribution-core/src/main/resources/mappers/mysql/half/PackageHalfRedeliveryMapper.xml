@@ -22,6 +22,8 @@
 		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="redeliver_time" property="redeliverTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="model_type" property="modelType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
@@ -159,7 +161,7 @@
 			(
 				dms_site_code,dms_site_name,waybill_code,waybill_state,
 				package_code,deal_state,package_remark,package_state,eclp_deal_time,
-				create_user_code,create_user,create_user_name,redeliver_time,create_time,is_delete,ts
+				create_user_code,create_user,create_user_name,redeliver_time,model_type,remark,create_time,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -177,6 +179,8 @@
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
                     #{item.redeliverTime,jdbcType=TIMESTAMP},
+                    #{item.modelType,jdbcType=INTEGER},
+                    #{item.remark,jdbcType=VARCHAR},
 					now(),
 					0,
 					now()

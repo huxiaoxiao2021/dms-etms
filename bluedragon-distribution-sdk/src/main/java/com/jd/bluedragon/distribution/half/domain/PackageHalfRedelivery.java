@@ -60,7 +60,13 @@ public class PackageHalfRedelivery extends DbEntity {
 	 /** 更新人名称 */
 	private String updateUserName;
 
-	private Date redeliverTime;//再投时间
+    private Date redeliverTime;//再投时间
+
+    /** 再投审核完成类型（1：按运单审核；2：按包裹审核） */
+	private Integer modelType;
+
+    /** 整单再投审核原因	 */
+    private String remark;
 
 	/**
 	 * The set method for dmsSiteCode.
@@ -308,5 +314,21 @@ public class PackageHalfRedelivery extends DbEntity {
 
     public void setRedeliverTime(Date redeliverTime) {
         this.redeliverTime = redeliverTime;
+    }
+
+    public Integer getModelType() {
+        return modelType;
+    }
+
+    public void setModelType(Integer modelType) {
+        this.modelType = modelType;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

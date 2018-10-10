@@ -40,6 +40,11 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
     @Autowired
     private PackageHalfApproveService packageHalfApproveService;
 
+    /**
+     * 再投审核完成类型（1：按运单审核；2：按包裹审核）
+     */
+    private static Integer PACKAGE_APPROVE_TYPE = 2;
+
     @JProfiler(jKey = "DMSCORE.PackageHalfRedeliveryConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
@@ -52,6 +57,10 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
         List<PackageHalfRedeliveryDetailDto> packageList = dto.getPackagePartMsgDTOList();
         if(packageList == null || packageList.isEmpty()){
             logger.warn("[B网半收]消费协商再投MQ-包裹明细为空：" + message.getText());
+            return;
+        }
+        if(!PACKAGE_APPROVE_TYPE.equals(dto.getModelType())){
+            logger.warn("[B网半收]消费协商再投MQ-非按包裹审核类型，执行丢弃：" + message.getText());
             return;
         }
         String wayBillCode = packageHalfRedeliveryService.queryExistsByWaybillCodeAndSiteCode(dto.getWaybillCode(), dto.getOperateSiteId());
@@ -91,6 +100,8 @@ public class PackageHalfRedeliveryConsumer extends MessageBaseConsumer {
             redelivery.setCreateUser(userErp);
             redelivery.setWaybillState(dto.getWaybillState());
             redelivery.setRedeliverTime(dto.getRedeliverTime());
+            redelivery.setModelType(dto.getModelType());
+            redelivery.setRemark(dto.getRemark());
             redelivery.setPackageCode(packageDto.getPackageCode());
             redelivery.setPackageState(packageDto.getPackageState());
             redelivery.setPackageRemark(packageDto.getRemark());
