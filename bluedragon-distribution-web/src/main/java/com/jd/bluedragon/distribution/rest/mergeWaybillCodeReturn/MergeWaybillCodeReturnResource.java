@@ -6,8 +6,6 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturn;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillMessage;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.ResponseDTO;
@@ -18,7 +16,6 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.util.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -82,8 +79,8 @@ public class MergeWaybillCodeReturnResource {
                     }
                 }
             }else{
-                result.setCode(InvokeResult.RESULT_NULL_CODE);
-                result.setMessage(InvokeResult.RESULT_NULL_MESSAGE);
+                result.setCode(responseDto.getStatusCode());
+                result.setMessage(responseDto.getStatusMessage());
             }
         } catch (Exception e) {
             this.logger.error("根据运单号"+waybillCode+"调用外单接口失败",e);

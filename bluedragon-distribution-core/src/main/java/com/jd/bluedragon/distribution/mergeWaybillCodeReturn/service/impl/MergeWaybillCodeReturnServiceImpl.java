@@ -14,7 +14,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.Date;
 import java.util.List;
 
@@ -32,38 +31,6 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
 
     @Autowired
     private TaskService taskService;
-
-    /**
-     * 比较两个是否相同
-     * @param data
-     * @param secondData
-     * @return
-     */
-    @Override
-    public Boolean compare(ReturnSignatureMessageDTO data, ReturnSignatureMessageDTO secondData) {
-
-        try{
-            Class<? extends ReturnSignatureMessageDTO> dataClass = data.getClass();
-            Class<? extends ReturnSignatureMessageDTO> secondDataClass = secondData.getClass();
-            Field[] dataFields = dataClass.getDeclaredFields();
-            Field[] secondDataFields = secondDataClass.getDeclaredFields();
-            for(int i=0;i<dataFields.length;i++){
-                for(int j=0;j<secondDataFields.length;j++){
-                    //属性名相同
-                    if(dataFields[i].getName().equals(secondDataFields[j].getName())){
-                        //属性值不同
-                        if(!compareTwo(dataFields[i].get(data),secondDataFields[j].get(secondData))){
-                            return false;
-                        }
-                    }
-                }
-            }
-        }catch (Exception e){
-            this.logger.error("比较两对象出错",e);
-            return false;
-        }
-        return true;
-    }
 
     /**
      * 判断是否相同
@@ -156,33 +123,5 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         tTask.setBody(JsonHelper.toJson(status));
         taskService.add(tTask);
     }
-
-
-    /**
-     * 对比两个数据是否内容相同
-     * @param object1
-     * @param object2
-     * @return
-     */
-    public static boolean compareTwo(Object object1, Object object2) {
-
-        if (object1 == null && object2 == null) {
-            return true;
-        }
-        if (object1 == "" && object2 == null) {
-            return true;
-        }
-        if (object1 == null && object2 == "") {
-            return true;
-         }
-        if (object1 == null && object2 != null) {
-            return false;
-        }
-        if (object1.equals(object2)) {
-            return true;
-        }
-        return false;
-    }
-
 
 }
