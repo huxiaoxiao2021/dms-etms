@@ -91,7 +91,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         status.setRemark(JSON.toJSONString(message.getWaybillCodeList()));
         status.setCreateSiteCode(message.getSiteCode());
         status.setCreateSiteName(message.getSiteName());
-//        status.setPackageCode(domain.getOldCode());
+        status.setPackageCode(message.getNewWaybillCode());
         tTask.setBody(JsonHelper.toJson(status));
         taskService.add(tTask);
     }
@@ -119,7 +119,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         status.setRemark("签单返回合单");
         status.setCreateSiteCode(message.getSiteCode());
         status.setCreateSiteName(message.getSiteName());
-//        status.setPackageCode(domain.getOldCode());
+        status.setPackageCode(waybillCode);
         tTask.setBody(JsonHelper.toJson(status));
         taskService.add(tTask);
     }
