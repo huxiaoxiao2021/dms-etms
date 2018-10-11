@@ -34,7 +34,6 @@
     <script src="#springUrl('/static/js/jinpeng/jsPdf.debug.js')"></script>
     <script src="#springUrl('/static/js/jinpeng/printInfo.js')"></script>
 </head>
-#*以下的body最低高度为A4高度防止数据少的情况下pdf出现一截黑屏的情况*#
 <body class="container-fluid" >
     <input style="display: none" id="performanceCode" value="${performanceCode}" />
     <input style="display: none" id="waybillorPackCode" value="${waybillorPackCode}" />

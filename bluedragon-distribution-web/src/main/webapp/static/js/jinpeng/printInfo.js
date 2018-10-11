@@ -64,7 +64,7 @@ $(function() {
                                     for(var waybill1 in data[performance]){
                                         waybillSum++;
                                     }
-                                    temp += "<td width='120px' rowspan='"+waybillRowspan+"'>"+waybillCount+"/"+waybillSum+"</br>运单号:"+waybill+"</td>";
+                                    temp += "<td width='130px' rowspan='"+waybillRowspan+"'>"+waybillCount+"/"+waybillSum+"</br>运单号:"+waybill+"</td>";
                                     waybillSum=0;
                                 }
                                 if(waybillRowIndex == waybillRowspan){
@@ -84,7 +84,7 @@ $(function() {
                                     for(var box in data[performance][waybill]){
                                         boxSum++;
                                     }
-                                    temp += "<td width='120px' rowspan='"+boxRowspan+"'>"+boxCount+"/"+boxSum+"</br>箱号:"+boxCode+"</td>";
+                                    temp += "<td width='130px' rowspan='"+boxRowspan+"'>"+boxCount+"/"+boxSum+"</br>箱号:"+boxCode+"</td>";
                                     boxSum=0;
                                 }
                                 if(boxRowIndex == boxRowspan){
@@ -92,12 +92,12 @@ $(function() {
                                 }
                                 }
                                 for(var k in item.map){
-                                    temp += "<td rowspan='"+itemSum+"' width='120px' style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
+                                    temp += "<td rowspan='"+itemSum+"' width='150px' style='text-align: left;border-right-style: none'>SKU："+item.skuId+"</td>"+
                                         "<td width='200px' rowspan='"+itemSum+"' style='text-align: left;border-right-style: none;border-left-style: none'>"+item.skuName+"</td>"+
-                                        "<td rowspan='"+itemSum+"' width='120px' style='text-align: left;border-right-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
+                                        "<td rowspan='"+itemSum+"' width='100px' style='text-align: left;border-right-style: none'>PO："+(item.poNo==null?"——":item.poNo)+"</td>"+
                                         //start
-                                    "<td width='150px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>"+
-                                    "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
+                                    "<td width='180px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>"+
+                                    "<td width='50px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>"+
                                         //end
                                     "<td rowspan='"+itemSum+"' width='60px' style='text-align: left'>"+item.skuNum+"件</td>";
                                     delete item.map[k];
@@ -108,8 +108,8 @@ $(function() {
                                 if(itemSum>1){
                                     for(var k in item.map){
                                         temp += "<tr>" +
-                                            "<td width='120px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>" +
-                                            "<td width='60px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
+                                            "<td width='180px' style='text-align: left;border-right-style: none'>子单号："+k+"</td>" +
+                                            "<td width='50px' style='text-align: left;border-left-style: none'>"+item.map[k]+"件</td>";
                                         "</tr>";
                                     }
                                 }
@@ -126,6 +126,6 @@ $(function() {
         });
     };
 
-    tableInit().init();
-
+    tableInit();
+    window.print();
 });
