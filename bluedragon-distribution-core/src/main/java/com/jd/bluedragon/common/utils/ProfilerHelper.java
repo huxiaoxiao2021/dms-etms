@@ -41,7 +41,7 @@ public class ProfilerHelper {
 		return Profiler.registerInfo(key, appName, enableHeartbeat, true);
 	}
 	/**
-	 * 根据一个数量，分段生成一个监控key值,目前支持：key0,key100,key300,key500,key1000,key2000,key4000,key6000,key6000UP
+	 * 根据一个数量，分段生成一个监控key值,目前支持：key0,key10,key50,key100,key500,key1000,key1000UP
 	 * @param key
 	 * @param quantity
 	 * @return
@@ -52,22 +52,20 @@ public class ProfilerHelper {
 		}
 		if(quantity<=0){
 			return key + "0";
+		}else if(quantity<=1){
+			return key + "1";
+		}else if(quantity<=10){
+			return key + "10";
+		}else if(quantity<=50){
+			return key + "50";
 		}else if(quantity<=100){
 			return key + "100";
-		}else if(quantity<=300){
-			return key + "300";
 		}else if(quantity<=500){
 			return key + "500";
 		}else if(quantity<=1000){
 			return key + "1000";
-		}else if(quantity<=2000){
-			return key + "2000";
-		}else if(quantity<=4000){
-			return key + "4000";
-		}else if(quantity<=6000){
-			return key + "6000";
 		}else{
-			return key + "6000UP";
+			return key + "1000UP";
 		}
 	}
 }
