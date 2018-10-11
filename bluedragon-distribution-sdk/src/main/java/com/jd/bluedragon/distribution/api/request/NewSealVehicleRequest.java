@@ -45,7 +45,7 @@ public class NewSealVehicleRequest extends JdRequest {
 	private String vehicleNumber;
 
 	/**
-	 *
+	 *运力编码
 	 * */
 	private String transportCode;
 
@@ -65,6 +65,18 @@ public class NewSealVehicleRequest extends JdRequest {
 
 	/**批次号查询条件*/
 	private String batchCode;
+
+	/**
+	 * 派车明细简码
+	 */
+	private String transWorkItemCode;
+
+
+    /** 操作人ERP */
+    private String userErp;
+
+    /** 当前站点7为编码	 */
+    private String dmsCode;
 
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
@@ -156,5 +168,29 @@ public class NewSealVehicleRequest extends JdRequest {
 
     public void setBatchCode(String batchCode) {
         this.batchCode = batchCode;
+    }
+
+    public String getTransWorkItemCode() {
+        return transWorkItemCode;
+    }
+
+    public void setTransWorkItemCode(String transWorkItemCode) {
+        this.transWorkItemCode = transWorkItemCode;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
+
+    public String getDmsCode() {
+        return dmsCode;
+    }
+
+    public void setDmsCode(String dmsCode) {
+        this.dmsCode = dmsCode;
     }
 }

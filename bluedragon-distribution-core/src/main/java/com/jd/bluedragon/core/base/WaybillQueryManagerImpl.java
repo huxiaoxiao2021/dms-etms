@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.Constants;
+import com.jd.etms.waybill.domain.SkuSn;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -24,10 +26,6 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderTraceDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -312,5 +310,33 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return null;
 	}
 
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuSnListByOrderId",
+			mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+	@Override
+	public BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode) {
+		return waybillQueryApi.getSkuSnListByOrderId(waybillCode);
+	}
+
+	/**
+	 * 获取履约单下所有运单
+	 * @param parentWaybillCode 父订单号（履约单号）
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getOrderParentChildList",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public List<String> getOrderParentChildList(String parentWaybillCode) {
+		List<String> waybillCodes = new ArrayList<String>();
+		//神一样的接口设计
+		BaseEntity<List<OrderParentChildDto>> baseEntity =  waybillQueryApi.getOrderParentChildList( parentWaybillCode);
+		if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null ) {
+			for(OrderParentChildDto orderParentChildDto:baseEntity.getData()){
+				waybillCodes.add(orderParentChildDto.getOrderId());
+			}
+		}else{
+			logger.error(" 根据父订单号查询父单对应的所有子订单号失败！parentWaybillCode="+parentWaybillCode);
+		}
+		return waybillCodes;
+	}
 
 }

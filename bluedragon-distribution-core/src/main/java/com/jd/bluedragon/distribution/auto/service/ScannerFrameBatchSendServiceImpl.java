@@ -263,8 +263,8 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         summaryRequest.setSendCode(scannerFrameBatchSend.getSendCode());
         summaryRequest.setSendTime(itemResult.getSendTime());
         summaryRequest.setTotalBoxNum(itemResult.getTotalBoxNum());//周转箱
-        summaryRequest.setTotalPackageBarNum(itemResult.getTotalpackageBarNum());//原包个数
-        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalpackageBarNum());//合计 fixme
+        summaryRequest.setTotalPackageBarNum(itemResult.getTotalShouldSendPackageNum());//原包个数
+        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalShouldSendPackageNum());//合计 fixme
         List<SummaryPrintBoxEntity> itemBoxEntitys = new ArrayList<SummaryPrintBoxEntity>();
         itemBoxEntitys = itemResult.getDetails();
         int packageBarRecNum = 0;//应发

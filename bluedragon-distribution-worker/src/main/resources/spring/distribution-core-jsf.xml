@@ -247,6 +247,10 @@
     <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!--  (TFC)运输流程中心系统 jsf接口  王京-->
+    <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
     <jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
@@ -335,5 +339,14 @@
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- 组装系统 查询接口 郭海瑞 -->
+    <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
+                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="5000" check="false" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- automatic分拣自动化 -储位相关- 焦文强 -->
+    <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
+                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 </beans>

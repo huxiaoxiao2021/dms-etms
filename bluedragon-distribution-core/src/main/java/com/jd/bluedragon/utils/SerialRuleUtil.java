@@ -81,7 +81,7 @@ public class SerialRuleUtil {
      * 【分组五：共几件】
      * 【分组六：（-或H）与道口号组合】
      */
-    private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
+    private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,4}-)|N(?=\\d{1,4}S))([1-9]\\d{0,3})(-(?=\\d{1,4}-)|S(?=\\d{1,4}H))([0-9]\\d{0,3})([-|H][A-Za-z0-9]*)$");
 
     /**
      * 京东外单运单号正则表达式
@@ -276,7 +276,7 @@ public class SerialRuleUtil {
         Matcher match = RULE_PACKAGE_OWN_REGEX.matcher(input.trim());
         if (match.matches()) {   //校验老规则
 
-            result.setMatch(Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
+            result.setMatch((Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3))||Integer.valueOf(match.group(3)) == 0));
             result.setResult(match.group(1));
         }
         return result;
@@ -326,7 +326,7 @@ public class SerialRuleUtil {
         if (match.matches()) {
             String waybillNo = match.group(1).trim();
             result.setResult(waybillNo);
-            result.setMatch(Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3)));
+            result.setMatch((Integer.valueOf(match.group(2)) <= Integer.valueOf(match.group(3))) || Integer.valueOf(match.group(3)) == 0);
 
         }
         return result;

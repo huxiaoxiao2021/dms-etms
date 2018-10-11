@@ -39,6 +39,8 @@
                 <entry key="2" value-ref="scannerFrameSendConsume"/>
                 <!--量方消费-->
                 <entry key="4" value-ref="scannerFrameMeasureConsume"/>
+                <!--应付动态量方-->
+                <entry key="8" value-ref="scannerFrameDynamicVolumeConsume"/>
             </map>
         </constructor-arg>
 

@@ -20,17 +20,31 @@ public interface DmsNewSealVehicleService {
     TransWorkItemResponse getVehicleNumBySimpleCode(String simpleCode);
 
     /**
-     * 封车校验：批次号及运力编码|任务号的校验
-     * 1. 批次号校验：是否符合批次号编码规范
-     * 2. 批次号校验：是否已经封车
-     * 3. 批次号校验：是否有发货数据
-     * 4. 按运力封车：校验运力编码目的地是否和批次号目的地一致
-     *
-     * @param transportCode
-     * @param batchCode
-     * @param sealCarType
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     * @param request
      * @return
      */
+    NewSealVehicleResponse getVehicleNumberOrItemCodeByParam(NewSealVehicleRequest request);
+
+    /**
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     * @param request
+     * @return
+     */
+    TransWorkItemResponse checkTransportCode(NewSealVehicleRequest request);
+
+        /**
+         * 封车校验：批次号及运力编码|任务号的校验
+         * 1. 批次号校验：是否符合批次号编码规范
+         * 2. 批次号校验：是否已经封车
+         * 3. 批次号校验：是否有发货数据
+         * 4. 按运力封车：校验运力编码目的地是否和批次号目的地一致
+         *
+         * @param transportCode
+         * @param batchCode
+         * @param sealCarType
+         * @return
+         */
     NewSealVehicleResponse newCheckTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
     /**

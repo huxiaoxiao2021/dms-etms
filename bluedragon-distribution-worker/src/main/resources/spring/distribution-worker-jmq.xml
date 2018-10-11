@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
-       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://code.jd.com/schema/jmq
-	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
-	    http://www.springframework.org/schema/util
-	    http://www.springframework.org/schema/util/spring-util.xsd">
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd">
+
 	<!-- jmq transport配置区 -->
 	<jmq:transport id="jmq.BlueDragonDistribution.transport"
 	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
@@ -179,10 +177,30 @@
     <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dms_operateHint_track" listener="operateHintTrackConsumer"/>
     </jmq:consumer>
+
+    <!-- 消费发货明细MQ 用于RMA项目打印 -->
+    <jmq:consumer id="jmq.sendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="sendDetailConsumer"/>
+    </jmq:consumer>
+
     <!-- B网半收终端提交协商再投MQ -->
     <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_pack_sync_waybill" listener="packingConsumableConsumer"/>
     </jmq:consumer>
+    <!--履约单剔除消息-->
+    <jmq:consumer id="jmq.performanceRemoveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="waybill_order_flag" listener="performanceRemoveConsumer"/>
+    </jmq:consumer>
 
+    <!--  动态量方一期先注释存es的，待和es交互部分完成再打开by jinjingcheng  &lt;!&ndash; 消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetailConsumer"/>
+    </jmq:consumer>
+
+    &lt;!&ndash; 消费取消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsDeliveryCancelSendConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
+    </jmq:consumer>
+    -->
 </beans>
 

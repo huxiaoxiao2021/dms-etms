@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.storage.dao.StoragePackageDDao">
+
+	<resultMap id="StoragePackageD" type="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="performance_code" property="performanceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="storage_code" property="storageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_time" property="sendTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="putaway_time" property="putawayTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,performance_code,storage_code,waybill_code,package_code,create_site_code,create_site_name,putaway_time,
+		send_time,create_user,create_time,update_user,update_time,
+		is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD">
+		insert into storage_package_d
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="performanceCode != null">
+					performance_code,
+				</if>
+				<if test="storageCode != null">
+					storage_code,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="packageCode != null">
+					package_code,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteName != null">
+					create_site_name,
+				</if>
+				<if test="putawayTime != null">
+					putaway_time,
+				</if>
+				<if test="sendTime != null">
+					send_time,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+
+					create_time,
+
+				<if test="updateUser != null">
+					update_user,
+				</if>
+
+					update_time,
+
+					is_delete,
+
+					ts
+
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="performanceCode != null">
+					#{performanceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="storageCode != null">
+					#{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					#{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="putawayTime != null">
+					#{putawayTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="sendTime != null">
+					#{sendTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+
+					now(),
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				now(),
+				0,
+				now()
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into storage_package_d
+			(
+				performance_code,storage_code,waybill_code,package_code,
+				create_site_code,create_site_name,putaway_time,send_time,create_user,create_time,update_user,
+				update_time,is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.performanceCode,jdbcType=VARCHAR},
+					#{item.storageCode,jdbcType=VARCHAR},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.packageCode,jdbcType=VARCHAR},
+					#{item.createSiteCode,jdbcType=BIGINT},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.putawayTime,jdbcType=TIMESTAMP},
+					#{item.sendTime,jdbcType=TIMESTAMP},
+					#{item.createUser,jdbcType=VARCHAR},
+					now(),
+					#{item.updateUser,jdbcType=VARCHAR},
+					now(),
+					0,
+					now()
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD">
+		update storage_package_d
+			<set>
+				<if test="performanceCode != null">
+					performance_code = #{performanceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="storageCode != null">
+					storage_code = #{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					package_code = #{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="putawayTime != null">
+					putaway_time = #{putawayTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="sendTime != null">
+					send_time = #{sendTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update storage_package_d
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update storage_package_d
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<update id="cancelPutaway" parameterType="String">
+		update storage_package_d
+		set is_delete = 1
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</update>
+	<select id="findById" parameterType="Long" resultMap="StoragePackageD">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_d 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageD" resultMap="StoragePackageD">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_d 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  storage_package_d 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="StoragePackageD">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_d 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="findLastStoragePackageDByWaybillCode" parameterType="String" resultMap="StoragePackageD">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_d
+		where
+		waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+		ORDER by putaway_time desc
+		limit 1
+	</select>
+
+	<select id="findLastStoragePackageDByPackageCode" parameterType="String" resultMap="StoragePackageD">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_d
+		where
+		package_code = #{packageCode}
+		<include refid="Base_Condition_Sql"/>
+		ORDER by putaway_time desc
+		limit 1
+	</select>
+
+	<select id="findLastStoragePackageDByPerformanceCode" parameterType="String" resultMap="StoragePackageD">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_d
+		where
+		performance_code = #{performanceCode}
+		<include refid="Base_Condition_Sql"/>
+		ORDER by putaway_time desc
+		limit 1
+	</select>
+
+	<select id="findByWaybill" parameterType="String" resultMap="StoragePackageD">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_d
+		where
+		waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+		ORDER by putaway_time
+	</select>
+</mapper>

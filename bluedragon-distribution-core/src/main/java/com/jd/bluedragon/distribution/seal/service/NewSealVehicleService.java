@@ -5,7 +5,9 @@ import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.vos.dto.SealCarInAreaDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
+import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 
 import java.util.List;
 
@@ -105,4 +107,30 @@ public interface NewSealVehicleService {
      */
     Long getSealCarTimeBySendCode(String sendCode);
 
-}
+    /**
+     * 根据预约提货时间等条件获取委托书列表接口
+     * @param transBookBillQueryDto
+     * @param pageDto
+     * @return
+     * @throws Exception
+     */
+    com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception;
+
+    /**
+     * 根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新
+     * @param simpleCode
+     * @param transportCode
+     * @return
+     * @throws Exception
+     */
+    com.jd.tms.tfc.dto.CommonDto<String> checkTransportCode(String simpleCode, String transportCode) throws Exception;
+
+    /**
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     * @param transWorkItemWsDto
+     * @return
+     * @throws Exception
+     */
+    com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception;
+
+    }
