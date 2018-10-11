@@ -1,11 +1,10 @@
-package com.jd.bluedragon.distribution.consumer.sendDetail;
+package com.jd.bluedragon.distribution.consumer.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
-import com.jd.bluedragon.distribution.consumer.gantry.GantryScanPackageConsumer;
 import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
