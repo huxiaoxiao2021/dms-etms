@@ -121,11 +121,12 @@ $(function() {
                 }
 
                 $("#printInfo").html(temp);
+                window.print();
             }
 
         });
     };
 
     tableInit();
-    window.print();
+
 });
