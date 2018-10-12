@@ -333,10 +333,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 }
                 commonWaybill.setPackList(packageList);
             }
-            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
-            if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
-            	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
-            }
 
            //B网面单设置已称标识
            if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){

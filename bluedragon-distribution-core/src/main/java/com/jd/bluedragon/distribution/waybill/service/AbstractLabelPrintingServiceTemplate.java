@@ -84,8 +84,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //初始化运单数据
         LabelPrintingResponse labelPrinting = initWaybillInfo(request, null);
         
-        labelPrinting.setBrandImageKey(request.getBrandImageKey());
-
         //运单没有数据，不用打印包裹标签
         if(labelPrinting==null){
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_WAYBILL,LabelPrintingResponse.MESSAGE_EMPTY_WAYBILL+"(运单)");
@@ -120,8 +118,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         //初始化运单数据
         LabelPrintingResponse labelPrinting = initWaybillInfo(request, context);
-
-        labelPrinting.setBrandImageKey(request.getBrandImageKey());
 
         //运单没有数据，不用打印包裹标签
         if(labelPrinting==null){

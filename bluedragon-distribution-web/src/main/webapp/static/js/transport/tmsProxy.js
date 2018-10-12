@@ -173,7 +173,7 @@ $(function() {
                 theme: '#3f92ea',
                 type: 'datetime',
                 // min: -30,//最近60天内
-                max: 0,//最近60天内
+                max: new Date().setDate(new Date().getDate() +1),//最近60天内
                 btns: ['now', 'confirm'],
                 done: function(value, date, endDate){
                     /*重置表单验证状态*/

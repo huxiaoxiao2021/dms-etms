@@ -1,8 +1,7 @@
-package com.jd.bluedragon.distribution.consumer.sendDetail;
+package com.jd.bluedragon.distribution.consumer.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.consumer.gantry.GantryScanPackageConsumer;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.utils.BusinessHelper;

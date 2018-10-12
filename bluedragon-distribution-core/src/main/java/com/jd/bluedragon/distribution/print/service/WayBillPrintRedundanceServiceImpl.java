@@ -199,10 +199,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             }else {
                 request.setLabelType(LableType.PAPER.getLabelPaper());
             }
-            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
-            if(BusinessHelper.isYHD(waybill.getSendPay())){
-                request.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
-            }
 
             BaseResponseIncidental<LabelPrintingResponse> response = labelPrinting.dmsPrint(request,context);
             if(response==null || response.getData()==null){
