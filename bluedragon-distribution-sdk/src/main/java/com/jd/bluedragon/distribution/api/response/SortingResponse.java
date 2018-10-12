@@ -52,7 +52,10 @@ public class SortingResponse extends JdResponse {
     
     public static final Integer CODE_29303 = 29303;
     public static final String MESSAGE_29303 = "此[包裹]或[运单]为[退款100分订单]，请退货";
-    
+
+    public static final Integer CODE_29121 = 29121;
+    public static final String MESSAGE_29121 = "此单为[妥投状态]，请先核实异常，在PDA上提交配送异常后再进行逆向操作!";
+
     /** 箱号 */
     private String boxCode;
 

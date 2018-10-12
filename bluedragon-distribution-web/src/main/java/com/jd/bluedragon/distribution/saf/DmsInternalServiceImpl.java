@@ -1,7 +1,8 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.BaseRequest;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -19,6 +20,9 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -62,6 +66,12 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    AbnormalWayBillService abnormalWayBillService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -298,5 +308,43 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             logger.error("getPreseparateSiteId error ", e);
             return null;
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed",mState = JProEnum.TP)
+    public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode) {
+        //返回值初始化
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+        result.setData(true);
+        try {
+            //获取运单信息
+            BigWaybillDto bigWaybillDto = waybillService.getWaybillState(waybillCode);
+            if(bigWaybillDto != null) {
+                WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
+                //判断运单是否妥投
+                if (waybillManageDomain != null) {
+                    if (Constants.WAYBILL_DELIVERED_CODE.equals(waybillManageDomain.getWaybillState())) {
+                        //查询运单是否操作异常处理
+                        AbnormalWayBill abnormalWaybill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(waybillCode, siteCode);
+                        //异常操作运单记录为空，不能进行逆向操作，需提示妥投订单逆向操作需提交异常处理记录
+                        if(abnormalWaybill == null) {
+                            result.setData(false);
+                            result.setCode(SortingResponse.CODE_29121);
+                            result.setMessage(SortingResponse.MESSAGE_29121);
+                            return result;
+                        }
+                    }
+                } else {
+                    logger.error("isReverseOperationAllowed方法获取运单状态失败，waybillCode：" + waybillCode + ", siteCode：" + siteCode);
+                }
+            } else {
+                logger.error("isReverseOperationAllowed获取运单信息失败，waybillCode：" + waybillCode + ", siteCode：" + siteCode);
+            }
+        } catch (Exception e) {
+            logger.error("isReverseOperationAllowed方法异常错误，packageCode：" + waybillCode + ", siteCode：" + siteCode, e);
+        }
+
+        return result;
     }
 }
