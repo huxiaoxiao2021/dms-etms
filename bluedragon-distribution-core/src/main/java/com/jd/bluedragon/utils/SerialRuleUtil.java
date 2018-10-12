@@ -3,6 +3,8 @@ package com.jd.bluedragon.utils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.MessageFormat;
@@ -142,69 +144,25 @@ public class SerialRuleUtil {
     private static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
 
     /**
-     *对龙门架扫描到的运单号进行简单的正则过滤。
-     * 目前过滤条件首字符严格限制（(V|W|T|F|[1-9])）。
-     * 根据不同类型限制长度的最小值，最大长度按数据库最大长度30进行过滤。
+     * 判断是否是有效的运单号
      * Add by shipeilin on 2017/08/07
      * @param wayBillCode
      * @return boolean
      */
     public static final boolean isMatchCommonWaybillCode(String wayBillCode){
-        if(StringUtils.isEmpty(wayBillCode)){
-            return false;
-        }
-        Pattern pattern = getRegexPattern(RULE_WAYBILLCODE_REGEX_CHECK);
-        if(pattern != null && !pattern.matcher(wayBillCode.trim()).matches()){  //启用运单号正则但校验不通过
-            return false;
-        }
-        return true;
+        return WaybillUtil.isWaybillCode(wayBillCode);
     }
     /**
-     *对龙门架扫描到的包裹号进行简单的正则过滤。
-     * 主要校验是否包含3个"-"或者"NSH"
-     * Add by shipeilin on 2017年8月16日
+     * 判断是否是有效的包裹号
      * @param packageCode
      * @return boolean
      */
     public static final boolean isMatchCommonPackageCode(String packageCode){
-        if(StringUtils.isEmpty(packageCode)){
-            return false;
-        }
-        Pattern pattern = getRegexPattern(RULE_PACKAGECODE_REGEX_CHECK);
-        if(pattern != null && !pattern.matcher(packageCode.trim()).matches()){  //启用包裹号正则但校验不通过
-            return false;
-        }
-        return true;
+        return WaybillUtil.isPackageCode(packageCode);
     }
 
     /**
-     * 获取正则规则
-     * @param key
-     * @return
-     */
-    private static Pattern getRegexPattern(String key){
-        Pattern pattern = null;
-        BaseService baseService = (BaseService) SpringHelper.getBean("baseService");
-        List<SysConfig> configs = baseService.queryConfigByKeyWithCache(key);
-        if(configs == null || configs.size() != 1 || StringUtils.isBlank(configs.get(0).getConfigContent())
-                || !StringHelper.matchSiteRule(configs.get(0).getConfigContent(), "ON")){  //未配置或未启用
-            return pattern;
-        }
-        String content = configs.get(0).getConfigContent();
-        String rule = content.substring(content.indexOf(Constants.SEPARATOR_COMMA) + 1);
-        if(StringUtils.isBlank(rule)){
-            return pattern;
-        }
-        pattern =  patternCache.get(rule);
-        if(pattern == null){
-            pattern =  Pattern.compile(rule);
-            patternCache.put(rule, pattern);
-        }
-        return pattern;
-    }
-
-    /**
-     * 获取收货站点
+     * 通过批次号获取目的站点
      *
      * @param sendCode 发货批次号
      * @return
@@ -218,7 +176,7 @@ public class SerialRuleUtil {
     }
 
     /**
-     * 获取发送站点
+     * 通过批次号获取始发站点
      *
      * @param sendCode 发货批次号
      * @return
