@@ -358,36 +358,44 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				task.setYn(0);
 			}
 
-			//签单返回合单 发全程跟踪 新增节点8700
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN))) {
+			//签单返回合单 旧运单号发全程跟踪
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD))) {
 				toWaybillStatus(tWaybillStatus, bdTraceDto);
-				if(tWaybillStatus.getRemark().equals("签单返回合单")){
-					bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getSendCode());
-				}else {
-					List<String> list = JSONArray.parseArray(tWaybillStatus.getRemark(), String.class);
-					int maxSize = Integer.valueOf(PropertiesHelper.newInstance().getValue(MERGE_WAYBILL_RETURN_COUNT));
-					String temp = "";
-					if(list.size() > maxSize ){
-						for(int i=0; i<maxSize; i++){
-							if(i == maxSize-1){
-								temp += list.get(i)+"等";
-								break;
-							}else {
-								temp += list.get(i)+",";
-							}
-						}
+				bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getSendCode());
 
-					}else{
-						for(int i=0;i<list.size();i++){
-							if(i == list.size()-1){
-								temp += list.get(i);
-							}else {
-								temp += list.get(i)+",";
-							}
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
+//				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
+			//签单返回合单 新运单号发全程跟踪
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				List<String> list = JSONArray.parseArray(tWaybillStatus.getRemark(), String.class);
+				int maxSize = Integer.valueOf(PropertiesHelper.newInstance().getValue(MERGE_WAYBILL_RETURN_COUNT));
+				String temp = "";
+				if(list.size() > maxSize ){
+					for(int i=0; i<maxSize; i++){
+						if(i == maxSize-1){
+							temp += list.get(i)+"等";
+							break;
+						}else {
+							temp += list.get(i)+",";
 						}
 					}
-					bdTraceDto.setOperatorDesp("返单合单，原运单号"+temp);
+
+				}else{
+					for(int i=0;i<list.size();i++){
+						if(i == list.size()-1){
+							temp += list.get(i);
+						}else {
+							temp += list.get(i)+",";
+						}
+					}
 				}
+				bdTraceDto.setOperatorDesp("返单合单，原运单号"+temp);
 				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );

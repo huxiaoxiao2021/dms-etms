@@ -9,7 +9,7 @@ import java.util.List;
  * @author: hujiping
  * @date: 2018/9/17 22:00
  */
-public class MergeWaybillCodeReturn implements Serializable {
+public class MergeWaybillCodeReturnRequest implements Serializable {
     private String operatorNo;
     private String operatorName;
     private Integer operateUserId;
