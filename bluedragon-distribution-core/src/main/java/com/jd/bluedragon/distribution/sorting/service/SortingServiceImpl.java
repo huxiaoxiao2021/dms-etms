@@ -290,7 +290,7 @@ public class SortingServiceImpl implements SortingService {
 		boolean result = false;
 		long beginTime = System.currentTimeMillis();
 		//1、pre单独加入监控点
-		CallerInfo step1Monitor = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting.pre",
+		CallerInfo step1Monitor = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting.prepareSorting",
 				Constants.UMP_APP_NAME_DMSWORKER);
 		List<Sorting> sortings = this.prepareSorting(task);
 		Profiler.registerInfoEnd(step1Monitor);
@@ -313,7 +313,7 @@ public class SortingServiceImpl implements SortingService {
 		long costTimeTotal = System.currentTimeMillis() - beginTime;
 		if(costTimeTotal >= sortingDealWarnTime){
 			long preCostTime = preEndTime - beginTime;
-			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+"ms,total:"+costTimeTotal+"ms】"+"task:"+JsonHelper.toJson(task));
+			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+" ms,total:"+costTimeTotal+" ms】"+"task:"+JsonHelper.toJson(task));
 		}
 		return result;
 	}
