@@ -16,16 +16,6 @@ public class BusinessHelper {
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
-    public static final String PACKAGE_IDENTIFIER_PICKUP = "W";
-    public static final String PACKAGE_WAIDAN = "V";
-
-    public static final String AO_BATCH_CODE_PREFIX = "Y";
-    public static final String PACKAGE_IDENTIFIER_REPAIR = "VY";
-    public static final String SOURCE_CODE_ECLP = "ECLP";
-    public static final String BUSI_ORDER_CODE_PRE_ECLP = "ESL";
-    public static final String BUSI_ORDER_CODE_QWD = "QWD";
-    public static final String SOURCE_CODE_CLPS = "CLPS";
-    public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
     /**
      * hash格式分页存储时，分页大小
      */
@@ -329,22 +319,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSignInChars(String signStr, int position, char... chars) {
-        if (StringHelper.isNotEmpty(signStr)
-                && signStr.length() >= position
-                && chars != null
-                && chars.length > 0) {
-            char positionChar = signStr.charAt(position - 1);
-            if (chars.length == 1) {
-                return chars[0] == positionChar;
-            } else {
-                for (char tmp : chars) {
-                    if (positionChar == tmp) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+      return WaybillUtil.isSignInChars(signStr,position,chars);
     }
 
     /**
@@ -355,7 +330,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isUrban(String waybillSign, String sendPay) {
-        return isSignY(sendPay, 146) || isSignY(waybillSign, 36);
+        return WaybillUtil.isUrban(waybillSign,sendPay);
     }
 
     /**
@@ -365,14 +340,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isYHD(String sendPay) {
-        if (isSignChar(sendPay, 60, '0') && isSignChar(sendPay, 61, '3')) {
-            if (isSignChar(sendPay, 62, '4') || isSignChar(sendPay, 62, '5') || isSignChar(sendPay, 62, '6') ||
-                    isSignChar(sendPay, 62, '7') || isSignChar(sendPay, 62, '8') || isSignChar(sendPay, 62, '9')) {
-                return true;
-            }
-        }
-
-        return false;
+        return WaybillUtil.isYHD(sendPay);
     }
 
     /**
@@ -382,7 +350,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSopOrExternal(String waybillSign) {
-        return (isSignChar(waybillSign, 1, '2') || isExternal(waybillSign));
+        return WaybillUtil.isSopOrExternal(waybillSign);
     }
 
     /**
@@ -392,11 +360,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isExternal(String waybillSign) {
-        return (isSignChar(waybillSign, 1, '3')
-                || isSignChar(waybillSign, 1, '6')
-                || isSignChar(waybillSign, 1, '9')
-                || isSignChar(waybillSign, 1, 'K')
-                || isSignChar(waybillSign, 1, 'Y'));
+        return WaybillUtil.isExternal(waybillSign);
     }
 
     /**
@@ -485,7 +449,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isB2b(String waybillSign) {
-        return isSignInChars(waybillSign, 40, '1', '2', '3', '4', '5');
+        return WaybillUtil.isB2b(waybillSign);
     }
 
     /**
@@ -495,7 +459,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSick(String waybillSign) {
-        return isSignInChars(waybillSign, 34, '2');
+        return WaybillUtil.isSick(waybillSign);
     }
 
     /**
@@ -505,7 +469,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isPerformanceOrder(String waybillSign) {
-        return isSignInChars(waybillSign, 29, '9');
+        return WaybillUtil.isPerformanceOrder(waybillSign);
     }
 
     /**
@@ -515,7 +479,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isPackageHalf(String waybillSign) {
-        return isSignChar(waybillSign, 27, '2');
+        return WaybillUtil.isPackageHalf(waybillSign);
     }
 
     /**
@@ -525,7 +489,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isConsultationTo(String waybillSign) {
-        return isSignChar(waybillSign, 5, '3');
+        return WaybillUtil.isConsultationTo(waybillSign);
     }
 
     /**
@@ -555,7 +519,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isNoNeedWeight(String waybillSign) {
-        return isSignChar(waybillSign, 66, '1');
+        return WaybillUtil.isNoNeedWeight(waybillSign);
     }
 
     /**
@@ -568,7 +532,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isWaybillConsumableOnlyConfirm(String waybillSign) {
-        return isSignChar(waybillSign, 25, '3');
+        return WaybillUtil.isWaybillConsumableOnlyConfirm(waybillSign);
     }
 
     /**
@@ -649,17 +613,7 @@ public class BusinessHelper {
      * @return
      */
     public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
-        //外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
-        if (isSignChar(waybillSign, 31, '1')) {
-            return Constants.ORIGINAL_CROSS_TYPE_AIR;
-        } else if (isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')) {
-            return Constants.ORIGINAL_CROSS_TYPE_FILL;
-        }
-        //自营-sendpay137位为1，则为航运订单标识，航填
-        if (isSignChar(sendPay, 137, '1')) {
-            return Constants.ORIGINAL_CROSS_TYPE_FILL;
-        }
-        return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
+       return  WaybillUtil.getOriginalCrossType(waybillSign,sendPay);
     }
 
     /**
@@ -669,7 +623,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isCMBC(String waybillSign) {
-        return isSignChar(waybillSign, 54, '3');
+        return WaybillUtil.isCMBC(waybillSign);
     }
 
     /**
@@ -679,9 +633,6 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isRMA(String waybillSign) {
-        if (isSignChar(waybillSign, 32, '1')) {
-            return true;
-        }
-        return false;
+        return WaybillUtil.isRMA(waybillSign);
     }
 }

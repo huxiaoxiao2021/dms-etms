@@ -42,6 +42,19 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
 
     /**
+     * 始发道口号类型-1-普通
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
+    /**
+     * 始发道口号类型-2-航空
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_AIR= 2;
+    /**
+     * 始发道口号类型-3-填仓
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_FILL= 3;
+
+    /**
      * 字符类型yn标识,1-是
      */
     public static final char FLG_CHAR_YN_Y = '1';
