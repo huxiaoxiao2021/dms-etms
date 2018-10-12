@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturnRequest;
@@ -12,7 +13,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.center.api.ResponseDTO;
-import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
@@ -42,7 +42,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     private TaskService taskService;
 
     @Autowired
-    private WaybillReturnSignatureApi waybillReturnSignatureApi;
+    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     @Qualifier("mergeWaybillReturnMQ")
@@ -78,8 +78,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     public JdResponse mergeWaybillCode(WaybillReturnSignatureDTO dto,MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest) {
         JdResponse result = new JdResponse();
         String newWaybillCode = null;
-        ResponseDTO<ReturnSignatureResult> returnDto = null;
-        waybillReturnSignatureApi.waybillReturnSignature(dto);
+        ResponseDTO<ReturnSignatureResult> returnDto = waybillQueryManager.waybillReturnSignature(dto);
         if(returnDto!=null){
             if(returnDto.getStatusCode()==0){
                 result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -122,15 +121,15 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         ResponseDTO<ReturnSignatureMessageDTO>  responseDto = null;
         ResponseDTO<ReturnSignatureMessageDTO>  secondResponseDto = null;
         if(waybillCode.equals(secondWaybillCode)){
-            responseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
+            responseDto = waybillQueryManager.queryReturnSignatureMessage(waybillCode);
             if(responseDto.getStatusCode()==1||responseDto.getStatusCode()==-1){
                 result.setCode(responseDto.getStatusCode());
                 result.setMessage(responseDto.getStatusMessage());
             }
             return result;
         }
-        responseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
-        secondResponseDto = waybillReturnSignatureApi.queryReturnSignatureMessage(secondWaybillCode);
+        responseDto = waybillQueryManager.queryReturnSignatureMessage(waybillCode);
+        secondResponseDto = waybillQueryManager.queryReturnSignatureMessage(secondWaybillCode);
         if(responseDto!=null && responseDto.getData()!=null &&
                 secondResponseDto!=null && secondResponseDto.getData()!=null){
             Boolean flage = false;

@@ -1,15 +1,19 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.center.api.ResponseDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
+import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public interface WaybillQueryManager{
 	
@@ -153,4 +157,18 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
+
+	/**
+	 * 根据旧单号获取新单号
+	 * @param dto 旧单号对象
+	 * @return
+	 */
+	ResponseDTO<ReturnSignatureResult> waybillReturnSignature(WaybillReturnSignatureDTO dto);
+
+	/**
+	 * 根据运单号获得运单信息
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode);
 }

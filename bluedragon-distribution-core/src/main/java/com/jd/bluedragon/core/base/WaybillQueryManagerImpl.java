@@ -1,21 +1,6 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
-import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
-import com.jd.ql.trace.api.core.APIResultDTO;
-import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -28,10 +13,29 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.center.api.ResponseDTO;
+import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
+import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
+import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
+import com.jd.ql.trace.api.core.APIResultDTO;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -46,6 +50,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
+
+	@Autowired
+	private WaybillReturnSignatureApi waybillReturnSignatureApi;
 	
     @Autowired
     private WaybillPackageApi waybillPackageApiJsf;
@@ -312,5 +319,28 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return null;
 	}
 
+	/**
+	 * 根据旧单号获取新单号
+	 * @param dto 旧单号对象
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.waybillReturnSignature",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public ResponseDTO<ReturnSignatureResult> waybillReturnSignature(WaybillReturnSignatureDTO dto){
+		return waybillReturnSignatureApi.waybillReturnSignature(dto);
+	}
+
+	/**
+	 * 根据运单号获得运单信息
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.queryReturnSignatureMessage",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode){
+		return waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
+	}
 
 }
