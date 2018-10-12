@@ -436,8 +436,17 @@ public class Constants {
      * container_relation 发货状态 已发货
      */
     public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
-
-
+    /**
+     * 商家别名标识-YHD：一号店
+     */
+    public static final String BUSINESS_ALIAS_YHD="YHD";
+    /**
+     * 商家别名标识-CMBC：招商银行
+     */
+    public static final String BUSINESS_ALIAS_CMBC="CMBC";
+    /**
+     * 商家商标图片-一号店（yhd4949.gif）
+     */
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
     /**
      * 备件库条码前缀默认值-"null"

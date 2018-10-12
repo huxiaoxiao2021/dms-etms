@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.consumer.senddetail;
+package com.jd.bluedragon.distribution.consumer.send;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-
 
 /**
  * 发货明细MQ[dmsWorkSendDetail] 消费逻辑
