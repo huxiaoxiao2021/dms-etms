@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.api.response;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
+
 import java.util.Date;
 import java.util.Map;
-
-import com.jd.bluedragon.distribution.api.JdResponse;
 
 public class SortingResponse extends JdResponse {
 
@@ -55,6 +55,9 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_29121 = 29121;
     public static final String MESSAGE_29121 = "此单为[妥投状态]，请先核实异常，在PDA上提交配送异常后再进行逆向操作!";
+
+    public static final Integer CODE_29122 = 29122;
+    public static final String MESSAGE_29122 = "此单获取运单状态异常!";
 
     /** 箱号 */
     private String boxCode;
