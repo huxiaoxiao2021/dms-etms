@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -41,12 +42,14 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,6 +117,11 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	FastRefundService fastRefundService;
+    /**
+     * sorting任务处理告警时间，单位:ms，默认值100
+     */
+	@Value("${beans.SortingServiceImpl.sortingDealWarnTime:100}")
+	private long sortingDealWarnTime;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -273,20 +281,41 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
+	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP,JProEnum.FunctionError})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+		//记录本次分拣处理的包裹数量
+		int sortingNum = 0;
+		//记录本次分拣处理的结果
+		boolean result = false;
+		long beginTime = System.currentTimeMillis();
+		//1、pre单独加入监控点
+		CallerInfo step1Monitor = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting.pre",
+				Constants.UMP_APP_NAME_DMSWORKER);
 		List<Sorting> sortings = this.prepareSorting(task);
-		if (null == sortings || sortings.isEmpty()) {
-			return Boolean.FALSE;
-		} else {
-			if(!this.taskToSorting(sortings)){
-				//离线取消分拣：如果取消失败，则隔15分钟重新处理
-				return Boolean.FALSE;
-			}else{
-				return Boolean.TRUE;
-			}
+		Profiler.registerInfoEnd(step1Monitor);
+		long preEndTime = System.currentTimeMillis();
+		if (sortings != null) {
+			sortingNum = sortings.size();
 		}
+		//2、doSorting监控
+		CallerInfo step2Monitor = ProfilerHelper.registerInfo(
+				ProfilerHelper.genKeyByQuantity("DMSWORKER.SortingService.doSorting.deal", sortingNum),
+				Constants.UMP_APP_NAME_DMSWORKER);
+		//离线取消分拣：如果取消失败，则隔15分钟重新处理
+		if (sortingNum > 0) {
+			result = this.taskToSorting(sortings);
+		} else {
+			logger.warn("fail-doSorting:本次处理的包裹数为0，task:"+JsonHelper.toJson(task));
+		}
+		Profiler.registerInfoEnd(step2Monitor);
+		//耗时较长时，打印日志
+		long costTimeTotal = System.currentTimeMillis() - beginTime;
+		if(costTimeTotal >= sortingDealWarnTime){
+			long preCostTime = preEndTime - beginTime;
+			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+"ms,total:"+costTimeTotal+"ms】"+"task:"+JsonHelper.toJson(task));
+		}
+		return result;
 	}
 
 	private List<Sorting> prepareSorting(Task task) {
