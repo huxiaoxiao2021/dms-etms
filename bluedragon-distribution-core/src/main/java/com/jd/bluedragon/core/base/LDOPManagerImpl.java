@@ -198,7 +198,7 @@ public class LDOPManagerImpl implements LDOPManager {
      * @param dto 旧单号对象
      * @return
      */
-    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.waybillReturnSignature",
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.waybillReturnSignature",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public ResponseDTO<ReturnSignatureResult> waybillReturnSignature(WaybillReturnSignatureDTO dto){
@@ -210,7 +210,7 @@ public class LDOPManagerImpl implements LDOPManager {
      * @param waybillCode 运单号
      * @return
      */
-    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.queryReturnSignatureMessage",
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.queryReturnSignatureMessage",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode){
