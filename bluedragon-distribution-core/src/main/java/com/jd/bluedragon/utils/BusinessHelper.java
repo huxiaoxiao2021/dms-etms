@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -32,7 +33,7 @@ public class BusinessHelper {
      * @return
      */
     public static String getWaybillCodeByPackageBarcode(String packCode) {
-        return WaybillUtil.getWaybillCodeByPackCode(packCode);
+        return WaybillUtil.getWaybillCode(packCode);
     }
 
     private static void init() {
@@ -87,7 +88,7 @@ public class BusinessHelper {
      */
 
     public static Boolean isBoxcode(String s) {
-        return WaybillUtil.isBoxcode(s);
+        return BusinessUtil.isBoxcode(s);
     }
 
     /**
@@ -295,7 +296,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSignY(String signStr, int position) {
-        return WaybillUtil.isSignY(signStr,position);
+        return BusinessUtil.isSignY(signStr,position);
     }
 
     /**
@@ -307,7 +308,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSignChar(String signStr, int position, char signChar) {
-        return WaybillUtil.isSignChar(signStr,position,signChar);
+        return BusinessUtil.isSignChar(signStr,position,signChar);
     }
 
     /**
@@ -319,7 +320,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSignInChars(String signStr, int position, char... chars) {
-      return WaybillUtil.isSignInChars(signStr,position,chars);
+      return BusinessUtil.isSignInChars(signStr,position,chars);
     }
 
     /**
@@ -330,7 +331,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isUrban(String waybillSign, String sendPay) {
-        return WaybillUtil.isUrban(waybillSign,sendPay);
+        return BusinessUtil.isUrban(waybillSign,sendPay);
     }
 
     /**
@@ -340,7 +341,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isYHD(String sendPay) {
-        return WaybillUtil.isYHD(sendPay);
+        return BusinessUtil.isYHD(sendPay);
     }
 
     /**
@@ -350,7 +351,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSopOrExternal(String waybillSign) {
-        return WaybillUtil.isSopOrExternal(waybillSign);
+        return BusinessUtil.isSopOrExternal(waybillSign);
     }
 
     /**
@@ -360,7 +361,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isExternal(String waybillSign) {
-        return WaybillUtil.isExternal(waybillSign);
+        return BusinessUtil.isExternal(waybillSign);
     }
 
     /**
@@ -449,7 +450,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isB2b(String waybillSign) {
-        return WaybillUtil.isB2b(waybillSign);
+        return BusinessUtil.isB2b(waybillSign);
     }
 
     /**
@@ -459,7 +460,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isSick(String waybillSign) {
-        return WaybillUtil.isSick(waybillSign);
+        return BusinessUtil.isSick(waybillSign);
     }
 
     /**
@@ -469,7 +470,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isPerformanceOrder(String waybillSign) {
-        return WaybillUtil.isPerformanceOrder(waybillSign);
+        return BusinessUtil.isPerformanceOrder(waybillSign);
     }
 
     /**
@@ -479,7 +480,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isPackageHalf(String waybillSign) {
-        return WaybillUtil.isPackageHalf(waybillSign);
+        return BusinessUtil.isPackageHalf(waybillSign);
     }
 
     /**
@@ -489,7 +490,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isConsultationTo(String waybillSign) {
-        return WaybillUtil.isConsultationTo(waybillSign);
+        return BusinessUtil.isConsultationTo(waybillSign);
     }
 
     /**
@@ -519,7 +520,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isNoNeedWeight(String waybillSign) {
-        return WaybillUtil.isNoNeedWeight(waybillSign);
+        return BusinessUtil.isNoNeedWeight(waybillSign);
     }
 
     /**
@@ -532,7 +533,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isWaybillConsumableOnlyConfirm(String waybillSign) {
-        return WaybillUtil.isWaybillConsumableOnlyConfirm(waybillSign);
+        return BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
     }
 
     /**
@@ -613,7 +614,7 @@ public class BusinessHelper {
      * @return
      */
     public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
-       return  WaybillUtil.getOriginalCrossType(waybillSign,sendPay);
+       return  BusinessUtil.getOriginalCrossType(waybillSign,sendPay);
     }
 
     /**
@@ -623,7 +624,7 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isCMBC(String waybillSign) {
-        return WaybillUtil.isCMBC(waybillSign);
+        return BusinessUtil.isCMBC(waybillSign);
     }
 
     /**
@@ -633,6 +634,6 @@ public class BusinessHelper {
      * @return
      */
     public static boolean isRMA(String waybillSign) {
-        return WaybillUtil.isRMA(waybillSign);
+        return BusinessUtil.isRMA(waybillSign);
     }
 }
