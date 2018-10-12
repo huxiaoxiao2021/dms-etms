@@ -3,8 +3,6 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.regex.Pattern;
-
 import static com.jd.bluedragon.dms.utils.DmsConstants.BUSI_ORDER_CODE_QWD;
 import static com.jd.bluedragon.dms.utils.DmsConstants.SOURCE_CODE_CLPS;
 
@@ -15,12 +13,7 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.SOURCE_CODE_CLPS;
  */
 public class WaybillUtil extends WaybillCodeRuleValidateUtil {
 
-    /**
-     * 箱号正则表达式
-     */
-    private static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
 
-    public static final String AO_BATCH_CODE_PREFIX="Y";
     /**
      * 根据包裹号解析运单号
      *
@@ -63,7 +56,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(s)) {
             return Boolean.FALSE;
         }
-        return isMatchBoxCode(s)||s.toUpperCase().startsWith(WaybillUtil.AO_BATCH_CODE_PREFIX);
+        return isMatchBoxCode(s)||s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
 
     /**
@@ -73,7 +66,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static boolean isMatchBoxCode(String boxCode) {
-        return RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
+        return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
     }
 
     /**

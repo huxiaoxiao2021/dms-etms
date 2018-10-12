@@ -1,5 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
+import java.util.regex.Pattern;
+
 /**
  * @author tangchunqing
  * @Description: 静态变量
@@ -58,4 +60,10 @@ public class DmsConstants {
      * 字符类型yn标识,1-是
      */
     public static final char FLG_CHAR_YN_Y = '1';
+
+    /**
+     * 箱号正则表达式
+     */
+    public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
+
 }
