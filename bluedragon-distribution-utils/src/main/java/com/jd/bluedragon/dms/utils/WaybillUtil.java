@@ -1,10 +1,9 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-import org.apache.commons.lang.StringUtils;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.BUSI_ORDER_CODE_QWD;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SOURCE_CODE_CLPS;
 
 /**
  * @author tangchunqing
@@ -27,19 +26,19 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         }
     }
 
-    /**
-     * 验证POP运单号
-     * 合法返回 true, 不合法返回 false
-     *
-     * @param waybillCode
-     * @return
-     */
-    public static Boolean isPopWaybillCode(String waybillCode) {
-        if (StringUtils.isBlank(waybillCode) || waybillCode.length() < 8) {
-            return Boolean.FALSE;
-        }
-        return waybillCode.matches("^[1-9]{1}\\d*$");
-    }
+//    /**
+//     * 验证POP运单号
+//     * 合法返回 true, 不合法返回 false
+//     *
+//     * @param waybillCode
+//     * @return
+//     */
+//    public static Boolean isPopWaybillCode(String waybillCode) {
+//        if (StringUtils.isBlank(waybillCode) || waybillCode.length() < 8) {
+//            return Boolean.FALSE;
+//        }
+//        return waybillCode.matches("^[1-9]{1}\\d*$");
+//    }
 
     /**
      * 验证是否为备件退货
@@ -91,16 +90,6 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
     }
 
     /**
-     * 判断输入字符串是否为面单号. 包裹号规则： W1234567890
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-     */
-    public static boolean isSurfaceCode(String s) {
-        return WaybillCodeRuleValidateUtil.isSurfaceCode(s);
-    }
-
-    /**
      * 这种类型的  WW123456789 包裹号返回true
      *
      * @param s 用来判断的字符串
@@ -127,7 +116,9 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(s)) {
             return Boolean.FALSE;
         }
-
+        if (UniformValidateUtil.isWaybillCode(s)) {
+            return s.startsWith("JDY");
+        }
         if (DmsConstants.PACKAGE_IDENTIFIER_REPAIR.equals(s.substring(0, 2))) {
             return Boolean.TRUE;
         }
@@ -165,7 +156,9 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
-
+        if(UniformValidateUtil.isWaybillCode(busiOrderCode)){
+                return busiOrderCode.startsWith("JDL");
+        }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_ECLP)) {
             return Boolean.TRUE;
         }
@@ -184,7 +177,9 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
-
+        if(UniformValidateUtil.isWaybillCode(busiOrderCode)){
+            //todo
+        }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_CLPS)) {
             return Boolean.TRUE;
         }
@@ -192,24 +187,24 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         return Boolean.FALSE;
     }
 
-    /**
-     * 判断是否是CLPS订单
-     * CLPS : 云仓
-     *
-     * @param soucreCode 运单中的sourceCode字段 是CLPS
-     * @return
-     */
-    public static Boolean isCLPSBySoucreCode(String soucreCode) {
-        if (StringHelper.isEmpty(soucreCode)) {
-            return Boolean.FALSE;
-        }
-
-        if (soucreCode.toUpperCase().equals(SOURCE_CODE_CLPS)) {
-            return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
-    }
+//    /**
+//     * 判断是否是CLPS订单
+//     * CLPS : 云仓
+//     *
+//     * @param soucreCode 运单中的sourceCode字段 是CLPS
+//     * @return
+//     */
+//    public static Boolean isCLPSBySoucreCode(String soucreCode) {
+//        if (StringHelper.isEmpty(soucreCode)) {
+//            return Boolean.FALSE;
+//        }
+//
+//        if (soucreCode.toUpperCase().equals(SOURCE_CODE_CLPS)) {
+//            return Boolean.TRUE;
+//        }
+//
+//        return Boolean.FALSE;
+//    }
 
     /**
      * “QWD”开头的单子 返回true
@@ -220,6 +215,9 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
     public static Boolean isQWD(String waybillCode) {
         if (StringHelper.isEmpty(waybillCode)) {
             return Boolean.FALSE;
+        }
+        if(UniformValidateUtil.isWaybillCode(waybillCode)){
+            //todo
         }
         if (waybillCode.indexOf(BUSI_ORDER_CODE_QWD) == 0 && waybillCode.startsWith(BUSI_ORDER_CODE_QWD)) {
             return Boolean.TRUE;

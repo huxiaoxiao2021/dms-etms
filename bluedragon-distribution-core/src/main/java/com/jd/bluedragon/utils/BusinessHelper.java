@@ -220,16 +220,16 @@ public class BusinessHelper {
         return WaybillUtil.isReverseSpare(type, aPackageCode);
     }
 
-    /**
-     * 验证POP运单号
-     * 合法返回 true, 不合法返回 false
-     *
-     * @param waybillCode
-     * @return
-     */
-    public static Boolean isPopWaybillCode(String waybillCode) {
-        return WaybillUtil.isPopWaybillCode(waybillCode);
-    }
+//    /**
+//     * 验证POP运单号
+//     * 合法返回 true, 不合法返回 false
+//     *
+//     * @param waybillCode
+//     * @return
+//     */
+//    public static Boolean isPopWaybillCode(String waybillCode) {
+//        return WaybillUtil.isPopWaybillCode(waybillCode);
+//    }
 
     /**
      * 验证是否为备件条码
@@ -306,17 +306,17 @@ public class BusinessHelper {
     public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
         return WaybillUtil.isCLPSByBusiOrderCode(busiOrderCode);
     }
-
-    /**
-     * 判断是否是CLPS订单
-     * CLPS : 云仓
-     *
-     * @param soucreCode 运单中的sourceCode字段 是CLPS
-     * @return
-     */
-    public static Boolean isCLPSBySoucreCode(String soucreCode) {
-       return WaybillUtil.isCLPSBySoucreCode(soucreCode);
-    }
+//
+//    /**
+//     * 判断是否是CLPS订单
+//     * CLPS : 云仓
+//     *
+//     * @param soucreCode 运单中的sourceCode字段 是CLPS
+//     * @return
+//     */
+//    public static Boolean isCLPSBySoucreCode(String soucreCode) {
+//       return WaybillUtil.isCLPSBySoucreCode(soucreCode);
+//    }
 
     /**
      * “QWD”开头的单子 返回true
