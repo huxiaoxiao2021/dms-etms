@@ -67,6 +67,12 @@ public class DmsConstants {
     public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
 
     /**
+     * 返单号正则表达式
+     */
+    public static final Pattern RULE_F_WAYBILL_CODE_REGEX = Pattern.compile("^F[0-9]{11}$");
+
+
+    /**
      * 拍卖订单（多宝岛）
      */
     public static final Integer AUCTION = 2;

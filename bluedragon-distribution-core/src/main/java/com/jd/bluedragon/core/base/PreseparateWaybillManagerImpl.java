@@ -41,7 +41,7 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
     @Override
     public Integer getPreseparateSiteId(String waybillCode) throws Exception {
         Integer siteId=null;
-        if(SerialRuleUtil.isMatchWaybillNo(waybillCode)){
+        if(SerialRuleUtil. isMatchWaybillNo(waybillCode)){
             PsOrderSeparateVo domain=preseparateOrderService.getPreSeparateOrderByOrderId(waybillCode.trim());
             if(null!=domain){
                 if(logger.isDebugEnabled()){
