@@ -2,6 +2,10 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.BUSI_ORDER_CODE_QWD;
 
@@ -156,8 +160,8 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
-        if(UniformValidateUtil.isWaybillCode(busiOrderCode)){
-                return busiOrderCode.startsWith("JDL");
+        if (UniformValidateUtil.isWaybillCode(busiOrderCode)) {
+            return busiOrderCode.startsWith("JDL");
         }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_ECLP)) {
             return Boolean.TRUE;
@@ -177,7 +181,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
-        if(UniformValidateUtil.isWaybillCode(busiOrderCode)){
+        if (UniformValidateUtil.isWaybillCode(busiOrderCode)) {
             //todo
         }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_CLPS)) {
@@ -216,7 +220,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (StringHelper.isEmpty(waybillCode)) {
             return Boolean.FALSE;
         }
-        if(UniformValidateUtil.isWaybillCode(waybillCode)){
+        if (UniformValidateUtil.isWaybillCode(waybillCode)) {
             //todo
         }
         if (waybillCode.indexOf(BUSI_ORDER_CODE_QWD) == 0 && waybillCode.startsWith(BUSI_ORDER_CODE_QWD)) {
@@ -225,4 +229,38 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         return Boolean.FALSE;
     }
 
+    /**
+     * 根据包裹号 生成所有的包裹号
+     */
+    public static List<String> generateAllPackageCodes(String packcode) {
+        List<String> list = new ArrayList<String>();
+
+        //如果是有效的包裹号，根据包裹总数生成包裹号列表
+        if (WaybillUtil.isPackageCode(packcode)) {
+            String waybillCode = WaybillUtil.getWaybillCode(packcode);//运单号
+            int totalPackageNum = WaybillUtil.getPackNumByPackCode(packcode);//包裹总数
+            String portCode = "";//道口号
+
+            if (!WaybillUtil.isLasWaybillCode(waybillCode)) {
+                //定位最后一个-或H，获取道口号
+                int portCodeIndex = packcode.lastIndexOf("[-H");
+
+                if (portCodeIndex != -1) {
+                    portCode = packcode.substring(portCodeIndex + 1);
+                }
+            }
+
+            for (int i = 1; i <= totalPackageNum; i++) {
+                String packageCode = "";
+                packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
+                if (StringUtils.isNotBlank(portCode)) {
+                    packageCode = packageCode + "-" + portCode;
+                }
+                list.add(packageCode);
+            }
+            return list;
+        }
+        list.add(packcode);
+        return list;
+    }
 }
