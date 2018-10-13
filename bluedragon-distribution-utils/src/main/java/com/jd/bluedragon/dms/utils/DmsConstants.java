@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
 public class DmsConstants {
 
     /** 业务类型 **/
-    public static final int BUSSINESS_TYPE_POSITIVE = 10;
-    public static final int BUSSINESS_TYPE_REVERSE = 20;
+    public static final int BUSSINESS_TYPE_POSITIVE = 10;//正向
+    public static final int BUSSINESS_TYPE_REVERSE = 20;//逆向
     public static final int BUSSINESS_TYPE_THIRD_PARTY = 30;
     public static final int BUSSINESS_TYPE_POP = 40;
     public static final int BUSSINESS_TYPE_InFactory = 41;
@@ -66,4 +66,18 @@ public class DmsConstants {
      */
     public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
 
+    /**
+     * 拍卖订单（多宝岛）
+     */
+    public static final Integer AUCTION = 2;
+    /**
+     * 站点类型-B商家
+     */
+    public static final Integer SITE_TYPE_BIZ = 1024;
+
+    /**
+     * 买卖宝 的标识
+     */
+    public static final char MMB_SELF_MARK = '9';
+    public static final String MMB_V_MARK = "009";
 }

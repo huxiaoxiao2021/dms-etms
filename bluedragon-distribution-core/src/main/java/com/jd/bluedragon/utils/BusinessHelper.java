@@ -34,6 +34,22 @@ public class BusinessHelper {
      */
     public static String getWaybillCodeByPackageBarcode(String packCode) {
         return WaybillUtil.getWaybillCode(packCode);
+//        if (!BusinessHelper.isPackageCode(s)) {
+//            return null;
+//        }
+//        try {
+//            if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
+//                return s.split("-")[0];
+//            } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
+//                    && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
+//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER));
+//            }
+//
+//        } catch (Exception e) {
+//            BusinessHelper.logger.error("提取运单号码发生错误， 错误信息为：" + e.getMessage(), e);
+//        }
+//
+//        return null;
     }
 
     private static void init() {
@@ -47,6 +63,16 @@ public class BusinessHelper {
      */
     public static int getPackageNum(String packageBarcode) {
         return WaybillUtil.getPackNumByPackCode(packageBarcode);
+//        int sum = 1;
+//        if(packageBarcode.indexOf("S")>0 && packageBarcode.indexOf("H")>0){
+//            sum = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("S")+1, packageBarcode.indexOf("H")));
+//        }else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
+//            sum = Integer.valueOf(packageBarcode.split("-")[2]);
+//        }
+//        if(sum>BusinessHelper.getMaxNum()){
+//            sum =BusinessHelper.getMaxNum();
+//        }
+//        return sum;
     }
 
     /**
@@ -57,6 +83,13 @@ public class BusinessHelper {
      */
     public static int getCurrentPackageNum(String packageBarcode) {
         return WaybillUtil.getCurrentPackageNum(packageBarcode);
+//        int num = 1;
+//        if(packageBarcode.indexOf("N")>0 && packageBarcode.indexOf("S")>0){
+//            num = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("N")+1, packageBarcode.indexOf("S")));
+//        }else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
+//            num = Integer.valueOf(packageBarcode.split("-")[1]);
+//        }
+//        return num;
     }
 
     /**
@@ -67,6 +100,21 @@ public class BusinessHelper {
      */
     public static String getWaybillCode(String s) {
         return getWaybillCodeByPackageBarcode(s);
+//        if (!BusinessHelper.isPackageCode(s)) {
+//            return s;
+//        }
+//
+//        try {
+//            if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
+//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_SEPARATOR));
+//            } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1) {
+//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER));
+//            }
+//        } catch (Exception e) {
+//            BusinessHelper.logger.error("提取运单号码发生错误， 错误信息为：" + e.getMessage(), e);
+//        }
+//
+//        return null;
     }
 
     /**
@@ -77,6 +125,28 @@ public class BusinessHelper {
      */
     public static Boolean isPackageCode(String s) {
         return WaybillUtil.isPackageCode(s);
+//        if (StringHelper.isEmpty(s)) {
+//            return Boolean.FALSE;
+//        }
+//
+//        /**
+//         * 亚一批次号会当箱号使用，排除亚一箱号
+//         */
+//        if(s.startsWith(Box.BOX_TYPE_WEARHOUSE)){
+//            return Boolean.FALSE;
+//        }
+//
+//        if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
+//            return Boolean.TRUE;
+//        } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
+//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
+//            return Boolean.TRUE;
+//        }
+////        else if (BusinessHelper.isPickupCode(s)) {
+////            return Boolean.TRUE;
+////        }
+//
+//        return Boolean.FALSE;
     }
 
     /**
@@ -89,6 +159,10 @@ public class BusinessHelper {
 
     public static Boolean isBoxcode(String s) {
         return BusinessUtil.isBoxcode(s);
+//        if (StringHelper.isEmpty(s)) {
+//            return Boolean.FALSE;
+//        }
+//        return SerialRuleUtil.isMatchBoxCode(s)||s.toUpperCase().startsWith(BusinessHelper.AO_BATCH_CODE_PREFIX);
     }
 
     /**
@@ -101,6 +175,36 @@ public class BusinessHelper {
     @Deprecated
     public static Boolean isWaybillCode(String s) {
         return WaybillUtil.isWaybillCode(s);
+//        if (StringHelper.isEmpty(s)) {
+//            return Boolean.FALSE;
+//        }
+//
+//        if (BusinessHelper.isPackageCode(s)) {
+//            return Boolean.FALSE;
+//        }
+//
+//        if (BusinessHelper.isBoxcode(s)) {
+//            return Boolean.FALSE;
+//        }
+//
+//        if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) == -1
+//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) == -1
+//                && s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) == -1
+//                && s.indexOf(Box.BOX_TYPE_FORWARD) == -1
+//                && s.indexOf(Box.BOX_TYPE_REVERSE_AFTER_SERVICE) == -1
+//                && s.indexOf(Box.BOX_TYPE_REVERSE_LUXURY) == -1
+////				&& s.indexOf(Box.BOX_TYPE_REVERSE_REJECTION) == -1 //与箱号T冲突，逆向运单号也有T的情况
+//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_PICKUP) == -1 //此处不能对W单进行有效判断 于2017.07.18 黄亮 增加注释，需要对w进行判断的地方进行梳理排查
+//                ) {
+//            return Boolean.TRUE;
+//        }
+//
+//        if (s.indexOf(BusinessHelper.PACKAGE_WAIDAN) == 0
+//                && s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) == -1) {
+//            return Boolean.TRUE;
+//        }
+//
+//        return Boolean.FALSE;
     }
 
 

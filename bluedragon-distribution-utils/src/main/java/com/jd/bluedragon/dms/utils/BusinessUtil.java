@@ -5,13 +5,12 @@ package com.jd.bluedragon.dms.utils;
  * @Description: 业务相关判断
  * @date 2018年10月12日 18时:15分
  */
-public class BusinessUtil {
+public class BusinessUtil extends WaybillUtil{
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
      * B，正向；T，逆向；G取件退货;C普通物品；S奢侈品；2-8位，出发地编号；9-15位，到达地编号；最后8位，流水号。一共23位。 前面有两个字母
      *
-     * @param s
-     *            用来判断的字符串
+     * @param s 用来判断的字符串
      * @return 如果此字符串为箱号，则返回 true，否则返回 false
      */
 
@@ -19,15 +18,16 @@ public class BusinessUtil {
         if (StringHelper.isEmpty(s)) {
             return Boolean.FALSE;
         }
-        return isMatchBoxCode(s)||s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
+        return isMatchBoxCode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
+
     /**
      * 判断是否为箱号
      *
      * @param boxCode 待验证字符
      * @return
      */
-    public static boolean isMatchBoxCode(String boxCode) {
+    private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
     }
 
@@ -85,6 +85,7 @@ public class BusinessUtil {
 
         return false;
     }
+
     /**
      * 根据waybillSign第一位判断是否SOP(标识为 2)或纯外单（标识为 3、6、9、K、Y）
      *
@@ -94,6 +95,7 @@ public class BusinessUtil {
     public static boolean isSopOrExternal(String waybillSign) {
         return (isSignChar(waybillSign, 1, '2') || isExternal(waybillSign));
     }
+
     /**
      * 根据waybillSign第一位判断是否纯外单（标识为 3、6、9、K、Y）
      *
@@ -107,6 +109,7 @@ public class BusinessUtil {
                 || isSignChar(waybillSign, 1, 'K')
                 || isSignChar(waybillSign, 1, 'Y'));
     }
+
     /**
      * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
      *
@@ -143,6 +146,7 @@ public class BusinessUtil {
         }
         return false;
     }
+
     /**
      * 根据waybillSign判断是否病单（34位标识为 2）
      *
@@ -152,6 +156,7 @@ public class BusinessUtil {
     public static boolean isSick(String waybillSign) {
         return isSignInChars(waybillSign, 34, '2');
     }
+
     /**
      * 根据waybillSign判断是否加履中心订单 （29 位 9 ）
      *
@@ -161,6 +166,7 @@ public class BusinessUtil {
     public static boolean isPerformanceOrder(String waybillSign) {
         return isSignInChars(waybillSign, 29, '9');
     }
+
     /**
      * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
      *
@@ -180,6 +186,7 @@ public class BusinessUtil {
     public static boolean isConsultationTo(String waybillSign) {
         return isSignChar(waybillSign, 5, '3');
     }
+
     /**
      * 通过运单标识 判断是否需求称重
      * <p>
@@ -204,6 +211,7 @@ public class BusinessUtil {
     public static boolean isWaybillConsumableOnlyConfirm(String waybillSign) {
         return isSignChar(waybillSign, 25, '3');
     }
+
     /**
      * 获取始发道口号类型
      * <p>自营：sendpay137位为1，则为航运订单标识，航填,其他为普通
@@ -226,6 +234,7 @@ public class BusinessUtil {
         }
         return DmsConstants.ORIGINAL_CROSS_TYPE_GENERAL;
     }
+
     /**
      * 判断是否招商银行业务运单，waybill_sign第54位等于3时
      *
@@ -247,5 +256,105 @@ public class BusinessUtil {
             return true;
         }
         return false;
+    }
+
+    /**
+     * 判断正向
+     *
+     * @param businessType
+     * @return
+     */
+    public static Boolean isForward(Integer businessType) {
+        if (businessType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (DmsConstants.BUSSINESS_TYPE_POSITIVE == businessType.intValue()
+                || DmsConstants.BUSSINESS_TYPE_THIRD_PARTY == businessType.intValue()) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断逆向
+     *
+     * @param businessType
+     * @return
+     */
+    public static Boolean isReverse(Integer businessType) {
+        if (businessType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (DmsConstants.BUSSINESS_TYPE_REVERSE == businessType.intValue()) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 是否多宝岛订单 waybill.wabillType = 2
+     * 拍卖订单
+     *
+     * @param waybillType
+     * @return
+     */
+    public static boolean isAuction(Integer waybillType) {
+        if (waybillType == null) {
+            return Boolean.FALSE;
+        }
+        if (DmsConstants.AUCTION.equals(waybillType)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 是否为商家类型
+     */
+    public static boolean isBizSite(String sReceiveSiteType) {
+
+        Integer receiveSiteType;
+        try {
+            receiveSiteType = Integer.parseInt(sReceiveSiteType);
+        } catch (Exception e) {
+            return Boolean.FALSE;
+        }
+
+        if (DmsConstants.SITE_TYPE_BIZ.equals(receiveSiteType)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断订单是否是买卖宝的
+     * @param waybillCode
+     * @param waybillSign
+     * @param sendPay
+     * @return
+     */
+    public static Boolean isMMBWaybill(String waybillCode,String waybillSign,String sendPay) {
+
+        try {
+            if (isJDWaybillCode(waybillCode)) {
+                if (!StringHelper.isEmpty(waybillSign) && DmsConstants.MMB_SELF_MARK == waybillSign.charAt(10)) {
+                    return Boolean.TRUE;
+                }
+            }
+
+            if (isBusiWaybillCode(waybillCode)) {
+                if (!StringHelper.isEmpty(sendPay) && DmsConstants.MMB_V_MARK.equals(sendPay.substring(59, 62))) {
+                    return Boolean.TRUE;
+                }
+            }
+        } catch (IndexOutOfBoundsException ex) {
+            return Boolean.FALSE;
+        }
+
+        return Boolean.FALSE;
     }
 }

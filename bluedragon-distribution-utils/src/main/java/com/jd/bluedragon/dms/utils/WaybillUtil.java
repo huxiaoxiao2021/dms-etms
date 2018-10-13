@@ -27,7 +27,6 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         }
     }
 
-
     /**
      * 验证POP运单号
      * 合法返回 true, 不合法返回 false
