@@ -4,7 +4,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -19,19 +18,6 @@ import java.util.regex.Pattern;
 public class SerialRuleUtil {
 
     public static final String SPLIT_CHAR_STRING = "-";
-
-
-    /**
-     * 生成包裹列表专用正则
-     * 【分组一：运单号】
-     * 【分组二：-或N】
-     * 【分组三：第几件】
-     * 【分组四：-或S】
-     * 【分组五：共几件】
-     * 【分组六：（-或H）与道口号组合】
-     */
-    private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX = Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,4}-)|N(?=\\d{1,4}S))([1-9]\\d{0,3})(-(?=\\d{1,4}-)|S(?=\\d{1,4}H))([0-9]\\d{0,3})([-|H][A-Za-z0-9]*)$");
-
 
     /**
      * 逆向箱号正则表达式:
@@ -156,17 +142,33 @@ public class SerialRuleUtil {
      * 生产包裹号码
      */
     public static List<String> generateAllPackageCodes(String input) {
-        Matcher match = RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
-        if (match.matches()) {
-            String template = match.group(1) + match.group(2) + "{0}" + match.group(4) + match.group(5) + match.group(6);
-            int count = Integer.valueOf(match.group(5));
-            List<String> list = new ArrayList<String>(count);
-            for (int i = 1; i <= count; i++) {
-                list.add(MessageFormat.format(template, String.valueOf(i)));
+        List<String> list = new ArrayList<String>();
+
+        //如果是有效的包裹号，根据包裹总数生成包裹号列表
+        if(WaybillUtil.isPackageCode(input)){
+            String waybillCode = WaybillUtil.getWaybillCode(input);//运单号
+            int totalPackageNum = WaybillUtil.getPackNumByPackCode(input);//包裹总数
+            String portCode = "";//道口号
+
+            if(!WaybillUtil.isLasWaybillCode(waybillCode)){
+                //定位最后一个-或H，获取道口号
+                int portCodeIndex = input.lastIndexOf("[-H");
+
+                if(portCodeIndex != -1){
+                    portCode = input.substring(portCodeIndex+1);
+                }
+            }
+
+            for(int i = 1 ;i <= totalPackageNum;i++){
+                String packageCode = "";
+                packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
+                if(StringUtils.isNotBlank(portCode)){
+                    packageCode = packageCode + "-" + portCode;
+                }
+                list.add(packageCode);
             }
             return list;
         }
-        List<String> list = new ArrayList<String>(1);
         list.add(input);
         return list;
     }
