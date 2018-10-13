@@ -142,35 +142,7 @@ public class SerialRuleUtil {
      * 生产包裹号码
      */
     public static List<String> generateAllPackageCodes(String input) {
-        List<String> list = new ArrayList<String>();
-
-        //如果是有效的包裹号，根据包裹总数生成包裹号列表
-        if(WaybillUtil.isPackageCode(input)){
-            String waybillCode = WaybillUtil.getWaybillCode(input);//运单号
-            int totalPackageNum = WaybillUtil.getPackNumByPackCode(input);//包裹总数
-            String portCode = "";//道口号
-
-            if(!WaybillUtil.isLasWaybillCode(waybillCode)){
-                //定位最后一个-或H，获取道口号
-                int portCodeIndex = input.lastIndexOf("[-H");
-
-                if(portCodeIndex != -1){
-                    portCode = input.substring(portCodeIndex+1);
-                }
-            }
-
-            for(int i = 1 ;i <= totalPackageNum;i++){
-                String packageCode = "";
-                packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
-                if(StringUtils.isNotBlank(portCode)){
-                    packageCode = packageCode + "-" + portCode;
-                }
-                list.add(packageCode);
-            }
-            return list;
-        }
-        list.add(input);
-        return list;
+        return WaybillUtil.generateAllPackageCodes(input);
     }
 
     /**
