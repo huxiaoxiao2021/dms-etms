@@ -357,4 +357,17 @@ public class BusinessUtil extends WaybillUtil{
 
         return Boolean.FALSE;
     }
+    /**
+     * 是否是理赔换新单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isLPNewWaybill(String waybillSign) {
+        if (isSignChar(waybillSign, 18, '4')) {
+            return true;
+        }
+        return false;
+    }
+
 }
