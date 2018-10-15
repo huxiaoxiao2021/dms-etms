@@ -227,7 +227,7 @@ public class PopPrintResource {
 						Map<String,Object> msgBody=Maps.newHashMap();
 						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
 						msgBody.put("operatorErp",userDto.getErp());
-						msgBody.put("operatorTime",operatorTime);
+						msgBody.put("operatorTime",operatorTime.getTime());
 						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
 					}
 				}
