@@ -6,8 +6,6 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.BUSI_ORDER_CODE_QWD;
-
 /**
  * @author tangchunqing
  * @Description: 运单相关操作工具类
@@ -248,7 +246,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
                     String packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
 
                     //大件包裹号没有道口号，只有前两个-
-                    if(!WaybillUtil.isLasWaybillCode(waybillCode)){
+                    if (!WaybillUtil.isLasWaybillCode(waybillCode)) {
                         packageCode = packageCode + "-" + portCode;
                     }
                     list.add(packageCode);
