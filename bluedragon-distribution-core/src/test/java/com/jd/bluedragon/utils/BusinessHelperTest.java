@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.junit.Test;
 
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -69,6 +70,13 @@ public class BusinessHelperTest {
 		assertTrue(helper.isPackageCode("F18655150305-1-1-2").booleanValue());
 
 		assertTrue(helper.isPackageCode("VA66679375345-1-1-2").booleanValue());
+	}
+
+	@Test
+	public void testgetWaybillCode(){
+		assertTrue(WaybillUtil.getWaybillCode("VA00084590155-3-10-").equals("VA00084590155"));
+		assertTrue(WaybillUtil.getWaybillCode("LD1234567890-1-3").equals("LD1234567890"));
+		assertTrue(WaybillUtil.getWaybillCode("JDLD12345678901-1-3").equals("JDLD12345678901"));
 	}
 
 	@Test

@@ -20,11 +20,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
-        if (isWaybillCode(packCode)) {
-            return packCode;
-        } else {
-            return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
-        }
+        return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
     }
 
 //    /**
