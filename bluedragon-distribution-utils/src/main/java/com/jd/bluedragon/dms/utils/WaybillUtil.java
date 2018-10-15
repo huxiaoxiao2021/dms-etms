@@ -2,7 +2,6 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -241,22 +240,39 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
             int totalPackageNum = WaybillUtil.getPackNumByPackCode(packcode);//包裹总数
             String portCode = "";//道口号
 
+            //非大件的包裹号有道口号，大件的包裹号没有道口号
             if (!WaybillUtil.isLasWaybillCode(waybillCode)) {
+                int portCodeIndex = -1;
+
                 //定位最后一个-或H，获取道口号
-                int portCodeIndex = packcode.lastIndexOf("[-H");
+                if (packcode.lastIndexOf("-") > -1) {
+                    portCodeIndex = packcode.lastIndexOf("-");
+                } else {
+                    portCodeIndex = packcode.lastIndexOf("H");
+                }
 
                 if (portCodeIndex != -1) {
                     portCode = packcode.substring(portCodeIndex + 1);
                 }
             }
 
-            for (int i = 1; i <= totalPackageNum; i++) {
-                String packageCode = "";
-                packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
-                if (StringUtils.isNotBlank(portCode)) {
-                    packageCode = packageCode + "-" + portCode;
+            //上海亚一包裹号处理
+            if (packcode.contains("N") && packcode.contains("S") && packcode.contains("H")) {
+                for (int i = 1; i <= totalPackageNum; i++) {
+                    String packageCode = waybillCode + "N" + i + "S" + totalPackageNum + "H" + portCode;
+                    list.add(packageCode);
                 }
-                list.add(packageCode);
+            } else if (packcode.contains("-")) {
+                //非亚一包裹号处理
+                for (int i = 1; i <= totalPackageNum; i++) {
+                    String packageCode = waybillCode + "-" + i + "-" + totalPackageNum;
+
+                    //大件包裹号没有道口号，只有前两个-
+                    if(!WaybillUtil.isLasWaybillCode(waybillCode)){
+                        packageCode = packageCode + "-" + portCode;
+                    }
+                    list.add(packageCode);
+                }
             }
             return list;
         }

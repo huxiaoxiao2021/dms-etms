@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 public class BusinessHelperTest {
 	
 	BusinessHelper helper = new BusinessHelper();
-
 	@Test
 	public void testIsBoxcode() {
 		String boxCode="TC010A001010F00500039001";
@@ -42,7 +41,20 @@ public class BusinessHelperTest {
 		isWaybillCode = helper.isWaybillCode(boxCode).booleanValue();
 		assertFalse(isWaybillCode);
 	}
-	
+
+	@Test
+	public void testIsPackageCode(){
+		String packageCode = "12345678901-1-0-1";
+		assertTrue(helper.isPackageCode(packageCode).booleanValue());
+	}
+
+	@Test
+	public void testGetPackNumByPackCode(){
+		String packageCode = "12345678901-1-S-1";
+		System.out.println(helper.getPackageNum(packageCode));
+	}
+
+
 	@Test
 	public void testIsECLPCode() {
 		boolean shoudFalse = false;
