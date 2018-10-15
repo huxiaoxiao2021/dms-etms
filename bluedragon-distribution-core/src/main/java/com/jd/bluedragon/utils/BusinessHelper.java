@@ -304,7 +304,7 @@ public class BusinessHelper {
      * @return
      */
     public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
-        return WaybillUtil.isCLPSByBusiOrderCode(busiOrderCode);
+        return BusinessUtil.isCLPSByBusiOrderCode(busiOrderCode);
     }
 //
 //    /**
@@ -318,15 +318,15 @@ public class BusinessHelper {
 //       return WaybillUtil.isCLPSBySoucreCode(soucreCode);
 //    }
 
-    /**
-     * “QWD”开头的单子 返回true
-     *
-     * @param
-     * @return 开头的单子 返回true
-     */
-    public static Boolean isQWD(String waybillCode) {
-        return WaybillUtil.isQWD(waybillCode);
-    }
+//    /**
+//     * “QWD”开头的单子 返回true
+//     *
+//     * @param
+//     * @return 开头的单子 返回true
+//     */
+//    public static Boolean isQWD(String waybillCode) {
+//        return WaybillUtil.isQWD(waybillCode);
+//    }
 
     public static boolean isNumeric(String str) {
         Pattern pattern = Pattern.compile("[0-9]*");

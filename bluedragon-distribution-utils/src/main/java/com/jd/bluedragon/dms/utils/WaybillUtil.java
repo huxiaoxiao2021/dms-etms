@@ -99,13 +99,14 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
     public static Boolean isPickupCodeWW(String s) {
-        if (StringHelper.isEmpty(s)) {
-            return Boolean.FALSE;
-        }
-        if (DmsConstants.PACKAGE_IDENTIFIER_PICKUP.equals(s.substring(1, 2))) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+        return isMobileWareHouseReturnCode(s);
+//        if (StringHelper.isEmpty(s)) {
+//            return Boolean.FALSE;
+//        }
+//        if (DmsConstants.PACKAGE_IDENTIFIER_PICKUP.equals(s.substring(1, 2))) {
+//            return Boolean.TRUE;
+//        }
+//        return Boolean.FALSE;
     }
 
     /**
@@ -169,27 +170,6 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         return Boolean.FALSE;
     }
 
-    /**
-     * 判断是否是CLPS订单
-     * CLPS : 云仓
-     *
-     * @param busiOrderCode 运单中的BusiOrderCode字段,判断它是不是CSL开头单号
-     * @return
-     */
-    public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
-        if (StringHelper.isEmpty(busiOrderCode)) {
-            return Boolean.FALSE;
-        }
-        if (UniformValidateUtil.isWaybillCode(busiOrderCode)) {
-            //todo
-        }
-        if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_CLPS)) {
-            return Boolean.TRUE;
-        }
-
-        return Boolean.FALSE;
-    }
-
 //    /**
 //     * 判断是否是CLPS订单
 //     * CLPS : 云仓
@@ -209,24 +189,24 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
 //        return Boolean.FALSE;
 //    }
 
-    /**
-     * “QWD”开头的单子 返回true
-     *
-     * @param
-     * @return 开头的单子 返回true
-     */
-    public static Boolean isQWD(String waybillCode) {
-        if (StringHelper.isEmpty(waybillCode)) {
-            return Boolean.FALSE;
-        }
-        if (UniformValidateUtil.isWaybillCode(waybillCode)) {
-            //todo
-        }
-        if (waybillCode.indexOf(BUSI_ORDER_CODE_QWD) == 0 && waybillCode.startsWith(BUSI_ORDER_CODE_QWD)) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
+//    /**
+//     * “QWD”开头的单子 返回true
+//     *
+//     * @param
+//     * @return 开头的单子 返回true
+//     */
+//    public static Boolean isQWD(String waybillCode) {
+//        if (StringHelper.isEmpty(waybillCode)) {
+//            return Boolean.FALSE;
+//        }
+//        if (UniformValidateUtil.isWaybillCode(waybillCode)) {
+//            //需完善
+//        }
+//        if (waybillCode.indexOf(BUSI_ORDER_CODE_QWD) == 0 && waybillCode.startsWith(BUSI_ORDER_CODE_QWD)) {
+//            return Boolean.TRUE;
+//        }
+//        return Boolean.FALSE;
+//    }
 
     /**
      * 根据包裹号 生成所有的包裹号

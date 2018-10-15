@@ -370,4 +370,21 @@ public class BusinessUtil extends WaybillUtil{
         return false;
     }
 
+    /**
+     * 判断是否是CLPS订单
+     * CLPS : 云仓
+     *
+     * @param busiOrderCode 运单中的BusiOrderCode字段,判断它是不是CSL开头单号
+     * @return
+     */
+    public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
+        if (StringHelper.isEmpty(busiOrderCode)) {
+            return Boolean.FALSE;
+        }
+        if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_CLPS)) {
+            return Boolean.TRUE;
+        }
+
+        return Boolean.FALSE;
+    }
 }
