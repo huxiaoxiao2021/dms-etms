@@ -732,7 +732,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
-            //一体化面单，显示城际快送
+            //一体化面单，显示城际京尊达
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_INTERCITY_EXPRESS);
         }
         //waybill_sign第31位等于4，面单上打标【次晨达】三个字,transportMode
