@@ -169,7 +169,7 @@ $(function() {
             $('#dataEditDiv').hide();
             /*起始时间*/ /*截止时间*/
             $.datePicker.createNew({
-                elem: '#planStartDateLE',
+                elem: '#planStartDateLEStr',
                 theme: '#3f92ea',
                btns: ['clear','now'],
                 done: function(value, date, endDate){
@@ -177,7 +177,7 @@ $(function() {
                 }
             });
             $.datePicker.createNew({
-                elem: '#planStartDateGE',
+                elem: '#planStartDateGEStr',
                 theme: '#3f92ea',
                btns: ['clear','now'],
                 done: function(value, date, endDate){
@@ -380,38 +380,38 @@ function initSiteSelect(){
 function initEditPage(){
     /*新增修改涉及的时间*/
     $.datePicker.createNew({
-        elem: '#planStartDate',
+        elem: '#planStartDateStr',
         theme: '#3f92ea',
         btns: ['clear','now'],
         done: function(value, date, endDate){
 
-            resetFieldValidator(value,"planStartDate");
+            resetFieldValidator(value,"planStartDateStr");
         }
     });
     $.datePicker.createNew({
-        elem: '#bookingSpaceTime',
+        elem: '#bookingSpaceTimeStr',
         theme: '#3f92ea',
         btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"bookingSpaceTime");
+            resetFieldValidator(value,"bookingSpaceTimeStr");
         }
     });
     $.datePicker.createNew({
-        elem: '#planStartTime',
+        elem: '#planStartTimeStr',
         theme: '#3f92ea',
         type: 'time',
          //btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"planStartTime");
+            resetFieldValidator(value,"planStartTimeStr");
         }
     });
     $.datePicker.createNew({
-        elem: '#planEndTime',
+        elem: '#planEndTimeStr',
         theme: '#3f92ea',
         type: 'time',
         //btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"planEndTime");
+            resetFieldValidator(value,"planEndTimeStr");
         }
     });
 
@@ -582,8 +582,8 @@ function initImportExcel(){
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
 
-    $("#planStartDateGE").val(v);
-    $("#planStartDateLE").val(v);
+    $("#planStartDateGEStr").val(v);
+    $("#planStartDateLEStr").val(v);
 }
 
 

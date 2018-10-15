@@ -106,7 +106,7 @@ function editFormValidator(){
                     }
                 }
             },
-            planStartDate:{
+            planStartDateStr:{
                 message: '预计起飞日期不能为空',
                 validators: {
                     notEmpty: {
@@ -121,7 +121,7 @@ function editFormValidator(){
                     }
                 }
             },
-            planStartTime:{
+            planStartTimeStr:{
                 message: '预计起飞时间不能为空',
                 validators: {
                     notEmpty: {
@@ -129,7 +129,7 @@ function editFormValidator(){
                     }
                 }
             },
-            planEndTime:{
+            planEndTimeStr:{
                 message: '预计落地时间不能为空',
                 validators: {
                     notEmpty: {
@@ -212,7 +212,7 @@ function editFormValidator(){
                     }
                 }
             },
-            bookingSpaceTime:{
+            bookingSpaceTimeStr:{
                 message: '订舱日期不能为空',
                 validators: {
                     notEmpty: {

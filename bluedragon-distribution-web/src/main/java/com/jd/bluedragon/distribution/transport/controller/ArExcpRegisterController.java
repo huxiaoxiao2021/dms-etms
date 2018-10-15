@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -57,7 +59,9 @@ public class ArExcpRegisterController {
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<ArExcpRegister> detail(@PathVariable("id") Long id) {
     	JdResponse<ArExcpRegister> rest = new JdResponse<ArExcpRegister>();
-    	rest.setData(arExcpRegisterService.findById(id));
+		ArExcpRegister arExcpRegister=arExcpRegisterService.findById(id);
+		convertDate(arExcpRegister,false);
+		rest.setData(arExcpRegister);
     	return rest;
     }
     /**
@@ -67,6 +71,8 @@ public class ArExcpRegisterController {
      */
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(ArExcpRegister arExcpRegister) {
+		convertDate(arExcpRegister,true);
+
     	JdResponse<Boolean> rest = new JdResponse<Boolean>();
 
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -109,6 +115,8 @@ public class ArExcpRegisterController {
      */
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArExcpRegister> listData(@RequestBody ArExcpRegisterCondition arExcpRegisterCondition) {
+		convertDate(arExcpRegisterCondition);
+
     	JdResponse<PagerResult<ArExcpRegister>> rest = new JdResponse<PagerResult<ArExcpRegister>>();
 
 		//模糊字段 运力名称
@@ -123,4 +131,32 @@ public class ArExcpRegisterController {
     	rest.setData(arExcpRegisterService.queryByPagerCondition(arExcpRegisterCondition));
     	return rest.getData();
     }
+
+	private void convertDate(ArExcpRegister arExcpRegister,boolean str2Date){
+    	if(str2Date){
+			Date planStartTime = DateHelper.parseDate(arExcpRegister.getPlanStartTimeStr(),DateHelper.DATE_FORMAT_HHmmss);
+			Date planEndTime = DateHelper.parseDate(arExcpRegister.getPlanEndTimeStr(),DateHelper.DATE_FORMAT_HHmmss);
+			Date excpTime = DateHelper.parseDate(arExcpRegister.getExcpTimeStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+
+			arExcpRegister.setPlanStartTime(planStartTime);
+			arExcpRegister.setPlanEndTime(planEndTime);
+			arExcpRegister.setExcpTime(excpTime);
+		}else{
+			String planStartTimeStr = DateHelper.formatDate(arExcpRegister.getPlanStartTime(),DateHelper.DATE_FORMAT_HHmmss);
+			String planEndTimeStr = DateHelper.formatDate(arExcpRegister.getPlanEndTime(),DateHelper.DATE_FORMAT_HHmmss);
+			String excpTimeStr = DateHelper.formatDate(arExcpRegister.getExcpTime(),DateHelper.DATE_FORMAT_YYYYMMDD);
+
+			arExcpRegister.setPlanStartTimeStr(planStartTimeStr);
+			arExcpRegister.setPlanEndTimeStr(planEndTimeStr);
+			arExcpRegister.setExcpTimeStr(excpTimeStr);
+		}
+
+	}
+
+	private void convertDate(ArExcpRegisterCondition arExcpRegisterCondition){
+		Date excpTimeLE = DateHelper.parseDate(arExcpRegisterCondition.getExcpTimeLEStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		Date excpTimeGE = DateHelper.parseDate(arExcpRegisterCondition.getExcpTimeGEStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		arExcpRegisterCondition.setExcpTimeLE(excpTimeLE);
+		arExcpRegisterCondition.setExcpTimeGE(excpTimeGE);
+	}
 }
