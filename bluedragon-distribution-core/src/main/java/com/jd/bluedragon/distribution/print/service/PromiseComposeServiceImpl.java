@@ -7,7 +7,6 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -24,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -135,11 +135,12 @@ public class PromiseComposeServiceImpl implements  ComposeService {
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
-                    String foreCastTime = null;
+                    String foreCastTime = "";
                     BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), true,true, true, true);
                     BigWaybillDto data = baseEntity.getData();
-                    if(data != null && data.getWaybill() != null){
-                        foreCastTime = DateHelper.formatDateTime(data.getWaybill().getRequireTime());
+                    if(data != null && data.getWaybill() != null && data.getWaybill().getRequireTime() != null){
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        foreCastTime = sdf.format(data.getWaybill().getRequireTime());
                     }
                     waybill.setPromiseText(foreCastTime);
                 }

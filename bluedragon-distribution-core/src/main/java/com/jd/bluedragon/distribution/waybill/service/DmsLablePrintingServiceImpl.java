@@ -9,7 +9,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -23,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -155,7 +155,11 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
-                    String foreCastTime = DateHelper.formatDateTime(waybill.getRequireTime());
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    String foreCastTime = "";
+                    if(waybill.getRequireTime() != null){
+                        foreCastTime = sdf.format(waybill.getRequireTime());
+                    }
                     labelPrinting.setPromiseText(foreCastTime);
                 }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
