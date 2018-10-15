@@ -22,6 +22,7 @@ import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
+import com.jd.fastjson.JSON;
 import com.jd.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -385,6 +386,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 							temp += list.get(i)+",";
 						}
 					}
+					this.logger.warn("签单返还新单号"+bdTraceDto.getWaybillCode()+"对应的旧单号有"+ JSON.toJSONString(list));
 
 				}else{
 					for(int i=0;i<list.size();i++){
