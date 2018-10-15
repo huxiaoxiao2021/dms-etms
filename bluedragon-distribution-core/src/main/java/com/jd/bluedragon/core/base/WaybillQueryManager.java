@@ -1,9 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
@@ -12,6 +8,9 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
