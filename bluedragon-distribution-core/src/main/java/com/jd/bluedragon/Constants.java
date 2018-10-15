@@ -38,7 +38,8 @@ public class Constants {
     
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
-    
+    public static final String PUNCTUATION_OPEN_BRACKET_SMALL = "(";
+    public static final String PUNCTUATION_CLOSE_BRACKET_SMALL = ")";
     public static final String OPERATE_SUCCESS = "1";
     public static final String OPERATE_FAIL = "0";
     
@@ -404,6 +405,8 @@ public class Constants {
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
     public static final Integer FEATURE_TYPCANCEE_SICKL = 30; // 病单
 
+    public static final Integer FEATURE_TYPCANCEE_LP = 10; // 理赔完成拦截
+
     /**
      * Inspection 表 ，queue_no 字段长度 varchar(32) ，排队号
      */
@@ -433,8 +436,17 @@ public class Constants {
      * container_relation 发货状态 已发货
      */
     public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
-
-
+    /**
+     * 商家别名标识-YHD：一号店
+     */
+    public static final String BUSINESS_ALIAS_YHD="YHD";
+    /**
+     * 商家别名标识-CMBC：招商银行
+     */
+    public static final String BUSINESS_ALIAS_CMBC="CMBC";
+    /**
+     * 商家商标图片-一号店（yhd4949.gif）
+     */
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
     /**
      * 备件库条码前缀默认值-"null"
@@ -587,4 +599,58 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+
+    /**
+     * 始发道口号类型-1-普通
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
+    /**
+     * 始发道口号类型-2-航空
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_AIR= 2;
+    /**
+     * 始发道口号类型-3-填仓
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_FILL= 3;
+
+    /**
+     * 快运中心支持包装耗材状态标识
+     */
+    public static final Integer DMS_SUPPORT_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心不支持包装耗材状态标识
+     */
+    public static final Integer DMS_NOT_SUPPORT_PACKING_STATUS = 0;
+
+    /**
+     * 快运中心启用包装耗材状态标识
+     */
+    public static final Integer DMS_ENABLE_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心停用包装耗材状态标识
+     */
+    public static final Integer DMS_DISABLE_PACKING_STATUS = 0;
+
+    /**
+     * 包装耗材编号前缀
+     */
+    public static final String PACKING_PRE_CODE = "HC";
+
+    /**
+     * 包装耗材编号占位符
+     */
+    public static final String PACKING_PLACEHOLDER = "%03d";
+
+
+    /**
+     * 应付动态量方条码barcode类型 扫描到的号码类型1：包裹号 2：箱号 3：板号
+     */
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE = 1;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
+
+
+
 }

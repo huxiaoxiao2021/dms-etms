@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>加履交接单打印</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/jinpeng/performance.js"></script>
+</head>
+<body class="container-fluid">
+<table id="selectInfo">
+
+<div id="dataTableDiv">
+    <ol class="breadcrumb">
+        <li><a href="#">快运中心</a></li>
+        <li class="active">加履交接单打印</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+                <div class="row">
+                    <div class="col-xs-12 ">
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="box-code-input">履约单号： </label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="performanceCode" class="form-control col-xs-6 search-param "
+                                           name="performanceCode">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6">
+                            <div class="form-group">
+                                <label class="control-label col-xs-3" for="box-code-input">运单/包裹号： </label>
+                                <div class="col-xs-6">
+                                    <input type="text" id="waybillorPackCode" class="form-control col-xs-6 search-param "
+                                           name="waybillorPackCode">
+                                </div>
+                            </div>
+                        </div>
+                        #*<div class="col-xs-4">
+                            <div class="form-group">
+                                <div class="col-xs-2">
+                                    <button id="btn_query" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+                                    </button>
+                                </div>
+                                <div class="col-xs-2">
+                                    <button id="btn_print" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>打印
+                                    </button>
+                                </div>
+                            </div>
+                        </div>*#
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+</table>
+    <hr/>
+    <span style="display: none" id="isPrint">可以打印</span>
+    <span style="display: none" id="noPrint">不可以打印</span>
+##主页面操作按钮
+<div id="toolbar" class="btn-group">
+    <button id="btn_query" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+    </button>
+    <button id="btn_print" type="button" class="btn btn-default">
+        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>打印
+    </button>
+</div>
+    <table id="dataTable"></table>
+
+</div>
+
+
+
+</body>
+
+
+</html>

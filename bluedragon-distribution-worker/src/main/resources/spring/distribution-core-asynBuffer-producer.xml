@@ -130,6 +130,14 @@
 					<!-- 平台打印补验货任务 -->
 					<entry key="task_pop_print_inspection_1180_DMS" value="${jmq.task.topic.popprint.inspection.dms}"/>
 					<entry key="task_pop_print_inspection_1180_PRE" value="${jmq.task.topic.popprint.inspection.pre}"/>
+
+					<!-- 整板发货 -->
+					<entry key="task_board_send_1320_DMS" value="${jmq.task.topic.boardSend.dms}"/>
+					<entry key="task_board_send_1320_PRE" value="${jmq.task.topic.boardSend.pre}"/>
+
+					<!-- 整板取消发货 -->
+					<entry key="task_board_send_cancel_1321_DMS" value="${jmq.task.topic.boardSendCancel.dms}"/>
+					<entry key="task_board_send_cancel_1321_PRE" value="${jmq.task.topic.boardSendCancel.pre}"/>
 				</map>
 	    	</constructor-arg>
 	    </bean>

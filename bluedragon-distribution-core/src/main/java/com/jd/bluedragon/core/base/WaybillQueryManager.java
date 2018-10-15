@@ -1,15 +1,16 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
@@ -144,4 +145,27 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<BigWaybillDto> getWaybillDataForPrint(String waybillCode);
+
+	/**
+	 * 根据操作单号和状态查询B网全程跟踪数据,包含extend扩展属性
+	 * @param operatorCode 运单号
+	 * @param state 状态码
+	 * @return
+	 */
+	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
+
+	/**
+	 * 根据运单号查询运单sn码和69码
+	 *
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode);
+
+	/**
+	 * 根据父订单号（履约单号）查询所有子订单号
+	 * @param parentWaybillCode 父订单号（履约单号）
+	 * @return
+	 */
+	List<String> getOrderParentChildList(String parentWaybillCode);
 }

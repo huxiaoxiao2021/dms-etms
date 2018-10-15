@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSendSearchArg
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.RestHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -42,9 +44,11 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
 
     private static final byte YN_DEFAULT = 1;
 
-    private final static int SENDCODE_PRINT_TYPE = 1;//批次打印
+    //批次打印
+    private final static int SENDCODE_PRINT_TYPE = 1;
 
-    private final static int SUMMARY_PRINT_TYPE = 2;//汇总单打印
+    //汇总单打印
+    private final static int SUMMARY_PRINT_TYPE = 2;
 
     @Autowired
     private ScannerFrameBatchSendDao scannerFrameBatchSendDao;
@@ -53,10 +57,10 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     private SiteService siteService;
 
     @Autowired
-    private RedisManager redisManager;
+    private SendPrintService sendPrintService;
 
     @Autowired
-    private SendPrintService sendPrintService;
+    private NewSealVehicleService newSealVehicleService;
 
     @Autowired
     GantryDeviceService gantryDeviceService;
@@ -93,9 +97,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             batchSend = genarateBatchSend(operateTime,receiveSiteCode,config);
         }else{
             String send_code = batchSend.getSendCode();
-            if(checkSendCodeIsSealed(send_code)){
+            if (newSealVehicleService.checkSendCodeIsSealed(send_code)) {
                 LOGGER.warn(MessageFormat.format("Current batchSend {0} already sealed，将生成新批次！", send_code));
-                batchSend = genarateBatchSend(operateTime,receiveSiteCode,config);
+                batchSend = genarateBatchSend(operateTime, receiveSiteCode, config);
             }
         }
         if (LOGGER.isInfoEnabled()) {
@@ -132,25 +136,6 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
         generateSend(batchSend);
         return batchSend;
-    }
-
-    /**
-     * 校验批次号是否封车:默认返回false
-     * @param sendCode
-     * @return
-     */
-    private boolean checkSendCodeIsSealed(String sendCode) {
-        boolean result = false;
-        try {
-            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
-            LOGGER.info("redis取封车批次号"+sendCode+"结果："+isSeal);
-            if(org.apache.commons.lang.StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
-                result = true;
-            }
-        }catch (Throwable e){
-            LOGGER.warn("redis取封车批次号失败："+e.getMessage());
-        }
-        return result;
     }
 
     /**
@@ -278,8 +263,8 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         summaryRequest.setSendCode(scannerFrameBatchSend.getSendCode());
         summaryRequest.setSendTime(itemResult.getSendTime());
         summaryRequest.setTotalBoxNum(itemResult.getTotalBoxNum());//周转箱
-        summaryRequest.setTotalPackageBarNum(itemResult.getTotalpackageBarNum());//原包个数
-        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalpackageBarNum());//合计 fixme
+        summaryRequest.setTotalPackageBarNum(itemResult.getTotalShouldSendPackageNum());//原包个数
+        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalShouldSendPackageNum());//合计 fixme
         List<SummaryPrintBoxEntity> itemBoxEntitys = new ArrayList<SummaryPrintBoxEntity>();
         itemBoxEntitys = itemResult.getDetails();
         int packageBarRecNum = 0;//应发
@@ -322,5 +307,13 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         result.setTotalSize((int) count);
         result.setData(scannerFrameBatchSendDao.queryAllUnPrint(request));
         return result;
+    }
+
+    @Override
+    public long updateYnByMachineId(String machineId) {
+        if (StringHelper.isEmpty(machineId)) {
+            return 0;
+        }
+        return scannerFrameBatchSendDao.updateYnByMachineId(machineId);
     }
 }

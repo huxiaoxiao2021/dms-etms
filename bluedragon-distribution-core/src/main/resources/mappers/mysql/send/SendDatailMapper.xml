@@ -169,13 +169,13 @@
 			AND receive_site_code = #{receiveSiteCode,jdbcType=VARCHAR}
 		</if>
 	</update>
-	
+
 	<update id="canCancelFuzzy" parameterType="SendDetail">
 		UPDATE Send_d 
 		SET is_cancel = 1, update_time = NOW()
 		WHERE yn=1 AND is_cancel IN (0,2) AND create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 			AND send_type = #{sendType,jdbcType=INTEGER}
-			AND package_barcode like '${packageBarcode}'
+			AND package_barcode like #{packageBarcode}
 		<if test="waybillCode != null">
 			AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		</if>
@@ -839,4 +839,19 @@
             and create_site_code = #{createSiteCode}
         </if>
     </select>
+
+	<select id="queryOneSendDetailByPackageCode" parameterType="SendDetail"
+			resultMap="SendDetail">
+		SELECT
+		<include refid="Base_Column_List" />
+		FROM send_d
+		<where>
+			create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			and package_barcode = #{packageBarcode}
+			and is_cancel=0
+			order by create_time desc
+			LIMIT 1
+		</where>
+	</select>
 </mapper>

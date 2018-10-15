@@ -182,6 +182,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
         }
 
+        //是否需要称重逻辑校验  2018 07 27  update 刘铎
+
+        if(waybill.getWaybillSign() != null && BusinessHelper.isNoNeedWeight(waybill.getWaybillSign())){
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
+        }
+
         return true;
     }
 

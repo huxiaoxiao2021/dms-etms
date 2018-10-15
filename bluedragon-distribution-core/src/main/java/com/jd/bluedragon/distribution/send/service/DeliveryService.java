@@ -15,12 +15,34 @@ import com.jd.ump.annotation.JProfiler;
 public interface DeliveryService {
 
 
-    /**
-     * 原包发货
-     * @param domain 发货对象
-     * @return Map.Entiry<code,message> 改到SendResult
-     */
-    SendResult packageSend(SendM domain,boolean isForceSend);
+	/**
+	 * 有校验且有多次发货取消上次发货逻辑的一车一单发货
+	 *
+	 * @param domain 发货对象
+	 * @return Map.Entiry<code   ,   message> 改到SendResult
+	 */
+	SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend);
+
+	/**
+	 * 有校验的一车一单发货
+	 *
+	 * @param domain
+	 * @param isForceSend
+	 * @return
+	 */
+	SendResult packageSend(SendM domain, boolean isForceSend);
+
+	/**
+	 * 一车一单发货数据落库，写相关的异步任务
+	 * @param domain
+	 */
+	void packageSend(SendM domain);
+
+	/**
+	 * 推分拣任务
+	 * @param domain
+	 */
+	void pushSorting(SendM domain);
 
 	/**
 	 * 一车一单离线发货
@@ -314,6 +336,13 @@ public interface DeliveryService {
 	boolean doBoardDelivery(Task task);
 
 	/**
+	 * 按板取消发货任务
+	 * @param task 任务实体
+	 * @return
+	 */
+	boolean doBoardDeliveryCancel(Task task);
+
+	/**
 	 * 原包分拣发货
 	 * @param sendMList
 	 */
@@ -326,4 +355,13 @@ public interface DeliveryService {
 	 * @return
 	 */
     List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode);
+
+
+	/**
+	 *  快运发货金鹏订单拦截提示
+	 * @param siteCode 站点id
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
 }

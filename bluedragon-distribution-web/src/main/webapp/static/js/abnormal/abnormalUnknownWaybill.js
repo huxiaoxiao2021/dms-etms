@@ -128,7 +128,7 @@ $(function () {
             }
         }];
         oTableInit.refresh = function () {
-            $('#dataTable').bootstrapTable('refresh');
+            $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});
         };
         return oTableInit;
     };

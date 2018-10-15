@@ -53,35 +53,37 @@
 		select
 		<include refid="Base_Column_List" />
 		from send_m
-		where yn =1
+		where yn = 1
         <if test = "null!=createSiteCode">
             and create_site_code = #{createSiteCode,jdbcType=INTEGER}
         </if>
-        and send_code= #{sendCode,jdbcType=VARCHAR} LIMIT 1
+        and send_code = #{sendCode,jdbcType=VARCHAR}
+		order by operate_time desc LIMIT 1
 	</select>
 	
 	<select id="selectOneBySendCode" parameterType="SendM"
 		resultMap="SendM">
 		select
-		<include refid="Base_Column_List" />
+		<include refid="Base_Column_List"/>
 		from send_m
-		where yn =1
-        <if test = "null!=createSiteCode">
-            and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-        </if>
-        and send_code= #{sendCode,jdbcType=VARCHAR} LIMIT 1
+		where yn = 1
+		<if test="null!=createSiteCode">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+		and send_code = #{sendCode,jdbcType=VARCHAR}
+		order by operate_time desc LIMIT 1
 	</select>
 	
 	<select id="selectOneBySiteAndSendCode" parameterType="SendM"
 		resultMap="SendM">
 		select
-		<include refid="Base_Column_List" />
+		<include refid="Base_Column_List"/>
 		from send_m
-		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} 
-		<if test = "null!=createSiteCode">
-			and create_site_code = #{createSiteCode,jdbcType=INTEGER} 
+		where yn = 1 and send_code = #{sendCode,jdbcType=VARCHAR}
+		<if test="null!=createSiteCode">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		</if>
-		LIMIT 1
+		order by operate_time desc LIMIT 1
 	</select>
 	
 	<select id="selectBySiteAndSendCode" parameterType="SendM"
@@ -100,13 +102,12 @@
 		where yn =1 and send_code= #{sendCode,jdbcType=VARCHAR} and create_site_code = #{createSiteCode,jdbcType=INTEGER} 
 	</select>
 	
-	<select id="selectBySendSiteCode" parameterType="SendM"
-		resultMap="SendM">
+	<select id="selectBySendSiteCode" parameterType="SendM" resultMap="SendM">
 		select
 		<include refid="Base_Column_List" />
-		from send_m  
+		from send_m
 		<where>
-		yn =1 
+			yn = 1
 		    <if test="createSiteCode!=null">
 				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			</if>
@@ -128,7 +129,7 @@
 			<if test="updateTime!=null">
 				and operate_time <![CDATA[<=]]> str_to_date(date_format(#{updateTime, jdbcType=TIMESTAMP}, '%Y-%m-%d %H:%i:%s'), '%Y-%m-%d %H:%i:%s')
 			</if>
-			
+			order by operate_time desc
 		</where>
 	</select>
 
@@ -155,7 +156,8 @@
 			#{updateUserCode,jdbcType=INTEGER},#{updaterUser,jdbcType=VARCHAR},1,#{updateTime,jdbcType=TIMESTAMP},#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER}
 			,0,NOW(),#{transporttype,jdbcType=INTEGER},#{boardCode,jdbcType=VARCHAR})
 	</insert>
-	<insert id="addBatch">
+
+	<insert id = "addBatch">
 		INSERT INTO send_m (
 		send_m_id,
 		send_code,
@@ -289,33 +291,34 @@
 	 </update>
 
 	 <select id="findSendMByBoxCode" parameterType="SendM"  resultMap="SendM">
-		 select  
-         <include refid="Base_Column_List" />
-         from  send_m
-         <where>
-		    yn=1
-			<if test="createSiteCode!=null">
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="receiveSiteCode!=null">
-				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			</if>
-			<if test="sendType!=null">
-				and send_type = #{sendType,jdbcType=INTEGER}
-			</if>
-			<if test="boxCode!=null">
-				and box_code = #{boxCode,jdbcType=VARCHAR}
-			</if>
-		</where>
+		 select
+		 <include refid="Base_Column_List"/>
+		 from send_m
+		 <where>
+			 yn = 1
+			 <if test="createSiteCode!=null">
+				 and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			 </if>
+			 <if test="receiveSiteCode!=null">
+				 and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			 </if>
+			 <if test="sendType!=null">
+				 and send_type = #{sendType,jdbcType=INTEGER}
+			 </if>
+			 <if test="boxCode!=null">
+				 and box_code = #{boxCode,jdbcType=VARCHAR}
+			 </if>
+			 order by operate_time desc
+		 </where>
 	 </select>
 
 	<!--取消发货这里不再区分send_type added by zhanglei 20160823-->
 	<select id="findSendMByBoxCode2" parameterType="SendM"  resultMap="SendM">
 		select
-		<include refid="Base_Column_List" />
-		from  send_m
+		<include refid="Base_Column_List"/>
+		from send_m
 		<where>
-			yn=1
+			yn = 1
 			<if test="createSiteCode!=null">
 				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			</if>
@@ -372,7 +375,7 @@
 		<include refid="Base_Column_List" />
 		from send_m
 		<where>
-		yn =0
+		yn = 0
 		    <if test="createSiteCode!=null">
 				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			</if>
@@ -384,7 +387,6 @@
 			</if>
 		</where>
 	</select>
-
 
 	<update id="updatetmstBySendCode" parameterType="SendM">
 		update send_m
@@ -412,38 +414,31 @@
 	
 	<select id="findsendMToReverse" resultMap="SendM">
 		SELECT
-		<include refid="Base_Column_List" />
-		FROM send_m  where sendm_status=0 and send_type =20 and yn=1
-
-			AND (excute_count <![CDATA[<]]> 4 or excute_count is  null)
-
-			AND (excute_time <![CDATA[<]]> NOW() or excute_time is   null)
-
-		 and operate_time <![CDATA[<=]]> timestampadd(minute,-5,NOW())  LIMIT 100
+		<include refid="Base_Column_List"/>
+		FROM send_m
+		WHERE sendm_status = 0 AND send_type = 20 AND yn = 1
+		AND (excute_count <![CDATA[<]]> 4 OR excute_count IS NULL)
+		AND (excute_time <![CDATA[<]]> NOW() OR excute_time IS NULL)
+		AND operate_time <![CDATA[<=]]> timestampadd(minute,-5,NOW()) LIMIT 100
 	</select>
 
 	<select id="querySendCodesByDepartue" parameterType="SendM"
 		resultMap="SendM">
 		SELECT distinct send_code
 		FROM send_m
-		WHERE yn = 1 and SHIELDS_CAR_ID=
-		#{shieldsCarId,jdbcType=INTEGER}
+		WHERE yn = 1 AND SHIELDS_CAR_ID = #{shieldsCarId,jdbcType=INTEGER}
 	</select>
-
 
 	<select id="batchQuerySendMList" parameterType="SendM"
 		resultMap="SendMList">
 		select
 		box_code
-		from send_m  
+		from send_m
 		<where>
-		yn =1 
-				and create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		
-				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-		
-				and  box_code in (${boxCode})
-	
+			yn = 1
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			and box_code in (${boxCode})
 		</where>
 	</select>
 	
@@ -451,38 +446,38 @@
 		resultMap="SendMList">
 		select
 		box_code
-		from send_m  
+		from send_m
 		<where>
-		        create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		
-				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-		
-				and  box_code in (${boxCode})
-				
-				and yn =0
+			yn = 0
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			and box_code in (${boxCode})
 		</where>
 	</select>
+
     <select id="selectBoxBySendCode" parameterType="SendM"
             resultType="java.lang.String">
         select
         box_code
         from send_m
-        where send_code= #{sendCode,jdbcType=VARCHAR} and yn=1
+        where send_code = #{sendCode,jdbcType=VARCHAR} and yn = 1
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
+
     <select id="selectBoxCodeBySendCodeAndCreateSiteCode" parameterType="SendM"
             resultType="java.lang.String">
         select
         box_code
         from send_m
-        where send_code= #{sendCode,jdbcType=VARCHAR}
+        where send_code = #{sendCode,jdbcType=VARCHAR}
         AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
     </select>
+
 	<select id="queryListByCondition" parameterType="SendM"
 		resultMap="SendM">
 		SELECT *
-			FROM send_m
-		WHERE 1=1 
+		FROM send_m
+		WHERE 1 = 1
 		<if test="sendMId != null">
 			and send_m_id = #{sendMId}
 		</if>
@@ -494,15 +489,70 @@
 		</if>
 		<if test="createSiteCode != null">
 			and create_site_code = #{createSiteCode}
-		</if>	
+		</if>
 		<if test="receiveSiteCode != null">
 			and receive_site_code = #{receiveSiteCode}
 		</if>
 		<if test="sendType != null">
 			and send_type = #{sendType}
-		</if>		
+		</if>
 		<if test="yn != null">
 			and yn = #{yn}
-		</if>		
-	</select>    
+		</if>
+	</select>
+
+	<select id="selectBoxCodeByBoardCodeAndSendCode" parameterType="SendM"
+			resultType="java.lang.String">
+		select
+		box_code
+		from send_m
+		where yn=1
+		AND send_code= #{sendCode,jdbcType=VARCHAR}
+		AND board_code=#{boardCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</select>
+
+
+	<select id="checkSendByBoard" parameterType="SendM"  resultType="Integer">
+		SELECT COUNT(send_m_id)
+		FROM send_m
+		WHERE yn = 1
+		AND send_type = #{sendType,jdbcType=SMALLINT}
+		AND board_code = #{boardCode,jdbcType=VARCHAR}
+		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+	</select>
+
+	<select id="findSendMByBoardCode" parameterType="SendM"  resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from  send_m
+		<where>
+			yn=1
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+			<if test="receiveSiteCode!=null">
+				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+			</if>
+			<if test="sendType!=null">
+				and send_type = #{sendType,jdbcType=INTEGER}
+			</if>
+			<if test="boardCode!=null">
+				and board_code = #{boardCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+		order by create_time DESC
+		limit 1
+	</select>
+
+	<select id="selectOneByBoxCode" parameterType="SendM"  resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from  send_m
+		where yn=1
+		and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		and send_type = #{sendType,jdbcType=INTEGER}
+		and board_code = #{boardCode,jdbcType=VARCHAR}
+		order by create_time DESC
+		limit 1
+	</select>
+
 </mapper>

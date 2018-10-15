@@ -68,11 +68,11 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 		//拒收触发换单
 		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_REJECT)){
 			//整单拒收
-			 waybillReverseDTO  = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,true);
+			 waybillReverseDTO  = ldopManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,true);
 			isNeedToLDOP = true;
 		}else if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)){
 			//包裹拒收
-			 waybillReverseDTO = makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,false);
+			 waybillReverseDTO = ldopManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,false);
 			isNeedToLDOP = true;
 
 		}
@@ -114,37 +114,6 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 
 
 		return true;
-	}
-
-	/**
-	 * 组装外单换单入参
-	 * @param waybillCode 运单号
-	 * @param OperatorId 操作人ID
-	 * @param OperatorName 操作人
-	 * @param operateTime 操作时间
-	 * @param packageCount 拒收包裹数量
-	 * @param isTotal 是否是整单拒收
-	 * @return
-	 */
-	private WaybillReverseDTO makeWaybillReverseDTO(String waybillCode,Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode,boolean isTotal){
-		WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
-		waybillReverseDTO.setSource(2); //分拣中心
-		if(isTotal){
-			waybillReverseDTO.setReverseType(1);// 整单拒收
-		}else{
-			waybillReverseDTO.setReverseType(2);// 包裹拒收
-		}
-
-		waybillReverseDTO.setWaybillCode(waybillCode);
-		waybillReverseDTO.setOperateUserId(OperatorId);
-		waybillReverseDTO.setOperateUser(OperatorName);
-		waybillReverseDTO.setOrgId(orgId);
-		waybillReverseDTO.setSortCenterId(createSiteCode);
-		waybillReverseDTO.setOperateTime(operateTime);
-		waybillReverseDTO.setReturnType(0);//默认
-		waybillReverseDTO.setPackageCount(packageCount);
-
-		return waybillReverseDTO;
 	}
 
 	/**

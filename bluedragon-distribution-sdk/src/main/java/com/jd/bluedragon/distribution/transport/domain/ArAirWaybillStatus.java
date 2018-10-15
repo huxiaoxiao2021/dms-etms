@@ -40,6 +40,11 @@ public class ArAirWaybillStatus {
     private String wayBillCode;
 
     /**
+     * 包裹号
+     */
+    private String packageCode;
+
+    /**
      * 运输方式
      */
     private String transWay;
@@ -83,6 +88,11 @@ public class ArAirWaybillStatus {
      * 运力编码
      */
     private String transportCode;
+
+    /**
+     * 路由线路编码
+     */
+    private String routeLineCode;
 
     public String getFlightNumber() {
         return flightNumber;
@@ -130,6 +140,14 @@ public class ArAirWaybillStatus {
 
     public void setWayBillCode(String wayBillCode) {
         this.wayBillCode = wayBillCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 
     public String getTransWay() {
@@ -202,6 +220,14 @@ public class ArAirWaybillStatus {
 
     public void setTransportCode(String transportCode) {
         this.transportCode = transportCode;
+    }
+
+    public String getRouteLineCode() {
+        return routeLineCode;
+    }
+
+    public void setRouteLineCode(String routeLineCode) {
+        this.routeLineCode = routeLineCode;
     }
 
 }

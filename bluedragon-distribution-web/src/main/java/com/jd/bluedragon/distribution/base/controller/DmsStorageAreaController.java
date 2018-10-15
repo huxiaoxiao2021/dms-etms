@@ -237,6 +237,22 @@ public class DmsStorageAreaController extends DmsBaseController{
         }
         return allDms;
     }
+    /**
+     * 获取所有分拣中心信息
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/getAllSiteList")
+    public Object getAllSiteList() {
+        List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
+        try {
+            allDms.addAll(siteService.getAllDmsSite());
+        } catch (Exception e) {
+            this.logger.error("加载站点失败：", e);
+        }
+        return allDms;
+    }
 
     /**
      * 根据id获取基本信息

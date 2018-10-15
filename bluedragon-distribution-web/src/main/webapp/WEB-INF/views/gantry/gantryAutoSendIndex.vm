@@ -20,7 +20,12 @@
     <script type="application/javascript" src="#springUrl('/static/js/printDevice/printer.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/jquery.cookie.js')"></script>
     <script type="application/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
-    <script type="application/javascript" src="#springUrl('/static/js/gantry/gantryAutoSendIndex.js')"></script>
+##  添加重写ajax请求，用于处理erp更换后操作时导致不一致的问题
+    <script type="application/javascript" src="#springUrl('/static/js/jd/jd.ajax.js')"></script>
+    <script type="text/javascript">
+        document.write("<sc"+"ript type='text/javascript' src='/static/js/gantry/gantryAutoSendIndex.js?_t="
+                + new Date().valueOf() + "'></sc"+"ript>");
+    </script>
     <style  type="text/css">
         .part {
             margin-top: 30px;
@@ -109,6 +114,7 @@
                                 <td><label><input type="checkbox" name="businessType" id="inspection" value="1" class="checkbox"><span>验货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="send" value="2" class="checkbox"><span>发货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="measure" value="4" class="checkbox"><span>量方</span></label></td>
+                                <td><label><input type="checkbox" name="businessType" id="paymeasure" value="8" class="checkbox"><span>应付量方</span></label></td>
                             </tr>
                             <tr>
                                 <td colspan="3">

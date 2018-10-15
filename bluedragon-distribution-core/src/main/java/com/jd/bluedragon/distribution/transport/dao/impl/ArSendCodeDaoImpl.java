@@ -25,6 +25,11 @@ public class ArSendCodeDaoImpl extends BaseDao<ArSendCode> implements ArSendCode
     }
 
     @Override
+    public List<ArSendCode> getBySendRegisterIds(List<Long> sendRegisterIds) {
+        return this.sqlSession.selectList(getNameSpace() + ".getBySendRegisterIds", sendRegisterIds);
+    }
+
+    @Override
     public int deleteBySendRegisterId(Long sendRegisterId, String userCode) {
         Map<String, Object> parameter = new HashMap<String, Object>();
         parameter.put("sendRegisterId", sendRegisterId);

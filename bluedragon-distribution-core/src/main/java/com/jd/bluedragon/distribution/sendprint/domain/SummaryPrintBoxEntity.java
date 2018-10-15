@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.sendprint.domain;
 import java.io.Serializable;
 
 public class SummaryPrintBoxEntity implements Serializable {
-	
+
 	private static final long serialVersionUID = 1460940601626738146L;
 
 	/** 箱号 */
@@ -14,7 +14,7 @@ public class SummaryPrintBoxEntity implements Serializable {
 
 	/** 实发包裹数 */
 	private int packageBarNum;
-	
+
 	/** 应发包裹数 */
     private int packageBarRecNum;
 
@@ -27,7 +27,7 @@ public class SummaryPrintBoxEntity implements Serializable {
 	/** 锁时间 */
 	private String lockTime;
 
-    /** 体积 */
+    /** 应收体积 */
     private Double volume;
 
     public String getBoxCode() {

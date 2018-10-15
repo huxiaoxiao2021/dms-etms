@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.inspection;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -13,9 +14,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 
@@ -97,6 +103,10 @@ public class InspectionResource {
 	@Autowired
 	private InspectionService inspectionService;
 
+	@Autowired
+	@Qualifier("operateHintTrackMQ")
+	private DefaultJMQProducer operateHintTrackMQ;
+
 	private final static Logger logger = Logger
 			.getLogger(InspectionResource.class);
 
@@ -122,8 +132,7 @@ public class InspectionResource {
 	/**
 	 * 分拣助手，异常查询：查询多验、少验验货异常信息
 	 * 
-	 * @param jsonVal
-	 *            传入第三方Code,异常类型
+	 * @param
 	 * @return
 	 */
 	@POST
@@ -213,7 +222,7 @@ public class InspectionResource {
 	/**
 	 * 第三方：异常处理：超区退回|多验退回|少验取消 OR 多验直接配送
 	 * 
-	 * @param jsonVal
+	 * @param
 	 * @return
 	 */
 	@POST
@@ -552,9 +561,24 @@ public class InspectionResource {
 			hintMessage = dmsOperateHintService.getInspectHintMessageByWaybillCode(waybillCode);
 			inspectionResult.setHintMessage(hintMessage);
 			logger.info("验货redis查询运单提示语，运单号：" + waybillCode + ",结果：" + hintMessage);
+			if(StringHelper.isNotEmpty(hintMessage)){
+				try {
+					DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
+					dmsOperateHintTrack.setWaybillCode(waybillCode);
+					dmsOperateHintTrack.setHintDmsCode(siteCode);
+					dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_INSPECTION);
+					dmsOperateHintTrack.setHintTime(new Date());
+					this.logger.info("发送MQ[" + operateHintTrackMQ.getTopic() + "],业务ID[" + dmsOperateHintTrack.getWaybillCode() + "],消息主题: " + JSON.toJSONString(dmsOperateHintTrack));
+					operateHintTrackMQ.sendOnFailPersistent(dmsOperateHintTrack.getWaybillCode(), JSON.toJSONString(dmsOperateHintTrack));
+				}catch(Exception e){
+					logger.error("发货提示语发mq异常,异常原因:" +e);
+				}
+			}
 		}catch (Exception e){
 			logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
 		}
+		//金鹏订单拦截提示
+		hintMessage += inspectionService.getHintMessage(dmsSiteCode, waybillCode);
 		inspectionResult.setHintMessage(hintMessage);
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);

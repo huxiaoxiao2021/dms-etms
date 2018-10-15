@@ -11,6 +11,10 @@ import java.io.Serializable;
  *
  */
 public class BasePrintWaybill implements Serializable {
+
+	/**运单号*/
+	private String waybillCode;
+
     /**始发分拣中心编码*/
     private Integer originalDmsCode;
 
@@ -24,6 +28,11 @@ public class BasePrintWaybill implements Serializable {
      * B商家ID
      */
     private Integer busiId ;
+
+	/**
+	 * 商家编码
+	 */
+	private String busiCode;
     /**
      * B商家名称
      */
@@ -31,7 +40,11 @@ public class BasePrintWaybill implements Serializable {
 	/**始发城市编码*/
     private Integer originalCityCode;
     /**始发城市名称*/
-    private String originalCityName; 
+    private String originalCityName;
+    /**
+     * 始发滑道号类型
+     */
+    private Integer originalCrossType;
     /**
      * 运输产品
      */
@@ -84,7 +97,10 @@ public class BasePrintWaybill implements Serializable {
      */
     private String consigneeCompany;
     /**
-     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担、4-冷链整车、5-快运冷链
+     * 运输产品类型 waybillSign第40位，1-整车、2-快运零担、3-仓配零担
+	 * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车
+     * waybill_sign36位=1 且waybill_sign40位=2 且 waybill_sign54位=2：快运冷链
+     * waybill_sign36位=1 且waybill_sign40位=3 且 waybill_sign54位=2：仓配冷链
      */
     private String jZDFlag;
 
@@ -97,11 +113,14 @@ public class BasePrintWaybill implements Serializable {
     */
     private String road;
     
-    
+    /**
+     * 商家别名：YHD(一号店)、 CMBC(招商银行)
+     */
+    private String dmsBusiAlias;
     /**
     * 商家商标图像key值也就是文件名
     */
-    private String brandImageKey ;
+    private String brandImageKey;
     /**
      * 标识是否SOP商家和纯外单
      */
@@ -147,7 +166,74 @@ public class BasePrintWaybill implements Serializable {
 	 * 备注
 	 */
 	private String remark;
-    
+
+	/**
+	 * B网面单已称标识
+	 */
+	private String weightFlagText;
+
+	/**
+	 * 客户预约时间
+	 */
+	private String customerOrderTime;
+
+	/**
+	 * 派送时段
+	 */
+	private String deliveryTimeCategory;
+
+	/**
+	 * 特殊要求
+	 */
+	private String specialRequirement;
+
+	/**
+	 * B网面单备用站点名称
+	 */
+	private String backupSiteName;
+
+	/**标签打印地址*/
+	private String printAddress;
+
+	/**
+	 * 客户姓名
+	 */
+	private String customerName ;
+
+	/**客户联系方式*/
+	private String customerContacts;
+
+	/**
+	 * 客户联系方式 tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()
+	 */
+	private String mobileFirst;
+	private String mobileLast;
+
+	private String telFirst;
+	private String telLast;
+
+	public BasePrintWaybill(String waybillCode){
+		this.waybillCode = waybillCode;
+	}
+
+	public BasePrintWaybill(){
+
+	}
+
+
+	/**
+	 * 京东物流网址和客服电话
+	 * */
+	private String additionalComment;
+
+	public String getAdditionalComment() {
+		return additionalComment;
+	}
+
+	public void setAdditionalComment(String additionalComment) {
+		this.additionalComment = additionalComment;
+	}
+
 	public String getBusiOrderCode() {
 		return busiOrderCode;
 	}
@@ -228,6 +314,20 @@ public class BasePrintWaybill implements Serializable {
 	public void setOriginalCityName(String originalCityName) {
 		this.originalCityName = originalCityName;
 	}
+	/**
+	 * @return the originalCrossType
+	 */
+	public Integer getOriginalCrossType() {
+		return originalCrossType;
+	}
+
+	/**
+	 * @param originalCrossType the originalCrossType to set
+	 */
+	public void setOriginalCrossType(Integer originalCrossType) {
+		this.originalCrossType = originalCrossType;
+	}
+
 	/**
 	 * @return the transportMode
 	 */
@@ -418,6 +518,20 @@ public class BasePrintWaybill implements Serializable {
 	}
 
 
+	/**
+	 * @return the dmsBusiAlias
+	 */
+	public String getDmsBusiAlias() {
+		return dmsBusiAlias;
+	}
+
+	/**
+	 * @param dmsBusiAlias the dmsBusiAlias to set
+	 */
+	public void setDmsBusiAlias(String dmsBusiAlias) {
+		this.dmsBusiAlias = dmsBusiAlias;
+	}
+
 	public String getBrandImageKey() {
 		return brandImageKey;
 	}
@@ -580,5 +694,122 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setUnpackClassifyNum(String unpackClassifyNum) {
 		this.unpackClassifyNum = unpackClassifyNum;
+	}
+
+	public String getBackupSiteName() {
+		return backupSiteName;
+	}
+
+	public void setBackupSiteName(String backupSiteName) {
+		this.backupSiteName = backupSiteName;
+	}
+
+	public String getSpecialRequirement() {
+		return specialRequirement;
+	}
+
+	public void setSpecialRequirement(String specialRequirement) {
+		this.specialRequirement = specialRequirement;
+	}
+
+	public String getCustomerOrderTime() {
+		return customerOrderTime;
+	}
+
+	public void setCustomerOrderTime(String customerOrderTime) {
+		this.customerOrderTime = customerOrderTime;
+	}
+
+	public String getDeliveryTimeCategory() {
+		return deliveryTimeCategory;
+	}
+
+	public void setDeliveryTimeCategory(String deliveryTimeCategory) {
+		this.deliveryTimeCategory = deliveryTimeCategory;
+	}
+
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public String getWeightFlagText() {
+		return weightFlagText;
+	}
+
+	public void setWeightFlagText(String weightFlagText) {
+		this.weightFlagText = weightFlagText;
+	}
+
+
+	public String getBusiCode() {
+		return busiCode;
+	}
+
+	public void setBusiCode(String busiCode) {
+		this.busiCode = busiCode;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public String getPrintAddress() {
+		return printAddress;
+	}
+
+	public void setPrintAddress(String printAddress) {
+		this.printAddress = printAddress;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getCustomerContacts() {
+		return customerContacts;
+	}
+
+	public void setCustomerContacts(String customerContacts) {
+		this.customerContacts = customerContacts;
+	}
+
+	public String getMobileFirst() {
+		return mobileFirst;
+	}
+
+	public void setMobileFirst(String mobileFirst) {
+		this.mobileFirst = mobileFirst;
+	}
+
+	public String getMobileLast() {
+		return mobileLast;
+	}
+
+	public void setMobileLast(String mobileLast) {
+		this.mobileLast = mobileLast;
+	}
+
+	public String getTelFirst() {
+		return telFirst;
+	}
+
+	public void setTelFirst(String telFirst) {
+		this.telFirst = telFirst;
+	}
+
+	public String getTelLast() {
+		return telLast;
+	}
+
+	public void setTelLast(String telLast) {
+		this.telLast = telLast;
 	}
 }

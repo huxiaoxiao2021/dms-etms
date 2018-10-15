@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>运输委托书打印</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+	#parse("system/common/baseImport.vm")
+    <script src="/static/js/transport/tmsProxy.js"></script>
+
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" >
+    <ol class="breadcrumb">
+        <li><a href="#">分拣打印</a></li>
+        <li class="active">运输委托书打印</li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-inline">
+            <fieldset>
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="transBookCode">委托书号</label>
+                    <input type="text" id="transBookCode" class="form-control search-param" name="transBookCode" style="width: 200px;">
+                </div>
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="billCode">批次号</label>
+                    <input type="text" id="billCode" class="form-control search-param" name="billCode" style="width: 200px;">
+                </div>
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="vehicleNumber">车牌号</label>
+                    <input type="text" id="vehicleNumber" class="form-control search-param" name="vehicleNumber" style="width: 200px;">
+                </div>
+                <hr />
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="endNodeCode">目的网点</label>
+                    <input type="text" id="endNodeCode" class="form-control search-param" name="endNodeCode" style="width: 200px;"></input>
+                </div>
+                <div class="form-group" style="margin-left: 29px;">
+                    <label class="control-label" for="requirePickupTimeBegin"><span style="color: red;">*</span>预约提货时间</label>
+                    <input type="text" id="requirePickupTimeBegin" name="requirePickupTimeBegin" class="form-control search-param" style="width: 190px;">
+                </div>
+                <div class="form-group" style="margin-left: 20px;">
+                    <label class="control-label" for="requirePickupTimeEnd"><span style="color: red;">*</span>至</label>
+                    <input type="text" id="requirePickupTimeEnd" name="requirePickupTimeEnd" class="form-control search-param" style="width: 190px;">
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <hr/>
+
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>

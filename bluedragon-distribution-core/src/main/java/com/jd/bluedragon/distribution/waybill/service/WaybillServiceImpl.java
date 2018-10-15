@@ -58,7 +58,6 @@ public class WaybillServiceImpl implements WaybillService {
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
         wChoice.setQueryWaybillC(true);
-
         BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
                 wChoice);
 

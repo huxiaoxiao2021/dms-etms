@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.abnormal.service;
 
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 /**
@@ -30,4 +32,18 @@ public interface DmsOperateHintService extends Service<DmsOperateHint> {
 	 * @return
 	 */
 	DmsOperateHint getNeedReprintHint(String waybillCode);
+
+	/**
+	 * 根据查询条件分页获取提示信息
+	 * @param dmsOperateHintCondition
+	 * @return
+     */
+	PagerResult<DmsOperateHint> queryByPagerCondition(DmsOperateHintCondition dmsOperateHintCondition);
+
+	/**
+	 * 获取开启状态的提示信息配置
+	 * @param dmsOperateHint
+	 * @return
+     */
+	DmsOperateHint getEnabledOperateHint(DmsOperateHint dmsOperateHint);
 }
