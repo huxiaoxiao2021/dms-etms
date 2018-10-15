@@ -166,13 +166,12 @@ public class BusinessHelper {
     }
 
     /**
-     * 建议使用SerialRuleUtil.isMatchAllWaybillCode代替,此方法不能判断w单是运单号
+     * 建议使用 WaybillUtil.isWaybillCode(s);
      * 判断输入字符串是否为运单号码. 包裹号规则： 123456789
      *
      * @param s 用来判断的字符串
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
-    @Deprecated
     public static Boolean isWaybillCode(String s) {
         return WaybillUtil.isWaybillCode(s);
 //        if (StringHelper.isEmpty(s)) {
