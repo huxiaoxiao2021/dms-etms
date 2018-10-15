@@ -331,10 +331,6 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 }
                 commonWaybill.setPackList(packageList);
             }
-            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
-            if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
-            	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
-            }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }

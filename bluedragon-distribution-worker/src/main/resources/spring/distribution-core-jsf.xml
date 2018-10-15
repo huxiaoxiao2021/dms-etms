@@ -247,6 +247,10 @@
     <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!--  (TFC)运输流程中心系统 jsf接口  王京-->
+    <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
     <jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
                   protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
@@ -299,6 +303,10 @@
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 外单签单返回合单接口-->
+    <jsf:consumer id="waybillReturnSignatureApi" interface="com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi"
+                  protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
     <!--eclp查商品明细 -->
     <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"

@@ -1,10 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.dto.*;
@@ -26,10 +21,19 @@ import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.OrderTraceDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -44,7 +48,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
-	
+
     @Autowired
     private WaybillPackageApi waybillPackageApiJsf;
 

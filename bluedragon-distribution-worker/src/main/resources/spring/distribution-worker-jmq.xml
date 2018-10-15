@@ -192,14 +192,15 @@
         <jmq:listener topic="waybill_order_flag" listener="performanceRemoveConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费发货消息 -->
+    <!--  动态量方一期先注释存es的，待和es交互部分完成再打开by jinjingcheng  &lt;!&ndash; 消费发货消息 &ndash;&gt;
     <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetailConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费取消费发货消息 -->
+    &lt;!&ndash; 消费取消费发货消息 &ndash;&gt;
     <jmq:consumer id="jmq.dmsDeliveryCancelSendConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
     </jmq:consumer>
+    -->
 </beans>
 
