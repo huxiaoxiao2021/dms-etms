@@ -21,7 +21,6 @@ public interface ComposeService {
 
     String PREPARE_SITE_NAME_FRESH_SEND = "生鲜专送";
     String PREPARE_SITE_NAME_SAMECITY_ARRIVE = "同城当日达";
-    String PREPARE_SITE_NAME_INTERCITY_EXPRESS = "城际京尊达";
 
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";
@@ -36,7 +35,7 @@ public interface ComposeService {
     String SPECIAL_MARK_SAME = "同";
     String SPECIAL_MARK_AIRTRANSPORT_FILL = "航填";
     String SPECIAL_MARK_FIRST = "优";
-    String SPECIAL_MARK_INTERCITY = "城际";
+    String SPECIAL_MARK_INTERCITY = "京尊";
 
     /**
      * 全球售合包订单标识
