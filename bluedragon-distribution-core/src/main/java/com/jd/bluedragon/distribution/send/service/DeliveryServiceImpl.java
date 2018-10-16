@@ -13,11 +13,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -33,6 +29,7 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -50,22 +47,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -79,16 +61,7 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -120,19 +93,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 @Service("deliveryService")
 public class DeliveryServiceImpl implements DeliveryService {
@@ -291,6 +253,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -2843,6 +2808,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
+
+        // FIXME: 2018/10/16 应该单独写一个校验接口，后续进行剥离
+        //B网包装耗材服务确认拦截
+        if (! this.checkWaybillConsumable(sendM)) {
+            return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
+        }
+
         logger.info("快运发货运单重量及运费拦截开始");
         //快运称重及运费拦截
         List<String> waybillCodes = getWaybillCodesBySendM(sendM);
@@ -4622,5 +4594,49 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         return response;
+    }
+
+    /**
+     * 校验B网运单是否确认了耗材包装服务 added by hanjiaxing3 2018.10.16
+     * @param sendM 发货数据
+     * @return true:确认了包装，不拦截 false:拦截
+     */
+    private Boolean checkWaybillConsumable(SendM sendM){
+
+        logger.info("B网包装耗材确认拦截开始...");
+        Waybill waybill = null;
+        try {
+            //判断快运发货是够是原包发货，原包发货boxCode为包裹号
+            if (BusinessHelper.isPackageCode(sendM.getBoxCode()) && ! BusinessHelper.isPickupCode(sendM.getBoxCode())) {
+                String waybillCode = BusinessHelper.getWaybillCode(sendM.getBoxCode());
+                if (StringHelper.isNotEmpty(waybillCode)) {
+                    WChoice wChoice = new WChoice();
+                    wChoice.setQueryWaybillS(true);
+                    wChoice.setQueryWaybillC(true);
+                    //获取运单信息
+                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+                    if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+                        this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功，运单【" + waybill + "】");
+
+                        waybill = baseEntity.getData().getWaybill();
+                        String waybillSign = waybill.getWaybillSign();
+                        //判断waybillSign是够支持包装耗材服务，支持才判断是否确认
+                        if (BusinessHelper.isNeedConsumable(waybillSign)) {
+                            //返回确认结果
+                            return waybillConsumableRecordService.isConfirmed(waybillCode);
+                        }
+                    } else {
+                        //无运单数据
+                        logger.warn(waybillCode + "对应的运单信息为空！");
+                    }
+                } else {
+                    //运单号转换失败
+                    logger.warn(sendM.getBoxCode() + "转换运单号失败！");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("查询运单是否已经确认耗材失败，运单号：" + sendM.getBoxCode(), e);
+        }
+        return true;
     }
 }
