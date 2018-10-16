@@ -682,6 +682,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setBusiCode("");
             target.setBusiOrderCode("");
         }
+        /**
+         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+         * 1.waybill_sign第80位等于1时，面单打印“特惠运”
+         * 2.waybill_sign第80位等于2时，面单打标“特准运”
+         */
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),62,'1')){
+            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'1')){
+                target.setjZDFlag(TextConstants.B2B_CHEAP_TRANSPORT);
+            }else if(BusinessHelper.isSignChar(waybill.getWaybillSign(),80,'2')){
+                target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
+            }
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessHelper.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);
@@ -720,12 +732,21 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
-            //一体化面单，显示城际快送
-            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_INTERCITY_EXPRESS);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
+        }
+        //特殊商家处理
+        if(BusinessHelper.isYHD(waybill.getSendPay())){
+        	//一号店订单:设置商家别名YHD，商家logo标识yhd4949.gif
+        	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_YHD);
+        	target.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
+        }else if(BusinessHelper.isCMBC(waybill.getWaybillSign())){
+        	//招商银行业务：运费字段、货款字段显示 “无”,商家标识设置为 CMBC 
+        	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_CMBC);
+        	target.setFreightText(TextConstants.COMMON_TEXT_NOTHING);
+        	target.setGoodsPaymentText(TextConstants.COMMON_TEXT_NOTHING);
         }
         //设置微笑
         hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
@@ -798,5 +819,49 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMSWEB.waybillCommonService.getPickupTask", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
 	public BaseEntity<PickupTask> getPickupTask(String oldWaybillCode){
 	    return waybillPickupTaskApi.getPickTaskByPickCode(oldWaybillCode);
+    }
+
+    /**
+     * 通过运单号获取履约单号
+     * @param waybillCode
+     * @return 不存在时返回null
+     */
+    @Override
+    public String getPerformanceCode(String waybillCode) {
+        if(StringHelper.isNotEmpty(waybillCode)){
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(baseEntity != null
+                    && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null){
+                //是加履中心的订单 才可以去查
+                if(BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+                    if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getParentOrderId())){
+                        return baseEntity.getData().getWaybill().getParentOrderId();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 通过运单号获取履约单号
+     * @param waybillCode
+     * @return 不存在时返回null
+     */
+    @Override
+    public boolean isPerformanceWaybill(String waybillCode) {
+        if(StringHelper.isNotEmpty(waybillCode)){
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+            if(baseEntity != null
+                    && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null){
+                //是加履中心的订单 才可以去查
+                if(BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.consumer.senddetail;
+package com.jd.bluedragon.distribution.consumer.send;
 
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-
 
 /**
  * 发货明细MQ[dmsWorkSendDetail] 消费逻辑
@@ -46,7 +45,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         try {
             this.doConsume(context);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         }
     }
@@ -79,8 +77,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private BaseEntity<BigWaybillDto> getWaybillBaseEntity(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
-        choice.setQueryWaybillE(true);
-        choice.setQueryWaybillM(true);
+        choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }

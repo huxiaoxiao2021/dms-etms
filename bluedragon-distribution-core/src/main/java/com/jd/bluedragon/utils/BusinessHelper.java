@@ -662,6 +662,15 @@ public class BusinessHelper {
 	}
 
 	/**
+	 * 根据waybillSign判断是否加履中心订单 （29 位 9 ）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPerformanceOrder(String waybillSign){
+		return isSignInChars(waybillSign, 29,'9');
+	}
+
+	/**
 	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
 	 * @param waybillSign
 	 * @return
@@ -803,7 +812,15 @@ public class BusinessHelper {
 		}
 		return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
 	}
-
+    /**
+     * 判断是否招商银行业务运单，waybill_sign第54位等于3时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCMBC(String waybillSign) {
+        return isSignChar(waybillSign, 54, '3');
+    }
     /**
      * 是否是RMA标识的运单
      *

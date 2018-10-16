@@ -187,5 +187,20 @@
     <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="bd_pack_sync_waybill" listener="packingConsumableConsumer"/>
     </jmq:consumer>
+    <!--履约单剔除消息-->
+    <jmq:consumer id="jmq.performanceRemoveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="waybill_order_flag" listener="performanceRemoveConsumer"/>
+    </jmq:consumer>
+
+    <!--  动态量方一期先注释存es的，待和es交互部分完成再打开by jinjingcheng  &lt;!&ndash; 消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetailConsumer"/>
+    </jmq:consumer>
+
+    &lt;!&ndash; 消费取消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsDeliveryCancelSendConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
+    </jmq:consumer>
+    -->
 </beans>
 

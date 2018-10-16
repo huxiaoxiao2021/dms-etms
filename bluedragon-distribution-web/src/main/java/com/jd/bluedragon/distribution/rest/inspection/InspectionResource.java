@@ -577,6 +577,8 @@ public class InspectionResource {
 		}catch (Exception e){
 			logger.error("验货redis查询运单提示语异常，改DB查询，运单号：" + waybillCode + "异常原因：" + e.getMessage());
 		}
+		//金鹏订单拦截提示
+		hintMessage += inspectionService.getHintMessage(dmsSiteCode, waybillCode);
 		inspectionResult.setHintMessage(hintMessage);
         jdResponse.toSucceed();//这里设置为成功，取不到值时记录warn日志
 		jdResponse.setData(inspectionResult);

@@ -398,6 +398,31 @@ public class DeliveryResource implements DmsDeliveryService {
     }
 
     @POST
+    @Path("/delivery/performacne/verification")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.performacne.verification", mState = {JProEnum.TP})
+    public DeliveryResponse checkJpWaybill(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){
+                //快运发货金鹏订单拦截提示
+                if(response.getCode()==JdResponse.CODE_OK && BusinessHelper.isPackageCode(request.getBoxCode())){
+                    String waybillCode = BusinessHelper.getWaybillCode(request.getBoxCode());
+                    response = deliveryService.dealJpWaybill(request.getSiteCode(),waybillCode);
+                }
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货金鹏订单拦截出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
     @Path("/delivery/sortingdiff")
     public ThreeDeliveryResponse checkSortingDiff(DeliveryRequest request) {
         String boxCode = request.getBoxCode();

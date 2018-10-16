@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
@@ -21,6 +23,8 @@ import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
+import com.jd.fastjson.JSON;
+import com.jd.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
@@ -50,6 +54,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	private static final Integer SITE_TYPE_SPWMS = 903;
+	private static final String MERGE_WAYBILL_RETURN_COUNT = "mergeWaybillReturnCount";
 
 	@Autowired
 	private TaskService taskService;
@@ -74,6 +79,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private ReversePrintService reversePrintService;
+	@Autowired
+	private StoragePackageMService storagePackageMService;
+
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
 			return;
@@ -112,6 +120,34 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 		}
 
+
+		//额外做一些处理 ，此环节可针对某些特定更新运单状态时处理
+		doSomethingOnWaybillStatus(tasks);
+	}
+
+	/**
+	 * 额外业务逻辑
+	 * 1、当更新运单的状态为发货时，修改暂存上架的暂存状态
+	 * @param tasks
+	 */
+	private void doSomethingOnWaybillStatus(List<Task> tasks){
+		for (Task task : tasks) {
+			if (StringHelper.isEmpty(task.getBody())) {
+				continue;
+			}
+			if (task.getYn()!=null && task.getYn().equals(0)) {
+				continue;
+			}
+
+			WaybillStatus waybillStatus = JsonHelper.fromJson(task.getBody(), WaybillStatus.class);
+
+			//发货节点
+			if(waybillStatus!=null && waybillStatus.getOperateType()!=null && WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY.equals(waybillStatus.getOperateType())){
+				//同步暂存上架的运单状态
+				storagePackageMService.updateStatusOnSend(waybillStatus.getWaybillCode(),waybillStatus.getPackageCode());
+			}
+
+		}
 	}
 
 	public void sendModifyWaybillStatusFinished(Task task) throws Exception{
@@ -251,7 +287,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			extend.setArriveZdName(waybillStatus.getReceiveSiteName());
 			extend.setArriveZdType(waybillStatus.getReceiveSiteType());
 			extend.setThirdWaybillCode(task.getBoxCode());//第三方订单号
-
+			extend.setReasonId(waybillStatus.getReasonId());
 			param.setWaybillSyncParameterExtend(extend);
 			params.add(param);
 		}
@@ -342,7 +378,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				task.setYn(0);
 			}
 
-			//包裹补打 发全程跟踪 新增节点2400
+			//包裹补打 客户改址 发全程跟踪 新增节点2400
 			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
 				//单独发送全程跟踪消息，供其给前台消费
@@ -351,6 +387,63 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_MSG,
 						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
 						tWaybillStatus.getOperator(), null);
+//				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
+			//包裹补打 发全程跟踪 新增节点1000
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_PACK_REPRINT))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getOperator()
+						+ "包裹补打");
+				this.logger.info("向运单系统回传全程跟踪，包裹补打调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，包裹补打调用sendOrderTrace：" );
+				task.setYn(0);
+			}
+
+			//签单返回合单 旧运单号发全程跟踪
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("返单合单 ，新运单号"+tWaybillStatus.getSendCode());
+
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
+//				this.taskService.doDone(task);
+				task.setYn(0);
+			}
+
+			//签单返回合单 新运单号发全程跟踪
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				List<String> list = JSONArray.parseArray(tWaybillStatus.getRemark(), String.class);
+				int maxSize = Integer.valueOf(PropertiesHelper.newInstance().getValue(MERGE_WAYBILL_RETURN_COUNT));
+				String temp = "";
+				if(list.size() > maxSize ){
+					for(int i=0; i<maxSize; i++){
+						if(i == maxSize-1){
+							temp += list.get(i)+"等";
+							break;
+						}else {
+							temp += list.get(i)+",";
+						}
+					}
+					this.logger.warn("签单返还新单号"+bdTraceDto.getWaybillCode()+"对应的旧单号有"+ JSON.toJSONString(list));
+
+				}else{
+					for(int i=0;i<list.size();i++){
+						if(i == list.size()-1){
+							temp += list.get(i);
+						}else {
+							temp += list.get(i)+",";
+						}
+					}
+				}
+				bdTraceDto.setOperatorDesp("返单合单，原运单号"+temp);
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用：" );
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				this.logger.info("向运单系统回传全程跟踪，签单返回合单调用sendOrderTrace：" );
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}

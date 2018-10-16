@@ -11,12 +11,18 @@ import java.util.List;
 public interface SendPrintService {
 
     SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria);
+	SummaryPrintResultResponse newBatchSummaryPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria);
+	BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria);
 
 	BasicQueryEntityResponse sopPrintQuery(PrintQueryCriteria criteria);
 
 	BatchSendInfoResponse selectBoxBySendCode(List<BatchSend> batchSends);
 	
 	BasicQueryEntityResponse basicPrintQueryOffline(PrintQueryCriteria criteria);
+
+	String getWaybillType(int waybillType);
+
+	String getSendPay(int payment);
 }

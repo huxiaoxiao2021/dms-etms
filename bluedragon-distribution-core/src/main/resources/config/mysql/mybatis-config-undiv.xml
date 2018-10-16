@@ -267,5 +267,10 @@
         <mapper resource="mappers/mysql/consumable/PackingConsumableInfoMapper.xml"/>
         <mapper resource="mappers/mysql/consumable/WaybillConsumableRecordMapper.xml"/>
         <mapper resource="mappers/mysql/consumable/WaybillConsumableRelationMapper.xml"/>
+
+        <!--储位暂存-->
+        <mapper resource="mappers/mysql/storage/StoragePackageDMapper.xml"/>
+        <mapper resource="mappers/mysql/storage/StoragePackageMMapper.xml"/>
+
     </mappers>
 </configuration>
