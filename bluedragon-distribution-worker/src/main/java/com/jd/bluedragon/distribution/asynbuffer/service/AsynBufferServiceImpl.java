@@ -254,8 +254,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             builder.append(SPLIT_CHAR).append(task.getKeyword2());
             this.logger.error(builder.toString());
             this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
-            return Boolean.FALSE;
+            result = Boolean.FALSE;
         }
+
+        redisClientCache.del(fingerPrintKey);
         return result;
     }
 
