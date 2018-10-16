@@ -205,7 +205,7 @@
     <bean id="userSdkConsumerFilter" class="com.jd.user.sdk.export.filter.UserSdkConsumerFilter" scope="prototype"/>
     <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserPassportExportService" alias="${user.export.alias}"
                   filter="userSdkConsumerFilter" retries="${jsf.retries}" timeout="${user.export.timeout}">
-        <jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>
+        <jsf:parameter key="source" value="demo" hide="true"/>
     </jsf:consumer>
 
     <!-- 台账 宏亮 张子敬-->
