@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
@@ -9,22 +11,22 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseTradeInfoDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections.ArrayStack;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service("boxService")
@@ -52,6 +54,10 @@ public class BoxServiceImpl implements BoxService {
 
 	@Autowired
 	BaseMinorManager baseMinorManager;
+
+	@Autowired
+	@Qualifier("jimdbCacheService")
+	private CacheService jimdbCacheService;
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
@@ -321,6 +327,21 @@ public class BoxServiceImpl implements BoxService {
         }
         return effectSize;
     }
+
+    @Override
+	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus) {
+		String redisKey = null;
+		try {
+			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
+				redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
+				//不管是否存在，都更新key的值
+				return jimdbCacheService.set(redisKey, boxStatus);
+			}
+		} catch (Exception e) {
+			logger.error("redisKey：" + redisKey + "更新箱号状态缓存失败", e);
+		}
+		return false;
+	}
 
     public static void main(String[] args) {
         Box box = new Box();

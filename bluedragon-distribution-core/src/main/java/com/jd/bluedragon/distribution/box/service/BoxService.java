@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.box.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.box.domain.Box;
+
+import java.util.List;
 
 public interface BoxService {
 
@@ -42,4 +42,13 @@ public interface BoxService {
      * @return
      */
     Integer batchUpdateStatus(List<String> boxCodes, Integer boxStatus);
+
+    /***
+     * 更新箱号状态的缓存
+     * @param boxCode 箱号
+     * @param operateSiteCode 操作箱号的单位，用于区分中转发货的箱号状态
+     * @param boxStatus 箱号状态
+     * @return
+     */
+    Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus);
 }
