@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.worker.sorting;
 
 import com.jd.jim.cli.Cluster;
+import com.jd.jim.cli.TransactionClient;
 import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.text.MessageFormat;
 import java.util.concurrent.TimeUnit;
 
 public class SortingTask extends DBSingleScheduler {
@@ -19,7 +21,7 @@ public class SortingTask extends DBSingleScheduler {
 
     private static final String SPLIT_CHAR="$";
 
-    private final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
+    public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
 
     @Autowired
     private SortingService sortingService;
@@ -31,22 +33,24 @@ public class SortingTask extends DBSingleScheduler {
 	@Override
 	public boolean executeSingleTask(Task task, String ownSign) throws Exception {
 
-
-        String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() + task.getReceiveSiteCode() + task.getKeyword2();
+        String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getReceiveSiteCode() +"|"+ task.getKeyword2();
         try{
             //判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。
-
+            TransactionClient tclient = redisClientCache.transactionClient(fingerPrintKey.getBytes());
+            tclient.multi();
             Long incrResult = redisClientCache.incr(fingerPrintKey);
             redisClientCache.expire(fingerPrintKey, 5, TimeUnit.SECONDS);
-            if(incrResult>1){//说明有重复任务
-               return false;
+            tclient.exec();
+
+            if(incrResult.intValue()>1){//说明有重复任务
+                this.logger.error("1200分拣任务重复："+task.getBody());
+                return false;
             }
-        }catch(Error e){
+        }catch(Exception e){
             this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
         }
 
-
-        boolean result = false;
+        boolean result = Boolean.FALSE;
         try {
             this.logger.info("task id is " + task.getId());
             result = this.sortingService.doSorting(task);
