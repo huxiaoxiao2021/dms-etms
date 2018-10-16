@@ -25,8 +25,8 @@ public class UserVerifyServiceImpl implements UserVerifyService {
 
     private static final Log logger = LogFactory.getLog(UserVerifyServiceImpl.class);
 
-    private static final String NONE="NONE";
-    private static final String SOURCE="ql_dms";
+    private static final String NONE = "NONE";
+    private static final String SOURCE = "ql_dms";
 
 //    private String passportUrl;
 //
@@ -34,7 +34,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
 //
 //    private String token;
 
-//    private DeptWebService deptWebService;
+    //    private DeptWebService deptWebService;
     @Autowired
     private NewDeptWebService newDeptWebService;
 
@@ -44,7 +44,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     @Override
     public UserInfo baseVerify(String name, String password) {
         try {
-        	UserInfo userInfo = newDeptWebService.verify(name, password);
+            UserInfo userInfo = newDeptWebService.verify(name, password);
             return userInfo;
         } catch (Exception ex) {
             logger.error("deptWebService verify error", ex);
@@ -57,7 +57,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
         try {
             String md5Pwd = DigestUtils.md5Hex(password);
             String remoteIp = InetAddress.getLocalHost().getHostAddress();
-            LoginParam loginParam=new LoginParam();
+            LoginParam loginParam = new LoginParam();
             loginParam.setSource(SOURCE);
             loginParam.setAuthType(1);
             loginParam.setLoginName(pin);
@@ -68,16 +68,16 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             loginParam.setDeviceOS(NONE);
             loginParam.setDeviceVersion(NONE);
             Map<String, String> extInfo = new HashMap(20);
-            extInfo.put(Constants.LoginParam.APP_ID,NONE);
-            extInfo.put(Constants.LoginParam.EQUIPMNET_ID,NONE);
-            extInfo.put(Constants.LoginParam.OPEN_UDID,NONE);
-            extInfo.put(Constants.LoginParam.UUID,NONE);
-            if(clientInfo.getVersionCode().contains("D")||clientInfo.getVersionCode().contains("F")||clientInfo.getVersionCode().contains("R")){
-                extInfo.put(Constants.LoginParam.CHANNEL,"10");
-            }else if(clientInfo.getVersionCode().contains("WP")||clientInfo.getVersionCode().contains("WM")){
-                extInfo.put(Constants.LoginParam.CHANNEL,"2");
-            }else{
-                extInfo.put(Constants.LoginParam.CHANNEL,NONE);
+            extInfo.put(Constants.LoginParam.APP_ID, NONE);
+            extInfo.put(Constants.LoginParam.EQUIPMNET_ID, NONE);
+            extInfo.put(Constants.LoginParam.OPEN_UDID, NONE);
+            extInfo.put(Constants.LoginParam.UUID, NONE);
+            if (clientInfo.getVersionCode().contains("D") || clientInfo.getVersionCode().contains("F") || clientInfo.getVersionCode().contains("R")) {
+                extInfo.put(Constants.LoginParam.CHANNEL, "10");
+            } else if (clientInfo.getVersionCode().contains("WP") || clientInfo.getVersionCode().contains("WM")) {
+                extInfo.put(Constants.LoginParam.CHANNEL, "2");
+            } else {
+                extInfo.put(Constants.LoginParam.CHANNEL, NONE);
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
@@ -153,5 +153,5 @@ public class UserVerifyServiceImpl implements UserVerifyService {
 //	public void setNewDeptWebService(NewDeptWebService newDeptWebService) {
 //		this.newDeptWebService = newDeptWebService;
 //	}
-    
+
 }
