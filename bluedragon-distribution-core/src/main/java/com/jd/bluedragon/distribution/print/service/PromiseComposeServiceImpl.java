@@ -136,7 +136,7 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
                     String foreCastTime = "";
-                    BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), true,true, true, true);
+                    BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), true,false, false, false);
                     BigWaybillDto data = baseEntity.getData();
                     if(data != null && data.getWaybill() != null && data.getWaybill().getRequireTime() != null){
                         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
