@@ -732,12 +732,21 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
-            //一体化面单，显示城际快送
-            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_INTERCITY_EXPRESS);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
+        }
+        //特殊商家处理
+        if(BusinessHelper.isYHD(waybill.getSendPay())){
+        	//一号店订单:设置商家别名YHD，商家logo标识yhd4949.gif
+        	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_YHD);
+        	target.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
+        }else if(BusinessHelper.isCMBC(waybill.getWaybillSign())){
+        	//招商银行业务：运费字段、货款字段显示 “无”,商家标识设置为 CMBC 
+        	target.setDmsBusiAlias(Constants.BUSINESS_ALIAS_CMBC);
+        	target.setFreightText(TextConstants.COMMON_TEXT_NOTHING);
+        	target.setGoodsPaymentText(TextConstants.COMMON_TEXT_NOTHING);
         }
         //设置微笑
         hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
