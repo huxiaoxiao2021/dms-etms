@@ -70,7 +70,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
-    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
+//    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/base/dmsStorageArea";

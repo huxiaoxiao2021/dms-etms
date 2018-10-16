@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.web.b2bRouter;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.B2BRouterRequest;
 import com.jd.bluedragon.distribution.api.response.B2BRouterResponse;
@@ -11,12 +10,14 @@ import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -44,7 +45,7 @@ public class B2BRouterController {
      * 跳转到主界面
      * @return
      */
-    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
+//    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping("/index")
     public String index() {
         return "b2bRouter/list";

@@ -48,7 +48,7 @@ public class PackageHalfController {
 	 * 返回主页面
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
+//	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/half/packageHalf";

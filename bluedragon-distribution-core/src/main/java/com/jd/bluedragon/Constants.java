@@ -436,8 +436,17 @@ public class Constants {
      * container_relation 发货状态 已发货
      */
     public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
-
-
+    /**
+     * 商家别名标识-YHD：一号店
+     */
+    public static final String BUSINESS_ALIAS_YHD="YHD";
+    /**
+     * 商家别名标识-CMBC：招商银行
+     */
+    public static final String BUSINESS_ALIAS_CMBC="CMBC";
+    /**
+     * 商家商标图片-一号店（yhd4949.gif）
+     */
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
     /**
      * 备件库条码前缀默认值-"null"
@@ -458,6 +467,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_SORTSCHEME_R ="DMS-WEB-SORTING-SORTSCHEME-R"; //分拣计划配置
     public static final String DMS_WEB_SORTING_ADDRESSCHANGE_R ="DMS-WEB-SORTING-ADDRESSCHANGE-R"; //客户改址查询
     public static final String DMS_WEB_SORTING_PARTNERINSPECTION_R ="DMS-WEB-SORTING-PARTNERINSPECTION-R"; //第三方差异处理
+//    public static final String DMS_WEB_SORTING_OPERATELOG_R ="DMS-WEB-SORTING-OPERATELOG-R"; //分拣中心操作日志（新）
     public static final String DMS_WEB_SORTING_GODDESS_R ="DMS-WEB-SORTING-GODDESS-R"; //分拣运行时全程跟踪
     public static final String DMS_WEB_SORTING_OFFLINELOG_R ="DMS-WEB-SORTING-OFFLINELOG-R"; //分拣中心离线操作日志
     public static final String DMS_WEB_SORTING_FRESH_R ="DMS-WEB-SORTING-FRESH-R"; //生鲜温度录入
@@ -467,14 +477,17 @@ public class Constants {
     public static final String DMS_WEB_SORTING_UNKNOWNWAYBILL_R="DMS-WEB-SORTING-UNKNOWNWAYBILL-R";//三无外单托寄物核实
     public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
     public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
-    public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
-    public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
-    public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
-    public static final String DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R="DMS-WEB-EXPRESS-PACKAGEHALFREDELIVERY-R";//包裹部分签收操作
-    public static final String DMS_WEB_EXPRESS_RMAHANDOVER_R="DMS-WEB-EXPRESS-RMAHANDOVER-R";//RMA交接单打印
-    public static final String DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R="DMS-WEB-EXPRESS-WAYBILLCONSUMABLERECORD-R";//B网包装耗材
-    public static final String DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R="DMS-WEB-EXPRESS-PACKINGCONSUMABLEINFO-R";//包装耗材基础信息管理
-    public static final String DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R="DMS-WEB-EXPRESS-DMSCONSUMABLERELATION-R";//快运中心包装耗材管理
+    public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
+//    public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
+//    public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
+//    public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
+//    public static final String DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R="DMS-WEB-EXPRESS-PACKAGEHALFREDELIVERY-R";//包裹部分签收操作
+//    public static final String DMS_WEB_EXPRESS_RMAHANDOVER_R="DMS-WEB-EXPRESS-RMAHANDOVER-R";//RMA交接单打印
+//    public static final String DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R="DMS-WEB-EXPRESS-WAYBILLCONSUMABLERECORD-R";//B网包装耗材
+//    public static final String DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R="DMS-WEB-EXPRESS-PACKINGCONSUMABLEINFO-R";//包装耗材基础信息管理
+//    public static final String DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R="DMS-WEB-EXPRESS-DMSCONSUMABLERELATION-R";//快运中心包装耗材管理
+//    public static final String DMS_WEB_EXPRESS_STORAGEPACKAGEM_R="DMS-WEB-EXPRESS-STORAGEPACKAGEM-R";//暂存管理
+//    public static final String DMS_WEB_EXPRESS_PERFORMANCE_R="DMS-WEB-EXPRESS-PERFORMANCE-R";//加履交接单打印
     public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
     public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
     public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断
@@ -602,7 +615,7 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
-    
+
     /**
      * 始发道口号类型-1-普通
      */
@@ -645,4 +658,15 @@ public class Constants {
      * 包装耗材编号占位符
      */
     public static final String PACKING_PLACEHOLDER = "%03d";
+
+
+    /**
+     * 应付动态量方条码barcode类型 扫描到的号码类型1：包裹号 2：箱号 3：板号
+     */
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE = 1;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
+
+
+
 }

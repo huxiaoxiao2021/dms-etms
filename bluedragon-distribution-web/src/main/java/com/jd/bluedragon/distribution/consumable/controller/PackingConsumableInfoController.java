@@ -44,7 +44,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 	 * 返回主页面
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
+//	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/packingConsumableInfo";

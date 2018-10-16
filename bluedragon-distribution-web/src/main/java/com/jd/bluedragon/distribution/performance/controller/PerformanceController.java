@@ -40,6 +40,7 @@ public class PerformanceController {
      * 返回主页面
      * @return
      */
+//    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(){
         return "/jinpeng/performance";

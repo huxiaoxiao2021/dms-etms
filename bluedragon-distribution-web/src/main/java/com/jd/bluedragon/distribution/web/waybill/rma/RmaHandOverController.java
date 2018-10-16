@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.web.waybill.rma;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
@@ -17,7 +16,6 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -53,7 +51,7 @@ public class RmaHandOverController {
      *
      * @return
      */
-    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
+//    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping("/index")
     public String index() {
         return "waybill/rma/list";

@@ -1,12 +1,13 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
-import java.util.List;
-
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
+import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationDetailInfo;
+import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
 import com.jd.bluedragon.distribution.packingconsumable.domain.PackingConsumableBaseInfo;
-import com.jd.uim.annotation.Authorization;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.domain.DmsConsumableRelationCondition;
-import com.jd.bluedragon.distribution.consumable.service.DmsConsumableRelationService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.List;
 
 /**
  *
@@ -43,7 +40,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * 返回主页面
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
+//	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/dmsConsumableRelation";
