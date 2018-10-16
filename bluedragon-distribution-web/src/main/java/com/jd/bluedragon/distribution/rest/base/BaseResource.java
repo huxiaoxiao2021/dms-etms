@@ -354,8 +354,17 @@ public class BaseResource implements DmsBaseService {
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
+		ClientInfo clientInfo = null;
+		//初始化客户端信息
+		if(StringUtils.isNotBlank(request.getClientInfo())){
+			clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+			clientInfo.setLoginUserErp(erpAccount);
+		}else{
+			clientInfo = new  ClientInfo();
+			clientInfo.setLoginUserErp(erpAccount);
+		}
 		/** 进行登录验证 */
-		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd,clientInfo);
 
 		// 处理返回结果
 		if (loginResult.isError()) {
@@ -375,15 +384,6 @@ public class BaseResource implements DmsBaseService {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
 			try{
-				ClientInfo clientInfo = null;
-				//初始化客户端信息
-				if(StringUtils.isNotBlank(request.getClientInfo())){
-		            clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
-		            clientInfo.setLoginUserErp(erpAccount);
-		        }else{
-		            clientInfo = new  ClientInfo();
-		            clientInfo.setLoginUserErp(erpAccount);
-		        }
 				//检查客户端版本信息，版本不一致，不允许登录
 	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
 	            if(!checkResult.isSucceed()){

@@ -2,22 +2,20 @@ package com.jd.bluedragon.distribution.base.service.impl;
 
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.base.service.UserVerifyService;
-import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
-import com.jd.ssa.service.SsoService;
-
-
-import com.jd.user.sdk.export.UserInfoExportService;
-import com.jd.user.sdk.export.domain.LoginResult;
+import com.jd.user.sdk.export.UserPassportExportService;
+import com.jd.user.sdk.export.constant.Constants;
+import com.jd.user.sdk.export.domain.passport.LoginResult;
+import com.jd.user.sdk.export.domain.passport.LoginParam;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.ws.rs.core.MediaType;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author dudong
@@ -26,6 +24,9 @@ import java.net.InetAddress;
 public class UserVerifyServiceImpl implements UserVerifyService {
 
     private static final Log logger = LogFactory.getLog(UserVerifyServiceImpl.class);
+
+    private static final String NONE="NONE";
+    private static final String SOURCE="ql_dms";
 
 //    private String passportUrl;
 //
@@ -38,7 +39,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     private NewDeptWebService newDeptWebService;
 
     @Autowired
-    private UserInfoExportService userInfoRpc;
+    private UserPassportExportService userInfoRpc;
 
     @Override
     public UserInfo baseVerify(String name, String password) {
@@ -52,12 +53,35 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     }
 
     @Override
-    public Boolean passportVerify(String pin, String password) {
+    public Boolean passportVerify(String pin, String password, ClientInfo clientInfo) {
         try {
             String md5Pwd = DigestUtils.md5Hex(password);
             String remoteIp = InetAddress.getLocalHost().getHostAddress();
-            LoginResult loginResult = userInfoRpc.checkLoginForUnified(pin, md5Pwd, remoteIp);
-            return LoginResult.PROCESS_CODE_SUCCESS == loginResult.getProcessCode();
+            LoginParam loginParam=new LoginParam();
+            loginParam.setSource(SOURCE);
+            loginParam.setAuthType(1);
+            loginParam.setLoginName(pin);
+            loginParam.setPassword(md5Pwd);
+            loginParam.setUserIp(remoteIp);
+            loginParam.setDeviceName(NONE);
+            loginParam.setDeviceOSVersion(NONE);
+            loginParam.setDeviceOS(NONE);
+            loginParam.setDeviceVersion(NONE);
+            Map<String, String> extInfo = new HashMap(20);
+            extInfo.put(Constants.LoginParam.APP_ID,NONE);
+            extInfo.put(Constants.LoginParam.EQUIPMNET_ID,NONE);
+            extInfo.put(Constants.LoginParam.OPEN_UDID,NONE);
+            extInfo.put(Constants.LoginParam.UUID,NONE);
+            if(clientInfo.getVersionCode().contains("D")||clientInfo.getVersionCode().contains("F")||clientInfo.getVersionCode().contains("R")){
+                extInfo.put(Constants.LoginParam.CHANNEL,"10");
+            }else if(clientInfo.getVersionCode().contains("WP")||clientInfo.getVersionCode().contains("WM")){
+                extInfo.put(Constants.LoginParam.CHANNEL,"2");
+            }else{
+                extInfo.put(Constants.LoginParam.CHANNEL,NONE);
+            }
+            loginParam.addAllExtInfo(extInfo);
+            LoginResult loginResult = userInfoRpc.login(loginParam);
+            return loginResult.isSuccess();
         } catch (Exception ex) {
             logger.error("passportVerify verify error", ex);
             return Boolean.FALSE;
