@@ -20,6 +20,9 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
+        if (isWaybillCode(packCode)&&!isPackageCode(packCode)){
+            return packCode;
+        }
         return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
     }
 
