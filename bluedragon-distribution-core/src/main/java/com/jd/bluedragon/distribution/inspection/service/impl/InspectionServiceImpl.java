@@ -731,4 +731,10 @@ public class InspectionServiceImpl implements InspectionService {
 		return hintMessage;
 	}
 
+	@Override
+	public List<Inspection> findPageInspection(Map<String, Object> params) {
+		logger.info("InspectionServiceImpl.findPageInspection begin...");
+		return inspectionDao.findPageInspection(params);
+	}
+
 }

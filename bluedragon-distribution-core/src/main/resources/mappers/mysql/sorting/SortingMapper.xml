@@ -348,4 +348,24 @@
 		</if>
 	</select>
 
+	<select id="findPageSorting" resultMap="sorting" parameterType="map">
+		select box_code, package_code, waybill_code, pickup_code,
+		    create_site_code, receive_site_code,
+			create_user_code, create_user,
+			create_time, update_time, operate_time, is_cancel,
+			sorting_status, yn, is_loss
+		from sorting
+		where yn=1
+		<if test="packageCode != null">
+			and package_code = #{packageCode,jdbcType=VARCHAR}
+		</if>
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+		order by operate_time
+		<if test="startIndex != null">
+			limit #{startIndex},#{pageSize}
+		</if>
+	</select>
+
 </mapper>

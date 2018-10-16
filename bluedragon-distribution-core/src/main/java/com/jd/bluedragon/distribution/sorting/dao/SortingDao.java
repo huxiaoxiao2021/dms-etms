@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.sorting.dao;
 
+import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 public class SortingDao extends BaseDao<Sorting> {
 
@@ -129,5 +129,10 @@ public class SortingDao extends BaseDao<Sorting> {
      */
     public List<Sorting>  findByWaybillCodeOrPackageCode(Sorting sorting){
         return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sorting);
+    }
+
+    /**分页查询分拣记录*/
+    public List<Sorting> findPageSorting(Map<String,Object> params){
+        return this.getSqlSession().selectList(namespace +".finaPageSorting",params);
     }
 }
