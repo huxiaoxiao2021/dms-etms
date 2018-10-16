@@ -20,10 +20,22 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
-        if (isWaybillCode(packCode)&&!isPackageCode(packCode)){
+        if (isWaybillCode(packCode) && !isPackageCode(packCode)) {
             return packCode;
         }
         return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
+    }
+
+    /**
+     * 是否是运单号 京东订单(9到19位数字)、 11位（W开头的面单） 12位数字或V开头运单（B商家运单号）
+     * 或F开头的返单号、WW开头的移动仓返单号
+     * 兼容新运单号格式（JD开头）
+     */
+    public static boolean isWaybillCode(String waybillCode) {
+        if (isWaybillCode(waybillCode) && !isPackageCode(waybillCode)) {
+            return true;
+        }
+        return false;
     }
 
 //    /**
