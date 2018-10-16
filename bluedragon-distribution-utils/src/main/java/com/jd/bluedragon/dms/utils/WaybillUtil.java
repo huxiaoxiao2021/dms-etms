@@ -20,7 +20,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
-        if (isWaybillCode(packCode) && !isPackageCode(packCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode) && !WaybillCodeRuleValidateUtil.isPackageCode(packCode)) {
             return packCode;
         }
         return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
@@ -32,7 +32,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * 兼容新运单号格式（JD开头）
      */
     public static boolean isWaybillCode(String waybillCode) {
-        if (isWaybillCode(waybillCode) && !isPackageCode(waybillCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode) && !WaybillCodeRuleValidateUtil.isPackageCode(waybillCode)) {
             return true;
         }
         return false;
