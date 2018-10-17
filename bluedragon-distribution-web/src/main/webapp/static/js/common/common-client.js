@@ -142,7 +142,10 @@ CommonClient.asyncAjax = function(type,url,param,successFunction){
         data: param,
         contentType:  "application/x-www-form-urlencoded; charset=utf-8",
         async : true,
-        beforeSend: function(jqXHR, settings){
+        beforeSend: function(request){
+            if (currUserCode) {
+                request.setRequestHeader("currusercode", currUserCode);
+            }
             $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
         },
         success: successFunction,
