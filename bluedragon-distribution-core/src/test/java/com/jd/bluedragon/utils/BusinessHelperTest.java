@@ -125,14 +125,14 @@ public class BusinessHelperTest {
 	}
 	@Test
 	public void testIsSopOrExternal() {
-		assertFalse(BusinessHelper.isReverseSpareCode("40000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isReverseSpareCode("20000000000000301000000000000000000000000000000000"));
-		assertTrue(BusinessHelper.isReverseSpareCode("K0000000000000301000000000000000000000000000000000"));
-		assertTrue(BusinessHelper.isReverseSpareCode("60000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isReverseSpareCode("T0000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isReverseSpareCode("k11234567890123456"));
-		assertTrue(BusinessHelper.isReverseSpareCode("30000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isReverseSpareCode("17122600001004"));
+		assertFalse(BusinessHelper.isSopOrExternal("40000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessHelper.isSopOrExternal("20000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessHelper.isSopOrExternal("KA0000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessHelper.isSopOrExternal("60000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessHelper.isSopOrExternal("T0000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessHelper.isSopOrExternal("k11234567890123456"));
+		assertTrue(BusinessHelper.isSopOrExternal("30000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessHelper.isSopOrExternal("17122600001004"));
 	}
 	@Test
 	public void testGetHashKeyByPackageCode() {
