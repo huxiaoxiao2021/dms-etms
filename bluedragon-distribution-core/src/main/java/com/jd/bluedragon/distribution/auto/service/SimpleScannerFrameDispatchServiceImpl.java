@@ -176,14 +176,13 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
         /*
             获取sysConfig中CONFIG_NAME 为 "sortMachine.autoSend.sendCode.auto.change" 的CONFIG_CONTENT，
-            其中CONFIG_CONTENT中维护的是开启分拣机自动发货的封车自动换批次的分拣中心ID
+            其中CONFIG_CONTENT中维护的是开启分拣机自动发货的封车自动换批次的分拣中心所属的分拣机代码
          */
         String sendCode = "";
         SysConfig sysConfig = sysConfigService.findConfigContentByConfigName
                 (Constants.SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE);
         if (null != sysConfig && StringHelper.isNotEmpty(sysConfig.getConfigContent())
-                && Arrays.asList(sysConfig.getConfigContent().split(","))
-                            .contains(String.valueOf(domain.getDistributeId()))) {
+                && Arrays.asList(sysConfig.getConfigContent().split(",")).contains(domain.getRegisterNo())) {
             //开关为开启状态
             sendCode = scannerFrameBatchSendService.getOrGenerate
                     (domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode();
