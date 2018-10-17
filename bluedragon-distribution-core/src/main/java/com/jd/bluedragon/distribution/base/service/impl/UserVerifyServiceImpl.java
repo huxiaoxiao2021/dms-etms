@@ -26,7 +26,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     private static final Log logger = LogFactory.getLog(UserVerifyServiceImpl.class);
 
     private static final String NONE = "NONE";
-    private static final String SOURCE = "ql_dms";
+    private static final String SOURCE = "demo";
 
 //    private String passportUrl;
 //
