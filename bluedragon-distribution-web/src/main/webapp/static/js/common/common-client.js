@@ -142,7 +142,6 @@ CommonClient.asyncAjax = function(type,url,param,successFunction){
         data: param,
         contentType:  "application/x-www-form-urlencoded; charset=utf-8",
         async : true,
-        dataType:'JSONP',
         beforeSend: function(jqXHR, settings){
             $.blockUI({ message:"<span class='pl20 icon-loading'>正在处理,请稍后...</span>"});
         },
