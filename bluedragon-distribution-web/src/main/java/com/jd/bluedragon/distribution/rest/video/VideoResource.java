@@ -83,7 +83,7 @@ public class VideoResource {
         //返回发货记录
         List<SendDetail> sendDetailList = null;
         Map<String,Object> params = new HashMap<String, Object>();
-        params.put("createSiteCode",videoRequest.getCreateSiteCode());
+        params.put("createSiteCode",videoRequest.getSiteNo());
         params.put("packageCode",packageCode);
         params.put("startIndex",0);
         params.put("pageSize",1);
@@ -108,7 +108,7 @@ public class VideoResource {
                 if(sortingList!=null && !sortingList.isEmpty()){
                     Sorting sorting = sortingList.get(0);
                     UserAndTime userAndTime = new UserAndTime(sorting.getCreateUserCode(),sorting.getCreateUser(),sorting.getOperateTime());
-                    response.setData(JsonHelper.toJson(userAndTime));
+                    response.setData(userAndTime);
                     logger.info("查询包裹号为："+ packageCode +"的分拣记录成功！");
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的分拣记录！");
@@ -160,7 +160,7 @@ public class VideoResource {
     }
 
     public boolean checkParam(VideoRequest videoRequest, JdResponse response){
-        if(videoRequest.getCreateSiteCode() == null){
+        if(videoRequest.getSiteNo() == null){
             response.toFail("分拣中心id为空！");
             logger.warn("分拣中心id为空！参数为："+JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;

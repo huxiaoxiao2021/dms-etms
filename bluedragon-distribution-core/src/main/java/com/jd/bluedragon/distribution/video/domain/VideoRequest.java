@@ -7,7 +7,7 @@ public class VideoRequest implements Serializable {
     private static final long serialVersionUID = 3809791575103607077L;
 
     /**当前分拣中心Id*/
-    private Integer createSiteCode;
+    private Integer siteNo;
 
     /**操作节点类型（验货、分拣、称重量方、发货）*/
     private Integer operateType;
@@ -15,12 +15,12 @@ public class VideoRequest implements Serializable {
     /**包裹号*/
     private String packageCode;
 
-    public Integer getCreateSiteCode() {
-        return createSiteCode;
+    public Integer getSiteNo() {
+        return siteNo;
     }
 
-    public void setCreateSiteCode(Integer createSiteCode) {
-        this.createSiteCode = createSiteCode;
+    public void setSiteNo(Integer siteNo) {
+        this.siteNo = siteNo;
     }
 
     public Integer getOperateType() {
