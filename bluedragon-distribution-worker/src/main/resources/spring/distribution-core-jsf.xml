@@ -204,9 +204,11 @@
     <bean id="userSdkConsumerFilter" class="com.jd.user.sdk.export.filter.UserSdkConsumerFilter" scope="prototype"/>
     <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserPassportExportService" alias="${user.export.alias}"
                   filter="userSdkConsumerFilter" retries="${jsf.retries}" timeout="${user.export.timeout}">
-        <!--<jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>-->
+        <jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>
     </jsf:consumer>
-
+    <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserPassportExportService" alias="邮件回复的线上别名,预发布别名使用 userSdk-yfb-login"  retries="1" timeout="300">
+        <jsf:parameter  key="source" value="" hide="true" />
+    </jsf:consumer>
     <!-- 台账 宏亮 张子敬-->
     <jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
                   alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}" retries="${jsf.retries}">

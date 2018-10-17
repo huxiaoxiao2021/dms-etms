@@ -26,7 +26,28 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     private static final Log logger = LogFactory.getLog(UserVerifyServiceImpl.class);
 
     private static final String NONE = "NONE";
-    private static final String SOURCE = "demo";
+    private static final String SOURCE = "ql_dms";
+    /**
+     * 登录设备是手持PDA
+     */
+    private static final String HANDLE_PDA_D = "D";
+    private static final String HANDLE_PDA_F = "F";
+    private static final String HANDLE_PDA_R = "R";
+    /**
+     * 登录设备是客户端
+     */
+    private static final String PC_WM = "WM";
+    private static final String PC_WP = "WP";
+
+    //登录方式
+    private static final Integer AUTHTYPE = 1;
+
+    //登录渠道或终端
+    //PC 端
+    private static final String PC = "2";
+    //手持PDA
+    private static final String PDA = "10";
+
 
 //    private String passportUrl;
 //
@@ -59,7 +80,7 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             String remoteIp = InetAddress.getLocalHost().getHostAddress();
             LoginParam loginParam = new LoginParam();
             loginParam.setSource(SOURCE);
-            loginParam.setAuthType(1);
+            loginParam.setAuthType(AUTHTYPE);
             loginParam.setLoginName(pin);
             loginParam.setPassword(md5Pwd);
             loginParam.setUserIp(remoteIp);
@@ -72,12 +93,15 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             extInfo.put(Constants.LoginParam.EQUIPMNET_ID, NONE);
             extInfo.put(Constants.LoginParam.OPEN_UDID, NONE);
             extInfo.put(Constants.LoginParam.UUID, NONE);
-            if (clientInfo.getVersionCode().contains("D") || clientInfo.getVersionCode().contains("F") || clientInfo.getVersionCode().contains("R")) {
-                extInfo.put(Constants.LoginParam.CHANNEL, "10");
-            } else if (clientInfo.getVersionCode().contains("WP") || clientInfo.getVersionCode().contains("WM")) {
-                extInfo.put(Constants.LoginParam.CHANNEL, "2");
+            if (clientInfo == null || clientInfo.getVersionCode() == null) {
+                extInfo.put(Constants.LoginParam.CHANNEL, PDA);
+            }
+            if (clientInfo.getVersionCode().contains(HANDLE_PDA_D) || clientInfo.getVersionCode().contains(HANDLE_PDA_F) || clientInfo.getVersionCode().contains(HANDLE_PDA_R)) {
+                extInfo.put(Constants.LoginParam.CHANNEL, PDA);
+            } else if (clientInfo.getVersionCode().contains(PC_WM) || clientInfo.getVersionCode().contains(PC_WP)) {
+                extInfo.put(Constants.LoginParam.CHANNEL, PC);
             } else {
-                extInfo.put(Constants.LoginParam.CHANNEL, NONE);
+                extInfo.put(Constants.LoginParam.CHANNEL, PDA);
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
