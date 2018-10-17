@@ -357,7 +357,7 @@ public class BaseResource implements DmsBaseService {
 		ClientInfo clientInfo = null;
 		//初始化客户端信息
 		if(StringUtils.isNotBlank(request.getClientInfo())){
-			//clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+			clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
 			clientInfo.setLoginUserErp(erpAccount);
 		}else{
 			clientInfo = new  ClientInfo();
