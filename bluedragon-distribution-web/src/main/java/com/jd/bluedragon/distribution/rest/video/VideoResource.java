@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.distribution.video.domain.UserAndTime;
+import com.jd.bluedragon.distribution.video.domain.OperateInfo;
 import com.jd.bluedragon.distribution.video.domain.VideoRequest;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -21,11 +21,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,8 +90,8 @@ public class VideoResource {
                 inspectionList = inspectionService.findPageInspection(params);
                 if(inspectionList != null && !inspectionList.isEmpty()){
                     Inspection inspection = inspectionList.get(0);
-                    UserAndTime userAndTime = new UserAndTime(inspection.getCreateUserCode(),inspection.getCreateUser(),inspection.getOperateTime());
-                    response.setData(JsonHelper.toJson(userAndTime));
+                    OperateInfo operateInfo = new OperateInfo(inspection.getCreateUserCode(),inspection.getCreateUser(),inspection.getOperateTime());
+                    response.setData(JsonHelper.toJson(operateInfo));
                     logger.info("查询包裹号为："+ packageCode +"的验货记录成功！");
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的验货记录！");
@@ -107,8 +104,8 @@ public class VideoResource {
                 sortingList = sortingService.findPageSorting(params);
                 if(sortingList!=null && !sortingList.isEmpty()){
                     Sorting sorting = sortingList.get(0);
-                    UserAndTime userAndTime = new UserAndTime(sorting.getCreateUserCode(),sorting.getCreateUser(),sorting.getOperateTime());
-                    response.setData(userAndTime);
+                    OperateInfo operateInfo = new OperateInfo(sorting.getCreateUserCode(),sorting.getCreateUser(),sorting.getOperateTime());
+                    response.setData(JsonHelper.toJson(operateInfo));
                     logger.info("查询包裹号为："+ packageCode +"的分拣记录成功！");
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的分拣记录！");
@@ -121,8 +118,8 @@ public class VideoResource {
                 sendDetailList = sendDetailService.findPageSendDetail(params);
                 if(sendDetailList!=null && !sendDetailList.isEmpty()){
                     SendDetail sendDetail = sendDetailList.get(0);
-                    UserAndTime userAndTime = new UserAndTime(sendDetail.getCreateUserCode(),sendDetail.getCreateUser(),sendDetail.getOperateTime());
-                    response.setData(JsonHelper.toJson(userAndTime));
+                    OperateInfo operateInfo = new OperateInfo(sendDetail.getCreateUserCode(),sendDetail.getCreateUser(),sendDetail.getOperateTime());
+                    response.setData(JsonHelper.toJson(operateInfo));
                     logger.info("查询包裹号为："+ packageCode +"的发货记录成功！");
                 }else{
                     response.toFail("包裹号"+ packageCode +"没有对应的发货记录！");
@@ -142,8 +139,8 @@ public class VideoResource {
                         String packageBar = packOpeFlowDto.getPackageCode();
                         if(packageBar != null && packageBar.equals(packageCode)){
                             Integer weightUserId = Integer.parseInt(packOpeFlowDto.getWeighUserId());
-                            UserAndTime userAndTime = new UserAndTime(weightUserId,packOpeFlowDto.getWeighUserName(),packOpeFlowDto.getWeighTime());
-                            response.setData(JsonHelper.toJson(userAndTime));
+                            OperateInfo operateInfo = new OperateInfo(weightUserId,packOpeFlowDto.getWeighUserName(),packOpeFlowDto.getWeighTime());
+                            response.setData(JsonHelper.toJson(operateInfo));
                             logger.info("查询包裹号为："+ packageCode +"的称重量方记录成功！");
                         }
                     }
