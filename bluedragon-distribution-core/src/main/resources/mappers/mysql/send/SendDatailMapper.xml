@@ -858,10 +858,10 @@
 	<select id="findPageSendDetail" resultMap="SendDetail" parameterType="map">
 		select
 		<include refid="Base_Column_List" />
-		From send_d where
+		From send_d
 		where yn=1 AND sendd_status = 1  AND is_cancel = 0
 		<if test="packageCode != null">
-			and package_code = #{packageCode,jdbcType=VARCHAR}
+			and package_barcode = #{packageCode,jdbcType=VARCHAR}
 		</if>
 		<if test="createSiteCode != null">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}

@@ -133,6 +133,6 @@ public class SortingDao extends BaseDao<Sorting> {
 
     /**分页查询分拣记录*/
     public List<Sorting> findPageSorting(Map<String,Object> params){
-        return this.getSqlSession().selectList(namespace +".finaPageSorting",params);
+        return this.getSqlSession().selectList(namespace +".findPageSorting",params);
     }
 }

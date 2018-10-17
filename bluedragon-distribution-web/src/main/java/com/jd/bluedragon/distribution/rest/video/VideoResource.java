@@ -166,8 +166,8 @@ public class VideoResource {
             return Boolean.FALSE;
         }
         Integer operateType = videoRequest.getOperateType();
-        if(operateType == null || !operateType.equals(inspectionType) || !operateType.equals(sortingType) || !operateType.equals(weightType)
-                || !operateType.equals(sendType)){
+        if(operateType == null || (!operateType.equals(inspectionType) && !operateType.equals(sortingType) && !operateType.equals(weightType)
+                && !operateType.equals(sendType))){
             response.toFail("输入操作类型不符合定义规则！");
             logger.warn("操作类型输入有误！参数为："+JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;

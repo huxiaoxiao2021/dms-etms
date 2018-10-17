@@ -531,7 +531,7 @@
         group by waybill_code
     </select>
 
-    <select id="findPageInspection" resultMap="Inspection" parameterType="map">
+    <select id="findPageInspection" resultMap="BaseResultMap" parameterType="map">
         SELECT
         <include refid="Base_Column_List"/>
         FROM inspection
