@@ -256,7 +256,7 @@ $(document).ready(function () {
 function gantryDeviceItemShow() {
     var temp = "<option value=''>选择龙门架</option>";
     $("#gantryDevice").html(temp);//清空龙门架信息
-    var siteNo = 910;//获取分拣中心ID
+    var siteNo = parseInt($("#siteOrg option:selected").val());//获取分拣中心ID
     var param = {};
     param.createSiteCode = siteNo;
     param.version = 1;//表示只读取新的龙门架设备
