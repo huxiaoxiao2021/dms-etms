@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
@@ -22,6 +25,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -76,6 +80,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     WaybillService waybillService;
+
+    @Autowired
+    SysConfigService sysConfigService;
 
     /**
      * 此处只能使用@Resource注解，使用@Autowired会报错
@@ -166,7 +173,27 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             this.addGantryException(domain, config, 24, null);
             return false;
         }
-        config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
+
+        /*
+            获取sysConfig中CONFIG_NAME 为 "sortMachine.autoSend.sendCode.auto.change" 的CONFIG_CONTENT，
+            其中CONFIG_CONTENT中维护的是开启分拣机自动发货的封车自动换批次的分拣中心ID
+         */
+        String sendCode = "";
+        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName
+                (Constants.SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE);
+        if (null != sysConfig && StringHelper.isNotEmpty(sysConfig.getConfigContent())
+                && Arrays.asList(sysConfig.getConfigContent().split(","))
+                            .contains(String.valueOf(domain.getDistributeId()))) {
+            //开关为开启状态
+            sendCode = scannerFrameBatchSendService.getOrGenerate
+                    (domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode();
+        } else {
+            //开关没有开启
+            sendCode = scannerFrameBatchSendService.getAndGenerate
+                    (domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode();
+        }
+
+        config.setSendCode(sendCode);
         return true;
     }
 
