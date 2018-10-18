@@ -495,6 +495,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);
+        //验证通过，补成第一个包裹号，如果后面发现这单是一单多件，再进行提示
+        if(SerialRuleUtil.isMatchAllWaybillCode(domain.getBoxCode())){
+            //todo 写成一个方法，支持上海亚一和大件分拣
+            domain.setBoxCode(domain.getBoxCode()+"-1-1-");
+        }
         return result;
     }
 
