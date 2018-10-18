@@ -136,14 +136,7 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<BigWaybillDto> getReturnWaybillByOldWaybillCode(String oldWaybillCode, WChoice wChoice);
-	/**
-     * 包裹称重和体积测量数据上传
-     * 来源 PackOpeController
-     *
-     * @param packOpeJson 称重和体积测量信息
-     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
-     */
-    public Map<String, Object> uploadOpe(String packOpeJson);
+
 	/**
 	 * 根据运单号获取运单数据信息给打印用
 	 * @param waybillCode
@@ -159,10 +152,25 @@ public interface WaybillQueryManager{
 	 */
 	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
 
+	/**
+	 * 根据包裹号获取运单信息
+	 * @param code
+	 * @return
+	 */
 	BaseEntity<Waybill> getWaybillByPackCode(String code);
 
+	/**
+	 * 根据运单号获取运单信息和包裹信息
+	 * @param waybillCode
+	 * @return
+	 */
 	BaseEntity<BigWaybillDto> getWaybillAndPackByWaybillCode(String waybillCode);
 
+	/**
+	 * 根据运单号获取运单信息
+	 * @param waybillCode
+	 * @return
+	 */
 	BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode);
 
 	/**

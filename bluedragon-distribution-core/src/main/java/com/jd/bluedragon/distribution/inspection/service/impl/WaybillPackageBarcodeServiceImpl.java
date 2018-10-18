@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.PackageResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -34,7 +34,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	WaybillQueryManager waybillQueryManager;
 
 	@Autowired
-	WaybillPackageApi waybillPackageApi;
+	WaybillPackageManager waybillPackageManager;
 	
 	private final static Logger logger = Logger.getLogger(WaybillPackageBarcodeServiceImpl.class);
 	
@@ -214,7 +214,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 */
 	@Override
 	public Map<String, List<DeliveryPackageD>> getPackageBarcodeByWaybillCodeBatch(List<String> waybillCodes) {
-		BaseEntity<Map<String, List<DeliveryPackageD>>> entity = waybillPackageApi.batchGetPackListByCodeList(waybillCodes);
+		BaseEntity<Map<String, List<DeliveryPackageD>>> entity = waybillPackageManager.batchGetPackListByCodeList(waybillCodes);
 		if(entity.getResultCode()!=1)	throw new InspectionException(" batchGetPackListByCodeList is empty , parameter waybillCodes: "+waybillCodes);
 		Map<String, List<DeliveryPackageD>> map = entity.getData();
 		return map;

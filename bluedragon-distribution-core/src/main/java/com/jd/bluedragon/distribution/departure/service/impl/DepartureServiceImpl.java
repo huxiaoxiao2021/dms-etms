@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.departure.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
@@ -37,7 +38,6 @@ import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -84,7 +84,7 @@ public class DepartureServiceImpl implements DepartureService {
 	TaskFailQueueDao taskFailQueueDao;
 
 	@Autowired
-	WaybillPackageApi waybillPackageApi;
+	WaybillPackageManager waybillPackageManager;
 
 	@Autowired
 	private BaseService baseService;
@@ -847,7 +847,7 @@ public class DepartureServiceImpl implements DepartureService {
 				requests.add(sendDatail.getPackageBarcode());
 			}
 			try {
-				waybillWSRs = waybillPackageApi
+				waybillWSRs = waybillPackageManager
 						.queryPackageListForParcodes(requests);
 				datas = waybillWSRs.getData();
 				logger.info("调用运单queryPackageListForParcodes结束");

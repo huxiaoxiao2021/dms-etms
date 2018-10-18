@@ -50,15 +50,14 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
 
-    @Autowired
-    private WaybillPackageApi waybillPackageApiJsf;
+	@Qualifier("waybillPackageManager")
+	@Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     @Qualifier("waybillTraceBusinessQueryApi")
     @Autowired
 	private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
 
-	@Autowired
-	private SysConfigService sysConfigService;
 
 	@Override
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -70,7 +69,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
 			WChoice wChoice) {
 		//增加一个开关，在支持两万个包裹，需要单独调用运单的分页接口过渡期使用
-		if(isGetPackageByPageOpen()){
+		if(waybillPackageManager.isGetPackageByPageOpen()){
 			Boolean isQueryPackList = wChoice.getQueryPackList();
 			if(null == isQueryPackList){
 				isQueryPackList = false;
@@ -80,7 +79,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
 			//如果需要获取包裹信息，则调用运单分页获取包裹信息的接口，做此修改是为了支持2w包裹的订单
 			if(isQueryPackList && null != baseEntity && null != baseEntity.getData()){
-				BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = getPackageByWaybillCode(waybillCode);
+				BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(waybillCode);
 				if(null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size()>0){
 					baseEntity.getData().setPackageList(packageDBaseEntity.getData());
 				}
@@ -257,18 +256,6 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	}
 
     /**
-     * 包裹称重和体积测量数据上传
-     * 来源 PackOpeController
-     *
-     * @param packOpeJson 称重和体积测量信息
-     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
-     */
-	@JProfiler(jKey = "DMS.BASE.Jsf.WaybillPackageApi.uploadOpe", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Map<String, Object> uploadOpe(String packOpeJson){
-    	return waybillPackageApiJsf.uploadOpe(packOpeJson);
-    }
-
-    /**
 	 * 根据运单号获取运单数据信息给打印用
 	 * @param waybillCode
 	 * @return
@@ -302,126 +289,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return null;
 	}
 
-	/**
-	 * 根据运单号获取包裹数据，通过调用运单的分页接口获得
-	 * @param waybillCode
-	 * @return
-	 */
-	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getPackageByWaybillCode",jAppName = Constants.UMP_APP_NAME_DMSWEB,
-			mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode){
-		logger.info("调用运单接口getPackageByParam,分页获取包裹数据,运单号:" + waybillCode);
-		BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();
-		List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
-		result.setData(packageList);
 
-		//组织请求参数，从第一页开始，每页5000行
-		Page<DeliveryPackageDto> pageParam = new Page<DeliveryPackageDto>();
-		pageParam.setCurPage(1);
-		pageParam.setPageSize(Constants.PACKAGE_NUM_ONCE_QUERY);
-
-		//调用运单分页接口
-		BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApiJsf.getPackageByParam(waybillCode, null);
-
-		//调用接口异常，添加自定义报警
-		if(null == baseEntity || baseEntity.getResultCode() != 1){
-			String alarmInfo = "调用运单接口getPackageByParam失败.waybillCode:" + waybillCode;
-			if(null != baseEntity){
-				alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
-			}
-			logger.error(alarmInfo);
-			Profiler.businessAlarm("调用运单接口getPackageByParam失败",alarmInfo);
-			return null;
-		}
-
-		//有包裹数据，则分页读取
-		if(null != baseEntity && null != baseEntity.getData() &&
-				null != baseEntity.getData().getResult() && baseEntity.getData().getResult().size()>0){
-
-			packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
-
-			logger.info("调用运单接口getPackageByParam,waybillCode:" + waybillCode + ",每次请求数:" +
-					Constants.PACKAGE_NUM_ONCE_QUERY + ".返回包裹总数:" + baseEntity.getData().getTotalRow() +
-					",总页数:" + baseEntity.getData().getTotalPage());
-
-			//读取分页数
-			int totalPage = baseEntity.getData().getTotalPage();
-
-			//循环获取剩余数据
-			for(int i = 2; i <= totalPage; i++){
-				pageParam.setCurPage(i);
-				List<DeliveryPackageDto> dtoList = waybillPackageApiJsf.getPackageByParam(waybillCode,pageParam).getData().getResult();
-				packageList.addAll(changeToDeliveryPackageDBatch(dtoList));
-			}
-			logger.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.waybillCode:"+waybillCode);
-		}
-
-		return result;
-	}
-
-
-	/**
-	 * 根据包裹号列表批量获取包裹数据
-	 * @param waybillCodes
-	 * @return
-	 */
-	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.queryPackageListForParcodes",jAppName = Constants.UMP_APP_NAME_DMSWEB,
-			mState = {JProEnum.TP, JProEnum.FunctionError})
-	public BaseEntity<List<DeliveryPackageD>> queryPackageListForParcodes(List<String> waybillCodes){
-		return waybillPackageApiJsf.queryPackageListForParcodes(waybillCodes);
-	}
-
-
-	/**
-	 * 将调用运单分页接口返回的dto转换成DeliveryPackageD
-	 * @param dtoList
-	 * @return
-	 */
-	private List<DeliveryPackageD> changeToDeliveryPackageDBatch(List<DeliveryPackageDto> dtoList){
-		List<DeliveryPackageD> packageDList = new ArrayList<DeliveryPackageD>();
-
-		for(DeliveryPackageDto dto: dtoList) {
-			DeliveryPackageD packageD = new DeliveryPackageD();
-
-			packageD.setPackageBarcode(dto.getPackageBarcode());
-			packageD.setWaybillCode(dto.getWaybillCode());
-			packageD.setCky2(dto.getCky2());
-			packageD.setStoreId(dto.getStoreId());
-			packageD.setPackageState(dto.getPackageState());
-			packageD.setPackWkNo(dto.getPackwkNo());
-			packageD.setRemark(dto.getRemark());
-
-			packageD.setGoodWeight(dto.getGoodWeight());
-			packageD.setGoodVolume(dto.getGoodVolume());
-			packageD.setAgainWeight(dto.getAgainWeight());
-			packageD.setAgainVolume(dto.getAgainVolume());
-			packageD.setPackTime(dto.getPackTime());
-			packageD.setWeighTime(dto.getWeighTime());
-			packageD.setCreateTime(dto.getCreateTime());
-			packageD.setUpdateTime(dto.getUpdateTime());
-
-			packageD.setWeighUserName(dto.getWeighUserName());
-
-			packageDList.add(packageD);
-		}
-
-		return packageDList;
-	}
-
-	/**
-	 * 从sysconfig表里获取是否启用分页查询运单包裹的接口
-	 * @return
-	 */
-	public boolean isGetPackageByPageOpen(){
-		List<SysConfig> sysConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_PACKAGE_PAGE_SWITCH);
-		if(sysConfigs != null && !sysConfigs.isEmpty()){
-			String content = sysConfigs.get(0).getConfigContent();
-			if(StringHelper.isNotEmpty(content) && "1".equals(content)){
-				return true;
-			}
-		}
-		return false;
-	}
 
 	/**
 	 * 通过包裹号获得运单信息
@@ -438,15 +306,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	 */
 	@Override
 	public BaseEntity<BigWaybillDto> getWaybillAndPackByWaybillCode(String waybillCode){
-		if(isGetPackageByPageOpen()) {
-			WChoice wChoice = new WChoice();
-			wChoice.setQueryWaybillC(Boolean.TRUE);
-			wChoice.setQueryWaybillM(Boolean.TRUE);
-			wChoice.setQueryPackList(Boolean.TRUE);
-			return getDataByChoice(waybillCode, wChoice);
-		}else{
-			return waybillQueryApi.getWaybillAndPackByWaybillCode(waybillCode);
-		}
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(Boolean.TRUE);
+		wChoice.setQueryWaybillM(Boolean.TRUE);
+		wChoice.setQueryPackList(Boolean.TRUE);
+		return getDataByChoice(waybillCode, wChoice);
 	}
 
 	/**
@@ -468,7 +332,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public BaseEntity<BigWaybillDto> getReturnWaybillByOldWaybillCode(String oldWaybillCode, WChoice wChoice){
-		if(isGetPackageByPageOpen()) {
+		if(waybillPackageManager.isGetPackageByPageOpen()) {
 			Boolean isQueryPackList = wChoice.getQueryPackList();
 			if(null == isQueryPackList){
 				isQueryPackList = false;
@@ -479,7 +343,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
 			//如果需要获取包裹信息，则调用运单分页获取包裹信息的接口，做此修改是为了支持2w包裹的订单
 			if (isQueryPackList) {
-				List<DeliveryPackageD> packageDList = getPackageByWaybillCode(oldWaybillCode).getData();
+				List<DeliveryPackageD> packageDList = waybillPackageManager.getPackageByWaybillCode(oldWaybillCode).getData();
 				if (null != baseEntity && null != baseEntity.getData()) {
 					baseEntity.getData().setPackageList(packageDList);
 				}
@@ -497,7 +361,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	 * @return
 	 */
 	public BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes,WChoice wChoice){
-		if(isGetPackageByPageOpen()) {
+		if(waybillPackageManager.isGetPackageByPageOpen()) {
 			Boolean isQueryPackList = wChoice.getQueryPackList();
 			if(null == isQueryPackList){
 				isQueryPackList = false;
@@ -508,7 +372,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			if (isQueryPackList && null != results) {
 				for (BigWaybillDto bigWaybillDto : results.getData()) {
 					if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
-						BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
+						BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
 						if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
 							bigWaybillDto.setPackageList(packageDBaseEntity.getData());
 						}

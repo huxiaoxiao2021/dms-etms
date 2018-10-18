@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -92,7 +93,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -171,7 +171,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
-    WaybillPackageApi waybillPackageApi;
+    WaybillPackageManager waybillPackageManager;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -3422,7 +3422,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<DeliveryPackageD> datas = null;
         try {
             //logger.info("调用运单queryPackageListForParcodes调用参数"+sendDetail.getPackageBarcode());
-            waybillWSRs = waybillPackageApi.queryPackageListForParcodes(
+            waybillWSRs = waybillPackageManager.queryPackageListForParcodes(
                     Arrays.asList(new String[]{sendDetail.getPackageBarcode()}));
             if (waybillWSRs != null) {
                 datas = waybillWSRs.getData();
