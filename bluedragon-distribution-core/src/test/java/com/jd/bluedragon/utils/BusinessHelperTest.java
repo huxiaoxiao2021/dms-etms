@@ -77,6 +77,9 @@ public class BusinessHelperTest {
 		assertTrue(WaybillUtil.getWaybillCode("VA00084590155-3-10-").equals("VA00084590155"));
 		assertTrue(WaybillUtil.getWaybillCode("LD1234567890-1-3").equals("LD1234567890"));
 		assertTrue(WaybillUtil.getWaybillCode("JDLD12345678901-1-3").equals("JDLD12345678901"));
+
+		assertTrue(SerialRuleUtil.isMatchAllPackageNo("VA00041831580-1-3-"));
+		assertTrue(SerialRuleUtil.getWaybillCode("VA00041831580-1-3-").equals("VA00041831580"));
 	}
 
 	@Test
