@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.jd.jim.cli.TransactionClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -343,5 +344,38 @@ public class JimdbCacheServiceImpl implements CacheService{
 					+ e);
 		}
 		return null;
+	}
+
+	/**
+	 * 用于防重，key为各业务自定义，对单业务重复提交、执行进行防重
+	 *
+	 * @param key
+	 * @param exTime
+	 * @param exTimeUnit
+	 * @return
+	 */
+	@Override
+	public Boolean isRepeatByKey(String key, long exTime, TimeUnit exTimeUnit) {
+		//校验参数
+		if (exTime < 0 || exTimeUnit == null) return Boolean.FALSE;
+
+		try {
+			//判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。
+			TransactionClient tclient = jimdbClient.transactionClient(key.getBytes());
+
+			tclient.multi();
+			Long incrResult = jimdbClient.incr(key);
+			jimdbClient.expire(key, exTime, exTimeUnit);
+			tclient.exec();
+
+			if (incrResult.intValue() > 1) {//说明有重复任务,只能在此种情况下返回true
+				this.logger.warn("业务rediskey重复检测：" + key);
+				return Boolean.TRUE;
+			}
+		} catch (Exception e) {
+			this.logger.error("业务rediskey重复检测失败" + key, e);
+		}
+
+		return Boolean.FALSE;
 	}
 }
