@@ -142,16 +142,16 @@ $(document).ready(function () {
 
     /** 龙门架批次打印调用组件*/
     labelPrint = function(list){
-        for(let i=0;i<list.length;i++){
+        for(var i=0;i<list.length;i++){
 
-            let param=list[i];
-            let labelPrintRequst = new Object();
+            var param=list[i];
+            var labelPrintRequst = new Object();
             labelPrintRequst['systemCode'] = 'dms';
             labelPrintRequst['businessType'] = 'dms-sendBarcode';
             labelPrintRequst['siteCode'] =param.createSiteCode;
             labelPrintRequst['siteName'] = param.createSiteName;
 
-            let labelParams=new Object();
+            var labelParams=new Object();
             labelParams.SendCode=param.sendCode;
             labelParams.receiveSiteName=param.receiveSiteName;
             labelParams.createSiteName=param.createSiteName;
@@ -159,8 +159,8 @@ $(document).ready(function () {
 
             labelPrintRequst['labelParams']=labelParams;
 
-            let formJson = JSON.stringify(labelPrintRequst);
-            let labelPrintUrl = 'http://localhost:9099/services/label/print';
+            var formJson = JSON.stringify(labelPrintRequst);
+            var labelPrintUrl = 'http://localhost:9099/services/label/print';
             /*提交表单*/
             CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
                 if(res != null && res.code == 200){
