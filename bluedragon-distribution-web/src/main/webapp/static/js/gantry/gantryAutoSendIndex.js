@@ -132,7 +132,7 @@ $(document).ready(function () {
             list.push(param);
         });
         if (list.length < 1) {
-            return;
+            jQuery.messager.alert("提示", "请选择要打印的批次");
         }
 
         /** 调用打印批次组件 **/
@@ -163,16 +163,16 @@ $(document).ready(function () {
             var labelPrintUrl = 'http://localhost:9099/services/label/print';
             /*提交表单*/
             CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
-                if(res != null && res.code == 200){
-                    $.msg.warn("打印成功！");
+                if(res != null && res.status=== 200){
+                    var result=$.parseJSON(res.responseText);
+                    if (result.code===200) {
+                        console.log("调用结果", "调用打印成功");
+                    }else{
+                        jQuery.messager.alert("提示", "请求发送成功但是调用打印组件失败", res.statusText.message);
+                    }
                 }else {
-                    debugger;
-                    $.msg.error(res.messageCode+"-"+res.message);
-                    console.log(res.messageCode+":"+res.message);
+                    jQuery.messager.alert("提示", "服务器异常", res.statusText);
                 }
-            },'json',function (XMLHttpRequest, textStatus, errorThrown) {
-                $.msg.error("调用打印服务失败，请确认已启动青龙打印组件服务！");
-                console.log('errorThrown:' + errorThrown);
             });
         }
 
@@ -256,7 +256,7 @@ $(document).ready(function () {
 function gantryDeviceItemShow() {
     var temp = "<option value=''>选择龙门架</option>";
     $("#gantryDevice").html(temp);//清空龙门架信息
-    var siteNo = parseInt($("#siteOrg option:selected").val());//获取分拣中心ID
+    var siteNo = 910;//获取分拣中心ID
     var param = {};
     param.createSiteCode = siteNo;
     param.version = 1;//表示只读取新的龙门架设备
