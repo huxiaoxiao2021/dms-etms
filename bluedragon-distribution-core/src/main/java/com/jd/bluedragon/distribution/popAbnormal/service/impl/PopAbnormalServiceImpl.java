@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.popAbnormal.dao.PopAbnormalDao;
@@ -17,8 +18,6 @@ import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -50,7 +49,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 	private BaseMajorManager baseMajorManager;
 
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
 	/*@Autowired
 	private WaybillUpdateApi waybillUpdateApi;*/
@@ -122,7 +121,7 @@ public class PopAbnormalServiceImpl implements PopAbnormalService {
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
 			// wChoice.setQueryWaybillM(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager
 					.getDataByChoice(orderCode, wChoice);
 			if ((baseEntity != null) && (baseEntity.getData() != null)) {
 				popAbnormal = this.convWaybill(baseEntity.getData());
