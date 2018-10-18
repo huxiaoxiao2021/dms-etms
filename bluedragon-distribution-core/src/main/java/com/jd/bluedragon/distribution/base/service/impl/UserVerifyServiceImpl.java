@@ -95,13 +95,14 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             extInfo.put(Constants.LoginParam.UUID, NONE);
             if (clientInfo == null || clientInfo.getVersionCode() == null) {
                 extInfo.put(Constants.LoginParam.CHANNEL, PDA);
-            }
-            if (clientInfo.getVersionCode().contains(HANDLE_PDA_D) || clientInfo.getVersionCode().contains(HANDLE_PDA_F) || clientInfo.getVersionCode().contains(HANDLE_PDA_R)) {
-                extInfo.put(Constants.LoginParam.CHANNEL, PDA);
-            } else if (clientInfo.getVersionCode().contains(PC_WM) || clientInfo.getVersionCode().contains(PC_WP)) {
-                extInfo.put(Constants.LoginParam.CHANNEL, PC);
-            } else {
-                extInfo.put(Constants.LoginParam.CHANNEL, PDA);
+            }else{
+                if (clientInfo.getVersionCode().contains(HANDLE_PDA_D) || clientInfo.getVersionCode().contains(HANDLE_PDA_F) || clientInfo.getVersionCode().contains(HANDLE_PDA_R)) {
+                    extInfo.put(Constants.LoginParam.CHANNEL, PDA);
+                } else if (clientInfo.getVersionCode().contains(PC_WM) || clientInfo.getVersionCode().contains(PC_WP)) {
+                    extInfo.put(Constants.LoginParam.CHANNEL, PC);
+                } else {
+                    extInfo.put(Constants.LoginParam.CHANNEL, PDA);
+                }
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
