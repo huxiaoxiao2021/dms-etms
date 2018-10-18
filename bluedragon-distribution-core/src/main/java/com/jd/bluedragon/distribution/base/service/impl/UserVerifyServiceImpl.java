@@ -106,6 +106,11 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
+            if(loginResult.isSuccess()){
+                logger.warn("passportVerify verify success");
+            }else{
+                logger.warn("passportVerify verify failed");
+            }
             return loginResult.isSuccess();
         } catch (Exception ex) {
             logger.error("passportVerify verify error", ex);
