@@ -1,16 +1,23 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
+import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
+import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
@@ -32,6 +39,9 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private WaybillPrintApi waybillPrintApi;
+
+    @Autowired
+    private WaybillReturnSignatureApi waybillReturnSignatureApi;
 
     private final Logger logger = Logger.getLogger(LDOPManagerImpl.class);
     /**
@@ -181,6 +191,30 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.registerInfoEnd(info);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 根据旧单号获取新单号
+     * @param dto 旧单号对象
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.waybillReturnSignature",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public ResponseDTO<ReturnSignatureResult> waybillReturnSignature(WaybillReturnSignatureDTO dto){
+        return waybillReturnSignatureApi.waybillReturnSignature(dto);
+    }
+
+    /**
+     * 根据运单号获得运单信息
+     * @param waybillCode 运单号
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.queryReturnSignatureMessage",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode){
+        return waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
     }
 
 }

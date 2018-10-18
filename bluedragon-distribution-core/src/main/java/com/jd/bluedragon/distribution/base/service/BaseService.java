@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.DictDto;
@@ -33,7 +34,7 @@ public interface BaseService {
      * @param password
      * @return
      */
-    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password);
+    com.jd.bluedragon.distribution.base.domain.BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo);
 
     /**
 	 * 账号密码是否存在
@@ -44,7 +45,7 @@ public interface BaseService {
 	 *            password erp密码
 	 * @return StaffDto 是否登录成功
 	 */
-	PdaStaff login(String erpcode, String password);
+	PdaStaff login(String erpcode, String password, ClientInfo clientInfo);
 
 	/**
 	 * 返回错误信息列表，便于PDA选择后，进行退货相关业务 根据日期进行增量查询
@@ -253,12 +254,21 @@ public interface BaseService {
 	 */
 	public ElectronSite getBaseGoodsPositionDmsCodeSiteCode(Integer createCode,Integer receiveCode);
 
+	/**
+	 * 根据assId获取单条省市县信息
+	 * 注意：Assort对象中的中文名称取值assDis属性，非assName属性，使用者请注意
+	 *
+	 * @param assortId
+	 * @return
+	 */
     public Assort getAssortById(Integer assortId);
 
 	BaseStaffSiteOrgDto queryDmsBaseSiteByCode(String siteCode);
 
 	/**
 	 * 根据assId获取单条省市县信息
+	 * 注意：Assort对象中的中文名称取值assDis属性，非assName属性，使用者请注意
+	 *
 	 * @param assId
 	 * @return
 	 */

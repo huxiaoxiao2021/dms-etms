@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -104,7 +105,7 @@ public class BaseServiceImpl implements BaseService {
 	private VtsQueryWS vtsQueryWS;
 
     @Override
-    public BasePdaUserDto pdaUserLogin(String userid, String password) {
+    public BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         if (log.isInfoEnabled()){
             log.info("用户登录新接口，用户名 " + userid);
@@ -122,7 +123,7 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-                if (userVerifyService.passportVerify(thirdUserId,password)) {
+                if (userVerifyService.passportVerify(thirdUserId,password,clientInfo)) {
                     // 用户组接口验证通过后，从基础资料获取具体信息
                     BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
                     if (null == baseStaffDto) {
@@ -181,7 +182,7 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-	public PdaStaff login(String erpcode, String password) {
+	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo) {
 		// TODO Auto-generated method stub
 		/** 验证结果 */
 		PdaStaff result = new PdaStaff();
@@ -189,7 +190,7 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = pdaUserLogin(erpcode, password);
+			pdadata = pdaUserLogin(erpcode, password,clientInfo);
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}

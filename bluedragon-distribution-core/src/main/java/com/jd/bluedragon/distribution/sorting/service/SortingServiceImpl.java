@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -40,12 +41,14 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,6 +114,11 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	FastRefundService fastRefundService;
+    /**
+     * sorting任务处理告警时间，单位:ms，默认值100
+     */
+	@Value("${beans.SortingServiceImpl.sortingDealWarnTime:100}")
+	private long sortingDealWarnTime;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -270,20 +278,41 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
+	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP,JProEnum.FunctionError})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+		//记录本次分拣处理的包裹数量
+		int sortingNum = 0;
+		//记录本次分拣处理的结果
+		boolean result = false;
+		long beginTime = System.currentTimeMillis();
+		//1、pre单独加入监控点
+		CallerInfo step1Monitor = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting.prepareSorting",
+				Constants.UMP_APP_NAME_DMSWORKER);
 		List<Sorting> sortings = this.prepareSorting(task);
-		if (null == sortings || sortings.isEmpty()) {
-			return Boolean.FALSE;
-		} else {
-			if(!this.taskToSorting(sortings)){
-				//离线取消分拣：如果取消失败，则隔15分钟重新处理
-				return Boolean.FALSE;
-			}else{
-				return Boolean.TRUE;
-			}
+		Profiler.registerInfoEnd(step1Monitor);
+		long preEndTime = System.currentTimeMillis();
+		if (sortings != null) {
+			sortingNum = sortings.size();
 		}
+		//2、doSorting监控
+		CallerInfo step2Monitor = ProfilerHelper.registerInfo(
+				ProfilerHelper.genKeyByQuantity("DMSWORKER.SortingService.doSorting.deal", sortingNum),
+				Constants.UMP_APP_NAME_DMSWORKER);
+		//离线取消分拣：如果取消失败，则隔15分钟重新处理
+		if (sortingNum > 0) {
+			result = this.taskToSorting(sortings);
+		} else {
+			logger.warn("fail-doSorting:本次处理的包裹数为0，task:"+JsonHelper.toJson(task));
+		}
+		Profiler.registerInfoEnd(step2Monitor);
+		//耗时较长时，打印日志
+		long costTimeTotal = System.currentTimeMillis() - beginTime;
+		if(costTimeTotal >= sortingDealWarnTime){
+			long preCostTime = preEndTime - beginTime;
+			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+" ms,total:"+costTimeTotal+" ms】"+"task:"+JsonHelper.toJson(task));
+		}
+		return result;
 	}
 
 	private List<Sorting> prepareSorting(Task task) {
@@ -806,8 +835,8 @@ public class SortingServiceImpl implements SortingService {
 		if (sendDs.size() > 0) {
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
-			// 获取sendM表中的发货数据
-			this.setSendMListByBoxCode(sorting, sendMs, transitSendMs);
+			// 获取直接发货和中转发货的SendM数据
+			this.setListByTransitOrDirect(sorting, sendMs, transitSendMs);
 			// 判断是否存在跨分拣发货数据，则视为先发货后分拣，需要补中转的sendD发货明细数据和全程跟踪
 			if (transitSendMs.size() > 0) {
 				List<SendDetail> transitSendDs = new ArrayList<SendDetail>();
@@ -829,11 +858,9 @@ public class SortingServiceImpl implements SortingService {
             // 判断直发分拣类型是否已经发货，若存在sendM数据，则视为先发货后分拣，需要补直发的sendD发货明细数据和全程跟踪
 			if (sendMs.size() > 0) {
 				// 正常情况，分拣与发货一致的sendM仅有一条数据
-				for (SendM sendM : sendMs) {
-					for (SendDetail sendDetail : sendDs) {
-						// 补全发货数据
-						this.fixSendDetail(sendDetail, sendM);
-					}
+				for (SendDetail sendDetail : sendDs) {
+					// 补全发货数据
+					this.fixSendDetail(sendDetail, sendMs.get(0));
 				}
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
@@ -848,18 +875,23 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sendMs
 	 * @param transitSendMs
 	 */
-	private void setSendMListByBoxCode(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
+	private void setListByTransitOrDirect(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
 		List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
 		if (null != sendList && sendList.size() > 0) {
 			Iterator<SendM> iterator = sendList.iterator();
 			while (iterator.hasNext()) {
 				SendM sendM = iterator.next();
 				// 判断分拣始发站点与箱号的始发站点，目的站点是否都一致，不一致则为中转发货
-				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())){
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+					// 避免第一次发货封车一小时后再次发货，获取到第一次的批次号和操作信息
+					if (sendM.getOperateTime().before(sorting.getOperateTime())) {
+						logger.info("[分拣任务]过滤发货在前，分拣在后数据，运单号：" + sorting.getWaybillCode());
+						continue;
+					}
 					// 直发分拣
 					logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
 					sendMs.add(sendM);
-				}else {
+				} else {
 					// 跨分拣发货
 					transitSendMs.add(sendM);
 					logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());

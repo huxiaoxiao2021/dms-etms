@@ -40,7 +40,11 @@ public class BasePrintWaybill implements Serializable {
 	/**始发城市编码*/
     private Integer originalCityCode;
     /**始发城市名称*/
-    private String originalCityName; 
+    private String originalCityName;
+    /**
+     * 始发滑道号类型
+     */
+    private Integer originalCrossType;
     /**
      * 运输产品
      */
@@ -109,11 +113,14 @@ public class BasePrintWaybill implements Serializable {
     */
     private String road;
     
-    
+    /**
+     * 商家别名：YHD(一号店)、 CMBC(招商银行)
+     */
+    private String dmsBusiAlias;
     /**
     * 商家商标图像key值也就是文件名
     */
-    private String brandImageKey ;
+    private String brandImageKey;
     /**
      * 标识是否SOP商家和纯外单
      */
@@ -308,6 +315,20 @@ public class BasePrintWaybill implements Serializable {
 		this.originalCityName = originalCityName;
 	}
 	/**
+	 * @return the originalCrossType
+	 */
+	public Integer getOriginalCrossType() {
+		return originalCrossType;
+	}
+
+	/**
+	 * @param originalCrossType the originalCrossType to set
+	 */
+	public void setOriginalCrossType(Integer originalCrossType) {
+		this.originalCrossType = originalCrossType;
+	}
+
+	/**
 	 * @return the transportMode
 	 */
 	public String getTransportMode() {
@@ -496,6 +517,20 @@ public class BasePrintWaybill implements Serializable {
 		this.road = road;
 	}
 
+
+	/**
+	 * @return the dmsBusiAlias
+	 */
+	public String getDmsBusiAlias() {
+		return dmsBusiAlias;
+	}
+
+	/**
+	 * @param dmsBusiAlias the dmsBusiAlias to set
+	 */
+	public void setDmsBusiAlias(String dmsBusiAlias) {
+		this.dmsBusiAlias = dmsBusiAlias;
+	}
 
 	public String getBrandImageKey() {
 		return brandImageKey;

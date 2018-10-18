@@ -1,16 +1,13 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.dto.*;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
@@ -34,6 +31,11 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
@@ -47,7 +49,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
-	
+
     @Autowired
     private WaybillPackageApi waybillPackageApiJsf;
 
@@ -518,6 +520,35 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		}else{
 			return waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
 		}
+	}
+
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuSnListByOrderId",
+			mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWORKER)
+	@Override
+	public BaseEntity<List<SkuSn>> getSkuSnListByOrderId(String waybillCode) {
+		return waybillQueryApi.getSkuSnListByOrderId(waybillCode);
+	}
+
+	/**
+	 * 获取履约单下所有运单
+	 * @param parentWaybillCode 父订单号（履约单号）
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getOrderParentChildList",
+			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public List<String> getOrderParentChildList(String parentWaybillCode) {
+		List<String> waybillCodes = new ArrayList<String>();
+		//神一样的接口设计
+		BaseEntity<List<OrderParentChildDto>> baseEntity =  waybillQueryApi.getOrderParentChildList( parentWaybillCode);
+		if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null ) {
+			for(OrderParentChildDto orderParentChildDto:baseEntity.getData()){
+				waybillCodes.add(orderParentChildDto.getOrderId());
+			}
+		}else{
+			logger.error(" 根据父订单号查询父单对应的所有子订单号失败！parentWaybillCode="+parentWaybillCode);
+		}
+		return waybillCodes;
 	}
 
 }

@@ -24,6 +24,8 @@
 
 <script src="/static/imports/plugin/laydate/laydate.js"></script>
 
+<script src="/static/imports/plugin/layer/layer.js"></script>
+
 <link rel="stylesheet" href="/static/imports/plugin/sweetalert/jdversion/sweetalert.css">
 <script src="/static/imports/plugin/sweetalert/jdversion/sweetalert.min.js"></script>
 
@@ -54,6 +56,7 @@
     .min_180{
         min-width: 180px;
     }
+    body{font-family:"Arial","Microsoft YaHei","黑体","宋体",sans-serif;}
 </style>
 <script type="text/javascript">
     var topDoc;

@@ -326,4 +326,33 @@ public class SendPrintResource implements DmsSendPrintService {
 		}
 		return sendPrintService.selectBoxBySendCode(batchSends);
 	}
+
+    @POST
+    @GZIP
+    @Path("/sendprint/newBasicPrintQuery")
+    public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria) {
+        if(check(criteria)){
+            BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tBasicQueryEntityResponse.setMessage("查询参数不全");
+            tBasicQueryEntityResponse.setData(null);
+            return tBasicQueryEntityResponse;
+        }
+        return sendPrintService.newBasicPrintQuery(criteria);
+    }
+
+
+    @POST
+    @GZIP
+    @Path("/sendprint/newBatchSummaryPrint")
+    public SummaryPrintResultResponse newBatchSummaryPrint(PrintQueryCriteria criteria) {
+        if(check(criteria)){
+            SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
+            tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tSummaryPrintResultResponse.setMessage("查询参数不全");
+            tSummaryPrintResultResponse.setData(null);
+            return tSummaryPrintResultResponse;
+        }
+        return sendPrintService.newBatchSummaryPrintQuery(criteria);
+    }
 }

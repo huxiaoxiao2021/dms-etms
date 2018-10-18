@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -69,6 +70,7 @@ import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -83,6 +85,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
@@ -136,6 +139,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
 
     private final int MAX_SHOW_NUM = 3;
+
+    private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
     @Autowired
     B2BRouterService b2bRouterService;
@@ -279,6 +284,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     SysConfigService sysConfigService;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -460,6 +468,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
+        if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
+            result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
+            return result;
+        }
+
         if (isVerifyMultiSend) {
             // 多次发货取消上次发货校验
             if (!multiSendVerification(domain, result)) {
@@ -467,10 +480,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         } else {
             // 原有的发货校验
-            if (newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())) {
-                result.init(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
-                return result;
-            }
             String oldSendCode = getSendedCode(domain);
             if (StringUtils.isNotBlank(oldSendCode)) {
                 result.init(SendResult.CODE_SENDED, "箱子已经在批次" + oldSendCode + "中发货");
@@ -499,15 +508,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
             String lastSendCode = lastSendM.getSendCode();
-            if (domain.getSendCode().equals(lastSendCode)) {
-                result.init(SendResult.CODE_SENDED, "箱子已经在批次该批次中发货，请勿重复操作");
-                return false;
-            } else {
+            if (StringUtils.isNotEmpty(lastSendCode)) {
                 if (!this.sendSealTimeIsOverOneHour(lastSendCode, domain.getOperateTime())) {
-                    result.setKey(SendResult.CODE_CONFIRM);
-                    result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
-                    result.setReceiveSiteCode(domain.getReceiveSiteCode());
-                    result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    if (domain.getReceiveSiteCode().equals(lastSendM.getReceiveSiteCode())) {
+                        if (domain.getSendCode().equals(lastSendCode)) {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在该批次中发货，请勿重复操作");
+                        } else {
+                            result.init(SendResult.CODE_SENDED, "箱子已经在批次[" + lastSendCode + "]中发货");
+                        }
+                    } else {
+                        result.setKey(SendResult.CODE_CONFIRM);
+                        result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
+                        result.setReceiveSiteCode(domain.getReceiveSiteCode());
+                        result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                    }
+                    return false;
                 }
             }
         }
@@ -2069,26 +2084,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         } else
             falge = true;
         return falge;
-    }
-
-    /**
-     * 校验批次号是否封车:默认返回false
-     * @param sendCode
-     * @return
-     */
-    @Override
-    public boolean checkSendCodeIsSealed(String sendCode) {
-        boolean result = false;
-        try {
-            String isSeal = redisManager.getCache(Constants.CACHE_KEY_PRE_SEAL_SENDCODE+sendCode);
-            logger.info("redis取封车批次号"+sendCode+"结果："+isSeal);
-            if(StringUtils.isNotBlank(isSeal) && Constants.STRING_FLG_TRUE.equals(isSeal)){
-                result = true;
-            }
-        }catch (Throwable e){
-            logger.warn("redis取封车批次号失败："+e.getMessage());
-        }
-        return result;
     }
 
     /**
@@ -3959,6 +3954,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         @Autowired
         private SendDatailDao sendDatailDao;
 
+        @Autowired
+        private WaybillCommonService waybillCommonService;
+
         @Override
         public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
             Collections.sort(list, new Comparator<SendDetail>() {
@@ -3999,6 +3997,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                     hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
                     lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
                     pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
+                    if(pacageSumShoudBe == 0){ //特殊包裹号，包裹总数位是0时，从运单获取包裹总数
+                        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(lastWaybillCode);
+                        if(waybill!=null && waybill.getPackList()!=null && waybill.getPackList().size()>0){
+                            pacageSumShoudBe = waybill.getPackList().size();
+                        }
+                    }
+
                     scanCount = 0;
                 }
                 ++scanCount;//扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
@@ -4106,12 +4111,25 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 2：利用包裹号进行对比【差异结果不准确-当条码包裹号与运单中的不一致时】
      */
     public static class ForwardSendDiffrence extends AbstructDiffrenceComputer {
+
+        @Autowired
+        private WaybillCommonService waybillCommonService;
+
         @Override
         public int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList) {
             int hasDiff = 0;
             if (counter != scanCount) {/* 有差异*/
-                hasDiff = 1;
-                List<String> geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
+                List<String> geneList = null;
+                if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
+                    geneList = new ArrayList<String>(waybill.getPackList().size());
+                    for (Pack p : waybill.getPackList()) {
+                        geneList.add(p.getPackCode());
+                    }
+                }else{
+                    geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                }
+
                 for (int index = scanCount; index > 0; --index) {
                     geneList.remove(diffrenceList.get(diffrenceList.size() - index).getPackageBarcode());
                 }
@@ -4123,6 +4141,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     noScanDetail.setMark(AbstructDiffrenceComputer.NO_SCANEd);
                     noScanDetail.setIsWaybillFull(0);
                     noScanList.add(noScanDetail);
+                    ++hasDiff;
                 }
                 if (noScanList.size() > 0) {
                     for (int index = scanCount; index > 0; --index) {
@@ -4566,5 +4585,38 @@ public class DeliveryServiceImpl implements DeliveryService {
         /**查询箱子发货记录*/
         List<SendM> sendMList = this.sendMDao.selectBySendSiteCode(queryParam);
         return sendMList;
+    }
+
+    @Override
+    public DeliveryResponse dealJpWaybill(Integer dmsSiteCode, String waybillCode) {
+
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        Integer preSiteCode = null;
+        Integer destinationDmsId = null;
+        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+        if(waybill != null && waybill.getWaybillSign() != null){
+            //是否是金鹏订单
+            if(BusinessHelper.isPerformanceOrder(waybill.getWaybillSign())){
+                //预分拣站点
+                preSiteCode = waybill.getSiteCode();
+                BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
+                if(bDto != null && bDto.getDmsId() != null){
+                    //末级分拣中心
+                    destinationDmsId = bDto.getDmsId();
+                }
+                if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH)) ||
+                        Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH))){
+                    //登陆人操作机构是否是末级分拣中心
+                    if(dmsSiteCode.equals(destinationDmsId)){
+                        //运单是否发货
+                        Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+                        if(!isCanSend){
+                            response = new DeliveryResponse(DeliveryResponse.CODE_Delivery_SAVE,DeliveryResponse.MESSAGE_Delivery_SAVE);
+                        }
+                    }
+                }
+            }
+        }
+        return response;
     }
 }

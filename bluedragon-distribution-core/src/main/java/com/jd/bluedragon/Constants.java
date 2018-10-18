@@ -436,8 +436,17 @@ public class Constants {
      * container_relation 发货状态 已发货
      */
     public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
-
-
+    /**
+     * 商家别名标识-YHD：一号店
+     */
+    public static final String BUSINESS_ALIAS_YHD="YHD";
+    /**
+     * 商家别名标识-CMBC：招商银行
+     */
+    public static final String BUSINESS_ALIAS_CMBC="CMBC";
+    /**
+     * 商家商标图片-一号店（yhd4949.gif）
+     */
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
     /**
      * 备件库条码前缀默认值-"null"
@@ -514,6 +523,11 @@ public class Constants {
      * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）
      */
     public static final String SYS_CONFIG_PACKAGE_PAGE_SWITCH= "package.page.switch";
+    /**
+     * 配置信息-分拣机自动发货 封车自动换批次功能开关（config_content中维护的是开启自动换批次的分拣中心所属的分拣机编码）
+     */
+    public static final String SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE = "sortMachine.autoSend.sendCode.auto.change";
+
     /**
      * 三无寄托物核实 上报次数上限
      */
@@ -600,4 +614,58 @@ public class Constants {
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
+
+    /**
+     * 始发道口号类型-1-普通
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_GENERAL= 1;
+    /**
+     * 始发道口号类型-2-航空
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_AIR= 2;
+    /**
+     * 始发道口号类型-3-填仓
+     */
+    public static final Integer ORIGINAL_CROSS_TYPE_FILL= 3;
+
+    /**
+     * 快运中心支持包装耗材状态标识
+     */
+    public static final Integer DMS_SUPPORT_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心不支持包装耗材状态标识
+     */
+    public static final Integer DMS_NOT_SUPPORT_PACKING_STATUS = 0;
+
+    /**
+     * 快运中心启用包装耗材状态标识
+     */
+    public static final Integer DMS_ENABLE_PACKING_STATUS = 1;
+
+    /**
+     * 快运中心停用包装耗材状态标识
+     */
+    public static final Integer DMS_DISABLE_PACKING_STATUS = 0;
+
+    /**
+     * 包装耗材编号前缀
+     */
+    public static final String PACKING_PRE_CODE = "HC";
+
+    /**
+     * 包装耗材编号占位符
+     */
+    public static final String PACKING_PLACEHOLDER = "%03d";
+
+
+    /**
+     * 应付动态量方条码barcode类型 扫描到的号码类型1：包裹号 2：箱号 3：板号
+     */
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE = 1;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
+
+
+
 }

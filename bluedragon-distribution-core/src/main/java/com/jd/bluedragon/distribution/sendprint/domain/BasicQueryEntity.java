@@ -118,6 +118,26 @@ public class BasicQueryEntity implements Serializable{
 	/** 托盘体积*/
 	private Double boardVolume;
 
+	/**
+	 * 分拣中心应付自动量方体积
+	 */
+	private Double dmsOutVolumeDynamic;
+
+	/**
+	 * 分拣中心应付人工量方体积
+	 */
+	private Double dmsOutVolumeStatic;
+
+    /**
+     * 路区号
+     */
+	private String roadCode;
+
+    /**
+     * 封车时间
+     */
+	private String sealTime;
+
 	public Double getGoodWeight2() {
 		return goodWeight2;
 	}
@@ -412,5 +432,37 @@ public class BasicQueryEntity implements Serializable{
 
 	public void setBoardVolume(Double boardVolume) {
 		this.boardVolume = boardVolume;
+	}
+
+	public Double getDmsOutVolumeDynamic() {
+		return dmsOutVolumeDynamic;
+	}
+
+	public void setDmsOutVolumeDynamic(Double dmsOutVolumeDynamic) {
+		this.dmsOutVolumeDynamic = dmsOutVolumeDynamic;
+	}
+
+	public Double getDmsOutVolumeStatic() {
+		return dmsOutVolumeStatic;
+	}
+
+	public void setDmsOutVolumeStatic(Double dmsOutVolumeStatic) {
+		this.dmsOutVolumeStatic = dmsOutVolumeStatic;
+	}
+
+	public String getRoadCode() {
+		return roadCode;
+	}
+
+	public void setRoadCode(String roadCode) {
+		this.roadCode = roadCode;
+	}
+
+	public String getSealTime() {
+		return sealTime;
+	}
+
+	public void setSealTime(String sealTime) {
+		this.sealTime = sealTime;
 	}
 }

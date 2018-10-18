@@ -662,6 +662,15 @@ public class BusinessHelper {
 	}
 
 	/**
+	 * 根据waybillSign判断是否加履中心订单 （29 位 9 ）
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isPerformanceOrder(String waybillSign){
+		return isSignInChars(waybillSign, 29,'9');
+	}
+
+	/**
 	 * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
 	 * @param waybillSign
 	 * @return
@@ -707,7 +716,17 @@ public class BusinessHelper {
 		return isSignChar(waybillSign, 66, '1');
 	}
 
-
+	/**
+	 * 通过运单标识 判断B网耗材
+	 *
+	 * 72位：是否需要包装服务： 0---不需要 默认，1---需要包装服务
+	 *  25 位 是3  标识 B网耗材不允许修改，只能操作确认
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isWaybillConsumableOnlyConfirm(String waybillSign){
+		return isSignChar(waybillSign, 25, '3');
+	}
 
 	/**
 	 * 校验运单总体积和总重量重泡比
@@ -772,9 +791,46 @@ public class BusinessHelper {
 		}
 		return null;
 	}
-
-	public static void main(String[] args){
-		System.out.println(isWaybillCode("WA1019140201989931008"));
-		System.out.println(SerialRuleUtil.isMatchAllWaybillCode("WA1019140201989931008"));
+	/**
+	 * 获取始发道口号类型
+	 * <p>自营：sendpay137位为1，则为航运订单标识，航填,其他为普通
+	 * <p>外单：waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
+	 * @param waybillSign
+	 * @param sendPay
+	 * @return
+	 */
+	public static Integer getOriginalCrossType(String waybillSign,String sendPay){
+		//外单-waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
+		if(isSignChar(waybillSign, 31, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_AIR;
+		}else if(isSignChar(waybillSign, 31, '0') && isSignChar(waybillSign, 67, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_FILL;
+		}
+		//自营-sendpay137位为1，则为航运订单标识，航填
+		if(isSignChar(sendPay, 137, '1')){
+			return Constants.ORIGINAL_CROSS_TYPE_FILL;
+		}
+		return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
 	}
+    /**
+     * 判断是否招商银行业务运单，waybill_sign第54位等于3时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCMBC(String waybillSign) {
+        return isSignChar(waybillSign, 54, '3');
+    }
+    /**
+     * 是否是RMA标识的运单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isRMA(String waybillSign) {
+        if (isSignChar(waybillSign, 32, '1')) {
+            return true;
+        }
+        return false;
+    }
 }

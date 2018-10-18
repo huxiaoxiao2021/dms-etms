@@ -6,7 +6,6 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -18,12 +17,12 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.domain.BaseDmsStore;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -83,10 +82,6 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
         if(BusinessHelper.isSignChar(waybill.getWaybillSign(),12,'9')) {
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_CROWD_SOURCING);
-        }
-        //当前打“空”的逻辑不变，“空”字变为“航”，同时增加waybillsign 第31为1 打“航”逻辑。Waybillsign标识 2017年8月22日16:23:47
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(),31)){
-        	labelPrinting.appendSpecialMark(SPECIAL_MARK_AIRTRANSPORT);
         }
         //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
         if(BusinessHelper.isSignY(waybill.getWaybillSign(),35)){
@@ -158,6 +153,15 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
+                //C2C面单预计送达时间从运单获取REQUIRE_TIME
+                if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    String foreCastTime = "";
+                    if(waybill.getRequireTime() != null){
+                        foreCastTime = sdf.format(waybill.getRequireTime());
+                    }
+                    labelPrinting.setPromiseText(foreCastTime);
+                }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
             log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)),e);

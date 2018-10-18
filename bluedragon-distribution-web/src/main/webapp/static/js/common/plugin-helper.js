@@ -33,6 +33,7 @@ jQuery.extend({
                 data:paramObject,
                 url:apiUrl,
                 async:true,
+                cache:false,
                 dataType:'json',
                 contentType: 'application/json',
                 error:function(XMLHttpRequest, textStatus, errorThrown){
@@ -50,6 +51,7 @@ jQuery.extend({
                 data:paramObject,
                 url:apiUrl,
                 async:false,
+                cache:false,
                 dataType:'json',
                 error:function(XMLHttpRequest, textStatus, errorThrown){
                     console.log('involk failded');
@@ -87,24 +89,32 @@ jQuery.extend({
         warn:function (title,msg) {
             swal({title:title,text:msg,type : "warning"});
         },
-        ok:function (title,msg) {
-            swal({title:title,text:msg,type : "success"});
+        ok:function (title,msg,callback) {
+            var func = arguments[2] ? arguments[2] : function () {};
+            swal({title:title,text:msg,type : "success",allowOutsideClick :false},func);
         },
         error:function (title,msg) {
             swal({title:title,text:msg,type : "error"});
         },
-        confirm:function(msg,callback){
-            swal({
-                title : msg,
-                type : "warning",
-                showCancelButton : true,
-                confirmButtonColor : "#DD6B55",
-                confirmButtonText : "确定",
-                cancelButtonText : "取消",
-                closeOnConfirm : false
-            }, function(){
-                callback.call(this);
+        confirm:function(msg,okFunc,cancelFunc){
+            var cancelFunc = arguments[2] ? arguments[2] : function () {};
+            layer.confirm( '<span style="margin-left:40px;margin-right:40px;font-size: 18px;font-weight: bold;font-family:"Arial","Microsoft YaHei","黑体","宋体",sans-serif;">'
+                + msg+ '</span>', {
+                // skin: 'layui-layer-lan',
+                title:'请仔细确认',
+                closeBtn: 0,
+                shade: 0.7,
+                icon: 3,
+                anim: 1,
+                area: ['700px', '230px'],
+                btn: ['确定','取消']
+            },function (index) {
+                okFunc();
+                layer.close(index);
+            },function () {
+                cancelFunc();
             });
+
         }
     },
     /******************************/
@@ -166,6 +176,7 @@ jQuery.extend({
         appendData:function (domId,id,text) {
             var newOption = new Option(text, id, false, false);
             $('#' + domId).append(newOption).trigger('change');
+            return newOption;
         },
         createDefault:function (domId,placeHolderText,isMulti,width,data) {
             $('#' + domId).select2({
@@ -175,6 +186,12 @@ jQuery.extend({
                 data:data,
                 multiple:isMulti,
             });
+        },
+        clearAllSelected:function (domId) {
+            $('#' + domId).val(null).trigger('change');
+        },
+        setValues:function (domId,values) {
+            $('#' + domId).val(values).trigger('change');
         },
         getSelected:function (domId) {
             var data = $('#' + domId).select2("data");
@@ -313,8 +330,52 @@ jQuery.extend({
         var r = window.location.search.substr(1).match(reg);
         if (r != null) return unescape(r[2]); return null;
 
+    },
+
+    /******************************/
+    /*页面阻塞弹层*/
+    /******************************/
+    pageBlocker:{
+        block:function () {
+            var pageBlocker = layer.load(2,{
+                shade: [0.3,'#1A237E'],
+                offset: ['50%', '50%']
+            });
+            return pageBlocker;
+        },
+        close:function (blocker) {
+            layer.close(blocker);
+        }
+    },
+
+    /******************************/
+    /*excel*/
+    /******************************/
+    exportExcel:function(url){
+        this.exportFile("确定要导出为EXCEL吗？",url,1);
+
+    },
+    exportCsv:function(url){
+        alert(url);
+        this.exportFile("确定要导出为CSV吗？",url,2);
+
+    },
+    exportFile:function(title,url,exportType){
+        swal({
+            title : title,
+            type : "warning",
+            showCancelButton : true,
+            confirmButtonColor : "#DD6B55",
+            confirmButtonText : "确定",
+            cancelButtonText : "取消",
+            closeOnConfirm : true
+        }, function(){
+            if(url.indexOf("?")!=-1){
+                location.href = url+"&exportType="+exportType;
+            }else{
+                location.href = url+"?exportType="+exportType;
+            }
+        });
+
     }
-
-
-
 });

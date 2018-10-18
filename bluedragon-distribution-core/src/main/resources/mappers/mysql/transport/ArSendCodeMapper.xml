@@ -146,6 +146,18 @@
         where send_register_id = #{_sendRegisterId,jdbcType=BIGINT} and is_delete = 0
     </select>
 
+    <select id="getBySendRegisterIds" resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where send_register_id in
+        <foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and is_delete = 0 order by create_time
+    </select>
+
     <update id="deleteBySendRegisterId" parameterType="java.util.Map">
         update ar_send_code
         set is_delete = 1,
