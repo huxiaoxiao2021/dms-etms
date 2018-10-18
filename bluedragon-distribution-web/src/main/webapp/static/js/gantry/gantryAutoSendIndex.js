@@ -116,6 +116,69 @@ $(document).ready(function () {
 
     });
 
+    /** 龙门架批次打印 **/
+    $("#printBatch").click(function () {
+
+        /** 获取要打印的批次数据 **/
+        var list = [];
+        $("input[name=item]:checked").each(function () {
+            var param = {};
+            param.createSiteCode =  $(this).parents("tr").find("[name=createSite]").attr("title");
+            param.createSiteName =  $(this).parents("tr").find("[name=createSite]").text();
+            param.receiveSiteName = $(this).parents("tr").find("[name=receiveSite]").text();
+            param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+            param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+
+            list.push(param);
+        });
+        if (list.length < 1) {
+            return;
+        }
+
+        /** 调用打印批次组件 **/
+        labelPrint(list);
+
+    });
+
+    /** 龙门架批次打印调用组件*/
+    labelPrint = function(list){
+        for(var i=0;i<list.length;i++){
+
+            var param=list[i];
+            var labelPrintRequst = new Object();
+            labelPrintRequst['systemCode'] = 'dms';
+            labelPrintRequst['businessType'] = 'dms-sendBarcode';
+            labelPrintRequst['siteCode'] =param.createSiteCode;
+            labelPrintRequst['siteName'] = param.createSiteName;
+
+            var labelParams=new Object();
+            labelParams.SendCode=param.sendCode;
+            labelParams.receiveSiteName=param.receiveSiteName;
+            labelParams.createSiteName=param.createSiteName;
+            labelParams.SumNum=param.packageSum;
+
+            labelPrintRequst['labelParams']=labelParams;
+
+            var formJson = JSON.stringify(labelPrintRequst);
+            var labelPrintUrl = 'http://localhost:9099/services/label/print';
+            /*提交表单*/
+            CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
+                if(res != null && res.code == 200){
+                    $.msg.warn("打印成功！");
+                }else {
+                    debugger;
+                    $.msg.error(res.messageCode+"-"+res.message);
+                    console.log(res.messageCode+":"+res.message);
+                }
+            },'json',function (XMLHttpRequest, textStatus, errorThrown) {
+                $.msg.error("调用打印服务失败，请确认已启动青龙打印组件服务！");
+                console.log('errorThrown:' + errorThrown);
+            });
+        }
+
+    };
+
+
     /** 换批次按钮点击事件 **/
     $("#generateSendCodeBtn").click(function () {
         //得到勾选框的值
@@ -598,6 +661,7 @@ function queryBatchSendCodes(params) {
                 })
                 temp += "<tr id='" + (i + 1) + "'>";
                 temp += "<td><input type='checkbox' name='item'></td>";
+                temp += "<td name='createSite' title='" +list[i].createSiteCode+ "' style='display:none'>" + list[i].createSiteName + "</td>";
                 temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
                 temp += "<td name='packageSum'>" + packageSum + "</td>";
