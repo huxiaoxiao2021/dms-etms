@@ -4649,7 +4649,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     wChoice.setQueryWaybillS(true);
                     wChoice.setQueryWaybillC(true);
                     //获取运单信息
-                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
                     if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                         this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功！");
 
