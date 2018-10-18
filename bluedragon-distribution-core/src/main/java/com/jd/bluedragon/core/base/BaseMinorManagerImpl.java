@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -336,7 +337,21 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		//航空或者航填，调用新接口
 		if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType)
 				|| Constants.ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType)){
-			return this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+			JdResult<CrossPackageTagNew> result = this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+			//如果新的大全表没有数据 则 继续查询老大全表
+			if(result.isSucceed() && result.getData()!= null && result.getData().getOriginalDmsId()!=null){
+				return result;
+			}else{
+				JdResult<CrossPackageTagNew> normalResult = this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
+				if(normalResult.isSucceed() && normalResult.getData()!=null
+						&& normalResult.getData().getOriginalDmsId()!=null && normalResult.getData().getDestinationDmsId()!=null){
+					//始发和目的相等维护了道口 可以返回陆运大全表
+					if(normalResult.getData().getOriginalDmsId().equals(normalResult.getData().getDestinationDmsId())){
+						return normalResult;
+					}
+				}
+				return result;
+			}
 		}else{
 			return this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 		}
