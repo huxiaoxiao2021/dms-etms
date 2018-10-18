@@ -39,7 +39,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      * @return
      */
     public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCode(String waybillCode) {
-        //增加一个开关，在支持两万个包裹，需要单独调用运单的分页接口过渡期使用
+        //增加一个开关，支持两万个包裹，需要单独调用运单的分页接口过渡期使用
         if (isGetPackageByPageOpen()) {
             return getPackageByWaybillCode(waybillCode);
 
@@ -109,7 +109,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         pageParam.setPageSize(Constants.PACKAGE_NUM_ONCE_QUERY);
 
         //调用运单分页接口
-        BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, null);
+        BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
 
         //调用接口异常，添加自定义报警
         if (null == baseEntity || baseEntity.getResultCode() != 1) {

@@ -1,14 +1,10 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.*;
 import com.jd.etms.waybill.domain.SkuSn;
-import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -19,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -323,7 +318,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	}
 
 	/**
-	 * 根据旧运单号获取新运单信息
+	 * 根据旧运单号获取新运单信息（逆向不支持2w包裹，暂时不做修改）
 	 *
 	 * @param oldWaybillCode 旧的运单号
 	 * @param wChoice 获取的运单信息中是否包含waybillC数据
@@ -332,26 +327,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public BaseEntity<BigWaybillDto> getReturnWaybillByOldWaybillCode(String oldWaybillCode, WChoice wChoice){
-		if(waybillPackageManager.isGetPackageByPageOpen()) {
-			Boolean isQueryPackList = wChoice.getQueryPackList();
-			if(null == isQueryPackList){
-				isQueryPackList = false;
-			}
-			wChoice.setQueryPackList(false);
-
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getReturnWaybillByOldWaybillCode(oldWaybillCode, wChoice);
-
-			//如果需要获取包裹信息，则调用运单分页获取包裹信息的接口，做此修改是为了支持2w包裹的订单
-			if (isQueryPackList) {
-				List<DeliveryPackageD> packageDList = waybillPackageManager.getPackageByWaybillCode(oldWaybillCode).getData();
-				if (null != baseEntity && null != baseEntity.getData()) {
-					baseEntity.getData().setPackageList(packageDList);
-				}
-			}
-			return baseEntity;
-		}else{
-			return waybillQueryApi.getReturnWaybillByOldWaybillCode(oldWaybillCode, wChoice);
-		}
+		return waybillQueryApi.getReturnWaybillByOldWaybillCode(oldWaybillCode, wChoice);
 	}
 
 	/**
