@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -55,7 +56,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	@Autowired
 	private SealBoxService sealBoxService;
 	@Autowired
-	WaybillPackageApi waybillPackageApi;
+	WaybillPackageManager waybillPackageManager;
 	@Autowired
 	private InspectionDao inspectionDao;
 	@Autowired
@@ -75,7 +76,7 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 		int n = 0;
 		if (StringUtils.isEmpty(request.getPackageCode())) {// 按照运单进行分拣
 			String waybillCode = request.getWaybillCode();
-			BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageApi
+			BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager
 					.getPackListByWaybillCode(waybillCode);
 			if (baseEntity != null) {
 				List<DeliveryPackageD> packageList = baseEntity.getData();

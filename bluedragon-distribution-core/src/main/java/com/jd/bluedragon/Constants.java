@@ -518,6 +518,16 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
+
+    /**
+     * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）
+     */
+    public static final String SYS_CONFIG_PACKAGE_PAGE_SWITCH= "package.page.switch";
+    /**
+     * 配置信息-分拣机自动发货 封车自动换批次功能开关（config_content中维护的是开启自动换批次的分拣中心所属的分拣机编码）
+     */
+    public static final String SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE = "sortMachine.autoSend.sendCode.auto.change";
+
     /**
      * 三无寄托物核实 上报次数上限
      */
@@ -594,6 +604,11 @@ public class Constants {
      * 龙门架校验调整天数
      */
     public static final Integer GANTRY_CHECK_DAYS= -30;
+
+    /**
+     * 调用运单的分页接口一次获取的包裹数量
+     */
+    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
 
     /**
      * 原包发货推迟时间5秒
