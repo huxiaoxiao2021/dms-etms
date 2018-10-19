@@ -341,7 +341,7 @@
             AND receive_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
             AND receive_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
             <if test="confirmStatus != null">
-                AND confirm_status = #{confirmStatus,jdbcType=INTEGER},
+                AND confirm_status = #{confirmStatus,jdbcType=INTEGER}
             </if>
             <if test="receiveUserErp != null">
                 AND receive_user_erp = #{receiveUserErp,jdbcType=VARCHAR}

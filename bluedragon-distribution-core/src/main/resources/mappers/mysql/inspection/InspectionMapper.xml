@@ -531,4 +531,14 @@
         group by waybill_code
     </select>
 
+    <select id="findPageInspection" resultMap="BaseResultMap" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM inspection
+        WHERE yn=1 AND package_barcode = #{packageCode,jdbcType=VARCHAR}
+          AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        ORDER BY operate_time
+            limit #{startIndex},#{pageSize}
+    </select>
+
 </mapper>
