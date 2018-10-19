@@ -170,7 +170,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             List<WaybillConsumableDetailInfo> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<String>(consumableDtoMap.keySet()));
             for(WaybillConsumableDetailInfo dto : exportDtos){
                 WaybillConsumableDetailDto detailDto = new WaybillConsumableDetailDto();
-                detailDto.setPackingCode(dto.getCode());
+                detailDto.setPackingCode(dto.getConsumableCode());
                 detailDto.setPackingName(dto.getName());
                 detailDto.setPackingType(dto.getType());
                 detailDto.setPackingTypeName(dto.getTypeName());

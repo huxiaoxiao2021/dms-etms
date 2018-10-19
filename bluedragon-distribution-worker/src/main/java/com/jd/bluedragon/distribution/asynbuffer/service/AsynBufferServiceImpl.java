@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.asynbuffer.service;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -12,6 +13,9 @@ import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalExc
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 
+import com.jd.bluedragon.distribution.worker.sorting.SortingTask;
+import com.jd.jim.cli.Cluster;
+import com.jd.jim.cli.TransactionClient;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -215,7 +219,29 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Autowired
     private SortingService sortingService;
 
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
+
     public boolean sortingTaskProcess(Task task) throws Exception {
+
+        String fingerPrintKey = SortingTask.TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getReceiveSiteCode() +"|"+ task.getKeyword2();
+        try{
+            //判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。
+            TransactionClient tclient = redisClientCache.transactionClient(fingerPrintKey.getBytes());
+            tclient.multi();
+            Long incrResult = redisClientCache.incr(fingerPrintKey);
+            redisClientCache.expire(fingerPrintKey, 5, TimeUnit.SECONDS);
+            tclient.exec();
+
+            if(incrResult.intValue()>1){//说明有重复任务
+                this.logger.error("1200分拣任务重复："+task.getBody());
+                return false;
+            }
+        }catch(Exception e){
+            this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
+        }
+
         boolean result = Boolean.FALSE;
         try {
             this.logger.info("task id is " + task.getId());
@@ -228,8 +254,10 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             builder.append(SPLIT_CHAR).append(task.getKeyword2());
             this.logger.error(builder.toString());
             this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
-            return Boolean.FALSE;
+            result = Boolean.FALSE;
         }
+
+        redisClientCache.del(fingerPrintKey);
         return result;
     }
 

@@ -534,6 +534,12 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
+
+    /**
+     * 配置信息-分拣机自动发货 封车自动换批次功能开关（config_content中维护的是开启自动换批次的分拣中心所属的分拣机编码）
+     */
+    public static final String SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE = "sortMachine.autoSend.sendCode.auto.change";
+
     /**
      * 三无寄托物核实 上报次数上限
      */
