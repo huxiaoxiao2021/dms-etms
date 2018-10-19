@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -99,8 +98,6 @@ public class BaseServiceImpl implements BaseService {
 	@Qualifier("basicSecondaryWSProxy")
 	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
-    @Autowired
-    private UserVerifyService userVerifyService;
 
     @Autowired
 	private UserVerifyManager userVerifyManager;
