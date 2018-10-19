@@ -11,6 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import java.util.Map;
  * @Description: 类描述信息
  * @date 2018年10月19日 10时:33分
  */
+@Service("userVerifyManager")
 public class UserVerifyManagerImpl implements UserVerifyManager{
     private static final Log logger = LogFactory.getLog(UserVerifyManagerImpl.class);
 

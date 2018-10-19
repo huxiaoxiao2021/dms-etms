@@ -11,6 +11,8 @@
     <!-- 服务端 端口默认22000-->
     <jsf:server id="dmsjsf" protocol="jsf"/>
 
+    <!-- 3pl登录验证-->
+    <import resource="distribution-web-3pl-jsf.xml"/>
 
     <!-- 共用 client 区 -->
     <!-- 财务接口 王建磊  -->
