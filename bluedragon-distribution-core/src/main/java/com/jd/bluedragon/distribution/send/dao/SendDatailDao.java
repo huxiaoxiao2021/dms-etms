@@ -343,4 +343,9 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         }
         return this.getSqlSession().selectOne(namespace+".queryOneSendDetailByPackageCode",sendDetail);
     }
+
+    /**分页查询发货记录*/
+    public List<SendDetail> findPageSendDetail(Map<String,Object> params){
+        return this.getSqlSession().selectList(namespace + ".findPageSendDetail",params);
+    }
 }
