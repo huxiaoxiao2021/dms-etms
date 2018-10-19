@@ -833,4 +833,15 @@ public class BusinessHelper {
         }
         return false;
     }
+
+	/**
+	 * 通过运单标识 判断是否需求包装耗材
+	 *
+	 *  72 位 是1  标识需要
+	 * @param waybillSign
+	 * @return
+	 */
+	public static boolean isNeedConsumable(String waybillSign){
+		return isSignChar(waybillSign, 72, '1');
+	}
 }

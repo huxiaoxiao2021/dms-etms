@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
@@ -91,9 +93,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -165,16 +165,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BoxService boxService;
 
     @Autowired
-    WaybillQueryApi waybillQueryApi;
-
-    @Autowired
     private SortingService tSortingService;
 
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
-    WaybillPackageApi waybillPackageApi;
+    WaybillPackageManager waybillPackageManager;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -291,6 +288,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private WaybillConsumableRecordService waybillConsumableRecordService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -2593,6 +2593,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         tOrderInfo.setPackInfoList(list);
     }
 
+    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
+        BaseEntity<List<BigWaybillDto>> results = waybillQueryManager.getDatasByChoice(waybills, queryWChoice);
+        if (results != null && results.getResultCode() > 0) {
+            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
+            List<BigWaybillDto> datas = results.getData();
+            if (datas != null && !datas.isEmpty()) {
+                for (BigWaybillDto dto : datas) {
+                    datalist.add(dto);
+                }
+            }
+        }
+    }
+
     @Override
     public List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice, List<String> waybillCodes) {
         List<BigWaybillDto> datalist = new ArrayList<BigWaybillDto>();
@@ -2622,19 +2635,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("取件单基础信息调用异常-------");
         }
         return datalist;
-    }
-
-    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
-        BaseEntity<List<BigWaybillDto>> results = waybillQueryApi.getDatasByChoice(waybills, queryWChoice);
-        if (results != null && results.getResultCode() > 0) {
-            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
-            List<BigWaybillDto> datas = results.getData();
-            if (datas != null && !datas.isEmpty()) {
-                for (BigWaybillDto dto : datas) {
-                    datalist.add(dto);
-                }
-            }
-        }
     }
 
     /**
@@ -2848,6 +2848,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
+
+        // FIXME: 2018/10/16 应该单独写一个校验接口，后续进行剥离
+        //B网包装耗材服务确认拦截
+        if (! this.checkWaybillConsumable(sendM)) {
+            return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
+        }
+
         logger.info("快运发货运单重量及运费拦截开始");
         //快运称重及运费拦截
         List<String> waybillCodes = getWaybillCodesBySendM(sendM);
@@ -3420,7 +3427,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<DeliveryPackageD> datas = null;
         try {
             //logger.info("调用运单queryPackageListForParcodes调用参数"+sendDetail.getPackageBarcode());
-            waybillWSRs = waybillPackageApi.queryPackageListForParcodes(
+            waybillWSRs = waybillPackageManager.queryPackageListForParcodes(
                     Arrays.asList(new String[]{sendDetail.getPackageBarcode()}));
             if (waybillWSRs != null) {
                 datas = waybillWSRs.getData();
@@ -4627,5 +4634,49 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         return response;
+    }
+
+    /**
+     * 校验B网运单是否确认了耗材包装服务 added by hanjiaxing3 2018.10.16
+     * @param sendM 发货数据
+     * @return true:确认了包装，不拦截 false:拦截
+     */
+    private Boolean checkWaybillConsumable(SendM sendM){
+
+        logger.info("B网包装耗材确认拦截开始...");
+        Waybill waybill = null;
+        try {
+            //判断快运发货是够是原包发货，原包发货boxCode为包裹号
+            if (BusinessHelper.isPackageCode(sendM.getBoxCode()) && ! BusinessHelper.isPickupCode(sendM.getBoxCode())) {
+                String waybillCode = BusinessHelper.getWaybillCode(sendM.getBoxCode());
+                if (StringHelper.isNotEmpty(waybillCode)) {
+                    WChoice wChoice = new WChoice();
+                    wChoice.setQueryWaybillS(true);
+                    wChoice.setQueryWaybillC(true);
+                    //获取运单信息
+                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+                    if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+                        this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功！");
+
+                        waybill = baseEntity.getData().getWaybill();
+                        String waybillSign = waybill.getWaybillSign();
+                        //判断waybillSign是够支持包装耗材服务，支持才判断是否确认
+                        if (BusinessHelper.isNeedConsumable(waybillSign)) {
+                            //返回确认结果
+                            return waybillConsumableRecordService.isConfirmed(waybillCode);
+                        }
+                    } else {
+                        //无运单数据
+                        logger.warn(waybillCode + "对应的运单信息为空！");
+                    }
+                } else {
+                    //运单号转换失败
+                    logger.warn(sendM.getBoxCode() + "转换运单号失败！");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("查询运单是否已经确认耗材失败，运单号：" + sendM.getBoxCode(), e);
+        }
+        return true;
     }
 }
