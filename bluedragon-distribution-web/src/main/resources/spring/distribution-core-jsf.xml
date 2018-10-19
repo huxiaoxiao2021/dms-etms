@@ -196,17 +196,7 @@
     </jsf:consumer>
 
 
-    <!-- 用户组jsf接口，负责人 王新新
-         SourceId：demo
-         Alias（测试）：userSdk-stg
-         Alias（线上马驹桥）：userSdk-mjq-noah02（系统已配置alias，可用原有配置）
-         Alias（线上廊坊）：userSdk-lf-noah02（系统已配置alias，可用原有配置）
-    -->
-    <bean id="userSdkConsumerFilter" class="com.jd.user.sdk.export.filter.UserSdkConsumerFilter" scope="prototype"/>
-    <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserPassportExportService" alias="${user.export.alias}"
-                  filter="userSdkConsumerFilter" retries="${jsf.retries}" timeout="${user.export.timeout}">
-        <!--<jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>-->
-    </jsf:consumer>
+
 
     <!-- 台账 宏亮 张子敬-->
     <jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
