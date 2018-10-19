@@ -12,9 +12,6 @@
     <jsf:server id="dmsjsf" protocol="jsf"/>
 
 
-    <!-- 3pl登录验证接口-->
-    <import resource="distribution-web-special-jsf.xml"/>
-
     <!-- 共用 client 区 -->
     <!-- 财务接口 王建磊  -->
     <jsf:consumer id="waybillServiceJSF" interface="com.jd.etms.finance.wss.WaybillDataServiceWS"
