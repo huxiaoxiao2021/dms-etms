@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.center;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -12,6 +13,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
@@ -56,6 +58,8 @@ public class CenterServiceResource {
 
 	@Autowired
 	private BaseMinorManager baseMinorManager;
+
+	private WaybillPackageManager waybillPackageManager;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -211,5 +215,22 @@ public class CenterServiceResource {
 		waybillPrintRequestDTO.setCustomerCode(busiCode);
 		waybillPrintRequestDTO.setWaybillCode(waybillCode);
 		return waybillPrintApi.getPrintDataForCityOrder(waybillPrintRequestDTO);
+	}
+
+	@GET
+	@Path("/centerService/getPackageByWaybillCode/{waybillCode}")
+	@GZIP
+	public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(@PathParam("waybillCode") String waybillCode) {
+		// 判断参数有效性
+		if (StringHelper.isEmpty(waybillCode))
+			return null;
+
+		BaseEntity<List<DeliveryPackageD>> result = null;
+		try {
+			result = waybillPackageManager.getPackageByWaybillCode(waybillCode);
+		} catch (Exception e) {
+			logger.error("中心服务调用运单getDataByChoice出错", e);
+		}
+		return result;
 	}
 }
