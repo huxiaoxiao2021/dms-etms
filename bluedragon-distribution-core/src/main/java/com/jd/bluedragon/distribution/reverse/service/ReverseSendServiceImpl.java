@@ -74,7 +74,6 @@ import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
@@ -96,9 +95,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     @Qualifier("bdDmsReverseSendMQ")
     private DefaultJMQProducer bdDmsReverseSendMQ;
-
-    @Autowired
-    WaybillQueryApi waybillQueryApi;
 
     @Autowired
     WaybillQueryManager waybillQueryManager;
@@ -1202,7 +1198,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     wChoice.setQueryWaybillE(true);
                     wChoice.setQueryWaybillM(true);
                     try {
-                        Integer consignerId = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice).getData()
+                        Integer consignerId = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice).getData()
                                 .getWaybill().getConsignerId();
 
                         if (null != consignerId) {
@@ -1602,7 +1598,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 WChoice wChoice = new WChoice();
                 wChoice.setQueryWaybillC(true);
                 String pickupCode = "";
-                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> bigWaybillDto = waybillQueryApi.getDataByChoice(sendDetail.getWaybillCode(), wChoice);
+                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> bigWaybillDto = waybillQueryManager.getDataByChoice(sendDetail.getWaybillCode(), wChoice);
                 if (bigWaybillDto != null) {
                     pickupCode = bigWaybillDto.getData().getWaybill().getRelWaybillCode();
                     if (StringUtils.isBlank(pickupCode)) {
@@ -1666,7 +1662,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         String refuseReasonName = null;
         try{
 
-            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
 
 
             if(oldWaybill!=null && oldWaybill.getData() != null){
