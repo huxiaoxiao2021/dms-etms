@@ -4,13 +4,18 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Service("sendDetailService")
 public class SendDetailServiceImpl implements SendDetailService {
+
+    private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
     private SendDatailReadDao sendDatailReadDao;
@@ -35,5 +40,11 @@ public class SendDetailServiceImpl implements SendDetailService {
         sendDetail.setPackageBarcode(packageCode);
         sendDetail.setWaybillCode(waybillCode);
         return sendDatailDao.findByWaybillCodeOrPackageCode(sendDetail);
+    }
+
+    @Override
+    public List<SendDetail> findPageSendDetail(Map<String, Object> params) {
+        logger.info("SendDetailServiceImpl.findPageSendDetail begin...");
+        return sendDatailDao.findPageSendDetail(params);
     }
 }
