@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WeightResponse;
@@ -59,7 +59,7 @@ public class WeightServiceImpl implements WeightService {
     private DefaultJMQProducer dmsWeightSendMQ;
 
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
+    private WaybillPackageManager waybillPackageManager;
 
     @Resource(name = "goddessService")
     private GoddessService goddessService;
@@ -103,7 +103,7 @@ public class WeightServiceImpl implements WeightService {
             	logger.error("doWeightTrack-fail:"+weightInfo.getMessage()+"消息体："+taskBody);
             	return false;
             }
-            Map<String, Object> map = waybillQueryManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
+            Map<String, Object> map = waybillPackageManager.uploadOpe(weightJsonData.substring(1, weightJsonData.length() - 1));
             goddess.setHead(MessageFormat.format("提交称重至运单:结果{0}", JsonHelper.toJson(map)));
             this.sendMQ(weightJsonData);
 
