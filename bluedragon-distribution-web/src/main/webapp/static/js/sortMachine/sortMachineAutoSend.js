@@ -162,7 +162,7 @@ $(document).ready(function(){
             var labelParams=new Object();
             labelParams.SendCode=param.sendCode;
             labelParams.receiveSiteName=param.receiveSiteName;
-            labelParams.createSiteName=param.createSiteName;
+            labelParams.createSiteName=$("#createSiteName").val();
             labelParams.SumNum=param.packageSum;
 
             labelPrintRequst['labelParams']=labelParams;

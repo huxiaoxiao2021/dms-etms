@@ -185,13 +185,13 @@
                 var labelPrintRequst = new Object();
                 labelPrintRequst['systemCode'] = 'dms';
                 labelPrintRequst['businessType'] = 'dms-sendBarcode';
-                labelPrintRequst['siteCode'] =$("#createSiteName").val();
-                labelPrintRequst['siteName'] = param.createSiteName;
+                labelPrintRequst['siteCode'] =$("#createSiteCode").val();
+                labelPrintRequst['siteName'] = $("#createSiteName").val();
 
                 var labelParams=new Object();
                 labelParams.SendCode=param.sendCode;
                 labelParams.receiveSiteName=param.receiveSiteName;
-                labelParams.createSiteName=param.createSiteName;
+                labelParams.createSiteName=$("#createSiteName").val();
                 labelParams.SumNum=param.packageSum;
 
                 labelPrintRequst['labelParams']=labelParams;
