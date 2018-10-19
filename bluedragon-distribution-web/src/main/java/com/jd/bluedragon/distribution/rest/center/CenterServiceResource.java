@@ -59,6 +59,7 @@ public class CenterServiceResource {
 	@Autowired
 	private BaseMinorManager baseMinorManager;
 
+	@Autowired
 	private WaybillPackageManager waybillPackageManager;
 
 	@GET
