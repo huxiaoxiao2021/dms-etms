@@ -22,6 +22,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/base/dmsStorageArea";
