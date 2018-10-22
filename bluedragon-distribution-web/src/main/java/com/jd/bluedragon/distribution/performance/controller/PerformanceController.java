@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.performance.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.performance.domain.Performance;
 import com.jd.bluedragon.distribution.performance.domain.PerformanceCondition;
 import com.jd.bluedragon.distribution.performance.service.PerformanceService;
 import com.jd.bluedragon.distribution.performance.service.impl.PerformanceServiceImpl;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +42,7 @@ public class PerformanceController {
      * 返回主页面
      * @return
      */
-//    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
+    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(){
         return "/jinpeng/performance";

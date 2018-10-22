@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.operatelog;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -112,7 +113,7 @@ public class OperateLogController {
 		return "operateLog/operatelog1";
 	}
 
-//	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
+	@Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/goListPage2", method = RequestMethod.GET)
 	public String goListpage2(Model model) {
 		return "operateLog/operatelog2";

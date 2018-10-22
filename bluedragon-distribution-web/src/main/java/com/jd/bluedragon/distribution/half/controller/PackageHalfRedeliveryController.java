@@ -52,7 +52,7 @@ public class PackageHalfRedeliveryController {
 	 * 返回主页面
 	 * @return
 	 */
-//	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/half/packageHalfRedelivery";

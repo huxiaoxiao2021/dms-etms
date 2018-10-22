@@ -49,7 +49,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * 返回主页面
 	 * @return
 	 */
-//	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/waybillConsumableRecord";
