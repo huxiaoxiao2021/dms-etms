@@ -1,8 +1,17 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
-import java.util.*;
-
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
+import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
+import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,15 +22,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHint;
-import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintCondition;
-import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
-import com.jd.bluedragon.distribution.api.domain.LoginUser;
-import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -44,6 +49,7 @@ public class DmsOperateHintController extends DmsBaseController{
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_TOOL_DMSOPERATEHINT_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/abnormal/dmsOperateHint";

@@ -130,3 +130,15 @@ CommonClient.syncAjax = function(type,url,param,successFunction){
 		}
 	});
 };
+
+CommonClient.asyncPost=function(url,param,callback){
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function(){    //对ajax对象进行监听
+        if(xhr.readyState === 4){          //4表示解析完毕
+            callback(xhr);
+        }
+    };
+    xhr.open('POST',url,true);
+    xhr.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+    xhr.send(param);
+};

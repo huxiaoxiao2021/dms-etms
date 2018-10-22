@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -80,8 +79,6 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private OperationLogService operationLogService;
 
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -345,7 +342,7 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
+			BaseEntity<BigWaybillDto> waybill = this.waybillQueryManager.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
@@ -702,7 +699,7 @@ public class SortingServiceImpl implements SortingService {
 		FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
 		//新运单号获取老运单号的所有信息  参数返单号
 		try{
-			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+			BaseEntity<Waybill> wayBillOld = waybillQueryManager.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
 				String vendorId = wayBillOld.getData().getVendorId();
 				if(vendorId == null || "".equals(vendorId)){
@@ -1151,5 +1148,11 @@ public class SortingServiceImpl implements SortingService {
         }
         return null;
     }
+
+	@Override
+	public List<Sorting> findPageSorting(Map<String, Object> params) {
+		logger.info("SortingServiceImpl.findPageSorting begin...");
+		return sortingDao.findPageSorting(params);
+	}
 
 }

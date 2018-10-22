@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.urban.service.impl;
 
 import java.util.List;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.framework.asynBuffer.producer.jmq.BusinessIdGen;
@@ -22,7 +23,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WaybillScheduleDto;
 
@@ -41,10 +41,10 @@ public class TransbillMServiceImpl implements TransbillMService {
     private static final Log logger = LogFactory.getLog(TransbillMServiceImpl.class);
 
     @Autowired
-    private WaybillQueryApi waybillQueryApi;
+    private TransbillMDao transbillMDao;
 
     @Autowired
-    private TransbillMDao transbillMDao;
+    WaybillQueryManager waybillQueryManager;
 
 
     /**
@@ -127,7 +127,7 @@ public class TransbillMServiceImpl implements TransbillMService {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillS(true);
             wChoice.setQueryWaybillC(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybillScheduleDto = baseEntity.getData().getWaybillSchedule();
@@ -149,7 +149,7 @@ public class TransbillMServiceImpl implements TransbillMService {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillS(true);
             wChoice.setQueryWaybillC(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(
+            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = baseEntity.getData().getWaybill();

@@ -47,7 +47,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     /*运单接口 用于运单校验*/
     @Autowired
-    WaybillQueryApi waybillQueryApi;
+    private WaybillQueryManager waybillQueryManager;
 
     /*用于记录操作日志*/
     @Autowired
@@ -127,9 +127,11 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion {
         BaseEntity<Waybill> waybillBaseEntity = null;
 
-        try {
-            waybillBaseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
-        } catch (Exception e) {
+        try
+        {
+            waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
+        } catch (Exception e)
+        {
             logger.error(e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }

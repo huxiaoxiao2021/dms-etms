@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.core.base.ThirdPartyLogisticManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
@@ -25,7 +26,6 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
 import com.jd.etms.third.service.dto.ShipCarrierReturnDto;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -70,7 +70,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	private ThirdPartyLogisticManager thirdPartyLogisticManager;
 
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
 	@Autowired
 	private DeliveryService deliveryService;
@@ -296,7 +296,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					wChoice.setQueryWaybillC(true);
 					wChoice.setQueryWaybillE(true);
 					wChoice.setQueryWaybillM(true);
-					BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(waybillCode,
+					BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
 					        wChoice);
 					if (baseEntity != null && baseEntity.getData() != null) {
 						com.jd.etms.waybill.domain.Waybill waybillWS = baseEntity.getData().getWaybill();

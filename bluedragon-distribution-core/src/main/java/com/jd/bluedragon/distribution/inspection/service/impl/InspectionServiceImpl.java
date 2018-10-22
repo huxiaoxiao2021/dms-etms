@@ -32,7 +32,6 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -114,10 +113,6 @@ public class InspectionServiceImpl implements InspectionService {
 
 	@Autowired
 	private TaskPopRecieveCountService taskPopRecieveCountService;
-
-	/* 运单查询 */
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private SiteService siteService;
@@ -345,7 +340,7 @@ public class InspectionServiceImpl implements InspectionService {
 		if (Constants.BUSSINESS_TYPE_FC == requestBean.getBusinessType()
 				.intValue()) {
 			try {
-				BaseEntity<Waybill> baseEntity = waybillQueryApi
+				BaseEntity<Waybill> baseEntity = waybillQueryManager
 						.getWaybillByWaybillCode(waybillCode);
 				if (baseEntity != null && baseEntity.getData() != null
 						&& baseEntity.getData().getDistributeStoreId() != null) {
@@ -729,6 +724,12 @@ public class InspectionServiceImpl implements InspectionService {
 			}
 		}
 		return hintMessage;
+	}
+
+	@Override
+	public List<Inspection> findPageInspection(Map<String, Object> params) {
+		logger.info("InspectionServiceImpl.findPageInspection begin...");
+		return inspectionDao.findPageInspection(params);
 	}
 
 }

@@ -1,66 +1,56 @@
 package com.jd.bluedragon.distribution.rest.send;
 
-import java.text.MessageFormat;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
-import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.request.*;
-import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
-import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
-import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
-import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
-import com.jd.bluedragon.distribution.send.domain.*;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
-import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.dms.logger.aop.BusinessLogWriter;
-import com.jd.dms.logger.external.BusinessLogProfiler;
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
+import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -103,6 +93,9 @@ public class DeliveryResource implements DmsDeliveryService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
 
     /**
@@ -497,6 +490,35 @@ public class DeliveryResource implements DmsDeliveryService {
         if (boxCode == null || siteCode == null || businessType == null || receiveSiteCode == null) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
+
+        //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
+        if (BusinessHelper.isPackageCode(boxCode)) {
+            try {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
+                if (baseStaffSiteOrgDto != null) {
+                    Integer siteType = baseStaffSiteOrgDto.getSiteType();
+                    //售后
+                    String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
+                    //仓储
+                    String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
+                    //备件库退货
+                    String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+                    if (siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)) {
+                        String waybillCode = BusinessHelper.getWaybillCode(boxCode);
+                        Boolean result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
+                        if(result != null && ! result) {
+                            return new DeliveryResponse(SortingResponse.CODE_29121, SortingResponse.MESSAGE_29121);
+                        }
+                    }
+                } else{
+                    this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
+                }
+            } catch (Exception e) {
+                this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
+            }
+        }
+        //adder end
+
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
         tSendM.setCreateSiteCode(Integer.parseInt(siteCode));
@@ -803,7 +825,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
         this.logger.info("手动获取设备对应的批次号");
-        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
+        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig(),"");
         
         if (scannerFrameBatchSend != null) {
         	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);

@@ -1,17 +1,13 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Constants;
-import com.jd.etms.waybill.domain.SkuSn;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.*;
+import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +15,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -30,6 +25,11 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service("waybillQueryManager")
 public class WaybillQueryManagerImpl implements WaybillQueryManager {
@@ -44,13 +44,15 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
-	
-    @Autowired
-    private WaybillPackageApi waybillPackageApiJsf;
+
+	@Qualifier("waybillPackageManager")
+	@Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     @Qualifier("waybillTraceBusinessQueryApi")
     @Autowired
 	private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
 
 	@Override
 	public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -61,7 +63,27 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
 			WChoice wChoice) {
-		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+		//增加一个开关，在支持两万个包裹，需要单独调用运单的分页接口过渡期使用
+		if(waybillPackageManager.isGetPackageByPageOpen()){
+			Boolean isQueryPackList = wChoice.getQueryPackList();
+			if(null == isQueryPackList){
+				isQueryPackList = false;
+			}
+			wChoice.setQueryPackList(false);
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+
+			//如果需要获取包裹信息，则调用运单分页获取包裹信息的接口，做此修改是为了支持2w包裹的订单
+			if(isQueryPackList && null != baseEntity && null != baseEntity.getData()){
+				BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(waybillCode);
+				if(null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size()>0){
+					baseEntity.getData().setPackageList(packageDBaseEntity.getData());
+				}
+			}
+
+			return baseEntity;
+		}else{
+			return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+		}
 	}
 
 	@Override
@@ -74,7 +96,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryWaybillE(isWaybillE);
 		wChoice.setQueryWaybillM(isWaybillM);
 		wChoice.setQueryPackList(isPackList);
-		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+		return getDataByChoice(waybillCode, wChoice);
 	}
 
 	@Override
@@ -91,7 +113,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryPackList(isPackList);
 		wChoice.setQueryPickupTask(isPickupTask);
 		wChoice.setQueryServiceBillPay(isServiceBillPay);
-		return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+		return getDataByChoice(waybillCode, wChoice);
 	}
 
 
@@ -103,7 +125,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		wChoice.setQueryWaybillE(isWaybillE);
 		wChoice.setQueryWaybillM(isWaybillM);
 		wChoice.setQueryPackList(isPackList);
-		return this.waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+		return getDatasByChoice(waybillCodes, wChoice);
 	}
 
 	@Override
@@ -228,55 +250,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 		return changedWaybillCode;
 	}
 
-	/**
-	 * 根据旧运单号获取新运单信息
-	 *
-	 * @param waybillCode 运单号
-	 * @param queryC 获取的运单信息中是否包含waybillC数据
-	 * @param queryE 获取的运单信息中是否包含waybillE数据
-	 * @param queryM 获取的运单信息中是否包含waybillM数据
-	 * @param queryPackList 获取的运单信息中是否包含PackList数据
-	 * @return
-	 */
-	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-	@Override
-	public BigWaybillDto getReturnWaybillByOldWaybillCode(String waybillCode, boolean queryC, boolean queryE, boolean queryM, boolean queryPackList) {
-		if (StringUtils.isNotEmpty(waybillCode)) {
-			CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", false, true);
-			BaseEntity<BigWaybillDto> baseEntity = null;
-			try {
-				WChoice wChoice = new WChoice();
-				wChoice.setQueryWaybillC(queryC);
-				wChoice.setQueryWaybillE(queryE);
-				wChoice.setQueryWaybillM(queryM);
-				wChoice.setQueryPackList(queryPackList);
-				baseEntity = this.waybillQueryApi.getReturnWaybillByOldWaybillCode(waybillCode, wChoice);
-			} catch (Exception e) {
-				Profiler.functionError(info);
-				logger.error("根据旧运单号调用接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取新运单信息时发生异常，waybillCode:" + waybillCode, e);
-			}
-			if (baseEntity != null) {
-				if (baseEntity.getResultCode() == 1) {
-					return baseEntity.getData();
-				} else if (baseEntity.getResultCode() == -3) {
-					logger.warn("根据旧运单号调用接口(waybillQueryApi.getReturnWaybillByOldWaybillCode)获取运单信息反馈该运单信息不存在，waybillCode:" + waybillCode);
-				}
-			}
-		}
-		return null;
-	}
     /**
-     * 包裹称重和体积测量数据上传
-     * 来源 PackOpeController
-     *
-     * @param packOpeJson 称重和体积测量信息
-     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
-     */
-	@JProfiler(jKey = "DMS.BASE.Jsf.WaybillPackageApi.uploadOpe", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Map<String, Object> uploadOpe(String packOpeJson){
-    	return waybillPackageApiJsf.uploadOpe(packOpeJson);
-    }
-	/**
 	 * 根据运单号获取运单数据信息给打印用
 	 * @param waybillCode
 	 * @return
@@ -308,6 +282,84 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 			return  resultDTO.getResult();
 		}
 		return null;
+	}
+
+
+
+	/**
+	 * 通过包裹号获得运单信息
+	 * @return
+	 */
+	@Override
+	public BaseEntity<Waybill> getWaybillByPackCode(String code){
+		return waybillQueryApi.getWaybillByPackCode(code);
+	}
+
+	/**
+	 * 通过包裹号获得运单信息和包裹信息
+	 * @return
+	 */
+	@Override
+	public BaseEntity<BigWaybillDto> getWaybillAndPackByWaybillCode(String waybillCode){
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(Boolean.TRUE);
+		wChoice.setQueryWaybillM(Boolean.TRUE);
+		wChoice.setQueryPackList(Boolean.TRUE);
+		return getDataByChoice(waybillCode, wChoice);
+	}
+
+	/**
+	 * 通过运单号获得运单信息
+	 * @return
+	 */
+	@Override
+	public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode){
+		return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+	}
+
+	/**
+	 * 根据旧运单号获取新运单信息（逆向不支持2w包裹，暂时不做修改）
+	 *
+	 * @param oldWaybillCode 旧的运单号
+	 * @param wChoice 获取的运单信息中是否包含waybillC数据
+	 * @return
+	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getReturnWaybillByOldWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public BaseEntity<BigWaybillDto> getReturnWaybillByOldWaybillCode(String oldWaybillCode, WChoice wChoice){
+		return waybillQueryApi.getReturnWaybillByOldWaybillCode(oldWaybillCode, wChoice);
+	}
+
+	/**
+	 * 批量获取运单信息
+	 *
+	 * @param waybillCodes 运单号列表
+	 * @return
+	 */
+	public BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes,WChoice wChoice){
+		if(waybillPackageManager.isGetPackageByPageOpen()) {
+			Boolean isQueryPackList = wChoice.getQueryPackList();
+			if(null == isQueryPackList){
+				isQueryPackList = false;
+			}
+			wChoice.setQueryPackList(false);
+
+			BaseEntity<List<BigWaybillDto>> results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+			if (isQueryPackList && null != results) {
+				for (BigWaybillDto bigWaybillDto : results.getData()) {
+					if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
+						BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
+						if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
+							bigWaybillDto.setPackageList(packageDBaseEntity.getData());
+						}
+					}
+				}
+			}
+
+			return results;
+		}else{
+			return waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+		}
 	}
 
 	@JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuSnListByOrderId",

@@ -9,7 +9,7 @@ public interface WaybillConsumableExportCol {
     String FILENAME = "包装耗材导出";
     public static final String[] TITLES = {
             "waybillCode",
-            "receiveTime",
+            "receiveTimeStr",
             "dmsName",
             "type",
             "name",
@@ -19,7 +19,7 @@ public interface WaybillConsumableExportCol {
             "receiveUserErp",
             "confirmStatusStr",
             "confirmUserErp",
-            "confirmTime"
+            "confirmTimeStr"
     };
     public static final String[] PROPERTYS = {
             "运单号",

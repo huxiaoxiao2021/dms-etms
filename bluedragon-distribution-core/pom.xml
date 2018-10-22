@@ -740,7 +740,7 @@
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
-            <version>0.5.7-SNAPSHOT</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
 
         <!-- 主键生成服务 -->
@@ -788,7 +788,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.51-SNAPSHOT</version>
+			<version>1.2.73-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>

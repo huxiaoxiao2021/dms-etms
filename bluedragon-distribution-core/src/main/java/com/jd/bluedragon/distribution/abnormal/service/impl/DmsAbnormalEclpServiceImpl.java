@@ -17,7 +17,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.web.LoginContext;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -58,9 +57,6 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
     private DefaultJMQProducer abnormalEclpSendProducer;
 
     @Autowired
-    private WaybillQueryApi waybillQueryApi;
-
-    @Autowired
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
@@ -89,7 +85,7 @@ public class DmsAbnormalEclpServiceImpl extends BaseService<DmsAbnormalEclp> imp
         dmsAbnormalEclp.setDmsSiteName(userDto.getSiteName());
         dmsAbnormalEclp.setCreateTime(new Date());
         //查询运单
-        BaseEntity<Waybill> waybillRes = waybillQueryApi.getWaybillByWaybillCode(dmsAbnormalEclp.getWaybillCode());
+        BaseEntity<Waybill> waybillRes = waybillQueryManager.getWaybillByWaybillCode(dmsAbnormalEclp.getWaybillCode());
         if (waybillRes == null || waybillRes.getResultCode() != 1 || waybillRes.getData() == null) {
             rest.toFail("运单不存在。");
             logger.warn("运单不存在：" + JsonHelper.toJson(dmsAbnormalEclp));
