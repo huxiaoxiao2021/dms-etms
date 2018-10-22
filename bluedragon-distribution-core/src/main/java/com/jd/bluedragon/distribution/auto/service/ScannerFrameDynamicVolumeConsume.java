@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
+import java.math.BigDecimal;
 import java.util.Date;
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE;
 import static com.jd.bluedragon.Constants.DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE;
@@ -61,18 +62,19 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         //创建时间
         dmsOutWeightAndVolume.setCreateTime(new Date());
         //高 （厘米）
-        dmsOutWeightAndVolume.setHeight(uploadData.getHeight() == null ? null : uploadData.getHeight().doubleValue());
+        dmsOutWeightAndVolume.setHeight(uploadData.getHeight() == null ? null : new BigDecimal(String.valueOf(uploadData.getHeight())).doubleValue());
 
-        //长（厘米）
-        dmsOutWeightAndVolume.setLength(uploadData.getLength() == null ? null : uploadData.getLength().doubleValue());
-        //重量（KG）
-        dmsOutWeightAndVolume.setWeight(uploadData.getWeight() == null ? null : uploadData.getWeight().doubleValue());
-        //宽（厘米）
-        dmsOutWeightAndVolume.setWidth(uploadData.getWidth() == null ? null : uploadData.getWidth().doubleValue());
+        //长（厘米） 这样转 防止float 转double 出现误差
+        dmsOutWeightAndVolume.setLength(uploadData.getLength() == null ? null : new BigDecimal(String.valueOf(uploadData.getLength())).doubleValue());
+        //重量（KG）这样转 防止float 转double 出现误差
+        dmsOutWeightAndVolume.setWeight(uploadData.getWeight() == null ? null : new BigDecimal(String.valueOf(uploadData.getWeight())).doubleValue());
+        //宽（厘米）这样转 防止float 转double 出现误差
+        dmsOutWeightAndVolume.setWidth(uploadData.getWidth() == null ? null : new BigDecimal(String.valueOf(uploadData.getWidth())).doubleValue());
         //计算体积
         double volume = BigDecimalHelper.mul(dmsOutWeightAndVolume.getHeight(), dmsOutWeightAndVolume.getWidth());
         volume = BigDecimalHelper.mul(volume, dmsOutWeightAndVolume.getLength());
-        //体积 立方厘米
+        //体积 立方厘米 转m³
+        volume = BigDecimalHelper.div(volume, 1000000, 6);
         dmsOutWeightAndVolume.setVolume(volume);
         //修改时间
         dmsOutWeightAndVolume.setUpdateTime(dmsOutWeightAndVolume.getCreateTime());

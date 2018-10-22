@@ -844,4 +844,13 @@ public class BusinessHelper {
 	public static boolean isNeedConsumable(String waybillSign){
 		return isSignChar(waybillSign, 72, '1');
 	}
+
+	/**
+	 * 根据运单号生成第一个包裹号
+	 * @param waybillCode
+	 * @return
+	 */
+	public static String getFirstPackageCodeByWaybillCode(String waybillCode){
+		return waybillCode + "-1-1-";
+	}
 }

@@ -27,7 +27,7 @@
         <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="receive_time" property="receiveTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="dms_name" property="dmsName" javaType="java.lang.String" jdbcType="VARCHAR" />
-        <result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="type_name" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
         <result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
@@ -324,7 +324,7 @@
 	</select>
 
 	<select id="exportInfoByWebCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableExportDto">
-        select record.waybill_code,receive_time,dms_name,type,name,unit,receive_quantity,confirm_quantity,receive_user_erp,confirm_status,confirm_user_erp,confirm_time,volume,volume_coefficient,specification,
+        select record.waybill_code,receive_time,dms_name,type_name,name,unit,receive_quantity,confirm_quantity,receive_user_erp,confirm_status,confirm_user_erp,confirm_time,volume,volume_coefficient,specification,
         CASE confirm_status
         WHEN 1 THEN
         '已确认'
@@ -341,7 +341,7 @@
             AND receive_time <![CDATA[ >= ]]> #{startTime,jdbcType=TIMESTAMP}
             AND receive_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
             <if test="confirmStatus != null">
-                AND confirm_status = #{confirmStatus,jdbcType=INTEGER},
+                AND confirm_status = #{confirmStatus,jdbcType=INTEGER}
             </if>
             <if test="receiveUserErp != null">
                 AND receive_user_erp = #{receiveUserErp,jdbcType=VARCHAR}

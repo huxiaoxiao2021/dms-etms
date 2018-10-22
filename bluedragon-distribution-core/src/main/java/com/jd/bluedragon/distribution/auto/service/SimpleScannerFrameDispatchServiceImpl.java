@@ -185,7 +185,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
                 && Arrays.asList(sysConfig.getConfigContent().split(",")).contains(domain.getRegisterNo())) {
             //开关为开启状态
             sendCode = scannerFrameBatchSendService.getOrGenerate
-                    (domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode();
+                    (domain.getScannerTime(), domain.getSendSiteCode(), config, domain.getPackageCode()).getSendCode();
         } else {
             //开关没有开启
             sendCode = scannerFrameBatchSendService.getAndGenerate

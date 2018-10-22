@@ -1149,4 +1149,10 @@ public class SortingServiceImpl implements SortingService {
         return null;
     }
 
+	@Override
+	public List<Sorting> findPageSorting(Map<String, Object> params) {
+		logger.info("SortingServiceImpl.findPageSorting begin...");
+		return sortingDao.findPageSorting(params);
+	}
+
 }
