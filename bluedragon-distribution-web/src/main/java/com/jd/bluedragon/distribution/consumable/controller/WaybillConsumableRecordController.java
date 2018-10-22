@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.utils.ExportExcel;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,6 +50,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/waybillConsumableRecord";

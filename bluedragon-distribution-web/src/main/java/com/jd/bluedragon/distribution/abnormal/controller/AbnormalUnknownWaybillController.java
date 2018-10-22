@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybillCondition;
 import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillService;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/abnormal/abnormalUnknownWaybill";
