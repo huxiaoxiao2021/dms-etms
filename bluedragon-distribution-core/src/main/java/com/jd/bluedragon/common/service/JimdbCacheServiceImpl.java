@@ -112,9 +112,6 @@ public class JimdbCacheServiceImpl implements CacheService{
 		return setNx(key, val ,exTime,exTimeUnit);
 	}
 	public <T> boolean setNx(String key, T val ,long exTime,TimeUnit exTimeUnit){
-		if(!verifySetParams(key, val)){
-			return true;
-		}
 		return jimdbClient.set(key, serialize(val), exTime, exTimeUnit, false);
 	}
 	
