@@ -66,7 +66,7 @@ public class SortingServiceImpl implements SortingService {
 
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
-	public static final int TASK_1200_EX_TIME = 10;//1200分拣任务防重复提交执行，10秒时间
+	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
 	@Autowired
 	private SortingDao sortingDao;
 
@@ -1171,8 +1171,8 @@ public class SortingServiceImpl implements SortingService {
 	public boolean processTaskData(Task task){
 		String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getBoxCode() +"|"+ task.getKeyword2();
 		try{
-			//判断是否重复分拣, 20秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
-			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME, TimeUnit.SECONDS);
+			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
+			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
 			if(!isSucdess){//说明有重复任务
 				this.logger.error("1200分拣任务重复："+task.getBody());
 				return false;
@@ -1196,7 +1196,7 @@ public class SortingServiceImpl implements SortingService {
 			result = Boolean.FALSE;
 		}
 
-		cacheService.del(fingerPrintKey);
+//		cacheService.del(fingerPrintKey);
 		return result;
 	}
 }
