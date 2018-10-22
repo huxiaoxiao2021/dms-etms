@@ -32,24 +32,9 @@ public class BusinessHelper {
      * @param packCode
      * @return
      */
+    @Deprecated
     public static String getWaybillCodeByPackageBarcode(String packCode) {
         return WaybillUtil.getWaybillCode(packCode);
-//        if (!BusinessHelper.isPackageCode(s)) {
-//            return null;
-//        }
-//        try {
-//            if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
-//                return s.split("-")[0];
-//            } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
-//                    && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
-//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER));
-//            }
-//
-//        } catch (Exception e) {
-//            BusinessHelper.logger.error("提取运单号码发生错误， 错误信息为：" + e.getMessage(), e);
-//        }
-//
-//        return null;
     }
 
     private static void init() {
@@ -61,18 +46,9 @@ public class BusinessHelper {
      * @param packageBarcode
      * @return
      */
+    @Deprecated
     public static int getPackageNum(String packageBarcode) {
         return WaybillUtil.getPackNumByPackCode(packageBarcode);
-//        int sum = 1;
-//        if(packageBarcode.indexOf("S")>0 && packageBarcode.indexOf("H")>0){
-//            sum = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("S")+1, packageBarcode.indexOf("H")));
-//        }else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
-//            sum = Integer.valueOf(packageBarcode.split("-")[2]);
-//        }
-//        if(sum>BusinessHelper.getMaxNum()){
-//            sum =BusinessHelper.getMaxNum();
-//        }
-//        return sum;
     }
 
     /**
@@ -81,15 +57,9 @@ public class BusinessHelper {
      * @param packageBarcode
      * @return
      */
+    @Deprecated
     public static int getCurrentPackageNum(String packageBarcode) {
         return WaybillUtil.getCurrentPackageNum(packageBarcode);
-//        int num = 1;
-//        if(packageBarcode.indexOf("N")>0 && packageBarcode.indexOf("S")>0){
-//            num = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("N")+1, packageBarcode.indexOf("S")));
-//        }else if(packageBarcode.indexOf("-")>0 && (packageBarcode.split("-").length==3||packageBarcode.split("-").length==4)){
-//            num = Integer.valueOf(packageBarcode.split("-")[1]);
-//        }
-//        return num;
     }
 
     /**
@@ -98,23 +68,9 @@ public class BusinessHelper {
      * @param s 包裹号码
      * @return
      */
+    @Deprecated
     public static String getWaybillCode(String s) {
-        return getWaybillCodeByPackageBarcode(s);
-//        if (!BusinessHelper.isPackageCode(s)) {
-//            return s;
-//        }
-//
-//        try {
-//            if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
-//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_SEPARATOR));
-//            } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1) {
-//                return s.substring(0, s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER));
-//            }
-//        } catch (Exception e) {
-//            BusinessHelper.logger.error("提取运单号码发生错误， 错误信息为：" + e.getMessage(), e);
-//        }
-//
-//        return null;
+        return WaybillUtil.getWaybillCode(s);
     }
 
     /**
@@ -123,30 +79,9 @@ public class BusinessHelper {
      * @param s 用来判断的字符串
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
+    @Deprecated
     public static Boolean isPackageCode(String s) {
         return WaybillUtil.isPackageCode(s);
-//        if (StringHelper.isEmpty(s)) {
-//            return Boolean.FALSE;
-//        }
-//
-//        /**
-//         * 亚一批次号会当箱号使用，排除亚一箱号
-//         */
-//        if(s.startsWith(Box.BOX_TYPE_WEARHOUSE)){
-//            return Boolean.FALSE;
-//        }
-//
-//        if (s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) != -1) {
-//            return Boolean.TRUE;
-//        } else if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) != -1
-//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) != -1) {
-//            return Boolean.TRUE;
-//        }
-////        else if (BusinessHelper.isPickupCode(s)) {
-////            return Boolean.TRUE;
-////        }
-//
-//        return Boolean.FALSE;
     }
 
     /**
@@ -156,13 +91,9 @@ public class BusinessHelper {
      * @param s 用来判断的字符串
      * @return 如果此字符串为箱号，则返回 true，否则返回 false
      */
-
+    @Deprecated
     public static Boolean isBoxcode(String s) {
         return BusinessUtil.isBoxcode(s);
-//        if (StringHelper.isEmpty(s)) {
-//            return Boolean.FALSE;
-//        }
-//        return SerialRuleUtil.isMatchBoxCode(s)||s.toUpperCase().startsWith(BusinessHelper.AO_BATCH_CODE_PREFIX);
     }
 
     /**
@@ -172,38 +103,9 @@ public class BusinessHelper {
      * @param s 用来判断的字符串
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
+    @Deprecated
     public static Boolean isWaybillCode(String s) {
         return WaybillUtil.isWaybillCode(s);
-//        if (StringHelper.isEmpty(s)) {
-//            return Boolean.FALSE;
-//        }
-//
-//        if (BusinessHelper.isPackageCode(s)) {
-//            return Boolean.FALSE;
-//        }
-//
-//        if (BusinessHelper.isBoxcode(s)) {
-//            return Boolean.FALSE;
-//        }
-//
-//        if (s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_NUMBER) == -1
-//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_SUM) == -1
-//                && s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) == -1
-//                && s.indexOf(Box.BOX_TYPE_FORWARD) == -1
-//                && s.indexOf(Box.BOX_TYPE_REVERSE_AFTER_SERVICE) == -1
-//                && s.indexOf(Box.BOX_TYPE_REVERSE_LUXURY) == -1
-////				&& s.indexOf(Box.BOX_TYPE_REVERSE_REJECTION) == -1 //与箱号T冲突，逆向运单号也有T的情况
-//                && s.indexOf(BusinessHelper.PACKAGE_IDENTIFIER_PICKUP) == -1 //此处不能对W单进行有效判断 于2017.07.18 黄亮 增加注释，需要对w进行判断的地方进行梳理排查
-//                ) {
-//            return Boolean.TRUE;
-//        }
-//
-//        if (s.indexOf(BusinessHelper.PACKAGE_WAIDAN) == 0
-//                && s.indexOf(BusinessHelper.PACKAGE_SEPARATOR) == -1) {
-//            return Boolean.TRUE;
-//        }
-//
-//        return Boolean.FALSE;
     }
 
 
@@ -215,20 +117,10 @@ public class BusinessHelper {
      * @param aPackageCode
      * @return
      */
+    @Deprecated
     public static Boolean isReverseSpare(Integer type, String aPackageCode) {
         return WaybillUtil.isReverseSpare(type, aPackageCode);
     }
-
-//    /**
-//     * 验证POP运单号
-//     * 合法返回 true, 不合法返回 false
-//     *
-//     * @param waybillCode
-//     * @return
-//     */
-//    public static Boolean isPopWaybillCode(String waybillCode) {
-//        return WaybillUtil.isPopWaybillCode(waybillCode);
-//    }
 
     /**
      * 验证是否为备件条码
@@ -237,6 +129,7 @@ public class BusinessHelper {
      * @param s
      * @return
      */
+    @Deprecated
     public static Boolean isReverseSpareCode(String s) {
         return WaybillUtil.isReverseSpareCode(s);
     }
@@ -247,6 +140,7 @@ public class BusinessHelper {
      * @param s 用来判断的字符串
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
+    @Deprecated
     public static Boolean isPickupCode(String s) {
         return WaybillUtil.isSurfaceCode(s);
     }
@@ -257,6 +151,7 @@ public class BusinessHelper {
      * @param s 用来判断的字符串
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
+    @Deprecated
     public static Boolean isPickupCodeWW(String s) {
         return WaybillUtil.isPickupCodeWW(s);
     }
@@ -268,6 +163,7 @@ public class BusinessHelper {
      * @param s
      * @return
      */
+    @Deprecated
     public static Boolean isMCSCode(String s) {
         return WaybillUtil.isMCSCode(s);
     }
@@ -279,6 +175,7 @@ public class BusinessHelper {
      * @param sourceCode 运单中的sourceCode字段,判断它是不是ECLP开头单号
      * @return
      */
+    @Deprecated
     public static Boolean isECLPCode(String sourceCode) {
         return WaybillUtil.isECLPCode(sourceCode);
     }
@@ -290,6 +187,7 @@ public class BusinessHelper {
      * @param busiOrderCode 运单中的busiOrderCode字段,判断它是不是esl开头单号
      * @return
      */
+    @Deprecated
     public static Boolean isECLPByBusiOrderCode(String busiOrderCode) {
         return WaybillUtil.isECLPByBusiOrderCode(busiOrderCode);
     }
@@ -302,30 +200,10 @@ public class BusinessHelper {
      * @param busiOrderCode 运单中的BusiOrderCode字段,判断它是不是CSL开头单号
      * @return
      */
+    @Deprecated
     public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
         return BusinessUtil.isCLPSByBusiOrderCode(busiOrderCode);
     }
-//
-//    /**
-//     * 判断是否是CLPS订单
-//     * CLPS : 云仓
-//     *
-//     * @param soucreCode 运单中的sourceCode字段 是CLPS
-//     * @return
-//     */
-//    public static Boolean isCLPSBySoucreCode(String soucreCode) {
-//       return WaybillUtil.isCLPSBySoucreCode(soucreCode);
-//    }
-
-//    /**
-//     * “QWD”开头的单子 返回true
-//     *
-//     * @param
-//     * @return 开头的单子 返回true
-//     */
-//    public static Boolean isQWD(String waybillCode) {
-//        return WaybillUtil.isQWD(waybillCode);
-//    }
 
     public static boolean isNumeric(String str) {
         Pattern pattern = Pattern.compile("[0-9]*");

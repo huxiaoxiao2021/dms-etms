@@ -49,6 +49,7 @@ public class SerialRuleUtil {
      * @param wayBillCode
      * @return boolean
      */
+    @Deprecated
     public static final boolean isMatchCommonWaybillCode(String wayBillCode){
         return WaybillUtil.isWaybillCode(wayBillCode);
     }
@@ -57,6 +58,7 @@ public class SerialRuleUtil {
      * @param packageCode
      * @return boolean
      */
+    @Deprecated
     public static final boolean isMatchCommonPackageCode(String packageCode){
         return WaybillUtil.isPackageCode(packageCode);
     }
@@ -92,7 +94,7 @@ public class SerialRuleUtil {
         return null;
     }
 
-
+    @Deprecated
     public static final boolean isMatchAllWaybillCode(String input) {
         return WaybillUtil.isWaybillCode(input);
     }
@@ -104,6 +106,7 @@ public class SerialRuleUtil {
      * @param input 待验证字符串
      * @return
      */
+    @Deprecated
     public static boolean isMatchWaybillNo(String input) {
         return WaybillUtil.isJDWaybillCode(input);
     }
@@ -112,6 +115,7 @@ public class SerialRuleUtil {
     /**
      * 是否匹配接货运单号
      */
+    @Deprecated
     public static boolean isMatchReceiveWaybillNo(String input) {
         return WaybillUtil.isBusiWaybillCode(input);
     }
@@ -119,6 +123,7 @@ public class SerialRuleUtil {
     /**
      * 是否匹配包裹号包括自营及接货
      */
+    @Deprecated
     public static boolean isMatchAllPackageNo(String input) {
         return WaybillUtil.isPackageCode(input);
     }
@@ -127,6 +132,7 @@ public class SerialRuleUtil {
     /**
      * 是否匹配接货运单号和分拣运单号
      */
+    @Deprecated
     public static boolean isMatchAllWaybillNo(String input) {
         return WaybillUtil.isWaybillCode(input);
     }
@@ -134,6 +140,7 @@ public class SerialRuleUtil {
     /**
      * 判断是否是运单号或者包裹号
      */
+    @Deprecated
     public static boolean isWaybillOrPackageNo(String input) {
         return WaybillUtil.isWaybillCode(input) || WaybillUtil.isPackageCode(input);
     }
@@ -141,6 +148,7 @@ public class SerialRuleUtil {
     /**
      * 生产包裹号码
      */
+    @Deprecated
     public static List<String> generateAllPackageCodes(String input) {
         return WaybillUtil.generateAllPackageCodes(input);
     }
@@ -152,6 +160,7 @@ public class SerialRuleUtil {
      * @param input 包裹号或运单号
      * @return
      */
+    @Deprecated
     public static String getWaybillCode(String input) {
         if (null == input) {
             return input;
