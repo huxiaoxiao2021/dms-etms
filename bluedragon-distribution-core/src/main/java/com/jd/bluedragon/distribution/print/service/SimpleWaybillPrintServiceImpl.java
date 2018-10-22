@@ -320,17 +320,16 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
+            List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
-                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
-                        PrintPackage pack=new PrintPackage();
-                        pack.setPackageCode(item.getPackageBarcode());
-                        pack.setWeight(item.getGoodWeight());
-                        packageList.add(pack);
-                    }
+                for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
+                	PrintPackage pack=new PrintPackage();
+                    pack.setPackageCode(item.getPackageBarcode());
+                    pack.setWeight(item.getGoodWeight());
+                    packageList.add(pack);
                 }
-                commonWaybill.setPackList(packageList);
             }
+            commonWaybill.setPackList(packageList);
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }

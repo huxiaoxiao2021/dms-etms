@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -92,9 +93,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -166,16 +165,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     private BoxService boxService;
 
     @Autowired
-    WaybillQueryApi waybillQueryApi;
-
-    @Autowired
     private SortingService tSortingService;
 
     @Autowired
     private WaybillPickupTaskApi waybillPickupTaskApi;
 
     @Autowired
-    WaybillPackageApi waybillPackageApi;
+    WaybillPackageManager waybillPackageManager;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -2592,6 +2588,19 @@ public class DeliveryServiceImpl implements DeliveryService {
         tOrderInfo.setPackInfoList(list);
     }
 
+    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
+        BaseEntity<List<BigWaybillDto>> results = waybillQueryManager.getDatasByChoice(waybills, queryWChoice);
+        if (results != null && results.getResultCode() > 0) {
+            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
+            List<BigWaybillDto> datas = results.getData();
+            if (datas != null && !datas.isEmpty()) {
+                for (BigWaybillDto dto : datas) {
+                    datalist.add(dto);
+                }
+            }
+        }
+    }
+
     @Override
     public List<BigWaybillDto> getWaillCodeListMessge(WChoice queryWChoice, List<String> waybillCodes) {
         List<BigWaybillDto> datalist = new ArrayList<BigWaybillDto>();
@@ -2621,19 +2630,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("取件单基础信息调用异常-------");
         }
         return datalist;
-    }
-
-    private void getWaybillResult(List<BigWaybillDto> datalist, WChoice queryWChoice, List<String> waybills) {
-        BaseEntity<List<BigWaybillDto>> results = waybillQueryApi.getDatasByChoice(waybills, queryWChoice);
-        if (results != null && results.getResultCode() > 0) {
-            logger.info("调用运单接口返回信息" + results.getResultCode() + "-----" + results.getMessage());
-            List<BigWaybillDto> datas = results.getData();
-            if (datas != null && !datas.isEmpty()) {
-                for (BigWaybillDto dto : datas) {
-                    datalist.add(dto);
-                }
-            }
-        }
     }
 
     /**
@@ -3426,7 +3422,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<DeliveryPackageD> datas = null;
         try {
             //logger.info("调用运单queryPackageListForParcodes调用参数"+sendDetail.getPackageBarcode());
-            waybillWSRs = waybillPackageApi.queryPackageListForParcodes(
+            waybillWSRs = waybillPackageManager.queryPackageListForParcodes(
                     Arrays.asList(new String[]{sendDetail.getPackageBarcode()}));
             if (waybillWSRs != null) {
                 datas = waybillWSRs.getData();
@@ -4653,7 +4649,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     wChoice.setQueryWaybillS(true);
                     wChoice.setQueryWaybillC(true);
                     //获取运单信息
-                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
                     if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                         this.logger.info("运单号【 " + waybillCode + "】调用运单数据成功！");
 

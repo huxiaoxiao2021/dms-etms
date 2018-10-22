@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableExportCol;
@@ -180,6 +181,11 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             return rest;
         }
         List rows = waybillConsumableRecordService.exportInfoByWebCondition(condition);
+        for(Object data : rows){
+			WaybillConsumableExportDto dto = (WaybillConsumableExportDto)data;
+        	dto.setReceiveTimeStr(DateHelper.formatDateTime(dto.getReceiveTime()));
+        	dto.setConfirmTimeStr(DateHelper.formatDateTime(dto.getConfirmTime()));
+		}
 		try {
             ExportExcel.exportFile(response, WaybillConsumableExportCol.FILENAME,
                     WaybillConsumableExportCol.PROPERTYS,
