@@ -2,11 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-
-import java.util.List;
 
 public interface WaybillService {
 
@@ -40,4 +36,13 @@ public interface WaybillService {
      * @return
      */
     public WaybillPackageDTO getWaybillPackage(String packageCode);
+
+    /**
+     * 查询运单是否可以进行逆向操作
+     *
+     * @param waybillCode 运单号
+     * @param siteCode 操作站点
+     * @return true:可以操作逆向操作 false:反之
+     */
+    public Boolean isReverseOperationAllowed(String waybillCode, Integer siteCode) throws Exception;
 }

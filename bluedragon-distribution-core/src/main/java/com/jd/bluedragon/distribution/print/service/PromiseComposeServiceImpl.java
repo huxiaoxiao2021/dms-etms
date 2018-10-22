@@ -1,15 +1,9 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.Date;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -17,10 +11,20 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by wangtingwei on 2016/1/25.
@@ -42,6 +46,10 @@ public class PromiseComposeServiceImpl implements  ComposeService {
     
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
+
+    @Autowired
+    @Qualifier("waybillQueryManager")
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     //FIXME: 线上日志表明targetSiteCode传入为0
@@ -125,6 +133,17 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
+                //C2C面单预计送达时间从运单获取REQUIRE_TIME
+                if(BusinessHelper.isSignChar(waybill.getWaybillSign(),29,'8')){
+                    String foreCastTime = "";
+                    BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybill.getWaybillCode(), true,false, false, false);
+                    BigWaybillDto data = baseEntity.getData();
+                    if(data != null && data.getWaybill() != null && data.getWaybill().getRequireTime() != null){
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                        foreCastTime = sdf.format(data.getWaybill().getRequireTime());
+                    }
+                    waybill.setPromiseText(foreCastTime);
+                }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
             log.error("外单调用promise接口异常" +waybill.getWaybillCode(),e);

@@ -87,6 +87,12 @@ public class DeliveryResponse extends JdResponse {
      */
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
 
+    /**
+     * B网包装耗材服务确认标识，与Ver提示保持一致
+     */
+    public static final Integer CODE_29120 = 29120;
+    public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
+
     public DeliveryResponse() {
         super();
     }

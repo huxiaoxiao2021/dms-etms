@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.electron.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -24,7 +24,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 	BaseMinorManager baseMinorManager;
 
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
 	@Override
 	public ElectronSite getElecSiteInfo(Integer dmsID, String waybillorPackCode) {
@@ -32,7 +32,7 @@ public class ElectronSiteServiceImpl implements ElectronSiteService {
 
 		WChoice wChoice = new WChoice();
 		wChoice.setQueryWaybillC(true);
-		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi
+		BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager
 				.getDataByChoice(waybillorPackCode, wChoice);
 		if (baseEntity != null && baseEntity.getData() != null) {
 			siteCode = baseEntity.getData().getWaybill().getOldSiteId();

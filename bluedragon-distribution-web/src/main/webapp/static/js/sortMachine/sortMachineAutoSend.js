@@ -123,6 +123,68 @@ $(document).ready(function(){
         $("tbody[id='chuteTb'] input[type='checkbox']").prop("checked", $("#all").prop("checked"));
     });
 
+
+    /** 分拣机批次打印 **/
+    $("#printBatch").click(function () {
+
+        /** 获取要打印的批次数据 **/
+        var list = [];
+        $.each($("tbody[id='chuteTb'] input[type='checkbox']"), function(){
+            if($(this).prop('checked')){
+                var param = {};
+                param.receiveSiteName = $(this).parents("tr").find("[name=sendSiteName]").text();
+                param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+                param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+                list.push(param);
+            }
+        });
+        if (list.length < 1) {
+            jQuery.messager.alert("提示", "请选择要打印的批次");
+        }
+
+        /** 调用打印批次组件 **/
+        labelPrint(list);
+
+    });
+
+    /** 分拣机批次打印调用组件*/
+    labelPrint = function(list){
+
+        for(var i=0;i<list.length;i++){
+
+            var param=list[i];
+            var labelPrintRequst = new Object();
+            labelPrintRequst['systemCode'] = 'dms';
+            labelPrintRequst['businessType'] = 'dms-sendBarcode';
+            labelPrintRequst['siteCode'] =$("#createSiteCode").val();
+            labelPrintRequst['siteName'] = $("#createSiteName").val();
+
+            var labelParams=new Object();
+            labelParams.SendCode=param.sendCode;
+            labelParams.receiveSiteName=param.receiveSiteName;
+            labelParams.createSiteName=$("#createSiteName").val();
+            labelParams.SumNum=param.packageSum;
+
+            labelPrintRequst['labelParams']=labelParams;
+
+            var formJson = JSON.stringify(labelPrintRequst);
+            var labelPrintUrl = 'http://localhost:9099/services/label/print';
+            /*提交表单*/
+            CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
+                if(res != null && res.status=== 200){
+                    var result=$.parseJSON(res.responseText);
+                    if (result.code===200) {
+                        console.log("调用结果", "调用打印成功");
+                    }else{
+                        jQuery.messager.alert("提示", "请求发送成功但是调用打印组件失败", res.statusText.message);
+                    }
+                }else {
+                    jQuery.messager.alert("提示", "服务器异常", res.statusText);
+                }
+            });
+        }
+
+    };
     /** 设置打印机的保存点击事件 **/
     $("#printSettingSaveBtn").click(function () {
         printSettingSave();
@@ -523,8 +585,8 @@ function loadChutes(chutes) {
                 tr += '<td name="sendSiteName">' + (chute.sendSiteName || '') + '</td>';
                 tr += '<td name="sendCode">' + chute.sendCode + '</td>';
                 tr += '<td name="createTime">' + dateFormat(chute.sendCodeCreateTime) + '</td>';
-                tr += '<td name="packageSum" class="packageSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
-                tr += '<td name="volumeSum" class="volumeSum' + chute.sendCode + '"><img alt="bluedrgon" src="/static/images/loading.gif"></td>';
+                tr += '<td name="packageSum" class="packageSum' + chute.sendCode + '"></td>';
+                tr += '<td name="volumeSum" class="volumeSum' + chute.sendCode + '"></td>';
                 tr += '</tr>';
                 $("#pagerTable tbody").append(tr);
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
 
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
 
 /**
@@ -9,5 +10,5 @@ import com.jd.ssa.domain.UserInfo;
  */
 public interface UserVerifyService {
     UserInfo baseVerify(String name, String password);
-    Boolean passportVerify(String pin, String password);
+    Boolean passportVerify(String pin, String password, ClientInfo clientInfo);
 }

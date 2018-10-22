@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -135,4 +135,7 @@ public interface InspectionService {
 	 * @return
 	 */
 	String getHintMessage(Integer dmsSiteCode, String waybillCode);
+
+	/**分页查询验货任务*/
+	public List<Inspection> findPageInspection(Map<String,Object> params);
 }
