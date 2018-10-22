@@ -1,14 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -21,12 +14,18 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 
 /**
@@ -127,11 +126,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion {
         BaseEntity<Waybill> waybillBaseEntity = null;
 
-        try
-        {
+        try {
             waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error(e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }
