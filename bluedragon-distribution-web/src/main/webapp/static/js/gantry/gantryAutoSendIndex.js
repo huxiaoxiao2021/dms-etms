@@ -418,10 +418,7 @@ function enOrDisGantry(params) {
         if (params.businessType == 4) {
             jQuery.messager.alert("错误：", "‘量方’不可单独使用！！！", "error");
             return;
-        }else if(params.businessType == 8){
-            jQuery.messager.alert("错误：", "‘应付量方’不可单独使用！！！", "error");
-            return;
-        } else if (params.businessType == 3 || params.businessType == 7) {
+        }else if (params.businessType == 3 || params.businessType == 7) {
             jQuery.messager.alert("错误：", "‘发货’、‘验货’不可同时使用！！！", "error");
             return;
         }else if(params.businessType == 12 || params.businessType == 13 || params.businessType == 14 || params.businessType == 15){
