@@ -496,7 +496,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);
         //验证通过，补成第一个包裹号，如果后面发现这单是一单多件，再进行提示
-        if(!BusinessHelper.isBoxcode(domain.getBoxCode()) && SerialRuleUtil.isMatchAllWaybillCode(domain.getBoxCode())){
+        if(!BusinessHelper.isBoxcode(domain.getBoxCode()) && !BusinessHelper.isPackageCode(domain.getBoxCode()) &&
+                BusinessHelper.isWaybillCode(domain.getBoxCode())){
             domain.setBoxCode(BusinessHelper.getFirstPackageCodeByWaybillCode(domain.getBoxCode()));
         }
         return result;
