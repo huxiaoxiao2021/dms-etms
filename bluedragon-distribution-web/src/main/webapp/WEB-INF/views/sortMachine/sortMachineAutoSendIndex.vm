@@ -101,7 +101,7 @@
                         <table>
                             <tr>
                                 <td colspan="3" class="divTitle">打印功能：</td>
-                                <td><input type="button" class="btn_c" value="设置打印机" id="printSetting" onclick="printSettingPopUp()"></td>
+                                <td><input type="button" class="btn_c" value="打印批次" id="printBatch"></td>
                                 <td></td>
                             </tr>
                             <tr>

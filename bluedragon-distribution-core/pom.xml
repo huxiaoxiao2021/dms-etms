@@ -735,7 +735,7 @@
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
-            <version>0.5.7-SNAPSHOT</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
 
         <!-- 主键生成服务 -->

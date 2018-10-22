@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
-
 import java.util.List;
+import java.util.Map;
 
 public interface SortingService {
 	
@@ -135,6 +135,9 @@ public interface SortingService {
      * @return
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
+
+    /**分页查询分拣任务*/
+    public List<Sorting> findPageSorting(Map<String,Object> params);
 
     /**
      * 处理任务数据

@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
+import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -8,9 +12,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -29,11 +32,14 @@ public class WaybillServiceImpl implements WaybillService {
     @Autowired
     private WaybillStatusService waybillStatusService;
     @Autowired
-    WaybillQueryApi waybillQueryApi;
-    @Autowired
     private WaybillPackageApi waybillPackageApi;
     @Autowired
     private BoxService boxService;
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    AbnormalWayBillService abnormalWayBillService;
 
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
@@ -46,7 +52,7 @@ public class WaybillServiceImpl implements WaybillService {
         wChoice.setQueryWaybillE(true);
         wChoice.setQueryWaybillM(true);
         wChoice.setQueryPackList(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
@@ -58,7 +64,7 @@ public class WaybillServiceImpl implements WaybillService {
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
         wChoice.setQueryWaybillC(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(aWaybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
@@ -68,7 +74,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillM(true);
-        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi.getDataByChoice(waybillCode,
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode,
                 wChoice);
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
@@ -178,5 +184,29 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         return null;
+    }
+
+    @Override
+    public Boolean isReverseOperationAllowed(String waybillCode, Integer siteCode) throws Exception {
+        //获取运单信息
+        BigWaybillDto bigWaybillDto = this.getWaybillState(waybillCode);
+        if(bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
+            WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
+            //判断运单是否妥投
+            if (Constants.WAYBILL_DELIVERED_CODE.equals(waybillManageDomain.getWaybillState())) {
+                //查询运单是否操作异常处理
+                AbnormalWayBill abnormalWaybill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(waybillCode, siteCode);
+                //异常操作运单记录为空，不能进行逆向操作，需提示妥投订单逆向操作需提交异常处理记录
+                if(abnormalWaybill == null) {
+                    return false;
+                }
+            }
+        } else {
+            String log = "isReverseOperationAllowed方法获取运单状态失败，waybillCode：" + waybillCode + ", siteCode：" + siteCode;
+            logger.error(log);
+            throw new Exception(log);
+        }
+
+        return true;
     }
 }

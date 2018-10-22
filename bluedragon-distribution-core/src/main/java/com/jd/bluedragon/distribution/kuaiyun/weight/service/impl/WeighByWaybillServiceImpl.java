@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -27,7 +28,6 @@ import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 
@@ -53,7 +53,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
 
     /*运单接口 用于运单校验*/
     @Autowired
-    WaybillQueryApi waybillQueryApi;
+    private WaybillQueryManager waybillQueryManager;
 
     /*用于记录操作日志*/
     @Autowired
@@ -167,7 +167,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
 
         try
         {
-            waybillBaseEntity = waybillQueryApi.getWaybillByWaybillCode(waybillCode);
+            waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
         } catch (Exception e)
         {
             logger.error(e);

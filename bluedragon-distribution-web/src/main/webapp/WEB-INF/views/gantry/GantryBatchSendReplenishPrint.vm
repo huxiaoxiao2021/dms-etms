@@ -109,6 +109,7 @@
                         })
                         temp += "<tr id='" + (i+1) + "'>";
                         temp += "<td><input type='checkbox' name='item'></td>";
+                        temp += "<td name='createSite' title='" +list[i].createSiteCode+ "' style='display:none'>" + list[i].createSiteName + "</td>";
                         temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                         temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
                         temp += "<td name='packageSum' >"+packageSum+"</td>";
@@ -148,6 +149,71 @@
                 params.endTime = new Date($("#endTime").val());
             }
             return params;
+        }
+
+        /**
+         * 批次补打印（调用打印组件）
+         */
+        function printBatch(){
+
+            /** 货物需要打印的数据 **/
+            var list = [];
+            $("input[name=item]:checked").each(function () {
+                var param = {};
+                param.createSiteCode =  $(this).parents("tr").find("[name=createSite]").attr("title");
+                param.createSiteName =  $(this).parents("tr").find("[name=createSite]").text();
+                param.receiveSiteName = $(this).parents("tr").find("[name=receiveSite]").text();
+                param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+                param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+
+                list.push(param);
+            });
+            if(list.length <1){
+                jQuery.messager.alert("提示", "请选择要打印的批次");
+            }
+
+            labelPrint(list);
+
+            var currentPage = $(".current").text();
+            query(currentPage);
+
+        }
+
+        labelPrint = function(list){
+            for(let i=0;i<list.length;i++){
+
+                let param=list[i];
+                let labelPrintRequst = new Object();
+                labelPrintRequst['systemCode'] = 'dms';
+                labelPrintRequst['businessType'] = 'dms-sendBarcode';
+                labelPrintRequst['siteCode'] =param.createSiteCode;
+                labelPrintRequst['siteName'] = param.createSiteName;
+
+                let labelParams=new Object();
+                labelParams.SendCode=param.sendCode;
+                labelParams.receiveSiteName=param.receiveSiteName;
+                labelParams.createSiteName=param.createSiteName;
+                labelParams.SumNum=param.packageSum;
+
+                labelPrintRequst['labelParams']=labelParams;
+
+                let formJson = JSON.stringify(labelPrintRequst);
+                let labelPrintUrl = 'http://localhost:9099/services/label/print';
+                /*提交表单*/
+                CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
+                    if(res != null && res.status=== 200){
+                        var result=$.parseJSON(res.responseText);
+                        if (result.code===200) {
+                            console.log("statusText", "调用打印成功");
+                        }else{
+                            jQuery.messager.alert("提示", "请求发送成功但是调用打印组件失败", res.statusText.message);
+                        }
+                    }else {
+                        jQuery.messager.alert("提示", "服务器异常", res.statusText);
+                    }
+                });
+            }
+
         }
 
         /**
@@ -333,7 +399,7 @@
                 <input type="text" id= "endTime"  name="endTime" style="width: 130px" class="Wdate"
                        onfocus="WdatePicker({skin:'whyGreen',dateFmt:'yyyy-MM-dd HH:mm:ss'})" value="$!{endTime}"/>
                 <input type="button" class="btn_c" value="查询" onclick="query(1)">
-                <input type="button" class="btn_c" value="打印" onclick="subPrintClick()"/>
+                <input type="button" class="btn_c" value="打印" onclick="printBatch()"/>
             </div>
         </div>
     </div>
@@ -344,6 +410,7 @@
                     <thead>
                     <tr>
                         <th class="checkboxArea"><input type="checkbox" id="all" name="all" value="all" class="checkbox"><label for="all">全选</label></th>
+                        <th style='display:none'>发货站点</th>
                         <th>批次目的地</th>
                         <th>批次号</th>
                         <th>包裹数量</th>
