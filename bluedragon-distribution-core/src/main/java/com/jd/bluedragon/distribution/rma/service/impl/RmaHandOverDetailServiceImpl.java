@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ public class RmaHandOverDetailServiceImpl implements RmaHandOverDetailService {
     @Autowired
     private RmaHandOverDetailDao rmaHandOverDetailDao;
 
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean add(RmaHandoverDetail detail) {
         if (rmaHandOverDetailDao.add(detail) > 0) {
@@ -26,6 +29,7 @@ public class RmaHandOverDetailServiceImpl implements RmaHandOverDetailService {
         return false;
     }
 
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public void batchAdd(List<RmaHandoverDetail> details) {
         rmaHandOverDetailDao.batchAdd(details);

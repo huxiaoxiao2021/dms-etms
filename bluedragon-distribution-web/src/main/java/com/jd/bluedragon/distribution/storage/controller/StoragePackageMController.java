@@ -1,11 +1,16 @@
 package com.jd.bluedragon.distribution.storage.controller;
 
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
+import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,11 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
-import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
-import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.List;
 
 /**
  *
@@ -46,6 +47,7 @@ public class StoragePackageMController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
 
