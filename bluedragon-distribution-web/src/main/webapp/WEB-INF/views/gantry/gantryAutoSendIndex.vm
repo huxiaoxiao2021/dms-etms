@@ -114,6 +114,7 @@
                                 <td><label><input type="checkbox" name="businessType" id="inspection" value="1" class="checkbox"><span>验货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="send" value="2" class="checkbox"><span>发货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="measure" value="4" class="checkbox"><span>量方</span></label></td>
+                                <td><label><input type="checkbox" name="businessType" id="paymeasure" value="8" class="checkbox"><span>应付量方</span></label></td>
                             </tr>
                             <tr>
                                 <td colspan="3">

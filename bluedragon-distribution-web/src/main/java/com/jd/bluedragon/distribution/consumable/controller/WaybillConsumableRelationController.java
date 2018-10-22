@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
-import java.util.Date;
-import java.util.List;
-
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import java.util.Date;
 
 /**
  *
@@ -89,14 +87,19 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	}
 	/**
 	 * 根据id删除多条数据
-	 * @param ids
+	 * @param waybillConsumableRelationBatchDelete
 	 * @return
 	 */
 	@RequestMapping(value = "/deleteByIds")
-	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
+	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody WaybillConsumableRelationBatchDelete waybillConsumableRelationBatchDelete) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
 		try {
-			rest.setData(waybillConsumableRelationService.deleteByIds(ids));
+			rest.setData(waybillConsumableRelationService.deleteByIds(waybillConsumableRelationBatchDelete.getIds()));
+			//更新record表的状态
+			WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
+			waybillConsumableRecord.setWaybillCode(waybillConsumableRelationBatchDelete.getWaybillCode());
+			waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
+			waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 		} catch (Exception e) {
 			logger.error("fail to delete！"+e.getMessage(),e);
 			rest.toError("删除失败，服务异常！");

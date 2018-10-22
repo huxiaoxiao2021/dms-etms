@@ -812,7 +812,15 @@ public class BusinessHelper {
 		}
 		return Constants.ORIGINAL_CROSS_TYPE_GENERAL;
 	}
-
+    /**
+     * 判断是否招商银行业务运单，waybill_sign第54位等于3时
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isCMBC(String waybillSign) {
+        return isSignChar(waybillSign, 54, '3');
+    }
     /**
      * 是否是RMA标识的运单
      *

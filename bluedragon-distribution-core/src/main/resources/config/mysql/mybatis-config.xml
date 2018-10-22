@@ -18,6 +18,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.send.domain.SendDetail" alias="SendDetail"/>
         <typeAlias type="com.jd.bluedragon.distribution.receive.domain.CenConfirm" alias="CenConfirm"/>
         <typeAlias type="com.jd.bluedragon.distribution.inspection.domain.Inspection" alias="Inspection"/>
+        <typeAlias type="com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume" alias="DmsOutWeightAndVolume"/>
     </typeAliases>
 
     <plugins>
@@ -29,7 +30,8 @@
                 inspection=inspectionId:inspection_id,
                 send_d=sendDId:send_d_id,
                 send_m=sendMId:send_m_id,
-                sorting=id:sorting_id
+                sorting=id:sorting_id,
+                dms_out_weight_volume=id:id
              "/>
             <property name="replaceNextValue" value="true"/>
             <property name="replaceExistsNewId" value="true"/>
@@ -44,6 +46,7 @@
         <mapper resource="mappers/mysql/receive/CenConfirmMapper.xml"/>
         <mapper resource="mappers/mysql/inspection/InspectionMapper.xml"/>
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
+        <mapper resource="mappers/mysql/weightAndVolume/DmsOutWeightAndVolumeMapper.xml"/>
     </mappers>
 
 </configuration>

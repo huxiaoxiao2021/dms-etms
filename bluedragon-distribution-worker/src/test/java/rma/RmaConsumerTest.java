@@ -1,6 +1,6 @@
 package rma;
 
-import com.jd.bluedragon.distribution.consumer.senddetail.SendDetailConsumer;
+import com.jd.bluedragon.distribution.consumer.send.SendDetailConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;

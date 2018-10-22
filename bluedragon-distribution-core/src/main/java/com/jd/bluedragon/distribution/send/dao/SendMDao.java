@@ -7,6 +7,7 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -209,5 +210,17 @@ public  class SendMDao extends BaseDao<SendM>  {
      */
 	public SendM findSendMByBoardCode(SendM sendM){
 		return	this.getSqlSession().selectOne(SendMDao.namespace + ".findSendMByBoardCode", sendM);
+	}
+
+	/**
+	 * 根据始发分拣中心、目的分拣中心、箱号确定send_m的一条发货记录
+	 * @param sendM
+	 * @return
+	 */
+	public SendM selectOneByBoxCode(SendM sendM){
+		if(sendM == null || sendM.getCreateSiteCode() == null || sendM.getReceiveSiteCode() == null || StringUtils.isBlank(sendM.getBoxCode())){
+			throw new IllegalArgumentException("始发分拣中心、目的分拣中心、箱号不能为空.");
+		}
+		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectOneByBoxCode",sendM);
 	}
 }

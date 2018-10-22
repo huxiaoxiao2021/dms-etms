@@ -45,6 +45,10 @@
     <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+    <bean id="dmsOutWeightAndVolumeDao" class="com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolumeDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
     <!-- 采用JProxy分库分表 end -->
 
     <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">

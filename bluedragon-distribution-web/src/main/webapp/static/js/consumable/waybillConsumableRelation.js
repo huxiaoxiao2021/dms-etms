@@ -320,10 +320,11 @@ $(function () {
                         $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许删除耗材信息！");
                     }
                     else {
-                        var params = [];
+                        var ids = [];
                         for(var i in rows){
-                            params.push(rows[i].id);
+                            ids.push(rows[i].id);
                         };
+                        params.ids = ids;
                         $.ajaxHelper.doPostSync(deleteUrl,JSON.stringify(params),function(res){
                             if(res&&res.succeed&&res.data){
                                 $.msg.ok('操作成功,删除'+res.data+'条。');
