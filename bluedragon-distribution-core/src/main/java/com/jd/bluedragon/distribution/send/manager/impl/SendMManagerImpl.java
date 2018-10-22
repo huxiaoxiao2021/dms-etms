@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.manager.impl;
 
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -24,7 +25,7 @@ public class SendMManagerImpl implements SendMManager {
     @Override
     public Integer add(String namespace, SendM sendM) {
         //更新箱号状态缓存
-        boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), 5);
+        boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
         return sendMDao.add(namespace, sendM);
     }
 
@@ -34,13 +35,17 @@ public class SendMManagerImpl implements SendMManager {
     }
 
     @Override
-    public List<SendM> findSendMByBoxCode2(SendM sendM) {
-        return sendMDao.findSendMByBoxCode2(sendM);
-    }
-
-    @Override
     public List<SendM> findSendMByBoxCode(SendM sendM) {
-        return sendMDao.findSendMByBoxCode(sendM);
+        List<SendM> list = sendMDao.findSendMByBoxCode(sendM);
+        //sendm不为空，说明已发货，否则视为初始状态
+        if (list != null && list.isEmpty()) {
+            //更新箱号状态缓存为已发货
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+        } else {
+            //更新箱号状态缓存为初始状态
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode());
+        }
+        return list;
     }
 
     @Override

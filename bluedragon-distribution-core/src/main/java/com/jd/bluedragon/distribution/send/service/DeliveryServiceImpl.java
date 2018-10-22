@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -68,6 +69,7 @@ import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
 import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -151,6 +153,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private SendMManager sendMManager;
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -748,7 +753,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void packageSend(SendM domain){
         //插入SEND_M
-        this.sendMDao.insertSendM(domain);
+//        this.sendMDao.insertSendM(domain);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
         if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
@@ -1115,7 +1122,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         for (SendM dSendM : sendMlist) {
             if (!list.contains(dSendM.getBoxCode())) {
-                this.sendMDao.insertSendM(dSendM);
+//                this.sendMDao.insertSendM(dSendM);
+                //使用管理接口代替sendMDao
+                this.sendMManager.insertSendM(dSendM);
             }
         }
     }
@@ -1564,6 +1573,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
+                    //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
+                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCEL_STATUS.getCode());
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
@@ -4355,7 +4366,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
         } else {
             //插入SEND_M
-            this.sendMDao.insertSendM(domain);
+//            this.sendMDao.insertSendM(domain);
+            //使用管理接口代替sendMDao
+            this.sendMManager.insertSendM(domain);
         }
 
         if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
@@ -4568,7 +4581,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             /**插入SEND_M*/
 //            this.sendMDao.addBatch(sendMList);
         for(SendM sendM : sendMList){
-            sendMDao.insertSendM(sendM);
+//            sendMDao.insertSendM(sendM);
+            //使用管理接口代替sendMDao
+            sendMManager.insertSendM(sendM);
         }
             for(SendM sendM : sendMList){
                 /**大件写TASK_SORTING*/

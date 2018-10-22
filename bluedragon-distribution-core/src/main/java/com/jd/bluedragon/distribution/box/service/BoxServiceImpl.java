@@ -343,7 +343,22 @@ public class BoxServiceImpl implements BoxService {
 		return false;
 	}
 
-    public static void main(String[] args) {
+	@Override
+	public Integer getBoxStatusRedis(String boxCode, Integer operateSiteCode) {
+		String redisKey = null;
+		try {
+			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
+				redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
+				//不管是否存在，都更新key的值
+				return Integer.parseInt(jimdbCacheService.get(redisKey));
+			}
+		} catch (Exception e) {
+			logger.error("redisKey：" + redisKey + "获取箱号状态缓存失败", e);
+		}
+		return null;
+	}
+
+	public static void main(String[] args) {
         Box box = new Box();
         box.setCode("BC010F002010Y04200062058");
         box.setType("BC");

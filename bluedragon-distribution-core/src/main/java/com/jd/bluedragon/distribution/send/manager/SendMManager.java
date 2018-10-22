@@ -19,8 +19,6 @@ public interface SendMManager {
 
     Integer addBatch(List<SendM> param);
 
-    List<SendM> findSendMByBoxCode2(SendM sendM);
-
     List<SendM> findSendMByBoxCode(SendM sendM);
 
     boolean insertSendM(SendM dSendM);

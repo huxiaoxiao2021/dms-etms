@@ -51,4 +51,12 @@ public interface BoxService {
      * @return
      */
     Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus);
+
+    /***
+     * 获取箱号状态的缓存
+     * @param boxCode 箱号
+     * @param operateSiteCode 操作箱号的单位，用于区分中转发货的箱号状态
+     * @return
+     */
+    Integer getBoxStatusRedis(String boxCode, Integer operateSiteCode);
 }
