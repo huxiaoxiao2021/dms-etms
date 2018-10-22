@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
 
 public interface SortingService {
 	
@@ -135,4 +135,11 @@ public interface SortingService {
      * @return
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
+
+    /**
+     * 处理任务数据
+     * @param task
+     * @return 成功与否
+     */
+    public boolean processTaskData(Task task);
 }

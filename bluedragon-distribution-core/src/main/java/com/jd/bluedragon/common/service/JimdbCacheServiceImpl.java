@@ -113,16 +113,9 @@ public class JimdbCacheServiceImpl implements CacheService{
 	}
 	public <T> boolean setNx(String key, T val ,long exTime,TimeUnit exTimeUnit){
 		if(!verifySetParams(key, val)){
-			return false;
+			return true;
 		}
-		if(jimdbClient.setNX(key, serialize(val))){
-	        if (null == hasSetExpireTimeKeySet.getIfPresent(key)) {
-	            jimdbClient.expire(key, exTime, exTimeUnit);
-	            hasSetExpireTimeKeySet.put(key, EXPIRE_FLAG_VALUE);
-	        }
-	        return true;
-		}
-		return false;
+		return jimdbClient.set(key, serialize(val), exTime, exTimeUnit, false);
 	}
 	
 	public <T> boolean hSet(String key, String keyField, T val) {
@@ -132,9 +125,6 @@ public class JimdbCacheServiceImpl implements CacheService{
 		return hSetEx(key, keyField, val, exTime, exTimeUnit);
 	}
 	public <T> boolean hSetEx(String key, String keyField, T val,long exTime,TimeUnit exTimeUnit) {
-		if(!verifySetParams(key, keyField, val)){
-			return false;
-		}
 		if(jimdbClient.hSet(key, keyField, serialize(val))){
 	        if (null == hasSetExpireTimeKeySet.getIfPresent(key)) {
 	            jimdbClient.expire(key, exTime, exTimeUnit);
@@ -344,38 +334,5 @@ public class JimdbCacheServiceImpl implements CacheService{
 					+ e);
 		}
 		return null;
-	}
-
-	/**
-	 * 用于防重，key为各业务自定义，对单业务重复提交、执行进行防重
-	 *
-	 * @param key
-	 * @param exTime
-	 * @param exTimeUnit
-	 * @return
-	 */
-	@Override
-	public Boolean isRepeatByKey(String key, long exTime, TimeUnit exTimeUnit) {
-		//校验参数
-		if (exTime < 0 || exTimeUnit == null) return Boolean.FALSE;
-
-		try {
-			//判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。
-			TransactionClient tclient = jimdbClient.transactionClient(key.getBytes());
-
-			tclient.multi();
-			Long incrResult = jimdbClient.incr(key);
-			jimdbClient.expire(key, exTime, exTimeUnit);
-			tclient.exec();
-
-			if (incrResult.intValue() > 1) {//说明有重复任务,只能在此种情况下返回true
-				this.logger.warn("业务rediskey重复检测：" + key);
-				return Boolean.TRUE;
-			}
-		} catch (Exception e) {
-			this.logger.error("业务rediskey重复检测失败" + key, e);
-		}
-
-		return Boolean.FALSE;
 	}
 }
