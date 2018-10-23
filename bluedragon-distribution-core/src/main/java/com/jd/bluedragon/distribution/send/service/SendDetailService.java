@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.send.service;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SendDetailService {
 
@@ -22,4 +23,7 @@ public interface SendDetailService {
      * @return
      */
     public List<SendDetail> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
+
+    /**分页查询发货记录*/
+    public List<SendDetail> findPageSendDetail(Map<String,Object> params);
 }

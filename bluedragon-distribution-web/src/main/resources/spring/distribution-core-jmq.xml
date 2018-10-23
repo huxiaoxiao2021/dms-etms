@@ -236,6 +236,10 @@
     <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
     </bean>
+    <!--驻厂打印面单成功，打印后发送mq信息给终端-->
+    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
+    </bean>
 
     <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
     <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">

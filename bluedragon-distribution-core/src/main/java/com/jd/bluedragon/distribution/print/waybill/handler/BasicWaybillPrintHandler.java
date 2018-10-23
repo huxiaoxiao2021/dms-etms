@@ -322,17 +322,16 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
+            List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
-                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
-                        PrintPackage pack=new PrintPackage();
-                        pack.setPackageCode(item.getPackageBarcode());
-                        pack.setWeight(item.getGoodWeight());
-                        packageList.add(pack);
-                    }
+                for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
+                	PrintPackage pack=new PrintPackage();
+                    pack.setPackageCode(item.getPackageBarcode());
+                    pack.setWeight(item.getGoodWeight());
+                    packageList.add(pack);
                 }
-                commonWaybill.setPackList(packageList);
             }
+            commonWaybill.setPackList(packageList);
 
            //B网面单设置已称标识
            if(BusinessHelper.isB2b(tmsWaybill.getWaybillSign())){

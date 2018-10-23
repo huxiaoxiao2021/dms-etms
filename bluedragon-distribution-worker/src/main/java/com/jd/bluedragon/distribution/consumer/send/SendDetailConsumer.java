@@ -7,17 +7,21 @@ import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.common.util.StringUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 发货明细MQ[dmsWorkSendDetail] 消费逻辑
@@ -35,20 +39,109 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
+
+    /**
+     * 缓存redis的key
+     */
+    private final static String REDIS_CACHE_KEY = "MQ-CONSUMER-SEND-DETAIL-";
+
+    /**
+     * 缓存redis的到期时间，5s
+     */
+    private final static long REDIS_CACHE_EXPIRE_TIME = 5;
+
+    /**
+     * 分隔符号
+     */
+    private final static String SEPARATOR = "-";
+
     @Override
     public void consume(Message message) {
         if (!JsonHelper.isJsonString(message.getText())) {
-            logger.warn(MessageFormat.format("发货明细消费[dmsWorkSendDetail]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
+            logger.warn(MessageFormat.format("[dmsWorkSendDetail消费]MQ-消息体非JSON格式，内容为【{0}】", message.getText()));
             return;
         }
         SendDetailMessage context = JsonHelper.fromJsonUseGson(message.getText(), SendDetailMessage.class);
+        boolean isLock = false;
         try {
-            this.doConsume(context);
+            Long operateTime = context.getOperateTime();
+            if (StringUtils.isNotEmpty(context.getPackageBarcode()) && operateTime != null && operateTime > 0) {
+                // 设置redis缓存锁
+                String lastOperateTime = this.setCacheLock(context);
+                if (lastOperateTime == null) {
+                    isLock = true;
+                    // 上次操作时间为null，表示缓存锁加入成功，执行消费逻辑
+                    this.doConsume(context);
+                } else {
+                    // 根据发货操作时间判断数据是否有效
+                    if (operateTime > Long.valueOf(lastOperateTime)) {
+                        throw new RuntimeException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
+                    } else {
+                        // 无效
+                        logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:" + message.getText());
+                        return;
+                    }
+                }
+            } else {
+                logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:" + message.getText());
+            }
         } catch (Exception e) {
+            logger.error("[dmsWorkSendDetail消费]消费异常" + "，MQ message body:" + message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
+        } finally {
+            if (isLock) {
+                // 删除redis缓存锁
+                this.delCacheLock(context);
+            }
         }
     }
 
+    /**
+     * Redis缓存锁，解决相同包裹在同一站点同事操作并发问题
+     * 设置成功则返回null，失败表示已经存在锁，返回正在操作的任务的操作时间
+     *
+     * @param context
+     * @return
+     */
+    private String setCacheLock(SendDetailMessage context) {
+        String redisKey = this.getRedisCacheKey(context);
+        try {
+            // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
+            if (!redisClientCache.set(redisKey, context.getOperateTime().toString(), REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false)) {
+                return redisClientCache.get(redisKey);
+            }
+        } catch (Exception e) {
+            logger.error("[dmsWorkSendDetail消费]设置Redis并发锁时发生异常，redisKey:" + redisKey, e);
+        }
+        return null;
+    }
+
+    /**
+     * 删除Redis锁
+     *
+     * @param context
+     */
+    private void delCacheLock(SendDetailMessage context) {
+        String redisKey = this.getRedisCacheKey(context);
+        try {
+            redisClientCache.del(redisKey);
+        } catch (Exception e) {
+            logger.error("[dmsWorkSendDetail消费]删除Redis并发锁时发生异常，redisKey:" + redisKey, e);
+        }
+    }
+
+    private String getRedisCacheKey(SendDetailMessage context) {
+        return REDIS_CACHE_KEY + context.getPackageBarcode() + SEPARATOR + context.getCreateSiteCode();
+    }
+
+    /**
+     * 消费逻辑
+     *
+     * @param sendDetail
+     */
     private void doConsume(SendDetailMessage sendDetail) {
         String packageBarCode = sendDetail.getPackageBarcode();
         if (SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
@@ -57,14 +150,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 Waybill waybill = baseEntity.getData().getWaybill();
                 if (BusinessHelper.isRMA(waybill.getWaybillSign())) {
                     if (!rmaHandOverWaybillService.buildAndStorage(sendDetail, waybill, baseEntity.getData().getGoodsList())) {
-                        throw new RuntimeException("[消费发货明细MQ消息]存储RMA订单数据失败，packageBarCode:" + packageBarCode);
+                        throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
             } else {
-                logger.warn("[消费发货明细MQ消息]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode);
+                logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
             }
         } else {
-            logger.warn("[消费发货明细MQ消息]无效的运单号/包裹号，packageBarCode:" + packageBarCode);
+            logger.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
         }
     }
 

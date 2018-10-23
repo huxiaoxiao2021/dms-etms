@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.send.domain.whems.Ems4JingDongPortType;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillInfo;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.third.service.dto.BaseResult;
 import com.jd.etms.third.service.dto.OrderShipsReturnDto;
@@ -48,10 +49,7 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.text.MessageFormat;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service("reversedeliveryService")
 public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
@@ -948,33 +946,19 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	* 生产包裹号码
 	*/
 
-	/**
-     * 生成包裹列表专用正则
-     * 【分组一：运单号】
-     * 【分组二：-或N】
-     * 【分组三：第几件】
-     * 【分组四：-或S】
-     * 【分组五：共几件】
-     * 【分组六：（-或H）与道口号组合】
-     */
-    private static final Pattern RULE_GENERATE_PACKAGE_ALL_REGEX=Pattern.compile("^([A-Z0-9]{8,})(-(?=\\d{1,3}-)|N(?=\\d{1,3}S))([1-9]\\d{0,2})(-(?=\\d{1,3}-)|S(?=\\d{1,3}H))([1-9]\\d{0,2})([-|H][A-Za-z0-9]*)$");
-
-
-    private List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail)
-	{
+    private List<DeliveryPackageD> generateAllPackageCodes(String input ,JoinDetail tJoinDetail){
 		List<DeliveryPackageD> packList = new ArrayList<DeliveryPackageD>();
-		Matcher match = RULE_GENERATE_PACKAGE_ALL_REGEX.matcher(input.toUpperCase().trim());
-		if (match.matches()) {
-			String template = match.group(1) + match.group(2) + "{0}"+ match.group(4) + match.group(5) + match.group(6);
-			int count = Integer.valueOf(match.group(5));
-			for (int i = 1; i <= count; i++) {
+
+		if(WaybillUtil.isPackageCode(input)) {
+			//生成包裹号列表
+			List<String> packageCodes = SerialRuleUtil.generateAllPackageCodes(input);
+			for (int i = 0; i < packageCodes.size(); i++) {
 				DeliveryPackageD pack = new DeliveryPackageD();
-				pack.setPackageBarcode(MessageFormat.format(template, i));
-				pack.setWaybillCode(match.group(1));
+				pack.setPackageBarcode(packageCodes.get(i));
+				pack.setWaybillCode(SerialRuleUtil.getWaybillCode(packageCodes.get(i)));
 				pack.setAgainWeight(tJoinDetail.getGoodWeight());
 				packList.add(pack);
 			}
-			return packList;
 		}
 		return packList;
 	}
