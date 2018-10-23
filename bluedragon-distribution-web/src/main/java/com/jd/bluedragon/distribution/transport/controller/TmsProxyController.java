@@ -13,6 +13,7 @@ import com.jd.tms.tfc.dto.CommonDto;
 import com.jd.tms.tfc.dto.PageDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransBookBillResultDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,6 +56,7 @@ public class TmsProxyController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_TMSPROXY_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
         return "/transport/tmsProxy";

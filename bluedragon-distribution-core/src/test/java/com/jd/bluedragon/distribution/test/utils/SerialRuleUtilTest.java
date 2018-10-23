@@ -15,19 +15,6 @@ public class SerialRuleUtilTest {
         Assert.assertEquals(Integer.valueOf(32),SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode));
     }
 
-    /**
-     *  反单号包括字母12位
-     * @throws Exception
-     */
-    @Test
-    public void testIsMatchFWaybillCode() throws Exception {
-        String fwaybillCode="F1234567987";
-        Assert.assertFalse(SerialRuleUtil.isMatchFWaybillCode(fwaybillCode));
-        fwaybillCode="F12345679871";
-        Assert.assertTrue(SerialRuleUtil.isMatchFWaybillCode(fwaybillCode));
-        fwaybillCode="F123456798731";
-        Assert.assertFalse(SerialRuleUtil.isMatchFWaybillCode(fwaybillCode));
-    }
 
     @Test
     public void testIsMatchWaybillNo() throws Exception {
@@ -37,60 +24,7 @@ public class SerialRuleUtilTest {
         Assert.assertTrue(SerialRuleUtil.isMatchWaybillNo(packageCode));
     }
 
-    @Test
-    public void testIsMatchPackageNo() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertTrue(SerialRuleUtil.isMatchPackageNo(packageCode).isMatch());
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertFalse(SerialRuleUtil.isMatchPackageNo(packageCode).isMatch());
-    }
 
-    @Test
-    public void testGetPortCode() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertEquals("3",SerialRuleUtil.getPortCode(packageCode));
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertEquals("56", SerialRuleUtil.getPortCode(packageCode));
-
-        packageCode="123456789N1S1H3";
-        Assert.assertEquals("3",SerialRuleUtil.getPortCode(packageCode));
-        packageCode="VC02015690736N1S8H56";
-        Assert.assertEquals("56", SerialRuleUtil.getPortCode(packageCode));
-    }
-
-    @Test
-    public void testIsMatchSlipNo() throws Exception {
-        String packageCode="W1234567890";
-        Assert.assertTrue(SerialRuleUtil.isMatchSlipNo(packageCode));
-        packageCode="WW123456789";
-        Assert.assertFalse(SerialRuleUtil.isMatchSlipNo(packageCode));
-    }
-
-    @Test
-    public void testGetReceiveWaybillCode() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertFalse(SerialRuleUtil.getReceiveWaybillCode(packageCode).isMatch());
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertEquals("VC02015690736", SerialRuleUtil.getReceiveWaybillCode(packageCode).getResult());
-
-        packageCode="123456789N1S1H3";
-        Assert.assertFalse(SerialRuleUtil.getReceiveWaybillCode(packageCode).isMatch());
-        packageCode="VC02015690736N1S8H56";
-        Assert.assertEquals("VC02015690736", SerialRuleUtil.getReceiveWaybillCode(packageCode).getResult());
-    }
-
-    @Test
-    public void testIsMatchReceivePackageNo() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertFalse(SerialRuleUtil.isMatchReceivePackageNo(packageCode));
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertTrue(SerialRuleUtil.isMatchReceivePackageNo(packageCode));
-
-        packageCode="123456789N1S1H3";
-        Assert.assertFalse(SerialRuleUtil.isMatchReceivePackageNo(packageCode));
-        packageCode="VC02015690736N1S8H56";
-        Assert.assertTrue(SerialRuleUtil.isMatchReceivePackageNo(packageCode));
-    }
 
     @Test
     public void testIsMatchReceiveWaybillNo() throws Exception {
@@ -105,18 +39,6 @@ public class SerialRuleUtilTest {
         Assert.assertFalse(SerialRuleUtil.isMatchReceiveWaybillNo(packageCode));
     }
 
-    @Test
-    public void testGetAllWaybillCode() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertEquals("123456789",SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertEquals("VC02015690736", SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
-
-        packageCode="123456789N1S1H3";
-        Assert.assertEquals("123456789", SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
-        packageCode="VC02015690736N1S8H56";
-        Assert.assertEquals("VC02015690736", SerialRuleUtil.getAllWaybillCode(packageCode).getResult());
-    }
 
     @Test
     public void testIsMatchAllPackageNo() throws Exception {
@@ -156,21 +78,6 @@ public class SerialRuleUtilTest {
         Assert.assertTrue(SerialRuleUtil.isWaybillOrPackageNo(packageCode));
     }
 
-    @Test
-    public void testGetPackageCounter() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertEquals(1,SerialRuleUtil.getPackageCounter(packageCode));
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertEquals(8,SerialRuleUtil.getPackageCounter(packageCode));
-    }
-
-    @Test
-    public void testGetPackageSerial() throws Exception {
-        String packageCode="123456789-1-1-3";
-        Assert.assertEquals("1/1",SerialRuleUtil.getPackageSerial(packageCode));
-        packageCode="VC02015690736-1-8-56";
-        Assert.assertEquals("1/8",SerialRuleUtil.getPackageSerial(packageCode));
-    }
 
     @Test
     public void testGenerateAllPackageCodes() throws Exception {
@@ -303,14 +210,6 @@ public class SerialRuleUtilTest {
     }
 
     @Test
-    public void testGeneratePackageNo() throws Exception {
-        String[] array= SerialRuleUtil.generatePackageNo("12345657689",8,"FD");
-        Assert.assertEquals(8,array.length);
-        Assert.assertEquals("12345657689-1-8-FD",array[0]);
-        Assert.assertEquals("12345657689-8-8-FD",array[7]);
-    }
-
-    @Test
     public void testIsMatchNumeric() throws Exception {
         String content="FDXFD";
         Assert.assertFalse(SerialRuleUtil.isMatchNumeric(content));
@@ -324,13 +223,5 @@ public class SerialRuleUtilTest {
         Assert.assertTrue(SerialRuleUtil.isMatchBoxCode(box));
         box="BC010F001023D789123456789098";
         Assert.assertFalse(SerialRuleUtil.isMatchBoxCode(box));
-    }
-
-    @Test
-    public void testIsMatchExpressorBoxCode() throws Exception {
-        String waybillcode="ZC010F001023D78912345678";
-        Assert.assertTrue(SerialRuleUtil.isMatchExpressorBoxCode(waybillcode));
-        waybillcode="BC010F001023D78912345678";
-        Assert.assertFalse(SerialRuleUtil.isMatchExpressorBoxCode(waybillcode));
     }
 }

@@ -1,32 +1,16 @@
 package com.jd.bluedragon.distribution.asynbuffer.service;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
+import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
-import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
-
-import com.jd.bluedragon.distribution.worker.sorting.SortingTask;
-import com.jd.jim.cli.Cluster;
-import com.jd.jim.cli.TransactionClient;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import com.google.gson.reflect.TypeToken;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
+import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalException;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
 import com.jd.bluedragon.distribution.receive.service.impl.ReceiveTaskExecutor;
 import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorService;
@@ -36,13 +20,21 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by xumei3 on 2017/4/17.
@@ -219,46 +211,8 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     @Autowired
     private SortingService sortingService;
 
-    @Autowired
-    @Qualifier("redisClientCache")
-    private Cluster redisClientCache;
-
     public boolean sortingTaskProcess(Task task) throws Exception {
-
-        String fingerPrintKey = SortingTask.TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getReceiveSiteCode() +"|"+ task.getKeyword2();
-        try{
-            //判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。
-            TransactionClient tclient = redisClientCache.transactionClient(fingerPrintKey.getBytes());
-            tclient.multi();
-            Long incrResult = redisClientCache.incr(fingerPrintKey);
-            redisClientCache.expire(fingerPrintKey, 5, TimeUnit.SECONDS);
-            tclient.exec();
-
-            if(incrResult.intValue()>1){//说明有重复任务
-                this.logger.error("1200分拣任务重复："+task.getBody());
-                return false;
-            }
-        }catch(Exception e){
-            this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
-        }
-
-        boolean result = Boolean.FALSE;
-        try {
-            this.logger.info("task id is " + task.getId());
-            result = this.sortingService.doSorting(task);
-        } catch (Exception e) {
-            StringBuilder builder = new StringBuilder("task id is");
-            builder.append(task.getId());
-            builder.append(SPLIT_CHAR).append(task.getBoxCode());
-            builder.append(SPLIT_CHAR).append(task.getKeyword1());
-            builder.append(SPLIT_CHAR).append(task.getKeyword2());
-            this.logger.error(builder.toString());
-            this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
-            result = Boolean.FALSE;
-        }
-
-        redisClientCache.del(fingerPrintKey);
-        return result;
+        return sortingService.processTaskData(task);
     }
 
     //称重信息回传运单中心

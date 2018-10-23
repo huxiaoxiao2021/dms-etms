@@ -365,4 +365,22 @@ public class StringHelper {
     		return buffer.toString();
     	}
     }
+    /**
+     * create by: yws
+     * description: 把字符串中的任意一位转为integer类型
+     * create time:
+     *
+     * @Param: s
+     * @return
+     */
+    public static Integer stringToInteger(String s,int startIndex){
+        Integer in=null;
+        if(StringHelper.isEmpty(s) || startIndex<0 || startIndex>=s.length()){
+
+        }
+        else{
+            in=Integer.valueOf(s.substring(startIndex,startIndex+1));
+        }
+        return in;
+    }
 }

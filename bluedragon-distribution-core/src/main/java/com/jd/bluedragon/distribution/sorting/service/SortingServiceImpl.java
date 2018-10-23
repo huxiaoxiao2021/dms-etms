@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -38,11 +37,11 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -65,6 +65,7 @@ public class SortingServiceImpl implements SortingService {
 
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
+	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
 	@Autowired
 	private SortingDao sortingDao;
 
@@ -80,8 +81,6 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private OperationLogService operationLogService;
 
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -345,7 +344,7 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
+			BaseEntity<BigWaybillDto> waybill = this.waybillQueryManager.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
@@ -702,7 +701,7 @@ public class SortingServiceImpl implements SortingService {
 		FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
 		//新运单号获取老运单号的所有信息  参数返单号
 		try{
-			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+			BaseEntity<Waybill> wayBillOld = waybillQueryManager.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
 				String vendorId = wayBillOld.getData().getVendorId();
 				if(vendorId == null || "".equals(vendorId)){
@@ -1152,4 +1151,55 @@ public class SortingServiceImpl implements SortingService {
         return null;
     }
 
+	@Override
+	public List<Sorting> findPageSorting(Map<String, Object> params) {
+		logger.info("SortingServiceImpl.findPageSorting begin...");
+		return sortingDao.findPageSorting(params);
+	}
+
+
+	public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
+
+	@Autowired
+	@Qualifier("jimdbCacheService")
+	private CacheService cacheService;
+
+	private static final String SPLIT_CHAR="$";
+
+	/**
+	 * 处理任务数据
+	 * @param task
+	 * @return 成功与否
+	 */
+	public boolean processTaskData(Task task){
+		String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getBoxCode() +"|"+ task.getKeyword2();
+		try{
+			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
+			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
+			if(!isSucdess){//说明有重复任务
+				this.logger.error("1200分拣任务重复："+task.getBody());
+				return false;
+			}
+		}catch(Exception e){
+			this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
+		}
+
+		boolean result = Boolean.FALSE;
+		try {
+			this.logger.info("task id is " + task.getId());
+			result = this.doSorting(task);
+		} catch (Exception e) {
+			StringBuilder builder=new StringBuilder("task id is");
+			builder.append(task.getId());
+			builder.append(SPLIT_CHAR).append(task.getBoxCode());
+			builder.append(SPLIT_CHAR).append(task.getKeyword1());
+			builder.append(SPLIT_CHAR).append(task.getKeyword2());
+			this.logger.error(builder.toString());
+			this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+			result = Boolean.FALSE;
+		}
+
+		cacheService.del(fingerPrintKey);
+		return result;
+	}
 }

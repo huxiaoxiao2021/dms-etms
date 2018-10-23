@@ -22,13 +22,11 @@ import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,22 +63,13 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     @Autowired
     private BaseService baseService;
 
-    @Autowired
-    @Qualifier("jimdbCacheService")
-    private CacheService jimdbCacheService;
-
-    /**
-     * 缓存redis的key
-     */
-    private final static String REDIS_CACHE_KEY = "RMA-HANDOVER-WAYBILL-";
-
     /**
      * 分隔符号
      */
     private final static String SEPARATOR = "-";
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean add(RmaHandoverWaybill rmaHandoverWaybill) {
         if (rmaHandoverWaybill != null) {
             if (rmaHandOverWaybillDao.add(rmaHandoverWaybill) > 0) {
@@ -233,20 +222,9 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @JProfiler(jKey = "DMSCORE.RmaHandOverWaybillServiceImpl.buildAndStorage", mState = {JProEnum.TP})
     @Override
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean buildAndStorage(SendDetailMessage sendDetail, Waybill waybill, List<Goods> goods) {
-        String redisKey = REDIS_CACHE_KEY + waybill.getWaybillCode() + SEPARATOR + sendDetail.getCreateSiteCode();
         boolean result = true;
-        // 避免消费数据重复逻辑 插入redis 如果插入失败 说明有其他线程正在消费相同数据信息
-        if (!jimdbCacheService.setNx(redisKey, sendDetail.getOperateTime(), 5)) {
-            String value = jimdbCacheService.get(redisKey);
-            // 根据发货操作时间判断数据是否有效
-            if (sendDetail.getOperateTime() <= Long.valueOf(value)) {
-                return result;
-            } else {
-                // JMQ重试
-                return false;
-            }
-        }
         // 查询该运单号在该站点是否已经发货
         RmaHandoverWaybill history = this.getByParams(waybill.getWaybillCode(), sendDetail.getCreateSiteCode(), false);
         if (history == null) {
@@ -259,7 +237,6 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
                 result = this.update(current);
             }
         }
-        jimdbCacheService.del(redisKey);
         return result;
     }
 
