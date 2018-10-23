@@ -563,7 +563,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3') && !BusinessHelper.isQWD(waybill.getWaybillSign()))
+        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),15,'3')
+//                && !BusinessHelper.isQWD(waybill.getWaybillSign())//这里写的有问题 传waybillsign的话，一直时true 不起作用，故删掉
+                )
         {
             target.setBusiOrderCode(waybill.getSpareColumn3());
         }
