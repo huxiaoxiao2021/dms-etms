@@ -1,18 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
-import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -25,11 +14,18 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 
 /**
@@ -39,11 +35,8 @@ import com.jd.etms.waybill.domain.Waybill;
  * @author luyue  2017-12
  */
 @Service
-public class WeighByWaybillServiceImpl implements WeighByWaybillService
-{
+public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     private static final Log logger = LogFactory.getLog(WeighByWaybillServiceImpl.class);
-    private final String WAYBILL_REGEX = "(^[1-9]{1}[0-9]{8,29}$)|(^V[A-Z0-9]{1}[0-9]{11,28}$)|(^(W|T|F|[Q|q]){1}([A-Za-z0-9]{9,29})$)";
-    private final String PACKAGE_REGEX = "^([A-Za-z0-9]{8,})(-(?=[0-9]{1,4}-)|N(?=[0-9]{1,4}S))([1-9]{1}[0-9]{0,3})(-(?=[0-9]{1,4}-)|S(?=[0-9]{1,4}H))([1-9]{1}[0-9]{0,3})([-|H][A-Za-z0-9]*)$";
 
     private final Integer VALID_EXISTS_STATUS_CODE = 10;
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
@@ -76,8 +69,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @param vo 运单称重参数
      * @throws WeighByWaybillExcpetion 运单称重异常
      */
-    public void insertWaybillWeightEntry(WaybillWeightVO vo) throws WeighByWaybillExcpetion
-    {
+    public void insertWaybillWeightEntry(WaybillWeightVO vo) throws WeighByWaybillExcpetion {
         String codeStr = vo.getCodeStr();
         /*1 将单号或包裹号正则校验 通过后 如果是包裹号需要转成运单号*/
         String waybillCode = this.convertToWaybillCode(codeStr);
@@ -94,27 +86,20 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
 
         /*经与运单方讨论,现阶段定为:无论是否存在运单,都将信息推送给运单,运单在后续流程补数据。
             为防止以后流程变动 将验证存在运单与不存在的对应处理方法拆开*/
-        if (vo.getStatus().equals(VALID_EXISTS_STATUS_CODE))
-        {
-            try
-            {
+        if (vo.getStatus().equals(VALID_EXISTS_STATUS_CODE)) {
+            try {
                 this.validWaybillProcess(waybillWeightDTO);
-            } catch (WeighByWaybillExcpetion e)
-            {
+            } catch (WeighByWaybillExcpetion e) {
                 throw e;
             }
-        } else if (vo.getStatus().equals(VALID_NOT_EXISTS_STATUS_CODE))
-        {
-            try
-            {
+        } else if (vo.getStatus().equals(VALID_NOT_EXISTS_STATUS_CODE)) {
+            try {
                 this.invalidWaybillProcess(waybillWeightDTO);
-            } catch (WeighByWaybillExcpetion e)
-            {
+            } catch (WeighByWaybillExcpetion e) {
                 throw e;
             }
 
-        } else
-        {
+        } else {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.InvalidMethodInvokeException);
         }
 
@@ -127,31 +112,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @return 运单号
      * @throws WeighByWaybillExcpetion 运单号/包裹号格式错误异常 UnknownCodeException
      */
-    public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion
-    {
-        String waybillCode = null;
-
-        if (this.isValidPackageCode(codeStr))
-        {
-            waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(codeStr);
-        } else if (this.isValidWaybillCode(codeStr))
-        {
-            waybillCode = codeStr;
-        } else
-        {
-            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
-
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
-        }
-
-        if (null == waybillCode)
-        {
-            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则");
-
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
-        }
-
-        return waybillCode;
+    public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
+        return WaybillUtil.getWaybillCode(codeStr);
     }
 
     /**
@@ -161,15 +123,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @return 是否存在运单
      * @throws WeighByWaybillExcpetion 运单称重异常 WaybillServiceNotAvailableException WaybillNotFindException
      */
-    public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion
-    {
+    public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion {
         BaseEntity<Waybill> waybillBaseEntity = null;
 
-        try
-        {
+        try {
             waybillBaseEntity = waybillQueryManager.getWaybillByWaybillCode(waybillCode);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error(e);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException);
         }
@@ -177,14 +136,13 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         int resultCode = waybillBaseEntity.getResultCode();
         Waybill waybill = waybillBaseEntity.getData();
 
-        if (waybill == null)
-        {
+        if (waybill == null) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNotFindException);
         }
 
         //是否需要称重逻辑校验  2018 07 27  update 刘铎
 
-        if(waybill.getWaybillSign() != null && BusinessHelper.isNoNeedWeight(waybill.getWaybillSign())){
+        if (waybill.getWaybillSign() != null && BusinessHelper.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
         }
 
@@ -197,19 +155,20 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @param dto 待传输消息对象
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
-    public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion
-    {
+    public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
         this.logToOperationlogCassandra(dto);
         this.sendMessageToMq(dto);
         //保存称重流水入库
         dmsWeightFlowService.saveOrUpdate(convertToDmsWeightFlow(dto));
     }
+
     /**
      * 对象转换为DmsWeightFlow
+     *
      * @param dto
      * @return
      */
-    private DmsWeightFlow convertToDmsWeightFlow(WaybillWeightDTO dto){
+    private DmsWeightFlow convertToDmsWeightFlow(WaybillWeightDTO dto) {
         DmsWeightFlow dmsWeightFlow = new DmsWeightFlow();
         dmsWeightFlow.setBusinessType(Constants.BUSINESS_TYPE_WEIGHT);
         dmsWeightFlow.setOperateType(Constants.OPERATE_TYPE_WEIGHT_BY_WAYBILL);
@@ -223,14 +182,14 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
         dmsWeightFlow.setOperatorName(dto.getOperatorName());
         return dmsWeightFlow;
     }
+
     /**
      * 当运单经校验不存在时的流程
      *
      * @param dto 待传输消息对象
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
-    public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion
-    {
+    public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
         this.logToOperationlogCassandra(dto);
         this.sendMessageToMq(dto);
     }
@@ -241,13 +200,10 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @param dto 待传输消息对象
      * @throws WeighByWaybillExcpetion WaybillWeightVOConvertExcetion MQServiceNotAvailableException
      */
-    private void sendMessageToMq(WaybillWeightDTO dto) throws WeighByWaybillExcpetion
-    {
-        try
-        {
+    private void sendMessageToMq(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
+        try {
             weighByWaybillProducer.send(dto.getWaybillCode(), JsonHelper.toJson(dto));
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error(e);
 
             /*如mq服务不可用，将转为message_task进行消息发送重试*/
@@ -261,7 +217,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
             task.setBody(JsonHelper.toJson(dto));
             task.setType(8000);
 
-            dao.add(TaskDao.namespace,task);
+            dao.add(TaskDao.namespace, task);
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException);
         }
 
@@ -272,18 +228,15 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      *
      * @param dto 操作消息对象
      */
-    private void logToOperationlogCassandra(WaybillWeightDTO dto)
-    {
-        try
-        {
+    private void logToOperationlogCassandra(WaybillWeightDTO dto) {
+        try {
             Goddess goddess = new Goddess();
             goddess.setKey(dto.getWaybillCode());
             goddess.setBody(JsonHelper.toJson(dto));
-            goddess.setHead(CASSANDRA_SIGN  +  String.valueOf(dto.getStatus()));
+            goddess.setHead(CASSANDRA_SIGN + String.valueOf(dto.getStatus()));
 
             goddessService.save(goddess);
-        } catch (Exception e)
-        {
+        } catch (Exception e) {
             logger.error("运单称重：cassandra操作日志记录失败：" + e);
         }
     }
@@ -294,8 +247,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @param weight kg
      * @return kg
      */
-    private Double convertWeightUnitToRequired(Double weight)
-    {
+    private Double convertWeightUnitToRequired(Double weight) {
         return weight;
     }
 
@@ -305,36 +257,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService
      * @param cbm 立方米
      * @return 体积 立方厘米
      */
-    private Double convertVolumeUnitToRequired(Double cbm)
-    {
+    private Double convertVolumeUnitToRequired(Double cbm) {
         return cbm * 1000000.0;
-    }
-
-    /**
-     * 正则校验运单号
-     *
-     * @param waybillCode 运单号
-     * @return 是否匹配
-     */
-    private boolean isValidWaybillCode(String waybillCode)
-    {
-        Pattern pattern = Pattern.compile(WAYBILL_REGEX);
-        Matcher matcher = pattern.matcher(waybillCode);
-
-        return matcher.matches();
-    }
-
-    /**
-     * 正则校验包裹号
-     *
-     * @param packageCode 包裹号
-     * @return 是否匹配
-     */
-    private boolean isValidPackageCode(String packageCode)
-    {
-        Pattern pattern = Pattern.compile(PACKAGE_REGEX);
-        Matcher matcher = pattern.matcher(packageCode);
-
-        return matcher.matches();
     }
 }
