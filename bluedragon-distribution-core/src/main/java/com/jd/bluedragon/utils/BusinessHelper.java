@@ -634,7 +634,15 @@ public class BusinessHelper {
 	 * @param waybillCode
 	 * @return
 	 */
+	//fixme 考虑滑道号生成
 	public static String getFirstPackageCodeByWaybillCode(String waybillCode){
-		return waybillCode + "-1-1-";
+        if(!BusinessUtil.isBoxcode(waybillCode) && !WaybillUtil.isPackageCode(waybillCode)){
+            if(WaybillUtil.isLasWaybillCode(waybillCode)){
+                return waybillCode + "-1-1";
+            }else if (WaybillUtil.isWaybillCode(waybillCode)){
+                return waybillCode + "-1-1-";
+            }
+        }
+        return waybillCode;
 	}
 }
