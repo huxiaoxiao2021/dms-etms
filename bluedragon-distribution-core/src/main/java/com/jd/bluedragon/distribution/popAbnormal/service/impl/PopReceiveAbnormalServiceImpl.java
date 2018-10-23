@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.popAbnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -19,11 +20,9 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.jmq.common.exception.JMQException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,7 +49,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
     @Autowired
     @Qualifier("dmsAbnormalSendMQ")
@@ -264,7 +263,7 @@ public class PopReceiveAbnormalServiceImpl implements PopReceiveAbnormalService 
 			wChoice.setQueryWaybillC(true);
 			wChoice.setQueryWaybillE(true);
 			// wChoice.setQueryWaybillM(true);
-			BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryApi
+			BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager
 					.getDataByChoice(waybillCode, wChoice);
 			if ((baseEntity != null) && (baseEntity.getData() != null)) {
 				popReceiveAbnormal = this.convWaybill(baseEntity.getData());

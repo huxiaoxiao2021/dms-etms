@@ -80,6 +80,14 @@ public interface WaybillQueryManager{
 													 Boolean isWaybillE, Boolean isWaybillM, Boolean isPackList);
 
 	/**
+	 * 批量获取运单信息
+	 *
+	 * @param waybillCodes 运单号列表
+	 * @return
+	 */
+	BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes,WChoice wChoice);
+
+	/**
 	 * 发送全程跟踪消息
 	 * @param businessKey 业务主键 如订单号 取件单号
 	 * @param msgType 消息类型
@@ -123,22 +131,12 @@ public interface WaybillQueryManager{
 	/**
 	 * 根据旧运单号获取新运单信息
 	 *
-	 * @param waybillCode 运单号
-	 * @param queryC 获取的运单信息中是否包含waybillC数据
-	 * @param queryE 获取的运单信息中是否包含waybillE数据
-	 * @param queryM 获取的运单信息中是否包含waybillM数据
-	 * @param queryPackList 获取的运单信息中是否包含PackList数据
+	 * @param oldWaybillCode 旧的运单号
+	 * @param wChoice 获取的运单信息中是否包含waybillC数据
 	 * @return
 	 */
-	BigWaybillDto getReturnWaybillByOldWaybillCode(String waybillCode, boolean queryC, boolean queryE, boolean queryM, boolean queryPackList);
-    /**
-     * 包裹称重和体积测量数据上传
-     * 来源 PackOpeController
-     *
-     * @param packOpeJson 称重和体积测量信息
-     * @return map data:true or false,code:-1:参数非法 -3:服务端内部处理异常 1:处理成功,message:code对应描述
-     */
-    public Map<String, Object> uploadOpe(String packOpeJson);
+	BaseEntity<BigWaybillDto> getReturnWaybillByOldWaybillCode(String oldWaybillCode, WChoice wChoice);
+
 	/**
 	 * 根据运单号获取运单数据信息给打印用
 	 * @param waybillCode
@@ -153,6 +151,27 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<BillBusinessTraceAndExtendDTO> queryBillBTraceAndExtendByOperatorCode(String operatorCode, String state);
+
+	/**
+	 * 根据包裹号获取运单信息
+	 * @param code
+	 * @return
+	 */
+	BaseEntity<Waybill> getWaybillByPackCode(String code);
+
+	/**
+	 * 根据运单号获取运单信息和包裹信息
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<BigWaybillDto> getWaybillAndPackByWaybillCode(String waybillCode);
+
+	/**
+	 * 根据运单号获取运单信息
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode);
 
 	/**
 	 * 根据运单号查询运单sn码和69码

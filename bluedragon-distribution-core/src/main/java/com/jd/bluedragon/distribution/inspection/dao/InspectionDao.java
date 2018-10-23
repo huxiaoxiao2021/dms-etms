@@ -1,14 +1,13 @@
 package com.jd.bluedragon.distribution.inspection.dao;
 
-import java.util.List;
-import java.util.Map;
-
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import java.util.List;
+import java.util.Map;
 
 public class InspectionDao extends BaseDao<Inspection>{
 
@@ -155,5 +154,10 @@ public class InspectionDao extends BaseDao<Inspection>{
 		param.put("createSiteCode", siteCode);
 		param.put("waybillCodes", waybillCodeList);
 		return super.getSqlSession().selectList(namespace + ".findOperateTimeByWaybillCodes", param);
+	}
+
+	/**分页查询验货记录*/
+	public List<Inspection> findPageInspection(Map<String,Object> params){
+		return this.getSqlSession().selectList(namespace + ".findPageInspection",params);
 	}
 }

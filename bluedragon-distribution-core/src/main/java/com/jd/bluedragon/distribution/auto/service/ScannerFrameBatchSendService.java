@@ -30,7 +30,7 @@ public interface ScannerFrameBatchSendService {
      * @param config            龙门驾状态配置
      * @return
      */
-    ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config);
+    ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config, String packageCode);
 
 
     /**

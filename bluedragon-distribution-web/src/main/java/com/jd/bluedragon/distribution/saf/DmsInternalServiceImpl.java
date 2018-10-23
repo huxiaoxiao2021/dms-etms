@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.BaseRequest;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -19,6 +18,7 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -62,6 +62,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -298,5 +301,29 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             logger.error("getPreseparateSiteId error ", e);
             return null;
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed",mState = JProEnum.TP)
+    public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode) {
+        //返回值初始化
+        InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
+        invokeResult.success();
+        invokeResult.setData(true);
+        try {
+            //获取判断是否可以逆向操作的结果
+            Boolean result = waybillService.isReverseOperationAllowed(waybillCode, siteCode);
+            if(result != null && ! result) {
+                invokeResult.setData(false);
+                invokeResult.setCode(SortingResponse.CODE_29121);
+                invokeResult.setMessage(SortingResponse.MESSAGE_29121);
+            }
+        } catch (Exception e) {
+            invokeResult.setData(false);
+            invokeResult.setCode(SortingResponse.CODE_29122);
+            invokeResult.setMessage(SortingResponse.MESSAGE_29122);
+            logger.error("isReverseOperationAllowed方法异常", e);
+        }
+        return invokeResult;
     }
 }

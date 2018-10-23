@@ -115,7 +115,6 @@ $(function () {
         $.pageBlocker.close(blocker);
     };
 
-    initPageFunc();
 
     $('#type-select').on("select2:select", function (e){
         var type =  $('#type-select').val();

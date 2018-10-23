@@ -22,7 +22,7 @@ public class RmaConsumerTest {
     @Test
     public void testConsumer(){
         Message message = new Message();
-        message.setText("{\"boxCode\":\"VA66681425580-1-1-\",\"createSiteCode\":910,\"createUser\":\"邢松1\",\"createUserCode\":100531,\"operateTime\":1537610216869,\"packageBarcode\":\"VA66681425580-1-1-\",\"receiveSiteCode\":39,\"sendCode\":\"910-39-20180922170846366\",\"source\":\"DMS\"}");
+        message.setText("{\"boxCode\":\"VA00041275360-1-1-\",\"createSiteCode\":910,\"createUser\":\"邢松1\",\"createUserCode\":100531,\"operateTime\":1537610216869,\"packageBarcode\":\"VA00041275360-1-1-\",\"receiveSiteCode\":39,\"sendCode\":\"910-39-20180922170846366\",\"source\":\"DMS\"}");
         sendDetailConsumer.consume(message);
     }
 }

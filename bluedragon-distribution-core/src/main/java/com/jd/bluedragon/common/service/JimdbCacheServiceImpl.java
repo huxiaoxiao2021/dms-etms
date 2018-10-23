@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import com.jd.jim.cli.TransactionClient;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -111,17 +112,7 @@ public class JimdbCacheServiceImpl implements CacheService{
 		return setNx(key, val ,exTime,exTimeUnit);
 	}
 	public <T> boolean setNx(String key, T val ,long exTime,TimeUnit exTimeUnit){
-		if(!verifySetParams(key, val)){
-			return false;
-		}
-		if(jimdbClient.setNX(key, serialize(val))){
-	        if (null == hasSetExpireTimeKeySet.getIfPresent(key)) {
-	            jimdbClient.expire(key, exTime, exTimeUnit);
-	            hasSetExpireTimeKeySet.put(key, EXPIRE_FLAG_VALUE);
-	        }
-	        return true;
-		}
-		return false;
+		return jimdbClient.set(key, serialize(val), exTime, exTimeUnit, false);
 	}
 	
 	public <T> boolean hSet(String key, String keyField, T val) {
@@ -131,9 +122,6 @@ public class JimdbCacheServiceImpl implements CacheService{
 		return hSetEx(key, keyField, val, exTime, exTimeUnit);
 	}
 	public <T> boolean hSetEx(String key, String keyField, T val,long exTime,TimeUnit exTimeUnit) {
-		if(!verifySetParams(key, keyField, val)){
-			return false;
-		}
 		if(jimdbClient.hSet(key, keyField, serialize(val))){
 	        if (null == hasSetExpireTimeKeySet.getIfPresent(key)) {
 	            jimdbClient.expire(key, exTime, exTimeUnit);

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.abnormal.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclp;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsAbnormalEclpCondition;
@@ -10,6 +11,7 @@ import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,6 +47,7 @@ public class DmsAbnormalEclpController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ECLPREFUSED_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/abnormal/dmsAbnormalEclp";
