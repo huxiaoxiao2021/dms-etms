@@ -282,7 +282,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
-		CallerInfo doSorting = ProfilerHelper.re.registerInfo("DMSWORKER.SortingService.doSorting",
+		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
 				Constants.UMP_APP_NAME_DMSWORKER);
 		//记录本次分拣处理的包裹数量
 		int sortingNum = 0;
@@ -1174,7 +1174,7 @@ public class SortingServiceImpl implements SortingService {
 	 * @return 成功与否
 	 */
 	public boolean processTaskData(Task task){
-		CallerInfo process1200TaskData = ProfilerHelper.re.registerInfo("DMSWORKER.SortingService.processTaskData",
+		CallerInfo process1200TaskData = ProfilerHelper.registerInfo("DMSWORKER.SortingService.processTaskData",
 				Constants.UMP_APP_NAME_DMSWORKER);
 		String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getBoxCode() +"|"+ task.getKeyword2();
 		try{
