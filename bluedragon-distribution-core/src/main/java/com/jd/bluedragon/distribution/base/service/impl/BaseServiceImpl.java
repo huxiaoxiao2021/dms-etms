@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.UserVerifyManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
@@ -10,7 +11,6 @@ import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
@@ -98,8 +98,9 @@ public class BaseServiceImpl implements BaseService {
 	@Qualifier("basicSecondaryWSProxy")
 	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
+
     @Autowired
-    private UserVerifyService userVerifyService;
+	private UserVerifyManager userVerifyManager;
     
     @Autowired
 	private VtsQueryWS vtsQueryWS;
@@ -123,7 +124,7 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-                if (userVerifyService.passportVerify(thirdUserId,password,clientInfo)) {
+                if (userVerifyManager.passportVerify(thirdUserId,password,clientInfo)) {
                     // 用户组接口验证通过后，从基础资料获取具体信息
                     BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
                     if (null == baseStaffDto) {
@@ -139,9 +140,9 @@ public class BaseServiceImpl implements BaseService {
                 // 自营登录
             } else {
                 // 调用人事接口验证用户
-                //User user = userVerifyService.baseVerify(userid, password);
+                //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-            	UserInfo user = userVerifyService.baseVerify(userid, password);
+            	UserInfo user = userVerifyManager.baseVerify(userid, password);
                 if (null == user) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
                     basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);

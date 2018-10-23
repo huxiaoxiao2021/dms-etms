@@ -1,29 +1,30 @@
-package com.jd.bluedragon.distribution.base.service.impl;
+package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
-import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.user.sdk.export.UserPassportExportService;
 import com.jd.user.sdk.export.constant.Constants;
-import com.jd.user.sdk.export.domain.passport.LoginResult;
 import com.jd.user.sdk.export.domain.passport.LoginParam;
+import com.jd.user.sdk.export.domain.passport.LoginResult;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author dudong
- * @date 2016/2/18
+ * @author yangwenshu
+ * @Description: 类描述信息
+ * @date 2018年10月19日 10时:33分
  */
-public class UserVerifyServiceImpl implements UserVerifyService {
-
-    private static final Log logger = LogFactory.getLog(UserVerifyServiceImpl.class);
+@Service("userVerifyManager")
+public class UserVerifyManagerImpl implements UserVerifyManager{
+    private static final Log logger = LogFactory.getLog(UserVerifyManagerImpl.class);
 
     private static final String NONE = "NONE";
     private static final String SOURCE = "ql_dms";
@@ -48,20 +49,18 @@ public class UserVerifyServiceImpl implements UserVerifyService {
     //手持PDA
     private static final String PDA = "10";
 
-
-//    private String passportUrl;
-//
-//    private String appPlatform;
-//
-//    private String token;
-
-    //    private DeptWebService deptWebService;
     @Autowired
     private NewDeptWebService newDeptWebService;
 
     @Autowired
     private UserPassportExportService userInfoRpc;
 
+    /**
+     * 自营验证
+     * @param name
+     * @param password
+     * @return
+     */
     @Override
     public UserInfo baseVerify(String name, String password) {
         try {
@@ -73,6 +72,13 @@ public class UserVerifyServiceImpl implements UserVerifyService {
         }
     }
 
+    /**
+     * 三方验证
+     * @param pin
+     * @param password
+     * @param clientInfo
+     * @return
+     */
     @Override
     public Boolean passportVerify(String pin, String password, ClientInfo clientInfo) {
         try {
@@ -107,9 +113,9 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
             if(loginResult.isSuccess()){
-                logger.warn("passportVerify verify success");
+                logger.warn("3pl登录验证成功");
             }else{
-                logger.warn("passportVerify verify failed");
+                logger.warn("3pl登录验证失败");
             }
             return loginResult.isSuccess();
         } catch (Exception ex) {
@@ -117,71 +123,4 @@ public class UserVerifyServiceImpl implements UserVerifyService {
             return Boolean.FALSE;
         }
     }
-
-    //
-//    @Override
-//    public Boolean passportVerify(String pin, String password) {
-//        try {
-//            String remoteIp = InetAddress.getLocalHost().getHostAddress();
-//            String pwd = Md5Helper.encode(password);
-//            String param = "loginname=" + java.net.URLEncoder.encode(pin, "gbk") + "&loginpwd=" + pwd + "&remoteIp=" + remoteIp + "&appPlatform=" + appPlatform + "&token=" + token;
-//
-//            ClientRequest request = new ClientRequest(passportUrl);
-//            request.accept(MediaType.WILDCARD);
-//            request.body(javax.ws.rs.core.MediaType.APPLICATION_FORM_URLENCODED, param);
-//            ClientResponse<String> response = request.post(String.class);
-//
-//            String result = response.getEntity();
-//
-//            if (result.contains("username") || result.contains("pwd")) {
-//                return Boolean.FALSE;
-//            } else {
-//                return Boolean.TRUE;
-//            }
-//        } catch (Exception ex) {
-//            logger.error("passportVerify verify error");
-//            return Boolean.FALSE;
-//        }
-//    }
-
-//    public String getPassportUrl() {
-//        return passportUrl;
-//    }
-//
-//    public void setPassportUrl(String passportUrl) {
-//        this.passportUrl = passportUrl;
-//    }
-//
-//    public String getAppPlatform() {
-//        return appPlatform;
-//    }
-//
-//    public void setAppPlatform(String appPlatform) {
-//        this.appPlatform = appPlatform;
-//    }
-//
-//    public String getToken() {
-//        return token;
-//    }
-//
-//    public void setToken(String token) {
-//        this.token = token;
-//    }
-
-//    public DeptWebService getDeptWebService() {
-//        return deptWebService;
-//    }
-//
-//    public void setDeptWebService(DeptWebService deptWebService) {
-//        this.deptWebService = deptWebService;
-//    }
-
-//	public NewDeptWebService getNewDeptWebService() {
-//		return newDeptWebService;
-//	}
-//
-//	public void setNewDeptWebService(NewDeptWebService newDeptWebService) {
-//		this.newDeptWebService = newDeptWebService;
-//	}
-
 }
