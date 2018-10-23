@@ -348,7 +348,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @Path("/delivery/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.verification", mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
-        this.logger.info("开始三方发货不全验证");
+        this.logger.info("开始三方发货不全验证:"+JsonHelper.toJson(request));
         try {
             if (check(request)) {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,

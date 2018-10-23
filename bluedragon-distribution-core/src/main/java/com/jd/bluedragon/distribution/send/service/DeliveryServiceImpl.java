@@ -4122,7 +4122,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 2：利用包裹号进行对比【差异结果不准确-当条码包裹号与运单中的不一致时】
      */
     public static class ForwardSendDiffrence extends AbstructDiffrenceComputer {
-
+        private final Logger logger = Logger.getLogger(ForwardSendDiffrence.class);
         @Autowired
         private WaybillCommonService waybillCommonService;
 
@@ -4138,6 +4138,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         geneList.add(p.getPackCode());
                     }
                 }else{
+                    logger.info("生成全部包裹号：" + diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                     geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                 }
 

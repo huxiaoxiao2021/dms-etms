@@ -4,7 +4,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -13,6 +12,7 @@ import java.util.regex.Pattern;
 /**
  * 序列号规则判断
  * Created by wangtingwei on 2014/11/3.
+ *
  * @see "http://jira.360buy.com/confluence/pages/viewpage.action?pageId=5486438"
  */
 public class SerialRuleUtil {
@@ -46,20 +46,23 @@ public class SerialRuleUtil {
     /**
      * 判断是否是有效的运单号
      * Add by shipeilin on 2017/08/07
+     *
      * @param wayBillCode
      * @return boolean
      */
     @Deprecated
-    public static final boolean isMatchCommonWaybillCode(String wayBillCode){
+    public static final boolean isMatchCommonWaybillCode(String wayBillCode) {
         return WaybillUtil.isWaybillCode(wayBillCode);
     }
+
     /**
      * 判断是否是有效的包裹号
+     *
      * @param packageCode
      * @return boolean
      */
     @Deprecated
-    public static final boolean isMatchCommonPackageCode(String packageCode){
+    public static final boolean isMatchCommonPackageCode(String packageCode) {
         return WaybillUtil.isPackageCode(packageCode);
     }
 
@@ -196,14 +199,13 @@ public class SerialRuleUtil {
      * @return
      */
     public static String generateSendCode(long createSiteCode, long receiveSiteCode, Date time) {
-        if(null==time)
-        {
-            time=new Date();
+        if (null == time) {
+            time = new Date();
         }
-        String timeString = DateHelper.formatDate(time,DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
-        timeString= timeString.substring(0,timeString.length()-1);
-        long magic=Long.valueOf(String.valueOf(createSiteCode).substring(0,1)+String.valueOf(receiveSiteCode).substring(0,1)+timeString)%7;
-        StringBuilder sendCode=new StringBuilder();
+        String timeString = DateHelper.formatDate(time, DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS);
+        timeString = timeString.substring(0, timeString.length() - 1);
+        long magic = Long.valueOf(String.valueOf(createSiteCode).substring(0, 1) + String.valueOf(receiveSiteCode).substring(0, 1) + timeString) % 7;
+        StringBuilder sendCode = new StringBuilder();
         sendCode.append(String.valueOf(createSiteCode));
         sendCode.append(SPLIT_CHAR_STRING);
         sendCode.append(String.valueOf(receiveSiteCode));
@@ -215,13 +217,14 @@ public class SerialRuleUtil {
 
     /**
      * 根据库房编码获取库房号
+     *
      * @param storeCode wms-6-1
      * @return
      */
     public static final Integer getStoreIdFromStoreCode(String storeCode) {
-    	if(storeCode==null){
-    		return null;
-    	}
+        if (storeCode == null) {
+            return null;
+        }
         Matcher matcher = RULE_STORE_CODE_REGEX.matcher(storeCode.trim());
         if (matcher.matches()) {
             return Integer.parseInt(matcher.group(3));
@@ -231,10 +234,11 @@ public class SerialRuleUtil {
 
     /**
      * 判断是否板号
+     *
      * @param boardCode
      * @return
      */
-    public static final boolean isBoardCode(String boardCode){
+    public static final boolean isBoardCode(String boardCode) {
         if (StringUtils.isNotBlank(boardCode) && RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
             return true;
         }
@@ -242,16 +246,16 @@ public class SerialRuleUtil {
     }
 
 
-
     /**
      * 判断是否逆向箱号（TC\TS\TW)
      * TC:退货普通
      * TS:退货奢侈品
      * TW:逆向内配
+     *
      * @param boxCode
      * @return
      */
-    public static final boolean isReverseBoxCode(String boxCode){
+    public static final boolean isReverseBoxCode(String boxCode) {
         if (StringUtils.isNotBlank(boxCode) && RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
             return true;
         }
