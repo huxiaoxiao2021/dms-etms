@@ -11,7 +11,7 @@
 
     <groupId>com.jd.bluedragon</groupId>
     <artifactId>bluedragon-distribution-utils</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>bluedragon-distribution-utils</name>
     <url>http://bluedragon.360buy.com</url>
     <packaging>jar</packaging>
