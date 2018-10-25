@@ -47,6 +47,11 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
             logger.warn("[B网半收]消费终端提交的协商再投MQ-包裹明细为空：" + message.getText());
             return;
         }
+        //ModelType为空的数据也保留，兼容老数据
+        if(dto.getModelType() != null && !Constants.PACKAGE_APPROVE_TYPE.equals(dto.getModelType())){
+            logger.warn("[B网半收]消费终端提交的协商再投MQ-非按包裹审核类型，执行丢弃：" + message.getText());
+            return;
+        }
         BaseStaffSiteOrgDto user = baseMajorManager.getBaseStaffByStaffId(dto.getOperatorId());
         String erp = "";
         if(user != null){
@@ -82,6 +87,7 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
                 approve.setDmsSiteName(dto.getOperateSiteName());
                 approve.setCreateUserCode(dto.getOperatorId());
                 approve.setCreateUserName(dto.getOperatorName());
+                approve.setModelType(dto.getModelType());
                 approve.setCreateUser(userErp);
                 approve.setPackageCode(packageDto.getPackageCode());
                 approve.setPackageState(packageDto.getPackageState());

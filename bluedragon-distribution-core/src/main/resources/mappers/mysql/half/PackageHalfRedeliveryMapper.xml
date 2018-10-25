@@ -91,6 +91,12 @@
                 <if test="redeliverTime != null">
                     redeliver_time,
                 </if>
+                <if test="modelType != null">
+                    model_type,
+                </if>
+                <if test="remark != null">
+                    remark,
+                </if>
 					is_delete,
 					ts
 			</trim>
@@ -150,8 +156,14 @@
                 <if test="redeliverTime != null">
                     #{redeliverTime,jdbcType=TIMESTAMP},
                 </if>
-					0,
-					now()
+				<if test="modelType != null">
+					#{modelType,jdbcType=TINYINT},
+				</if>
+                <if test="remark != null">
+                    #{remark,jdbcType=VARCHAR},
+                </if>
+                    0,
+                    now()
 			</trim>
 			)
 	</insert>
@@ -179,7 +191,7 @@
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
                     #{item.redeliverTime,jdbcType=TIMESTAMP},
-                    #{item.modelType,jdbcType=INTEGER},
+                    #{item.modelType,jdbcType=TINYINT},
                     #{item.remark,jdbcType=VARCHAR},
 					now(),
 					0,

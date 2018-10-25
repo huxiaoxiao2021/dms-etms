@@ -21,6 +21,7 @@
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="model_type" property="modelType" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
@@ -70,11 +71,14 @@
 					create_user,
 				</if>
 				<if test="createUserName != null">
-					create_user_name,
-				</if>
-					create_time,
-					is_delete,
-					ts
+                    create_user_name,
+                </if>
+                <if test="modelType != null">
+                    model_type,
+                </if>
+                    create_time,
+                    is_delete,
+                    ts
 			</trim>
 			)
 			values
@@ -116,6 +120,9 @@
 				<if test="createUserName != null">
 					#{createUserName,jdbcType=VARCHAR},
 				</if>
+                <if test="modelType != null">
+                    #{modelType,jdbcType=TINYINT},
+                </if>
 					now(),
 					0,
 					now()
@@ -128,7 +135,7 @@
 			(
 				dms_site_code,dms_site_name,waybill_code,order_id,
 				waybill_sign,package_code,package_remark,package_state,operatetime,
-				create_user_code,create_user,create_user_name,create_time,is_delete,ts
+				create_user_code,create_user,create_user_name,create_time,model_type,is_delete,ts
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -146,6 +153,7 @@
 					#{item.createUser,jdbcType=VARCHAR},
 					#{item.createUserName,jdbcType=VARCHAR},
 					now(),
+                    #{item.modelType,jdbcType=TINYINT},
 					0,
 					now()
 				)
