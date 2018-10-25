@@ -63,5 +63,8 @@ public class TextConstants {
      */
     public static final String B2B_TIMELY_TRANSPORT ="特准运";
 
-
+    /**
+     * 常用字符串:‘无’
+     */
+    public static final String COMMON_TEXT_NOTHING ="无";
 }

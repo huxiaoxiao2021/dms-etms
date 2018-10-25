@@ -165,4 +165,13 @@ public interface DmsInternalService {
      * @return
      */
     public Boolean isConsumableConfirmed(String waybillCode);
+
+    /**
+     * 查询运单是否可以进行逆向操作
+     * @see Ver DmsWebBaseClient#isReverseOperationAllowed
+     * @param waybillCode 运单号
+     * @param siteCode 操作站点
+     * @return true:可以操作逆向操作 false:反之
+     */
+    public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode);
 }

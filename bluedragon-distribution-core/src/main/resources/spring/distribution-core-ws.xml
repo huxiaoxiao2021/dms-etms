@@ -306,10 +306,10 @@
     <bean id="newDeptWebService" class="com.jd.bluedragon.distribution.base.service.impl.NewDeptWebServiceImpl" >
     </bean>
 
-    <bean id="userVerifyService" class="com.jd.bluedragon.distribution.base.service.impl.UserVerifyServiceImpl">
-        <!-- <property name="deptWebService" ref="deptWebService" />  -->
-        <!--<property name="appPlatform" value="${login.passport.appplatform}" />-->
-        <!--<property name="passportUrl" value="${login.passport.passporturl}" />-->
-        <!--<property name="token" value="${login.passport.token}" />-->
-    </bean>
+   <!-- <bean id="userVerifyService" class="com.jd.bluedragon.distribution.base.service.impl.UserVerifyServiceImpl">
+        &lt;!&ndash; <property name="deptWebService" ref="deptWebService" />  &ndash;&gt;
+        &lt;!&ndash;<property name="appPlatform" value="${login.passport.appplatform}" />&ndash;&gt;
+        &lt;!&ndash;<property name="passportUrl" value="${login.passport.passporturl}" />&ndash;&gt;
+        &lt;!&ndash;<property name="token" value="${login.passport.token}" />&ndash;&gt;
+    </bean>-->
 </beans>

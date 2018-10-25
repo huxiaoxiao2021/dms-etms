@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jsf="http://jsf.jd.com/schema/jsf"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+		http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd"
+       default-lazy-init="false">
+
+    <!-- 用户组jsf接口，负责人 王新新
+       SourceId：demo
+       Alias（测试）：userSdk-stg
+       Alias（线上马驹桥）：userSdk-mjq-noah02（系统已配置alias，可用原有配置）
+       Alias（线上廊坊）：userSdk-lf-noah02（系统已配置alias，可用原有配置）
+  -->
+    <bean id="userSdkConsumerFilter" class="com.jd.user.sdk.export.filter.UserSdkConsumerFilter" scope="prototype"/>
+    <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserPassportExportService" alias="${user.export.alias}"
+                  filter="userSdkConsumerFilter" retries="${jsf.retries}" timeout="${user.export.timeout}">
+        <!-- 上线下面这行必须引掉-->
+        <!--<jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>-->
+    </jsf:consumer>
+</beans>
