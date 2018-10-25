@@ -600,10 +600,6 @@ public class LoadBillServiceImpl implements LoadBillService {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("waybillCode", BusinessHelper.getWaybillCode(report.getOrderId()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
-        if (loadBillStatusMap.get("waybillCode")==null&&loadBillStatusMap.get("boxCode")==null){
-            logger.warn("不允许查询装载："+JsonHelper.toJson(report));
-            throw new RuntimeException("不允许查询装载："+JsonHelper.toJson(report));
-        }
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList = loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
         return loadBillList;

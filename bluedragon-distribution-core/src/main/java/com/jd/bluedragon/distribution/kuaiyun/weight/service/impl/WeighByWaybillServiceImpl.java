@@ -115,6 +115,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
 
         String waybillCode = null;
+        logger.info("单号或包裹号正则校验"+codeStr);
 
         if (WaybillUtil.isPackageCode(codeStr))
         {
