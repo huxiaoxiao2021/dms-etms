@@ -105,7 +105,7 @@ public class TransbillMServiceImpl implements TransbillMService {
             if(waybill!=null){
                 String waybillSign=waybill.getWaybillSign();
                 if(waybillSign.length()>=75){
-                    Integer requireTransMode= BusinessHelper.stringToInteger(waybillSign,74);
+                    Integer requireTransMode= StringHelper.stringToInteger(waybillSign,74);
                     transbillM.setRequireTransMode(requireTransMode);
                 }
                else{

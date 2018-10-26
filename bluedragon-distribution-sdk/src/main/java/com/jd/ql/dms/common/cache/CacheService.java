@@ -121,13 +121,4 @@ public interface CacheService {
 	 * @return
 	 */
 	boolean exists(String key);
-	/**
-	 * 用于防重，key为各业务自定义，对单业务重复提交、执行进行防重
-	 *
-	 * @param key
-	 * @param exTime
-	 * @param exTimeUnit
-	 * @return
-	 */
-    Boolean isRepeatByKey(String key, long exTime, TimeUnit exTimeUnit);
 }

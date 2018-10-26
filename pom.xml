@@ -18,6 +18,7 @@
    		<module>bluedragon-distribution-sdk</module>
    		<module>bluedragon-distribution-proxy</module>
    		<module>bluedragon-distribution-saf</module>
+        <module>bluedragon-distribution-utils</module>
     </modules>
 	
 	<properties>

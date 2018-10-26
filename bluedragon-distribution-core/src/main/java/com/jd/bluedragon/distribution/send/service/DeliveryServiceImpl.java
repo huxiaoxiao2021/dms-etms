@@ -83,6 +83,8 @@ import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillSchedul
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -500,6 +502,13 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);
+        //验证通过，补成第一个包裹号，如果后面发现这单是一单多件，再进行提示
+        if(!BusinessUtil.isBoxcode(domain.getBoxCode()) && !WaybillUtil.isPackageCode(domain.getBoxCode()) &&
+                WaybillUtil.isWaybillCode(domain.getBoxCode())){
+            logger.info("一车一单发货扫描运单["+domain.getBoxCode()+"]，校验通过，生成包裹号:" +
+                    BusinessHelper.getFirstPackageCodeByWaybillCode(domain.getBoxCode()));
+            domain.setBoxCode(BusinessHelper.getFirstPackageCodeByWaybillCode(domain.getBoxCode()));
+        }
         return result;
     }
 
@@ -4133,7 +4142,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 2：利用包裹号进行对比【差异结果不准确-当条码包裹号与运单中的不一致时】
      */
     public static class ForwardSendDiffrence extends AbstructDiffrenceComputer {
-
+        private final Logger logger = Logger.getLogger(ForwardSendDiffrence.class);
         @Autowired
         private WaybillCommonService waybillCommonService;
 
@@ -4149,6 +4158,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         geneList.add(p.getPackCode());
                     }
                 }else{
+                    logger.info("生成全部包裹号：" + diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                     geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                 }
 

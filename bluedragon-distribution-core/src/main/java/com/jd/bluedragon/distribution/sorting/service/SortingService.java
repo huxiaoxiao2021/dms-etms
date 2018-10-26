@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.sorting.service;
 
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
-
 import java.util.List;
 import java.util.Map;
 
@@ -139,4 +138,11 @@ public interface SortingService {
 
     /**分页查询分拣任务*/
     public List<Sorting> findPageSorting(Map<String,Object> params);
+
+    /**
+     * 处理任务数据
+     * @param task
+     * @return 成功与否
+     */
+    public boolean processTaskData(Task task);
 }
