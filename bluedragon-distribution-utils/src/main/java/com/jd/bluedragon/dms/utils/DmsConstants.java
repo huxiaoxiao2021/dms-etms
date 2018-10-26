@@ -86,4 +86,8 @@ public class DmsConstants {
      */
     public static final char MMB_SELF_MARK = '9';
     public static final String MMB_V_MARK = "009";
+    /**
+     * 最多包裹数
+     */
+    public static int MAX_NUMBER=20000;
 }

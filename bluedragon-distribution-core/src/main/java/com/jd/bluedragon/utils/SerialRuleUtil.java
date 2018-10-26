@@ -52,7 +52,7 @@ public class SerialRuleUtil {
      */
     @Deprecated
     public static final boolean isMatchCommonWaybillCode(String wayBillCode) {
-        return WaybillUtil.isWaybillCode(wayBillCode);
+        return WaybillUtil.isWaybillCode(wayBillCode)||WaybillUtil.isPickupCode(wayBillCode);
     }
 
     /**
