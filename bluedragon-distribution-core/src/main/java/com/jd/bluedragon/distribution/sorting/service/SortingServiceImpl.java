@@ -37,11 +37,11 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,6 +56,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -64,6 +65,7 @@ public class SortingServiceImpl implements SortingService {
 
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
+	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
 	@Autowired
 	private SortingDao sortingDao;
 
@@ -278,9 +280,10 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP,JProEnum.FunctionError})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
+				Constants.UMP_APP_NAME_DMSWORKER);
 		//记录本次分拣处理的包裹数量
 		int sortingNum = 0;
 		//记录本次分拣处理的结果
@@ -312,6 +315,7 @@ public class SortingServiceImpl implements SortingService {
 			long preCostTime = preEndTime - beginTime;
 			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+" ms,total:"+costTimeTotal+" ms】"+"task:"+JsonHelper.toJson(task));
 		}
+		Profiler.registerInfoEnd(doSorting);
 		return result;
 	}
 
@@ -1155,4 +1159,52 @@ public class SortingServiceImpl implements SortingService {
 		return sortingDao.findPageSorting(params);
 	}
 
+
+	public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
+
+	@Autowired
+	@Qualifier("jimdbCacheService")
+	private CacheService cacheService;
+
+	private static final String SPLIT_CHAR="$";
+
+	/**
+	 * 处理任务数据
+	 * @param task
+	 * @return 成功与否
+	 */
+	public boolean processTaskData(Task task){
+		CallerInfo process1200TaskData = ProfilerHelper.registerInfo("DMSWORKER.SortingService.processTaskData",
+				Constants.UMP_APP_NAME_DMSWORKER);
+		String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getBoxCode() +"|"+ task.getKeyword2();
+		try{
+			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
+			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
+			if(!isSucdess){//说明有重复任务
+				this.logger.error("1200分拣任务重复："+task.getBody());
+				return false;
+			}
+		}catch(Exception e){
+			this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
+		}
+
+		boolean result = Boolean.FALSE;
+		try {
+			this.logger.info("task id is " + task.getId());
+			result = this.doSorting(task);
+		} catch (Exception e) {
+			StringBuilder builder=new StringBuilder("task id is");
+			builder.append(task.getId());
+			builder.append(SPLIT_CHAR).append(task.getBoxCode());
+			builder.append(SPLIT_CHAR).append(task.getKeyword1());
+			builder.append(SPLIT_CHAR).append(task.getKeyword2());
+			this.logger.error(builder.toString());
+			this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+			result = Boolean.FALSE;
+		}
+
+		cacheService.del(fingerPrintKey);
+		Profiler.registerInfoEnd(process1200TaskData);
+		return result;
+	}
 }

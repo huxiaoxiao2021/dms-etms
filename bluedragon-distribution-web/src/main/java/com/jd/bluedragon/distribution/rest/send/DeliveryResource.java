@@ -348,7 +348,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @Path("/delivery/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.verification", mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
-        this.logger.info("开始三方发货不全验证");
+        this.logger.info("开始三方发货不全验证:"+JsonHelper.toJson(request));
         try {
             if (check(request)) {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
@@ -825,7 +825,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
         this.logger.info("手动获取设备对应的批次号");
-        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
+        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig(),"");
         
         if (scannerFrameBatchSend != null) {
         	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);

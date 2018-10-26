@@ -52,6 +52,12 @@ public class WaybillConsumableExportDto  implements Serializable {
     /** 确认时间 */
     private Date confirmTime;
 
+    /** 揽收时间str */
+    private String receiveTimeStr;
+
+    /** 确认时间str */
+    private String confirmTimeStr;
+
     /** 揽收数量 */
     private Double receiveQuantity;
 
@@ -275,5 +281,21 @@ public class WaybillConsumableExportDto  implements Serializable {
 
     public void setConfirmStatusStr(String confirmStatusStr) {
         this.confirmStatusStr = confirmStatusStr;
+    }
+
+    public String getReceiveTimeStr() {
+        return receiveTimeStr;
+    }
+
+    public void setReceiveTimeStr(String receiveTimeStr) {
+        this.receiveTimeStr = receiveTimeStr;
+    }
+
+    public String getConfirmTimeStr() {
+        return confirmTimeStr;
+    }
+
+    public void setConfirmTimeStr(String confirmTimeStr) {
+        this.confirmTimeStr = confirmTimeStr;
     }
 }

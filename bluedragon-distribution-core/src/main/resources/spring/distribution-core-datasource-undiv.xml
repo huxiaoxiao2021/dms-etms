@@ -16,9 +16,10 @@
     <bean id="transactionManager_unDiv"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dms_main_undiv"/>
+        <qualifier value="main_undiv"/>
     </bean>
 
-    <tx:annotation-driven transaction-manager="transactionManager_unDiv"/>
+    <tx:annotation-driven transaction-manager="transactionManager_unDiv" proxy-target-class="true"/>
 
     <bean id="unDivSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dms_main_undiv"/>

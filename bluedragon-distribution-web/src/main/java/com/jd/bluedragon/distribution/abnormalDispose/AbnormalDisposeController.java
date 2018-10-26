@@ -42,7 +42,7 @@ public class AbnormalDisposeController extends DmsBaseController {
      *
      * @return
      */
-//    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
+    @Authorization(Constants.DMS_WEB_SORTING_ABNORMALDISPOSE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
         model.addAttribute("usercode", getLoginUser().getUserErp());
