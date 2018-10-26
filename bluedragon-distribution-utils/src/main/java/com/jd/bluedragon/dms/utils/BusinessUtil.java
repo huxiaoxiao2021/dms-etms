@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author tangchunqing
@@ -31,6 +32,35 @@ public class BusinessUtil {
      */
     private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
+    }
+    /**
+     * 判断是否板号
+     *
+     * @param boardCode
+     * @return
+     */
+    public static final boolean isBoardCode(String boardCode) {
+        if (StringUtils.isNotBlank(boardCode) && DmsConstants.RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 判断是否逆向箱号（TC\TS\TW)
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     *
+     * @param boxCode
+     * @return
+     */
+    public static final boolean isReverseBoxCode(String boxCode) {
+        if (StringUtils.isNotBlank(boxCode) && DmsConstants.RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
     }
 
 

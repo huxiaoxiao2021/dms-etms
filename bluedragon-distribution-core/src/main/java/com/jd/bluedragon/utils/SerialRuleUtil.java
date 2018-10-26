@@ -239,10 +239,7 @@ public class SerialRuleUtil {
      * @return
      */
     public static final boolean isBoardCode(String boardCode) {
-        if (StringUtils.isNotBlank(boardCode) && RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
-            return true;
-        }
-        return false;
+        return BusinessUtil.isBoardCode(boardCode);
     }
 
 
@@ -256,10 +253,7 @@ public class SerialRuleUtil {
      * @return
      */
     public static final boolean isReverseBoxCode(String boxCode) {
-        if (StringUtils.isNotBlank(boxCode) && RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
-            return true;
-        }
-        return false;
+        return BusinessUtil.isReverseBoxCode(boxCode);
     }
 
 }
