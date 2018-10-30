@@ -10,6 +10,9 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -18,6 +21,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 @Service("boxService")
@@ -58,6 +63,9 @@ public class BoxServiceImpl implements BoxService {
 	@Autowired
 	@Qualifier("jimdbCacheService")
 	private CacheService jimdbCacheService;
+
+	@Autowired
+	private SendMManager sendMManager;
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
@@ -330,32 +338,62 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
 	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus) {
-		String redisKey = null;
+		Boolean result = false;
 		try {
 			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
-				redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
-				//不管是否存在，都更新key的值
-				return jimdbCacheService.set(redisKey, boxStatus);
+				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
+				//更新缓存
+				result = jimdbCacheService.setEx(redisKey, boxStatus, Constants.TIME_SECONDS_ONE_DAY);
+				if (result) {
+					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}", boxCode, operateSiteCode));
+				}
 			}
 		} catch (Exception e) {
-			logger.error("redisKey：" + redisKey + "更新箱号状态缓存失败", e);
+			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，更新箱号状态缓存失败！", boxCode, operateSiteCode), e);
 		}
-		return false;
+		return result;
 	}
 
 	@Override
-	public Integer getBoxStatusRedis(String boxCode, Integer operateSiteCode) {
-		String redisKey = null;
+	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {
+		Integer result = null;
 		try {
 			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
-				redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
-				//不管是否存在，都更新key的值
-				return Integer.parseInt(jimdbCacheService.get(redisKey));
+				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
+				String value = jimdbCacheService.get(redisKey);
+				if (StringHelper.isNotEmpty(value)) {
+					logger.info(MessageFormat.format("箱号：{0}状态成功，操作站点编号：{1}", boxCode, operateSiteCode));
+					result = Integer.parseInt(value);
+				} else {
+					logger.info(MessageFormat.format("箱号：{0}，操作站点编号：{1}，箱号状态缓存未命中，需查库确认！", boxCode, operateSiteCode));
+				}
 			}
 		} catch (Exception e) {
-			logger.error("redisKey：" + redisKey + "获取箱号状态缓存失败", e);
+			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号状态缓存失败！", boxCode, operateSiteCode), e);
 		}
-		return null;
+		return result;
+	}
+
+	@Override
+	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
+		Integer boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
+		if (boxStatus != null) {
+			if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
+				logger.info(MessageFormat.format("箱号：{0}在站点编号：{1}时已发货！", boxCode, operateSiteCode));
+				return true;
+			}
+		} else {
+			SendM sendM = new SendM();
+			sendM.setBoxCode(boxCode);
+			sendM.setCreateSiteCode(operateSiteCode);
+			List<SendM> sendMList = sendMManager.findSendMByBoxCode(sendM);
+			if (sendMList != null && ! sendMList.isEmpty()) {
+				logger.info(MessageFormat.format("箱号：{0}在站点编号：{1}时已发货！", boxCode, operateSiteCode));
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public static void main(String[] args) {

@@ -9,7 +9,7 @@ package com.jd.bluedragon.distribution.box.domain;
 public enum BoxStatusEnum {
 
     INIT_STATUS(1, "初始状态"),
-    CANCEL_STATUS(2, "取消发货状态"),
+    CANCELED_STATUS(2, "取消发货状态"),
     SENT_STATUS(5, "已发货状态");
 
     private Integer code;

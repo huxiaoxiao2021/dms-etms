@@ -135,11 +135,14 @@ public class BoxResource implements DmsBoxService {
             } else if (Box.STATUS_DEFALUT.intValue() == box.getStatus().intValue()) {
                 return this.boxNoPrint();
             }
-            SendM sendM = new SendM();
-            sendM.setBoxCode(boxCode);
-            sendM.setCreateSiteCode(box.getCreateSiteCode());
-            List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
-            if (!sendMList.isEmpty()) {// 如果箱子已经发货，则不能再使用了
+
+            //判断箱子是否已发货，包含先从缓存中取 edited by hanjiaxing3 2018.10.28
+//            SendM sendM = new SendM();
+//            sendM.setBoxCode(boxCode);
+//            sendM.setCreateSiteCode(box.getCreateSiteCode());
+//            List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
+//            if (!sendMList.isEmpty()) {// 如果箱子已经发货，则不能再使用了
+            if (boxService.checkBoxIsSent(boxCode, box.getCreateSiteCode())) {
                 return this.boxHasBeanSended();
             } else {
                 try{

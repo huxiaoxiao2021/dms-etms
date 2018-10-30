@@ -1492,20 +1492,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> tSendMList = new ArrayList<SendM>();
         // 验证是否发货箱子和包裹分开处理
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-            SendM dSendM = new SendM();
-            dSendM.setBoxCode(tSendM.getBoxCode());
-            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
-            dSendM.setSendType(tSendM.getSendType());
-            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
+            //edited by hanjiaxing3 修改为先取箱号状态缓存，再读库
+//            SendM dSendM = new SendM();
+//            dSendM.setBoxCode(tSendM.getBoxCode());
+//            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
+//            dSendM.setSendType(tSendM.getSendType());
+//            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
+            if (boxService.checkBoxIsSent(tSendM.getBoxCode(), tSendM.getCreateSiteCode())) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
         } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
             // 再投标识
             tSendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+            if (tSendMList != null && !tSendMList.isEmpty()) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
         }
 
-        if (tSendMList != null && !tSendMList.isEmpty()) {
-            response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-            response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
-        }
         return response;
     }
 
@@ -1583,7 +1588,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
-                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCEL_STATUS.getCode());
+                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;

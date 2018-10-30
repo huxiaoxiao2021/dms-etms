@@ -58,5 +58,13 @@ public interface BoxService {
      * @param operateSiteCode 操作箱号的单位，用于区分中转发货的箱号状态
      * @return
      */
-    Integer getBoxStatusRedis(String boxCode, Integer operateSiteCode);
+    Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode);
+
+    /***
+     * 判断箱号是否已经发货
+     * @param boxCode 箱号
+     * @param operateSiteCode 操作箱号的单位，用于区分中转发货的箱号状态
+     * @return
+     */
+    Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode);
 }

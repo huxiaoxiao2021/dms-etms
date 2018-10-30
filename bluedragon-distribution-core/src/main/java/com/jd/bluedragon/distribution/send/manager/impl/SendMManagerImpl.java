@@ -24,9 +24,12 @@ public class SendMManagerImpl implements SendMManager {
 
     @Override
     public Integer add(String namespace, SendM sendM) {
-        //更新箱号状态缓存
-        boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
-        return sendMDao.add(namespace, sendM);
+        Integer result = sendMDao.add(namespace, sendM);
+        if (result > 0) {
+            //更新箱号状态缓存
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+        }
+        return result;
     }
 
     @Override
@@ -50,9 +53,12 @@ public class SendMManagerImpl implements SendMManager {
 
     @Override
     public boolean insertSendM(SendM sendM) {
-        //更新箱号状态缓存
-        boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), 5);
-        return sendMDao.insertSendM(sendM);
+        boolean result = sendMDao.insertSendM(sendM);
+        if (result) {
+            //更新箱号状态缓存
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+        }
+        return result;
     }
 
 }
