@@ -41,7 +41,7 @@ public class SendMManagerImpl implements SendMManager {
     public List<SendM> findSendMByBoxCode(SendM sendM) {
         List<SendM> list = sendMDao.findSendMByBoxCode(sendM);
         //sendm不为空，说明已发货，否则视为初始状态
-        if (list != null && list.isEmpty()) {
+        if (list != null && ! list.isEmpty()) {
             //更新箱号状态缓存为已发货
             boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
         } else {

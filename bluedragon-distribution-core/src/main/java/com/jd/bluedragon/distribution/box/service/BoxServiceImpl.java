@@ -345,7 +345,7 @@ public class BoxServiceImpl implements BoxService {
 				//更新缓存
 				result = jimdbCacheService.setEx(redisKey, boxStatus, Constants.TIME_SECONDS_ONE_DAY);
 				if (result) {
-					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}", boxCode, operateSiteCode));
+					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
 				}
 			}
 		} catch (Exception e) {
@@ -362,10 +362,10 @@ public class BoxServiceImpl implements BoxService {
 				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
 				String value = jimdbCacheService.get(redisKey);
 				if (StringHelper.isNotEmpty(value)) {
-					logger.info(MessageFormat.format("箱号：{0}状态成功，操作站点编号：{1}", boxCode, operateSiteCode));
 					result = Integer.parseInt(value);
+					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0}，操作站点编号：{1}，状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(result)));
 				} else {
-					logger.info(MessageFormat.format("箱号：{0}，操作站点编号：{1}，箱号状态缓存未命中，需查库确认！", boxCode, operateSiteCode));
+					logger.info(MessageFormat.format("箱号状态缓存未命中，箱号：{0}，操作站点编号：{1}，需查库确认！", boxCode, operateSiteCode));
 				}
 			}
 		} catch (Exception e) {
@@ -376,24 +376,30 @@ public class BoxServiceImpl implements BoxService {
 
 	@Override
 	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
-		Integer boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
-		if (boxStatus != null) {
-			if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
-				logger.info(MessageFormat.format("箱号：{0}在站点编号：{1}时已发货！", boxCode, operateSiteCode));
-				return true;
+		Boolean result = false;
+		try {
+			Integer boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
+			if (boxStatus != null) {
+				if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
+					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
+					result = true;
+				}
+			} else {
+				SendM sendM = new SendM();
+				sendM.setBoxCode(boxCode);
+				sendM.setCreateSiteCode(operateSiteCode);
+				List<SendM> sendMList = sendMManager.findSendMByBoxCode(sendM);
+				if (sendMList != null && ! sendMList.isEmpty()) {
+					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
+					result = true;
+				}
 			}
-		} else {
-			SendM sendM = new SendM();
-			sendM.setBoxCode(boxCode);
-			sendM.setCreateSiteCode(operateSiteCode);
-			List<SendM> sendMList = sendMManager.findSendMByBoxCode(sendM);
-			if (sendMList != null && ! sendMList.isEmpty()) {
-				logger.info(MessageFormat.format("箱号：{0}在站点编号：{1}时已发货！", boxCode, operateSiteCode));
-				return true;
-			}
+		} catch (Exception e) {
+			result = null;
+			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号校验箱号是否发货失败！", boxCode, operateSiteCode), e);
 		}
 
-		return false;
+		return result;
 	}
 
 	public static void main(String[] args) {

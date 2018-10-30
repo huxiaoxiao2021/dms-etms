@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.box.domain;
 
+import java.util.Map;
+import java.util.TreeMap;
+
 /**
  * Created by hanjiaxing1 on 2018/10/19.
  *
@@ -29,5 +32,13 @@ public enum BoxStatusEnum {
 
     public String toString() {
         return this.getCode() + "-" + this.getName();
+    }
+
+    public static Map<Integer, String> getEnumMap() {
+        TreeMap<Integer, String> map = new TreeMap<Integer, String>();
+        for (BoxStatusEnum boxStatusEnum : BoxStatusEnum.values()) {
+            map.put(boxStatusEnum.getCode(), boxStatusEnum.getName());
+        }
+        return map;
     }
 }

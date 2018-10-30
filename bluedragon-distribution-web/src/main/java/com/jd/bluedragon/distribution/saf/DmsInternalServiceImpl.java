@@ -342,28 +342,6 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isBoxSent",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Boolean isBoxSent(String boxCode, Integer siteCode) {
-        try {
-            //查询箱号缓存
-            Integer result = boxService.getBoxStatusRedis(boxCode, siteCode);
-            if(result != null) {
-                //箱号状态缓存表中标记已发货
-                if (result.equals(BoxStatusEnum.SENT_STATUS.getCode())) {
-                    return true;
-                }
-            } else {
-                //缓存未命中，查询sendm表
-                SendM sendM = new SendM();
-                sendM.setBoxCode(boxCode);
-                sendM.setCreateSiteCode(siteCode);
-                List list = sendMManager.findSendMByBoxCode(sendM);
-                //sendm表中有数据，说明已发货
-                if (list != null && ! list.isEmpty()) {
-                    return true;
-                }
-            }
-        } catch (Exception e) {
-            logger.error("isBoxSent方法异常", e);
-        }
-        return false;
+        return boxService.checkBoxIsSent(boxCode, siteCode);
     }
 }
