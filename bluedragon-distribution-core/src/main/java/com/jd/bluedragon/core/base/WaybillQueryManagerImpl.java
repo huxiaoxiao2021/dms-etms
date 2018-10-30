@@ -344,17 +344,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes, WChoice wChoice) {
         if (waybillCodes != null && waybillCodes.size() == 1) {
             BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(waybillCodes.get(0), wChoice);
+            BaseEntity<List<BigWaybillDto>> result = new BaseEntity<List<BigWaybillDto>>();
             if (null != baseEntity) {
                 List<BigWaybillDto> bigWaybillDtoList = new ArrayList<BigWaybillDto>(1);
                 bigWaybillDtoList.add(baseEntity.getData());
 
-                BaseEntity<List<BigWaybillDto>> result = new BaseEntity<List<BigWaybillDto>>();
                 result.setData(bigWaybillDtoList);
                 result.setMessage(baseEntity.getMessage());
                 result.setResultCode(baseEntity.getResultCode());
-                return result;
             }
-            return null;
+            return result;
         } else {
             return this.doBatchGetDatasByChoice(waybillCodes, wChoice);
         }
@@ -370,28 +369,31 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     private BaseEntity<List<BigWaybillDto>> doBatchGetDatasByChoice(List<String> waybillCodes, WChoice wChoice) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.doBatchGetDatasByChoice", false, true);
         BaseEntity<List<BigWaybillDto>> results;
-        if (waybillPackageManager.isGetPackageByPageOpen()) {
-            Boolean isQueryPackList = wChoice.getQueryPackList();
-            if (null == isQueryPackList) {
-                isQueryPackList = false;
-            }
-            wChoice.setQueryPackList(false);
-            results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+        try {
+            if (waybillPackageManager.isGetPackageByPageOpen()) {
+                Boolean isQueryPackList = wChoice.getQueryPackList();
+                if (null == isQueryPackList) {
+                    isQueryPackList = false;
+                }
+                wChoice.setQueryPackList(false);
+                results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
 
-            if (isQueryPackList && null != results) {
-                for (BigWaybillDto bigWaybillDto : results.getData()) {
-                    if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
-                        BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
-                        if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
-                            bigWaybillDto.setPackageList(packageDBaseEntity.getData());
+                if (isQueryPackList && null != results) {
+                    for (BigWaybillDto bigWaybillDto : results.getData()) {
+                        if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
+                            BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
+                            if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
+                                bigWaybillDto.setPackageList(packageDBaseEntity.getData());
+                            }
                         }
                     }
                 }
+            } else {
+                results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
             }
-        } else {
-            results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        Profiler.registerInfoEnd(info);
         return results;
     }
 
