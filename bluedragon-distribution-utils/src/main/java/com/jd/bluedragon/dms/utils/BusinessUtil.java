@@ -1,11 +1,14 @@
 package com.jd.bluedragon.dms.utils;
 
+import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author tangchunqing
  * @Description: 业务相关判断
  * @date 2018年10月12日 18时:15分
  */
-public class BusinessUtil extends WaybillUtil{
+public class BusinessUtil {
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
      * B，正向；T，逆向；G取件退货;C普通物品；S奢侈品；2-8位，出发地编号；9-15位，到达地编号；最后8位，流水号。一共23位。 前面有两个字母
@@ -18,7 +21,7 @@ public class BusinessUtil extends WaybillUtil{
         if (StringHelper.isEmpty(s)) {
             return Boolean.FALSE;
         }
-        return isMatchBoxCode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
+        return isMatchBoxCode(s);
     }
 
     /**
@@ -30,7 +33,62 @@ public class BusinessUtil extends WaybillUtil{
     private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
     }
+    /**
+     * 判断是否板号
+     *
+     * @param boardCode
+     * @return
+     */
+    public static final boolean isBoardCode(String boardCode) {
+        if (StringUtils.isNotBlank(boardCode) && DmsConstants.RULE_BOARD_CODE_REGEX.matcher(boardCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
 
+
+    /**
+     * 判断是否逆向箱号（TC\TS\TW)
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     *
+     * @param boxCode
+     * @return
+     */
+    public static final boolean isReverseBoxCode(String boxCode) {
+        if (StringUtils.isNotBlank(boxCode) && DmsConstants.RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * 获取包裹总数
+     * 默认最大包裹数2W
+     *
+     * @param packCode
+     * @return
+     */
+    public static int getPackNumByPackCode(String packCode) {
+        return getPackNumByPackCode(packCode, DmsConstants.MAX_NUMBER);
+    }
+
+    /**
+     * 获取包裹总数
+     *
+     * @param packCode
+     * @param maxNum   最大包裹数
+     * @return
+     */
+    public static int getPackNumByPackCode(String packCode, int maxNum) {
+        int num = WaybillCodeRuleValidateUtil.getPackNumByPackCode(packCode);
+        if (num > maxNum) {
+            return maxNum;
+        }
+        return num;
+    }
 
     /**
      * 判断字符串位置是否标记为1
@@ -332,21 +390,22 @@ public class BusinessUtil extends WaybillUtil{
 
     /**
      * 判断订单是否是买卖宝的
+     *
      * @param waybillCode
      * @param waybillSign
      * @param sendPay
      * @return
      */
-    public static Boolean isMMBWaybill(String waybillCode,String waybillSign,String sendPay) {
+    public static Boolean isMMBWaybill(String waybillCode, String waybillSign, String sendPay) {
 
         try {
-            if (isJDWaybillCode(waybillCode)) {
+            if (WaybillUtil.isJDWaybillCode(waybillCode)) {
                 if (!StringHelper.isEmpty(waybillSign) && DmsConstants.MMB_SELF_MARK == waybillSign.charAt(10)) {
                     return Boolean.TRUE;
                 }
             }
 
-            if (isBusiWaybillCode(waybillCode)) {
+            if (WaybillUtil.isBusiWaybillCode(waybillCode)) {
                 if (!StringHelper.isEmpty(sendPay) && DmsConstants.MMB_V_MARK.equals(sendPay.substring(59, 62))) {
                     return Boolean.TRUE;
                 }
@@ -357,6 +416,7 @@ public class BusinessUtil extends WaybillUtil{
 
         return Boolean.FALSE;
     }
+
     /**
      * 是否是理赔换新单
      *
@@ -390,12 +450,13 @@ public class BusinessUtil extends WaybillUtil{
 
     /**
      * 通过运单标识 判断是否需求包装耗材
+     * <p>
+     * 72 位 是1  标识需要
      *
-     *  72 位 是1  标识需要
      * @param waybillSign
      * @return
      */
-    public static boolean isNeedConsumable(String waybillSign){
+    public static boolean isNeedConsumable(String waybillSign) {
         return isSignChar(waybillSign, 72, '1');
     }
 }
