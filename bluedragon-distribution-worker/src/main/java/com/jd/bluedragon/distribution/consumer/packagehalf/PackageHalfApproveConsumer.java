@@ -33,7 +33,7 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
     @Autowired
     private PackageHalfApproveService packageHalfApproveService;
 
-    @JProfiler(jKey = "DMSCORE.PackageHalfRedeliveryConsumer.consume", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSCORE.PackageHalfRedeliveryConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public void consume(Message message) throws Exception {
         if (!JsonHelper.isJsonString(message.getText())) {
@@ -47,6 +47,7 @@ public class PackageHalfApproveConsumer extends MessageBaseConsumer {
             logger.warn("[B网半收]消费终端提交的协商再投MQ-包裹明细为空：" + message.getText());
             return;
         }
+        logger.warn("[B网半收]消费终端提交的协商再投MQ-包裹数量：" + packageList.size()+"；运单号：" + dto.getWaybillCode());
         //ModelType为空的数据也保留，兼容老数据
         if(dto.getModelType() != null && !Constants.PACKAGE_APPROVE_TYPE.equals(dto.getModelType())){
             logger.warn("[B网半收]消费终端提交的协商再投MQ-非按包裹审核类型，执行丢弃：" + message.getText());
