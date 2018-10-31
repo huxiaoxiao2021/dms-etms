@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
 
@@ -24,5 +25,5 @@ public interface UserVerifyManager {
      * @param clientInfo
      * @return
      */
-    Boolean passportVerify(String pin, String password, ClientInfo clientInfo);
+    BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo);
 }

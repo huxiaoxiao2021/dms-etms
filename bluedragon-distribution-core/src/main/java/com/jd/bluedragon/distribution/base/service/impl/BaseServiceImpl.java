@@ -113,8 +113,8 @@ public class BaseServiceImpl implements BaseService {
         }
 
         if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-            basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+			basePdaUserDto.setErrorCode(Constants.PDA_USER_EMPTY);
+			basePdaUserDto.setMessage(Constants.PDA_USER_EMPTY_MSG);
             return basePdaUserDto;
         }
 
@@ -124,19 +124,20 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-                if (userVerifyManager.passportVerify(thirdUserId,password,clientInfo)) {
-                    // 用户组接口验证通过后，从基础资料获取具体信息
-                    BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
-                    if (null == baseStaffDto) {
-                        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
-                        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
-                    } else {
-                        fillPdaUserDto(basePdaUserDto, baseStaffDto,password);
-                    }
-                } else {
-                    basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
-                }
+				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo);
+				if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
+					// 用户组接口验证通过后，从基础资料获取具体信息
+					BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
+					if (null == baseStaffDto) {
+						basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
+						basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+					} else {
+						fillPdaUserDto(basePdaUserDto, baseStaffDto, password);
+					}
+				} else {
+					basePdaUserDto.setErrorCode(basePdaUserDtoNew.getErrorCode());
+					basePdaUserDto.setMessage(basePdaUserDtoNew.getMessage());
+				}
                 // 自营登录
             } else {
                 // 调用人事接口验证用户
@@ -160,8 +161,8 @@ public class BaseServiceImpl implements BaseService {
             }
         } catch (Exception e) {
             log.error("user login error " + userid, e);
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+			basePdaUserDto.setErrorCode(Constants.PDA_USER_ABNORMAL);
+			basePdaUserDto.setMessage(Constants.PDA_USER_ABNORMAL_MSG);
         }
         return basePdaUserDto;
     }
@@ -206,7 +207,20 @@ public class BaseServiceImpl implements BaseService {
 				result.setErrormsg("基础信息服务异常");
 				// 返回结果
 				return result;
-			case 0:/** errorcode=0表示获取用户信息失败 */
+			case 1110: //无可用验证方式(命中风险检查)
+			case 1100: //需要验证(命中风险检查)
+			case 105: //ip在黑名单中
+			case 100://系统繁忙
+			case 14://账号已经注销
+			case 8://因安全原因账号被锁
+			case 7://未验证的企业用户
+			case 6://密码错误
+			case 3: //密码错误超过十次pin被锁
+			case 2://用户不存在
+			case 0: //获取基础资料数据失败
+			case -4: //用户名或密码为空
+			case -3://获取基础账号JSF数据失败
+			case -2://登录异常
 			case -1:
 				/** errorcode=-1表示验证失败 */
 				// 设置错误标示和错误信息

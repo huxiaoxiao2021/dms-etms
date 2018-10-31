@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
@@ -23,7 +24,7 @@ import java.util.Map;
  * @date 2018年10月19日 10时:33分
  */
 @Service("userVerifyManager")
-public class UserVerifyManagerImpl implements UserVerifyManager{
+public class UserVerifyManagerImpl implements UserVerifyManager {
     private static final Log logger = LogFactory.getLog(UserVerifyManagerImpl.class);
 
     private static final String NONE = "NONE";
@@ -57,6 +58,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager{
 
     /**
      * 自营验证
+     *
      * @param name
      * @param password
      * @return
@@ -74,13 +76,15 @@ public class UserVerifyManagerImpl implements UserVerifyManager{
 
     /**
      * 三方验证
+     *
      * @param pin
      * @param password
      * @param clientInfo
      * @return
      */
     @Override
-    public Boolean passportVerify(String pin, String password, ClientInfo clientInfo) {
+    public BasePdaUserDto passportVerify(String pin, String password, ClientInfo clientInfo) {
+        BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         try {
             String md5Pwd = DigestUtils.md5Hex(password);
             String remoteIp = InetAddress.getLocalHost().getHostAddress();
@@ -101,7 +105,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager{
             extInfo.put(Constants.LoginParam.UUID, NONE);
             if (clientInfo == null || clientInfo.getVersionCode() == null) {
                 extInfo.put(Constants.LoginParam.CHANNEL, PDA);
-            }else{
+            } else {
                 if (clientInfo.getVersionCode().contains(HANDLE_PDA_D) || clientInfo.getVersionCode().contains(HANDLE_PDA_F) || clientInfo.getVersionCode().contains(HANDLE_PDA_R)) {
                     extInfo.put(Constants.LoginParam.CHANNEL, PDA);
                 } else if (clientInfo.getVersionCode().contains(PC_WM) || clientInfo.getVersionCode().contains(PC_WP)) {
@@ -112,15 +116,56 @@ public class UserVerifyManagerImpl implements UserVerifyManager{
             }
             loginParam.addAllExtInfo(extInfo);
             LoginResult loginResult = userInfoRpc.login(loginParam);
-            if(loginResult.isSuccess()){
-                logger.warn("3pl登录验证成功");
-            }else{
-                logger.warn("3pl登录验证失败");
+            if (loginResult == null) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_JSF_FAILUE);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_JSF_FAILUE_MSG);
+                return basePdaUserDto;
             }
-            return loginResult.isSuccess();
+            if(loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS)){
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_GETINFO_SUCCESS_MSG);
+                logger.warn("3pl登录验证成功");
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_LOCKED)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_LOCKED);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_LOCKED_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_BUSY)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_BUSY);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_BUSY_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_NO_VERIFY)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_NO_VERIFY);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_NO_VERIFY_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_SECURITY_LOCKED)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_SECURITY_LOCKED);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_SECURITY_LOCKED_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_LOGOUT)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_LOGOUT);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_LOGOUT_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_SECURITY_CHECK)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_SECURITY_CHECK);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_SECURITY_CHECK_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_NO_USE)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_NO_USE);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_NO_USE_MSG);
+            } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_IP_WRONG)) {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_IP_WRONG);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_IP_WRONG_MSG);
+            } else {
+                basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_LOGIN_FAILUE);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_LOGIN_FAILUE_MSG);
+                logger.warn("3pl登录验证未知原因导致失败");
+            }
+            return basePdaUserDto;
         } catch (Exception ex) {
             logger.error("passportVerify verify error", ex);
-            return Boolean.FALSE;
+            basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL);
+            basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_ABNORMAL_MSG);
+            return basePdaUserDto;
         }
     }
 }
