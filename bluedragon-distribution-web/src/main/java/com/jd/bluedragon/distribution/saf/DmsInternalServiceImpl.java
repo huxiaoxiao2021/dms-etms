@@ -316,7 +316,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed",mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode) {
         //返回值初始化
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
@@ -340,7 +340,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isBoxSent",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isBoxSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Boolean isBoxSent(String boxCode, Integer siteCode) {
         return boxService.checkBoxIsSent(boxCode, siteCode);
     }

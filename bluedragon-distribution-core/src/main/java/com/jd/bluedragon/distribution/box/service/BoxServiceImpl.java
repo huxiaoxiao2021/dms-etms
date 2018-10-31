@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.utils.BeanHelper;
@@ -21,6 +22,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +68,7 @@ public class BoxServiceImpl implements BoxService {
 	private CacheService jimdbCacheService;
 
 	@Autowired
-	private SendMManager sendMManager;
+	private SendMDao sendMDao;
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
@@ -337,13 +340,14 @@ public class BoxServiceImpl implements BoxService {
     }
 
     @Override
+	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatusRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus) {
 		Boolean result = false;
 		try {
 			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
 				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
-				//更新缓存
-				result = jimdbCacheService.setEx(redisKey, boxStatus, Constants.TIME_SECONDS_ONE_DAY);
+				//更新缓存，缓存两小时
+				result = jimdbCacheService.setEx(redisKey, boxStatus, 2 * Constants.TIME_SECONDS_ONE_HOUR);
 				if (result) {
 					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
 				}
@@ -355,6 +359,7 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
+	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.getBoxStatusFromRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {
 		Integer result = null;
 		try {
@@ -362,7 +367,9 @@ public class BoxServiceImpl implements BoxService {
 				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
 				String value = jimdbCacheService.get(redisKey);
 				if (StringHelper.isNotEmpty(value)) {
+					CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.getBoxStatusFromRedis.redis.exist",Constants.UMP_APP_NAME_DMSWEB, false, true);
 					result = Integer.parseInt(value);
+					Profiler.registerInfoEnd(info);
 					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0}，操作站点编号：{1}，状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(result)));
 				} else {
 					logger.info(MessageFormat.format("箱号状态缓存未命中，箱号：{0}，操作站点编号：{1}，需查库确认！", boxCode, operateSiteCode));
@@ -375,6 +382,7 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
+	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.checkBoxIsSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
 		Boolean result = false;
 		try {
@@ -388,10 +396,18 @@ public class BoxServiceImpl implements BoxService {
 				SendM sendM = new SendM();
 				sendM.setBoxCode(boxCode);
 				sendM.setCreateSiteCode(operateSiteCode);
-				List<SendM> sendMList = sendMManager.findSendMByBoxCode(sendM);
+				List<SendM> sendMList = sendMDao.findSendMByBoxCode(sendM);
+
+				//sendm不为空，说明已发货，否则视为初始状态
 				if (sendMList != null && ! sendMList.isEmpty()) {
 					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
+					//更新箱号状态缓存为已发货
+					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
 					result = true;
+				} else {
+					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时未发货！", boxCode, operateSiteCode));
+					//更新箱号状态缓存为初始状态
+					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode());
 				}
 			}
 		} catch (Exception e) {

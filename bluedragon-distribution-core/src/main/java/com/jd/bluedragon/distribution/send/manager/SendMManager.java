@@ -10,17 +10,18 @@ import java.util.List;
 public interface SendMManager {
 
     /**
-     * 新增发货容器数据，将将箱号及创建站点插入索引表
+     * 新增发货数据
      * @param namespace
      * @param entity
      * @return
      */
     Integer add(String namespace, SendM entity);
 
-    Integer addBatch(List<SendM> param);
-
-    List<SendM> findSendMByBoxCode(SendM sendM);
-
+    /**
+     * 新增发货数据
+     * @param dSendM
+     * @return
+     */
     boolean insertSendM(SendM dSendM);
 
 }

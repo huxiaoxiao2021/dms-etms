@@ -273,6 +273,11 @@ public class Constants {
     public static final int POLLING_INTERVAL_TIME = 1500;// 秒
 
     /**
+     * 时间：一小时的秒数
+     */
+    public static final int TIME_SECONDS_ONE_HOUR = 3600;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
