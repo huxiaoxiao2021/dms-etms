@@ -687,6 +687,9 @@ public class Constants {
     public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
     public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
 
-
+    /**
+     * 再投审核完成类型（1：按运单审核；2：按包裹审核）
+     */
+    public static final Integer PACKAGE_APPROVE_TYPE = 2;
 
 }
