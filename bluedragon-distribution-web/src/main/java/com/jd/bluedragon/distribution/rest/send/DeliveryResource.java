@@ -1038,17 +1038,22 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setOperateTime(DateHelper.parseDate(request.getOperateTime(), DateHelper.DATE_TIME_FORMAT[0]));
         sendM.setCreateUserCode(request.getOperatorId());
         List<SendM> sendMList = new ArrayList<SendM>();
-        if(SerialRuleUtil.isMatchBoxCode(request.getBoxCode())){
-            SendM sendMClone = (SendM)sendM.clone();
-            sendMClone.setBoxCode(request.getBoxCode());
-            sendMList.add(sendMClone);
-        }else{
+        boolean allNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() != null;
+        boolean packageListNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() == null;
+        boolean boxCodeNotEmpty = request.getBoxCode()!=null;
+        //包裹号和箱号都不为空 按原包发货
+        if(allNotEmpty || packageListNotEmpty){
             for(String packageCode : request.getPackageList()){
                 SendM sendMClone = (SendM)sendM.clone();
                 sendMClone.setBoxCode(packageCode);
                 sendMList.add(sendMClone);
             }
+        }else if(boxCodeNotEmpty){
+            SendM sendMClone = (SendM)sendM.clone();
+            sendMClone.setBoxCode(request.getBoxCode());
+            sendMList.add(sendMClone);
         }
+
         return sendMList;
     }
 }
