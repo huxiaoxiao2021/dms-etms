@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -61,10 +62,10 @@ public class QuickProduceServiceImpl implements QuickProduceService {
             return null;
         QuickProduceWabill quickProduceWabill=new QuickProduceWabill();
         Waybill waybill=null;
-        if (SerialRuleUtil.isMatchWaybillNo(waybillCode)) {//自营定单
+        if (WaybillUtil.isJDWaybillCode(waybillCode)) {//自营定单
             waybill = getWabillFromOom(waybillCode);
         }
-        else if(SerialRuleUtil.isMatchAllWaybillNo(waybillCode)) {//外单
+        else if(WaybillUtil.isWaybillCode(waybillCode)) {//外单
             waybill = getQuickProduceWabillFromDrec(waybillCode);
         }
         else {//正则漏掉单号

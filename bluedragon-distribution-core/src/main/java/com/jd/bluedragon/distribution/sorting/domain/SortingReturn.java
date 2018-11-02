@@ -4,6 +4,7 @@ import java.util.Date;
 
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnServiceImple;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 
@@ -172,7 +173,7 @@ public class SortingReturn {
     /**
      * 将ReturnsRequest转换为Returns 根据PackageCode设置包裹号和运单号 (如果是包裹号，则设置包裹号和运单号；如果是运单号，则只设置运单号)
      * 
-     * @param ReturnsRequest request
+     * @param  request
      * @return Returns
      */
     public static SortingReturn parse(ReturnsRequest request) {
@@ -194,12 +195,12 @@ public class SortingReturn {
         
         //设置包裹号和运单号
         String aPackageCode = request.getPackageCode();
-        if (BusinessHelper.isPackageCode(aPackageCode)) {
+        if (WaybillUtil.isPackageCode(aPackageCode)) {
             sortingReturn.setPackageCode(aPackageCode);
-            sortingReturn.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
-        } else if (BusinessHelper.isWaybillCode(aPackageCode)) {
-        	sortingReturn.setPackageCode(BusinessHelper.getWaybillCode(aPackageCode));
-            sortingReturn.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+            sortingReturn.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
+        } else if (WaybillUtil.isWaybillCode(aPackageCode)) {
+        	sortingReturn.setPackageCode(WaybillUtil.getWaybillCode(aPackageCode));
+            sortingReturn.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
 
         return sortingReturn;

@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.junit.Test;
 
@@ -27,49 +28,49 @@ public class BusinessHelperTest {
 	@Test
 	public void testIsWaybillCode() {
 		String waybillCodeT="T18655150305";
-		boolean isWaybillCode = helper.isWaybillCode(waybillCodeT).booleanValue();
+		boolean isWaybillCode = WaybillUtil.isWaybillCode(waybillCodeT);
 		assertTrue(isWaybillCode);
 		
 		String waybillCodeF="F18655150305";
-		isWaybillCode = helper.isWaybillCode(waybillCodeF).booleanValue();
+		isWaybillCode = WaybillUtil.isWaybillCode(waybillCodeF);
 		assertTrue(isWaybillCode);
 		
 		String packageCode="T18655150305-1-1-1";
-		isWaybillCode = helper.isWaybillCode(packageCode).booleanValue();
+		isWaybillCode = WaybillUtil.isWaybillCode(packageCode);
 		assertFalse(isWaybillCode);
 		
 		String boxCode="TC010A001010F00500039001";
-		isWaybillCode = helper.isWaybillCode(boxCode).booleanValue();
+		isWaybillCode = WaybillUtil.isWaybillCode(boxCode);
 		assertFalse(isWaybillCode);
 		//大件运单规则 老
 		String waybillCodeLD="LD1234567890";
-		isWaybillCode = helper.isWaybillCode(waybillCodeLD).booleanValue();
+		isWaybillCode = WaybillUtil.isWaybillCode(waybillCodeLD);
 		assertTrue(isWaybillCode);
 		//大件运单规则 新
 		String waybillCodeLD1="JDLA12345678901";
-		isWaybillCode = helper.isWaybillCode(waybillCodeLD1).booleanValue();
+		isWaybillCode = WaybillUtil.isWaybillCode(waybillCodeLD1);
 		assertTrue(isWaybillCode);
 
-		assertFalse(helper.isWaybillCode("12345678901-1-0-1").booleanValue());
+		assertFalse(WaybillUtil.isWaybillCode("12345678901-1-0-1"));
 	}
 
 	@Test
 	public void testIsPackageCode(){
-		assertTrue(helper.isPackageCode("12345678901-1-0-1").booleanValue());
+		assertTrue(WaybillUtil.isPackageCode("12345678901-1-0-1"));
 		//大件包裹号规则 老
-		assertTrue( helper.isPackageCode("LD1234567890-1-3").booleanValue());
+		assertTrue( WaybillUtil.isPackageCode("LD1234567890-1-3"));
 		//大件包裹号规则 新
-		assertTrue( helper.isPackageCode("JDLD12345678901-1-3").booleanValue());
+		assertTrue( WaybillUtil.isPackageCode("JDLD12345678901-1-3"));
 
-		assertTrue( helper.isPackageCode("T18655150305-1-1-").booleanValue());
+		assertTrue( WaybillUtil.isPackageCode("T18655150305-1-1-"));
 
-		assertTrue(helper.isPackageCode("T18655150305-1-1-3").booleanValue());
+		assertTrue(WaybillUtil.isPackageCode("T18655150305-1-1-3"));
 
-		assertTrue(helper.isPackageCode("F18655150305-1-1-").booleanValue());
+		assertTrue(WaybillUtil.isPackageCode("F18655150305-1-1-"));
 
-		assertTrue(helper.isPackageCode("F18655150305-1-1-2").booleanValue());
+		assertTrue(WaybillUtil.isPackageCode("F18655150305-1-1-2"));
 
-		assertTrue(helper.isPackageCode("VA66679375345-1-1-2").booleanValue());
+		assertTrue(WaybillUtil.isPackageCode("VA66679375345-1-1-2"));
 	}
 
 	@Test
@@ -78,36 +79,18 @@ public class BusinessHelperTest {
 		assertTrue(WaybillUtil.getWaybillCode("LD1234567890-1-3").equals("LD1234567890"));
 		assertTrue(WaybillUtil.getWaybillCode("JDLD12345678901-1-3").equals("JDLD12345678901"));
 
-		assertTrue(SerialRuleUtil.isMatchAllPackageNo("VA00041831580-1-3-"));
+		assertTrue(WaybillUtil.isPackageCode("VA00041831580-1-3-"));
 		assertTrue(SerialRuleUtil.getWaybillCode("VA00041831580-1-3-").equals("VA00041831580"));
 	}
 
 	@Test
 	public void testGetPackNumByPackCode(){
-		assertTrue(helper.getPackageNum("12345678901-1-9-1")==9);
-		assertTrue(helper.getPackageNum("LD1234567890-1-9")==9);
-		assertTrue(helper.getPackageNum("JDLD1234567890-1-9")==9);
-		assertTrue(helper.getPackageNum("JDJ072196021451-1-9")==9);
+		assertTrue(WaybillUtil.getPackNumByPackCode("12345678901-1-9-1")==9);
+		assertTrue(WaybillUtil.getPackNumByPackCode("LD1234567890-1-9")==9);
+		assertTrue(WaybillUtil.getPackNumByPackCode("JDLD1234567890-1-9")==9);
+		assertTrue(WaybillUtil.getPackNumByPackCode("JDJ072196021451-1-9")==9);
 	}
 
-
-	@Test
-	public void testIsECLPCode() {
-		boolean shoudFalse = false;
-		boolean shoudTrue = true;
-
-		String sourceCodeNUll=null;
-		shoudFalse = helper.isECLPCode(sourceCodeNUll);
-		assertFalse(shoudFalse);
-
-		String sourceCodeMMC="mmc";
-		shoudFalse = helper.isECLPCode(sourceCodeMMC);
-		assertFalse(shoudFalse);
-
-		String sourceCodeECLP="ECLP";
-		shoudTrue = helper.isECLPCode(sourceCodeECLP);
-		assertTrue(shoudTrue);
-	}
 	@Test
 	public void testGetStoreId() {
 		assertTrue(SerialRuleUtil.getStoreIdFromStoreCode("wms-6-1")==1);
@@ -117,25 +100,25 @@ public class BusinessHelperTest {
 	}
 	@Test
 	public void testIsReverseSpareCode() {
-		assertTrue(BusinessHelper.isReverseSpareCode("un1234567890123456"));
-		assertTrue(BusinessHelper.isReverseSpareCode("null1234567890123456"));
-		assertTrue(BusinessHelper.isReverseSpareCode("zA1234567890123456"));
-		assertTrue(BusinessHelper.isReverseSpareCode("Az1234567890123456"));
-		assertFalse(BusinessHelper.isReverseSpareCode("1234567890123456"));
-		assertFalse(BusinessHelper.isReverseSpareCode("A11234567890123456"));
-		assertTrue(BusinessHelper.isReverseSpareCode("null2017122600001004"));
-		assertFalse(BusinessHelper.isReverseSpareCode("^#2017122600001004"));
+		assertTrue(WaybillUtil.isReverseSpareCode("un1234567890123456"));
+		assertTrue(WaybillUtil.isReverseSpareCode("null1234567890123456"));
+		assertTrue(WaybillUtil.isReverseSpareCode("zA1234567890123456"));
+		assertTrue(WaybillUtil.isReverseSpareCode("Az1234567890123456"));
+		assertFalse(WaybillUtil.isReverseSpareCode("1234567890123456"));
+		assertFalse(WaybillUtil.isReverseSpareCode("A11234567890123456"));
+		assertTrue(WaybillUtil.isReverseSpareCode("null2017122600001004"));
+		assertFalse(WaybillUtil.isReverseSpareCode("^#2017122600001004"));
 	}
 	@Test
 	public void testIsSopOrExternal() {
-		assertFalse(BusinessHelper.isSopOrExternal("40000000000000301000000000000000000000000000000000"));
-		assertTrue(BusinessHelper.isSopOrExternal("20000000000000301000000000000000000000000000000000"));
-		assertTrue(BusinessHelper.isSopOrExternal("KA0000000000000301000000000000000000000000000000000"));
-		assertTrue(BusinessHelper.isSopOrExternal("60000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isSopOrExternal("T0000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isSopOrExternal("k11234567890123456"));
-		assertTrue(BusinessHelper.isSopOrExternal("30000000000000301000000000000000000000000000000000"));
-		assertFalse(BusinessHelper.isSopOrExternal("17122600001004"));
+		assertFalse(BusinessUtil.isSopOrExternal("40000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessUtil.isSopOrExternal("20000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessUtil.isSopOrExternal("KA0000000000000301000000000000000000000000000000000"));
+		assertTrue(BusinessUtil.isSopOrExternal("60000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessUtil.isSopOrExternal("T0000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessUtil.isSopOrExternal("k11234567890123456"));
+		assertTrue(BusinessUtil.isSopOrExternal("30000000000000301000000000000000000000000000000000"));
+		assertFalse(BusinessUtil.isSopOrExternal("17122600001004"));
 	}
 	@Test
 	public void testGetHashKeyByPackageCode() {
@@ -156,7 +139,7 @@ public class BusinessHelperTest {
 		for(String code:codes){
 			String[] keys = BusinessHelper.getHashKeysByPackageCode(code);
 			if(keys!=null){
-				System.err.println(code+" "+BusinessHelper.getWaybillCode(code)+"->{"+keys[0]+":"+keys[1]+"}");
+				System.err.println(code+" "+WaybillUtil.getWaybillCode(code)+"->{"+keys[0]+":"+keys[1]+"}");
 			}else{
 				System.err.println(code+"->无效包裹号");
 			}

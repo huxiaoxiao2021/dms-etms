@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sorting.domain;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -397,16 +398,16 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setBsendCode(request.getBsendCode());
         
         //扫W及WA的包裹号时  下面的包裹号判断 会覆盖运单号的赋值
-        if (BusinessHelper.isPickupCode(aPackageCode)) {
+        if (WaybillUtil.isSurfaceCode(aPackageCode)) {
 //            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
         	sorting.setWaybillCode(aPackageCode);
         }
-        if (BusinessHelper.isPackageCode(aPackageCode)) {
+        if (WaybillUtil.isPackageCode(aPackageCode)) {
             sorting.setPackageCode(aPackageCode);
-            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+            sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
-        if (BusinessHelper.isWaybillCode(aPackageCode)) {
-            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+        if (WaybillUtil.isWaybillCode(aPackageCode)) {
+            sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
         
         return sorting;
@@ -419,10 +420,10 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setBoxCode(request.getBoxCode());
         sorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));//增加操作时间
         
-        if (BusinessHelper.isPackageCode(aPackageCode)) {
+        if (WaybillUtil.isPackageCode(aPackageCode)) {
             sorting.setPackageCode(aPackageCode);
-        } else if (BusinessHelper.isWaybillCode(aPackageCode)) {
-            sorting.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+        } else if (WaybillUtil.isWaybillCode(aPackageCode)) {
+            sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         } else if (BusinessHelper.isBoxcode(aPackageCode)) {
             sorting.setBoxCode(aPackageCode);
         }

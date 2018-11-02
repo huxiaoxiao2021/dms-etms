@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
@@ -108,9 +109,9 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         } else {
             //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）
             //// TODO: 2018/8/22 封装成一个方法 
-            if(BusinessHelper.isSignChar(waybillSign,55,'0') &&
-                    BusinessHelper.isSignChar(waybillSign,16,'1') &&
-                    BusinessHelper.isSignChar(waybillSign,31,'2')){
+            if(BusinessUtil.isSignChar(waybillSign,55,'0') &&
+                    BusinessUtil.isSignChar(waybillSign,16,'1') &&
+                    BusinessUtil.isSignChar(waybillSign,31,'2')){
 
                 //设置始发站点及始发路由，并将笼车号设为空字符串
                 printInfo.setOriginalDmsCode(null);

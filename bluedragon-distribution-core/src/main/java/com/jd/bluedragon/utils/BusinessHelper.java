@@ -27,178 +27,16 @@ public class BusinessHelper {
         init();
     }
 
-    /**
-     * 根据包裹号解析运单号
-     *
-     * @param packCode
-     * @return
-     */
-    @Deprecated
-    public static String getWaybillCodeByPackageBarcode(String packCode) {
-        return WaybillUtil.getWaybillCode(packCode);
-    }
 
     private static void init() {
     }
 
-    /**
-     * 根据包裹获得总包裹数
-     *
-     * @param packageBarcode
-     * @return
-     */
-    @Deprecated
-    public static int getPackageNum(String packageBarcode) {
-        return WaybillUtil.getPackNumByPackCode(packageBarcode);
-    }
-
-    /**
-     * 根据包裹获得当前所属包裹数
-     *
-     * @param packageBarcode
-     * @return
-     */
-    @Deprecated
-    public static int getCurrentPackageNum(String packageBarcode) {
-        return WaybillUtil.getCurrentPackageNum(packageBarcode);
-    }
-
-    /**
-     * 从包裹号码提取运单号码.
-     *
-     * @param s 包裹号码
-     * @return
-     */
-    @Deprecated
-    public static String getWaybillCode(String s) {
-        return WaybillUtil.getWaybillCode(s);
-    }
-
-    /**
-     * 判断输入字符串是否为包裹号码. 包裹号规则： 123456789N1S1
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-     */
-    @Deprecated
-    public static Boolean isPackageCode(String s) {
-        return WaybillUtil.isPackageCode(s);
-    }
 
     /**
      * Y开头的也认为是箱号（上海亚一用）
      */
     public static Boolean isBoxcode(String s) {
-        return BusinessUtil.isBoxcode(s)|| s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
-    }
-
-    /**
-     * 建议使用 WaybillUtil.isWaybillCode(s);
-     * 判断输入字符串是否为运单号码. 包裹号规则： 123456789
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-     */
-    @Deprecated
-    public static Boolean isWaybillCode(String s) {
-        return WaybillUtil.isWaybillCode(s);
-    }
-
-
-    /**
-     * 验证是否为备件退货
-     * 合法返回 true, 不合法返回 false
-     *
-     * @param type
-     * @param aPackageCode
-     * @return
-     */
-    @Deprecated
-    public static Boolean isReverseSpare(Integer type, String aPackageCode) {
-        return WaybillUtil.isReverseSpare(type, aPackageCode);
-    }
-
-    /**
-     * 验证是否为备件条码
-     * 合法返回 true, 不合法返回 false
-     *
-     * @param s
-     * @return
-     */
-    @Deprecated
-    public static Boolean isReverseSpareCode(String s) {
-        return WaybillUtil.isReverseSpareCode(s);
-    }
-
-    /**
-     * 判断输入字符串是否为面单号. 包裹号规则： W1234567890
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-     */
-    @Deprecated
-    public static Boolean isPickupCode(String s) {
-        return WaybillUtil.isSurfaceCode(s);
-    }
-
-    /**
-     * 这种类型的  WW123456789 包裹号返回true
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为包裹号，则返回 true，否则返回 false
-     */
-    @Deprecated
-    public static Boolean isPickupCodeWW(String s) {
-        return WaybillUtil.isPickupCodeWW(s);
-    }
-
-    /**
-     * 判断是否是维修外单
-     * MCS : 维修外单缩写,备件库定义的
-     *
-     * @param s
-     * @return
-     */
-    @Deprecated
-    public static Boolean isMCSCode(String s) {
-        return WaybillUtil.isMCSCode(s);
-    }
-
-    /**
-     * 判断是否是ECLP订单
-     * ECLP : 仓储开发平台
-     *
-     * @param sourceCode 运单中的sourceCode字段,判断它是不是ECLP开头单号
-     * @return
-     */
-    @Deprecated
-    public static Boolean isECLPCode(String sourceCode) {
-        return WaybillUtil.isECLPCode(sourceCode);
-    }
-
-    /**
-     * 判断是否是ECLP订单
-     * ECLP : 仓储开发平台
-     *
-     * @param busiOrderCode 运单中的busiOrderCode字段,判断它是不是esl开头单号
-     * @return
-     */
-    @Deprecated
-    public static Boolean isECLPByBusiOrderCode(String busiOrderCode) {
-        return WaybillUtil.isECLPByBusiOrderCode(busiOrderCode);
-    }
-
-
-    /**
-     * 判断是否是CLPS订单
-     * CLPS : 云仓
-     *
-     * @param busiOrderCode 运单中的BusiOrderCode字段,判断它是不是CSL开头单号
-     * @return
-     */
-    @Deprecated
-    public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
-        return BusinessUtil.isCLPSByBusiOrderCode(busiOrderCode);
+        return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
 
     public static boolean isNumeric(String str) {
@@ -265,81 +103,6 @@ public class BusinessHelper {
         return !BusinessHelper.checkIntNumRange(intNum);
     }
 
-    /**
-     * 判断字符串位置是否标记为1
-     *
-     * @param signStr
-     * @param position 标识位
-     * @return
-     */
-    public static boolean isSignY(String signStr, int position) {
-        return BusinessUtil.isSignY(signStr,position);
-    }
-
-    /**
-     * 判断字符串位置是否标记为指定的字符
-     *
-     * @param signStr
-     * @param position
-     * @param signChar
-     * @return
-     */
-    public static boolean isSignChar(String signStr, int position, char signChar) {
-        return BusinessUtil.isSignChar(signStr,position,signChar);
-    }
-
-    /**
-     * 判断字符串指定的位置是否在指定的字符范围之内
-     *
-     * @param signStr  目标字符串
-     * @param position 标识位置
-     * @param chars    字符范围
-     * @return
-     */
-    public static boolean isSignInChars(String signStr, int position, char... chars) {
-      return BusinessUtil.isSignInChars(signStr,position,chars);
-    }
-
-    /**
-     * 根据waybillSign和sendSign判断是否城配运单
-     *
-     * @param waybillSign 36为1
-     * @param sendPay     146为1
-     * @return
-     */
-    public static boolean isUrban(String waybillSign, String sendPay) {
-        return BusinessUtil.isUrban(waybillSign,sendPay);
-    }
-
-    /**
-     * 1号店订单判断逻辑：sendpay  60-62位 ，034、035、036、037、038、039为一号店订单
-     *
-     * @param sendPay 60=0 61=3 62=4 5 6 7 8 9
-     * @return
-     */
-    public static boolean isYHD(String sendPay) {
-        return BusinessUtil.isYHD(sendPay);
-    }
-
-    /**
-     * 根据waybillSign第一位判断是否SOP(标识为 2)或纯外单（标识为 3、6、9、K、Y）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isSopOrExternal(String waybillSign) {
-        return BusinessUtil.isSopOrExternal(waybillSign);
-    }
-
-    /**
-     * 根据waybillSign第一位判断是否纯外单（标识为 3、6、9、K、Y）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isExternal(String waybillSign) {
-        return BusinessUtil.isExternal(waybillSign);
-    }
 
     /**
      * 站点类型判断
@@ -412,62 +175,12 @@ public class BusinessHelper {
                 && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
-            if ((isSignChar(waybillSign, 40, '2') || isSignChar(waybillSign, 40, '3'))
-                    && isSignChar(waybillSign, 25, '2')) {
+            if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
+                    && BusinessUtil.isSignChar(waybillSign, 25, '2')) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
         return true;
-    }
-
-    /**
-     * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isB2b(String waybillSign) {
-        return BusinessUtil.isB2b(waybillSign);
-    }
-
-    /**
-     * 根据waybillSign判断是否病单（34位标识为 2）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isSick(String waybillSign) {
-        return BusinessUtil.isSick(waybillSign);
-    }
-
-    /**
-     * 根据waybillSign判断是否加履中心订单 （29 位 9 ）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isPerformanceOrder(String waybillSign) {
-        return BusinessUtil.isPerformanceOrder(waybillSign);
-    }
-
-    /**
-     * 包裹半收 标识 waybillSign 27位 （0-不半收 1-全收半退 2-包裹半收 3-运单明细半收 4-包裹明细半收）
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isPackageHalf(String waybillSign) {
-        return BusinessUtil.isPackageHalf(waybillSign);
-    }
-
-    /**
-     * 支持协商再投
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isConsultationTo(String waybillSign) {
-        return BusinessUtil.isConsultationTo(waybillSign);
     }
 
     /**
@@ -486,31 +199,6 @@ public class BusinessHelper {
         } else {
             return false;
         }
-    }
-
-    /**
-     * 通过运单标识 判断是否需求称重
-     * <p>
-     * 66 位 是1  标识不称重
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isNoNeedWeight(String waybillSign) {
-        return BusinessUtil.isNoNeedWeight(waybillSign);
-    }
-
-    /**
-     * 通过运单标识 判断B网耗材
-     * <p>
-     * 72位：是否需要包装服务： 0---不需要 默认，1---需要包装服务
-     * 25 位 是3  标识 B网耗材不允许修改，只能操作确认
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isWaybillConsumableOnlyConfirm(String waybillSign) {
-        return BusinessUtil.isWaybillConsumableOnlyConfirm(waybillSign);
     }
 
     /**
@@ -582,63 +270,32 @@ public class BusinessHelper {
     }
 
     /**
-     * 获取始发道口号类型
-     * <p>自营：sendpay137位为1，则为航运订单标识，航填,其他为普通
-     * <p>外单：waybillsign第31位等于1，则为航空，waybillsign第31位等于0，且waybillsign第67位等于1则为航填
+     * 通过运单标识 判断是否需求包装耗材
+     * <p>
+     * 72 位 是1  标识需要
      *
      * @param waybillSign
-     * @param sendPay
      * @return
      */
-    public static Integer getOriginalCrossType(String waybillSign, String sendPay) {
-       return  BusinessUtil.getOriginalCrossType(waybillSign,sendPay);
+    public static boolean isNeedConsumable(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, 72, '1');
     }
 
     /**
-     * 判断是否招商银行业务运单，waybill_sign第54位等于3时
+     * 根据运单号生成第一个包裹号
      *
-     * @param waybillSign
+     * @param waybillCode
      * @return
      */
-    public static boolean isCMBC(String waybillSign) {
-        return BusinessUtil.isCMBC(waybillSign);
-    }
-
-    /**
-     * 是否是RMA标识的运单
-     *
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isRMA(String waybillSign) {
-        return BusinessUtil.isRMA(waybillSign);
-    }
-
-	/**
-	 * 通过运单标识 判断是否需求包装耗材
-	 *
-	 *  72 位 是1  标识需要
-	 * @param waybillSign
-	 * @return
-	 */
-	public static boolean isNeedConsumable(String waybillSign){
-		return isSignChar(waybillSign, 72, '1');
-	}
-
-	/**
-	 * 根据运单号生成第一个包裹号
-	 * @param waybillCode
-	 * @return
-	 */
-	//fixme 考虑滑道号生成
-	public static String getFirstPackageCodeByWaybillCode(String waybillCode){
-        if(!BusinessUtil.isBoxcode(waybillCode) && !WaybillUtil.isPackageCode(waybillCode)){
-            if(WaybillUtil.isLasWaybillCode(waybillCode)){
+    //fixme 考虑滑道号生成
+    public static String getFirstPackageCodeByWaybillCode(String waybillCode) {
+        if (!BusinessUtil.isBoxcode(waybillCode) && !WaybillUtil.isPackageCode(waybillCode)) {
+            if (WaybillUtil.isLasWaybillCode(waybillCode)) {
                 return waybillCode + "-1-1";
-            }else if (WaybillUtil.isWaybillCode(waybillCode)){
+            } else if (WaybillUtil.isWaybillCode(waybillCode)) {
                 return waybillCode + "-1-1-";
             }
         }
         return waybillCode;
-	}
+    }
 }

@@ -18,6 +18,8 @@ import javax.annotation.Resource;
 
 import IceInternal.Ex;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.common.util.JacksonUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
@@ -753,11 +755,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         if (sendTwaybill != null ) {
             //发生换单
-            isSickWaybill = BusinessHelper.isSick(sendTwaybill.getWaybillSign());//waybillSign第34位为2则视为病单
+            isSickWaybill = BusinessUtil.isSick(sendTwaybill.getWaybillSign());//waybillSign第34位为2则视为病单
         }else{
             //未发生换单
             //先去取原单病单标志
-            isSickWaybill = BusinessHelper.isSick(send.getWaybillSign());
+            isSickWaybill = BusinessUtil.isSick(send.getWaybillSign());
             if(!isSickWaybill){
                 //原单不是病单   再去通过JSF服务返回的featureType=30判定病单标识  这样做可以避免 现场为操作异常处理
                 Integer featureType = jsfSortingResourceService.getWaybillCancelByWaybillCode(wayBillCode);
@@ -773,13 +775,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         //初始化加履中心订单
 
-        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+        if(BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
             send.setOrderSource(ReverseSendWms.ORDER_SOURCE_JLZX);
         }
 
 
         //金鹏退仓修改字段 OrderId 初始化商品信息
-        if(BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+        if(BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
 
             try{
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(wayBillCode);
@@ -840,7 +842,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setSendCode(sendM.getSendCode());
 
         //非金鹏退仓修改字段 OrderId  以后应该也要改掉
-        if(!BusinessHelper.isPerformanceOrder(send.getWaybillSign())){
+        if(!BusinessUtil.isPerformanceOrder(send.getWaybillSign())){
             send.setOrderId(wallBillCode);
         }
         send.setIsInStore(0);
@@ -1032,7 +1034,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
         List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
         for (SendDetail sd : sendDetails) {//剔除维修外单
-            if (BusinessHelper.isMCSCode(sd.getWaybillCode())) {
+            if (WaybillUtil.isMCSCode(sd.getWaybillCode())) {
                 vySendDetails.add(sd);
             } else {
                 nomarlSendDetails.add(sd);
@@ -1063,7 +1065,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 List<ReverseSpare> sendReverseSpare = new ArrayList<ReverseSpare>();
                 // 如果D表的包裹号不为备件库条码时，需要新增spare表数据并关联备件库条码
-                if (!BusinessHelper.isReverseSpareCode(sendDetail.getPackageBarcode())) {
+                if (!WaybillUtil.isReverseSpareCode(sendDetail.getPackageBarcode())) {
                     List<ReverseSpare> reverseSpare = this.reverseSpareService.queryByWayBillCode(waybillCode,
                             sendDetail.getSendCode());
                     List<Product> products = waybill.getProList();
@@ -1483,7 +1485,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             }
         }
 
-    	if (BusinessHelper.isECLPByBusiOrderCode(send.getBusiOrderCode())) {
+    	if (WaybillUtil.isECLPByBusiOrderCode(send.getBusiOrderCode())) {
 			// ECLP订单 不推送wms ， 发mq
 			// 发MQ-->开发平台
 			logger.info("运单号： " + wayBillCode + " 的 waybillsign 【" + send.getSourceCode() + "】 =ECLP ,不掉用库房webservice");
@@ -1527,7 +1529,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 			return Boolean.TRUE;
 		}
 
-        if (BusinessHelper.isCLPSByBusiOrderCode(send.getBusiOrderCode())) {
+        if (BusinessUtil.isCLPSByBusiOrderCode(send.getBusiOrderCode())) {
             // CLPS订单 不推送wms ， 发mq
             logger.info("运单号： " + wayBillCode + " 的 sourceCode 【" + send.getSourceCode() + "】 =CLPS ,不掉用库房webservice");
             ReverseSendMQToCLPS sendmodel = new ReverseSendMQToCLPS();

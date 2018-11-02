@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -222,7 +223,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         lb.setPackageAmount(sd.getPackageNum());
         lb.setOrderId(sd.getWaybillCode());
         // 如果是ECLP订单，则获取商家订单号
-        if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
+        if (WaybillUtil.isBusiWaybillCode(sd.getWaybillCode())) {
             String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
             if (null != vendorOrderId) {
                 lb.setOrderId(vendorOrderId);
@@ -598,7 +599,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("waybillCode", BusinessHelper.getWaybillCode(report.getOrderId()));
+        loadBillStatusMap.put("waybillCode", WaybillUtil.getWaybillCode(report.getOrderId()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList = loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);

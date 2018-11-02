@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +56,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			arReceive.setBoxingType(Short.parseShort("1"));
 		} else {
 			// 包裹
-			if (BusinessHelper.isPickupCode(tmpNumber)) {
+			if (WaybillUtil.isSurfaceCode(tmpNumber)) {
 				// 取件单(暂不设运单号)
 				arReceive.setBoxCode(tmpNumber);
 				arReceive.setPackageBarcode(tmpNumber);
@@ -66,7 +67,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 				arReceive.setPackageBarcode(tmpNumber);
 				// 装箱类型（1 箱包装 2 单件包裹）
 				arReceive.setBoxingType(Short.parseShort("2"));
-				arReceive.setWaybillCode(BusinessHelper.getWaybillCode(tmpNumber));
+				arReceive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 			}
 
 		}
@@ -100,7 +101,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 	 * <p>1、加载空铁登记批次信息
 	 * <p>2、查询空铁登记信息，并放入到TaskContext中
 	 * <p>3、保存空铁提货记录
-	 * @param receive
+	 * @param taskContext
 	 */
 	protected void saveReceive(TaskContext<ArReceive> taskContext) {
 		ArReceive arReceive = taskContext.getBody();

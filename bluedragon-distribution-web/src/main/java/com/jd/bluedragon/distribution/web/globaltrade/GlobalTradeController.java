@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -197,7 +198,7 @@ public class GlobalTradeController {
         if (StringUtils.isNotBlank(request.getSendTimeTo())) {
             params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
         }
-        String waybillCode = BusinessHelper.getWaybillCode(request.getWaybillOrPackageCode());
+        String waybillCode = WaybillUtil.getWaybillCode(request.getWaybillOrPackageCode());
         if (StringUtils.isNotBlank(waybillCode)) {
             params.put("waybillCode", waybillCode);
         }
