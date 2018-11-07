@@ -2,15 +2,18 @@ package com.jd.bluedragon.distribution.external.service;
 
 
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillInfoResponse;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
+import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.wss.dto.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public interface DmsExternalReadService {
 
@@ -139,4 +142,10 @@ public interface DmsExternalReadService {
 	 */
 	InvokeResult<String> getNewWaybillCode(String oldWaybillCode);
 
+	/**
+	 * 根据批次号列表获取发货的简单信息
+	 * @param sendCodes 批次号列表
+	 * @return key:批次号 value:批次号对应的发货信息
+	 */
+	DmsBaseResponse<Map<String,List<SendDSimple>>> getSendDSimpleBySendCodes(List<String>sendCodes);
 }
