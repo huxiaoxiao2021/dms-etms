@@ -34,6 +34,7 @@
         <result column="DRIVER_NAME" property="driverName" jdbcType="VARCHAR"/>
         <result column="busi_id" property="busiId" jdbcType="INTEGER"/>
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
+        <result column="interface_type" property="interfaceType" jdbcType="INTEGER"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -44,7 +45,7 @@
 		cross_code, waybill_type, pop_receive_type, print_count,
 		third_waybill_code, queue_no, package_barcode, operate_type,
 		create_user_code, create_user, box_code, DRIVER_CODE, DRIVER_NAME, 
-		busi_id, busi_name
+		busi_id, busi_name,interface_type
 	</sql>
 
     <sql id="Base_Where_List">
@@ -195,7 +196,7 @@
         #{packageBarcode, jdbcType=VARCHAR}, #{operateType,jdbcType=INTEGER},
         #{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
         #{driverCode,jdbcType=VARCHAR}, #{driverName,jdbcType=VARCHAR}, #{busiId,jdbcType=INTEGER},
-        #{busiName,jdbcType=VARCHAR}
+        #{busiName,jdbcType=VARCHAR}, #{interfaceType,jdbcType=INTEGER}
         )
     </insert>
 

@@ -141,6 +141,19 @@ public class PopPrintRequest extends JdObject {
 	 * 业务类型-区分1-平台打印和2-站点平台打印
 	 */
 	private Integer businessType;
+	/**
+	 *打印入口类型
+	 */
+	public Integer interfaceType;
+
+	public Integer getInterfaceType() {
+		return interfaceType;
+	}
+
+	public void setInterfaceType(Integer interfaceType) {
+		this.interfaceType = interfaceType;
+	}
+
 	public String getWaybillCode() {
 		return waybillCode;
 	}
