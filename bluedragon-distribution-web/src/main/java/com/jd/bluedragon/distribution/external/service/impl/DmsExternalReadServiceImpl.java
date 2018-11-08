@@ -209,9 +209,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 				sendDSimple.setWaybillCode(sendDetail.getWaybillCode());
 				sendDSimple.setPackageBarCode(sendDetail.getPackageBarcode());
 				sendDSimple.setCreateSiteCode(sendDetail.getCreateSiteCode());
-				sendDetail.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
-				sendDetail.setCreateUserCode(sendDetail.getCreateUserCode());
-				sendDetail.setCreateUser(sendDetail.getCreateUser());
+				sendDSimple.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+                sendDSimple.setCreateUserCode(sendDetail.getCreateUserCode());
+				sendDSimple.setCreateUserName(sendDetail.getCreateUser());
 				sendDSimpleList.add(sendDSimple);
 			}
 			data.put(sendCode,sendDSimpleList);
