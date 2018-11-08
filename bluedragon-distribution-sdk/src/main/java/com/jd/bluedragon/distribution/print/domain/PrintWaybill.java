@@ -26,12 +26,12 @@ public class PrintWaybill extends BasePrintWaybill {
     /**
      * 运单类型
      */
-    private int type ;
+    private Integer type ;
 
     /**
      * 拦截状态
      */
-    private int statusCode ;
+    private Integer statusCode ;
 
     /**
      * 拦截状态提示信息
@@ -222,19 +222,19 @@ public class PrintWaybill extends BasePrintWaybill {
         this.purposefulDmsCode = purposefulDmsCode;
     }
 
-    public int getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
-    public int getStatusCode() {
+    public Integer getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(int statusCode) {
+    public void setStatusCode(Integer statusCode) {
         this.statusCode = statusCode;
     }
 
