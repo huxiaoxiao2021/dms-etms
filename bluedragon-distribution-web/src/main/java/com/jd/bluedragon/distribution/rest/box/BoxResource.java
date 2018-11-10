@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
-import com.jd.bluedragon.distribution.external.service.DmsBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,7 +22,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -35,7 +40,7 @@ import java.util.Map;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class BoxResource implements DmsBoxService {
+public class BoxResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -53,7 +58,6 @@ public class BoxResource implements DmsBoxService {
 
     @GET
     @Path("/boxes/{boxCode}")
-    @Override
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.logger.info("box code's " + boxCode);

@@ -84,7 +84,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class WaybillResource implements DmsWaybillService {
+public class WaybillResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -1168,7 +1168,6 @@ public class WaybillResource implements DmsWaybillService {
 
 	@POST
 	@Path("/waybill/post/cancel")
-	@Override
 	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
 		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}

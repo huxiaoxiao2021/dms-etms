@@ -1,21 +1,18 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
-import com.jd.bluedragon.distribution.external.service.DmsSiteService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -24,13 +21,13 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
-import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -38,7 +35,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SiteResource implements DmsSiteService {
+public class SiteResource {
 
 	@Autowired
 	private SiteService siteService;
@@ -64,7 +61,6 @@ public class SiteResource implements DmsSiteService {
 	 * */
 	@GET
 	@Path("/bases/capacityCode/{capacityCode}")
-	@Override
 	public RouteTypeResponse getCapacityCodeInfo(@PathParam("capacityCode") String capacityCode) {
 		this.logger.info("capacityCode is " + capacityCode);
         RouteTypeResponse response = new RouteTypeResponse();
@@ -138,7 +134,6 @@ public class SiteResource implements DmsSiteService {
 	@GET
 	@GZIP
 	@Path("/site/getSitesBySendCode/{sendCode}")
-	@Override
 	public InvokeResult<CreateAndReceiveSiteInfo> getSitesInfoBySendCode(@PathParam("sendCode") String sendCode){
 		InvokeResult<CreateAndReceiveSiteInfo> result = new InvokeResult<CreateAndReceiveSiteInfo>();
 
