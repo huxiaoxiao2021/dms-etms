@@ -121,6 +121,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @POST
     @Path("/delivery/newpackagesend")
     @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
