@@ -427,4 +427,26 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return waybillCodes;
     }
 
+    /**
+     * 根据运单号获取订单号
+     * @param waybillCode
+     * @param  source
+     * source说明：
+     *1.如果waybillCode为正向运单，则直接返回订单号
+     *2.如果waybillCode为返单号，并且source为true时，返回原运单的订单号
+     *3.如果waybillCode为返单号，并且source为false时，返回为空
+     * @return 订单号
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode",
+            mState = {JProEnum.TP,JProEnum.FunctionError})
+    public String getOrderCodeByWaybillCode(String waybillCode, boolean source){
+        BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode,source);
+        if(baseEntity.getResultCode() != 1){
+            logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
+                    ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+            return null;
+        }
+        return  baseEntity.getData();
+    }
+
 }

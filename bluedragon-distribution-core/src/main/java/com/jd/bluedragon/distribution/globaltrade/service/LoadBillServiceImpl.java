@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.globaltrade.service;
 
 import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
@@ -92,6 +93,9 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -220,14 +224,16 @@ public class LoadBillServiceImpl implements LoadBillService {
         lb.setWaybillCode(sd.getWaybillCode());
         lb.setPackageBarcode(sd.getPackageBarcode());
         lb.setPackageAmount(sd.getPackageNum());
-        lb.setOrderId(sd.getWaybillCode());
-        // 如果是ECLP订单，则获取商家订单号
-        if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
-            String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
-            if (null != vendorOrderId) {
-                lb.setOrderId(vendorOrderId);
-            }
-        }
+//        lb.setOrderId(sd.getWaybillCode());
+        lb.setOrderId(waybillQueryManager.getOrderCodeByWaybillCode(sd.getWaybillCode(),true));
+        // todo 快递单号统一，卓志接口已经更新，不需要订单号，那么这里订单号是否还需要存？
+//        // 如果是ECLP订单，则获取商家订单号
+//        if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
+//            String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
+//            if (null != vendorOrderId) {
+//                lb.setOrderId(vendorOrderId);
+//            }
+//        }
         lb.setBoxCode(sd.getBoxCode());
         lb.setDmsCode(sd.getCreateSiteCode());
         lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
@@ -410,10 +416,11 @@ public class LoadBillServiceImpl implements LoadBillService {
         for (LoadBill loadBill : loadBills) {
             if (contains(loadBillList, loadBill)) continue;
             LoadBill lb = new LoadBill();
-            lb.setOrderId(loadBill.getOrderId());
-            lb.setPackageTime(loadBill.getPackageTime());
-            lb.setPackageUser(loadBill.getPackageUser());
-            lb.setWeight(loadBill.getWeight());
+            lb.setOrderId(loadBill.getOrderId()); //设置订单号 现在先并行
+            lb.setLogisticsNo(loadBill.getWaybillCode()); //设置物流运单号
+            lb.setPackageTime(loadBill.getPackageTime()); //设置打包时间
+            lb.setPackageUser(loadBill.getPackageUser()); //设置打包人
+            lb.setWeight(loadBill.getWeight()); //设置包裹重量
             loadBillList.add(lb);
         }
 
