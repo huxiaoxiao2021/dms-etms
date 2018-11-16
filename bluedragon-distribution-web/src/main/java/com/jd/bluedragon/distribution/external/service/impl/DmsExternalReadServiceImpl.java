@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
@@ -176,7 +177,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	 */
 	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey="DMSWEB.DmsExternalReadServiceImpl.getSendDSimpleBySendCodes", mState = {JProEnum.TP})
 	public DmsBaseResponse<Map<String,List<SendDSimple>>> getSendDSimpleBySendCodes(List<String>sendCodes){
-		logger.info("根据批次号列表获取发货明细的简单信息，参数：" + sendCodes);
+		if(logger.isInfoEnabled()) {
+			logger.info("根据批次号列表获取发货明细的简单信息，参数：" + JSON.toJSONString(sendCodes));
+		}
 		DmsBaseResponse<Map<String,List<SendDSimple>>> response = new DmsBaseResponse<Map<String, List<SendDSimple>>>(DmsBaseResponse.CODE_SUCCESS,DmsBaseResponse.MESSAGE_SUCCESS);
 		Map<String,List<SendDSimple>> data = new HashMap<String, List<SendDSimple>>();
 
@@ -189,7 +192,6 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 		for(String sendCode : sendCodes){
 			List<SendDSimple> sendDSimpleList = new ArrayList<SendDSimple>();
-
 			//通过批次号获取始发站点
 			Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
 			//如果无法解析始发站点，放入一个空的列表，返回
