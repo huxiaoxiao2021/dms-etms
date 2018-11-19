@@ -224,16 +224,23 @@ public class LoadBillServiceImpl implements LoadBillService {
         lb.setWaybillCode(sd.getWaybillCode());
         lb.setPackageBarcode(sd.getPackageBarcode());
         lb.setPackageAmount(sd.getPackageNum());
-//        lb.setOrderId(sd.getWaybillCode());
-        lb.setOrderId(waybillQueryManager.getOrderCodeByWaybillCode(sd.getWaybillCode(),true));
-        // todo 快递单号统一，卓志接口已经更新，不需要订单号，那么这里订单号是否还需要存？
-//        // 如果是ECLP订单，则获取商家订单号
-//        if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
-//            String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
-//            if (null != vendorOrderId) {
-//                lb.setOrderId(vendorOrderId);
-//            }
-//        }
+        //设置订单号，首先根据运单接口获取订单号，如果获取不到，将订单号设置为运单号（这里是为了兼容以前老的代码，否则涉及的改动有些大）
+        String orderId = waybillQueryManager.getOrderCodeByWaybillCode(sd.getWaybillCode(),true);
+        if(StringUtils.isBlank(orderId)){
+            logger.error("根据运单号获取订单号为空，运单号:" + sd.getWaybillCode());
+            //如果是ECLP订单，则获取商家订单号
+            if (SerialRuleUtil.isMatchReceiveWaybillNo(sd.getWaybillCode())) {
+                String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
+                if (null != vendorOrderId) {
+                    lb.setOrderId(vendorOrderId);
+                }
+            }else {
+                lb.setOrderId(sd.getWaybillCode());
+            }
+        }else{
+            lb.setOrderId(orderId);
+        }
+
         lb.setBoxCode(sd.getBoxCode());
         lb.setDmsCode(sd.getCreateSiteCode());
         lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
