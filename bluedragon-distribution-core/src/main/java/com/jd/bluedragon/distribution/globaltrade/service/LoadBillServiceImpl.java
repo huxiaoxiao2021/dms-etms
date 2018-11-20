@@ -437,7 +437,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     private Boolean contains(List<LoadBill> loadBillList, LoadBill loadBill) {
         for (LoadBill lb : loadBillList) {
-            if (lb.getLogisticsNo().equals(loadBill.getLogisticsNo())) {
+            if (lb.getLogisticsNo().equals(loadBill.getWaybillCode())) {
                 return true;
             }
         }
