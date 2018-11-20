@@ -78,8 +78,8 @@ $(function () {
                 }
                 lockPage();
                 $.ajaxHelper.doPostAsync(queryUrl, JSON.stringify(params), function (res) {
-                    if (res) {
-                        $('#dataTable').bootstrapTable("load",res);
+                    if (res&&res.code=='200') {
+                        $('#dataTable').bootstrapTable("load",res.data);
                         $('#dataTable').show();
                         unLockPage();
                     }

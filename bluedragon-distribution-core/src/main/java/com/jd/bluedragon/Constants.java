@@ -688,4 +688,12 @@ public class Constants {
      */
     public static final Integer PACKAGE_APPROVE_TYPE = 2;
 
+    /**
+     * 已发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_1 =1;
+    /**
+     * 取消发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
 }

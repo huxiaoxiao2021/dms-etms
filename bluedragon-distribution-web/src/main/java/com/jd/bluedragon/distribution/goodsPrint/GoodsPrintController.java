@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
@@ -30,6 +31,7 @@ public class GoodsPrintController extends DmsBaseController {
 
     @Autowired
     GoodsPrintService goodsPrintService;
+
     /**
      * 返回主页面
      *
@@ -40,6 +42,7 @@ public class GoodsPrintController extends DmsBaseController {
     public String toIndex() {
         return "/goodsPrint/goodsPrintList";
     }
+
     /**
      * 根据条件分页查询数据信息
      *
@@ -48,7 +51,7 @@ public class GoodsPrintController extends DmsBaseController {
      */
     @RequestMapping(value = "/listData")
     public @ResponseBody
-    List<GoodsPrintDto> listData(@RequestBody GoodsPrintDto goodsPrint) {
+    JdResponse<List<GoodsPrintDto>> listData(@RequestBody GoodsPrintDto goodsPrint) {
         return goodsPrintService.query(goodsPrint);
     }
 
