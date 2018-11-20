@@ -56,7 +56,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             if (BusinessHelper.isSendCode(sendCode)) {
                 Long num = goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusCount(sendCode);
                 if (num > 0L) {
-                    count.add(new BigDecimal(num));
+                    count=count.add(new BigDecimal(num));
                     realCodes.put(sendCode, num);
                 }
             } else {
@@ -72,7 +72,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
         }
         for (String sendCode : realCodes.keySet()) {
             int num = realCodes.get(sendCode).intValue();
-            int page = num / PAGE_SIZE + num % PAGE_SIZE > 0 ? 1 : 0;
+            int page = num / PAGE_SIZE + (num % PAGE_SIZE > 0 ? 1 : 0);
             if (page > 1) {
                 for (int i = 1; i <= page; i++) {
                     result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusOfPage(sendCode,i,PAGE_SIZE));

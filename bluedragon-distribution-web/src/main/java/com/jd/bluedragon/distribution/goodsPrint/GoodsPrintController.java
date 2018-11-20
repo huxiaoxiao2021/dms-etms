@@ -52,7 +52,15 @@ public class GoodsPrintController extends DmsBaseController {
     @RequestMapping(value = "/listData")
     public @ResponseBody
     JdResponse<List<GoodsPrintDto>> listData(@RequestBody GoodsPrintDto goodsPrint) {
-        return goodsPrintService.query(goodsPrint);
+        try {
+            return goodsPrintService.query(goodsPrint);
+        }catch (Exception e){
+            JdResponse jdResponse=new JdResponse();
+            jdResponse.setCode(500);
+            jdResponse.setMessage("调用服务失败");
+            logger.error("goodsPrint.listData调用服务失败",e);
+            return jdResponse;
+        }
     }
 
     @RequestMapping(value = "/toExport")

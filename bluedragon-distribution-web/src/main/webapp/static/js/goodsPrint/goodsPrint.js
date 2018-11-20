@@ -23,23 +23,23 @@ $(function () {
         oTableInit.init = function () {
             $('#dataTable').bootstrapTable({
                 pagination: false, // 是否显示分页（*）
-           //     pageNumber: 1, // 初始化加载第一页，默认第一页
-            //    pageSize: 10, // 每页的记录行数（*）
+                pageNumber: 1, // 初始化加载第一页，默认第一页
+                pageSize: 50000, // 每页的记录行数（*）
                 cache: true, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
-                sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
+                sidePagination: "client", // 分页方式：client客户端分页，server服务端分页（*）
                 striped: true, // 是否显示行间隔色
-           //     pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
+                // pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
                 columns: oTableInit.tableColums
             });
         };
         oTableInit.tableColums = [ {
-            field: '发货批次号',
-            title: 'sendCode'
+            field: 'sendCode',
+            title: '发货批次号'
         }, {
-            field: '发货日期',
-            title: 'operateTime',
+            field: 'operateTime',
+            title: '发货日期',
             formatter: function (value, row, index) {
-                return $.dateHelper.parseDateTime(value);
+               return $.dateHelper.formateDateOfTs(value);
             }
         }, {
             field: 'createSiteName',
@@ -78,11 +78,14 @@ $(function () {
                 }
                 lockPage();
                 $.ajaxHelper.doPostAsync(queryUrl, JSON.stringify(params), function (res) {
+
                     if (res&&res.code=='200') {
                         $('#dataTable').bootstrapTable("load",res.data);
                         $('#dataTable').show();
-                        unLockPage();
+                    }else{
+                        Jd.alert(res.message);
                     }
+                    unLockPage();
                 })
             });
             $('#btn_clear').click(function () {
