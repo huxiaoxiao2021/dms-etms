@@ -86,4 +86,21 @@ public class DmsConstants {
      */
     public static final char MMB_SELF_MARK = '9';
     public static final String MMB_V_MARK = "009";
+    /**
+     * 最多包裹数
+     */
+    public static int MAX_NUMBER=20000;
+
+    /**
+     * 板号正则表达式
+     */
+    public static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
+
+    /**
+     * 逆向箱号正则表达式:
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     */
+    public static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
 }
