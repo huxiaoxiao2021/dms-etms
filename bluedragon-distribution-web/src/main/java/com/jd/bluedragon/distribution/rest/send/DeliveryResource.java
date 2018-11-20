@@ -291,7 +291,7 @@ public class DeliveryResource implements DmsDeliveryService {
         if (BusinessHelper.isBoxcode(request.getBoxCode())) {
             loadBillReport.setBoxCode(request.getBoxCode());
         } else {
-            loadBillReport.setOrderId(request.getBoxCode());
+            loadBillReport.setWaybillCode(request.getBoxCode());
         }
         this.logger.info("开始获取 装载数据");
         try {

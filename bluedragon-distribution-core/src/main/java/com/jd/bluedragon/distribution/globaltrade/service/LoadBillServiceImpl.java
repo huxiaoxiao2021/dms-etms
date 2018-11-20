@@ -171,7 +171,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         List<LoadBill> addList = new ArrayList<LoadBill>();
         // 站点信息缓存Cache
         Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
-        // 预装载信息缓存订单号Cache
+        // 预装载信息缓存运单号Cache
         Map<String, Boolean> preWaybillCodeCache = new HashMap<String, Boolean>();
         for (SendDetail sendDetail : sendDetailList) {
             LoadBill lb = this.resolveLoadBill(sendDetail, loadBillConfig, userId, userName, dmsCacheMap);
@@ -182,7 +182,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                     // 已预装载缓存 不存在时查库确认是否已装载 存在时直接剔除
                     Boolean isPre = preWaybillCodeCache.get(lb.getWaybillCode());
                     if (isPre == null) { // 不存在时需要查库
-                        // 根据订单号查询 该订单号下是否有其他包裹已预装载
+                        // 根据运单号查询 该订单号下是否有其他包裹已预装载
                         if (this.getSuccessPreByWaybillCode(lb.getWaybillCode()) == null) { //未装载
                             preWaybillCodeCache.put(lb.getWaybillCode(), Boolean.FALSE);
                             addList.add(lb);
@@ -284,12 +284,12 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
-        logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
+        logger.info("更新装载单状态 reportId is " + report.getReportId() + ", waybillCode is " + report.getWaybillCode());
         //将orderId分割,长度不超过500
         List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
-        List<String> orderIdList = new ArrayList<String>();
-        report.setOrderId(report.getWaybillCode().replaceAll(",+", ","));
-        Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,]((?=,)|$(?=,*))").matcher(report.getOrderId());
+        List<String> waybillCodeList = new ArrayList<String>();
+        report.setWaybillCode(report.getWaybillCode().replaceAll(",+", ","));
+        Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,]((?=,)|$(?=,*))").matcher(report.getWaybillCode());
         while (matcher.find()) {
             LoadBillReport subReport = new LoadBillReport();
             String subWaybillCodes = matcher.group();
@@ -301,7 +301,7 @@ public class LoadBillServiceImpl implements LoadBillService {
             subReport.setNotes(report.getNotes());
             subReport.setWaybillCode(subWaybillCodes);
             reportList.add(subReport);
-            orderIdList.add("'" + subWaybillCodes.replaceAll(",", "','") + "'");
+            waybillCodeList.add("'" + subWaybillCodes.replaceAll(",", "','") + "'");
         }
         loadBillReportDao.addBatch(reportList);
         /**
@@ -309,8 +309,8 @@ public class LoadBillServiceImpl implements LoadBillService {
          * 问题:卓志可能会丢失装载单下的部分订单数据,导致装载单放行,但部分订单的状态没有更新为放行(当前逻辑:根据装载单和订单更新状态)
          * 补救措施:增加新的状态(失败),表示丢失的状态. 先将装载单下的所有订单更新为失败,然后将接收到的订单更新为放行.
          */
-        loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report, orderIdList));
-        return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, orderIdList)); // 更新loadbill的approval_code
+        loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report));
+        return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, waybillCodeList)); // 更新loadbill的approval_code
     }
 
     @Override
@@ -478,7 +478,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         return TaskResult.SUCCESS;
     }
 
-    private Map<String, Object> getLoadBillFailStatusMap(LoadBillReport report, List<String> orderIdList) {
+    private Map<String, Object> getLoadBillFailStatusMap(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
         loadBillStatusMap.put("warehouseId", report.getWarehouseId());
@@ -488,14 +488,14 @@ public class LoadBillServiceImpl implements LoadBillService {
         return loadBillStatusMap;
     }
 
-    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> orderIdList) {
+    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> waybillCodeList) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
         loadBillStatusMap.put("warehouseId", report.getWarehouseId());
         /****更新全部为失败时已经设置过以下两个字段，此处无需重复设置****/
 //		loadBillStatusMap.put("ciqCheckFlag", report.getCiqCheckFlag());
 //		loadBillStatusMap.put("custBillNo", report.getCustBillNo());
-        loadBillStatusMap.put("waybillCodeList", orderIdList);
+        loadBillStatusMap.put("waybillCodeList", waybillCodeList);
         if (report.getStatus() == SUCCESS) {
             loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
         } else {
@@ -611,7 +611,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("waybillCode", BusinessHelper.getWaybillCode(report.getOrderId()));
+        loadBillStatusMap.put("waybillCode", BusinessHelper.getWaybillCode(report.getWaybillCode()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList = loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
