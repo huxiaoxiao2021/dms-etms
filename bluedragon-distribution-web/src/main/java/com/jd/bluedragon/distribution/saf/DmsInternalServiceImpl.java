@@ -27,8 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.List;
-
 /**
  * @author dudong
  * @date 2016/1/5
@@ -72,9 +70,6 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private BoxService boxService;
-
-    @Autowired
-    private SendMManager sendMManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)

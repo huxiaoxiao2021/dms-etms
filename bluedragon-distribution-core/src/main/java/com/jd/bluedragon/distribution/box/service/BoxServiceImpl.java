@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -47,6 +48,8 @@ public class BoxServiceImpl implements BoxService {
     private static final String siteType = "1024";
 
     private static final int timeout = 86400;
+
+	private static final String BOX_STATUS_REDIS_QUERY_SWITCH = PropertiesHelper.newInstance().getValue("box.status.redis.query.switch");
 
     @Autowired
     private BoxDao boxDao;
@@ -385,8 +388,11 @@ public class BoxServiceImpl implements BoxService {
 	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.checkBoxIsSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
 		Boolean result = false;
+		Integer boxStatus = null;
 		try {
-			Integer boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
+			if ("1".equals(BOX_STATUS_REDIS_QUERY_SWITCH)) {
+				boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
+			}
 			if (boxStatus != null) {
 				if (BoxStatusEnum.SENT_STATUS.getCode().equals(boxStatus)) {
 					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
