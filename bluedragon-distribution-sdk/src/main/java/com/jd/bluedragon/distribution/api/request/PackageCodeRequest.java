@@ -28,6 +28,8 @@ public class PackageCodeRequest implements Serializable{
     private Integer receiveSiteCode;
     /**	包裹号明细 */
     private List<String> packageList;
+    /**箱号*/
+    private String boxCode;
 
     public Integer getDistributeId() {
         return distributeId;
@@ -91,5 +93,13 @@ public class PackageCodeRequest implements Serializable{
 
     public void setPackageList(List<String> packageList) {
         this.packageList = packageList;
+    }
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
     }
 }
