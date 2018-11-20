@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -85,15 +86,10 @@ public class BusinessHelper {
     }
 
     /**
-     * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
-     * B，正向；T，逆向；G取件退货;C普通物品；S奢侈品；2-8位，出发地编号；9-15位，到达地编号；最后8位，流水号。一共23位。 前面有两个字母
-     *
-     * @param s 用来判断的字符串
-     * @return 如果此字符串为箱号，则返回 true，否则返回 false
+     * Y开头的也认为是箱号（上海亚一用）
      */
-    @Deprecated
     public static Boolean isBoxcode(String s) {
-        return BusinessUtil.isBoxcode(s);
+        return BusinessUtil.isBoxcode(s)|| s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
 
     /**
