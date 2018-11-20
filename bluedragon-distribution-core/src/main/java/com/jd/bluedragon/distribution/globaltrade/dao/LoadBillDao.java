@@ -60,7 +60,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 		map.put("loadId", loadId);
 		map.put("trunkNo", trunkNo);
 		map.put("approvalCode", approvalCode);
-		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillByOrderIds", map);
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillByWaybillCodes", map);
 	}
 
 	public LoadBill findByPackageBarcode(String packageBarcode) {
