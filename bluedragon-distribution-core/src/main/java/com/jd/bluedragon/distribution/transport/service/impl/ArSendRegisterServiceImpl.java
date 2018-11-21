@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.transport.service.impl;
 import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
@@ -30,9 +28,19 @@ import com.jd.tms.basic.ws.BasicSyncWS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.AIR_TRANSPORT;
 import static com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum.RAILWAY;
@@ -115,9 +123,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         return null;
     }
 
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean insert(ArSendRegister arSendRegister, String[] sendCodes) {
+
+        //新增一条发货登记记枚举值1
+        arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
@@ -155,27 +166,111 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         return this.insert(arSendRegister, sendCodeArray);
     }
 
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean update(ArSendRegister arSendRegister, String[] sendCodes) {
+        ArSendRegister resource = this.getById(arSendRegister.getId());
         if (this.getDao().update(arSendRegister)) {
-            String user = arSendRegister.getCreateUser();
             if (sendCodes != null && sendCodes.length > 0) {
-                List<ArSendCode> arSendCodes = arSendCodeService.getBySendRegisterId(arSendRegister.getId());
-                if (arSendCodes != null && arSendCodes.size() > 0) {
-                    arSendCodeService.deleteBySendRegisterId(arSendRegister.getId(), user);
+                arSendRegister.setSendCodes(Arrays.asList(sendCodes));
+                List<ArSendCode> reArSendCodes = arSendCodeService.getBySendRegisterId(arSendRegister.getId());
+                if (reArSendCodes != null && reArSendCodes.size() > 0) {
+                    List<String> reSendCodes = this.getSendCodeList(reArSendCodes);
+                    resource.setSendCodes(reSendCodes);
+                    // 批次号是否修改
+                    if (this.sendCodesIsUpdate(sendCodes, reSendCodes)) {
+                        // 批量删除
+                        arSendCodeService.deleteBySendRegisterId(arSendRegister.getId(), arSendRegister.getCreateUser());
+                        // 批量新增
+                        arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser());
+                    }
+                } else {
+                    arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser());
                 }
-                if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
-                    return true;
-                }
+                this.sendTrackByUpdate(resource, arSendRegister);
             } else {
-                arSendCodeService.deleteBySendRegisterId(arSendRegister.getId(), user);
+                arSendCodeService.deleteBySendRegisterId(arSendRegister.getId(), arSendRegister.getCreateUser());
             }
         }
         return true;
     }
 
-    @Transactional
+    /**
+     * 当航班号发生变化的更新时发送全程跟踪
+     *
+     * @param resource
+     * @param target
+     */
+    private void sendTrackByUpdate(ArSendRegister resource, ArSendRegister target) {
+        if (resource != null) {
+            List<String> resourceSendCodes = resource.getSendCodes();
+            List<String> targetSendCodes = target.getSendCodes();
+            // 若航班号发生变更 目标对象中全部批次号发全程跟踪
+            if (!resource.getTransportName().equals(target.getTransportName())) {
+                this.sendTrack(target, targetSendCodes.toArray(new String[targetSendCodes.size()]));
+            } else {
+                List<String> diffSendCodes = getDiffSendCodes(resourceSendCodes, targetSendCodes);
+                if (diffSendCodes.size() > 0) {
+                    this.sendTrack(target, diffSendCodes.toArray(new String[diffSendCodes.size()]));
+                }
+            }
+        } else {
+            // 全部批次号发全程跟踪
+            List<String> targetSendCodes = target.getSendCodes();
+            this.sendTrack(target, targetSendCodes.toArray(new String[targetSendCodes.size()]));
+        }
+    }
+
+    private List<String> getSendCodeList(List<ArSendCode> arSendCodes) {
+        List<String> sendCodeList = new ArrayList<String>();
+        for (ArSendCode arSendCode : arSendCodes) {
+            sendCodeList.add(arSendCode.getSendCode());
+        }
+        return sendCodeList;
+    }
+
+    /**
+     * 批次号是否有修改，true - 修改， false - 未修改
+     *
+     * @param resource
+     * @param target
+     * @return
+     */
+    private boolean sendCodesIsUpdate(String[] resource, List<String> target) {
+        //  如果长度不等，一定修改，相等则判断内部是否变更
+        if (resource.length != target.size()) {
+            return true;
+        } else {
+            Set targetSet = new HashSet(target);
+            for (String code : resource) {
+                if (targetSet.add(code)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * 获取目标对象中新增的批次号
+     *
+     * @param resource
+     * @param target
+     * @return
+     */
+    private List getDiffSendCodes(List<String> resource, List<String> target) {
+        List diffSendCodes = new ArrayList<String>();
+        Set resourceSet = new HashSet(resource);
+        for (String code : target) {
+            if (!resourceSet.add(code)) {
+                diffSendCodes.add(code);
+            }
+        }
+        return diffSendCodes;
+    }
+
+
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public int deleteByIds(List<Long> ids, String userCode) {
         int count = 0;
@@ -262,6 +357,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @param arSendRegister
      * @return
      */
+    @Override
     public List<ArSendRegister> queryWaitReceive(ArSendRegister arSendRegister) {
         return arSendRegisterDao.queryWaitReceive(arSendRegister);
     }
