@@ -85,7 +85,11 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             sendCodeString+=Constants.SEPARATOR_COMMA+sendCode;
         }
         jdResponse.setData(result);
-        jdResponse.setMessage(sendCodeString.substring(1));
+        if (sendCodeString.length()>1){
+            jdResponse.setMessage(sendCodeString.substring(1));
+        }else{
+            jdResponse.setMessage("");
+        }
         return jdResponse;
     }
 
