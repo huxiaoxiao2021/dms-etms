@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jmq="http://code.jd.com/schema/jmq"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://code.jd.com/schema/jmq
@@ -202,5 +203,13 @@
         <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
     </jmq:consumer>
     -->
+    <!-- 消费发货明细MQ 用于托寄物品名打印 -->
+    <jmq:consumer id="jmq.sendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="sendDetailGoodsPrintConsumer"/>
+    </jmq:consumer>
+    <!-- 消费取消发货明细MQ 用于托寄物品名打印 -->
+    <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="bd_dms_delivery_cancel_send" listener="cancelSendDetailGoodsPrintConsumer"/>
+    </jmq:consumer>
 </beans>
 

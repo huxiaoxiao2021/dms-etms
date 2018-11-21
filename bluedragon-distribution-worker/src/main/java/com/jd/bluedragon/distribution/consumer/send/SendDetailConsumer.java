@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.send;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.GoodsPrintEsManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.goodsPrint.service.GoodsPrintService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -19,8 +15,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +22,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -50,15 +43,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
-
-    @Autowired
-    private GoodsPrintEsManager goodsPrintEsManager;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private GoodsPrintService goodsPrintService;
 
     /**
      * 缓存redis的key
@@ -162,37 +146,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void doConsume(SendDetailMessage sendDetail) {
         String packageBarCode = sendDetail.getPackageBarcode();
         if (SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
-            String waybillCode = SerialRuleUtil.getWaybillCode(packageBarCode);
-            BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(waybillCode);
+            BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(SerialRuleUtil.getWaybillCode(packageBarCode));
             if (baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 Waybill waybill = baseEntity.getData().getWaybill();
-                if (BusinessHelper.isRMA(waybill.getWaybillSign())) {
+                if (BusinessUtil.isRMA(waybill.getWaybillSign())) {
                     if (!rmaHandOverWaybillService.buildAndStorage(sendDetail, waybill, baseEntity.getData().getGoodsList())) {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
-                    }
-                }
-                //将运单维度的 托寄物品名是数据 写到es
-                //缓存中有 表示不久前，已操作过同运单的包裹，不需要重复写入es了
-                String key = Constants.GOODS_PRINT_WAYBILL_STATUS_1 + sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode + Constants.SEPARATOR_HYPHEN + (BusinessUtil.isBoxcode(sendDetail.getBoxCode()) ? sendDetail.getBoxCode() : "");
-                if (!goodsPrintService.getWaybillFromEsOperator(key)) {
-                    //缓存中没有有2种情况 1：缓存过期 2：es就一直没存过
-                    //查es 是否有该运单
-                    GoodsPrintDto goodsPrintDto = goodsPrintEsManager.findGoodsPrintBySendCodeAndWaybillCode(sendDetail.getSendCode(), waybillCode);
-                    //es中查不到，就是真没有了， insert该运单
-                    if (goodsPrintDto == null) {
-                        goodsPrintDto = buildGoodsPrintDto(sendDetail, waybill);
-                    } else {
-                        //如果存在一单分布在不同的箱子里，要把箱号拼起来
-                        if (goodsPrintDto.getBoxCode() != null && BusinessUtil.isBoxcode(sendDetail.getBoxCode()) && !goodsPrintDto.getBoxCode().contains(sendDetail.getBoxCode())) {
-                            goodsPrintDto.setBoxCode(goodsPrintDto.getBoxCode() + Constants.SEPARATOR_COMMA + sendDetail.getBoxCode());
-                        } else if (goodsPrintDto.getBoxCode() == null && BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
-                            goodsPrintDto.setBoxCode(sendDetail.getBoxCode());
-                        }
-                        //改为发货状态
-                        goodsPrintDto.setSendStatus(Constants.GOODS_PRINT_WAYBILL_STATUS_1);
-                    }
-                    if (goodsPrintEsManager.insertOrUpdate(goodsPrintDto)) {
-                        goodsPrintService.setWaybillFromEsOperator(key);
                     }
                 }
             } else {
@@ -201,35 +160,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         } else {
             logger.warn("[dmsWorkSendDetail消费]无效的运单号/包裹号，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
         }
-    }
-
-    private GoodsPrintDto buildGoodsPrintDto(SendDetailMessage sendDetail, Waybill waybill) {
-        GoodsPrintDto goodsPrintDto;
-        goodsPrintDto = new GoodsPrintDto();
-        goodsPrintDto.setSendCode(sendDetail.getSendCode());
-        goodsPrintDto.setVendorId(waybill.getVendorId());
-        goodsPrintDto.setWaybillCode(waybill.getWaybillCode());
-        BaseStaffSiteOrgDto createSite = this.baseMajorManager
-                .getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
-        if (createSite != null) {
-            goodsPrintDto.setCreateSiteCode(createSite.getSiteCode());
-            goodsPrintDto.setCreateSiteName(createSite.getSiteName());
-        }
-        BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
-                .getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
-        if (receiveSite != null) {
-            goodsPrintDto.setReceiveSiteCode(receiveSite.getSiteCode());
-            goodsPrintDto.setReceiveSiteName(receiveSite.getSiteName());
-        }
-        goodsPrintDto.setOperateTime(new Date(sendDetail.getOperateTime()));
-        if (BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
-            sendDetail.setBoxCode(sendDetail.getBoxCode());
-        }
-        if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
-            goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());
-        }
-        goodsPrintDto.setSendStatus(Constants.GOODS_PRINT_WAYBILL_STATUS_1);
-        return goodsPrintDto;
     }
 
     /**
@@ -243,7 +173,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         choice.setQueryWaybillC(true);
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
-        choice.setQueryWaybillExtend(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
 
