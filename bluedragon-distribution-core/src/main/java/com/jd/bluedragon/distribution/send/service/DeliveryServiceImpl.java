@@ -4587,27 +4587,33 @@ public class DeliveryServiceImpl implements DeliveryService {
      * （3）推送运单状态及回传周转箱
      * （4）对中转发货写入补全SEND_D任务
      *
-     * @param sendMList 发货对象
+     * @param sendM 发货对象
      * @return 1：发货成功  2：发货失败
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void packageSortSend(List<SendM> sendMList){
-            /**插入SEND_M*/
-//            this.sendMDao.addBatch(sendMList);
-        for(SendM sendM : sendMList){
-//            sendMDao.insertSendM(sendM);
-            //使用管理接口代替sendMDao
-            sendMManager.insertSendM(sendM);
+    public void packageSortSend(SendM sendM){
+        /**插入SEND_M*/
+//        this.sendMDao.insertSendM(sendM);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(sendM);
+        // 判断是按箱发货还是包裹发货
+        if (!SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {
+            /**按包裹 补分拣任务 大件写TASK_SORTING*/
+            pushSorting(sendM);
+        } else {
+            // 按箱
+            SendDetail tSendDatail = new SendDetail();
+            tSendDatail.setBoxCode(sendM.getBoxCode());
+            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+            //更新SEND_D状态
+            this.updateCancel(tSendDatail);
         }
-            for(SendM sendM : sendMList){
-                /**大件写TASK_SORTING*/
-                pushSorting(sendM);
-                /**中转任务*/
-                transitSend(sendM);
-                /**全程跟踪任务*/
-                pushStatusTask(sendM);
-            }
+
+        // 判断是否是中转发货
+        this.transitSend(sendM);
+        this.pushStatusTask(sendM);
     }
 
     /**
