@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -74,6 +75,13 @@ public class BaseResource implements DmsBaseService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
+
+	@Value("${parentGroup}")
+	private String parentGroup;
+	@Value("${nodeLevel}")
+	private String nodeLevel;
+	@Value("${typeGroup}")
+	private String typeGroup;
 
 	@Autowired
 	private BaseSetConfig baseSetConfig;
@@ -1443,6 +1451,25 @@ public class BaseResource implements DmsBaseService {
 			datadictResponse = new DatadictResponse(JdResponse.CODE_INTERNAL_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
 			return datadictResponse;
 		}
+	}
+
+	/**
+	 * 从基础资料中获取托寄物
+	 * */
+	@GET
+	@Path("/bases/getConsignments")
+	public InvokeResult<List<String>> getConsignments(){
+		InvokeResult result = new InvokeResult();
+		List<String> list = new ArrayList<String>();
+		DatadictResponse response =getOrignalBackBusIds(Integer.valueOf(parentGroup),Integer.valueOf(nodeLevel),Integer.valueOf(typeGroup));
+		if(response != null && response.getCode() == JdResponse.CODE_OK){
+			for (BaseDatadict bd :response.getDatadicts()) {
+				list.add(bd.getTypeName());
+			}
+		}
+		result.setCode(JdResponse.CODE_OK);
+		result.setData(list);
+		return result;
 	}
 
 	@GET
