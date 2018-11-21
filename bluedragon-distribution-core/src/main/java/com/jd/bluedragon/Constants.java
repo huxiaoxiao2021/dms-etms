@@ -119,6 +119,11 @@ public class Constants {
      * 业务类型-未知业务类型
      */
     public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+
+    /**
+     * 操作日志业务编码-打印
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
     /**
      * 业务类型-未知业务操作类型
      */

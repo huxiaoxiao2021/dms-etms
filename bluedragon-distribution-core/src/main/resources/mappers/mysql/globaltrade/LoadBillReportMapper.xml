@@ -35,7 +35,7 @@
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill_report (
 			report_id, load_id, warehouse_id,
-			process_time, status, order_id, notes, yn
+			process_time, status, order_id,waybill_code, notes, yn
 		) SELECT A.* FROM(
 		<foreach collection="list" item="item" index="index" separator="UNION ALL">
 			<![CDATA[

@@ -285,7 +285,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
         logger.info("更新装载单状态 reportId is " + report.getReportId() + ", waybillCode is " + report.getWaybillCode());
-        //将orderId分割,长度不超过500
+        //将waybillCode分割,长度不超过500
         List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
         List<String> waybillCodeList = new ArrayList<String>();
         report.setWaybillCode(report.getWaybillCode().replaceAll(",+", ","));
@@ -353,7 +353,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                             && loadBill.getApprovalCode() != LoadBill.FAILED) {
                         throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
                     }
-                    // 通过订单号去除重复
+                    // 通过运单号去除重复
                     waybillCodeSet.add(loadBill.getWaybillCode());
                 }
 
