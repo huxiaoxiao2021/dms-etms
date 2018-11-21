@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.goodsPrint.service;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.GoodsPrintEsManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -70,6 +71,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             jdResponse.setMessage("查询数量为[" + count.intValue() + "]，超过上限5万，请分批次查询");
             return jdResponse;
         }
+        String sendCodeString="";
         for (String sendCode : realCodes.keySet()) {
             int num = realCodes.get(sendCode).intValue();
             int page = num / PAGE_SIZE + (num % PAGE_SIZE > 0 ? 1 : 0);
@@ -80,21 +82,10 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             } else {
                 result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatus(sendCode));
             }
+            sendCodeString+=Constants.SEPARATOR_COMMA+sendCode;
         }
-
-//        for (int i = 1; i < 100000; i++) {
-//            GoodsPrintDto goodsPrintDto1 = new GoodsPrintDto();
-//            goodsPrintDto1.setBoxCode("box" + i);
-//            goodsPrintDto1.setSendCode("sendcode" + i);
-//            goodsPrintDto1.setConsignWare("这是什么" + i);
-//            goodsPrintDto1.setOperateTime(new Date());
-//            goodsPrintDto1.setCreateSiteName("马驹桥");
-//            goodsPrintDto1.setReceiveSiteName("上海");
-//            goodsPrintDto1.setVendorId("11111" + i);
-//            goodsPrintDto1.setWaybillCode("waybill" + i);
-//            result.add(goodsPrintDto1);
-//        }
         jdResponse.setData(result);
+        jdResponse.setMessage(sendCodeString.substring(1));
         return jdResponse;
     }
 

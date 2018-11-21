@@ -80,6 +80,8 @@ $(function () {
                 $.ajaxHelper.doPostAsync(queryUrl, JSON.stringify(params), function (res) {
 
                     if (res&&res.code=='200') {
+                        $('#labelCount').text("总条数数："+res.data.length+",有效批次号："+res.message);
+                        $('#labelCount').show();
                         $('#dataTable').bootstrapTable("load",res.data);
                         $('#dataTable').show();
                     }else{
@@ -90,10 +92,13 @@ $(function () {
             });
             $('#btn_clear').click(function () {
                 $('#sendCode').val(null);
+                $('#labelCount').text("");
                 $('#dataTable').bootstrapTable("load",[]);
             });
             $('#btn_print').click(function () {
+                $('#edit-condition').hide();
                 window.print();
+                $('#edit-condition').show();
             });
             $("#btn_export").click(function () {
 
