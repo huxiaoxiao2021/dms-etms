@@ -6,13 +6,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
-import com.jd.bluedragon.distribution.transport.domain.ArPdaSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegisterCondition;
-import com.jd.bluedragon.distribution.transport.domain.ArSendStatusEnum;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportInfo;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -132,6 +126,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean insert(ArSendRegister arSendRegister, String[] sendCodes) {
+
+        //新增一条发货登记记枚举值1
+        arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {

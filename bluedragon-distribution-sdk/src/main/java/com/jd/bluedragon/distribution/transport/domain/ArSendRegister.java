@@ -177,6 +177,11 @@ public class ArSendRegister extends DbEntity {
     private String updateUser;
 
     /**
+     * 操作类型
+     */
+    private Integer operateType;
+
+    /**
      * 批次号，对应数据库无映射关系
      */
     private String sendCode;
@@ -458,4 +463,11 @@ public class ArSendRegister extends DbEntity {
         this.sendCodes = sendCodes;
     }
 
+    public Integer getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(Integer operateType) {
+        this.operateType = operateType;
+    }
 }
