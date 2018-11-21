@@ -162,7 +162,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void doConsume(SendDetailMessage sendDetail) {
         String packageBarCode = sendDetail.getPackageBarcode();
         if (SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
-            String waybillCode=SerialRuleUtil.getWaybillCode(packageBarCode);
+            String waybillCode = SerialRuleUtil.getWaybillCode(packageBarCode);
             BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(waybillCode);
             if (baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 Waybill waybill = baseEntity.getData().getWaybill();
@@ -173,27 +173,27 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 }
                 //将运单维度的 托寄物品名是数据 写到es
                 //缓存中有 表示不久前，已操作过同运单的包裹，不需要重复写入es了
-                String key = Constants.GOODS_PRINT_WAYBILL_STATUS_1+sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode+Constants.SEPARATOR_HYPHEN+sendDetail.getBoxCode();
+                String key = Constants.GOODS_PRINT_WAYBILL_STATUS_1 + sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode + Constants.SEPARATOR_HYPHEN + (BusinessUtil.isBoxcode(sendDetail.getBoxCode()) ? sendDetail.getBoxCode() : "");
                 if (!goodsPrintService.getWaybillFromEsOperator(key)) {
                     //缓存中没有有2种情况 1：缓存过期 2：es就一直没存过
                     //查es 是否有该运单
-                    GoodsPrintDto goodsPrintDto= goodsPrintEsManager.findGoodsPrintBySendCodeAndWaybillCode(sendDetail.getSendCode(),waybillCode);
+                    GoodsPrintDto goodsPrintDto = goodsPrintEsManager.findGoodsPrintBySendCodeAndWaybillCode(sendDetail.getSendCode(), waybillCode);
                     //es中查不到，就是真没有了， insert该运单
-                    if (goodsPrintDto==null){
+                    if (goodsPrintDto == null) {
                         goodsPrintDto = buildGoodsPrintDto(sendDetail, waybill);
-                    }else{
+                    } else {
                         //如果存在一单分布在不同的箱子里，要把箱号拼起来
-                        if (goodsPrintDto.getBoxCode()!=null&&BusinessUtil.isBoxcode(sendDetail.getBoxCode())&&!goodsPrintDto.getBoxCode().contains(sendDetail.getBoxCode())){
-                            goodsPrintDto.setBoxCode(goodsPrintDto.getBoxCode()+Constants.SEPARATOR_COMMA+sendDetail.getBoxCode());
-                        }else if (goodsPrintDto.getBoxCode()==null&&BusinessUtil.isBoxcode(sendDetail.getBoxCode())){
+                        if (goodsPrintDto.getBoxCode() != null && BusinessUtil.isBoxcode(sendDetail.getBoxCode()) && !goodsPrintDto.getBoxCode().contains(sendDetail.getBoxCode())) {
+                            goodsPrintDto.setBoxCode(goodsPrintDto.getBoxCode() + Constants.SEPARATOR_COMMA + sendDetail.getBoxCode());
+                        } else if (goodsPrintDto.getBoxCode() == null && BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
                             goodsPrintDto.setBoxCode(sendDetail.getBoxCode());
                         }
                         //改为发货状态
                         goodsPrintDto.setSendStatus(Constants.GOODS_PRINT_WAYBILL_STATUS_1);
                     }
-                   if (goodsPrintEsManager.insertOrUpdate(goodsPrintDto)){
-                       goodsPrintService.setWaybillFromEsOperator(key);
-                   }
+                    if (goodsPrintEsManager.insertOrUpdate(goodsPrintDto)) {
+                        goodsPrintService.setWaybillFromEsOperator(key);
+                    }
                 }
             } else {
                 logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
@@ -205,25 +205,27 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     private GoodsPrintDto buildGoodsPrintDto(SendDetailMessage sendDetail, Waybill waybill) {
         GoodsPrintDto goodsPrintDto;
-        goodsPrintDto=new GoodsPrintDto();
+        goodsPrintDto = new GoodsPrintDto();
+        goodsPrintDto.setSendCode(sendDetail.getSendCode());
         goodsPrintDto.setVendorId(waybill.getVendorId());
+        goodsPrintDto.setWaybillCode(waybill.getWaybillCode());
         BaseStaffSiteOrgDto createSite = this.baseMajorManager
                 .getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
-        if (createSite!=null){
+        if (createSite != null) {
             goodsPrintDto.setCreateSiteCode(createSite.getSiteCode());
             goodsPrintDto.setCreateSiteName(createSite.getSiteName());
         }
         BaseStaffSiteOrgDto receiveSite = this.baseMajorManager
                 .getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
-        if (receiveSite!=null){
+        if (receiveSite != null) {
             goodsPrintDto.setReceiveSiteCode(receiveSite.getSiteCode());
             goodsPrintDto.setReceiveSiteName(receiveSite.getSiteName());
         }
         goodsPrintDto.setOperateTime(new Date(sendDetail.getOperateTime()));
-        if (BusinessUtil.isBoxcode(sendDetail.getBoxCode())){
+        if (BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
             sendDetail.setBoxCode(sendDetail.getBoxCode());
         }
-        if (waybill.getWaybillExt()!=null&&waybill.getWaybillExt().getConsignWare()!=null){
+        if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
             goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());
         }
         goodsPrintDto.setSendStatus(Constants.GOODS_PRINT_WAYBILL_STATUS_1);
