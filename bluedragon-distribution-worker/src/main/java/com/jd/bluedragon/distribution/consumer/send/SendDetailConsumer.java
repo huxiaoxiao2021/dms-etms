@@ -243,6 +243,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         choice.setQueryWaybillC(true);
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
+        choice.setQueryWaybillExtend(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
 
