@@ -44,6 +44,9 @@ public class PackageHalfApproveDto  implements Serializable {
      */
     private String operatorName;
 
+    /** 再投审核完成类型（1：按运单审核；2：按包裹审核） */
+    private Integer modelType;
+
     /**
      * 部分签收运单包裹同步参数集合
      */
@@ -119,5 +122,13 @@ public class PackageHalfApproveDto  implements Serializable {
 
     public void setPackagePartMsgDTOList(List<PackageHalfApproveDetailDto> packagePartMsgDTOList) {
         this.packagePartMsgDTOList = packagePartMsgDTOList;
+    }
+
+    public Integer getModelType() {
+        return modelType;
+    }
+
+    public void setModelType(Integer modelType) {
+        this.modelType = modelType;
     }
 }
