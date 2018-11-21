@@ -59,7 +59,10 @@
             <div class="col-xs-1"></div>
             <label id="labelCount" class="control-label col-xs-8" ></label>
         </div>
-
+        <div class="col-xs-12">
+            <div class="col-xs-1"></div>
+            <label id="labelAlert" class="control-label col-xs-8" style="color:#F00;"></label>
+        </div>
         <div class="col-xs-12">
             <div class="col-xs-1"></div>
             <div class="col-xs-8">

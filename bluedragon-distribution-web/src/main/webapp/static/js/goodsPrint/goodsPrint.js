@@ -32,7 +32,14 @@ $(function () {
                 columns: oTableInit.tableColums
             });
         };
-        oTableInit.tableColums = [ {
+        oTableInit.tableColums = [{
+            title: '序号',
+            field: '',
+            formatter: function (value, row, index) {
+                return index + 1;
+            }
+        },
+        {
             field: 'sendCode',
             title: '发货批次号'
         }, {
@@ -82,6 +89,13 @@ $(function () {
                     if (res&&res.code=='200') {
                         $('#labelCount').text("总条数数："+res.data.length+",有效批次号："+res.message);
                         $('#labelCount').show();
+
+                        if (res.data.length>10000) {
+                            $('#labelAlert').text("提示：条目过多，建议导出excel再做打印，避免页面卡顿");
+                            $('#labelAlert').show();
+                        }else{
+                            $('#labelAlert').hide();
+                        }
                         $('#dataTable').bootstrapTable("load",res.data);
                         $('#dataTable').show();
                     }else{
@@ -97,6 +111,7 @@ $(function () {
             });
             $('#btn_print').click(function () {
                 $('#edit-condition').hide();
+                $('#labelAlert').hide();
                 window.print();
                 $('#edit-condition').show();
             });

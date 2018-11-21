@@ -44,7 +44,6 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     @Override
     public JdResponse<List<GoodsPrintDto>> query(GoodsPrintDto goodsPrintDto) {
         JdResponse<List<GoodsPrintDto>> jdResponse = new JdResponse();
-        List<GoodsPrintDto> result = Lists.newArrayList();
         if (goodsPrintDto == null || goodsPrintDto.getSendCode() == null) {
             jdResponse.setCode(3001);
             jdResponse.setMessage("请输入参数");
@@ -71,17 +70,18 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             jdResponse.setMessage("查询数量为[" + count.intValue() + "]，超过上限5万，请分批次查询");
             return jdResponse;
         }
+        List<GoodsPrintDto> result = new ArrayList<GoodsPrintDto>(count.intValue());
         String sendCodeString="";
         for (String sendCode : realCodes.keySet()) {
-            int num = realCodes.get(sendCode).intValue();
-            int page = num / PAGE_SIZE + (num % PAGE_SIZE > 0 ? 1 : 0);
-            if (page > 1) {
-                for (int i = 1; i <= page; i++) {
-                    result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusOfPage(sendCode,i,PAGE_SIZE));
-                }
-            } else {
+//            int num = realCodes.get(sendCode).intValue();
+//            int page = num / PAGE_SIZE + (num % PAGE_SIZE > 0 ? 1 : 0);
+//            if (page > 1) {
+//                for (int i = 1; i <= page; i++) {
+//                    result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatusOfPage(sendCode,i,PAGE_SIZE));
+//                }
+//            } else {
                 result.addAll(goodsPrintEsManager.findGoodsPrintBySendCodeAndStatus(sendCode));
-            }
+//            }
             sendCodeString+=Constants.SEPARATOR_COMMA+sendCode;
         }
         jdResponse.setData(result);

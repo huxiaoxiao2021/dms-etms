@@ -344,6 +344,6 @@
     </jsf:consumer>
     <!--报表的接口 唐春青-->
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
     </jsf:consumer>
 </beans>
