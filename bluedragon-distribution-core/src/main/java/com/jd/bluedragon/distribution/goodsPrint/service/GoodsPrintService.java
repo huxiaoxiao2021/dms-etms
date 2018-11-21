@@ -29,4 +29,11 @@ public interface GoodsPrintService {
      * @return
      */
     public boolean setWaybillFromEsOperator(String key);
+    /**
+     * 删除缓存
+     *
+     * @param key
+     * @return
+     */
+    public void deleteWaybillFromEsOperator(String key);
 }

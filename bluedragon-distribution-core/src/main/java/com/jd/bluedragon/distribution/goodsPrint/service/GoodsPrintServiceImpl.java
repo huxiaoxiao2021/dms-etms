@@ -166,4 +166,18 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             return false;
         }
     }
+
+    /**
+     * 删除缓存
+     *
+     * @param key
+     * @return
+     */
+    public void deleteWaybillFromEsOperator(String key) {
+        try {
+            redisClientCache.del(key);
+        } catch (Exception e) {
+            logger.error("[getWaybillFromEsOperator]删除数据出错,key = " + key + " 错误信息为：" + e.getMessage());
+        }
+    }
 }

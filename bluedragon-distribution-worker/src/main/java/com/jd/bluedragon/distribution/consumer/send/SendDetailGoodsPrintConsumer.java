@@ -19,6 +19,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +76,9 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
         Waybill waybill = baseEntity.getData().getWaybill();
         //将运单维度的 托寄物品名是数据 写到es
         //缓存中有 表示不久前，已操作过同运单的包裹，不需要重复写入es了
-        String key = Constants.GOODS_PRINT_WAYBILL_STATUS_1 + sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode + Constants.SEPARATOR_HYPHEN + (BusinessUtil.isBoxcode(sendDetail.getBoxCode()) ? sendDetail.getBoxCode() : "");
-        if (goodsPrintService.getWaybillFromEsOperator(key)) {
+        String key1 = Constants.GOODS_PRINT_WAYBILL_STATUS_1 + Constants.SEPARATOR_HYPHEN + sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode + Constants.SEPARATOR_HYPHEN + (BusinessUtil.isBoxcode(sendDetail.getBoxCode()) ? sendDetail.getBoxCode() : "");
+        String key0 = Constants.GOODS_PRINT_WAYBILL_STATUS_0 + Constants.SEPARATOR_HYPHEN + sendDetail.getSendCode() + Constants.SEPARATOR_HYPHEN + waybillCode;
+        if (goodsPrintService.getWaybillFromEsOperator(key1)) {
             return;
         }
         //缓存中没有有2种情况 1：缓存过期 2：es就一直没存过
@@ -88,7 +90,7 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
         } else {
             //如果存在一单分布在不同的箱子里，要把箱号拼起来
             if (goodsPrintDto.getBoxCode() != null && BusinessUtil.isBoxcode(sendDetail.getBoxCode()) && !goodsPrintDto.getBoxCode().contains(sendDetail.getBoxCode())) {
-                goodsPrintDto.setBoxCode(goodsPrintDto.getBoxCode() + Constants.SEPARATOR_COMMA + sendDetail.getBoxCode());
+                goodsPrintDto.setBoxCode(goodsPrintDto.getBoxCode() + (StringUtils.isBlank(goodsPrintDto.getBoxCode()) ? "" : Constants.SEPARATOR_COMMA) + sendDetail.getBoxCode());
             } else if (goodsPrintDto.getBoxCode() == null && BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
                 goodsPrintDto.setBoxCode(sendDetail.getBoxCode());
             }
@@ -97,7 +99,8 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
         }
         //加到redis中
         if (goodsPrintEsManager.insertOrUpdate(goodsPrintDto)) {
-            goodsPrintService.setWaybillFromEsOperator(key);
+            goodsPrintService.setWaybillFromEsOperator(key1);
+            goodsPrintService.deleteWaybillFromEsOperator(key0);
         }
 
     }
