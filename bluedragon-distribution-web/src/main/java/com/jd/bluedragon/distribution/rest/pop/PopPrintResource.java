@@ -226,6 +226,7 @@ public class PopPrintResource {
 						//驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
 						Map<String,Object> msgBody=Maps.newHashMap();
 						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
+                        msgBody.put("categoryName",popPrintRequest.getCategoryName());
 						msgBody.put("operatorErp",userDto.getErp());
 						msgBody.put("operatorTime",operatorTime.getTime());
 						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
@@ -524,7 +525,8 @@ public class PopPrintResource {
 		
 		popPrint.setBusiId(request.getBusiId());
 		popPrint.setBusiName(request.getBusiName());
-		
+		popPrint.setCategoryName(request.getCategoryName());
+
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
 			logger.info("保存POP打印信息 -->  打印包裹：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintPackCode(request.getOperatorCode());
