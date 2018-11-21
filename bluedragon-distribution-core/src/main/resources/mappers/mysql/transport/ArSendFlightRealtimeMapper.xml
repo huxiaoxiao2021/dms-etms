@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.transport.dao.ArSendFlightRealtimeDao">
+
+	<resultMap id="ArSendFlightRealtime" type="com.jd.bluedragon.distribution.transport.domain.ArSendFlightRealtime" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="flight_number" property="flightNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="flight_date" property="flightDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="real_time" property="realTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="begin_node_code" property="beginNodeCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="begin_node_name" property="beginNodeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_node_code" property="endNodeCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="end_node_name" property="endNodeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="take_off_time" property="takeOffTime" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="touch_down_time" property="touchDownTime" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="delay_flag" property="delayFlag" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,flight_number,flight_date,status,real_time,begin_node_code,
+		begin_node_name,end_node_code,end_node_name,take_off_time,touch_down_time,
+		create_time,delay_flag,ts,is_delete
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendFlightRealtime">
+		insert into ar_send_flight_realtime
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="flightNumber != null">
+					flight_number,
+				</if>
+				<if test="flightDate != null">
+					flight_date,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="realTime != null">
+					real_time,
+				</if>
+				<if test="beginNodeCode != null">
+					begin_node_code,
+				</if>
+				<if test="beginNodeName != null">
+					begin_node_name,
+				</if>
+				<if test="endNodeCode != null">
+					end_node_code,
+				</if>
+				<if test="endNodeName != null">
+					end_node_name,
+				</if>
+				<if test="takeOffTime != null">
+					take_off_time,
+				</if>
+				<if test="touchDownTime != null">
+					touch_down_time,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="delayFlag != null">
+					delay_flag,
+				</if>
+				<if test="ts != null">
+					ts,
+				</if>
+				<if test="isDelete != null">
+					is_delete
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="flightNumber != null">
+					#{flightNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="flightDate != null">
+					#{flightDate,jdbcType=TIMESTAMP},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=INTEGER},
+				</if>
+				<if test="realTime != null">
+					#{realTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="beginNodeCode != null">
+					#{beginNodeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="beginNodeName != null">
+					#{beginNodeName,jdbcType=VARCHAR},
+				</if>
+				<if test="endNodeCode != null">
+					#{endNodeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="endNodeName != null">
+					#{endNodeName,jdbcType=VARCHAR},
+				</if>
+				<if test="takeOffTime != null">
+					#{takeOffTime,jdbcType=VARCHAR},
+				</if>
+				<if test="touchDownTime != null">
+					#{touchDownTime,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="delayFlag != null">
+					#{delayFlag,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into ar_send_flight_realtime
+			(
+				flight_number,flight_date,status,real_time,
+				begin_node_code,begin_node_name,end_node_code,end_node_name,take_off_time,
+				touch_down_time,create_time,delay_flag,ts,is_delete
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.flightNumber,jdbcType=VARCHAR},
+					#{item.flightDate,jdbcType=TIMESTAMP},
+					#{item.status,jdbcType=INTEGER},
+					#{item.realTime,jdbcType=TIMESTAMP},
+					#{item.beginNodeCode,jdbcType=VARCHAR},
+					#{item.beginNodeName,jdbcType=VARCHAR},
+					#{item.endNodeCode,jdbcType=VARCHAR},
+					#{item.endNodeName,jdbcType=VARCHAR},
+					#{item.takeOffTime,jdbcType=VARCHAR},
+					#{item.touchDownTime,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.delayFlag,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendFlightRealtime">
+		update ar_send_flight_realtime
+			<set>
+				<if test="flightNumber != null">
+					flight_number = #{flightNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="flightDate != null">
+					flight_date = #{flightDate,jdbcType=TIMESTAMP},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=INTEGER},
+				</if>
+				<if test="realTime != null">
+					real_time = #{realTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="beginNodeCode != null">
+					begin_node_code = #{beginNodeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="beginNodeName != null">
+					begin_node_name = #{beginNodeName,jdbcType=VARCHAR},
+				</if>
+				<if test="endNodeCode != null">
+					end_node_code = #{endNodeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="endNodeName != null">
+					end_node_name = #{endNodeName,jdbcType=VARCHAR},
+				</if>
+				<if test="takeOffTime != null">
+					take_off_time = #{takeOffTime,jdbcType=VARCHAR},
+				</if>
+				<if test="touchDownTime != null">
+					touch_down_time = #{touchDownTime,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="delayFlag != null">
+					delay_flag = #{delayFlag,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update ar_send_flight_realtime
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update ar_send_flight_realtime
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="ArSendFlightRealtime">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_send_flight_realtime 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendFlightRealtime" resultMap="ArSendFlightRealtime">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_send_flight_realtime 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  ar_send_flight_realtime 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ArSendFlightRealtime">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  ar_send_flight_realtime 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
