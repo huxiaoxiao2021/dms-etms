@@ -226,6 +226,7 @@ public class PopPrintResource {
 						//驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
 						Map<String,Object> msgBody=Maps.newHashMap();
 						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
+						msgBody.put("packageCode",popPrintRequest.getPackageBarcode());
                         msgBody.put("categoryName",popPrintRequest.getCategoryName());
 						msgBody.put("operatorErp",userDto.getErp());
 						msgBody.put("operatorTime",operatorTime.getTime());
