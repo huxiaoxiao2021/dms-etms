@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.*;
@@ -344,17 +345,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public BaseEntity<List<BigWaybillDto>> getDatasByChoice(List<String> waybillCodes, WChoice wChoice) {
         if (waybillCodes != null && waybillCodes.size() == 1) {
             BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(waybillCodes.get(0), wChoice);
+            BaseEntity<List<BigWaybillDto>> result = new BaseEntity<List<BigWaybillDto>>();
             if (null != baseEntity) {
                 List<BigWaybillDto> bigWaybillDtoList = new ArrayList<BigWaybillDto>(1);
                 bigWaybillDtoList.add(baseEntity.getData());
 
-                BaseEntity<List<BigWaybillDto>> result = new BaseEntity<List<BigWaybillDto>>();
                 result.setData(bigWaybillDtoList);
                 result.setMessage(baseEntity.getMessage());
                 result.setResultCode(baseEntity.getResultCode());
-                return result;
             }
-            return null;
+            return result;
         } else {
             return this.doBatchGetDatasByChoice(waybillCodes, wChoice);
         }
@@ -370,28 +370,31 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     private BaseEntity<List<BigWaybillDto>> doBatchGetDatasByChoice(List<String> waybillCodes, WChoice wChoice) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.doBatchGetDatasByChoice", false, true);
         BaseEntity<List<BigWaybillDto>> results;
-        if (waybillPackageManager.isGetPackageByPageOpen()) {
-            Boolean isQueryPackList = wChoice.getQueryPackList();
-            if (null == isQueryPackList) {
-                isQueryPackList = false;
-            }
-            wChoice.setQueryPackList(false);
-            results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+        try {
+            if (waybillPackageManager.isGetPackageByPageOpen()) {
+                Boolean isQueryPackList = wChoice.getQueryPackList();
+                if (null == isQueryPackList) {
+                    isQueryPackList = false;
+                }
+                wChoice.setQueryPackList(false);
+                results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
 
-            if (isQueryPackList && null != results) {
-                for (BigWaybillDto bigWaybillDto : results.getData()) {
-                    if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
-                        BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
-                        if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
-                            bigWaybillDto.setPackageList(packageDBaseEntity.getData());
+                if (isQueryPackList && null != results) {
+                    for (BigWaybillDto bigWaybillDto : results.getData()) {
+                        if (null != bigWaybillDto.getWaybill() && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillCode())) {
+                            BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(bigWaybillDto.getWaybill().getWaybillCode());
+                            if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
+                                bigWaybillDto.setPackageList(packageDBaseEntity.getData());
+                            }
                         }
                     }
                 }
+            } else {
+                results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
             }
-        } else {
-            results = waybillQueryApi.getDatasByChoice(waybillCodes, wChoice);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
-        Profiler.registerInfoEnd(info);
         return results;
     }
 
@@ -425,4 +428,33 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return waybillCodes;
     }
 
+    /**
+     * 根据运单号获取订单号
+     * @param waybillCode
+     * @param  source
+     * source说明：
+     *1.如果waybillCode为正向运单，则直接返回订单号
+     *2.如果waybillCode为返单号，并且source为true时，返回原运单的订单号
+     *3.如果waybillCode为返单号，并且source为false时，返回为空
+     * @return 订单号
+     */
+    public String getOrderCodeByWaybillCode(String waybillCode, boolean source){
+        CallerInfo callerInfo = null;
+        try {
+            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode",Constants.UMP_APP_NAME_DMSWEB);
+            BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode, source);
+            if (baseEntity.getResultCode() != 1) {
+                logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
+                        ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            Profiler.functionError(callerInfo);
+            logger.error("根据运单号调用运单接口获取订单号异常.",e);
+            return null;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
 }

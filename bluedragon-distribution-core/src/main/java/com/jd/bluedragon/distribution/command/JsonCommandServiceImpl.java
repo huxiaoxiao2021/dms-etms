@@ -74,7 +74,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		if(operateType == null){
 			operateType = Constants.OPERATE_TYPE_UNKNOWN;
 		}
-		businessLogProfiler.setBizType(operateType);
+		businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_PRINT);
+		businessLogProfiler.setOperateType(operateType);
 		businessLogProfiler.setOperateRequest(jsonCommand);
 		businessLogProfiler.setOperateResponse(jsonResponse);
 		businessLogProfiler.setTimeStamp(System.currentTimeMillis());

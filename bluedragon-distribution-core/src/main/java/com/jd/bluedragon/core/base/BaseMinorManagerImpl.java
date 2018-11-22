@@ -74,7 +74,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicTraderInfoDTO getBaseTraderById(Integer paramInteger) {
 		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-		responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
+		responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
 		if(responseDTO != null && responseDTO.getResult() != null ){
 			responseDTO.getResult().setAllAddress(null);
 			return responseDTO.getResult();

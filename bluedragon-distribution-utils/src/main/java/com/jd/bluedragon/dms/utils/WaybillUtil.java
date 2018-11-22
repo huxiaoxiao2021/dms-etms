@@ -22,7 +22,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
-        if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode) && !WaybillCodeRuleValidateUtil.isPackageCode(packCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode)) {
             return packCode;
         }
         String waybillCode= WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
@@ -38,7 +38,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * 兼容新运单号格式（JD开头）
      */
     public static boolean isWaybillCode(String waybillCode) {
-        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode) && !WaybillCodeRuleValidateUtil.isPackageCode(waybillCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode)) {
             return true;
         }
         return false;
@@ -174,7 +174,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
                 logger.warn("生成包裹大于100：" + totalPackageNum + "packcode:" + packcode);
             }
             //超过2W 认为是不正常的单子
-            if (totalPackageNum > 20000) {
+            if (totalPackageNum > DmsConstants.MAX_NUMBER) {
                 logger.error("生成包裹出错，包裹总数过大：" + totalPackageNum + "packcode:" + packcode);
                 return list;
             }

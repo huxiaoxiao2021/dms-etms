@@ -37,6 +37,11 @@ public class LoadBillReport implements Serializable {
 
     private String siteCode;
 
+	/**
+	 * 成功的运单号，多个以逗号分割
+	 */
+	private String waybillCode;
+
     public String getSiteCode() {
         return siteCode;
     }
@@ -149,4 +154,12 @@ public class LoadBillReport implements Serializable {
     public void setCustBillNo(String custBillNo) {
         this.custBillNo = custBillNo;
     }
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
 }
