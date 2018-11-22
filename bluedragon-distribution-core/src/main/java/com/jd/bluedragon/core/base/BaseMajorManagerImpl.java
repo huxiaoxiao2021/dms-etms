@@ -70,7 +70,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         if (dtoStaff != null)
             return dtoStaff;
         else
-            responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
+            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
 
         if (responseDTO != null && responseDTO.getResult() != null)
             dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
