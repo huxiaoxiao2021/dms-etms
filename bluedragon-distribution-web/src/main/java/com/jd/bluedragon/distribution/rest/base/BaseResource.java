@@ -74,12 +74,9 @@ public class BaseResource implements DmsBaseService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
 
-	@Value("${baseResource.parentGroup:70550731}")
-	private String parentGroup;
-	@Value("${baseResource.nodeLevel:2}")
-	private String nodeLevel;
-	@Value("${baseResource.typeGroup:70550731}")
-	private String typeGroup;
+	private static final Integer parentGroup = 70550731;
+	private static final Integer nodeLevel = 2;
+	private static final Integer typeGroup = 70550731;
 
 	@Autowired
 	private BaseSetConfig baseSetConfig;
@@ -1459,7 +1456,7 @@ public class BaseResource implements DmsBaseService {
 	public InvokeResult<List<String>> getConsignments(){
 		InvokeResult result = new InvokeResult();
 		List<String> list = new ArrayList<String>();
-		DatadictResponse response =getOrignalBackBusIds(Integer.valueOf(parentGroup),Integer.valueOf(nodeLevel),Integer.valueOf(typeGroup));
+		DatadictResponse response =getOrignalBackBusIds(parentGroup,nodeLevel,typeGroup);
 		if(response != null && response.getCode() == JdResponse.CODE_OK){
 			for (BaseDatadict bd :response.getDatadicts()) {
 				list.add(bd.getTypeName());
