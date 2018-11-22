@@ -77,6 +77,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             return new BatchSendSummaryResponse(JdResponse.CODE_OK_NULL,JdResponse.MESSAGE_OK_NULL);
         }
 
+        CallerInfo info = Profiler.registerInfo("DMS.WEB.DmsScannerFrameService.countSendCode", false, true);
         BatchSendSummaryResponse response = new BatchSendSummaryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         BatchSendSummary summary;
         List<BatchSendSummary> summaries = new ArrayList<BatchSendSummary>();
@@ -100,6 +101,8 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             summaries.add(summary);
         }
         response.setBatchSendSummaries(summaries);
+
+        Profiler.registerInfoEnd(info);
         return response;
     }
 
