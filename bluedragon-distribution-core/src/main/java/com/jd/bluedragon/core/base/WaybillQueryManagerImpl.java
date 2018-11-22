@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.*;
@@ -437,16 +438,23 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      *3.如果waybillCode为返单号，并且source为false时，返回为空
      * @return 订单号
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode",
-            mState = {JProEnum.TP,JProEnum.FunctionError})
     public String getOrderCodeByWaybillCode(String waybillCode, boolean source){
-        BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode,source);
-        if(baseEntity.getResultCode() != 1){
-            logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
-                    ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+        CallerInfo callerInfo = null;
+        try {
+            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode",Constants.UMP_APP_NAME_DMSWEB);
+            BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode, source);
+            if (baseEntity.getResultCode() != 1) {
+                logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
+                        ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            Profiler.functionError(callerInfo);
+            logger.error("根据运单号调用运单接口获取订单号异常.",e);
             return null;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
         }
-        return  baseEntity.getData();
     }
-
 }
