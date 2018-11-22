@@ -76,11 +76,11 @@ public class BaseResource implements DmsBaseService {
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
 
-	@Value("${parentGroup}")
+	@Value("${baseResource.parentGroup}")
 	private String parentGroup;
-	@Value("${nodeLevel}")
+	@Value("${baseResource.nodeLevel}")
 	private String nodeLevel;
-	@Value("${typeGroup}")
+	@Value("${baseResource.typeGroup}")
 	private String typeGroup;
 
 	@Autowired
