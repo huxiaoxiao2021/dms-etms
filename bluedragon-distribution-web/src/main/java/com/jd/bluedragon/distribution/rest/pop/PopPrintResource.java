@@ -228,10 +228,10 @@ public class PopPrintResource {
 						Map<String,Object> msgBody=Maps.newHashMap();
 						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
 						msgBody.put("packageCode",popPrintRequest.getPackageBarcode());
-                        msgBody.put("categoryName",popPrintRequest.getCategoryName());
+                        msgBody.put("goods",popPrintRequest.getCategoryName());
 						msgBody.put("operatorErp",userDto.getErp());
 						msgBody.put("operatorTime",operatorTime.getTime());
-						msgBody.put("source",PRINT_SOURCE);
+						msgBody.put("operatorSource",PRINT_SOURCE);
 						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
 					}
 				}
