@@ -1,20 +1,28 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.BatchSendSummary;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigJsfRequest;
 import com.jd.bluedragon.distribution.api.request.UploadDataJsfRequest;
+import com.jd.bluedragon.distribution.api.response.BatchSendSummaryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameConsume;
 import com.jd.bluedragon.distribution.external.service.DmsScannerFrameService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
+import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,6 +40,9 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
      */
     @Resource(name = "scannerFrameConsumeMap")
     private Map<Integer, ScannerFrameConsume> scannerFrameConsumeMap;
+
+    @Autowired
+    private GantryDeviceService gantryDeviceService;
 
 
     @Override
@@ -58,6 +69,38 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             LOGGER.error("DmsScannerFrameServiceImpl.dealScannerFrameConsume-->龙门架核心处理JSF接口异常",e);
         }
         return result;
+    }
+
+    @Override
+    public BatchSendSummaryResponse countSendCode(String[] sendCodes, boolean packageNumFlag, boolean volumeFlag) {
+        if (sendCodes.length == 0) {
+            return new BatchSendSummaryResponse(JdResponse.CODE_OK_NULL,JdResponse.MESSAGE_OK_NULL);
+        }
+
+        BatchSendSummaryResponse response = new BatchSendSummaryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        BatchSendSummary summary;
+        List<BatchSendSummary> summaries = new ArrayList<BatchSendSummary>();
+        for (String sendCode : sendCodes) {
+            summary = new BatchSendSummary();
+            summary.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
+            summary.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendCode));
+            summary.setSendCode(sendCode);
+            summary.setPackageSum(0);
+            summary.setVolumeSum(0d);
+
+            if (packageNumFlag) {
+                Integer packageCount = gantryDeviceService.querySendDCountBySendCode(sendCode);
+                summary.setPackageSum(packageCount);
+            }
+
+            if (volumeFlag) {
+                // TODO: 2018/11/22 是否计算批次号的包裹总体积
+            }
+
+            summaries.add(summary);
+        }
+        response.setBatchSendSummaries(summaries);
+        return response;
     }
 
     private UploadData convert2UploadData(UploadDataJsfRequest request) {
