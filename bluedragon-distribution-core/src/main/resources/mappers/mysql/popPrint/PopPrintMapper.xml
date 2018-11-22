@@ -196,7 +196,7 @@
         #{packageBarcode, jdbcType=VARCHAR}, #{operateType,jdbcType=INTEGER},
         #{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
         #{driverCode,jdbcType=VARCHAR}, #{driverName,jdbcType=VARCHAR}, #{busiId,jdbcType=INTEGER},
-        #{busiName,jdbcType=VARCHAR, #{categoryName, jdbcType=VARCHAR}}
+        #{busiName,jdbcType=VARCHAR}, #{categoryName, jdbcType=VARCHAR}
         )
     </insert>
 
