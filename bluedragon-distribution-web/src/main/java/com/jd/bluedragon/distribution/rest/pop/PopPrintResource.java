@@ -69,7 +69,8 @@ public class PopPrintResource {
     private DefaultJMQProducer zhuchangPrintToTerminalProducer;
 
 	private static boolean isRedisModeAllowed = false;
-	
+	private static int PRINT_SOURCE = 3;  //发终端MQsource字段，标识数据来源（驻场打印：3）
+
 	/**
 	 * 根据运单号获取POP打印信息
 	 * 
@@ -230,6 +231,7 @@ public class PopPrintResource {
                         msgBody.put("categoryName",popPrintRequest.getCategoryName());
 						msgBody.put("operatorErp",userDto.getErp());
 						msgBody.put("operatorTime",operatorTime.getTime());
+						msgBody.put("source",PRINT_SOURCE);
 						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
 					}
 				}
