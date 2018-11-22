@@ -121,6 +121,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @POST
     @Path("/delivery/newpackagesend")
     @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
@@ -916,15 +917,15 @@ public class DeliveryResource implements DmsDeliveryService {
             if(!packageSendCheckParam(request, result)){
                 return result;
             }
-            /**检查批次号是否已发货*/
-            List<SendM> sendedList = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
-                    request.getDistributeId(), request.getReceiveSiteCode());
-            //转成 boxCode List 方便后面检查是否boxCode已存在
-            List<String> sendedBoxCodes = initSendedBoxCodes(sendedList);
-            List<SendM> sendMList = initSendMList(request, sendedBoxCodes);
-            if(!sendMList.isEmpty()){
-                deliveryService.packageSortSend(sendMList);
+            List<SendM> sendMListInit = initQueryCondition(request);
+            for(SendM sendM : sendMListInit){
+                /**根据条件获取SendM*/
+                List<SendM> sendMList = deliveryService.queryCountByBox(sendM);
+                if(sendMList.isEmpty()){
+                    deliveryService.packageSortSend(sendM);
+                }
             }
+
             result.success();
         }catch (Exception e){
             logger.error("原包分拣发货异常，",e);
@@ -969,8 +970,8 @@ public class DeliveryResource implements DmsDeliveryService {
             result.parameterError("操作时间不能为空！");
             return false;
         }
-        if(request.getPackageList() == null || request.getPackageList().isEmpty()){
-            result.parameterError("包裹号不能为空！");
+        if((request.getPackageList() == null || request.getPackageList().isEmpty()) && request.getBoxCode() == null){
+            result.parameterError("包裹号和箱号不能同时为空！");
             return false;
         }
         /**
@@ -1012,16 +1013,20 @@ public class DeliveryResource implements DmsDeliveryService {
                     request.getSendCode()));
             return false;
         }
+        /**校验箱号是否符合规则*/
+        if(request.getBoxCode()!=null && StringUtils.isBlank(request.getBoxCode())){
+            if(!SerialRuleUtil.isMatchBoxCode(request.getBoxCode())){
+                result.parameterError(MessageFormat.format("发货箱号[{0}]不合法,正则校验未通过！",
+                        request.getBoxCode()));
+                return false;
+            }
 
+        }
         return true;
     }
 
-    /**
-     * 原包分拣发货构建 sendMList
-     * @param request
-     * @return
-     */
-    private List<SendM> initSendMList(PackageCodeRequest request, List<String> sendedBoxCodes) throws CloneNotSupportedException {
+
+    public List<SendM> initQueryCondition(PackageCodeRequest request) throws CloneNotSupportedException{
 
         SendM sendM = new SendM();
         sendM.setSendCode(request.getSendCode());
@@ -1034,24 +1039,22 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setOperateTime(DateHelper.parseDate(request.getOperateTime(), DateHelper.DATE_TIME_FORMAT[0]));
         sendM.setCreateUserCode(request.getOperatorId());
         List<SendM> sendMList = new ArrayList<SendM>();
-        for(String packageCode : request.getPackageList()){
-            if(StringUtils.isNotBlank(packageCode) && !sendedBoxCodes.contains(packageCode)){
+        boolean allNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() != null;
+        boolean packageListNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() == null;
+        boolean boxCodeNotEmpty = request.getBoxCode()!=null;
+        //包裹号和箱号都不为空 按原包发货
+        if(allNotEmpty || packageListNotEmpty){
+            for(String packageCode : request.getPackageList()){
                 SendM sendMClone = (SendM)sendM.clone();
                 sendMClone.setBoxCode(packageCode);
                 sendMList.add(sendMClone);
             }
+        }else if(boxCodeNotEmpty){
+            SendM sendMClone = (SendM)sendM.clone();
+            sendMClone.setBoxCode(request.getBoxCode());
+            sendMList.add(sendMClone);
         }
-        return sendMList;
-    }
 
-    private List<String> initSendedBoxCodes(List<SendM> sendedList){
-        if(sendedList == null || sendedList.isEmpty()){
-            return Collections.EMPTY_LIST;
-        }
-        List<String> sendedBoxCodes = new ArrayList<String>(sendedList.size());
-        for(SendM sendM : sendedList){
-            sendedBoxCodes.add(sendM.getBoxCode());
-        }
-        return sendedBoxCodes;
+        return sendMList;
     }
 }
