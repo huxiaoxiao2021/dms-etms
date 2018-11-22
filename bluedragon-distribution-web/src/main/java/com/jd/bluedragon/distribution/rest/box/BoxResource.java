@@ -5,8 +5,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
@@ -427,5 +429,27 @@ public class BoxResource implements DmsBoxService {
         Long resulte = this.boxService.delboxCodeCache(boxCode);
 
         return resulte;
+    }
+
+    @GET
+    @Path("/boxes/availability/{boxCode}")
+    public InvokeResult<Boolean> statusValidation(@PathParam("boxCode") String boxCode) {
+        Assert.notNull(boxCode, "boxCode must not be null");
+        this.logger.info("boxCode's " + boxCode);
+
+        InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
+        invokeResult.success();
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if (box != null) {
+            if (boxService.checkBoxIsSent(boxCode, box.getCreateSiteCode())) {
+                invokeResult.setData(false);
+            } else {
+                invokeResult.setData(true);
+            }
+        } else {
+            invokeResult.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
+        }
+
+        return invokeResult;
     }
 }
