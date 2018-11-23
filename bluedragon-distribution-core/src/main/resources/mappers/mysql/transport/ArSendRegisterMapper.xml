@@ -37,6 +37,7 @@
         <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
         <result column="operate_type" property="operateType" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="send_routerMq_type" property="sendRouterMqType" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
@@ -47,7 +48,7 @@
         end_city_id,start_station_name,start_station_id,end_station_name,end_station_id,
         plan_start_time,plan_end_time,aging,send_num,charged_weight,remark,
         shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept,operation_time,
-        create_user,update_user,create_time,update_time,operate_type
+        create_user,update_user,create_time,update_time,operate_type,send_routerMq_type
     </sql>
 
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.transport.domain.ArSendRegister"
@@ -135,6 +136,9 @@
         <if test="operateType != null">
             operate_type,
         </if>
+        <if test="sendRouterMqType != null">
+            send_routerMq_type,
+        </if>
         create_time,
         update_time
         )
@@ -221,6 +225,9 @@
         <if test="operateType != null">
             #{operateType,jdbcType=INTEGER},
         </if>
+        <if test="sendRouterMqType != null">
+            #{sendRouterMqType,jdbcType=INTEGER},
+        </if>
         NOW(),
         NOW()
         )
@@ -234,7 +241,7 @@
         end_city_name,end_city_id,start_station_name,start_station_id,end_station_name,
         end_station_id,plan_start_time,plan_end_time,aging,send_num,charged_weight,
         remark,shuttle_bus_type,shuttle_bus_num,operator_erp,operation_dept_code,operation_dept,
-        operation_time,create_user,update_user,operate_type,create_time,update_time
+        operation_time,create_user,update_user,operate_type,send_routerMq_type,create_time,update_time
         )
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -270,6 +277,7 @@
             #{item.createUser,jdbcType=VARCHAR},
             #{item.updateUser,jdbcType=VARCHAR},
             #{item.operateType,jdbcType=INTEGER},
+            #{item.sendRouterMqType,jdbcType=INTEGER},
             NOW(),
             NOW()
             )
@@ -365,6 +373,9 @@
             </if>
             <if test="operateType != null">
                 operate_type = #{operateType,jdbcType=INTEGER},
+            </if>
+            <if test="sendRouterMqType != null">
+                send_routerMq_type = #{sendRouterMqType,jdbcType=INTEGER},
             </if>
             <if test="updateUser != null">
                 update_user = #{updateUser,jdbcType=VARCHAR},

@@ -8,7 +8,6 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
 import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
-import com.jd.bluedragon.distribution.transport.service.ArSendFlightRealtimeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -47,9 +46,6 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
 
     @Autowired
     private ArSendCodeService arSendCodeService;
-
-    @Autowired
-    private ArSendFlightRealtimeService arSendFlightRealtimeService;
 
     @Autowired
     private SendDatailDao sendDetailDao;
@@ -209,24 +205,6 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
         //把当前时间落到arsendRegister表里
         logger.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，消息体：" + JsonHelper.toJson(arAirWaybillStatus));
-    }
-
-    private ArSendFlightRealtime getBean(ArAirFlightRealTimeStatus arAirFlightRealTimeStatus){
-        ArSendFlightRealtime arSendFlightRealtime=new ArSendFlightRealtime();
-        arSendFlightRealtime.setBeginNodeCode(arAirFlightRealTimeStatus.getBeginNodeCode() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeCode());
-        arSendFlightRealtime.setBeginNodeName(arAirFlightRealTimeStatus.getBeginNodeName() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeName());
-        arSendFlightRealtime.setDelayFlag(arAirFlightRealTimeStatus.getDelayFlag());
-        arSendFlightRealtime.setEndNodeCode(arAirFlightRealTimeStatus.getEndNodeCode() == null ? "" : arAirFlightRealTimeStatus.getEndNodeCode());
-        arSendFlightRealtime.setEndNodeName(arAirFlightRealTimeStatus.getEndNodeName() == null ? "" : arAirFlightRealTimeStatus.getEndNodeName());
-        arSendFlightRealtime.setFlightDate(arAirFlightRealTimeStatus.getFlightDate());
-        arSendFlightRealtime.setFlightNumber(arAirFlightRealTimeStatus.getFlightNumber() == null ? "" : arAirFlightRealTimeStatus.getFlightNumber());
-        arSendFlightRealtime.setStatus(arAirFlightRealTimeStatus.getStatus());
-        arSendFlightRealtime.setRealTime(arAirFlightRealTimeStatus.getRealTime());
-        arSendFlightRealtime.setTakeOffTime(arAirFlightRealTimeStatus.getTakeOffTime() == null ? "" : arAirFlightRealTimeStatus.getTakeOffTime());
-        arSendFlightRealtime.setTouchDownTime(arAirFlightRealTimeStatus.getTouchDownTime() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeCode());
-        arSendFlightRealtime.setCreateTime(new Date());
-        arSendFlightRealtime.setIsDelete(0);
-        return arSendFlightRealtime;
     }
 
 }
