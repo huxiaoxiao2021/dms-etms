@@ -74,7 +74,7 @@ public class BusinessHelperTest {
 
 	@Test
 	public void testgetWaybillCode(){
-		assertTrue(WaybillUtil.getWaybillCode("VA00084590155-3-10-").equals("VA00084590155"));
+		assertTrue(WaybillUtil.getWaybillCode("VA00084590155").equals("VA00084590155"));
 		assertTrue(WaybillUtil.getWaybillCode("LD1234567890-1-3").equals("LD1234567890"));
 		assertTrue(WaybillUtil.getWaybillCode("JDLD12345678901-1-3").equals("JDLD12345678901"));
 
@@ -137,6 +137,11 @@ public class BusinessHelperTest {
 		assertTrue(BusinessHelper.isSopOrExternal("30000000000000301000000000000000000000000000000000"));
 		assertFalse(BusinessHelper.isSopOrExternal("17122600001004"));
 	}
+	@Test
+	public void testIsSendCode(){
+		assertTrue(BusinessHelper.isSendCode("910-39-20181108163558736"));
+	}
+
 	@Test
 	public void testGetHashKeyByPackageCode() {
 		String[] codes = {null,

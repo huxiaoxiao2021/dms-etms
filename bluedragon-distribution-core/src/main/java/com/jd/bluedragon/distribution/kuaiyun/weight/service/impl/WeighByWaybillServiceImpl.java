@@ -113,7 +113,32 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @throws WeighByWaybillExcpetion 运单号/包裹号格式错误异常 UnknownCodeException
      */
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
-        return WaybillUtil.getWaybillCode(codeStr);
+
+        String waybillCode = null;
+        logger.info("单号或包裹号正则校验"+codeStr);
+
+        if (WaybillUtil.isPackageCode(codeStr))
+        {
+            waybillCode = WaybillUtil.getWaybillCode(codeStr);
+        } else if (WaybillUtil.isWaybillCode(codeStr))
+        {
+            waybillCode = codeStr;
+        } else
+        {
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        if (null == waybillCode)
+        {
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        return waybillCode;
+
     }
 
     /**

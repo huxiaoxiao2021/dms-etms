@@ -149,4 +149,12 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
         return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".queryBySendCodeAndSiteCode", params);
     }
 
+    @SuppressWarnings("unchecked")
+    public List<SendDetail> querySendDSimpleInfoBySendCode(String sendCode, Integer createSiteCode) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("sendCode", sendCode);
+        params.put("createSiteCode", createSiteCode);
+        return this.getSqlSessionRead().selectList(SendDatailReadDao.namespace + ".querySendDSimpleInfoBySendCode", params);
+    }
+
 }
