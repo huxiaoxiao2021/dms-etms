@@ -174,4 +174,13 @@ public interface DmsInternalService {
      * @return true:可以操作逆向操作 false:反之
      */
     public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode);
+
+    /**
+     * 查询运单是否可以进行逆向操作
+     * @see Ver DmsWebBaseClient#isBoxSent
+     * @param boxCode 箱号
+     * @param siteCode 操作站点
+     * @return true:已发货 false:未发货或取消发货
+     */
+    public Boolean isBoxSent(String boxCode, Integer siteCode);
 }
