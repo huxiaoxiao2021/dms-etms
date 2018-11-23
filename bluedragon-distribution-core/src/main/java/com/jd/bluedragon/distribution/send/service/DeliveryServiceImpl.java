@@ -2984,6 +2984,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     	interceptResult.toSuccess();
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
+    	List<String> sendNoHasFreightWaybills = new ArrayList<String>();
         for(String waybillCode:waybillCodes){
         	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
@@ -3013,11 +3014,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
+        		//b2b校验是否包含-寄付运费
+        		if(!BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
+                    sendNoHasFreightWaybills.add(waybillCode);
+        		}
         	}else{
         		noHasWeightWaybills.add(waybillCode);
         	}
         	//超过3单则中断校验逻辑
-    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
+    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM
+                    ||noHasFreightWaybills.size() >= MAX_SHOW_NUM
+                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
         }
@@ -3030,6 +3037,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
         	return interceptResult;
+        }
+        if(!sendNoHasFreightWaybills.isEmpty()){
+            interceptResult.toFail();
+            interceptResult.setMessage("运单无寄付运费金额："+sendNoHasFreightWaybills);
+            return interceptResult;
         }
         return interceptResult;
     }
