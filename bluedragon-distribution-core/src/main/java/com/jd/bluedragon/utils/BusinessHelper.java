@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 public class BusinessHelper {
 
     private final static Logger logger = Logger.getLogger(BusinessHelper.class);
-    public final static String SEND_CODE_REG = "^\\d+-\\d+-\\d{17}$"; //批次号正则
+    public final static String SEND_CODE_REG = "^\\d+-\\d+-\\d{15,17}$"; //批次号正则
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";

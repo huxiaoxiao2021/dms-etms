@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
@@ -28,11 +29,12 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
     @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.insertOrUpdate", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public boolean insertOrUpdate(GoodsPrintDto goodsPrintDto) {
         try {
+            logger.info("GoodsPrintEsManagerImpl.insertOrUpdate插入或修改："+JsonHelper.toJson(goodsPrintDto));
             BaseEntity<Boolean> booleanBaseEntity= reportExternalService.insertOrUpdate(goodsPrintDto);
             if (booleanBaseEntity.isSuccess()){
                 return booleanBaseEntity.getData();
             }else{
-                logger.warn("GoodsPrintEsManagerImpl.insertOrUpdate错误，"+booleanBaseEntity.getMessage());
+                logger.warn("GoodsPrintEsManagerImpl.insertOrUpdate失败，"+JsonHelper.toJson(goodsPrintDto)+booleanBaseEntity.getMessage());
                 return false;
             }
         }catch (Exception e){
