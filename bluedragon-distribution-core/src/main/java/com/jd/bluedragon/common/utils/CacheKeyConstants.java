@@ -29,4 +29,8 @@ public class CacheKeyConstants {
      * 缓存key-包裹补打记录（reprintRecords）
      */
     public static final String CACHE_KEY_REPRINT_RECORDS ="reprintRecords";
+	/**
+	 * 箱号状态缓存redis的key
+	 */
+	public static final String CACHE_KEY_BOX_STATUS = "BoxStatus";
 }

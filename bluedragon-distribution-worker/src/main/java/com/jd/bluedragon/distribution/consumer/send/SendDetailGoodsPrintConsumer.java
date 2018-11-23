@@ -69,8 +69,8 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
 
         String waybillCode = WaybillUtil.getWaybillCode(packageBarCode);
         BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(waybillCode);
-        if (baseEntity == null || baseEntity.getData().getWaybill() == null || baseEntity.getData().getWaybill().getWaybillExt() == null) {
-            logger.warn("[SendDetailGoodsPrintConsumer消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
+        if (baseEntity == null || baseEntity.getData().getWaybill() == null) {
+            logger.error("[SendDetailGoodsPrintConsumer消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode()+",waybillCode:"+waybillCode);
             return;
         }
         Waybill waybill = baseEntity.getData().getWaybill();

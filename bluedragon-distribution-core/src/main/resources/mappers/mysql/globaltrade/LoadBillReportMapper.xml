@@ -11,6 +11,7 @@
 		<result column="process_time" property="processTime" />
 		<result column="status" property="status" />
 		<result column="order_id" property="orderId" />
+		<result column="waybill_code" property="waybillCode"/>
 		<result column="notes" property="notes" />
 		<result column="yn" property="yn" />
 	</resultMap>
@@ -18,7 +19,7 @@
 	<insert id="add" parameterType="LoadBillReport">
 		INSERT INTO load_bill_report (
 			report_id, load_id, warehouse_id,
-			process_time, status, order_id, notes, yn)
+			process_time, status, order_id, waybill_code,notes, yn)
 		VALUES (
 			#{reportId,jdbcType=VARCHAR}, 
 			#{loadId,jdbcType=VARCHAR},
@@ -26,6 +27,7 @@
 			#{processTime,jdbcType=TIMESTAMP},
 			#{status,jdbcType=INTEGER}, 
 			#{orderId,jdbcType=VARCHAR},
+			#{waybillCode,jdbcType=VARCHAR},
 			#{notes,jdbcType=VARCHAR}, 1
 		)
 	</insert>
@@ -33,7 +35,7 @@
 	<insert id="addBatch" parameterType="list">
 		INSERT INTO load_bill_report (
 			report_id, load_id, warehouse_id,
-			process_time, status, order_id, notes, yn
+			process_time, status, order_id,waybill_code, notes, yn
 		) SELECT A.* FROM(
 		<foreach collection="list" item="item" index="index" separator="UNION ALL">
 			<![CDATA[
@@ -44,6 +46,7 @@
 					#{item.processTime,jdbcType=TIMESTAMP} AS process_time,
 					#{item.status,jdbcType=INTEGER} AS status,
 					#{item.orderId,jdbcType=VARCHAR} AS order_id,
+					#{item.waybillCode,jdbcType=VARCHAR} AS waybill_code,
 					#{item.notes,jdbcType=VARCHAR} AS notes,
 					1 AS yn
 				FROM dual

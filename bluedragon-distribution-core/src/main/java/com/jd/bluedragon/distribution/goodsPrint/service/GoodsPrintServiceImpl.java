@@ -9,6 +9,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     private static final int PAGE_SIZE = 1000;
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.GoodsPrintServiceImpl.query", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<List<GoodsPrintDto>> query(GoodsPrintDto goodsPrintDto) {
         JdResponse<List<GoodsPrintDto>> jdResponse = new JdResponse();
         if (goodsPrintDto == null || goodsPrintDto.getSendCode() == null) {
@@ -94,6 +97,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     }
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.GoodsPrintServiceImpl.export", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public List<List<Object>> export(GoodsPrintDto goodsPrintDto) {
         List<List<Object>> resList = new ArrayList<List<Object>>();
         List<Object> heads = new ArrayList<Object>();
@@ -144,6 +148,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             if (valueBytes == null) {
                 return false;
             }
+            logger.info("[getWaybillFromEsOperator]从Redis中命中："+key);
             return true;
         } catch (Exception e) {
             logger.error("[getWaybillFromEsOperator]从Redis中获取信息出错,key = " + key + " 错误信息为:" + e.getMessage());
@@ -160,6 +165,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     public boolean setWaybillFromEsOperator(String key) {
         try {
             redisClientCache.setEx(key, "1", 600L, TimeUnit.SECONDS);
+            logger.info("[getWaybillFromEsOperator]缓存数据key:"+key);
             return true;
         } catch (Exception e) {
             logger.error("[getWaybillFromEsOperator]缓存数据出错,key = " + key + " 错误信息为：" + e.getMessage());
