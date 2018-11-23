@@ -149,6 +149,11 @@ public class PopPrint implements Serializable {
 	 */
 	private String busiName;
 
+	/**
+	 * 包裹托寄物名称
+	 */
+	private String categoryName;
+
 	public Long getPopPrintId() {
 		return popPrintId;
 	}
@@ -396,4 +401,12 @@ public class PopPrint implements Serializable {
 	public void setBusiName(String busiName) {
 		this.busiName = busiName;
 	}
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }
