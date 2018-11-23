@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
 import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
@@ -55,6 +57,9 @@ public class ArReceiveResource implements DmsArReceiveService {
 
     @Autowired
     private ArSendCodeService arSendCodeService;
+
+    @Autowired
+    private SendDatailDao sendDetailDao;
 
     /**
      * 空铁项目查找24小时内的待提货信息
@@ -134,21 +139,44 @@ public class ArReceiveResource implements DmsArReceiveService {
         }
 
         try {
-            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
-            if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
-                for (ArSendRegister sendRegister : sendRegisterList) {
-                    List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
-                    if (sendCodes != null && !sendCodes.isEmpty()) {
-                        List<String> sendCodeStrList = new ArrayList<String>(sendCodes.size());
-                        for (ArSendCode arSendCode : sendCodes) {
-                            sendCodeStrList.add(arSendCode.getSendCode());
+            //只支持航空单查询
+            if (transType.equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode()) && siteOrder == null) {
+                List<ArSendRegister> sendRegisterListToRouter=new ArrayList<ArSendRegister>();
+                //根据入参查询发货登记记录列表
+                List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
+                if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+                    for (ArSendRegister sendRegister : sendRegisterList) {
+                        //根据每一个发货登记表查询批次号列表---一对多的关系
+                        List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
+                        if (sendCodes != null && !sendCodes.isEmpty()) {
+                            for (ArSendCode arSendCode : sendCodes) {
+                                //根据每一个批次查询运单
+                                List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(arSendCode.getSendCode());
+                                if (null != sendDetailList && sendDetailList.size() > 0) {
+                                    for (SendDetail sendDetail : sendDetailList) {
+                                        /* 运单号 */
+                                        sendRegister.setWaybillCode(sendDetail.getWaybillCode());
+                                        /* 包裹号 */
+                                        sendRegister.setPackageCode(sendDetail.getPackageBarcode());
+                                        /* 批次号 */
+                                        sendRegister.setSendCode(arSendCode.getSendCode());
+
+                                        sendRegisterListToRouter.add(sendRegister);
+                                    }
+                                } else {
+                                    logger.warn("空铁JSF接口---根据批次号获取发货明细为空，批次号：" + arSendCode);
+                                }
+                            }
+                        }else{
+                            logger.warn("空铁JSF接口---根据发货登记id获取批次号列表为空，发货登记id：" + sendRegister.getId());
                         }
-                        sendRegister.setSendCodes(sendCodeStrList);
                     }
+                }else{
+                    logger.warn("空铁JSF接口---根据入参获取发货登记列表明细为空");
                 }
+                response.toSucceed();
+                response.setData(sendRegisterListToRouter);
             }
-            response.toSucceed();
-            response.setData(sendRegisterList);
         } catch (Exception e) {
             logger.error("获取发货登记信息和批次信息时发生异常", e);
             response.toError("获取发货登记信息和批次信息时发生异常");

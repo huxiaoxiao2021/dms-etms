@@ -182,6 +182,22 @@ public class ArSendRegister extends DbEntity {
     private Integer operateType;
 
     /**
+     * 运单号
+     */
+    private String waybillCode;
+
+    /**
+     * 包裹号
+     */
+    private String packageCode;
+
+    /**
+     * 该条记录是否已经发过路由MQ
+     * 1、未发过，2、已发过
+     */
+    private Integer sendRouterMqType;
+
+    /**
      * 批次号，对应数据库无映射关系
      */
     private String sendCode;
@@ -190,6 +206,15 @@ public class ArSendRegister extends DbEntity {
      * 批次号列表
      */
     private List<String> sendCodes;
+
+
+    public Integer getSendRouterMqType() {
+        return sendRouterMqType;
+    }
+
+    public void setSendRouterMqType(Integer sendRouterMqType) {
+        this.sendRouterMqType = sendRouterMqType;
+    }
 
     public Integer getStatus() {
         return status;
@@ -469,5 +494,21 @@ public class ArSendRegister extends DbEntity {
 
     public void setOperateType(Integer operateType) {
         this.operateType = operateType;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 }

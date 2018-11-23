@@ -5,12 +5,10 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.transport.domain.ArAirFlightRealTimeStatus;
-import com.jd.bluedragon.distribution.transport.domain.ArAirWaybillStatus;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
+import com.jd.bluedragon.distribution.transport.service.ArSendFlightRealtimeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -28,10 +26,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 消费航班起飞降落实时MQ
@@ -54,7 +49,14 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     private ArSendCodeService arSendCodeService;
 
     @Autowired
+    private ArSendFlightRealtimeService arSendFlightRealtimeService;
+
+    @Autowired
     private SendDatailDao sendDetailDao;
+
+    @Autowired
+    @Qualifier("arSendRegisterDao")
+    private ArSendRegisterDao arSendRegisterDao;
 
     @Qualifier("arAirWaybillStatusMQ")
     @Autowired
@@ -68,7 +70,25 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
+
+        /**
+         * 把发给路由MQ标识落到arSendRegister表
+         */
+        //只有起飞才落字段
+        if (realTimeStatus != null && realTimeStatus.getStatus() == 20) {
+            //查出当天该航班号起飞的发货登记记录
+            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
+            if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+                for(ArSendRegister arSendRegister:sendRegisterList){
+                    arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode());
+                    //把字段落库
+                    arSendRegisterDao.update(arSendRegister);
+                }
+            }
+        }
+
         List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
+
         if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
             List<Long> sendRegisterIds = getRegisterIdList(sendRegisterList);
             List<String> sendCodes = this.getSendCodes(sendRegisterIds);
@@ -187,7 +207,26 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
         arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
+        //把当前时间落到arsendRegister表里
         logger.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，消息体：" + JsonHelper.toJson(arAirWaybillStatus));
+    }
+
+    private ArSendFlightRealtime getBean(ArAirFlightRealTimeStatus arAirFlightRealTimeStatus){
+        ArSendFlightRealtime arSendFlightRealtime=new ArSendFlightRealtime();
+        arSendFlightRealtime.setBeginNodeCode(arAirFlightRealTimeStatus.getBeginNodeCode() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeCode());
+        arSendFlightRealtime.setBeginNodeName(arAirFlightRealTimeStatus.getBeginNodeName() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeName());
+        arSendFlightRealtime.setDelayFlag(arAirFlightRealTimeStatus.getDelayFlag());
+        arSendFlightRealtime.setEndNodeCode(arAirFlightRealTimeStatus.getEndNodeCode() == null ? "" : arAirFlightRealTimeStatus.getEndNodeCode());
+        arSendFlightRealtime.setEndNodeName(arAirFlightRealTimeStatus.getEndNodeName() == null ? "" : arAirFlightRealTimeStatus.getEndNodeName());
+        arSendFlightRealtime.setFlightDate(arAirFlightRealTimeStatus.getFlightDate());
+        arSendFlightRealtime.setFlightNumber(arAirFlightRealTimeStatus.getFlightNumber() == null ? "" : arAirFlightRealTimeStatus.getFlightNumber());
+        arSendFlightRealtime.setStatus(arAirFlightRealTimeStatus.getStatus());
+        arSendFlightRealtime.setRealTime(arAirFlightRealTimeStatus.getRealTime());
+        arSendFlightRealtime.setTakeOffTime(arAirFlightRealTimeStatus.getTakeOffTime() == null ? "" : arAirFlightRealTimeStatus.getTakeOffTime());
+        arSendFlightRealtime.setTouchDownTime(arAirFlightRealTimeStatus.getTouchDownTime() == null ? "" : arAirFlightRealTimeStatus.getBeginNodeCode());
+        arSendFlightRealtime.setCreateTime(new Date());
+        arSendFlightRealtime.setIsDelete(0);
+        return arSendFlightRealtime;
     }
 
 }
