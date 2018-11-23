@@ -10,6 +10,9 @@ import com.jd.bluedragon.distribution.auto.service.ScannerFrameConsume;
 import com.jd.bluedragon.distribution.external.service.DmsScannerFrameService;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.profiler.CallerInfo;
@@ -20,10 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.*;
 
 /**
  * Created by wuzuxiang on 2018/11/7.
@@ -43,6 +45,9 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
 
     @Autowired
     private GantryDeviceService gantryDeviceService;
+
+    @Autowired
+    private WaybillService waybillService;
 
 
     @Override
@@ -89,13 +94,33 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
             summary.setPackageSum(0);
             summary.setVolumeSum(0d);
 
-            if (packageNumFlag) {
+            if (packageNumFlag && !volumeFlag) {
+            /* 只计算包裹数量 && 不计算包裹体积 */
                 Integer packageCount = gantryDeviceService.querySendDCountBySendCode(sendCode);
                 summary.setPackageSum(packageCount);
-            }
+            } else if (volumeFlag) {
+                /* 计算包裹体积时，都会顺带计算包裹数量 */
+                List<SendDetail> sendDetailList = gantryDeviceService.queryBoxCodeBySendCode(sendCode);
+                Double volumeSum = 0.00;//取分拣体积
+                if (null == sendDetailList ||  sendDetailList.size() == 0) {
+                    continue;
+                }
 
-            if (volumeFlag) {
-                // TODO: 2018/11/22 是否计算批次号的包裹总体积
+                HashSet<String> sendDByBoxCode = new HashSet<String>();
+                for (SendDetail sendD : sendDetailList) {
+                    //根据sendD的boxCode去重
+                    if (sendDByBoxCode.contains(sendD.getBoxCode())) {
+                        continue;
+                    }
+                    sendDByBoxCode.add(sendD.getBoxCode());
+                    WaybillPackageDTO waybillPackageDTO = waybillService.getWaybillPackage(sendD.getBoxCode());
+                    if (waybillPackageDTO == null) {
+                        continue;
+                    }
+                    volumeSum += waybillPackageDTO.getVolume() == 0 ? waybillPackageDTO.getOriginalVolume() : waybillPackageDTO.getVolume();
+                }
+                summary.setPackageSum(sendDetailList.size());//获取包裹的数量
+                summary.setVolumeSum(new BigDecimal(volumeSum).setScale(2, RoundingMode.UP).doubleValue());//四舍五入;保留两位有效数字
             }
 
             summaries.add(summary);
