@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -52,6 +53,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
                 }
             }
         }
+
+        //新通路面单代配站点--sendPay第148-149 = 39且146=1--追打"代"
+        if(BusinessUtil.isNewPathWay(waybill.getSendPay())){
+            waybill.appendSpecialMark(SPECIAL_MARK_HELP_DELIVERY);
+        }
+
         if(null!=targetSiteCode&&targetSiteCode>0){
             waybill.appendSpecialMark(SPECIAL_MARK_LOCAL_SCHEDULE);
         }
