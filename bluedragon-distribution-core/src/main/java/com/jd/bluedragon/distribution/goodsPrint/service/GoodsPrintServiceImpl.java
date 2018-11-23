@@ -148,6 +148,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
             if (valueBytes == null) {
                 return false;
             }
+            logger.info("[getWaybillFromEsOperator]从Redis中命中："+key);
             return true;
         } catch (Exception e) {
             logger.error("[getWaybillFromEsOperator]从Redis中获取信息出错,key = " + key + " 错误信息为:" + e.getMessage());
@@ -164,6 +165,7 @@ public class GoodsPrintServiceImpl implements GoodsPrintService {
     public boolean setWaybillFromEsOperator(String key) {
         try {
             redisClientCache.setEx(key, "1", 600L, TimeUnit.SECONDS);
+            logger.info("[getWaybillFromEsOperator]缓存数据key:"+key);
             return true;
         } catch (Exception e) {
             logger.error("[getWaybillFromEsOperator]缓存数据出错,key = " + key + " 错误信息为：" + e.getMessage());
