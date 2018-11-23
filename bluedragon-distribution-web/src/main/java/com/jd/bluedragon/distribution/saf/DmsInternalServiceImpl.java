@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -65,6 +67,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private BoxService boxService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -304,7 +309,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed",mState = JProEnum.TP)
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isReverseOperationAllowed", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode) {
         //返回值初始化
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
@@ -325,5 +330,11 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             logger.error("isReverseOperationAllowed方法异常", e);
         }
         return invokeResult;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isBoxSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Boolean isBoxSent(String boxCode, Integer siteCode) {
+        return boxService.checkBoxIsSent(boxCode, siteCode);
     }
 }
