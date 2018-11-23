@@ -420,7 +420,7 @@ public class BusinessHelper {
         return true;
     }
     /**
-     * 验证运单数据是否包含-寄付运费，WaybillSign40=2或3时，并且WaybillSign25=3时，freight<=0 返回false
+     * 验证运单数据是否包含-寄付运费，WaybillSign62=1，且WaybillSign25=3时，freight<=0 返回false
      *
      * @param bigWaybillDto
      * @return
@@ -430,8 +430,8 @@ public class BusinessHelper {
                 && bigWaybillDto.getWaybill() != null
                 && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            //WaybillSign40=2或3时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
-            if ((isSignChar(waybillSign, 40, '2') || isSignChar(waybillSign, 40, '3'))
+            //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
+            if (isSignChar(waybillSign, 62, '1')
                     && isSignChar(waybillSign, 25, '3')) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
