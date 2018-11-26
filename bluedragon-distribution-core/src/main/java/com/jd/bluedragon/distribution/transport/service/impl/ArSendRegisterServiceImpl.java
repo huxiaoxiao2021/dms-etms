@@ -134,6 +134,36 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         //所有新增发货登记先把发给路由MQ类型置为1，落库
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
         arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
+
+        //向路由推MQ逻辑
+        if(arSendRegister.getTransportType().equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode())){
+            for(String sendCode:sendCodes){
+                String [] sendCodeList={sendCode};
+                //查找批次号表里是否已有该批次,只返回时间最近的一条数据
+                ArSendCode arSendCode=arSendCodeService.getBySendCode(sendCode);
+                //如果有批次号存在，判断航班号有没有改动
+                if (arSendCode != null) {
+                    ArSendRegister arSendRegisterExits=this.findById(arSendCode.getSendRegisterId());
+                    if (arSendRegisterExits != null && arSendRegisterExits.getTransportName() != null) {
+                        //航班号有改动,需要向路由推MQ，如果航班号没有改动，不需要向路由推MQ
+                        if(!arSendRegister.getTransportName().equals(arSendRegisterExits.getTransportName())){
+                            mqToRouterDetail(arSendRegisterExits,arSendRegister,sendCodeList);
+                        }
+                    }else{
+                        logger.warn("[空铁项目]重复添加批次号是："+arSendCode+"的航班："+arSendRegisterExits.getTransportName());
+                    }
+                }
+                //新增之前没有该批次号，向路由发MQ
+                else{
+                    try{
+                        this.mqToRouter(arSendRegister, sendCodeList);
+                    }catch (Exception e){
+                        logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
+                    }
+                }
+            }
+        }
+
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
@@ -152,32 +182,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     } catch (Exception e) {
                         logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！", e);
                     }
-                    //向路由推MQ逻辑
-                    if(arSendRegister.getTransportType().equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode())){
-                        for(String sendCode:sendCodes){
-                            String [] sendCodeList={sendCode};
-                            //查找批次号表里是否已有该批次,只返回时间最近的一条数据
-                            ArSendCode arSendCode=arSendCodeService.getBySendCode(sendCode);
-                            //如果有批次号存在，判断航班号有没有改动
-                            if (arSendCode != null) {
-                                ArSendRegister arSendRegisterExits=this.findById(arSendCode.getSendRegisterId());
-                                if (arSendRegisterExits != null && arSendRegisterExits.getTransportName() != null) {
-                                    //航班号有改动,需要向路由推MQ，如果航班号没有改动，不需要向路由推MQ
-                                    if(!arSendRegister.getTransportName().equals(arSendRegisterExits.getTransportName())){
-                                        mqToRouterDetail(arSendRegisterExits,arSendRegister,sendCodeList);
-                                    }
-                                }
-                            }
-                            //新增之前没有该批次号，向路由发MQ
-                            else{
-                                try{
-                                    this.mqToRouter(arSendRegister, sendCodeList);
-                                }catch (Exception e){
-                                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
-                                }
-                            }
-                        }
-                    }
+
                     return true;
                 }
             } else {
