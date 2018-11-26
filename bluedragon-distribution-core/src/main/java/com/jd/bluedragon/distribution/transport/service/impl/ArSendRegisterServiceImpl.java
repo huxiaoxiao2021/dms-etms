@@ -71,6 +71,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Autowired
     protected TaskService taskService;
 
+
     @Override
     public Dao<ArSendRegister> getDao() {
         return this.arSendRegisterDao;
@@ -130,7 +131,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean insert(ArSendRegister arSendRegister, String[] sendCodes) {
+        //所有新增发货登记先把发给路由MQ类型置为1，落库
         arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_NO_SEND.getCode());
+        arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
         if (this.getDao().insert(arSendRegister)) {
             if (sendCodes != null && sendCodes.length > 0) {
                 if (arSendCodeService.batchAdd(arSendRegister.getId(), sendCodes, arSendRegister.getCreateUser())) {
@@ -167,9 +170,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                             }
                             //新增之前没有该批次号，向路由发MQ
                             else{
-                                arSendRegister.setOperateType(ArSendRegisterEnum.AIR_INSERT.getCode());
-                                //把operateType字段落库
-                                this.getDao().update(arSendRegister);
                                 try{
                                     this.mqToRouter(arSendRegister, sendCodeList);
                                 }catch (Exception e){
@@ -262,28 +262,29 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         //查出当天该航班号起飞的发货登记记录
         List<ArSendRegister> sendRegisterList = this.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, resource.getTransportName(), null, resource.getSendDate());
         if (sendRegisterList != null && sendRegisterList.size() > 0) {
-            for(ArSendRegister arSendRegisterNew:sendRegisterList){
-                //该条发货登记记录已经给路由发过MQ
-                if (arSendRegisterNew.getSendRouterMqType().equals(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode())) {
-                    arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_AFTERFLY.getCode());
-                    try{
-                        this.mqToRouter(arSendRegister, sendCodes);
-                    }catch (Exception e){
-                        logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
-                    }
-                    //再次更新发货登记表，把operateType字段落进去
-                    this.getDao().update(arSendRegister);
-                } else{
-                    //如果没有发过MQ
-                    arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_AFTERFLY.getCode());
-                    try{
-                        this.mqToRouter(arSendRegister, sendCodes);
-                    }catch (Exception e){
-                        logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
-                    }
-                    //再次更新发货登记表，把operateType字段落进去
-                    this.getDao().update(arSendRegister);
+            //同一个航班号有可能有多条发货登记记录
+            //查出时间最近的一条数据
+            ArSendRegister arSendRegisterNew=sendRegisterList.get(0);
+            //该条发货登记记录已经给路由发过MQ
+            if (arSendRegisterNew.getSendRouterMqType().equals(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode())) {
+                arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_AFTERFLY.getCode());
+                try{
+                    this.mqToRouter(arSendRegister, sendCodes);
+                }catch (Exception e){
+                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
                 }
+                //再次更新发货登记表，把operateType字段落进去
+                this.getDao().update(arSendRegister);
+            } else{
+                //如果没有发过MQ，说明飞机还未起飞
+                arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_BEFOREFLY.getCode());
+                try{
+                    this.mqToRouter(arSendRegister, sendCodes);
+                }catch (Exception e){
+                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:"+arSendRegister.getTransportName(), e);
+                }
+                //再次更新发货登记表，把operateType字段落进去
+                this.getDao().update(arSendRegister);
             }
         }else{
             logger.warn("空铁推路由MQ---查不到该航班号发货登记记录，航班号："+resource.getTransportName());
@@ -318,7 +319,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         }
         return count;
     }
-
 
     @Override
     public PagerResult<ArSendRegister> queryByPager(ArSendRegisterCondition condition) {

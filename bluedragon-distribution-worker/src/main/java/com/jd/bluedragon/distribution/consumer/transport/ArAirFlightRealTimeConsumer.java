@@ -70,10 +70,10 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         /**
          * 把发给路由MQ标识落到arSendRegister表
          */
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
         //只有起飞才落字段
         if (realTimeStatus != null && realTimeStatus.getStatus() == 20) {
             //查出当天该航班号起飞的发货登记记录
-            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
             if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
                 for(ArSendRegister arSendRegister:sendRegisterList){
                     arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode());
@@ -82,8 +82,6 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
                 }
             }
         }
-
-        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
 
         if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
             List<Long> sendRegisterIds = getRegisterIdList(sendRegisterList);
@@ -203,7 +201,6 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
      */
     private void sendMQ(ArAirWaybillStatus arAirWaybillStatus) throws JMQException {
         arAirWaybillStatusMQ.send(arAirWaybillStatus.getWayBillCode(), JsonHelper.toJson(arAirWaybillStatus));
-        //把当前时间落到arsendRegister表里
         logger.info("[空铁项目]消费航班起飞降落实时MQ-发送运单维度消息成功，消息体：" + JsonHelper.toJson(arAirWaybillStatus));
     }
 

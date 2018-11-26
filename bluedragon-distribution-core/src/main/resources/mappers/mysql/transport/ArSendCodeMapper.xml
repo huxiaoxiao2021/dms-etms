@@ -150,10 +150,12 @@
         select
         <include refid="Base_Column_List"/>
         from
-        ar_send_code
-        where send_code = #{sendCode,jdbcType=VARCHAR}
-        order by create_time DESC
-        limit 1
+        (
+        select
+        <include refid="Base_Column_List"/>
+        from ar_send_code as inn where send_code = #{sendCode,jdbcType=VARCHAR}
+        order by create_time desc limit 2
+        )inn order by create_time limit 1
     </select>
 
     <select id="getBySendRegisterIds" resultMap="ArSendCode">
