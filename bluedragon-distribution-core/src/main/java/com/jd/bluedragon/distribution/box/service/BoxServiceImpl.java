@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -25,7 +24,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -346,17 +344,24 @@ public class BoxServiceImpl implements BoxService {
 	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatusRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus) {
 		Boolean result = false;
-		try {
-			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
+		if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
+			CallerInfo info = null;
+			try {
+				info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.updateBoxStatusRedis.is.box",Constants.UMP_APP_NAME_DMSWEB, false, true);
 				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
 				//更新缓存，缓存两小时
 				result = jimdbCacheService.setEx(redisKey, boxStatus, 2 * Constants.TIME_SECONDS_ONE_HOUR);
 				if (result) {
 					logger.info(MessageFormat.format("箱号：{0}更新状态成功，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
+				} else {
+					logger.warn(MessageFormat.format("箱号：{0}更新状态失败，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
 				}
+			} catch (Exception e) {
+				logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，更新箱号状态缓存失败！", boxCode, operateSiteCode), e);
 			}
-		} catch (Exception e) {
-			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，更新箱号状态缓存失败！", boxCode, operateSiteCode), e);
+			finally {
+				Profiler.registerInfoEnd(info);
+			}
 		}
 		return result;
 	}
