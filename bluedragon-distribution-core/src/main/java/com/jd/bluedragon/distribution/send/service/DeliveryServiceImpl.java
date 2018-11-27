@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import IceInternal.Ex;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -324,6 +326,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 运单路由字段使用的分隔符
      */
     private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
+    /**
+     * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
+     */
+    private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
 
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
@@ -2998,8 +3004,20 @@ public class DeliveryServiceImpl implements DeliveryService {
     private InterceptResult<String> interceptWaybillForB2b(List<String> waybillCodes){
     	InterceptResult<String> interceptResult = new InterceptResult<String>();
     	interceptResult.toSuccess();
+    	//B网营业厅寄付现结运费发货拦截开关（1开启，0关闭）
+        boolean sendFreightInterception = false;
+        try{
+            SysConfig config = sysConfigService.findConfigContentByConfigName(FREIGHT_INTERCEPTION);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+                sendFreightInterception = true;
+            }
+        }catch (Exception e){
+            logger.error("快运发货查询寄付运费拦截开关失败，不在拦截寄付运费，对应运单："+waybillCodes, e);
+        }
+
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
+    	List<String> sendNoHasFreightWaybills = new ArrayList<String>();
         for(String waybillCode:waybillCodes){
         	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
@@ -3029,11 +3047,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
+        		//b2b校验是否包含-寄付运费
+        		if(sendFreightInterception && !BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
+                    sendNoHasFreightWaybills.add(waybillCode);
+        		}
         	}else{
         		noHasWeightWaybills.add(waybillCode);
         	}
         	//超过3单则中断校验逻辑
-    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
+    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM
+                    ||noHasFreightWaybills.size() >= MAX_SHOW_NUM
+                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
         }
@@ -3046,6 +3070,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
         	return interceptResult;
+        }
+        if(!sendNoHasFreightWaybills.isEmpty()){
+            interceptResult.toFail();
+            interceptResult.setMessage("运单无寄付运费金额："+sendNoHasFreightWaybills);
+            return interceptResult;
         }
         return interceptResult;
     }
