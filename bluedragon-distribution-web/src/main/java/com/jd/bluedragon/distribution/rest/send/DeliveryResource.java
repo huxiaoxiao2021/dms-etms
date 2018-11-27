@@ -1017,7 +1017,7 @@ public class DeliveryResource implements DmsDeliveryService {
         }
         /**校验箱号是否符合规则*/
         if(request.getBoxCode()!=null && StringUtils.isBlank(request.getBoxCode())){
-            if(!SerialRuleUtil.isMatchBoxCode(request.getBoxCode())){
+            if(!BusinessUtil.isBoxcode(request.getBoxCode())){
                 result.parameterError(MessageFormat.format("发货箱号[{0}]不合法,正则校验未通过！",
                         request.getBoxCode()));
                 return false;
