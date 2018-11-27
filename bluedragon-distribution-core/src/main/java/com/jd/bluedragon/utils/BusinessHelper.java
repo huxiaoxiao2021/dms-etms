@@ -182,7 +182,25 @@ public class BusinessHelper {
         }
         return true;
     }
-
+    /**
+     * 验证运单数据是否包含-寄付运费，WaybillSign62=1，且WaybillSign25=3时，freight<=0 返回false
+     *
+     * @param bigWaybillDto
+     * @return
+     */
+    public static boolean hasSendFreightForB2b(BigWaybillDto bigWaybillDto) {
+        if (bigWaybillDto != null
+                && bigWaybillDto.getWaybill() != null
+                && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
+            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+            //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
+            if (BusinessUtil.isSignChar(waybillSign, 62, '1')
+                    && BusinessUtil.isSignChar(waybillSign, 25, '3')) {
+                return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
+            }
+        }
+        return true;
+    }
     /**
      * 到付运费或COD  TopayTotalReceivable > 0
      *
@@ -298,7 +316,6 @@ public class BusinessHelper {
         }
         return waybillCode;
     }
-	}
 
 	public static boolean isSendCode(String sendCode){
 	    if (sendCode==null){

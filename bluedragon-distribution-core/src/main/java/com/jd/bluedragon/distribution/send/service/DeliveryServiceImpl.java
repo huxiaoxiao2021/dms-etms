@@ -3390,6 +3390,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (WaybillUtil.isPackageCode(packageBarcode)){
                 codeList.addAll(WaybillUtil.generateAllPackageCodes(packageBarcode));
             }
+            break;
         }
         for (String packageBarcode : packlist) {
             codeList.remove(packageBarcode);
@@ -4585,7 +4586,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //使用管理接口代替sendMDao
         this.sendMManager.insertSendM(sendM);
         // 判断是按箱发货还是包裹发货
-        if (!SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {
+        if (!BusinessUtil.isBoxcode(sendM.getBoxCode())) {
             /**按包裹 补分拣任务 大件写TASK_SORTING*/
             pushSorting(sendM);
         } else {
