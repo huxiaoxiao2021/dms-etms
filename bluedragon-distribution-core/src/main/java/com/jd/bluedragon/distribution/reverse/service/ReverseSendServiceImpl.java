@@ -1122,7 +1122,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 order.setFromPin(sendDetail.getCreateUserCode().toString());
                 order.setFromName(sendDetail.getCreateUser());
                 order.setCreateReason(sendDetail.getSpareReason());
-                order.setOrderId(Long.parseLong(sendDetail.getWaybillCode()));
+                order.setOrderId(Long.parseLong(waybill.getOrderId()));
                 order.setAimOrgId(baseOrgId);
                 // 逆向退备件库报文兼容性更改，唯一标识，用于备件库新老系统兼容并行
                 order.setWaybillSendCode(waybillSendCode);
