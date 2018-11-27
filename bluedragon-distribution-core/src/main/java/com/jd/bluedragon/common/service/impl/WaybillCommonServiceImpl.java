@@ -693,6 +693,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_TIMELY_TRANSPORT);
             }
         }
+        //sendpay167位不等于0时，面单模板打印【京准达快递到车】
+	    if(StringHelper.isNotEmpty(waybill.getSendPay())
+	    		&& !BusinessHelper.isSignChar(waybill.getSendPay(), 167, '0')){
+	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
+	    }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessUtil.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);

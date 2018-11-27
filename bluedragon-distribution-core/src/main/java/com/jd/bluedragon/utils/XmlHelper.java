@@ -1,7 +1,10 @@
 package com.jd.bluedragon.utils;
 
-import java.io.StringReader;
-import java.io.StringWriter;
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.Converter;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -12,13 +15,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.Converter;
-import com.thoughtworks.xstream.io.xml.DomDriver;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 public class XmlHelper {
     
@@ -127,6 +125,7 @@ public class XmlHelper {
                 return Boolean.TRUE;
             }
         } catch (Exception e) {
+            XmlHelper.logger.warn("序列化XML发生异常， 异常信息为：" + e.getMessage(), e);
         }
         
         return Boolean.FALSE;

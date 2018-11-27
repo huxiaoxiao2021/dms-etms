@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import IceInternal.Ex;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -33,6 +35,7 @@ import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -68,6 +71,7 @@ import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
 import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -153,6 +157,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private SendMManager sendMManager;
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -319,6 +326,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 运单路由字段使用的分隔符
      */
     private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
+    /**
+     * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
+     */
+    private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
 
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
@@ -757,7 +768,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void packageSend(SendM domain){
         //插入SEND_M
-        this.sendMDao.insertSendM(domain);
+//        this.sendMDao.insertSendM(domain);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
         if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
@@ -1124,7 +1137,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         for (SendM dSendM : sendMlist) {
             if (!list.contains(dSendM.getBoxCode())) {
-                this.sendMDao.insertSendM(dSendM);
+//                this.sendMDao.insertSendM(dSendM);
+                //使用管理接口代替sendMDao
+                this.sendMManager.insertSendM(dSendM);
             }
         }
     }
@@ -1483,20 +1498,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> tSendMList = new ArrayList<SendM>();
         // 验证是否发货箱子和包裹分开处理
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-            SendM dSendM = new SendM();
-            dSendM.setBoxCode(tSendM.getBoxCode());
-            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
-            dSendM.setSendType(tSendM.getSendType());
-            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
+            //edited by hanjiaxing3 修改为先取箱号状态缓存，再读库
+//            SendM dSendM = new SendM();
+//            dSendM.setBoxCode(tSendM.getBoxCode());
+//            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
+//            dSendM.setSendType(tSendM.getSendType());
+//            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
+            if (boxService.checkBoxIsSent(tSendM.getBoxCode(), tSendM.getCreateSiteCode())) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
         } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
             // 再投标识
             tSendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+            if (tSendMList != null && !tSendMList.isEmpty()) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
         }
 
-        if (tSendMList != null && !tSendMList.isEmpty()) {
-            response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-            response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
-        }
         return response;
     }
 
@@ -1573,6 +1593,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
+                    //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
+                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
@@ -2982,8 +3004,20 @@ public class DeliveryServiceImpl implements DeliveryService {
     private InterceptResult<String> interceptWaybillForB2b(List<String> waybillCodes){
     	InterceptResult<String> interceptResult = new InterceptResult<String>();
     	interceptResult.toSuccess();
+    	//B网营业厅寄付现结运费发货拦截开关（1开启，0关闭）
+        boolean sendFreightInterception = false;
+        try{
+            SysConfig config = sysConfigService.findConfigContentByConfigName(FREIGHT_INTERCEPTION);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+                sendFreightInterception = true;
+            }
+        }catch (Exception e){
+            logger.error("快运发货查询寄付运费拦截开关失败，不在拦截寄付运费，对应运单："+waybillCodes, e);
+        }
+
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
+    	List<String> sendNoHasFreightWaybills = new ArrayList<String>();
         for(String waybillCode:waybillCodes){
         	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
@@ -3013,11 +3047,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
+        		//b2b校验是否包含-寄付运费
+        		if(sendFreightInterception && !BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
+                    sendNoHasFreightWaybills.add(waybillCode);
+        		}
         	}else{
         		noHasWeightWaybills.add(waybillCode);
         	}
         	//超过3单则中断校验逻辑
-    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
+    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM
+                    ||noHasFreightWaybills.size() >= MAX_SHOW_NUM
+                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
         }
@@ -3030,6 +3070,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
         	return interceptResult;
+        }
+        if(!sendNoHasFreightWaybills.isEmpty()){
+            interceptResult.toFail();
+            interceptResult.setMessage("运单无寄付运费金额："+sendNoHasFreightWaybills);
+            return interceptResult;
         }
         return interceptResult;
     }
@@ -4323,7 +4368,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
         } else {
             //插入SEND_M
-            this.sendMDao.insertSendM(domain);
+//            this.sendMDao.insertSendM(domain);
+            //使用管理接口代替sendMDao
+            this.sendMManager.insertSendM(domain);
         }
 
         if (BusinessUtil.isBoxcode(domain.getBoxCode())) {
@@ -4527,25 +4574,33 @@ public class DeliveryServiceImpl implements DeliveryService {
      * （3）推送运单状态及回传周转箱
      * （4）对中转发货写入补全SEND_D任务
      *
-     * @param sendMList 发货对象
+     * @param sendM 发货对象
      * @return 1：发货成功  2：发货失败
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void packageSortSend(List<SendM> sendMList){
-            /**插入SEND_M*/
-//            this.sendMDao.addBatch(sendMList);
-        for(SendM sendM : sendMList){
-            sendMDao.insertSendM(sendM);
+    public void packageSortSend(SendM sendM){
+        /**插入SEND_M*/
+//        this.sendMDao.insertSendM(sendM);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(sendM);
+        // 判断是按箱发货还是包裹发货
+        if (!SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {
+            /**按包裹 补分拣任务 大件写TASK_SORTING*/
+            pushSorting(sendM);
+        } else {
+            // 按箱
+            SendDetail tSendDatail = new SendDetail();
+            tSendDatail.setBoxCode(sendM.getBoxCode());
+            tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+            tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+            //更新SEND_D状态
+            this.updateCancel(tSendDatail);
         }
-            for(SendM sendM : sendMList){
-                /**大件写TASK_SORTING*/
-                pushSorting(sendM);
-                /**中转任务*/
-                transitSend(sendM);
-                /**全程跟踪任务*/
-                pushStatusTask(sendM);
-            }
+
+        // 判断是否是中转发货
+        this.transitSend(sendM);
+        this.pushStatusTask(sendM);
     }
 
     /**

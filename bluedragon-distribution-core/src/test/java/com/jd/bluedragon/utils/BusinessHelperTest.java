@@ -121,6 +121,11 @@ public class BusinessHelperTest {
 		assertFalse(BusinessUtil.isSopOrExternal("17122600001004"));
 	}
 	@Test
+	public void testIsSendCode(){
+		assertTrue(BusinessHelper.isSendCode("910-39-20181108163558736"));
+	}
+
+	@Test
 	public void testGetHashKeyByPackageCode() {
 		String[] codes = {null,
 				"",

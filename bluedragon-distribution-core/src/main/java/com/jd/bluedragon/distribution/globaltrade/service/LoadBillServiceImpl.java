@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.globaltrade.service;
 
 import com.google.common.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
@@ -95,6 +96,9 @@ public class LoadBillServiceImpl implements LoadBillService {
     private WaybillService waybillService;
 
     @Autowired
+    WaybillQueryManager waybillQueryManager;
+
+    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Override
@@ -128,17 +132,30 @@ public class LoadBillServiceImpl implements LoadBillService {
         return 0;
     }
 
-    @Override
-    public LoadBill getSuccessPreByOrderId(String orderId) {
+//    @Override
+//    public LoadBill getSuccessPreByOrderId(String orderId) {
+//        Map<String, Object> parameter = new HashMap<String, Object>();
+//        List<Integer> approvalCodes = new ArrayList<Integer>();
+//        approvalCodes.add(LoadBill.APPLIED);
+//        approvalCodes.add(LoadBill.GREENLIGHT);
+//        approvalCodes.add(LoadBill.REDLIGHT);
+//        parameter.put("approvalCodes", approvalCodes);
+//        parameter.put("orderId", orderId);
+//        return loadBillDao.findOneByParameter(parameter);
+//    }
+
+
+    public LoadBill getSuccessPreByWaybillCode(String waybillCode) {
         Map<String, Object> parameter = new HashMap<String, Object>();
         List<Integer> approvalCodes = new ArrayList<Integer>();
         approvalCodes.add(LoadBill.APPLIED);
         approvalCodes.add(LoadBill.GREENLIGHT);
         approvalCodes.add(LoadBill.REDLIGHT);
         parameter.put("approvalCodes", approvalCodes);
-        parameter.put("orderId", orderId);
+        parameter.put("waybillCode", waybillCode);
         return loadBillDao.findOneByParameter(parameter);
     }
+
 
     /**
      * 根据发货明细数据信息和配置信息初始化数据
@@ -155,8 +172,8 @@ public class LoadBillServiceImpl implements LoadBillService {
         List<LoadBill> addList = new ArrayList<LoadBill>();
         // 站点信息缓存Cache
         Map<Integer, String> dmsCacheMap = new HashMap<Integer, String>();
-        // 预装载信息缓存订单号Cache
-        Map<String, Boolean> preOrderIdCache = new HashMap<String, Boolean>();
+        // 预装载信息缓存运单号Cache
+        Map<String, Boolean> preWaybillCodeCache = new HashMap<String, Boolean>();
         for (SendDetail sendDetail : sendDetailList) {
             LoadBill lb = this.resolveLoadBill(sendDetail, loadBillConfig, userId, userName, dmsCacheMap);
             // 判断该包裹是否已初始化过， 若已初始化则无需处理
@@ -164,14 +181,14 @@ public class LoadBillServiceImpl implements LoadBillService {
                 // 判断包裹数据量 若一单一件则无需判断是否已预装载过 仅一单多件时需要判断
                 if (sendDetail.getPackageNum() != 1) { //一单多件
                     // 已预装载缓存 不存在时查库确认是否已装载 存在时直接剔除
-                    Boolean isPre = preOrderIdCache.get(lb.getOrderId());
+                    Boolean isPre = preWaybillCodeCache.get(lb.getWaybillCode());
                     if (isPre == null) { // 不存在时需要查库
-                        // 根据订单号查询 该订单号下是否有其他包裹已预装载
-                        if (this.getSuccessPreByOrderId(lb.getOrderId()) == null) { //未装载
-                            preOrderIdCache.put(lb.getOrderId(), Boolean.FALSE);
+                        // 根据运单号查询 该订单号下是否有其他包裹已预装载
+                        if (this.getSuccessPreByWaybillCode(lb.getWaybillCode()) == null) { //未装载
+                            preWaybillCodeCache.put(lb.getWaybillCode(), Boolean.FALSE);
                             addList.add(lb);
                         } else { // 已装载 剔除
-                            preOrderIdCache.put(lb.getOrderId(), Boolean.TRUE);
+                            preWaybillCodeCache.put(lb.getWaybillCode(), Boolean.TRUE);
                         }
                     } else if (isPre == Boolean.FALSE) {
                         addList.add(lb);
@@ -221,14 +238,9 @@ public class LoadBillServiceImpl implements LoadBillService {
         lb.setWaybillCode(sd.getWaybillCode());
         lb.setPackageBarcode(sd.getPackageBarcode());
         lb.setPackageAmount(sd.getPackageNum());
-        lb.setOrderId(sd.getWaybillCode());
-        // 如果是ECLP订单，则获取商家订单号
-        if (WaybillUtil.isBusiWaybillCode(sd.getWaybillCode())) {
-            String vendorOrderId = getVendorOrderId(sd.getWaybillCode());
-            if (null != vendorOrderId) {
-                lb.setOrderId(vendorOrderId);
-            }
-        }
+
+        lb.setOrderId(waybillQueryManager.getOrderCodeByWaybillCode(sd.getWaybillCode(),true));
+
         lb.setBoxCode(sd.getBoxCode());
         lb.setDmsCode(sd.getCreateSiteCode());
         lb.setSendTime(sd.getCreateTime()); // 包裹发货数据的创建时间,就是发货时间
@@ -273,24 +285,24 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Override
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public int updateLoadBillStatusByReport(LoadBillReport report) {
-        logger.info("更新装载单状态 reportId is " + report.getReportId() + ", orderId is " + report.getOrderId());
-        //将orderId分割,长度不超过500
+        logger.info("更新装载单状态 reportId is " + report.getReportId() + ", waybillCode is " + report.getWaybillCode());
+        //将waybillCode分割,长度不超过500
         List<LoadBillReport> reportList = new ArrayList<LoadBillReport>();
-        List<String> orderIdList = new ArrayList<String>();
-        report.setOrderId(report.getOrderId().replaceAll(",+", ","));
-        Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,]((?=,)|$(?=,*))").matcher(report.getOrderId());
+        List<String> waybillCodeList = new ArrayList<String>();
+        report.setWaybillCode(report.getWaybillCode().replaceAll(",+", ","));
+        Matcher matcher = Pattern.compile("[^,][\\w,]{0,498}[^,]((?=,)|$(?=,*))").matcher(report.getWaybillCode());
         while (matcher.find()) {
             LoadBillReport subReport = new LoadBillReport();
-            String subOrderIds = matcher.group();
+            String subWaybillCodes = matcher.group();
             subReport.setReportId(report.getReportId());
             subReport.setLoadId(report.getLoadId());
             subReport.setWarehouseId(report.getWarehouseId());
             subReport.setProcessTime(report.getProcessTime());
             subReport.setStatus(report.getStatus());
             subReport.setNotes(report.getNotes());
-            subReport.setOrderId(subOrderIds);
+            subReport.setWaybillCode(subWaybillCodes);
             reportList.add(subReport);
-            orderIdList.add("'" + subOrderIds.replaceAll(",", "','") + "'");
+            waybillCodeList.add("'" + subWaybillCodes.replaceAll(",", "','") + "'");
         }
         loadBillReportDao.addBatch(reportList);
         /**
@@ -298,8 +310,8 @@ public class LoadBillServiceImpl implements LoadBillService {
          * 问题:卓志可能会丢失装载单下的部分订单数据,导致装载单放行,但部分订单的状态没有更新为放行(当前逻辑:根据装载单和订单更新状态)
          * 补救措施:增加新的状态(失败),表示丢失的状态. 先将装载单下的所有订单更新为失败,然后将接收到的订单更新为放行.
          */
-        loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report, orderIdList));
-        return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, orderIdList)); // 更新loadbill的approval_code
+        loadBillDao.updateLoadBillStatus(getLoadBillFailStatusMap(report));
+        return loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report, waybillCodeList)); // 更新loadbill的approval_code
     }
 
     @Override
@@ -335,15 +347,15 @@ public class LoadBillServiceImpl implements LoadBillService {
                     throw new GlobalTradeException("需要装载的订单数量超过数量限制（" + GLOBAL_TRADE_PRELOAD_COUNT_LIMIT + ")");
                 }
 
-                Set<String> orderIdSet = new HashSet<String>();
+                Set<String> waybillCodeSet = new HashSet<String>();
 
                 for (LoadBill loadBill : loadBIlls) {
                     if (loadBill.getApprovalCode() != null && loadBill.getApprovalCode() != LoadBill.BEGINNING
                             && loadBill.getApprovalCode() != LoadBill.FAILED) {
                         throw new GlobalTradeException("订单 [" + loadBill.getWaybillCode() + "] 已经在装载单 [" + loadBill.getLoadId() + "] 装载");
                     }
-                    // 通过订单号去除重复
-                    orderIdSet.add(loadBill.getOrderId());
+                    // 通过运单号去除重复
+                    waybillCodeSet.add(loadBill.getWaybillCode());
                 }
 
                 String preLoadBillId = String.valueOf(genObjectId.getObjectId(LoadBill.class.getName()));
@@ -358,7 +370,7 @@ public class LoadBillServiceImpl implements LoadBillService {
                     if (SUCCESS == response1.getStatus().intValue()) {
                         logger.error("调用卓志接口预装载成功");
                         try {
-                            this.updateLoadBillStatusByOrderIds(new ArrayList(orderIdSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
+                            this.updateLoadBillStatusByWaybillCodes(new ArrayList(waybillCodeSet), trunkNo, preLoadBillId, LoadBill.APPLIED);
                         } catch (Exception ex) {
                             logger.error("预装载更新车牌号和装载单ID失败，原因", ex);
                             throw new GlobalTradeException("预装载操作失败，系统异常");
@@ -411,10 +423,11 @@ public class LoadBillServiceImpl implements LoadBillService {
         for (LoadBill loadBill : loadBills) {
             if (contains(loadBillList, loadBill)) continue;
             LoadBill lb = new LoadBill();
-            lb.setOrderId(loadBill.getOrderId());
-            lb.setPackageTime(loadBill.getPackageTime());
-            lb.setPackageUser(loadBill.getPackageUser());
-            lb.setWeight(loadBill.getWeight());
+            lb.setOrderId(loadBill.getOrderId()); //设置订单号 现在先并行
+            lb.setLogisticsNo(loadBill.getWaybillCode()); //设置物流运单号
+            lb.setPackageTime(loadBill.getPackageTime()); //设置打包时间
+            lb.setPackageUser(loadBill.getPackageUser()); //设置打包人
+            lb.setWeight(loadBill.getWeight()); //设置包裹重量
             loadBillList.add(lb);
         }
 
@@ -425,7 +438,7 @@ public class LoadBillServiceImpl implements LoadBillService {
 
     private Boolean contains(List<LoadBill> loadBillList, LoadBill loadBill) {
         for (LoadBill lb : loadBillList) {
-            if (lb.getOrderId().equals(loadBill.getOrderId())) {
+            if (lb.getLogisticsNo().equals(loadBill.getWaybillCode())) {
                 return true;
             }
         }
@@ -466,7 +479,7 @@ public class LoadBillServiceImpl implements LoadBillService {
         return TaskResult.SUCCESS;
     }
 
-    private Map<String, Object> getLoadBillFailStatusMap(LoadBillReport report, List<String> orderIdList) {
+    private Map<String, Object> getLoadBillFailStatusMap(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
         loadBillStatusMap.put("warehouseId", report.getWarehouseId());
@@ -476,14 +489,14 @@ public class LoadBillServiceImpl implements LoadBillService {
         return loadBillStatusMap;
     }
 
-    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> orderIdList) {
+    private Map<String, Object> getLoadBillStatusMap(LoadBillReport report, List<String> waybillCodeList) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
         loadBillStatusMap.put("loadIdList", StringHelper.parseList(report.getLoadId(), ","));
         loadBillStatusMap.put("warehouseId", report.getWarehouseId());
         /****更新全部为失败时已经设置过以下两个字段，此处无需重复设置****/
 //		loadBillStatusMap.put("ciqCheckFlag", report.getCiqCheckFlag());
 //		loadBillStatusMap.put("custBillNo", report.getCustBillNo());
-        loadBillStatusMap.put("orderIdList", orderIdList);
+        loadBillStatusMap.put("waybillCodeList", waybillCodeList);
         if (report.getStatus() == SUCCESS) {
             loadBillStatusMap.put("approvalCode", LoadBill.GREENLIGHT);
         } else {
@@ -599,7 +612,7 @@ public class LoadBillServiceImpl implements LoadBillService {
     @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
     public List<LoadBill> findWaybillInLoadBill(LoadBillReport report) {
         Map<String, Object> loadBillStatusMap = new HashMap<String, Object>();
-        loadBillStatusMap.put("waybillCode", WaybillUtil.getWaybillCode(report.getOrderId()));
+        loadBillStatusMap.put("waybillCode", WaybillUtil.getWaybillCode(report.getWaybillCode()));
         loadBillStatusMap.put("boxCode", report.getBoxCode());
         this.logger.info("findWaybillInLoadBill 查询数据库预装在信息 状态");
         List<LoadBill> loadBillList = loadBillReadDao.findWaybillInLoadBill(loadBillStatusMap);
@@ -653,6 +666,25 @@ public class LoadBillServiceImpl implements LoadBillService {
             Integer key = iterator.next();
             List<String> orderIdList = splitLoadBill.get(key);
             effectCount += loadBillDao.updatePreLoadBillByOrderIds(orderIdList, trunkNo, preLoadId, status);
+        }
+        return effectCount;
+    }
+
+    /**
+     * 根据运单号集合更新装载单状态
+     * @param waybillCodes
+     * @param trunkNo
+     * @param preLoadId
+     * @param status
+     * @return
+     */
+    public Integer updateLoadBillStatusByWaybillCodes(List<String> waybillCodes, String trunkNo, String preLoadId, Integer status) {
+        Integer effectCount = 0;
+        Map<Integer, List<String>> splitLoadBill = splitLoadBillByWaybillCode(waybillCodes);
+        for (Iterator<Integer> iterator = splitLoadBill.keySet().iterator(); iterator.hasNext(); ) {
+            Integer key = iterator.next();
+            List<String> waybillCodeList = splitLoadBill.get(key);
+            effectCount += loadBillDao.updatePreLoadBillByWaybillCodes(waybillCodeList, trunkNo, preLoadId, status);
         }
         return effectCount;
     }

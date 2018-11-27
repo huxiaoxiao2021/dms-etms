@@ -106,6 +106,9 @@ public class LoadBill implements Serializable {
 	/** 国检布控状态  0:不需查验;1:需查验 */
 	private Integer ciqCheckFlag;
 
+	/** 卓志接口要求的物流运单号 **/
+	private String logisticsNo;
+
 
 	public Long getId() {
 		return id;
@@ -354,4 +357,12 @@ public class LoadBill implements Serializable {
     public void setCustBillNo(String custBillNo) {
         this.custBillNo = custBillNo;
     }
+
+	public String getLogisticsNo() {
+		return logisticsNo;
+	}
+
+	public void setLogisticsNo(String logisticsNo) {
+		this.logisticsNo = logisticsNo;
+	}
 }

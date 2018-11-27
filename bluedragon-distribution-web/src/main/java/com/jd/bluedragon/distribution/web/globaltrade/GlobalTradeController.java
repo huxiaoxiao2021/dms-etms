@@ -120,13 +120,13 @@ public class GlobalTradeController {
                 return new LoadBillReportResponse(2, "参数错误");
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            String[] orderIdArray = request.getIds().split(",");
-            if (orderIdArray.length == 0) {
+            String[] idArray = request.getIds().split(",");
+            if (idArray.length == 0) {
                 return new LoadBillReportResponse(2, "orderId数量为0");
             }
             List<LoadBill> loadBillList = new ArrayList<LoadBill>();
-            for (String orderid : orderIdArray) {
-                LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
+            for (String id : idArray) {
+                LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(id));
                 if (erpUser != null) {
                     loadBill.setPackageUser(erpUser.getUserCode());
                     loadBill.setPackageUserCode(erpUser.getUserId());
@@ -270,7 +270,7 @@ public class GlobalTradeController {
         report.setStatus(request.getStatus());
         report.setWarehouseId(request.getWarehouseId());
         report.setNotes(request.getNotes());
-        report.setOrderId(request.getOrderId());
+        report.setWaybillCode(request.getOrderId());
         report.setCustBillNo(request.getCustBillNo());
         report.setCiqCheckFlag(request.getCiqCheckFlag());
         return report;
