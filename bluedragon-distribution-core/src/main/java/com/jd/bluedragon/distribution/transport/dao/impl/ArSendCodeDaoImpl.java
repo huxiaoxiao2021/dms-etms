@@ -37,4 +37,9 @@ public class ArSendCodeDaoImpl extends BaseDao<ArSendCode> implements ArSendCode
         return this.sqlSession.update(getNameSpace() + ".deleteBySendRegisterId", parameter);
     }
 
+    @Override
+    public ArSendCode getBySendCode(String sendCode){
+        return this.sqlSession.selectOne(this.nameSpace+".getBySendCode",sendCode);
+    }
+
 }
