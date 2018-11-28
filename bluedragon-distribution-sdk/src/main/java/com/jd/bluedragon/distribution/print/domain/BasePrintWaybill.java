@@ -188,6 +188,11 @@ public class BasePrintWaybill implements Serializable {
 	private String specialRequirement;
 
 	/**
+	 * B网面单备用站点id
+	 */
+	private Integer backupSiteId;
+
+	/**
 	 * B网面单备用站点名称
 	 */
 	private String backupSiteName;
@@ -811,5 +816,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setTelLast(String telLast) {
 		this.telLast = telLast;
+	}
+
+	public Integer getBackupSiteId() {
+		return backupSiteId;
+	}
+
+	public void setBackupSiteId(Integer backupSiteId) {
+		this.backupSiteId = backupSiteId;
 	}
 }
