@@ -36,6 +36,7 @@ public interface ComposeService {
     String SPECIAL_MARK_AIRTRANSPORT_FILL = "航填";
     String SPECIAL_MARK_FIRST = "优";
     String SPECIAL_MARK_INTERCITY = "尊享";
+    String SPECIAL_MARK_HELP_DELIVERY="代";
 
     /**
      * 全球售合包订单标识
