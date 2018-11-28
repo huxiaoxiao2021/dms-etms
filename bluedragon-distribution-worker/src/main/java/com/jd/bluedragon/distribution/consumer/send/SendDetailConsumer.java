@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -148,7 +149,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             BaseEntity<BigWaybillDto> baseEntity = getWaybillBaseEntity(SerialRuleUtil.getWaybillCode(packageBarCode));
             if (baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
                 Waybill waybill = baseEntity.getData().getWaybill();
-                if (BusinessHelper.isRMA(waybill.getWaybillSign())) {
+                if (BusinessUtil.isRMA(waybill.getWaybillSign())) {
                     if (!rmaHandOverWaybillService.buildAndStorage(sendDetail, waybill, baseEntity.getData().getGoodsList())) {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }

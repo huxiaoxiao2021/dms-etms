@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -251,7 +252,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     return targetResult;
                 }
 
-                if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
+                if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
                     return receiveManager.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
                 }else{
                     return targetResult;
@@ -298,7 +299,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 return targetResult;
             }
 
-            if(SerialRuleUtil.isMatchReceiveWaybillNo(oldWaybillCode)){
+            if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
                 return receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
             }else{
                 return targetResult;
@@ -388,7 +389,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Override
     @JProfiler(jKey = "DMSWEB.ReversePrintServiceImpl.checkWayBillForExchange", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> checkWayBillForExchange(String wayBillCode, Integer siteCode){
-        if(SerialRuleUtil.isMatchAllPackageNo(wayBillCode)){
+        if(WaybillUtil.isPackageCode(wayBillCode)){
             wayBillCode = SerialRuleUtil.getWaybillCode(wayBillCode);
         }
         InvokeResult result = new InvokeResult();

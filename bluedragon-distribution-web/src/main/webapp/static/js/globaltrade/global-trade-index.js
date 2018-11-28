@@ -233,7 +233,7 @@ function doQuery(params) {
                 temp += "<td>" + (dataList[i].custBillNo == null ? '' : dataList[i].custBillNo) + "</td>";
 				temp += "<td>" + (dataList[i].waybillCode) + "</td>";
 				temp += "<td>" + (dataList[i].packageBarcode) + "</td>";
-				temp += "<td>" + (dataList[i].orderId) + "</td>";
+				temp += "<td>" + (dataList[i].orderId == null ? '':dataList[i].orderId) + "</td>";
 				temp += "<td>" + (dataList[i].dmsName) + "</td>";
 				temp += "<td>" + (getDateString(getData(dataList[i].sendTime))) + "</td>";
 				temp += "<td>" + (dataList[i].sendCode) + "</td>";

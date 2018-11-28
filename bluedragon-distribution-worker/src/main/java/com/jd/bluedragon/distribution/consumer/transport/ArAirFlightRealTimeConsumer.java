@@ -5,11 +5,8 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.transport.domain.ArAirFlightRealTimeStatus;
-import com.jd.bluedragon.distribution.transport.domain.ArAirWaybillStatus;
-import com.jd.bluedragon.distribution.transport.domain.ArSendCode;
-import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
-import com.jd.bluedragon.distribution.transport.domain.ArTransportTypeEnum;
+import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
+import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -28,10 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 消费航班起飞降落实时MQ
@@ -56,6 +50,10 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
     @Autowired
     private SendDatailDao sendDetailDao;
 
+    @Autowired
+    @Qualifier("arSendRegisterDao")
+    private ArSendRegisterDao arSendRegisterDao;
+
     @Qualifier("arAirWaybillStatusMQ")
     @Autowired
     private DefaultJMQProducer arAirWaybillStatusMQ;
@@ -68,7 +66,23 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
             return;
         }
         ArAirFlightRealTimeStatus realTimeStatus = JsonHelper.fromJsonUseGson(message.getText(), ArAirFlightRealTimeStatus.class);
+
+        /**
+         * 把发给路由MQ标识落到arSendRegister表
+         */
         List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
+        //只有起飞才落字段
+        if (realTimeStatus != null && realTimeStatus.getStatus() == 20) {
+            //查出当天该航班号起飞的发货登记记录
+            if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+                for(ArSendRegister arSendRegister:sendRegisterList){
+                    arSendRegister.setSendRouterMqType(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode());
+                    //把字段落库
+                    arSendRegisterDao.update(arSendRegister);
+                }
+            }
+        }
+
         if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
             List<Long> sendRegisterIds = getRegisterIdList(sendRegisterList);
             List<String> sendCodes = this.getSendCodes(sendRegisterIds);

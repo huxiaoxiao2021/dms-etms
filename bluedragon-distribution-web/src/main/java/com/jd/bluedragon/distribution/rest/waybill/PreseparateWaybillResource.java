@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.waybill;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +30,7 @@ public class PreseparateWaybillResource {
     @Path("/preseparateWaybill/getPreseparateSiteId/{waybillCode}")
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> getPreseparateSiteId(@PathParam("waybillCode") String waybillCode){
         com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Integer>();
-        if(!SerialRuleUtil.isMatchAllWaybillNo(waybillCode)){
+        if(!WaybillUtil.isWaybillCode(waybillCode)){
             if(logger.isInfoEnabled()){
                 logger.info("获取预分拣站点，运单号为"+waybillCode);
             }

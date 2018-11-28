@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.reassignWaybill.domain;
 import java.util.Date;
 
 import com.jd.bluedragon.distribution.api.request.ReassignWaybillRequest;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 
@@ -151,7 +152,7 @@ public class ReassignWaybill {
 		packTagPrint.setUserCode(request.getUserCode());
 		packTagPrint.setUserName(request.getUserName());
 		packTagPrint.setOperateTime(DateHelper.parseDateTime(request.getOperateTime()));
-		packTagPrint.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getPackageBarcode()));
+		packTagPrint.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
 		return packTagPrint;
 	}
 }

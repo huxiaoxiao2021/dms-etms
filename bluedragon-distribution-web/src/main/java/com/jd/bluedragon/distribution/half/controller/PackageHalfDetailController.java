@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.half.domain.*;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -144,7 +145,7 @@ public class PackageHalfDetailController {
 					return result;
 				}
 				//判断包裹信息是否为半收包裹
-				if (BusinessHelper.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
+				if (BusinessUtil.isPackageHalf(bigWaybillDto.getWaybill().getWaybillSign())) {
 					//是半收包裹
 					//判断是否是COD 或者 运费到付
 					if(BusinessHelper.isCODOrFreightCollect(bigWaybillDto) ) {
@@ -163,7 +164,7 @@ public class PackageHalfDetailController {
 						resultMessageTemp = "\n此运单已完成操作！不可再次操作";
 					}else{
 						//支持协商在妥投的 并且 没有审核完成的
-						if(BusinessHelper.isConsultationTo(bigWaybillDto.getWaybill().getWaybillSign())) {
+						if(BusinessUtil.isConsultationTo(bigWaybillDto.getWaybill().getWaybillSign())) {
 							//不允许操作
 							if(!WaybillStatus.WAYBILL_STATUS_CONSULT.equals(bigWaybillDto.getWaybillState().getWaybillState())
                                     && !WaybillStatus.WAYBILL_TRACK_PACKAGE_HALF.equals(bigWaybillDto.getWaybillState().getWaybillState())){

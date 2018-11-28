@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import com.jd.bluedragon.distribution.popPrint.dao.PopPrintDao;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,7 +66,7 @@ public class PopSupplementReceiveTask implements
 
 		for (Object taskObj : objs) {
 			PopPrint popPrint = (PopPrint) taskObj;
-			if (!BusinessHelper.isWaybillCode(popPrint.getWaybillCode())) {
+			if (!WaybillUtil.isWaybillCode(popPrint.getWaybillCode())) {
 				logger.info("平台订单已打印未收货处理 --> 打印单号【" + popPrint.getPopPrintId()
 						+ "】，运单号【" + popPrint.getWaybillCode()
 						+ "】， 操作人SiteCode【" + popPrint.getCreateSiteCode()

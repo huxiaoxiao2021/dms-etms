@@ -22,10 +22,15 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.0.5-SNAPSHOT</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.18</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>ql-dms-report</groupId>
+			<artifactId>report-sdk</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -119,12 +124,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
+			<version>1.2.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.0.3-SNAPSHOT</version>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -378,7 +383,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.28-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>

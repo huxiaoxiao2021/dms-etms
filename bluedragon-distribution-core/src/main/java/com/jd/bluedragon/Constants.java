@@ -119,6 +119,11 @@ public class Constants {
      * 业务类型-未知业务类型
      */
     public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+
+    /**
+     * 操作日志业务编码-打印
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
     /**
      * 业务类型-未知业务操作类型
      */
@@ -271,6 +276,11 @@ public class Constants {
      * 本地缓存默认失效时间
      */
     public static final int POLLING_INTERVAL_TIME = 1500;// 秒
+
+    /**
+     * 时间：一小时的秒数
+     */
+    public static final int TIME_SECONDS_ONE_HOUR = 3600;
 
     /**
      * 时间：一天的秒数
@@ -478,6 +488,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
     public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
     public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
+    public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
     public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
     public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
     public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
@@ -687,4 +698,12 @@ public class Constants {
      */
     public static final Integer PACKAGE_APPROVE_TYPE = 2;
 
+    /**
+     * 已发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_1 =1;
+    /**
+     * 取消发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
 }
