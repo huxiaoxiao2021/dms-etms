@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.preseparate.saf.LabelPrintingWS;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.preseparate.util.LableType;
@@ -48,7 +49,7 @@ public class QuickProduceResource {
      * 根据运单号或包裹号获取运单包裹信息接口
      * 从订单中间键，台帐，外单获取数据
      *
-     * @param waybillCode Or package
+     * @param startDmsCode Or package
      * @return
      */
     @GET
@@ -59,8 +60,7 @@ public class QuickProduceResource {
 
 
         // 转换运单号
-        String waybillCode = BusinessHelper
-                .getWaybillCode(waybillCodeOrPackage);
+        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
         // 调用服务
         try {
 

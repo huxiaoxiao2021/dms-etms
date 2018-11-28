@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
 				若配送方式字段（transbill_m.require_trans_mode）为分拣集货，且订单sendpay124=3，则标识位打集字
 				若配送方式字段（transbill_m.require_trans_mode）为分拣集货，且订单sendpay124！=3，则标识位打城字
          */
-        if(BusinessHelper.isUrban(waybill.getWaybillSign(), waybill.getSendPay())){
+        if(BusinessUtil.isUrban(waybill.getWaybillSign(), waybill.getSendPay())){
         	boolean isMarked = false;
         	TransbillM transbillM = transbillMService.getByWaybillCode(waybill.getWaybillCode());
             if(transbillM != null){
@@ -35,7 +36,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             		waybill.appendSpecialMark(CITY_DISTRIBUTION_ZHI);
             		isMarked = true;
             	}else if(TRANS_MODE_JI.equals(transbillM.getRequireTransMode())){
-            		if(BusinessHelper.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
+            		if(BusinessUtil.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
                         waybill.appendSpecialMark(CITY_DISTRIBUTION_JI);
                     }else {
                         waybill.appendSpecialMark(CITY_DISTRIBUTION_CHENG);
@@ -45,7 +46,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             }
             //判断是否完成城配打标
             if(!isMarked){
-            	if(BusinessHelper.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
+            	if(BusinessUtil.isSignChar(waybill.getSendPay(), POSITION_124, CHAR_3)){
                     waybill.appendSpecialMark(CITY_DISTRIBUTION_JI);
                 }else {
                     waybill.appendSpecialMark(CITY_DISTRIBUTION_CHENG);
@@ -56,27 +57,27 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.appendSpecialMark(SPECIAL_MARK_LOCAL_SCHEDULE);
         }
         if(waybill.getDistributeType()!=null && waybill.getDistributeType().equals(LabelPrintingService.ARAYACAK_SIGN) && waybill.getSendPay().length()>=50){
-        	if(!BusinessHelper.isSignChar(waybill.getSendPay(),22,'5')){
+        	if(!BusinessUtil.isSignChar(waybill.getSendPay(),22,'5')){
         		waybill.appendSpecialMark(SPECIAL_MARK_ARAYACAK_SITE);
         	}
         }
-        if(BusinessHelper.isSignY(waybill.getSendPay(),135)){
+        if(BusinessUtil.isSignY(waybill.getSendPay(),135)){
             waybill.appendSpecialMark(SPECIAL_MARK_VALUABLE);
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
-        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),12,'9')) {
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),12,'9')) {
             waybill.appendSpecialMark(SPECIAL_MARK_CROWD_SOURCING);
         }
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(),24)) {
+        if(BusinessUtil.isSignY(waybill.getWaybillSign(),24)) {
             waybill.appendSpecialMark(SPECIAL_MARK_PUBLIC_WELFARE);
         }
 
         //安利--waybillSign第27位等于1的为允许半收的订单，包裹标签打“半”
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 27)){
+        if(BusinessUtil.isSignY(waybill.getWaybillSign(), 27)){
             waybill.appendSpecialMark(ALLOW_HALF_ACCEPT);
         }
         //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(), 35)){
+        if(BusinessUtil.isSignY(waybill.getWaybillSign(), 35)){
             waybill.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
         if(waybill.getIsSelfService()){//城配与配送方式柜互斥，优先城配
@@ -102,8 +103,8 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(SPECIAL_MARK_VALUABLE, SPECIAL_MARK_CROWD_SOURCING);
 
         //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
-        if (BusinessHelper.isSignChar(waybill.getSendPay(),124,'4')
-                && BusinessHelper.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
+        if (BusinessUtil.isSignChar(waybill.getSendPay(),124,'4')
+                && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             waybill.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
     }

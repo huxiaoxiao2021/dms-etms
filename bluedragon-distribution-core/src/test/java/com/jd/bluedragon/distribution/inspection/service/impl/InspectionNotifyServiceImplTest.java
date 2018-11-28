@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.After;
 import org.junit.Before;
@@ -54,14 +55,14 @@ public class InspectionNotifyServiceImplTest {//extends TestBase {
     }
 
     private boolean checkWaybill(String s){
-        if(!SerialRuleUtil.isMatchAllWaybillCode(s)){
+        if(!WaybillUtil.isWaybillCode(s)){
             return false;
         }
         return true;
     }
 
     private boolean checkVWaybill(String s){
-        if(!SerialRuleUtil.isMatchReceiveWaybillNo(s)){
+        if(!WaybillUtil.isBusiWaybillCode(s)){
             return false;
         }
         return true;

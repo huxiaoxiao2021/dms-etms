@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,7 +91,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         }
 
         BaseDmsStore bds = new BaseDmsStore();
-        Integer originalCrossType = BusinessHelper.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
+        Integer originalCrossType = BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
         JdResult<CrossPackageTagNew> br = baseMinorManager.queryCrossPackageTag(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode(),originalCrossType);
         log.info("自动分拣：获取目的分拣中心"+(null==br?"获取目的分拣中心对象为NULL":JsonHelper.toJson(br)));
         if(br.isSucceed() && br.getData()!=null

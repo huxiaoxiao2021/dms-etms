@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.transport.domain.ArWaitReceive;
 import com.jd.bluedragon.distribution.transport.domain.ArWaitReceiveRequest;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -227,7 +228,7 @@ public class ArReceiveResource implements DmsArReceiveService {
             return rest;
         }
 
-        if (BusinessHelper.isBoxcode(barcode) && BusinessHelper.isPackageCode(barcode)) {
+        if (BusinessHelper.isBoxcode(barcode) && WaybillUtil.isPackageCode(barcode)) {
             rest.toFail("无法识别的包裹号/箱号！");
             return rest;
         }

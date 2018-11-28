@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -129,7 +130,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         if(oldRecord != null && oldRecord.getId() != null && UNTREATED_STATE.equals(oldRecord.getConfirmStatus())){
             Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
             //1.标示为标识可以修改
-            if(waybill != null && !BusinessHelper.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
+            if(waybill != null && !BusinessUtil.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign())){
                 return true;
             }
         }

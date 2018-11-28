@@ -1,11 +1,8 @@
 package com.jd.bluedragon.utils;
 
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,14 +16,6 @@ public class SerialRuleUtil {
 
     public static final String SPLIT_CHAR_STRING = "-";
 
-    /**
-     * 逆向箱号正则表达式:
-     * TC:退货普通
-     * TS:退货奢侈品
-     * TW:逆向内配
-     */
-    private static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
-
 
     /**
      * 提取发货批次号中站点正则
@@ -39,31 +28,14 @@ public class SerialRuleUtil {
     private static final Pattern RULE_STORE_CODE_REGEX = Pattern.compile("^([A-z]{1,})-(\\d+)-(\\d+)$");
 
     /**
-     * 板号正则表达式
-     */
-    private static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
-
-    /**
-     * 判断是否是有效的运单号
+     * 判断是否是有效的运单号  Q单也认识为运单 用时请考虑好是不是要支持Q单
      * Add by shipeilin on 2017/08/07
      *
      * @param wayBillCode
      * @return boolean
      */
-    @Deprecated
     public static final boolean isMatchCommonWaybillCode(String wayBillCode) {
-        return WaybillUtil.isWaybillCode(wayBillCode)||WaybillUtil.isPickupCode(wayBillCode);
-    }
-
-    /**
-     * 判断是否是有效的包裹号
-     *
-     * @param packageCode
-     * @return boolean
-     */
-    @Deprecated
-    public static final boolean isMatchCommonPackageCode(String packageCode) {
-        return WaybillUtil.isPackageCode(packageCode);
+        return WaybillUtil.isWaybillCode(wayBillCode) || WaybillUtil.isPickupCode(wayBillCode);
     }
 
     /**
@@ -97,68 +69,18 @@ public class SerialRuleUtil {
         return null;
     }
 
-    @Deprecated
-    public static final boolean isMatchAllWaybillCode(String input) {
-        return WaybillUtil.isWaybillCode(input);
-    }
-
-    /**
-     * 是否匹配京东自营运单号规则
-     * 运单号为订单号 目前9位数字。
-     *
-     * @param input 待验证字符串
-     * @return
-     */
-    @Deprecated
-    public static boolean isMatchWaybillNo(String input) {
-        return WaybillUtil.isJDWaybillCode(input);
-    }
-
-
-    /**
-     * 是否匹配接货运单号
-     */
-    @Deprecated
-    public static boolean isMatchReceiveWaybillNo(String input) {
-        return WaybillUtil.isBusiWaybillCode(input);
-    }
-
-    /**
-     * 是否匹配包裹号包括自营及接货
-     */
-    @Deprecated
-    public static boolean isMatchAllPackageNo(String input) {
-        return WaybillUtil.isPackageCode(input);
-    }
-
-
-    /**
-     * 是否匹配接货运单号和分拣运单号
-     */
-    @Deprecated
-    public static boolean isMatchAllWaybillNo(String input) {
-        return WaybillUtil.isWaybillCode(input);
-    }
-
     /**
      * 判断是否是运单号或者包裹号
      */
-    @Deprecated
     public static boolean isWaybillOrPackageNo(String input) {
         return WaybillUtil.isWaybillCode(input) || WaybillUtil.isPackageCode(input);
     }
 
-    /**
-     * 生产包裹号码
-     */
-    @Deprecated
-    public static List<String> generateAllPackageCodes(String input) {
-        return WaybillUtil.generateAllPackageCodes(input);
-    }
 
     /**
      * 获取运单号
-     * 当输入为包裹号时，返回对应的运单号，否则返回自身
+     * 当输入为包裹号时，返回对应的运单号，否则返回null
+     * 如果不想返回null 请用WaybillUtil.getWaybillCode
      *
      * @param input 包裹号或运单号
      * @return
@@ -179,16 +101,6 @@ public class SerialRuleUtil {
     public static boolean isMatchNumeric(String input) {
         Pattern reg = Pattern.compile("^[1-9]{1}[0-9]*$");
         return reg.matcher(input.trim()).matches();
-    }
-
-    /**
-     * 判断是否为箱号
-     *
-     * @param boxCode 待验证字符
-     * @return
-     */
-    public static boolean isMatchBoxCode(String boxCode) {
-        return BusinessUtil.isBoxcode(boxCode);
     }
 
     /**
@@ -230,30 +142,6 @@ public class SerialRuleUtil {
             return Integer.parseInt(matcher.group(3));
         }
         return null;
-    }
-
-    /**
-     * 判断是否板号
-     *
-     * @param boardCode
-     * @return
-     */
-    public static final boolean isBoardCode(String boardCode) {
-        return BusinessUtil.isBoardCode(boardCode);
-    }
-
-
-    /**
-     * 判断是否逆向箱号（TC\TS\TW)
-     * TC:退货普通
-     * TS:退货奢侈品
-     * TW:逆向内配
-     *
-     * @param boxCode
-     * @return
-     */
-    public static final boolean isReverseBoxCode(String boxCode) {
-        return BusinessUtil.isReverseBoxCode(boxCode);
     }
 
 }

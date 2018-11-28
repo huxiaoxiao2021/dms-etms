@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
@@ -692,7 +693,7 @@ public class DepartureServiceImpl implements DepartureService {
 			if (BusinessHelper.isBoxcode(boxCode)) {
 				sendDatails = sendDatailDao
 						.querySendDatailsByBoxCode(queryDetail);
-			} else if (BusinessHelper.isPackageCode((boxCode))) {
+			} else if (WaybillUtil.isPackageCode((boxCode))) {
 				if (siteCode == null) {
 					logger.warn("所传站点为空： " + boxCode);
 				} else {
