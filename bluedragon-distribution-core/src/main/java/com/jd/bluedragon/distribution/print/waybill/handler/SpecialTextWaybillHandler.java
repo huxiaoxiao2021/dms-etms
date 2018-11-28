@@ -107,12 +107,8 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         if(StringHelper.isEmpty(waybillSign)){
             logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
         } else {
-            //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）
-            //// TODO: 2018/8/22 封装成一个方法 
-            if(BusinessUtil.isSignChar(waybillSign,55,'0') &&
-                    BusinessUtil.isSignChar(waybillSign,16,'1') &&
-                    BusinessUtil.isSignChar(waybillSign,31,'2')){
-
+            //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）且第63位等于1 （中心站网络）
+            if(BusinessHelper.isSameCityOneDay(waybillSign)){
                 //设置始发站点及始发路由，并将笼车号设为空字符串
                 printInfo.setOriginalDmsCode(null);
                 printInfo.setOriginalDmsName("");
