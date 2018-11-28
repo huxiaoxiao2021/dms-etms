@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import org.apache.commons.logging.Log;
@@ -68,6 +64,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
                 && waybill.getPrepareSiteCode().equals(PREPARE_SITE_CODE_EMS_DIRECT)){
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
         }
+
 
         if(null==waybill.getPrepareSiteName()&&null!=waybill.getPrepareSiteCode()){
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(waybill.getPrepareSiteCode());
