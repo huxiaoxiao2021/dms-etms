@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import org.apache.commons.logging.Log;
@@ -32,10 +36,30 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         if(null!=targetSiteCode&&targetSiteCode>0){
             waybill.setPrepareSiteCode(targetSiteCode);
+        }
+
+        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
+        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
+            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybill.getWaybillCode());
+
+            if(baseEntity != null && baseEntity.getData() != null
+                    && baseEntity.getData().getWaybill() != null
+                    && baseEntity.getData().getWaybill().getWaybillExt() != null) {
+
+                Integer backupSiteId = baseEntity.getData().getWaybill().getWaybillExt().getBackupSiteId();
+                waybill.setPrepareSiteCode(backupSiteId);
+                BaseStaffSiteOrgDto site = baseService.getSiteBySiteID(backupSiteId);
+                if (null != site) {
+                    waybill.setPrepareSiteName(site.getSiteName());
+                }
+            }
         }
 
         //超区

@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
@@ -65,9 +63,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private BasicSecondaryWS basicSecondaryWS;
@@ -154,7 +149,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
+            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
             	//运单数据为空，直接返回运单数据为空异常
             	if(baseEntity.getData() == null
@@ -172,7 +167,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 loadPrintedData(context);
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
-                specialSiteProcess(context.getResponse(),baseEntity.getData());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
@@ -370,36 +364,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
            }
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
-
-    /**
-     * 特殊站点处理
-     * 1>新通路订单将预分拣站点替换为代配站点
-     * @param waybill
-     * @param bigWaybillDto
-     */
-    private void specialSiteProcess(final PrintWaybill waybill,BigWaybillDto bigWaybillDto){
-        if (bigWaybillDto == null || bigWaybillDto.getWaybill() == null) {
-            return;
-        }
-        com.jd.etms.waybill.domain.Waybill waybillWS = bigWaybillDto.getWaybill();
-
-        //如果是新通路订单，需要将预分拣站点信息替换为代配站点
-        if(BusinessHelper.isNewPathWay(waybillWS.getSendPay())){
-            //代配站点
-            Integer backupSiteId = waybillWS.getWaybillExt().getBackupSiteId();
-            waybill.setPrepareSiteCode(backupSiteId);
-            //根据站点编码获取站点名称
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager
-                    .getBaseSiteBySiteId(backupSiteId);
-            if (baseStaffSiteOrgDto != null) {
-                waybill.setPrepareSiteName(baseStaffSiteOrgDto.getSiteName());
-                this.logger.info("调用接口设置站点名称成功【 " + backupSiteId + "-" + baseStaffSiteOrgDto.getSiteName() + "】");
-            } else {
-                this.logger.info("调用基础资料接口查找不到站点【" + backupSiteId + "】相关信息");
-            }
-        }
-    }
-
     private final String concatPhone(String mobile,String phone){
         StringBuilder sb=new StringBuilder();
         if(StringHelper.isNotEmpty(mobile)){
