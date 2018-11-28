@@ -21,6 +21,7 @@ public interface ComposeService {
 
     String PREPARE_SITE_NAME_FRESH_SEND = "生鲜专送";
     String PREPARE_SITE_NAME_SAMECITY_ARRIVE = "同城当日达";
+    String PREPARE_SITE_NAME_SMALL_PACKAGE = "微小件";
 
     String SPECIAL_MARK_C ="C";
     String SPECIAL_MARK_AIRTRANSPORT ="航";
