@@ -69,12 +69,6 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
         }
 
-        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
-        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
-            waybill.setPrepareSiteCode(waybill.getBackupSiteId());
-            waybill.setPrepareSiteName(waybill.getBackupSiteName());
-        }
-
         if(null==waybill.getPrepareSiteName()&&null!=waybill.getPrepareSiteCode()){
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(waybill.getPrepareSiteCode());
             if(null!=site){
