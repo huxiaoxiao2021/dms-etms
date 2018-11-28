@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
@@ -298,7 +297,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setSiteCode(waybillWS.getOldSiteId());
 
         //如果是新通路订单，需要将预分拣站点信息替换为代配站点
-        if(BusinessUtil.isNewPathWay(waybillWS.getSendPay())){
+        if(BusinessHelper.isNewPathWay(waybillWS.getSendPay())){
             waybill.setSiteCode(waybillWS.getWaybillExt().getBackupSiteId());
         }
 

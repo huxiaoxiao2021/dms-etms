@@ -55,7 +55,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         }
 
         //新通路面单代配站点--sendPay第148-149 = 39且146=1--追打"代"
-        if(BusinessUtil.isNewPathWay(waybill.getSendPay())){
+        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
             waybill.appendSpecialMark(SPECIAL_MARK_HELP_DELIVERY);
         }
 

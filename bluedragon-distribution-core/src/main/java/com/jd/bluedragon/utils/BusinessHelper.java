@@ -648,4 +648,19 @@ public class BusinessHelper {
         }
         return sendCode.matches(SEND_CODE_REG);
     }
+
+
+    /**
+     * 判断是否是 需要显示代配站点新通路订单  sendPay 148-149 = 39且146=1
+     * @param sendPay
+     * @return
+     */
+    public static boolean isNewPathWay(String sendPay){
+        if(BusinessUtil.isSignChar(sendPay,148,'3') &&
+                BusinessUtil.isSignChar(sendPay,149,'9') &&
+                BusinessUtil.isSignChar(sendPay,146,'1')){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }
