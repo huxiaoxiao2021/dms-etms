@@ -296,11 +296,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
 
-        //如果是新通路订单，需要将预分拣站点信息替换为代配站点
-        if(BusinessHelper.isNewPathWay(waybillWS.getSendPay())){
-            waybill.setSiteCode(waybillWS.getWaybillExt().getBackupSiteId());
-        }
-
         if (isSetName) {
             dealWaybillSiteName(waybill);
         }
