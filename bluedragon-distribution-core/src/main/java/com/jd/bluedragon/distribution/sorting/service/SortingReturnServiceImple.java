@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -476,8 +477,8 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 */
 	public Boolean exists(String packageCodeOrWaybillCode) {
 		SortingReturn returns = new SortingReturn();
-		if(BusinessHelper.isPackageCode(packageCodeOrWaybillCode)){
-			returns.setWaybillCode(BusinessHelper.getWaybillCode(packageCodeOrWaybillCode));
+		if(WaybillUtil.isPackageCode(packageCodeOrWaybillCode)){
+			returns.setWaybillCode(WaybillUtil.getWaybillCode(packageCodeOrWaybillCode));
 			returns.setPackageCode(packageCodeOrWaybillCode);
 		}else{
 			returns.setWaybillCode(packageCodeOrWaybillCode);
@@ -491,7 +492,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	public Integer checkReDispatch(String packageCode){
-		String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+		String waybillCode = WaybillUtil.getWaybillCode(packageCode);
 		return this.waybillQueryManager.checkReDispatch(waybillCode);
 	}
 }

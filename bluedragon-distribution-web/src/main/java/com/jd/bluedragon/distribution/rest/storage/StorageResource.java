@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageD;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -152,8 +153,8 @@ public class StorageResource {
         InvokeResult<String> result = new InvokeResult<String>();
 
         String waybillCode = barCode;
-        if(BusinessHelper.isPackageCode(barCode)){
-            waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(barCode);
+        if(WaybillUtil.isPackageCode(barCode)){
+            waybillCode = WaybillUtil.getWaybillCode(barCode);
         }
         //先检查此包裹或者运单是否已经上架
         StoragePackageD lastStoragePackageD = storagePackageMService.checkExistStorage(barCode);

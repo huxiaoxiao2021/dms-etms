@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.domain.TaskResult;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -83,7 +84,7 @@ public class QualityControlService {
             switch (Integer.valueOf(request.getQcType()).intValue()) {
                 case PACKAGE_CODE_TYPE:
                     toSortingReturn(request);
-                    String waybillCode = BusinessHelper.getWaybillCode(request.getQcValue());
+                    String waybillCode = WaybillUtil.getWaybillCode(request.getQcValue());
                     if(StringHelper.isEmpty(waybillCode)){
                         throw new NullPointerException("通过包裹号 [" + request.getQcValue() + "] 提取运单号为空");
                     }

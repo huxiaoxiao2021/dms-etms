@@ -188,7 +188,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 		BeanUtils.copyProperties(tSendDatail, tSendDCopy);
 		tSendDCopy.setSendCode(null);
 		deliveryService.cancelSendDatailByPackage(tSendDCopy);
-		if (BusinessHelper.isPackageCode(tSendDatail.getBoxCode())) {
+		if (WaybillUtil.isPackageCode(tSendDatail.getBoxCode())) {
 			tSendM.setBoxCode(tSendDatail.getBoxCode());
 			deliveryService.cancelSendM(tSendM);
 		}
@@ -951,7 +951,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 
 		if(WaybillUtil.isPackageCode(input)) {
 			//生成包裹号列表
-			List<String> packageCodes = SerialRuleUtil.generateAllPackageCodes(input);
+			List<String> packageCodes = WaybillUtil.generateAllPackageCodes(input);
 			for (int i = 0; i < packageCodes.size(); i++) {
 				DeliveryPackageD pack = new DeliveryPackageD();
 				pack.setPackageBarcode(packageCodes.get(i));

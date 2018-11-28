@@ -28,6 +28,8 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -560,11 +562,11 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void fillSortingIfPickup(Sorting sorting) {
-		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
+		if (WaybillUtil.isSurfaceCode(sorting.getPackageCode())) {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
 			sorting.setPackageCode(sorting.getPackageCode());
-			if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
+			if(WaybillUtil.isPickupCodeWW(sorting.getPackageCode()))
 			{
 				// sorting.setPickupCode(pickup.getData().getPickupCode());
 				sorting.setWaybillCode(sorting.getPackageCode());
@@ -669,7 +671,7 @@ public class SortingServiceImpl implements SortingService {
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
-							if(BusinessHelper.isSick(waybill.getWaybillSign())){
+							if(BusinessUtil.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
 								return;
@@ -951,8 +953,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void fillSendDetailIfPickup(SendDetail sendDetail) {
-		if (BusinessHelper.isPickupCode(sendDetail.getPackageBarcode())) {
-			if(BusinessHelper.isPickupCodeWW(sendDetail.getPackageBarcode())) {
+		if (WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())) {
+			if(WaybillUtil.isPickupCodeWW(sendDetail.getPackageBarcode())) {
 				sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
 			} else {
 //			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
@@ -1056,7 +1058,7 @@ public class SortingServiceImpl implements SortingService {
 					if (waybill != null) {
 						String waybillsign = waybill.getWaybillSign();
 						if (waybillsign != null && waybillsign.length() > 0) {
-							if(BusinessHelper.isSick(waybill.getWaybillSign())){
+							if(BusinessUtil.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
 								return;

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import java.util.List;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -125,7 +126,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	/**
 	 * step1-保存收货记录
 	 * 
-	 * @param receive
+	 * @param taskContext
 	 */
 	protected void saveReceive(TaskContext<T> taskContext) {
 		receiveService.addReceive(taskContext.getBody());
@@ -254,7 +255,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	/**
 	 * 必须有封车号，才更新封车表
 	 * 
-	 * @param receive
+	 * @param taskContext
 	 */
 	protected void updateSealVehicle(TaskContext<T> taskContext) {
 		T receive = taskContext.getBody();
@@ -274,7 +275,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	/**
 	 * 执行解封箱操作
 	 * 
-	 * @param receive
+	 * @param taskContext
 	 */
 	protected void unsealBox(TaskContext<T> taskContext) {
 		T receive = taskContext.getBody();
@@ -303,7 +304,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	/**
 	 * 保存收货确认信息并发送全程跟踪
 	 * 
-	 * @param receive
+	 * @param taskContext
 	 */
 	public void saveCenConfirmAndSendTrack(TaskContext<T> taskContext,boolean saveOrUpdateCenConfirmFlg) {
 		T receive = taskContext.getBody();
@@ -316,7 +317,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		sendTrack(taskContext,cenConfirm);
 
 		// 取件单推送mq
-		if (BusinessHelper.isPickupCode(receive.getBoxCode())) {
+		if (WaybillUtil.isSurfaceCode(receive.getBoxCode())) {
 			BaseEntity<PickupTask> pickup = null;
 			try {
 				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive
@@ -336,7 +337,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	/**
 	 * 批量保存收货确认信息并发送全程跟踪
 	 * 
-	 * @param receive
+	 * @param taskContext
 	 */
 	public void batchSaveCenConfirmAndSendTrack(TaskContext<T> taskContext) {
 		T receive = taskContext.getBody();
@@ -360,7 +361,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				sendTrack(taskContext,cenConfirm);
 
 				// 取件单推送mq
-				if (BusinessHelper.isPickupCode(sendDetail.getPackageBarcode())) {
+				if (WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())) {
 					pushPickware(receive, sendDetail.getPackageBarcode(),
 							sendDetail.getPickupCode());
 				}

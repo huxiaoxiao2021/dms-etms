@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
@@ -546,8 +547,8 @@ public class InspectionResource {
 		//判断是运单号还是包裹号
 		Integer dmsSiteCode = siteCode;
 		String waybillCode = packageBarOrWaybillCode;
-        if(BusinessHelper.isPackageCode(packageBarOrWaybillCode)){
-            waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageBarOrWaybillCode);
+        if(WaybillUtil.isPackageCode(packageBarOrWaybillCode)){
+            waybillCode = WaybillUtil.getWaybillCode(packageBarOrWaybillCode);
         }
 		InspectionResult inspectionResult = new InspectionResult("");
         try{

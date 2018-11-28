@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.test.utils;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,9 +21,9 @@ public class SerialRuleUtilTest {
     @Test
     public void testIsMatchWaybillNo() throws Exception {
         String packageCode="123456789";
-        Assert.assertTrue(SerialRuleUtil.isMatchWaybillNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isJDWaybillCode(packageCode));
         packageCode="VC02015690736";
-        Assert.assertTrue(SerialRuleUtil.isMatchWaybillNo(packageCode));
+        Assert.assertFalse(WaybillUtil.isJDWaybillCode(packageCode));
     }
 
 
@@ -29,28 +31,28 @@ public class SerialRuleUtilTest {
     @Test
     public void testIsMatchReceiveWaybillNo() throws Exception {
         String packageCode="123456789-1-1-3";
-        Assert.assertFalse(SerialRuleUtil.isMatchReceiveWaybillNo(packageCode));
+        Assert.assertFalse(WaybillUtil.isBusiWaybillCode(packageCode));
         packageCode="VC02015690736";
-        Assert.assertTrue(SerialRuleUtil.isMatchReceiveWaybillNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isBusiWaybillCode(packageCode));
 
         packageCode="123456789N1S1H3";
-        Assert.assertFalse(SerialRuleUtil.isMatchReceiveWaybillNo(packageCode));
+        Assert.assertFalse(WaybillUtil.isBusiWaybillCode(packageCode));
         packageCode="VC02015690736N1S8H56";
-        Assert.assertFalse(SerialRuleUtil.isMatchReceiveWaybillNo(packageCode));
+        Assert.assertFalse(WaybillUtil.isBusiWaybillCode(packageCode));
     }
 
 
     @Test
     public void testIsMatchAllPackageNo() throws Exception {
         String packageCode="123456789-1-1-3";
-        Assert.assertTrue(SerialRuleUtil.isMatchAllPackageNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isPackageCode(packageCode));
         packageCode="VC02015690736";
-        Assert.assertFalse(SerialRuleUtil.isMatchAllPackageNo(packageCode));
+        Assert.assertFalse(WaybillUtil.isPackageCode(packageCode));
 
         packageCode="123456789N1S1H3";
-        Assert.assertTrue(SerialRuleUtil.isMatchAllPackageNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isPackageCode(packageCode));
         packageCode="VC02015690736N1S8H56";
-        Assert.assertTrue(SerialRuleUtil.isMatchAllPackageNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isPackageCode(packageCode));
     }
 
     @Test
@@ -61,9 +63,9 @@ public class SerialRuleUtilTest {
     @Test
     public void testIsMatchAllWaybillNo() throws Exception {
         String packageCode="123456789";
-        Assert.assertTrue(SerialRuleUtil.isMatchAllWaybillNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isWaybillCode(packageCode));
         packageCode="VC02015690736";
-        Assert.assertTrue(SerialRuleUtil.isMatchAllWaybillNo(packageCode));
+        Assert.assertTrue(WaybillUtil.isWaybillCode(packageCode));
     }
 
     @Test
@@ -84,13 +86,13 @@ public class SerialRuleUtilTest {
         /*一单一件单，自营【-】*/
         List<String> expect=null;
         String packageCode="12345679-1-1-3";
-        List<String> results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        List<String> results= WaybillUtil.generateAllPackageCodes(packageCode);
         for (String item:results){
             Assert.assertEquals(packageCode, item);
         }
         /*一单一件，自营【NSH】*/
         packageCode="12345679N1S1H3";
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         for (String item:results){
             Assert.assertEquals(packageCode,item);
         }
@@ -100,7 +102,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=8;i++){
             expect.add("12345679-"+i+"-8-3");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -111,7 +113,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=8;i++){
             expect.add("12345679N"+i+"S8H3");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -122,7 +124,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=8;i++){
             expect.add("VC02015690736-"+i+"-8-56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -133,7 +135,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=8;i++){
             expect.add("VC02015690736N"+i+"S8H56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -144,7 +146,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("VC02015690736-"+i+"-1-56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -155,7 +157,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("VC02015690736N"+i+"S1H56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -166,7 +168,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("dfsafsd-"+i+"-1-56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -178,7 +180,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("VT0033214321-"+i+"-1-56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -190,7 +192,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("VT0033214321-"+i+"-100000-56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -202,7 +204,7 @@ public class SerialRuleUtilTest {
         for(int i=1;i<=1;i++){
             expect.add("VTDFDASFDASADS56");
         }
-        results= SerialRuleUtil.generateAllPackageCodes(packageCode);
+        results= WaybillUtil.generateAllPackageCodes(packageCode);
         Assert.assertEquals(expect.size(),results.size());
         for (int i=0;i<expect.size();i++){
             Assert.assertEquals(expect.get(i),results.get(i));
@@ -220,8 +222,8 @@ public class SerialRuleUtilTest {
     @Test
     public void testIsMatchBoxCode() throws Exception {
         String box="BC010F001023D78912345678";
-        Assert.assertTrue(SerialRuleUtil.isMatchBoxCode(box));
+        Assert.assertTrue(BusinessUtil.isBoxcode(box));
         box="BC010F001023D789123456789098";
-        Assert.assertFalse(SerialRuleUtil.isMatchBoxCode(box));
+        Assert.assertFalse(BusinessUtil.isBoxcode(box));
     }
 }

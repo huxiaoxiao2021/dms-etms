@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.PackageResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -91,11 +92,11 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		WaybillResponse waybillResponse = new WaybillResponse();
 
 		//根据规则查出是包裹还是运单
-		if(BusinessHelper.isPackageCode(code) || BusinessHelper.isPickupCode(code)){//如果是包裹或者取件单则调用getWaybillByPackCode方法查询
+		if(WaybillUtil.isPackageCode(code) || WaybillUtil.isSurfaceCode(code)){//如果是包裹或者取件单则调用getWaybillByPackCode方法查询
 			
 			waybillResponse = this.wssGetWaybillByPackCode(waybillResponse,code, siteCode, receiveSiteCode);
 			
-		}else if( BusinessHelper.isWaybillCode(code)){//如果是运单则调用getWaybillAndPackByWaybillCode方法查询
+		}else if( WaybillUtil.isWaybillCode(code)){//如果是运单则调用getWaybillAndPackByWaybillCode方法查询
 
 			waybillResponse = this.getWaybillAndPackByWaybillCode(waybillResponse,code,siteCode,receiveSiteCode);
 		}else{
@@ -168,7 +169,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		
 		if( null==waybill || StringUtils.isBlank(waybill.getWaybillCode()) ){
 			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill is null,package barcode: "+code);
-			pack =new PackageResponse(BusinessHelper.getWaybillCodeByPackageBarcode(code), code, null, null);
+			pack =new PackageResponse(WaybillUtil.getWaybillCode(code), code, null, null);
 			List<PackageResponse> responseList = new ArrayList<PackageResponse>();
 			responseList.add(pack);
 			waybillResponse.setPackages(responseList);

@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ElectronSiteResponse;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.electron.service.ElectronSiteService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,7 +50,7 @@ public class ElectronResource {
 		this.logger.info("dmsID：   " + dmsID);
 		this.logger.info("waybillorPackCode：    " + waybillorPackCode);
 		ElectronSite electronSite = new ElectronSite();
-		String aWaybillCode = BusinessHelper.getWaybillCode(waybillorPackCode);
+		String aWaybillCode = WaybillUtil.getWaybillCode(waybillorPackCode);
 		electronSite = electronSiteService.getElecSiteInfo(dmsID, aWaybillCode);
 		if (electronSite == null) {
 			return this.NotFound();
@@ -65,7 +66,7 @@ public class ElectronResource {
 	 * 根据分拣中心ID / 任务区信息 判断是否存在任务区
 	 * 
 	 * @param dmsID
-	 * @param waybillorPackCode
+	 * @param taskAreaNo
 	 * @return
 	 */
 	@GET

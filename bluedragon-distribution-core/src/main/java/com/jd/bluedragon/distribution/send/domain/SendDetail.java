@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.domain;
 
 import java.util.Date;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -288,21 +289,21 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
         sendDetail.setFeatureType(sorting.getFeatureType());
         sendDetail.setWhReverse(sorting.getWhReverse());
 
-        if (BusinessHelper.isReverseSpare(sorting.getType(), aPackageCode)) {
+        if (WaybillUtil.isReverseSpare(sorting.getType(), aPackageCode)) {
         	sendDetail.setSpareReason(sorting.getSpareReason());
         	sendDetail.setWaybillCode(sorting.getWaybillCode());
         	sendDetail.setPackageBarcode(aPackageCode);
         } else {
-	        if (!BusinessHelper.isPickupCode(aPackageCode)) {
-	            sendDetail.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+	        if (!WaybillUtil.isSurfaceCode(aPackageCode)) {
+	            sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
 	        }
 	
-	        if (BusinessHelper.isPackageCode(aPackageCode)) {
+	        if (WaybillUtil.isPackageCode(aPackageCode)) {
 	            sendDetail.setPackageBarcode(aPackageCode);
 	        }
 	
-	        if (BusinessHelper.isWaybillCode(aPackageCode)) {
-	            sendDetail.setWaybillCode(BusinessHelper.getWaybillCode(aPackageCode));
+	        if (WaybillUtil.isWaybillCode(aPackageCode)) {
+	            sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
 	        }
         }
         return sendDetail;
