@@ -103,6 +103,9 @@
         <!-- RMA -->
         <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill" alias="RmaHandoverWaybill"/>
         <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail" alias="RmaHandoverDetail"/>
+
+        <!-- 签单返回 -->
+        <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
     </typeAliases>
 
     <plugins>
@@ -271,6 +274,9 @@
         <!--储位暂存-->
         <mapper resource="mappers/mysql/storage/StoragePackageDMapper.xml"/>
         <mapper resource="mappers/mysql/storage/StoragePackageMMapper.xml"/>
+
+        <!-- 签单返回 -->
+        <mapper resource="mappers/mysql/mergeAndReturn/MergeAndReturnMapper.xml"/>
 
     </mappers>
 </configuration>

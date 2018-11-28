@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao" >
+
+	<resultMap id="signReturnPrintM" type="signReturnPrintM" >
+		<result column="signReturn_id" property="id" />
+		<result column="mergedWaybillCode" property="mergedWaybillCode" />
+		<result column="busi_id" property="busiId" />
+		<result column="busi_name" property="busiName" />
+		<result column="return_cycle" property="returnCycle" />
+		<result column="operate_time" property="operateTime" />
+		<result column="org_id" property="orgId" />
+		<result column="operate_user" property="operateUser" />
+		<result column="merge_count" property="mergeCount" />
+		<result column="waybillCodes" property="waybillCodes" />
+	</resultMap>
+	
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
+		INSERT INTO SignReturn (
+			signReturn_id, mergedWaybillCode, busi_id, busi_name, return_cycle,
+			operate_time, org_id, operate_user, merge_count,waybillCodes)
+		VALUES (
+			#{id,jdbcType=BIGINT}, #{mergedWaybillCode,jdbcType=VARCHAR}, #{busiId,jdbcType=VARCHAR},
+			#{busi_name,jdbcType=INTEGER}, #{return_cycle,jdbcType=VARCHAR},
+			#{operate_time,jdbcType=VARCHAR}, #{org_id,jdbcType=VARCHAR},
+			#{operate_user,jdbcType=INTEGER}, #{merge_count,jdbcType=VARCHAR},
+			#{waybillCodes,jdbcType=INTEGER})
+	</insert>
+
+	<select id="getListByWaybillCode" resultMap="signReturnPrintM" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
+
+		SELECT signReturn_id, mergedWaybillCode, busi_id, busi_name, return_cycle,
+			operate_time, org_id, operate_user, merge_count,waybillCodes
+		FROM SignReturn
+		WHERE mergedWaybillCode = #{waybillCode} OR waybillCodes LIKE concat('%',#{waybillCodeInMerged,jdbcType=VARCHAR})
+			OR waybillCodes LIKE concat(#{waybillCodeInMerged,jdbcType=VARCHAR},'%')
+		 LIMIT 1
+	</select>
+
+</mapper>

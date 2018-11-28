@@ -1,17 +1,26 @@
 package com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturnRequest;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillMessage;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
+import com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao;
+import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
@@ -47,6 +56,15 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     @Autowired
     @Qualifier("mergeWaybillReturnMQ")
     private DefaultJMQProducer mergeWaybillReturnMQ;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
+
+    @Autowired
+    private SignReturnDao signReturnDao;
 
     /**
      * 判断是否相同
@@ -94,6 +112,33 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                     message.setOperatorUserId(mergeWaybillCodeReturnRequest.getOperateUserId());
                     message.setSiteCode(mergeWaybillCodeReturnRequest.getOperateUnitId());
                     message.setSiteName(mergeWaybillCodeReturnRequest.getSiteName());
+                    //TODO 落库开始
+                    SignReturnPrintM signReturnPrintM = new SignReturnPrintM();
+                    signReturnPrintM.setWaybillCodes(JSON.toJSONString(mergeWaybillCodeReturnRequest.getWaybillCodeList()));
+                    signReturnPrintM.setMergeCount(mergeWaybillCodeReturnRequest.getWaybillCodeList().size());
+                    signReturnPrintM.setMergedWaybillCode(newWaybillCode);
+                    signReturnPrintM.setOperateTime(DateHelper.parseDate(mergeWaybillCodeReturnRequest.getOperatorName()));
+                    signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
+                    signReturnPrintM.setOrgId(mergeWaybillCodeReturnRequest.getSiteName());
+                    BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
+                            true, false, false, false);
+                    if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
+                        Waybill waybill = entity.getData().getWaybill();
+                        if(waybill != null){
+                            signReturnPrintM.setBusiId(waybill.getBusiId());    //商家编码和商家名称
+                            signReturnPrintM.setBusiName(waybill.getBusiName());
+                            com.jd.ldop.basic.dto.ResponseDTO<List<BasicTraderReturnDTO>> responseDTO = baseMinorManager.getBaseTraderReturnListByTraderId(waybill.getBusiId());
+                            if(responseDTO != null && responseDTO.isSuccess()){
+                                List<BasicTraderReturnDTO> returnList = responseDTO.getResult();
+                                if(returnList != null && !returnList.isEmpty()){
+                                    signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle().toString()); //返单周期
+                                }
+                            }
+                        }
+                    }
+                    signReturnDao.add(signReturnPrintM); //插库
+
+                    //TODO 落库结束
                     this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + com.jd.fastjson.JSON.toJSONString(message));
                     mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode, com.jd.fastjson.JSON.toJSONString(message));
                     //发全程跟踪

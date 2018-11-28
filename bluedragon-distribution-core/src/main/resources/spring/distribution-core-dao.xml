@@ -460,4 +460,9 @@
           class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageMDaoImpl"/>
     <bean id="storagePackageDDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageDDaoImpl"/>
+
+    <!-- 签单返回 -->
+    <bean id="signReturnDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>
