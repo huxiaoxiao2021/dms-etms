@@ -146,6 +146,16 @@
         where send_register_id = #{_sendRegisterId,jdbcType=BIGINT} and is_delete = 0
     </select>
 
+    <select id="getBySendCode" parameterType="String" resultMap="ArSendCode">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        ar_send_code
+        where send_code = #{sendCode,jdbcType=VARCHAR}
+        order by create_time DESC
+        limit 1
+    </select>
+
     <select id="getBySendRegisterIds" resultMap="ArSendCode">
         select
         <include refid="Base_Column_List"/>
