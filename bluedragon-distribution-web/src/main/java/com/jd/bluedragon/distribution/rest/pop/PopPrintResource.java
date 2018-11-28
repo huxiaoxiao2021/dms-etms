@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -81,7 +82,7 @@ public class PopPrintResource {
 	@Path("/popPrint/findByWaybillCode/{waybillCode}")
 	public PopPrintResponse findByWaybillCode(
 			@PathParam("waybillCode") String waybillCode) {
-		if (!BusinessHelper.isWaybillCode(waybillCode)) {
+		if (!WaybillUtil.isWaybillCode(waybillCode)) {
 			this.logger.error("根据运单号“" + waybillCode + "”获取POP打印信息 --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
@@ -117,7 +118,7 @@ public class PopPrintResource {
 	@Path("/popPrint/savePopPrint")
 	public PopPrintResponse savePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !SerialRuleUtil.isMatchAllWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| StringUtils.isBlank(popPrintRequest.getPackageBarcode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
@@ -264,7 +265,7 @@ public class PopPrintResource {
 	@Path("/popPrint/savePopPrintNew")
 	public PopPrintResponse savePopPrintNew(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
@@ -353,7 +354,7 @@ public class PopPrintResource {
 	@Path("/popPrint/forceSavePopPrint/for")
 	public PopPrintResponse forceSavePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.service;
 
+import IceInternal.Ex;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
 import com.jd.bluedragon.distribution.b2bRouter.service.B2BRouterService;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -33,6 +35,7 @@ import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
@@ -68,6 +71,7 @@ import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
 import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -153,6 +157,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private SendMDao sendMDao;
+
+    @Autowired
+    private SendMManager sendMManager;
 
     @Autowired
     private SendDatailDao sendDatailDao;
@@ -319,6 +326,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 运单路由字段使用的分隔符
      */
     private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
+    /**
+     * B网营业厅寄付现结运费发货拦截开关KEY（1开启，0关闭）
+     */
+    private static final  String FREIGHT_INTERCEPTION = "FREIGHT_INTERCEPTION";
 
     /**
      * 原包发货[前提条件]1：箱号、原包没有发货; 2：原包调用分拣拦截验证通过; 3：批次没有发车
@@ -443,7 +454,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private void sendDmsOperateHintTrackMQ(SendM domain) {
         try {
             DmsOperateHintTrack dmsOperateHintTrack = new DmsOperateHintTrack();
-            dmsOperateHintTrack.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(domain.getBoxCode()));
+            dmsOperateHintTrack.setWaybillCode(WaybillUtil.getWaybillCode(domain.getBoxCode()));
             dmsOperateHintTrack.setHintDmsCode(domain.getCreateSiteCode());
             dmsOperateHintTrack.setHintOperateNode(DmsOperateHintTrack.OPERATE_NODE_SEND);
             dmsOperateHintTrack.setOperateUserCode(domain.getCreateUserCode());
@@ -552,7 +563,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private boolean sendVerificationByBarCodeType(SendM domain, SendResult result) {
         CallerInfo temp_info2 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info2", false, true);
-        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+        if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹发货分拣校验
             return this.sortingVerificationByPackage(this.getSortingCheck(domain), result);
         } else if (siteService.getCRouterAllowedList().contains(domain.getCreateSiteCode())) {
@@ -594,7 +605,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             //获得运单的预分拣站点
             Integer preSortingSiteCode = null;
             try {
-                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(sortingCheck.getBoxCode()), true, false, false, false);
+                com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(WaybillUtil.getWaybillCode(sortingCheck.getBoxCode()), true, false, false, false);
                 if (null != waybill) {
                     preSortingSiteCode = waybill.getSiteCode();
                 }
@@ -655,9 +666,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     private String getPdaHints(SendM sendM) {
         String msg = "";
         try {
-            if(BusinessHelper.isPackageCode(sendM.getBoxCode())){
+            if(WaybillUtil.isPackageCode(sendM.getBoxCode())){
                 //原包
-                msg = dmsOperateHintService.getDeliveryHintMessageByWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(sendM.getBoxCode()));
+                msg = dmsOperateHintService.getDeliveryHintMessageByWaybillCode(WaybillUtil.getWaybillCode(sendM.getBoxCode()));
             }
             logger.info("redis取PDA提示语结果："+msg);
         }catch (Throwable e){
@@ -757,9 +768,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public void packageSend(SendM domain){
         //插入SEND_M
-        this.sendMDao.insertSendM(domain);
+//        this.sendMDao.insertSendM(domain);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(domain);
         // 判断是按箱发货还是包裹发货
-        if (!SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+        if (!BusinessUtil.isBoxcode(domain.getBoxCode())) {
             // 按包裹 补分拣任务 大件写TASK_SORTING
             pushSorting(domain);
         } else {
@@ -1020,7 +1033,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (sendDetail.getPackageBarcode() == null) {
             sendDetail.setPackageNum(0);
         } else {
-            Integer packageNum = getPackageNum(sendDetail.getPackageBarcode());
+            Integer packageNum = BusinessUtil.getPackNumByPackCode(sendDetail.getPackageBarcode());
             if (packageNum == null) {
                 this.logger.error("无法获得包裹数量[" + sendDetail.getPackageBarcode()
                         + "]");
@@ -1124,7 +1137,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         for (SendM dSendM : sendMlist) {
             if (!list.contains(dSendM.getBoxCode())) {
-                this.sendMDao.insertSendM(dSendM);
+//                this.sendMDao.insertSendM(dSendM);
+                //使用管理接口代替sendMDao
+                this.sendMManager.insertSendM(dSendM);
             }
         }
     }
@@ -1322,8 +1337,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                     tSendDatail.setStatus(2);
                     this.updateCancel(tSendDatail);
                 }
-                if (BusinessHelper.isPackageCode(tsendM.getBoxCode())
-                        || BusinessHelper.isPickupCode(tsendM.getBoxCode())) {
+                if (WaybillUtil.isPackageCode(tsendM.getBoxCode())
+                        || WaybillUtil.isSurfaceCode(tsendM.getBoxCode())) {
                     this.fillPickup(tSendDatail, tsendM);
                     tSendDatail.setOperateTime(tsendM.getCreateTime());
                     sdList.add(tSendDatail);
@@ -1363,13 +1378,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         tSendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
         tSendDatail.setOperateTime(new Date());
         tSendDatail.setUpdateTime(new Date());
-        if (BusinessHelper.isPackageCode(tsendM.getBoxCode())) {
+        if (WaybillUtil.isPackageCode(tsendM.getBoxCode())) {
             // 如果大件包裹没有分拣添加明细表信息
             tSendDatail.setPackageBarcode(tsendM.getBoxCode());
-            tSendDatail.setWaybillCode(BusinessHelper.getWaybillCode(tsendM
+            tSendDatail.setWaybillCode(WaybillUtil.getWaybillCode(tsendM
                     .getBoxCode()));
-        } else if (BusinessHelper.isPickupCode(tsendM.getBoxCode())) {
-            if (BusinessHelper.isPickupCodeWW(tsendM.getBoxCode())) {
+        } else if (WaybillUtil.isSurfaceCode(tsendM.getBoxCode())) {
+            if (WaybillUtil.isPickupCodeWW(tsendM.getBoxCode())) {
                 tSendDatail
                         .setWaybillCode(tsendM.getBoxCode());
             } else {
@@ -1456,7 +1471,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 response.setCode(DeliveryResponse.CODE_Delivery_NO_MESAGE);
                 response.setMessage(DeliveryResponse.MESSAGE_Delivery_NO_MESAGE);
             }
-        } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+        } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
             response.setMessage(StringHelper.getStringValue(1));
             Sorting sorting = new Sorting();
             sorting.setBoxCode(tSendM.getBoxCode());
@@ -1483,20 +1498,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM> tSendMList = new ArrayList<SendM>();
         // 验证是否发货箱子和包裹分开处理
         if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-            SendM dSendM = new SendM();
-            dSendM.setBoxCode(tSendM.getBoxCode());
-            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
-            dSendM.setSendType(tSendM.getSendType());
-            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
-        } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+            //edited by hanjiaxing3 修改为先取箱号状态缓存，再读库
+//            SendM dSendM = new SendM();
+//            dSendM.setBoxCode(tSendM.getBoxCode());
+//            dSendM.setCreateSiteCode(tSendM.getCreateSiteCode());
+//            dSendM.setSendType(tSendM.getSendType());
+//            tSendMList = this.sendMDao.findSendMByBoxCode(dSendM);
+            if (boxService.checkBoxIsSent(tSendM.getBoxCode(), tSendM.getCreateSiteCode())) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
+        } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
             // 再投标识
             tSendMList = this.sendMDao.findSendMByBoxCode(tSendM);
+            if (tSendMList != null && !tSendMList.isEmpty()) {
+                response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+            }
         }
 
-        if (tSendMList != null && !tSendMList.isEmpty()) {
-            response.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
-            response.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
-        }
         return response;
     }
 
@@ -1539,11 +1559,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             tSendDetail.setBoxCode(tSendM.getBoxCode());
             tSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
             // 按照运单取消处理
-            if (BusinessHelper.isWaybillCode(tSendM.getBoxCode())
-                    || BusinessHelper.isPickupCode(tSendM.getBoxCode())
-                    || BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+            if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())
+                    || WaybillUtil.isSurfaceCode(tSendM.getBoxCode())
+                    || WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
                 SendDetail mSendDetail = new SendDetail();
-                if (BusinessHelper.isWaybillCode(tSendM.getBoxCode())) {
+                if (WaybillUtil.isWaybillCode(tSendM.getBoxCode())) {
                     mSendDetail.setWaybillCode(tSendM.getBoxCode());
                 } else {
                     mSendDetail.setPackageBarcode(tSendM.getBoxCode());
@@ -1573,10 +1593,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                     queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
+                    //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
+                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
-            } else if (SerialRuleUtil.isBoardCode(tSendM.getBoxCode())){
+            } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
                 tSendM.setBoardCode(tSendM.getBoxCode());
                 //1.组板发货批次，板号校验（强校验）
                 if(!checkSendM(tSendM)){
@@ -2090,7 +2112,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private boolean checkInspection(SendDetail tSendDatail) {
         Boolean falge = false;
         Inspection inspection = new Inspection();
-        if (BusinessHelper.isWaybillCode(tSendDatail.getWaybillCode())) {
+        if (WaybillUtil.isWaybillCode(tSendDatail.getWaybillCode())) {
             inspection.setPackageBarcode(tSendDatail.getPackageBarcode());
             inspection.setInspectionType(businessTypeONE);
             falge = inspectionService.haveInspection(inspection);
@@ -2183,7 +2205,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Collections.sort(newendDList);
         for (SendDetail tSendDatail : newendDList) {
             sendDatailDao.updatewaybillCodeStatus(tSendDatail);
-            if (BusinessHelper.isReverseSpareCode(tSendDatail
+            if (WaybillUtil.isReverseSpareCode(tSendDatail
                     .getPackageBarcode())) {
                 ReverseSpare tReverseSpare = new ReverseSpare();
                 tReverseSpare.setSpareCode(tSendDatail.getPackageBarcode());
@@ -2932,9 +2954,9 @@ public class DeliveryServiceImpl implements DeliveryService {
             }else{
                 logger.warn("快运发货箱号目的地不存在，无法获取最终目的地："+JsonHelper.toJson(sendM));
             }
-        } else if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+        } else if (WaybillUtil.isPackageCode(sendM.getBoxCode())) {
             Integer preSiteCode = null;
-            String waybillCode = BusinessHelper.getWaybillCode(sendM.getBoxCode());
+            String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
             if(StringUtils.isBlank(waybillCode)){
                 logger.warn("快运发货包裹号非法，无法获取最终目的地："+JsonHelper.toJson(sendM));
             }else{
@@ -2982,8 +3004,20 @@ public class DeliveryServiceImpl implements DeliveryService {
     private InterceptResult<String> interceptWaybillForB2b(List<String> waybillCodes){
     	InterceptResult<String> interceptResult = new InterceptResult<String>();
     	interceptResult.toSuccess();
+    	//B网营业厅寄付现结运费发货拦截开关（1开启，0关闭）
+        boolean sendFreightInterception = false;
+        try{
+            SysConfig config = sysConfigService.findConfigContentByConfigName(FREIGHT_INTERCEPTION);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+                sendFreightInterception = true;
+            }
+        }catch (Exception e){
+            logger.error("快运发货查询寄付运费拦截开关失败，不在拦截寄付运费，对应运单："+waybillCodes, e);
+        }
+
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
+    	List<String> sendNoHasFreightWaybills = new ArrayList<String>();
         for(String waybillCode:waybillCodes){
         	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
@@ -2993,9 +3027,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 //edited by hanjiaxing3 2018.07.26
                 //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
-                if (! BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessHelper.isSignChar(waybill.getWaybillSign(), 66, '0')) {
+                if (! BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessUtil.isSignChar(waybill.getWaybillSign(), 66, '0')) {
                     //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-                    if(BusinessHelper.isSignChar(waybill.getWaybillSign(), 40, '2')){
+                    if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '2')){
                         boolean hasTotalWeight = false;
                         //先校验运单的againWeight然后校验称重流水
                         if(NumberHelper.gt0(waybill.getAgainWeight())){
@@ -3013,11 +3047,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
         			noHasFreightWaybills.add(waybillCode);
         		}
+        		//b2b校验是否包含-寄付运费
+        		if(sendFreightInterception && !BusinessHelper.hasSendFreightForB2b(baseEntity.getData())){
+                    sendNoHasFreightWaybills.add(waybillCode);
+        		}
         	}else{
         		noHasWeightWaybills.add(waybillCode);
         	}
         	//超过3单则中断校验逻辑
-    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM ||noHasFreightWaybills.size() >= MAX_SHOW_NUM){
+    		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM
+                    ||noHasFreightWaybills.size() >= MAX_SHOW_NUM
+                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
         }
@@ -3030,6 +3070,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);
         	return interceptResult;
+        }
+        if(!sendNoHasFreightWaybills.isEmpty()){
+            interceptResult.toFail();
+            interceptResult.setMessage("运单无寄付运费金额："+sendNoHasFreightWaybills);
+            return interceptResult;
         }
         return interceptResult;
     }
@@ -3113,8 +3158,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 if(StringUtils.isNotBlank(scheduleBCode)){
                     putValueToMap(scheduleCodeWaybillCodeMap, scheduleBCode, wayBillCode);
                 }
-            }else if (BusinessHelper.isPackageCode(sendDetail.getBoxCode())) {
-                String wayBillCode = BusinessHelper.getWaybillCode(sendDetail.getBoxCode());
+            }else if (WaybillUtil.isPackageCode(sendDetail.getBoxCode())) {
+                String wayBillCode = WaybillUtil.getWaybillCode(sendDetail.getBoxCode());
                 String scheduleWCode = getScheduleCode(null, wayBillCode);
                 //原包发货的包裹是派车单的包裹
                 if(StringUtils.isNotBlank(scheduleWCode)){
@@ -3178,14 +3223,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                 List<SendDetail> oneList = sendDatailDao.querySendDatailsBySelective(tSendDatail);
                 if (oneList != null && !oneList.isEmpty()) {
                     for (SendDetail dSendDatail : oneList) {
-                        if (!BusinessHelper.isPickupCode(dSendDatail.getPackageBarcode()))
+                        if (!WaybillUtil.isSurfaceCode(dSendDatail.getPackageBarcode()))
                             allList.add(dSendDatail);
                     }
                 }
-            } else if (BusinessHelper.isPackageCode(tSendM.getBoxCode())) {
+            } else if (WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
                 tSendDatail.setPackageBarcode(tSendM.getBoxCode());
-                tSendDatail.setWaybillCode(BusinessHelper.getWaybillCode(tSendM.getBoxCode()));
-                if (!BusinessHelper.isPickupCode(tSendM.getBoxCode()))
+                tSendDatail.setWaybillCode(WaybillUtil.getWaybillCode(tSendM.getBoxCode()));
+                if (!WaybillUtil.isSurfaceCode(tSendM.getBoxCode()))
                     allList.add(tSendDatail);
             }
         }
@@ -3209,7 +3254,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 						.querySendDatailsBySelective(tSendDatail);
 				if (SendDList != null && !SendDList.isEmpty()) {
 					for (SendDetail dSendDatail : SendDList) {
-						if (!BusinessHelper.isPickupCode(dSendDatail
+						if (!WaybillUtil.isSurfaceCode(dSendDatail
 								.getPackageBarcode())) {
 							if(!waybillCodes.contains(dSendDatail.getWaybillCode())){
 								waybillCodes.add(dSendDatail.getWaybillCode());
@@ -3218,9 +3263,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 					}
 				}
 			}
-		} else if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
-			if (!BusinessHelper.isPickupCode(sendM.getBoxCode()))
-				waybillCodes.add(BusinessHelper.getWaybillCode(sendM
+		} else if (WaybillUtil.isPackageCode(sendM.getBoxCode())) {
+			if (!WaybillUtil.isSurfaceCode(sendM.getBoxCode()))
+				waybillCodes.add(WaybillUtil.getWaybillCode(sendM
 						.getBoxCode()));
 		}
         return waybillCodes;
@@ -3301,7 +3346,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     private void getNumMap(List<SendDetail> allList, Map<String, Integer> numMap) {
         for (SendDetail dSendDatail : allList) {
-            numMap.put(dSendDatail.getWaybillCode(), getPackageNum(dSendDatail.getPackageBarcode()));
+            numMap.put(dSendDatail.getWaybillCode(), BusinessUtil.getPackNumByPackCode(dSendDatail.getPackageBarcode()));
         }
     }
 
@@ -3319,19 +3364,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return resultList;
     }
 
-    /*************************************************************/
-    public int getPackageNum(String packageBarcode) {
-        int sum = 1;
-        if (packageBarcode.indexOf("S") > 0 && packageBarcode.indexOf("H") > 0) {
-            sum = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("S") + 1, packageBarcode.indexOf("H")));
-        } else if (packageBarcode.indexOf("-") > 0 && (packageBarcode.split("-").length == 3 || packageBarcode.split("-").length == 4)) {
-            sum = Integer.valueOf(packageBarcode.split("-")[2]);
-        }
-        if (sum > BusinessHelper.getMaxNum()) {
-            sum = BusinessHelper.getMaxNum();
-        }
-        return sum;
-    }
 
     /*******************
      * 发货已扫描数据
@@ -3354,37 +3386,9 @@ public class DeliveryServiceImpl implements DeliveryService {
      ******************************************/
     public List<String> getPackageCode(List<String> packlist) {
         List<String> codeList = new ArrayList<String>();
-        int num = 1;
         for (String packageBarcode : packlist) {
-            if (packageBarcode.indexOf("S") > 0 && packageBarcode.indexOf("H") > 0) {
-                num = Integer.valueOf(packageBarcode.substring(packageBarcode.indexOf("S") + 1, packageBarcode.indexOf("H")));
-                if (num > BusinessHelper.getMaxNum()) {
-                    num = BusinessHelper.getMaxNum();
-                }
-                for (int i = 1; i <= num; i++) {
-                    String newpackage = packageBarcode.substring(0, packageBarcode.indexOf("N") + 1)
-                            + i
-                            + packageBarcode.substring(packageBarcode.indexOf("S"), packageBarcode.length());
-                    codeList.add(newpackage);
-                }
-            } else if (packageBarcode.indexOf("-") > 0 && (packageBarcode.split("-").length == 3 || packageBarcode.split("-").length == 4)) {
-                num = Integer.valueOf(packageBarcode.split("-")[2]);
-                if (num > BusinessHelper.getMaxNum()) {
-                    num = BusinessHelper.getMaxNum();
-                }
-                for (int i = 1; i <= num; i++) {
-                    StringBuffer newpackage = new StringBuffer();
-                    newpackage.append(packageBarcode.split("-")[0]);
-                    newpackage.append("-");
-                    newpackage.append(i);
-                    newpackage.append("-");
-                    newpackage.append(packageBarcode.split("-")[2]);
-                    newpackage.append("-");
-                    if (packageBarcode.split("-").length == 4) {
-                        newpackage.append(packageBarcode.split("-")[3]);
-                    }
-                    codeList.add(newpackage.toString());
-                }
+            if (WaybillUtil.isPackageCode(packageBarcode)){
+                codeList.addAll(WaybillUtil.generateAllPackageCodes(packageBarcode));
             }
             break;
         }
@@ -3486,7 +3490,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (allList != null && !allList.isEmpty()) {
             for (SendDetail dSendDatail : allList) {
-                numMap.put(dSendDatail.getWaybillCode(), getPackageNum(dSendDatail.getPackageBarcode()));
+                numMap.put(dSendDatail.getWaybillCode(), BusinessUtil.getPackNumByPackCode(dSendDatail.getPackageBarcode()));
             }
 
             for (Iterator<Entry<String, Integer>> it = numMap.entrySet().iterator(); it.hasNext(); ) {
@@ -3562,7 +3566,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 Integer packageNum = record.getPackageNum();
                 Integer validPackageNum = null;
                 if (packageNum == null) {
-                    validPackageNum = getPackageNum(record.getPackageBarcode());
+                    validPackageNum = BusinessUtil.getPackNumByPackCode(record.getPackageBarcode());
                 }
                 if (validPackageNum != null) {
                     record.setPackageNum(validPackageNum);
@@ -3765,7 +3769,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 List<SendInfoDto> datas = baseEntity.getData();
                 if (datas != null && !datas.isEmpty()) {
                     //根据箱号判断终端箱子的正逆向
-                    Integer businessType = SerialRuleUtil.isReverseBoxCode(boxCode) ? businessTypeTWO : businessTypeONE;
+                    Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? businessTypeTWO : businessTypeONE;
                     for (SendInfoDto dto : datas) {
                         SendDetail dsendDatail = new SendDetail();
                         dsendDatail.setBoxCode(dto.getBoxCode());
@@ -3773,10 +3777,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                         dsendDatail.setWaybillCode(dto.getWaybillCode());
                         dsendDatail.setPackageBarcode(dto.getPackageBarcode());
 
-                        if (BusinessHelper.isPickupCode(dto.getPackageBarcode())) {
+                        if (WaybillUtil.isSurfaceCode(dto.getPackageBarcode())) {
                             BaseEntity<PickupTask> pickup = null;
                             try {
-                                pickup = this.waybillPickupTaskApi.getDataBySfCode(BusinessHelper.getWaybillCode(dto.getPackageBarcode()));
+                                pickup = this.waybillPickupTaskApi.getDataBySfCode(WaybillUtil.getWaybillCode(dto.getPackageBarcode()));
                             } catch (Exception e) {
                                 this.logger.error("调用取件单号信息ws接口异常");
                             }
@@ -3784,7 +3788,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 dsendDatail.setPickupCode(pickup.getData().getPickupCode());
                                 dsendDatail.setWaybillCode(pickup.getData().getSurfaceCode());
                             }
-                            if(SerialRuleUtil.isMatchAllWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
+                            if(WaybillUtil.isWaybillCode(dto.getPackageBarcode())){//FIXME:这里只是针对取件单的临时更改,应当从运单获得取件单包裹明细进行组装2018-07-17 黄亮 已做stash save
                                 dsendDatail.setPackageBarcode(dto.getPackageBarcode()+"-1-1-");
                             }
                         }
@@ -3793,7 +3797,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         dsendDatail.setOperateTime(dto.getHandoverDate());
                         dsendDatail.setSendType(businessType);
                         if (dsendDatail.getPackageBarcode() != null)
-                            dsendDatail.setPackageNum(getPackageNum(dsendDatail.getPackageBarcode()));
+                            dsendDatail.setPackageNum(BusinessUtil.getPackNumByPackCode(dsendDatail.getPackageBarcode()));
                         else
                             dsendDatail.setPackageNum(1);
                         dsendDatail.setIsCancel(OPERATE_TYPE_CANCEL_L);
@@ -4016,7 +4020,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     //2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
                     hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
                     lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
-                    pacageSumShoudBe = BusinessHelper.getPackageNum(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
+                    pacageSumShoudBe = WaybillUtil.getPackNumByPackCode(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
                     if(pacageSumShoudBe == 0){ //特殊包裹号，包裹总数位是0时，从运单获取包裹总数
                         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(lastWaybillCode);
                         if(waybill!=null && waybill.getPackList()!=null && waybill.getPackList().size()>0){
@@ -4148,7 +4152,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     }
                 }else{
                     logger.info("生成全部包裹号：" + diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
-                    geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                    geneList = WaybillUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                 }
 
                 for (int index = scanCount; index > 0; --index) {
@@ -4195,7 +4199,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(SerialRuleUtil.getWaybillCode(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode()));
                 List<String> geneList = null;
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
-                    if(BusinessHelper.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
+                    if(BusinessUtil.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
                         return 0;
                     }
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());
@@ -4206,7 +4210,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     }
                 } else {
                     logger.info("运单中没有包裹");
-                    geneList = SerialRuleUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
+                    geneList = WaybillUtil.generateAllPackageCodes(diffrenceList.get(diffrenceList.size() - 1).getPackageBarcode());
                 }
                 for (int index = scanCount; index > 0; --index) {
                     geneList.remove(diffrenceList.get(diffrenceList.size() - index).getPackageBarcode());
@@ -4365,10 +4369,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
         } else {
             //插入SEND_M
-            this.sendMDao.insertSendM(domain);
+//            this.sendMDao.insertSendM(domain);
+            //使用管理接口代替sendMDao
+            this.sendMManager.insertSendM(domain);
         }
 
-        if (SerialRuleUtil.isMatchBoxCode(domain.getBoxCode())) {
+        if (BusinessUtil.isBoxcode(domain.getBoxCode())) {
             //如果箱号目的地没有设置（理论上不会存在这种情况），就设置分拣目的地为发货目的地
             if (uploadData.getBoxSiteCode() != null) {
                 domain.setReceiveSiteCode(uploadData.getBoxSiteCode());
@@ -4576,9 +4582,11 @@ public class DeliveryServiceImpl implements DeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSortSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public void packageSortSend(SendM sendM){
         /**插入SEND_M*/
-        this.sendMDao.insertSendM(sendM);
+//        this.sendMDao.insertSendM(sendM);
+        //使用管理接口代替sendMDao
+        this.sendMManager.insertSendM(sendM);
         // 判断是按箱发货还是包裹发货
-        if (!SerialRuleUtil.isMatchBoxCode(sendM.getBoxCode())) {
+        if (!BusinessUtil.isBoxcode(sendM.getBoxCode())) {
             /**按包裹 补分拣任务 大件写TASK_SORTING*/
             pushSorting(sendM);
         } else {
@@ -4623,7 +4631,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
         if(waybill != null && waybill.getWaybillSign() != null){
             //是否是金鹏订单
-            if(BusinessHelper.isPerformanceOrder(waybill.getWaybillSign())){
+            if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){
                 //预分拣站点
                 preSiteCode = waybill.getSiteCode();
                 BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
@@ -4658,8 +4666,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         Waybill waybill = null;
         try {
             //判断快运发货是够是原包发货，原包发货boxCode为包裹号
-            if (BusinessHelper.isPackageCode(sendM.getBoxCode()) && ! BusinessHelper.isPickupCode(sendM.getBoxCode())) {
-                String waybillCode = BusinessHelper.getWaybillCode(sendM.getBoxCode());
+            if (WaybillUtil.isPackageCode(sendM.getBoxCode()) && ! WaybillUtil.isSurfaceCode(sendM.getBoxCode())) {
+                String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
                 if (StringHelper.isNotEmpty(waybillCode)) {
                     WChoice wChoice = new WChoice();
                     wChoice.setQueryWaybillS(true);

@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -86,7 +87,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         }
 		if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
 				|| Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
-			if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {
+			if (WaybillUtil.isSurfaceCode(cenConfirm.getPackageBarcode())) {
 				cenConfirm = fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
                 /**
                  * fix wtw 外部接口包装，及UMP

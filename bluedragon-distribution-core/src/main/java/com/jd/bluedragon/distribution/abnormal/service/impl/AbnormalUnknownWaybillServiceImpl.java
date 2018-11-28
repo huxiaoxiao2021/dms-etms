@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
@@ -102,7 +103,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 continue;
             }
             String waybillCode = waybillCodeInput.trim();
-            if (BusinessHelper.isWaybillCode(waybillCode)) {
+            if (WaybillUtil.isWaybillCode(waybillCode)) {
                 BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
                     //暂存起来
@@ -211,7 +212,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //第二步 查eclp
         //如果运单上没有明细 就判断是不是eclp订单 如果是，调用eclp接口
         String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
-        if (BusinessHelper.isECLPByBusiOrderCode(busiOrderCode)) {
+        if (WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)) {
             List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(busiOrderCode);
             if (itemInfos != null && itemInfos.size() > 0) {
                 queryEclpDetails(itemInfos, abnormalUnknownWaybill, waybillDetail);
@@ -367,7 +368,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
     @Override
     public JdResponse<String> submitAgain(String waybillCode) {
         JdResponse<String> rest = new JdResponse<String>();
-        if (BusinessHelper.isWaybillCode(waybillCode)) {
+        if (WaybillUtil.isWaybillCode(waybillCode)) {
             AbnormalUnknownWaybill abnormalUnknownWaybill = abnormalUnknownWaybillDao.findLastReportByWaybillCode(waybillCode);
             if (abnormalUnknownWaybill == null) {
                 rest.toFail(waybillCode + "该运单还未上报过");

@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.storage.domain.*;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -86,7 +88,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	 *
 	 * 统一修改履约单下运单的暂存状态
 	 *
-	 * @param ids
+	 * @param performanceCodes
 	 * @return
 	 */
 	@Transactional(propagation = Propagation.REQUIRED)
@@ -169,8 +171,8 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		//将运单号转换成对应的履约单号
 		if(StringUtils.isNotBlank(storagePackageMCondition.getWaybillCode())){
 			//如果是包裹号需要转换成运单号
-			if(SerialRuleUtil.isMatchAllPackageNo(storagePackageMCondition.getWaybillCode())){
-				String waybillCode = BusinessHelper.getWaybillCode(storagePackageMCondition.getWaybillCode());
+			if(WaybillUtil.isPackageCode(storagePackageMCondition.getWaybillCode())){
+				String waybillCode = WaybillUtil.getWaybillCode(storagePackageMCondition.getWaybillCode());
 				if(StringUtils.isNotBlank(waybillCode)){
 					storagePackageMCondition.setWaybillCode(waybillCode);
 				}
@@ -194,12 +196,12 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	@Override
 	public boolean putaway(PutawayDTO putawayDTO) {
 		//获取运单数据
-		boolean isWaybillCode = SerialRuleUtil.isMatchAllWaybillCode(putawayDTO.getBarCode());
+		boolean isWaybillCode = WaybillUtil.isWaybillCode(putawayDTO.getBarCode());
 		String waybillCode =  "";
 		if(isWaybillCode){
 			waybillCode = putawayDTO.getBarCode();
 		}else{
-			waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(putawayDTO.getBarCode());
+			waybillCode = WaybillUtil.getWaybillCode(putawayDTO.getBarCode());
 		}
 		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true,true, true, true);
 
@@ -223,7 +225,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}
 		}
 
-		if(!BusinessHelper.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+		if(!BusinessUtil.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
 			throw new StorageException("非加履中心订单");
 		}
 
@@ -344,7 +346,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	@Override
 	public boolean checkWaybillCanSend(String waybillCode,String waybillSign) {
 
-		if(BusinessHelper.isPerformanceOrder(waybillSign)){
+		if(BusinessUtil.isPerformanceOrder(waybillSign)){
 			StoragePackageM storagePackageM =  storagePackageMDao.queryByWaybillCode(waybillCode);
             if(storagePackageM != null && (StoragePackageMStatusEnum.CAN_SEND_2.getCode().equals(storagePackageM.getStatus().toString())
 			|| StoragePackageMStatusEnum.SEND_4.getCode().equals(storagePackageM.getStatus().toString()))){
@@ -367,7 +369,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 	 */
 	public StoragePackageD checkExistStorage(String barCode){
 		StoragePackageD lastStoragePackageD = null;
-		if(SerialRuleUtil.isMatchAllWaybillCode(barCode)){
+		if(WaybillUtil.isWaybillCode(barCode)){
 			lastStoragePackageD = storagePackageDDao.findLastStoragePackageDByWaybillCode(barCode);
 		}else{
 			lastStoragePackageD = storagePackageDDao.findLastStoragePackageDByPackageCode(barCode);
@@ -391,7 +393,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		String realWaybillCode = "";
 		if(StringUtils.isBlank(waybillCode)){
 
-			if(SerialRuleUtil.isMatchAllPackageNo(packageCode)){
+			if(WaybillUtil.isPackageCode(packageCode)){
 				realWaybillCode = SerialRuleUtil.getWaybillCode(packageCode);
 			}
 		}else{
@@ -435,7 +437,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
     /**
 	 * 检查改履约单是否在其他分拣中心上架
 	 * 通过暂存明细表中的数据判断
-	 * @param barCode
+	 * @param putawayDTO
 	 * @return  储位号
 	 */
 	private StoragePackageM checkExistStorageOfOtherSite(PutawayDTO putawayDTO,String performanceCode){

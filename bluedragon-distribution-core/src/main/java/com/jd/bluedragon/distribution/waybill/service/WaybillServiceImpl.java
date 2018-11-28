@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -45,7 +46,7 @@ public class WaybillServiceImpl implements WaybillService {
 //    private WaybillPackageDao waybillPackageDao;
 
     public BigWaybillDto getWaybill(String waybillCode) {
-        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
@@ -59,7 +60,7 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     public BigWaybillDto getWaybillProduct(String waybillCode) {
-        String aWaybillCode = BusinessHelper.getWaybillCode(waybillCode);
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
         WChoice wChoice = new WChoice();
         wChoice.setQueryGoodList(true);
@@ -137,7 +138,7 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         //判断是否为包裹号，如果不是包裹号，先从箱号里边取值
-        if(!BusinessHelper.isPackageCode(packageCode)){
+        if(!WaybillUtil.isPackageCode(packageCode)){
             Box box = boxService.findBoxByCode(packageCode);
             if(box == null){
                 return null;

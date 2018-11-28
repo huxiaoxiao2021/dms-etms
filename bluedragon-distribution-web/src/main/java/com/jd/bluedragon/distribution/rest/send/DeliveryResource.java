@@ -29,6 +29,8 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -147,7 +149,7 @@ public class DeliveryResource implements DmsDeliveryService {
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+            if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
                 result.setData(deliveryService.boardSend(domain));
@@ -404,8 +406,8 @@ public class DeliveryResource implements DmsDeliveryService {
             DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
             if(KY_DELIVERY.equals(opType)){
                 //快运发货金鹏订单拦截提示
-                if(response.getCode()==JdResponse.CODE_OK && BusinessHelper.isPackageCode(request.getBoxCode())){
-                    String waybillCode = BusinessHelper.getWaybillCode(request.getBoxCode());
+                if(response.getCode()==JdResponse.CODE_OK && WaybillUtil.isPackageCode(request.getBoxCode())){
+                    String waybillCode = WaybillUtil.getWaybillCode(request.getBoxCode());
                     response = deliveryService.dealJpWaybill(request.getSiteCode(),waybillCode);
                 }
             }
@@ -493,7 +495,7 @@ public class DeliveryResource implements DmsDeliveryService {
         }
 
         //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
-        if (BusinessHelper.isPackageCode(boxCode)) {
+        if (WaybillUtil.isPackageCode(boxCode)) {
             try {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
                 if (baseStaffSiteOrgDto != null) {
@@ -505,7 +507,7 @@ public class DeliveryResource implements DmsDeliveryService {
                     //备件库退货
                     String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
                     if (siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)) {
-                        String waybillCode = BusinessHelper.getWaybillCode(boxCode);
+                        String waybillCode = WaybillUtil.getWaybillCode(boxCode);
                         Boolean result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
                         if(result != null && ! result) {
                             return new DeliveryResponse(SortingResponse.CODE_29121, SortingResponse.MESSAGE_29121);
@@ -1015,7 +1017,7 @@ public class DeliveryResource implements DmsDeliveryService {
         }
         /**校验箱号是否符合规则*/
         if(request.getBoxCode()!=null && StringUtils.isBlank(request.getBoxCode())){
-            if(!SerialRuleUtil.isMatchBoxCode(request.getBoxCode())){
+            if(!BusinessUtil.isBoxcode(request.getBoxCode())){
                 result.parameterError(MessageFormat.format("发货箱号[{0}]不合法,正则校验未通过！",
                         request.getBoxCode()));
                 return false;

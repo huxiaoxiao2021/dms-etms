@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -54,7 +55,7 @@ public class OrderResource {
 	@GET
 	@Path("/order")
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
-		Boolean isIncludePackage = BusinessHelper.isWaybillCode(packageCode);
+		Boolean isIncludePackage = WaybillUtil.isWaybillCode(packageCode);
 		BigWaybillDto waybillDto = this.waybillService.getWaybill(packageCode);
 		if (waybillDto == null || waybillDto.getWaybill() == null || waybillDto.getWaybillState() == null) {
 			return new OrderResponse(OrderResource.CODE_WAYBILL_NOE_FOUND, OrderResource.MESSAGE_WAYBILL_NOE_FOUND);

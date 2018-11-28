@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
@@ -482,9 +484,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
              * 回传逆向换单打印全程跟踪至运单中心
              */
             if(null!=task.getKeyword2()&&String.valueOf(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT).equals(task.getKeyword2())){
-                if(BusinessHelper.isPackageCode(tWaybillStatus.getWaybillCode())){
+                if(WaybillUtil.isPackageCode(tWaybillStatus.getWaybillCode())){
                     tWaybillStatus.setPackageCode(tWaybillStatus.getWaybillCode());
-                    tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(tWaybillStatus.getWaybillCode()));
+                    tWaybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(tWaybillStatus.getWaybillCode()));
 
                 }
                 tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_REVERSE_PRINT);
@@ -709,7 +711,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
 
 				String boxOrPackageCode = tWaybillStatus.getPackageCode();
-				if (SerialRuleUtil.isMatchBoxCode(boxOrPackageCode)) {
+				if (BusinessUtil.isBoxcode(boxOrPackageCode)) {
 					//先取出box表的始发，然后查sorting表
 					List<Sorting> sortingList = getPackagesByBoxCode(boxOrPackageCode);
 					for (Sorting sorting : sortingList) {
@@ -722,7 +724,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 				} else {
 					tWaybillStatus.setPackageCode(boxOrPackageCode);
-					tWaybillStatus.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(boxOrPackageCode));
+					tWaybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(boxOrPackageCode));
 					toWaybillStatus(tWaybillStatus, bdTraceDto);
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);

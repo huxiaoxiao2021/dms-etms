@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.test.print;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.junit.Test;
 
 import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
@@ -62,10 +63,10 @@ public class WaybillPrintTest extends AbstractDaoIntegrationTest{
 				+ "0010000010";//16
 		int[] positions = {1,36,124,146};
 		for(int position:positions){
-			System.err.println(BusinessHelper.isSignY(waybillSign, position));
-			System.err.println(BusinessHelper.isSignY(sendPay, position));
+			System.err.println(BusinessUtil.isSignY(waybillSign, position));
+			System.err.println(BusinessUtil.isSignY(sendPay, position));
 		}
-		System.err.println(BusinessHelper.isUrban(waybillSign, sendPay));
+		System.err.println(BusinessUtil.isUrban(waybillSign, sendPay));
 	}
 	public static void main(String[] args){
 		new WaybillPrintTest().testPrint();

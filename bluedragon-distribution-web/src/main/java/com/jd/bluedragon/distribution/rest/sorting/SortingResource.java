@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -78,8 +79,8 @@ public class SortingResource {
 		if (StringHelper.isEmpty(request.getPackageCode())) {
 			return this.paramIsNull();
 		}
-		if (!BusinessHelper.isPackageCode(request.getPackageCode())
-				&& !BusinessHelper.isWaybillCode(request.getPackageCode())
+		if (!WaybillUtil.isPackageCode(request.getPackageCode())
+				&& !WaybillUtil.isWaybillCode(request.getPackageCode())
 				&& !BusinessHelper.isBoxcode(request.getBoxCode())
 				&& !BusinessHelper.isBoxcode(request.getPackageCode())) {
 			return this.paramIsError();
@@ -197,8 +198,8 @@ public class SortingResource {
 				BeanUtils.copyProperties(request, sortingRequest);
 				request.setPackageCode(packageCode);
 
-				if (!BusinessHelper.isPackageCode(request.getPackageCode())
-						&& !BusinessHelper.isWaybillCode(request.getPackageCode())
+				if (!WaybillUtil.isPackageCode(request.getPackageCode())
+						&& !WaybillUtil.isWaybillCode(request.getPackageCode())
 						&& !BusinessHelper.isBoxcode(request.getBoxCode())
 						&& !BusinessHelper.isBoxcode(request.getPackageCode())) {
 					results.put(packageCode, JdResponse.CODE_OK);

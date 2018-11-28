@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.partnerWaybill.domain.PartnerWaybill;
 import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -158,12 +159,12 @@ public class PartnerWaybillServiceImpl implements PartnerWaybillService {
 		wayBillCode.setPartnerWaybillCode(way.getWaybillCode() == null ? ""
 				: way.getWaybillCode());
 		// 判断包裹号还是京东运单号
-		if (BusinessHelper.isPackageCode(way.getPackageBarcode())) {
+		if (WaybillUtil.isPackageCode(way.getPackageBarcode())) {
 			// 包裹号
 			String pkCode = way.getPackageBarcode();
 			wayBillCode.setPackageBarcode(pkCode);
 			// 京东运单号
-			wayBillCode.setWaybillCode(BusinessHelper.getWaybillCode(pkCode));
+			wayBillCode.setWaybillCode(WaybillUtil.getWaybillCode(pkCode));
 		} else {
 			// 包裹号
 			wayBillCode.setPackageBarcode("");
