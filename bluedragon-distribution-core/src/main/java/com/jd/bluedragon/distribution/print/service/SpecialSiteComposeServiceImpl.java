@@ -36,30 +36,10 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
     @Autowired
     private BaseService baseService;
 
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
-
     @Override
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         if(null!=targetSiteCode&&targetSiteCode>0){
             waybill.setPrepareSiteCode(targetSiteCode);
-        }
-
-        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
-        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
-            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybill.getWaybillCode());
-
-            if(baseEntity != null && baseEntity.getData() != null
-                    && baseEntity.getData().getWaybill() != null
-                    && baseEntity.getData().getWaybill().getWaybillExt() != null) {
-
-                Integer backupSiteId = baseEntity.getData().getWaybill().getWaybillExt().getBackupSiteId();
-                waybill.setPrepareSiteCode(backupSiteId);
-                BaseStaffSiteOrgDto site = baseService.getSiteBySiteID(backupSiteId);
-                if (null != site) {
-                    waybill.setPrepareSiteName(site.getSiteName());
-                }
-            }
         }
 
         //超区
@@ -89,6 +69,11 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
         }
 
+        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
+        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
+            waybill.setPrepareSiteCode(waybill.getBackupSiteId());
+            waybill.setPrepareSiteName(waybill.getBackupSiteName());
+        }
 
         if(null==waybill.getPrepareSiteName()&&null!=waybill.getPrepareSiteCode()){
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(waybill.getPrepareSiteCode());

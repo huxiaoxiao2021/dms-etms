@@ -604,6 +604,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         WaybillExt waybillExt = waybill.getWaybillExt();
         if(waybillExt != null){
             //从运单中取出备用站点id，转换成站点名称
+            target.setBackupSiteId(waybillExt.getBackupSiteId());
             target.setBackupSiteName(siteService.getSiteNameByCode(waybillExt.getBackupSiteId()));
         }
 
