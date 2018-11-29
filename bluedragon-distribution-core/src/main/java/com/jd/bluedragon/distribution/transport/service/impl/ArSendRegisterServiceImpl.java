@@ -148,9 +148,11 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                         //航班号有改动,需要向路由推MQ，如果航班号没有改动，不需要向路由推MQ
                         if(!arSendRegister.getTransportName().equals(arSendRegisterExits.getTransportName())){
                             mqToRouterDetail(arSendRegisterExits,arSendRegister,sendCodeList);
+                        }else{
+                            logger.warn("[空铁项目]重复添加批次号是："+arSendCode+"的航班："+arSendRegisterExits.getTransportName());
                         }
                     }else{
-                        logger.warn("[空铁项目]重复添加批次号是："+arSendCode+"的航班："+arSendRegisterExits.getTransportName());
+                        logger.warn("[空铁项目]根据批次号表的sendRegisterId："+arSendCode.getSendRegisterId()+"查询不到对应的发货登记记录");
                     }
                 }
                 //新增之前没有该批次号，向路由发MQ
