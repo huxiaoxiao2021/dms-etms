@@ -7,7 +7,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
@@ -55,12 +58,16 @@ public class ProductResource {
     }
 
     @GET
-    @Path("/order/products/{orderId}")
-    public ProductResponse getOrderProducts(@PathParam("orderId") Long orderId) {
-        if (orderId == null) {
+    @Path("/order/products/{codeStr}")
+    public ProductResponse getOrderProducts(@PathParam("codeStr") String codeStr) {
+        if (codeStr == null) {
             return this.paramError();
         }
-		
+
+        Long orderId = waybillCommonService.findOrderIdByWaybillCode(codeStr);
+        if(orderId == null){
+            return paramError();
+        }
         this.logger.info("获取订单商品详情, 订单号：" + orderId);
 
         List<Product> products = this.productService.getOrderProducts(orderId);

@@ -639,7 +639,7 @@ public class BaseServiceImpl implements BaseService {
 				log.info("运单商品明细为空, 改调用订单接口");
 				//自营的订单才可以调用此接口
 				if(SerialRuleUtil.isMatchNumeric(waybillWS.getWaybillCode())){
-					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getWaybillCode()));
+					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getVendorId()));
 					for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
 						Product product = new Product();
 						product.setProductId(prod.getProductId());
