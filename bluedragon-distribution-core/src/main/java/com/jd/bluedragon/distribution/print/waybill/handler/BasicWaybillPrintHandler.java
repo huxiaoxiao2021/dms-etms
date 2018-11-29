@@ -149,7 +149,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         try {
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
+            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
             	//运单数据为空，直接返回运单数据为空异常
             	if(baseEntity.getData() == null
@@ -443,6 +443,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
         }
     }
+
     /**
      * 逆向换单设置终端重量
      * @param context
