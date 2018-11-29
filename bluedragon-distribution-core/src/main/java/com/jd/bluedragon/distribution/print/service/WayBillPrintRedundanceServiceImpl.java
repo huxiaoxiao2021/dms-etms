@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.print.service;
 
 import java.util.Date;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -101,7 +103,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             return result;
         }
         // 转换运单号
-        String waybillCode = BusinessHelper.getWaybillCode(barCode);
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
         // 调用服务
         try {
             Waybill waybill = loadBasicWaybillInfo(context,waybillCode,packOpeFlowFlg);
@@ -324,7 +326,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
         int packageNum = waybill.getPackageNum();
         //一单一件 纯外单，上传了新的体积或重量 ，走原中小件分离逻辑
         if(packageNum == 1 
-        		&& BusinessHelper.isExternal(waybill.getWaybillSign()) 
+        		&& BusinessUtil.isExternal(waybill.getWaybillSign())
         		&& BusinessHelper.hasWeightOrVolume(context.getRequest())){
             OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
             originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());

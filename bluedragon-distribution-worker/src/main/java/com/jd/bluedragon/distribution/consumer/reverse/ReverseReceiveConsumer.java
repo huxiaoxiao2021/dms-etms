@@ -21,6 +21,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -61,6 +63,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
     private ReversePrintService reversePrintService;
 
 	@Override
+    @JProfiler(jKey = "reverseReceiveConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void consume(Message message) {
 
 		String messageContent = message.getText();

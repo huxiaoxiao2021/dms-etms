@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.gantry.domain.GantryDeviceConfig;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.logging.Log;
@@ -47,9 +49,9 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         //条码类型
         int barCodeType = 0;
         //包裹号
-        if(SerialRuleUtil.isMatchAllPackageNo(uploadData.getBarCode())){
+        if(WaybillUtil.isPackageCode(uploadData.getBarCode())){
             barCodeType = DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE;
-        }else if(SerialRuleUtil.isMatchBoxCode(uploadData.getBarCode())){
+        }else if(BusinessUtil.isBoxcode(uploadData.getBarCode())){
             //箱号
             barCodeType = DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE;
         }else { //不是包裹号和箱号不处理

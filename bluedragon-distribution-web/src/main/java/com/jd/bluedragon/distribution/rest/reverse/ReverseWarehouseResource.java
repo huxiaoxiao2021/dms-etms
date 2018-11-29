@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;
@@ -72,11 +73,11 @@ public class ReverseWarehouseResource {
         String packageCode = null;
         //是否扫描的包裹号
         boolean isPackage = false;
-        if(BusinessHelper.isPackageCode(request.getPackageOrWaybillCode())){
+        if(WaybillUtil.isPackageCode(request.getPackageOrWaybillCode())){
             packageCode = request.getPackageOrWaybillCode();
-            waybillCode = BusinessHelper.getWaybillCode(packageCode);
+            waybillCode = WaybillUtil.getWaybillCode(packageCode);
             isPackage = true;
-        }else if(BusinessHelper.isWaybillCode(request.getPackageOrWaybillCode())){
+        }else if(WaybillUtil.isWaybillCode(request.getPackageOrWaybillCode())){
             waybillCode = request.getPackageOrWaybillCode();
         }else{
             response.toFail(MESSAGE_PACKAGE_ERROR);

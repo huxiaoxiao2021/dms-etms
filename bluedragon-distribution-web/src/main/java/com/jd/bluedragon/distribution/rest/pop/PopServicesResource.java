@@ -9,6 +9,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +62,7 @@ public class PopServicesResource {
 			PopServicesRequest popServicesRequest) {
 		if (popServicesRequest == null
 				|| StringUtils.isBlank(popServicesRequest.getKey())
-				|| !BusinessHelper.isWaybillCode(popServicesRequest
+				|| !WaybillUtil.isWaybillCode(popServicesRequest
 						.getWaybillCode())
 				|| !popServicesRequest.getKey().equals(
 						PropertiesHelper.newInstance().getValue(

@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -139,7 +140,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				log.error("收货的时候回传车辆到达全称跟踪异常");
 			}*/
 			//取件单推送mq
-			if(BusinessHelper.isPickupCode(receive.getBoxCode())){
+			if(WaybillUtil.isSurfaceCode(receive.getBoxCode())){
 				BaseEntity<PickupTask> pickup =null;
 				try {
 				pickup = this.waybillPickupTaskApi.getDataBySfCode(receive.getBoxCode());
@@ -175,7 +176,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 					}*/
 
 					//取件单推送mq
-					if(BusinessHelper.isPickupCode(sendDetail.getPackageBarcode())){
+					if(WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())){
 					pushPickware(receive,sendDetail.getPackageBarcode(),sendDetail.getPickupCode());
 					}
 				}
@@ -351,7 +352,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 			receive.setBoxingType(Short.parseShort("1"));
 		} else {
 			// 包裹
-			if (BusinessHelper.isPickupCode(tmpNumber)) {
+			if (WaybillUtil.isSurfaceCode(tmpNumber)) {
 				// 取件单(暂不设运单号)
 				receive.setBoxCode(tmpNumber);
 				receive.setPackageBarcode(tmpNumber);
@@ -362,7 +363,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 				receive.setPackageBarcode(tmpNumber);
 				// 装箱类型（1 箱包装 2 单件包裹）
 				receive.setBoxingType(Short.parseShort("2"));
-				receive.setWaybillCode(BusinessHelper.getWaybillCode(tmpNumber));
+				receive.setWaybillCode(WaybillUtil.getWaybillCode(tmpNumber));
 			}
 
 		}
