@@ -167,7 +167,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 loadPrintedData(context);
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
-                loadSpecialSite(context.getResponse());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
@@ -442,19 +441,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setOriginalCrossCode("");
                 waybill.setPurposefulCrossCode("");
             }
-        }
-    }
-
-    /**
-     * 特殊的预分拣站点站位
-     * 1>新通路订单预分拣站点替换为代配站点
-     * @param waybill
-     */
-    private final void loadSpecialSite(final PrintWaybill waybill){
-        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
-        if(BusinessHelper.isNewPathWay(waybill.getSendPay())){
-            waybill.setPrepareSiteCode(waybill.getBackupSiteId());
-            waybill.setPrepareSiteName(waybill.getBackupSiteName());
         }
     }
 

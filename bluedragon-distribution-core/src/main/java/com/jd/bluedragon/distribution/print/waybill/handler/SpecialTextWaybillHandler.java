@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -99,6 +100,12 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
             if(null!=site){
                 printInfo.setPrepareSiteName(site.getSiteName());
             }
+        }
+
+        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
+        if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo != null && printInfo.getBackupSiteId() > 0){
+            printInfo.setPrepareSiteCode(printInfo.getBackupSiteId());
+            printInfo.setPrepareSiteName(printInfo.getBackupSiteName());
         }
 
         /** 调用外单接口获取始发站点、目的站点和路由信息 **/
