@@ -345,4 +345,9 @@
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
+    <jsf:consumer id="dmsLocalInstanceInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService"
+                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

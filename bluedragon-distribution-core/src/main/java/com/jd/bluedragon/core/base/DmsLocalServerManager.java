@@ -25,6 +25,11 @@ public interface DmsLocalServerManager {
     List<VipInfoJsfEntity> getAllVipList();
 
     /**
+     * 获取本地服务器实例地址
+     */
+    String getVerAppUrlBySiteCode(String siteCode);
+
+    /**
      * 根据 分拣中心 编号获取储位号
      * @return
      */
