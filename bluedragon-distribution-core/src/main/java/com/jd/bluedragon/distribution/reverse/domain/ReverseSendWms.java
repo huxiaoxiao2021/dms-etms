@@ -15,9 +15,13 @@ public class ReverseSendWms {
 	private String operateTime;
 
 	private String userName;
-
+	/**
+	 * 订单号
+	 */
 	private String orderId;
-
+	/**
+	 * 新包裹号
+	 */
 	private String packageCodes;
 
 	private int lossQuantity;
@@ -36,6 +40,8 @@ public class ReverseSendWms {
 
     private String waybillSign;
 
+    private ExtInfos extInfos;
+
 	/**
 	 * 逆向编码，标识是用户退货，还是返仓再生产
 	 * @return
@@ -49,8 +55,10 @@ public class ReverseSendWms {
 	private String reverseReason;
 	
     private String sourceCode;
-    
-    private String busiOrderCode;
+	/**
+	 * 运单号
+	 */
+	private String busiOrderCode;
 
 	private boolean isSickWaybill;//true 病单， false 非病单
 
