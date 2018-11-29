@@ -112,8 +112,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         if (waybill == null) {
             // 无数据
-            this.logger.info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件开始");
-            waybill = this.getWaybillFromOrderService(waybillCode);
+            //this.logger.info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件开始");
+            //waybill = this.getWaybillFromOrderService(waybillCode);
             this.logger
                     .info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件结束，返回值【" + waybill + "】");
         }
