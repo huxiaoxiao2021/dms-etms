@@ -17,6 +17,14 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
     public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
 
+    /*退货完成 全收标志*/
+    public static final Integer WAYBILL_RETURN_COMPLETE_FLAG_ALL = 1;
+    /*退货完成 部分收标志*/
+    public static final Integer WAYBILL_RETURN_COMPLETE_FLAG_HALF = 2;
+    /*退货完成 收货标识扩展字段属性名*/
+    public static final String WAYBILL_RETURN_FLAG_NAME = "returnFlag";
+
+
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING_RETURN = 60;
 
     public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION_THIRDPARTY = 80;
@@ -197,6 +205,7 @@ public class WaybillStatus {
 
     private Integer reasonId;
 
+    private Integer returnFlag;
     private String remark;
 
     public Long getId() {
@@ -349,5 +358,13 @@ public class WaybillStatus {
 
     public void setReasonId(Integer reasonId) {
         this.reasonId = reasonId;
+    }
+
+    public Integer getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(Integer returnFlag) {
+        this.returnFlag = returnFlag;
     }
 }

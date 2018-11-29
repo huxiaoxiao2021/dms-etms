@@ -346,4 +346,8 @@
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 理赔系统接口-->
+    <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"
+                  protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

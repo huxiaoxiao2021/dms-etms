@@ -107,6 +107,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     SpareService spareService;
 
     @Autowired
+    @Qualifier("bdDmsReverseSendMQ")
+    private DefaultJMQProducer reverseSendSpareEclpProducer;
+
+    @Autowired
+    @Qualifier("reverseSpareEclp")
+    private ReverseSpareEclp reverseSpareEclp;
+
+    @Autowired
     @Qualifier("dmsSendLossMQ")
     private DefaultJMQProducer dmsSendLossMQ;
     @Autowired
@@ -1023,15 +1031,27 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         //------------------------维修外单---start--------------------------
         List<SendDetail> vySendDetails = new ArrayList<SendDetail>();
         List<SendDetail> nomarlSendDetails = new ArrayList<SendDetail>();
+        List<SendDetail> eclpSendDetails = new ArrayList<SendDetail>(); //ECLP订单集合
         for (SendDetail sd : sendDetails) {//剔除维修外单
             if (WaybillUtil.isMCSCode(sd.getWaybillCode())) {
                 vySendDetails.add(sd);
-            } else {
+            }else if(!WaybillUtil.isReverseSpareCode(sd.getWaybillCode()) ){
+            //分离ECLP订单  通过判断不是备件条码 并且 生产单号符合ECLP规则 18位为5
+            Waybill waybill = waybillCommonService.findByWaybillCode(sd.getWaybillCode());
+            if(waybill!=null && StringUtils.isNotBlank(waybill.getBusiOrderCode()) && WaybillUtil.isECLPByBusiOrderCode(waybill.getBusiOrderCode()) && BusinessUtil.isTwiceExchageWaybillSpare(waybill.getWaybillSign())){
+                eclpSendDetails.add(sd);
+            }else{
+                nomarlSendDetails.add(sd);
+            }
+
+        } else {
                 nomarlSendDetails.add(sd);
             }
         }
         sendDetails = nomarlSendDetails;//非维修外单集合        
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
+        pushECLPMessageToSpwms(eclpSendDetails);//ECLP
+
 
         //------------------------维修外单---end----------------------------
 
@@ -1651,6 +1671,32 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             workerProducer.send(messageList);
         } catch (Exception e) {
             logger.error(String.format("推送维修外单MQ失败, 发货明细 : %s", JsonHelper.toJson(sendDetailList)), e);
+        }
+
+    }
+
+    /**
+     * ECLP退备件库的数据推送给ECLP
+     *
+     * @param sendDetailList
+     */
+    private void pushECLPMessageToSpwms(List<SendDetail> sendDetailList) {
+        List<String> doneWaybill = new ArrayList<String>();
+        try{
+            for(SendDetail sendDetail : sendDetailList){
+                String waybillCode = sendDetail.getWaybillCode();
+                //过滤重复运单。
+                if(doneWaybill.contains(waybillCode)){
+                    continue;
+                }
+                BdInboundECLPDto bdInboundECLPDto =  reverseSpareEclp.makeEclpMessage(waybillCode,sendDetail);
+
+                reverseSendSpareEclpProducer.send(waybillCode,JsonHelper.toJson(bdInboundECLPDto));
+                doneWaybill.add(waybillCode);
+            }
+
+        }catch (Exception e){
+            logger.error("ECLP退备件库异常",e);
         }
 
     }

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
@@ -15,6 +17,7 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
+import com.jd.ldop.center.api.update.dto.WaybillAddress;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -191,6 +194,46 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.registerInfoEnd(info);
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * 组装换单对象支持二次换单
+     * @param exchangeWaybillDto
+     * @return
+     */
+    public WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto){
+        WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+        waybillReverseDTO.setSource(2); //分拣中心
+        if(exchangeWaybillDto.getIsTotalout()){
+            waybillReverseDTO.setReverseType(1);// 整单拒收
+        }else{
+            waybillReverseDTO.setReverseType(2);// 包裹拒收
+        }
+
+        waybillReverseDTO.setWaybillCode(exchangeWaybillDto.getWaybillCode());
+        waybillReverseDTO.setOperateUserId(exchangeWaybillDto.getOperatorId());
+        waybillReverseDTO.setOperateUser(exchangeWaybillDto.getOperatorName());
+        waybillReverseDTO.setOrgId(exchangeWaybillDto.getOrgId());
+        waybillReverseDTO.setSortCenterId(exchangeWaybillDto.getCreateSiteCode());
+        waybillReverseDTO.setOperateTime(DateHelper.parseDateTime(exchangeWaybillDto.getOperateTime()));
+        waybillReverseDTO.setReturnType(0);//默认
+        if(exchangeWaybillDto.getReturnType()!=null){
+            waybillReverseDTO.setReturnType(exchangeWaybillDto.getReturnType());
+        }
+        if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
+            waybillReverseDTO.setPackageCount(exchangeWaybillDto.getPackageCount());
+        }
+
+        //自定义地址
+        if(exchangeWaybillDto.getAddress()!=null && !"".equals(exchangeWaybillDto.getAddress())){
+            WaybillAddress waybillAddress = new WaybillAddress();
+
+            waybillAddress.setAddress(exchangeWaybillDto.getAddress());
+            waybillAddress.setContact(exchangeWaybillDto.getContact());
+            waybillAddress.setPhone(exchangeWaybillDto.getPhone());
+            waybillReverseDTO.setWaybillAddress(waybillAddress);
+        }
+        return waybillReverseDTO;
     }
 
     /**

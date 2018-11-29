@@ -45,7 +45,9 @@ public class ReverseReceiveRequest extends JdRequest {
     
     /** 发货批次 */
     private String sendCode;
-    
+
+	private String waybillCode;
+
     public Integer getCanReceive() {
 		return canReceive;
 	}
@@ -140,6 +142,14 @@ public class ReverseReceiveRequest extends JdRequest {
 
 	public void setSendCode(String sendCode) {
 		this.sendCode = sendCode;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
 	}
 
 	@Override
