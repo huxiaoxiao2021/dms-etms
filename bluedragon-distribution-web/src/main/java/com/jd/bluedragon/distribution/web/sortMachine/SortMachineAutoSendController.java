@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.web.sortMachine;
 
-import IceInternal.Ex;
 import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.core.base.DmsLocalServerManager;
+
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
 import com.jd.bluedragon.distribution.api.response.SortSchemeDetailResponse;
@@ -86,6 +86,10 @@ public class SortMachineAutoSendController {
     @Autowired
     WaybillService waybillService;
 
+    @Autowired
+    DmsLocalServerManager dmsLocalServerManager;
+
+
     @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Model model) {
@@ -131,12 +135,22 @@ public class SortMachineAutoSendController {
             response.parameterError("该站点不是分拣中心！");
             return response;
         }
-        //获取分拣中心本地服务url
-        String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+        //获取分拣中心本地服务url(先调用本地ver应用服务器信息jsf接口，若无则从配置文件读取)
+        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(bssod.getDmsSiteCode());
+        String url;
+        if (!StringUtils.isBlank(urlOfVer)){
+            url=urlOfVer;
+        }else{
+            logger.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空，"+bssod.getSiteCode());
+            url=PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+        }
+
         if (StringUtils.isBlank(url)) {
-            response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+            logger.error("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url，"+bssod.getSiteCode());
+            response.parameterError("根据分拣中心ID,无法定位访问地址,请检查是否配置了该分拣中心url信息!!");
             return response;
         }
+
         //构建查询分拣机的model
         SortSchemeRequest sortSchemeRequest = new SortSchemeRequest();
         sortSchemeRequest.setSiteNo(String.valueOf(bssod.getSiteCode()));
@@ -226,10 +240,19 @@ public class SortMachineAutoSendController {
             response.parameterError("根据erp活动分拣中心失败！");
             return response;
         }
-        //获取分拣中心本地服务url
-        String url = PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+        //获取分拣中心本地服务url(先调用本地ver应用服务器信息jsf接口，若无则从配置文件读取)
+        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(bssod.getDmsSiteCode());
+        String url;
+        if (!StringUtils.isBlank(urlOfVer)){
+            url=urlOfVer;
+        }else{
+            logger.warn("调用自动化web本地服务器信息接口获取分拣中心服务器V信息为空，"+bssod.getSiteCode());
+            url=PropertiesHelper.newInstance().getValue(prefixKey + bssod.getSiteCode());
+        }
+
         if (StringUtils.isBlank(url)) {
-            response.parameterError("根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+            logger.error("获取本地分拣中心应用服务器url信息结果为空，请检查该分拣中心是否配置了服务器url，"+bssod.getSiteCode());
+            response.parameterError("根据分拣中心ID,无法定位访问地址,请检查是否配置了该分拣中心url信息!!");
             return response;
         }
         SortSchemeDetailRequest request = new SortSchemeDetailRequest();
