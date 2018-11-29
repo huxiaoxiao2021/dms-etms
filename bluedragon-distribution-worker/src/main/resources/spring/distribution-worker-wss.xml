@@ -11,7 +11,7 @@
     http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 	
-	<context:property-placeholder location="classpath:configured/mqsender.properties" ignore-unresolvable="false"/>
+	<context:property-placeholder location="classpath:configured/app.properties" ignore-unresolvable="false"/>
 	
 	<!-- bean id="centerDataSource" class="org.apache.commons.dbcp.BasicDataSource"
 		destroy-method="close">
