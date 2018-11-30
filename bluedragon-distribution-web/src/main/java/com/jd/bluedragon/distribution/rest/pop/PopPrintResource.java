@@ -120,7 +120,6 @@ public class PopPrintResource {
 				|| StringUtils.isBlank(popPrintRequest.getPackageBarcode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
-				|| popPrintRequest.getInterfaceType() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
 			this.logger.error("保存POP打印信息savePopPrint --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
@@ -264,7 +263,6 @@ public class PopPrintResource {
 				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
-				|| popPrintRequest.getInterfaceType() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
 			this.logger.error("保存POP打印信息 --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
