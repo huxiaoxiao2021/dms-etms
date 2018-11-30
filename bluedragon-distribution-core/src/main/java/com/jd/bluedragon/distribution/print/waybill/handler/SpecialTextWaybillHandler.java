@@ -103,7 +103,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         }
 
         //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
-        if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo != null && printInfo.getBackupSiteId() > 0){
+        if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo.getBackupSiteId() != null && printInfo.getBackupSiteId() > 0){
             printInfo.setPrepareSiteCode(printInfo.getBackupSiteId());
             printInfo.setPrepareSiteName(printInfo.getBackupSiteName());
         }
