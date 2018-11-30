@@ -136,7 +136,7 @@ public class SortMachineAutoSendController {
             return response;
         }
         //获取分拣中心本地服务url(先调用本地ver应用服务器信息jsf接口，若无则从配置文件读取)
-        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(bssod.getDmsSiteCode());
+        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(String.valueOf(bssod.getSiteCode()));
         String url;
         if (!StringUtils.isBlank(urlOfVer)){
             url=urlOfVer;
@@ -241,7 +241,7 @@ public class SortMachineAutoSendController {
             return response;
         }
         //获取分拣中心本地服务url(先调用本地ver应用服务器信息jsf接口，若无则从配置文件读取)
-        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(bssod.getDmsSiteCode());
+        String urlOfVer=dmsLocalServerManager.getVerAppUrlBySiteCode(String.valueOf(bssod.getSiteCode()));
         String url;
         if (!StringUtils.isBlank(urlOfVer)){
             url=urlOfVer;
