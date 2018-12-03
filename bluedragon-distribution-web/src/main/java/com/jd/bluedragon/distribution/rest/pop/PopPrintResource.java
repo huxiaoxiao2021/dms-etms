@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -69,7 +70,8 @@ public class PopPrintResource {
     private DefaultJMQProducer zhuchangPrintToTerminalProducer;
 
 	private static boolean isRedisModeAllowed = false;
-	
+	private static int PRINT_SOURCE = 3;  //发终端MQsource字段，标识数据来源（驻场打印：3）
+
 	/**
 	 * 根据运单号获取POP打印信息
 	 * 
@@ -80,7 +82,7 @@ public class PopPrintResource {
 	@Path("/popPrint/findByWaybillCode/{waybillCode}")
 	public PopPrintResponse findByWaybillCode(
 			@PathParam("waybillCode") String waybillCode) {
-		if (!BusinessHelper.isWaybillCode(waybillCode)) {
+		if (!WaybillUtil.isWaybillCode(waybillCode)) {
 			this.logger.error("根据运单号“" + waybillCode + "”获取POP打印信息 --> 传入参数非法");
 			return new PopPrintResponse(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
@@ -116,7 +118,7 @@ public class PopPrintResource {
 	@Path("/popPrint/savePopPrint")
 	public PopPrintResponse savePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !SerialRuleUtil.isMatchAllWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| StringUtils.isBlank(popPrintRequest.getPackageBarcode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
@@ -226,8 +228,11 @@ public class PopPrintResource {
 						//驻厂打印成功，发送mq给终端，他们去同步终端运单，避免挂单
 						Map<String,Object> msgBody=Maps.newHashMap();
 						msgBody.put("waybillCode",popPrintRequest.getWaybillCode());
+						msgBody.put("packageCode",popPrintRequest.getPackageBarcode());
+                        msgBody.put("goods",popPrintRequest.getCategoryName());
 						msgBody.put("operatorErp",userDto.getErp());
 						msgBody.put("operatorTime",operatorTime.getTime());
+						msgBody.put("operatorSource",PRINT_SOURCE);
 						zhuchangPrintToTerminalProducer.send(popPrintRequest.getWaybillCode(),JsonHelper.toJson(msgBody));
 					}
 				}
@@ -260,7 +265,7 @@ public class PopPrintResource {
 	@Path("/popPrint/savePopPrintNew")
 	public PopPrintResponse savePopPrintNew(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
@@ -349,7 +354,7 @@ public class PopPrintResource {
 	@Path("/popPrint/forceSavePopPrint/for")
 	public PopPrintResponse forceSavePopPrint(PopPrintRequest popPrintRequest) {
 		if (popPrintRequest == null
-				|| !BusinessHelper.isWaybillCode(popPrintRequest.getWaybillCode())
+				|| !WaybillUtil.isWaybillCode(popPrintRequest.getWaybillCode())
 				|| popPrintRequest.getOperateSiteCode() == null || popPrintRequest.getOperateSiteCode() == 0
 				|| popPrintRequest.getOperatorCode() == null
 				|| popPrintRequest.getOperateType() == null || popPrintRequest.getOperateType() == 0) {
@@ -526,6 +531,8 @@ public class PopPrintResource {
 		popPrint.setBusiId(request.getBusiId());
 		popPrint.setBusiName(request.getBusiName());
 		popPrint.setInterfaceType(request.getInterfaceType());
+
+		popPrint.setCategoryName(request.getCategoryName());
 
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
 			logger.info("保存POP打印信息 -->  打印包裹：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());

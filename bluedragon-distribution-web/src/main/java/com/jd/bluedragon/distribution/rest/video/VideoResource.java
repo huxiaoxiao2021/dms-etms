@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.video.domain.OperateInfo;
 import com.jd.bluedragon.distribution.video.domain.VideoRequest;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -21,8 +22,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,8 @@ import java.util.Map;
 
 @Component
 @Path(Constants.REST_URL)
+@Consumes({ MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON })
 public class VideoResource {
     private final Log logger = LogFactory.getLog(VideoResource.class);
 
@@ -129,7 +135,7 @@ public class VideoResource {
             }
             if(operateType.equals(weightType)){
                 logger.info("开始查询包裹号为"+ packageCode +"的称重业务记录!");
-                String waybillCode = BusinessHelper.getWaybillCodeByPackageBarcode(packageCode);
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
                 //根据运单号查找运单的称重量方流水
                 BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
                 if(packageOpe != null && packageOpe.getData().size() > 0){
@@ -170,7 +176,7 @@ public class VideoResource {
             return Boolean.FALSE;
         }
         String packageCode = videoRequest.getPackageCode();
-        if("".equals(packageCode) || !BusinessHelper.isPackageCode(packageCode)){
+        if("".equals(packageCode) || !WaybillUtil.isPackageCode(packageCode)){
             response.toFail("输入的包裹号为空或不符合包裹号规则！");
             logger.warn("包裹号输入有误！参数为："+JsonHelper.toJson(videoRequest));
             return Boolean.FALSE;

@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -290,7 +291,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     detail.setSealNo2("");
                 }
             } else {
-                if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+                if (WaybillUtil.isPackageCode(sendM.getBoxCode())) {
                     totalPackageNum ++;
                     PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(sendM.getBoxCode());
                     if (null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
@@ -366,7 +367,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     private PackOpeFlowDto getOpeByPackageCode(String packageCode) {
         try {
-            String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
             for (PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
                 if (packOpeFlowDto.getPackageCode().equals(packageCode)) {
@@ -1051,7 +1052,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     for (String scanCode : scanCodeList) {
                         if (BusinessHelper.isBoxcode(scanCode))
                             boxes.put(scanCode, scanCode);
-                        else if (BusinessHelper.isPackageCode(scanCode))
+                        else if (WaybillUtil.isPackageCode(scanCode))
                             packages.put(scanCode, scanCode);
                     }
                 }
@@ -1171,7 +1172,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                                 tBasicQueryEntity.setGoodValue(String.valueOf(tJoinDetail.getPrice()));
                                 tBasicQueryEntity.setGoodWeight(tJoinDetail.getGoodWeight());
                                 tBasicQueryEntity.setGoodWeight2(0.0);
-                                tBasicQueryEntity.setPackageBarNum(BusinessHelper.getPackageNum(dSendDatail.getPackageBarcode()));
+                                tBasicQueryEntity.setPackageBarNum(WaybillUtil.getPackNumByPackCode(dSendDatail.getPackageBarcode()));
                                 String sendPay = tJoinDetail.getSendPay();
                                 // 是否是奢侈品
                                 if (sendPay != null && sendPay.charAt(19) == '1') {

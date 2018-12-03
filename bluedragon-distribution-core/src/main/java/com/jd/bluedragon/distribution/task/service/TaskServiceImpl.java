@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.task.asynBuffer.DmsDynamicProducer;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
@@ -595,7 +596,7 @@ public class TaskServiceImpl implements TaskService {
         request.setPackageCode(dto.getWaybillCode());
         request.setReceiveSiteCode(site.getSiteCode());
         request.setReceiveSiteName(site.getSiteName());
-        request.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(dto.getWaybillCode()));
+        request.setWaybillCode(WaybillUtil.getWaybillCode(dto.getWaybillCode()));
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setOperateTime(addOneSecond(dto.getCreateTime()));
         request.setSiteCode(dto.getDistributeID());

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.reassignWaybill.dao.ReassignWaybillDao;
 import com.jd.bluedragon.distribution.reassignWaybill.domain.ReassignWaybill;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
@@ -54,7 +55,7 @@ public class ReassignWaybillServiceImpl implements ReassignWaybillService {
 		//添加返调度运单信息到本地库
 		sendReassignWaybillMq(packTagPrint);
 
-		if(BusinessHelper.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
+		if(WaybillUtil.getCurrentPackageNum(packTagPrint.getPackageBarcode()) == 1){
 			//每个运单只需要发一次就可以
 			SiteChangeMqDto siteChangeMqDto = new SiteChangeMqDto();
 			siteChangeMqDto.setWaybillCode(packTagPrint.getWaybillCode());

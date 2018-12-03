@@ -15,6 +15,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,7 +71,7 @@ public class BoxPackResource {
 			Sorting sorting = new Sorting();
 			sorting.setCreateSiteCode(createSiteCode);
 			sorting.setType(type);
-			if (BusinessHelper.isPackageCode(code)) {
+			if (WaybillUtil.isPackageCode(code)) {
 				sorting.setPackageCode(code);
 			} else {
 				sorting.setWaybillCode(code);

@@ -342,5 +342,8 @@
     <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
                   protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
-
+    <!--报表的接口 唐春青-->
+    <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

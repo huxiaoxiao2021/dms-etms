@@ -7,6 +7,8 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -80,9 +82,9 @@ public class PackageResource {
             }
             if(siteType != 0 && StringHelper.isNotEmpty(waybillSign)){
                 //操作人所在机构是配送站并且waybillSign第八位是1或2或3的触发全程跟踪
-                if(siteType == 4 && (BusinessHelper.isSignChar(waybillSign,8,'1' ) || // 1 仅修改地址
-                        BusinessHelper.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
-                        BusinessHelper.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
+                if(siteType == 4 && (BusinessUtil.isSignChar(waybillSign,8,'1' ) || // 1 仅修改地址
+                        BusinessUtil.isSignChar(waybillSign,8,'2') ||             // 2 修改地址和其他
+                        BusinessUtil.isSignChar(waybillSign,8,'3')                // 3 未修改地址仅修改其他
                 )){
                     if(barCode != null && operateName != null){
                         taskService.add(this.toAddressModTask(barCode, operateName));
@@ -122,8 +124,8 @@ public class PackageResource {
     private Task toAddressModTask(String barCode, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
 
-        if(BusinessHelper.isPackageCode(barCode)){
-            waybillStatus.setWaybillCode(BusinessHelper.getWaybillCode(barCode));
+        if(WaybillUtil.isPackageCode(barCode)){
+            waybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
             waybillStatus.setPackageCode(barCode);
         }else
             waybillStatus.setWaybillCode(barCode);
@@ -147,8 +149,8 @@ public class PackageResource {
         waybillStatus.setCreateSiteCode(createSiteCode);
         waybillStatus.setCreateSiteName(createSiteName);
 
-        if(BusinessHelper.isPackageCode(barCode)){
-            waybillStatus.setWaybillCode(BusinessHelper.getWaybillCode(barCode));
+        if(WaybillUtil.isPackageCode(barCode)){
+            waybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
             waybillStatus.setPackageCode(barCode);
         }else
             waybillStatus.setWaybillCode(barCode);

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.auto.service;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -17,7 +18,7 @@ public abstract class AbstractSortingPrepareService implements SortingPrepareSer
     private static final Log logger = LogFactory.getLog(AbstractSortingPrepareService.class);
     /**
      * 处理分拣数据
-     * @param Task      任务
+     * @param task      任务
      * @return 任务处理成功否
      */
     @Override
@@ -44,7 +45,7 @@ public abstract class AbstractSortingPrepareService implements SortingPrepareSer
         target.setPackageCode(pack.getBarcode());
         target.setCreateSiteCode(pack.getSortCenterNo());
         target.setOperateTime(DateHelper.parseDateTime(pack.getTimeStamp()));
-        target.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(target.getPackageCode()));
+        target.setWaybillCode(WaybillUtil.getWaybillCode(target.getPackageCode()));
         target.setCreateUser(pack.getOperatorName());
         target.setCreateUserCode(pack.getOperatorID());
 

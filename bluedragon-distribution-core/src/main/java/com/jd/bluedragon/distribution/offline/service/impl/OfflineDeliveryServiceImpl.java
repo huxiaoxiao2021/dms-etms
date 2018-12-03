@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,10 +96,10 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 			if (receiveSiteCode == null) {
 				// 设置目的站点
 				Boolean tempGoOn = Boolean.TRUE;
-				if (BusinessHelper.isPackageCode(boxCode)) {
+				if (WaybillUtil.isPackageCode(boxCode)) {
 					// 目的站点不存在，获取预分拣站点
 					BigWaybillDto bigWaybillDto = this.waybillService
-							.getWaybill(BusinessHelper.getWaybillCode(boxCode));
+							.getWaybill(WaybillUtil.getWaybillCode(boxCode));
 					if (bigWaybillDto != null
 							&& bigWaybillDto.getWaybill() != null
 							&& bigWaybillDto.getWaybill().getOldSiteId() != null

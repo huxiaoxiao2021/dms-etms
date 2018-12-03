@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -149,7 +151,7 @@ public class BoardCombinationResource {
 
         //参数校验
 
-        if(BusinessHelper.isBoxcode(boxCode) || BusinessHelper.isPackageCode(boxCode)){
+        if(BusinessHelper.isBoxcode(boxCode) || WaybillUtil.isPackageCode(boxCode)){
             try {
                 Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, boxCode);
                 if(tcResponse == null){
@@ -188,7 +190,7 @@ public class BoardCombinationResource {
         result.toSucceed("查询箱子所属板号成功!");
 
         //参数校验
-        if(SerialRuleUtil.isBoardCode(boardCode)){
+        if(BusinessUtil.isBoardCode(boardCode)){
             try {
                 Response<List<String>>  tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
                 if(tcResponse == null){
@@ -228,7 +230,7 @@ public class BoardCombinationResource {
         int boxNum = 0;
         int packageNum = 0;
         for (String temp : tcResponse.getData()){
-            if(BusinessHelper.isPackageCode(temp)){
+            if(WaybillUtil.isPackageCode(temp)){
                 packageNum++;
             }
             if(BusinessHelper.isBoxcode(temp)){
@@ -265,8 +267,8 @@ public class BoardCombinationResource {
         }
 
         //箱号/包裹号是否合法
-        if (!SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())
-                && !SerialRuleUtil.isMatchAllPackageNo(request.getBoxOrPackageCode())) {
+        if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
+                && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
             this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
            return "箱号/包裹号不合法.";
         }

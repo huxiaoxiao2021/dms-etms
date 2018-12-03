@@ -154,6 +154,12 @@ public class PopPrintRequest extends JdObject {
 		this.interfaceType = interfaceType;
 	}
 
+
+	/**
+	 * 包裹托寄物名称
+	 */
+	private String categoryName;
+
 	public String getWaybillCode() {
 		return waybillCode;
 	}
@@ -335,4 +341,12 @@ public class PopPrintRequest extends JdObject {
 	public void setBusinessType(Integer businessType) {
 		this.businessType = businessType;
 	}
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,7 +80,6 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     /**
      * 一单一件且重新称重或量方的触发二次预分拣
      * @param context 上下文
-     * @param commonWaybill 运单实体
      * @return 处理结果，处理是否通过
      */
     @Override
@@ -106,7 +106,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         int packageNum = waybill.getPackageNum();
         //一单一件 纯外单，上传了新的体积或重量 ，走原中小件分离逻辑
         if(packageNum == 1 
-        		&& BusinessHelper.isExternal(waybill.getWaybillSign()) 
+        		&& BusinessUtil.isExternal(waybill.getWaybillSign())
         		&& BusinessHelper.hasWeightOrVolume(context.getRequest())){
             OriginalOrderInfo originalOrderInfo = new OriginalOrderInfo();
             originalOrderInfo.setWeight(context.getRequest().getWeightOperFlow().getWeight());
@@ -146,8 +146,8 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
         	return interceptResult;
         }
 		//业务判断
-		if(!BusinessHelper.isSignY(waybillSign, 1)
-				&&BusinessHelper.isSignChar(waybillSign, 36, '0')){
+		if(!BusinessUtil.isSignY(waybillSign, 1)
+				&&BusinessUtil.isSignChar(waybillSign, 36, '0')){
 			//包裹补打业务-存在补打提醒信息才会处理
 			if(isPackageReprint){
 				return this.dealPackageReprint(context);
@@ -241,7 +241,6 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	/**
 	 * 处理包裹补打操作-第一次补打发送mq并且标记打印记录,所有包裹打印完毕后清除补打提醒信息
 	 * @param context
-	 * @param newPreSiteInfo
 	 */
 	private InterceptResult<String> dealPackageReprint(WaybillPrintContext context) {
 		Waybill waybill = context.getWaybill();
@@ -290,7 +289,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	}
 	/**
 	 * 新增一条站点变更提示信息
-	 * @param printInfo
+	 * @param context
 	 * @param msg
 	 */
 	private void sendSiteChangeHitMsg(WaybillPrintContext context,String msg, MediumStationOrderInfo newPreSiteInfo) {
@@ -309,7 +308,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 	}
 	/**
 	 * 根据包裹号/运单号获取运单总重量
-	 * @param barCode
+	 * @param context
 	 * @return
 	 */
 	private WeightOperFlow getTotalWeight(WaybillPrintContext context){
