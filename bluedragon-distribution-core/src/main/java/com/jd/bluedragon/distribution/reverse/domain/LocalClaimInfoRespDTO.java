@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 public class LocalClaimInfoRespDTO{
 
     //物权归属 京东
-    public static final Integer GOOD_OWNER_JD = 1;
+    public static final Integer GOOD_OWNER_JD = 2;
     //物权归属 商家
-    public static final Integer GOOD_OWNER_BUSI = 2;
+    public static final Integer GOOD_OWNER_BUSI = 1;
 
     public static final String LP_STATUS_NONE = "无理赔";
     public static final String LP_STATUS_DOING = "理赔中";

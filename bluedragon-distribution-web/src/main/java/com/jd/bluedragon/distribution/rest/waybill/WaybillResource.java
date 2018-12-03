@@ -1401,9 +1401,9 @@ public class WaybillResource implements DmsWaybillService {
 				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage("理赔中运单禁止换单，请稍后再试");
 				return invokeResult;
-			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_BUSI){
-				twiceExchangeCheckDto.setReturnDestinationTypes("100");
 			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
+				twiceExchangeCheckDto.setReturnDestinationTypes("100");
+			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_BUSI){
 				twiceExchangeCheckDto.setReturnDestinationTypes("011");
 			}else if(LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(twiceExchangeCheckDto.getStatusOfLP())){
 				twiceExchangeCheckDto.setReturnDestinationTypes("011");
