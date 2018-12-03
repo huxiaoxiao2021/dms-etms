@@ -121,13 +121,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 String oldWaybill2Code = oldWaybill2.getData().getWaybillCode(); //V2
                 //理赔接口
                 LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybill2Code);
-
-                //理赔金额 结算主体 结算主体名称
-                bdInboundECLPDto.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney());
-                bdInboundECLPDto.setSettleSubjectCode(claimInfoRespDTO.getSettleSubjectCode());
-                bdInboundECLPDto.setSettleSubjectName(claimInfoRespDTO.getSettleSubjectName());
-
-
+                if(claimInfoRespDTO != null){
+                    //理赔金额 结算主体 结算主体名称
+                    bdInboundECLPDto.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney());
+                    bdInboundECLPDto.setSettleSubjectCode(claimInfoRespDTO.getSettleSubjectCode());
+                    bdInboundECLPDto.setSettleSubjectName(claimInfoRespDTO.getSettleSubjectName());
+                }
             }
         }
 

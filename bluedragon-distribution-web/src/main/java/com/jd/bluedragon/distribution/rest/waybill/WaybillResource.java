@@ -1391,7 +1391,11 @@ public class WaybillResource implements DmsWaybillService {
 			twiceExchangeCheckDto.setOldWaybillCode(oldWaybillCode);
 			//获取理赔状态及物权归属
 			LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,oldWaybillCode);
-
+			if(claimInfoRespDTO == null){
+				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage("理赔接口失败，请稍后再试");
+				return invokeResult;
+			}
 			twiceExchangeCheckDto.setGoodOwner(claimInfoRespDTO.getGoodOwnerName());
 			//划分理赔状态 以及 物权归属
 			twiceExchangeCheckDto.setStatusOfLP(claimInfoRespDTO.getStatusDesc());

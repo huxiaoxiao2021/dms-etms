@@ -71,11 +71,13 @@ public class OBCSManagerImpl implements OBCSManager{
                 respDTO.setStatusDesc(statusDesc);
             }else{
                 logger.error("理赔接口失败"+clueValue+" 原因："+apiResultDTO.getMessage());
+                return null;
             }
 
 
         }catch (Exception e){
             logger.error("理赔接口异常"+clueValue+" 原因：",e);
+            return null;
         }
 
 
