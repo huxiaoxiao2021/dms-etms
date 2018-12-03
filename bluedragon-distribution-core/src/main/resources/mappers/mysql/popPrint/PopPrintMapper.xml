@@ -46,8 +46,7 @@
 		cross_code, waybill_type, pop_receive_type, print_count,
 		third_waybill_code, queue_no, package_barcode, operate_type,
 		create_user_code, create_user, box_code, DRIVER_CODE, DRIVER_NAME, 
-		busi_id, busi_name,category_name
-		busi_id, busi_name,interface_type
+		busi_id, busi_name,category_name,interface_type
 	</sql>
 
     <sql id="Base_Where_List">
@@ -198,8 +197,7 @@
         #{packageBarcode, jdbcType=VARCHAR}, #{operateType,jdbcType=INTEGER},
         #{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
         #{driverCode,jdbcType=VARCHAR}, #{driverName,jdbcType=VARCHAR}, #{busiId,jdbcType=INTEGER},
-        #{busiName,jdbcType=VARCHAR}, #{categoryName, jdbcType=VARCHAR}
-        #{busiName,jdbcType=VARCHAR}, #{interfaceType,jdbcType=INTEGER}
+        #{busiName,jdbcType=VARCHAR}, #{categoryName, jdbcType=VARCHAR},#{interfaceType,jdbcType=INTEGER}
         )
     </insert>
 
