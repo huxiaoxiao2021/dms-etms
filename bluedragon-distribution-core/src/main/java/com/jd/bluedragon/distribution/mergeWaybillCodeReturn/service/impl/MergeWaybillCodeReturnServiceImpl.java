@@ -9,17 +9,20 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturnRequest;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillMessage;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
-import com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao;
+import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
+import com.jd.bluedragon.distribution.signAndReturn.service.MergedWaybillService;
+import com.jd.bluedragon.distribution.signAndReturn.service.SignReturnService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.DeliverInfoDto;
 import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
@@ -31,7 +34,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -64,7 +70,13 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     private BaseMinorManager baseMinorManager;
 
     @Autowired
-    private SignReturnDao signReturnDao;
+    private WaybillQueryApi waybillQueryApi;
+
+    @Autowired
+    private SignReturnService signReturnService;
+
+    @Autowired
+    private MergedWaybillService mergedWaybillService;
 
     /**
      * 判断是否相同
@@ -112,33 +124,9 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                     message.setOperatorUserId(mergeWaybillCodeReturnRequest.getOperateUserId());
                     message.setSiteCode(mergeWaybillCodeReturnRequest.getOperateUnitId());
                     message.setSiteName(mergeWaybillCodeReturnRequest.getSiteName());
-                    //TODO 落库开始
-                    SignReturnPrintM signReturnPrintM = new SignReturnPrintM();
-                    signReturnPrintM.setWaybillCodes(JSON.toJSONString(mergeWaybillCodeReturnRequest.getWaybillCodeList()));
-                    signReturnPrintM.setMergeCount(mergeWaybillCodeReturnRequest.getWaybillCodeList().size());
-                    signReturnPrintM.setMergedWaybillCode(newWaybillCode);
-                    signReturnPrintM.setOperateTime(DateHelper.parseDate(mergeWaybillCodeReturnRequest.getOperatorName()));
-                    signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
-                    signReturnPrintM.setOrgId(mergeWaybillCodeReturnRequest.getSiteName());
-                    BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
-                            true, false, false, false);
-                    if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
-                        Waybill waybill = entity.getData().getWaybill();
-                        if(waybill != null){
-                            signReturnPrintM.setBusiId(waybill.getBusiId());    //商家编码和商家名称
-                            signReturnPrintM.setBusiName(waybill.getBusiName());
-                            com.jd.ldop.basic.dto.ResponseDTO<List<BasicTraderReturnDTO>> responseDTO = baseMinorManager.getBaseTraderReturnListByTraderId(waybill.getBusiId());
-                            if(responseDTO != null && responseDTO.isSuccess()){
-                                List<BasicTraderReturnDTO> returnList = responseDTO.getResult();
-                                if(returnList != null && !returnList.isEmpty()){
-                                    signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle().toString()); //返单周期
-                                }
-                            }
-                        }
-                    }
-                    signReturnDao.add(signReturnPrintM); //插库
-
-                    //TODO 落库结束
+                    //数据落库
+                    insert(mergeWaybillCodeReturnRequest, newWaybillCode);
+                    //给运单发mq
                     this.logger.info("发送MQ[" + mergeWaybillReturnMQ.getTopic() + "],业务ID[" + newWaybillCode + "],消息主题: " + com.jd.fastjson.JSON.toJSONString(message));
                     mergeWaybillReturnMQ.sendOnFailPersistent(newWaybillCode, com.jd.fastjson.JSON.toJSONString(message));
                     //发全程跟踪
@@ -151,6 +139,56 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
             }
         }
         return result;
+    }
+
+    /**
+     * 数据落库
+     * @param mergeWaybillCodeReturnRequest
+     * @param newWaybillCode
+     */
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    private void insert(MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest, String newWaybillCode) {
+        SignReturnPrintM signReturnPrintM = new SignReturnPrintM();
+        List<MergedWaybill> mergedWaybillList = new ArrayList<MergedWaybill>();
+        for(String waybillCode : mergeWaybillCodeReturnRequest.getWaybillCodeList()){
+            MergedWaybill mergedWaybill = new MergedWaybill();
+            mergedWaybill.setWaybillCode(waybillCode);
+            //根据运单号获得妥投时间
+            BaseEntity<DeliverInfoDto> entity = waybillQueryApi.getDeliverInfo(waybillCode);
+            if(entity != null && entity.getResultCode() == 1 &&
+                    entity.getData() != null && entity.getData().getCreateTime() != null){
+                mergedWaybill.setDeliveredTime(entity.getData().getCreateTime());
+            }
+            mergedWaybillList.add(mergedWaybill);
+        }
+        signReturnPrintM.setMergedWaybillList(mergedWaybillList);
+        signReturnPrintM.setMergeCount(mergeWaybillCodeReturnRequest.getWaybillCodeList().size());
+        signReturnPrintM.setNewWaybillCode(newWaybillCode);
+        signReturnPrintM.setOperateTime(new Date(mergeWaybillCodeReturnRequest.getOperateTime()));
+        signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
+        signReturnPrintM.setOrgId(mergeWaybillCodeReturnRequest.getSiteName());
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
+                true, false, false, false);
+        if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
+            Waybill waybill = entity.getData().getWaybill();
+            if(waybill != null){
+                com.jd.ldop.basic.dto.ResponseDTO<List<BasicTraderReturnDTO>> responseDTO = baseMinorManager.getBaseTraderReturnListByTraderId(waybill.getBusiId());
+                if(responseDTO != null && responseDTO.isSuccess()){
+                    List<BasicTraderReturnDTO> returnList = responseDTO.getResult();
+                    if(returnList != null && !returnList.isEmpty()){
+                        signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle().toString()); //返单周期
+                        signReturnPrintM.setBusiId(returnList.get(0).getTraderCode());    //商家编码和商家名称
+                        signReturnPrintM.setBusiName(returnList.get(0).getTraderName());
+                    }
+                }
+            }
+        }
+        //将数据落库
+        signReturnService.add(signReturnPrintM);
+        for(MergedWaybill mergedWaybill : mergedWaybillList){
+            mergedWaybill.setSignReturnPrintMId(signReturnPrintM.getId());
+        }
+        mergedWaybillService.bathAdd(mergedWaybillList);
     }
 
     /**

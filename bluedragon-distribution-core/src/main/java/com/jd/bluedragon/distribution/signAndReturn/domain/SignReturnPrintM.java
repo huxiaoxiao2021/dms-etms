@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.signAndReturn.domain;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 
 /**
  * @ClassName: SignReturnPrintM
@@ -13,13 +13,17 @@ import java.util.Map;
 public class SignReturnPrintM implements Serializable {
 
     /**
+     * 主键id
+     * */
+    private Long id;
+    /**
      * 签单返回合单运单号
      * */
-    private String mergedWaybillCode;
+    private String newWaybillCode;
     /**
      * 商家编码
      * */
-    private Integer busiId;
+    private String busiId;
     /**
      * 商家名称
      * */
@@ -47,41 +51,49 @@ public class SignReturnPrintM implements Serializable {
     /**
      * 旧单号集合
      * */
-    private String waybillCodes;
+    private List<MergedWaybill> mergedWaybillList;
     /**
-     * 运单号和妥投时间对应的map集合
+     * 是否删除 0-已删除，1-未删除
      * */
-    private Map<String,Date> map;
+    private Integer yn;
 
-    public String getWaybillCodes() {
-        return waybillCodes;
+    public Integer getYn() {
+        return yn;
     }
 
-    public void setWaybillCodes(String waybillCodes) {
-        this.waybillCodes = waybillCodes;
+    public Long getId() {
+        return id;
     }
 
-    public Map<String, Date> getMap() {
-        return map;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setMap(Map<String, Date> map) {
-        this.map = map;
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 
-    public String getMergedWaybillCode() {
-        return mergedWaybillCode;
+    public List<MergedWaybill> getMergedWaybillList() {
+        return mergedWaybillList;
     }
 
-    public void setMergedWaybillCode(String mergedWaybillCode) {
-        this.mergedWaybillCode = mergedWaybillCode;
+    public void setMergedWaybillList(List<MergedWaybill> mergedWaybillList) {
+        this.mergedWaybillList = mergedWaybillList;
     }
 
-    public Integer getBusiId() {
+    public String getNewWaybillCode() {
+        return newWaybillCode;
+    }
+
+    public void setNewWaybillCode(String newWaybillCode) {
+        this.newWaybillCode = newWaybillCode;
+    }
+
+    public String getBusiId() {
         return busiId;
     }
 
-    public void setBusiId(Integer busiId) {
+    public void setBusiId(String busiId) {
         this.busiId = busiId;
     }
 

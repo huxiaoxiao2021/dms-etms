@@ -27,12 +27,21 @@ public class SignReturnDao extends BaseDao<SignReturnPrintM> {
 
     /**
      * 根据运单号获得签单信息
-     * @param signReturnCondition
+     * @param condition
      * @return
      */
-    public List<SignReturnPrintM> getListByWaybillCode(SignReturnCondition signReturnCondition){
+    public List<SignReturnPrintM> getListByWaybillCode(SignReturnCondition condition){
 
-        return this.getSqlSession().selectList(namespace + ".getListByWaybillCode",signReturnCondition);
+        return this.getSqlSession().selectList(namespace + ".getListByWaybillCode",condition);
     }
 
+    /**
+     * 根据id获得签单信息
+     * @param id
+     * @return
+     */
+    public List<SignReturnPrintM> getSignReturnById(Long id) {
+
+        return this.getSqlSession().selectList(namespace + ".getSignReturnById",id);
+    }
 }

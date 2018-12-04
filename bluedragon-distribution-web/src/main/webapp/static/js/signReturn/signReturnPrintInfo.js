@@ -3,14 +3,14 @@ $(function() {
     jQuery.ajax({
         type: 'GET',
         contentType : 'application/json',
-        url : "/signReturn/printInfo?waybillCode="+$('#waybillCode').val()+"&waybillCodeInMerged="+$('#waybillCodeInMerged').val(),
+        url : "/signReturn/printInfo?newWaybillCode="+$('#newWaybillCode').val()+"&waybillCode="+$('#waybillCode').val(),
         dataType : 'json',
         async : true,
         success : function(result) {
 
             //TODO 填充主表的数据
             var temp = "";
-            temp+="<td>"+result['mergedWaybillCode']+"</td>";
+            temp+="<td>"+result['newWaybillCode']+"</td>";
             temp+="<td>"+result['busiId']+"</td>";
             temp+="<td>"+result['busiName']+"</td>";
             temp+="<td>"+result['returnCycle']+"</td>";
@@ -25,16 +25,15 @@ $(function() {
             temp+= "<tr><td>运单号</td><td>妥投时间</td><td>运单号</td><td>妥投时间</td></tr>";
 
             debugger;
-            var map = result['map'];
+            var list = result['mergedWaybillList'];
             var t = 0;
             temp += "<tr>";
-            for(var key in map){
+            for(var key in list){
                 t++;
                 if(t%2 == 1){
                     temp += "<tr>";
                 }
-                // temp += "<td>"+key+"</td><td>"+map[key]+"</td>";
-                temp += "<td>"+key+"</td><td>"+$.dateHelper.formateDateTimeOfTs(map[key])+"</td>";
+                temp += "<td>"+list[key]['waybillCode']+"</td><td>"+$.dateHelper.formateDateTimeOfTs(list[key]['deliveredTime'])+"</td>";
                 if(t%2 == 0){
                     temp += "</tr>";
                 }

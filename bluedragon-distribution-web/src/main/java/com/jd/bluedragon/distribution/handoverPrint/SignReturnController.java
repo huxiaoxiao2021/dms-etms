@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.handoverPrint;
 
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.signAndReturn.SignReturnService;
+import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
+import com.jd.bluedragon.distribution.signAndReturn.service.MergedWaybillService;
+import com.jd.bluedragon.distribution.signAndReturn.service.SignReturnService;
 import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -19,10 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.Collections;
 
 /**
  * @ClassName: SignReturnController
@@ -38,6 +38,9 @@ public class SignReturnController extends DmsBaseController {
 
     @Autowired
     private SignReturnService signReturnService;
+
+    @Autowired
+    private MergedWaybillService mergedWaybillService;
 
 
     /**
@@ -55,23 +58,19 @@ public class SignReturnController extends DmsBaseController {
      */
     @RequestMapping(value = "/query")
     public @ResponseBody PagerResult<SignReturnPrintM> query(@RequestBody SignReturnCondition condition){
-        /*PagerResult<SignReturnPrintM> result = new PagerResult<SignReturnPrintM>();
-        List<SignReturnPrintM> list = new ArrayList<SignReturnPrintM>();
-        SignReturnPrintM signReturn = new SignReturnPrintM();
-        signReturn.setBusiId(1);
-        signReturn.setBusiName("京东");
-        signReturn.setMergeCount(new Random().nextInt(1000));
-        signReturn.setMergedWaybillCode("VA123321123");
-        signReturn.setOperateTime(new Date());
-        signReturn.setOperateUser("张三");
-        signReturn.setOrgId("1234");
-        signReturn.setReturnCycle("每周一次");
-        if(((new Random().nextInt(2)+1)/2 == 0)){
-            list.add(signReturn);
+
+        PagerResult<SignReturnPrintM> result = new PagerResult<SignReturnPrintM>();
+        result.setRows(Collections.<SignReturnPrintM>emptyList());
+        result.setTotal(0);
+        if(StringHelper.isNotEmpty(condition.getNewWaybillCode())){
+            result = signReturnService.getListByWaybillCode(condition);
+            if(result.getRows().size() == 0 && StringHelper.isNotEmpty(condition.getWaybillCode())){
+                result = mergedWaybillService.getSignReturnByConditon(condition);
+            }
+        }else if(StringHelper.isEmpty(condition.getNewWaybillCode()) && StringHelper.isNotEmpty(condition.getWaybillCode())) {
+            result = mergedWaybillService.getSignReturnByConditon(condition);
+
         }
-        result.setRows(list);
-        result.setTotal(list.size());*/
-        PagerResult<SignReturnPrintM> result = signReturnService.getListByWaybillCode(condition);
         return result;
     }
 
@@ -80,20 +79,18 @@ public class SignReturnController extends DmsBaseController {
      * @return
      */
     @RequestMapping(value = "/listData")
-    public @ResponseBody PagerResult<SignReturnPrintM> listData(@RequestBody SignReturnCondition condition){
-        /*PagerResult<SignReturnPrintM> result = new PagerResult<SignReturnPrintM>();
-        List<SignReturnPrintM> list = new ArrayList<SignReturnPrintM>();
-        SignReturnPrintM signReturn = new SignReturnPrintM();
-        signReturn.setWaybillCode("VA00042113141");
-        signReturn.setDeliveredTime(new Date());
-        list.add(signReturn);
-        for(int i=0;i<new Random().nextInt(5);i++){
-            list.add(signReturn);
+    public @ResponseBody PagerResult<MergedWaybill> listData(@RequestBody SignReturnCondition condition){
+
+        PagerResult<MergedWaybill> result = new PagerResult<MergedWaybill>();
+        PagerResult<SignReturnPrintM> signReturnResult = query(condition);
+        if(signReturnResult.getRows() != null && signReturnResult.getRows().size() > 0){
+            SignReturnPrintM signReturnPrintM = signReturnResult.getRows().get(0);
+            result.setRows(signReturnPrintM.getMergedWaybillList());
+            result.setTotal(signReturnPrintM.getMergedWaybillList().size());
+        }else {
+            result.setRows(Collections.<MergedWaybill>emptyList());
+            result.setTotal(0);
         }
-        result.setRows(list);
-        result.setTotal(list.size());
-        return result;*/
-        PagerResult<SignReturnPrintM> result = signReturnService.getListByWaybillCode(condition);
         return result;
     }
 
@@ -106,7 +103,8 @@ public class SignReturnController extends DmsBaseController {
 
         this.logger.info("导出签单返回合单打印交接单");
         try{
-            signReturnService.toExport(condition,response);
+            PagerResult<SignReturnPrintM> result = query(condition);
+            signReturnService.toExport(result,response);
         }catch (Exception e){
             this.logger.error("导出失败!");
         }finally {
@@ -123,8 +121,8 @@ public class SignReturnController extends DmsBaseController {
     @RequestMapping(value = "/toPrint")
     public String toPrint(SignReturnCondition condition,Model model){
 
-        model.addAttribute("waybillCode","waybillCode");
-        model.addAttribute("waybillCodeInMerged","waybillCodeInMerged");
+        model.addAttribute("newWaybillCode",condition.getNewWaybillCode());
+        model.addAttribute("waybillCode",condition.getWaybillCode());
         return "/signReturn/signReturnPrintInfo";
     }
 
@@ -133,24 +131,14 @@ public class SignReturnController extends DmsBaseController {
      * */
     @ResponseBody
     @RequestMapping(value = "/printInfo")
-    public String printInfo(@QueryParam("waybillCode")String waybillCode,
-                            @QueryParam("waybillCodeInMerged")String waybillCodeInMerged,Model model){
+    public String printInfo(@QueryParam("newWaybillCode")String newWaybillCode,
+                            @QueryParam("waybillCode")String waybillCode){
 
-        SignReturnPrintM signReturn = new SignReturnPrintM();
-        signReturn.setBusiId(1);
-        signReturn.setBusiName("京东");
-        signReturn.setMergeCount(new Random().nextInt(1000));
-        signReturn.setMergedWaybillCode("VA123321123");
-        signReturn.setOperateTime(new Date());
-        signReturn.setOperateUser("张三");
-        signReturn.setOrgId("1234");
-        signReturn.setReturnCycle("每周一次");
-        Map<String,Date> map = new HashMap<String, Date>();
-        map.put("VA66669769281",new Date());
-        map.put("VA66669769282",new Date());
-        map.put("VA66669769283",new Date());
-        map.put("VA66669769284",new Date());
-        signReturn.setMap(map);
+        SignReturnCondition condition = new SignReturnCondition();
+        condition.setNewWaybillCode(newWaybillCode);
+        condition.setWaybillCode(waybillCode);
+        PagerResult<SignReturnPrintM> result = query(condition);
+        SignReturnPrintM signReturn = result.getRows().get(0);
         String json = JsonHelper.toJson(signReturn);
         return json;
     }

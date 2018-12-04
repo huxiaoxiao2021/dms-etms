@@ -3,8 +3,8 @@
 <mapper namespace="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao" >
 
 	<resultMap id="signReturnPrintM" type="signReturnPrintM" >
-		<result column="signReturn_id" property="id" />
-		<result column="mergedWaybillCode" property="mergedWaybillCode" />
+		<result column="id" property="id" />
+		<result column="new_waybill_code" property="newWaybillCode" />
 		<result column="busi_id" property="busiId" />
 		<result column="busi_name" property="busiName" />
 		<result column="return_cycle" property="returnCycle" />
@@ -12,28 +12,37 @@
 		<result column="org_id" property="orgId" />
 		<result column="operate_user" property="operateUser" />
 		<result column="merge_count" property="mergeCount" />
-		<result column="waybillCodes" property="waybillCodes" />
+		<result column="yn" property="yn" />
 	</resultMap>
 	
-	<insert id="add" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
-		INSERT INTO SignReturn (
-			signReturn_id, mergedWaybillCode, busi_id, busi_name, return_cycle,
-			operate_time, org_id, operate_user, merge_count,waybillCodes)
+	<insert id="add" parameterType="signReturnPrintM" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO sign_return (
+			new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, org_id, operate_user, merge_count,yn)
 		VALUES (
-			#{id,jdbcType=BIGINT}, #{mergedWaybillCode,jdbcType=VARCHAR}, #{busiId,jdbcType=VARCHAR},
-			#{busi_name,jdbcType=INTEGER}, #{return_cycle,jdbcType=VARCHAR},
-			#{operate_time,jdbcType=VARCHAR}, #{org_id,jdbcType=VARCHAR},
-			#{operate_user,jdbcType=INTEGER}, #{merge_count,jdbcType=VARCHAR},
-			#{waybillCodes,jdbcType=INTEGER})
+			#{newWaybillCode,jdbcType=VARCHAR}, #{busiId,jdbcType=VARCHAR},
+			#{busiName,jdbcType=VARCHAR}, #{returnCycle,jdbcType=VARCHAR},
+			#{operateTime,jdbcType=TIMESTAMP}, #{orgId,jdbcType=VARCHAR},
+			#{operateUser,jdbcType=VARCHAR}, #{mergeCount,jdbcType=INTEGER},1)
 	</insert>
 
 	<select id="getListByWaybillCode" resultMap="signReturnPrintM" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
 
-		SELECT signReturn_id, mergedWaybillCode, busi_id, busi_name, return_cycle,
-			operate_time, org_id, operate_user, merge_count,waybillCodes
-		FROM SignReturn
-		WHERE mergedWaybillCode = #{waybillCode} OR waybillCodes LIKE concat('%',#{waybillCodeInMerged,jdbcType=VARCHAR})
-			OR waybillCodes LIKE concat(#{waybillCodeInMerged,jdbcType=VARCHAR},'%')
+		SELECT id, new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, org_id, operate_user, merge_count,yn
+		FROM sign_return
+		WHERE yn = 1
+		AND new_waybill_code = #{newWaybillCode,jdbcType=VARCHAR}
+		 LIMIT 1
+	</select>
+
+	<select id="getSignReturnById" resultMap="signReturnPrintM" parameterType="Long" >
+
+		SELECT id, new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, org_id, operate_user, merge_count,yn
+		FROM sign_return
+		WHERE yn = 1
+		AND id = #{id,jdbcType=BIGINT}
 		 LIMIT 1
 	</select>
 

@@ -31,7 +31,7 @@
 	                            <div class="form-group">
 	                                <label class="control-label col-xs-4">合单后运单号/包裹号：</label>
 	                                <div class="col-xs-5">
-										<input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" >
+										<input type="text" id="newWaybillCode" name="newWaybillCode" class="form-control search-param" >
 	                                </div>
 	                            </div>
                         	</div>
@@ -39,7 +39,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-xs-5">合单内任意一个运单号/包裹号：</label>
                                     <div class="col-xs-5">
-                                        <input type="text" id="waybillCodeInMerged" name="waybillCodeInMerged" class="form-control search-param" >
+                                        <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" >
                                     </div>
                                 </div>
                             </div>

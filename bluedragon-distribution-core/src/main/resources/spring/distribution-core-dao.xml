@@ -465,4 +465,7 @@
     <bean id="signReturnDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="mergedWaybillDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.MergedWaybillDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>

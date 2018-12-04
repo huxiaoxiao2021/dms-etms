@@ -72,7 +72,7 @@ $(function() {
 		};
 		oTableInit.tableColums = [
 			{
-				field : 'mergedWaybillCode',
+				field : 'newWaybillCode',
 				title : '签单返回合单运单号',
                 width:200,
                 class:'min_120'
@@ -186,56 +186,58 @@ $(function() {
                 width:200,
                 class:'min_120'
             }];
+        oTableInit.refresh = function() {
+            $('#dataTableList').bootstrapTable('refresh');
+        };
         return oTableInit;
     };
-
+    var refreshCount = 0;
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
 
             $('#dataTable').on('load-success.bs.table', function (e, data) {
-                if(data && data.rows && data.rows.length >0){
-                    dataTableListInit().init();
-                }else{
-                	//TODO
-                    dataTableListInit.display = "none";
+                debugger;
+                if( data && data.rows){
+                    if( refreshCount <1){
+                        refreshCount++;
+                        dataTableListInit().init();
+                    }
                 }
+
             });
 
 			//1.查询
 		    $('#btn_query').click(function() {
+
 		    	tableInit().refresh();
-                /*$('#dataTable').on('load-success.bs.table', function (e, data) {
-                    if(data && data.rows && data.rows.length >0){
-                        dataTableListInit().init();
-                    }else{
-                        //TODO
-                        dataTableListInit.display = "none";
-                    }
-                });*/
+                dataTableListInit().refresh();
+
 			});
 
             //2.导出
 			$('#btn_export').click(function() {
                 //TODO
-                /*if ($('#dataTableList').rows.length > 2){
+                var newWaybillCode = $('#newWaybillCode').val();
+                var waybillCode = $('#waybillCode').val();
+                if(!newWaybillCode && !waybillCode){
                     Jd.alert("无可导出内容");
                     return;
-                }*/
+                }
                 // 提交表单
-                var waybillCode=$("#waybillCode").val();
-                var waybillCodeInMerged = $("#waybillCodeInMerged").val();
+                var newWaybillCode=$("#newWaybillCode").val();
+                var waybillCode = $("#waybillCode").val();
                 var url = "/signReturn/toExport";
                 var form = $("<form method='post'></form>"),
                     input1,input2;
                 form.attr({"action": url});
 
                 input1 = $("<input type='hidden' id='input1' class='search-param'>");
-                input1.attr({"name": "waybillCode"});
-                input1.val(waybillCode);
+                input1.attr({"name": "newWaybillCode"});
+                input1.val(newWaybillCode);
                 input2 = $("<input type='hidden' id='input2' class='search-param'>");
-                input2.attr({"name": "waybillCodeInMerged"});
-                input2.val(waybillCodeInMerged);
+                input2.attr({"name": "waybillCode"});
+                input2.val(waybillCode);
                 form.append(input1).append(input2);
                 form.appendTo(document.body);
                 form.submit();
@@ -246,7 +248,13 @@ $(function() {
 			//4.打印
 			$('#btn_print').click(function() {
 				//TODO
-                window.open("/signReturn/toPrint?waybillCode="+$('#waybillCode').val()+"&waybillCodeInMerged="+$('#waybillCodeInMerged').val());
+                var newWaybillCode = $('#newWaybillCode').val();
+                var waybillCode = $('#waybillCode').val();
+                if(!newWaybillCode && !waybillCode){
+                    Jd.alert("无可打印内容");
+                    return;
+                }
+                window.open("/signReturn/toPrint?newWaybillCode="+$('#newWaybillCode').val()+"&waybillCode="+$('#waybillCode').val());
 			});
 		};
 		return oInit;

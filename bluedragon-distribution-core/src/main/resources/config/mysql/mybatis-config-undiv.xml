@@ -106,6 +106,7 @@
 
         <!-- 签单返回 -->
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
+        <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill" alias="mergedWaybill"/>
     </typeAliases>
 
     <plugins>
@@ -277,6 +278,7 @@
 
         <!-- 签单返回 -->
         <mapper resource="mappers/mysql/mergeAndReturn/MergeAndReturnMapper.xml"/>
+        <mapper resource="mappers/mysql/mergeAndReturn/MergedWaybillMapper.xml"/>
 
     </mappers>
 </configuration>

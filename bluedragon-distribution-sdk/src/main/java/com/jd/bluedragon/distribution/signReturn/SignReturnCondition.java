@@ -13,11 +13,19 @@ public class SignReturnCondition extends BasePagerCondition {
     /**
      * 合单运单号/包裹号
      * */
-    private String waybillCode;
+    private String newWaybillCode;
     /**
      * 合单内运单号/包裹号
      * */
-    private String waybillCodeInMerged;
+    private String waybillCode;
+
+    public String getNewWaybillCode() {
+        return newWaybillCode;
+    }
+
+    public void setNewWaybillCode(String newWaybillCode) {
+        this.newWaybillCode = newWaybillCode;
+    }
 
     public String getWaybillCode() {
         return waybillCode;
@@ -25,13 +33,5 @@ public class SignReturnCondition extends BasePagerCondition {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
-    }
-
-    public String getWaybillCodeInMerged() {
-        return waybillCodeInMerged;
-    }
-
-    public void setWaybillCodeInMerged(String waybillCodeInMerged) {
-        this.waybillCodeInMerged = waybillCodeInMerged;
     }
 }

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.signAndReturn;
+package com.jd.bluedragon.distribution.signAndReturn.service;
 
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
 import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
@@ -16,10 +16,22 @@ public interface SignReturnService {
 
     /**
      * 导出
-     * @param condition
+     * @param response
      * @param response
      */
-    void toExport(SignReturnCondition condition, HttpServletResponse response);
+    void toExport(PagerResult<SignReturnPrintM> result, HttpServletResponse response);
 
+    /**
+     * 根据运单号获得签单返回打印交接单信息
+     * @param condition
+     * @return
+     */
     PagerResult<SignReturnPrintM> getListByWaybillCode(SignReturnCondition condition);
+
+    /**
+     * 新增
+     * @param signReturnPrintM
+     * @return
+     */
+    int add(SignReturnPrintM signReturnPrintM);
 }

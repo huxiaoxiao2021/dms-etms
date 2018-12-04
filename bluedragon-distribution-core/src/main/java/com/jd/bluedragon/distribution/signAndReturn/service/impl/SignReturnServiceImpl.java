@@ -1,15 +1,14 @@
-package com.jd.bluedragon.distribution.signAndReturn.impl;
+package com.jd.bluedragon.distribution.signAndReturn.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.signAndReturn.SignReturnService;
 import com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao;
+import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
+import com.jd.bluedragon.distribution.signAndReturn.service.MergedWaybillService;
+import com.jd.bluedragon.distribution.signAndReturn.service.SignReturnService;
 import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcelDownFee;
-import com.jd.etms.waybill.api.WaybillQueryApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.DeliverInfoDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -20,11 +19,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 /**
  * @ClassName: SignReturnServiceImpl
@@ -39,36 +36,31 @@ public class SignReturnServiceImpl implements SignReturnService {
 
     @Autowired
     private SignReturnDao signReturnDao;
+
     @Autowired
-    private WaybillQueryApi waybillQueryApi;
+    private MergedWaybillService mergedWaybillService;
 
     /**
      * 导出
-     * @param condition
+     * @param result
      * @param response
      */
     @Override
-    public void toExport(SignReturnCondition condition, HttpServletResponse response) {
+    public void toExport(PagerResult<SignReturnPrintM> result, HttpServletResponse response) {
 
         try {
-            //例子开始
-            List<SignReturnPrintM> list = new ArrayList<SignReturnPrintM>();
-            SignReturnPrintM signReturn = new SignReturnPrintM();
-            signReturn.setBusiId(1);
-            signReturn.setBusiName("京东");
-            signReturn.setMergeCount(new Random().nextInt(1000));
-            signReturn.setMergedWaybillCode("VA123321123");
-            signReturn.setOperateTime(new Date());
-            signReturn.setOperateUser("张三");
-            signReturn.setOrgId("1234");
-            signReturn.setReturnCycle("每周一次");
-            list.add(signReturn);
-            //例子结束
+            //获取数据
+            List<SignReturnPrintM> list = result.getRows();
+            List<MergedWaybill> mergedWaybillList = Collections.emptyList();
+            if(list != null && list.size() > 0){
+                mergedWaybillList = result.getRows().get(0).getMergedWaybillList();
+            }
+
             HSSFWorkbook workbook = new HSSFWorkbook();
             OutputStream out = response.getOutputStream();
             //接下来循环list放到Excel表中
             //文件标题
-            SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat formatter1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
             String nowdate = formatter1.format(new Date());
             String title = null;
             title = "签单返回合单打印交接单-" + nowdate + ".xls";
@@ -79,7 +71,7 @@ public class SignReturnServiceImpl implements SignReturnService {
             Object[] objs = null;
             for(SignReturnPrintM signReturnPrintM : list){
                 objs = new Object[headers.length];
-                objs[0] = signReturnPrintM.getMergedWaybillCode();
+                objs[0] = signReturnPrintM.getNewWaybillCode();
                 objs[1] = signReturnPrintM.getBusiId();
                 objs[2] = signReturnPrintM.getBusiName();
                 objs[3] = signReturnPrintM.getReturnCycle();
@@ -94,10 +86,10 @@ public class SignReturnServiceImpl implements SignReturnService {
             String[] headers1 = new String[] {"运单号","妥投时间"};
             List<Object[]> dataList1 = new ArrayList<Object[]>();
             Object[] objs1 = null;
-            for(SignReturnPrintM signReturnPrintM : list){
+            for(MergedWaybill mergedWaybill : mergedWaybillList){
                 objs1 = new Object[headers1.length];
-//                objs1[0] = signReturnPrintM.getWaybillCode();
-//                objs1[1] = DateHelper.formatDate(signReturnPrintM.getDeliveredTime(), Constants.DATE_TIME_FORMAT);
+                objs1[0] = mergedWaybill.getWaybillCode();
+                objs1[1] = DateHelper.formatDate(mergedWaybill.getDeliveredTime(), Constants.DATE_TIME_FORMAT);
                 dataList1.add(objs1);
             }
 
@@ -117,40 +109,40 @@ public class SignReturnServiceImpl implements SignReturnService {
             workbook.write(out);
             out.close();
         } catch (Exception e) {
-            this.logger.error("根据"+condition.getWaybillCode()+"/"+condition.getWaybillCodeInMerged()+"导出excel失败!");
+            this.logger.error("根据运单号导出excel失败!");
         }
 
     }
 
+    /**
+     * 根据运单号获得签单返回打印交接单信息
+     * @param condition
+     * @return
+     */
     @Override
     public PagerResult<SignReturnPrintM> getListByWaybillCode(SignReturnCondition condition) {
 
-        List<SignReturnPrintM> signReturnPrintMList = signReturnDao.getListByWaybillCode(condition);
-        List<SignReturnPrintM> signReturnPrintMListD = new ArrayList<SignReturnPrintM>();
-        //获取妥投时间和返单周期
-        for(SignReturnPrintM signReturnPrintM : signReturnPrintMList){
-            signReturnPrintM.setReturnCycle("");
-
-            List<String> list = new ArrayList<String>();
-            Map<String,Date> map = new HashMap<String,Date>();
-            //根据运单号获取妥投时间
-            BaseEntity<DeliverInfoDto> deliverInfo = null;
-            for(String waybillCode : list){
-                deliverInfo = waybillQueryApi.getDeliverInfo(waybillCode);
-                if(deliverInfo.getResultCode() == 1){
-                    if(deliverInfo.getData() != null && deliverInfo.getData().getCreateTime() != null){
-                        map.put(waybillCode,deliverInfo.getData().getCreateTime());
-                    }
-                }else {
-                    map.put(waybillCode,null);
-                }
-            }
-            signReturnPrintM.setMap(map);
-            signReturnPrintMListD.add(signReturnPrintM);
-        }
         PagerResult<SignReturnPrintM> result = new PagerResult<SignReturnPrintM>();
-        result.setRows(signReturnPrintMListD);
-        result.setTotal(signReturnPrintMListD.size());
-        return null;
+
+        List<SignReturnPrintM> signReturnPrintMList = signReturnDao.getListByWaybillCode(condition);
+        for(SignReturnPrintM signReturnPrintM : signReturnPrintMList){
+            List<MergedWaybill> mergedWaybills = mergedWaybillService.getListBySignReturnPrintMId(signReturnPrintM.getId());
+            signReturnPrintM.setMergedWaybillList(mergedWaybills);
+        }
+        result.setRows(signReturnPrintMList);
+        result.setTotal(signReturnPrintMList.size());
+
+        return result;
     }
+
+    /**
+     * 新增
+     * @param signReturnPrintM
+     * @return
+     */
+    @Override
+    public int add(SignReturnPrintM signReturnPrintM){
+        return signReturnDao.add(signReturnPrintM);
+    }
+
 }
