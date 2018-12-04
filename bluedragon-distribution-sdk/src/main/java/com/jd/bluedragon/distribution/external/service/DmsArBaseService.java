@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
+import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
 
 import java.util.List;
@@ -19,4 +21,10 @@ public interface DmsArBaseService {
      */
     List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg);
 
+    /**
+     * 航空转陆运异常提交
+     * @param arAbnormalRequest
+     * @return
+     */
+     ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest);
 }

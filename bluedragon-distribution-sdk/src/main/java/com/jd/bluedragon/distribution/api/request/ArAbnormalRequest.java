@@ -13,9 +13,9 @@ public class ArAbnormalRequest extends JdRequest {
      */
     private  Integer transpondType;
     /**
-     * 异常原因
+     * 异常原因 10违禁品、20航班异常、30天气原因、40其他
      */
-    private String transpondReason;
+    private Integer transpondReason;
 
     /**
      * 包裹号、运单号、箱号、批次号
@@ -30,11 +30,11 @@ public class ArAbnormalRequest extends JdRequest {
         this.transpondType = transpondType;
     }
 
-    public String getTranspondReason() {
+    public Integer getTranspondReason() {
         return transpondReason;
     }
 
-    public void setTranspondReason(String transpondReason) {
+    public void setTranspondReason(Integer transpondReason) {
         this.transpondReason = transpondReason;
     }
 
