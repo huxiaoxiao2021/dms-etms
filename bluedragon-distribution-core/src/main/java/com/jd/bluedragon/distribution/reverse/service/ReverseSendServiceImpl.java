@@ -1036,10 +1036,17 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             if (WaybillUtil.isMCSCode(sd.getWaybillCode())) {
                 vySendDetails.add(sd);
             }else if(!WaybillUtil.isReverseSpareCode(sd.getWaybillCode()) ){
-            //分离ECLP订单  通过判断不是备件条码 并且 生产单号符合ECLP规则 18位为5
+            //分离ECLP订单  通过判断不是备件条码 并且 生产单号符合ECLP规则 二次换单标识18位为5
             Waybill waybill = waybillCommonService.findByWaybillCode(sd.getWaybillCode());
-            if(waybill!=null && StringUtils.isNotBlank(waybill.getBusiOrderCode()) && WaybillUtil.isECLPByBusiOrderCode(waybill.getBusiOrderCode()) && BusinessUtil.isTwiceExchageWaybillSpare(waybill.getWaybillSign())){
-                eclpSendDetails.add(sd);
+            if(waybill!=null && BusinessUtil.isTwiceExchageWaybillSpare(waybill.getWaybillSign())){
+                //二次换单后的新单生产单号字段被外单覆盖，需要从原单获取
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybillResp = waybillQueryManager.getWaybillByReturnWaybillCode(sd.getWaybillCode());
+                if(oldWaybillResp!= null && oldWaybillResp.getData()!=null
+                        && WaybillUtil.isECLPByBusiOrderCode(oldWaybillResp.getData().getBusiOrderCode())){
+                    //此时才认为是eclp订单
+                    eclpSendDetails.add(sd);
+                }
+                logger.error("分离逆向退备件库运单集合时出现异常数据"+sd.getWaybillCode()+"|"+sd.getSendCode());
             }else{
                 nomarlSendDetails.add(sd);
             }
@@ -1690,7 +1697,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     continue;
                 }
                 BdInboundECLPDto bdInboundECLPDto =  reverseSpareEclp.makeEclpMessage(waybillCode,sendDetail);
-
+                if(bdInboundECLPDto==null){
+                    logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
+                    continue;
+                }
                 reverseSendSpareEclpProducer.send(waybillCode,JsonHelper.toJson(bdInboundECLPDto));
                 doneWaybill.add(waybillCode);
             }

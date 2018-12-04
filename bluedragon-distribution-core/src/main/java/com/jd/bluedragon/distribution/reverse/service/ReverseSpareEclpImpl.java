@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDetail;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -73,17 +74,29 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
         // 组装 机构编码 配送中心编码 库房编码
         Waybill waybill =  waybillCommonService.findByWaybillCode(waybillCode);
+        String eclpBusiOrderCode;
+        String oldWaybillCodeV2; //V2单号
         if(waybill != null){
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybillResp = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if(oldWaybillResp!= null && oldWaybillResp.getData()!=null  && WaybillUtil.isECLPByBusiOrderCode(oldWaybillResp.getData().getBusiOrderCode())) {
+                eclpBusiOrderCode = oldWaybillResp.getData().getBusiOrderCode();
+                oldWaybillCodeV2 = oldWaybillResp.getData().getWaybillCode();
+            }else{
+                logger.error("组装逆向退备件库运单集合时出现异常数据，原单不符合规则"+waybillCode+"|"+sendDetail.getSendCode());
+                return null;
+            }
             bdInboundECLPDto.setCky2(cky2);
             bdInboundECLPDto.setStoreId(storeId);
             bdInboundECLPDto.setOrgId(siteOrgDto.getOrgId().toString());
-            bdInboundECLPDto.setBusiOrderCode(waybill.getBusiOrderCode());
+            bdInboundECLPDto.setBusiOrderCode(eclpBusiOrderCode);
+        }else {
+            logger.error("组装逆向退备件库运单集合时出现异常数据，运单空"+waybillCode+"|"+sendDetail.getSendCode());
+            return null;
         }
 
         //目的事业部编码(新事业部编码)
 
-
-        List<ItemInfo> itemInfos =  eclpItemManager.getltemBySoNo(waybill.getBusiOrderCode());
+        List<ItemInfo> itemInfos =  eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
         if(itemInfos!=null && itemInfos.size()>0){
             //商家事业部ID
             bdInboundECLPDto.setOriginDeptId(itemInfos.get(0).getDeptId().toString());
@@ -102,6 +115,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 goodsList.add(bdInboundECLPDetail);
             }
 
+        }else{
+            logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 "+waybillCode+"|"+sendDetail.getSendCode());
+            return null;
         }
 
         //操作人  操作时间
@@ -110,30 +126,29 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
 
         //理赔金额
-        //获取老单号  通过V3 获取 V2 在通过V2 获取V1
-        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
-        if(oldWaybill.getResultCode()==1 && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())) {
-            String oldWaybillCode = oldWaybill.getData().getWaybillCode(); //V2
-
-            //在此获取老单号 V1
-            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCode);
-            if(oldWaybill2.getResultCode()==1 && oldWaybill2.getData()!=null && StringUtils.isNotBlank(oldWaybill2.getData().getWaybillCode())) {
-                String oldWaybill2Code = oldWaybill2.getData().getWaybillCode(); //V2
-                //理赔接口
-                LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybill2Code);
-                if(claimInfoRespDTO != null){
-                    //理赔金额 结算主体 结算主体名称
-                    bdInboundECLPDto.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney());
-                    bdInboundECLPDto.setSettleSubjectCode(claimInfoRespDTO.getSettleSubjectCode());
-                    bdInboundECLPDto.setSettleSubjectName(claimInfoRespDTO.getSettleSubjectName());
-                }
+        //获取老单号  通过V3 获取 V2 在通过V2  获取V1
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybillCodeV1 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV2);
+        if(oldWaybillCodeV1.getResultCode()==1 && oldWaybillCodeV1.getData()!=null && StringUtils.isNotBlank(oldWaybillCodeV1.getData().getWaybillCode())) {
+            String oldWaybillCodeV1Code = oldWaybillCodeV1.getData().getWaybillCode(); //V1
+            //理赔接口
+            LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1Code);
+            if(claimInfoRespDTO != null){
+                //理赔金额 结算主体 结算主体名称
+                bdInboundECLPDto.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney());
+                bdInboundECLPDto.setSettleSubjectCode(claimInfoRespDTO.getSettleSubjectCode());
+                bdInboundECLPDto.setSettleSubjectName(claimInfoRespDTO.getSettleSubjectName());
+            }else{
+                logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常"+waybillCode+"|"+sendDetail.getSendCode());
+                return null;
             }
+        }else{
+            logger.error("组装逆向退备件库运单集合时出现异常数据,获取V1异常"+waybillCode+"|"+sendDetail.getSendCode());
+            return null;
         }
 
         bdInboundECLPDto.setSupportLack( (byte)(1));
 
-
-        return null;
+        return bdInboundECLPDto;
     }
 
 }
