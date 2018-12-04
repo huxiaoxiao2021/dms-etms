@@ -5,9 +5,6 @@ package com.jd.bluedragon.distribution.rest.transport;
  */
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
-import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
-import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import com.jd.bluedragon.distribution.external.service.DmsArBaseService;
 import com.jd.bluedragon.distribution.transport.domain.ARCommonDictionaryType;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
@@ -40,9 +37,6 @@ public class ArBaseResource implements DmsArBaseService {
 
     @Autowired
     private BusTypeService busTypeService;
-
-    @Autowired
-    private ArAbnormalService arAbnormalService;
 
     /**
      * 获取空铁项目的城市信息和车型信息
@@ -81,11 +75,6 @@ public class ArBaseResource implements DmsArBaseService {
     @Override
     public List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg) {
         return this.getARCommonDictionaryInfo();
-    }
-
-    @Override
-    public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
-        return arAbnormalService.pushArAbnormal(arAbnormalRequest);
     }
 
 }

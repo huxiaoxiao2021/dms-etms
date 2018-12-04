@@ -20,11 +20,4 @@ public interface DmsArBaseService {
      * @return
      */
     List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg);
-
-    /**
-     * 航空转陆运异常提交
-     * @param arAbnormalRequest
-     * @return
-     */
-     ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest);
 }

@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
+import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
+import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,6 +38,9 @@ public class DmsExternalServiceImpl implements DmsExternalService {
     @Autowired
     @Qualifier("jsonCommandService")
     private JdCommandService jdCommandService;
+
+    @Autowired
+    private ArAbnormalService arAbnormalService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.updatePopPackNum", mState = {JProEnum.TP})
@@ -69,5 +75,10 @@ public class DmsExternalServiceImpl implements DmsExternalService {
 	public String executeJsonCommand(String jsonCommand) {
 		return jdCommandService.execute(jsonCommand);
 	}
+
+    @Override
+    public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
+        return arAbnormalService.pushArAbnormal(arAbnormalRequest);
+    }
 
 }
