@@ -153,6 +153,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         for(String waybillCode : mergeWaybillCodeReturnRequest.getWaybillCodeList()){
             MergedWaybill mergedWaybill = new MergedWaybill();
             mergedWaybill.setWaybillCode(waybillCode);
+            mergedWaybill.setYn(1);
             //根据运单号获得妥投时间
             BaseEntity<DeliverInfoDto> entity = waybillQueryApi.getDeliverInfo(waybillCode);
             if(entity != null && entity.getResultCode() == 1 &&
@@ -167,6 +168,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         signReturnPrintM.setOperateTime(new Date(mergeWaybillCodeReturnRequest.getOperateTime()));
         signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
         signReturnPrintM.setOrgId(mergeWaybillCodeReturnRequest.getSiteName());
+        signReturnPrintM.setYn(1);
         BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
                 true, false, false, false);
         if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
@@ -188,7 +190,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         for(MergedWaybill mergedWaybill : mergedWaybillList){
             mergedWaybill.setSignReturnPrintMId(signReturnPrintM.getId());
         }
-        mergedWaybillService.bathAdd(mergedWaybillList);
+        mergedWaybillService.batchAdd(mergedWaybillList);
     }
 
     /**

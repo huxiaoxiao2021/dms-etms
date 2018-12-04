@@ -20,7 +20,7 @@ public interface MergedWaybillService {
      * @param mergedWaybillList
      * @return
      */
-    int bathAdd(List<MergedWaybill> mergedWaybillList);
+    int batchAdd(List<MergedWaybill> mergedWaybillList);
 
     /**
      * 通过主键id获取旧运单号集合

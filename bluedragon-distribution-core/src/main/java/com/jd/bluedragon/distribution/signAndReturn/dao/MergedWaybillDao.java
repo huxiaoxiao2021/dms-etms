@@ -21,8 +21,8 @@ public class MergedWaybillDao extends BaseDao<MergedWaybill> {
      * @param mergedWaybillList
      * @return
      */
-    public int bathAdd(List<MergedWaybill> mergedWaybillList){
-        return this.getSqlSession().insert(namespace + ".bathAdd",mergedWaybillList);
+    public int batchAdd(List<MergedWaybill> mergedWaybillList){
+        return this.getSqlSession().insert(namespace + ".batchAdd",mergedWaybillList);
     }
 
     /**

@@ -36,8 +36,8 @@ public class MergedWaybillServiceImpl implements MergedWaybillService {
      */
     @Override
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public int bathAdd(List<MergedWaybill> mergedWaybillList){
-        return mergedWaybillDao.bathAdd(mergedWaybillList);
+    public int batchAdd(List<MergedWaybill> mergedWaybillList){
+        return mergedWaybillDao.batchAdd(mergedWaybillList);
     }
 
     /**
