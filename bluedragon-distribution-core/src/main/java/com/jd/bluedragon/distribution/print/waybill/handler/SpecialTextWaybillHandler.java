@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
@@ -100,18 +102,20 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
             }
         }
 
+        //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
+        if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo.getBackupSiteId() != null && printInfo.getBackupSiteId() > 0){
+            printInfo.setPrepareSiteCode(printInfo.getBackupSiteId());
+            printInfo.setPrepareSiteName(printInfo.getBackupSiteName());
+        }
+
         /** 调用外单接口获取始发站点、目的站点和路由信息 **/
         //获取waybillSign
         String waybillSign = printInfo.getWaybillSign();
         if(StringHelper.isEmpty(waybillSign)){
             logger.error("SpecialTextWaybillHandler-->获取waybillSign为空,无法判断是否是同城单日达面单.");
         } else {
-            //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）
-            //// TODO: 2018/8/22 封装成一个方法 
-            if(BusinessHelper.isSignChar(waybillSign,55,'0') &&
-                    BusinessHelper.isSignChar(waybillSign,16,'1') &&
-                    BusinessHelper.isSignChar(waybillSign,31,'2')){
-
+            //根据waybill_sign判断同城当日达 第55位等于0 （表示非生鲜专送）且第16位等于1 （表示当日达）且第31位等于2 （表示同城配送）且第63位等于1 （中心站网络）
+            if(BusinessHelper.isSameCityOneDay(waybillSign)){
                 //设置始发站点及始发路由，并将笼车号设为空字符串
                 printInfo.setOriginalDmsCode(null);
                 printInfo.setOriginalDmsName("");

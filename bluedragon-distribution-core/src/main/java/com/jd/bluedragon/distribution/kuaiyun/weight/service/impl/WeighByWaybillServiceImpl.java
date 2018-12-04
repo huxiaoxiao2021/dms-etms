@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -167,7 +168,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         //是否需要称重逻辑校验  2018 07 27  update 刘铎
 
-        if (waybill.getWaybillSign() != null && BusinessHelper.isNoNeedWeight(waybill.getWaybillSign())) {
+        if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
         }
 

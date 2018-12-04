@@ -29,7 +29,17 @@ public interface WaybillCommonService {
      * @return
      */
     public Waybill findByWaybillCode(String waybillCode);
-    
+
+
+	/**
+	 * 根据运单号查询订单号
+	 *
+	 * 如果输入的是数字则直接返回，认为输入的就是订单号。
+	 *
+	 * @param waybillCode
+	 * @return
+	 */
+	public Long findOrderIdByWaybillCode(String waybillCode);
     /**
      * 根据运单号查询运单明细
      * 	直接调用运单接口查询运单数据及包裹信息（验证必要字段）

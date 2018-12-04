@@ -38,4 +38,11 @@ public interface ArSendCodeDao extends Dao<ArSendCode> {
      */
     int deleteBySendRegisterId(Long sendRegisterId, String userCode);
 
+    /**
+     *根据批次号查对应的sendRegisterId
+     * @param sendCode
+     * @return
+     */
+    ArSendCode getBySendCode(String sendCode);
+
 }

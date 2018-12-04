@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.web.operatelog;
 
 import com.jd.bluedragon.distribution.operateMonitor.domain.OperateMonitor;
 import com.jd.bluedragon.distribution.operateMonitor.service.OperateMonitorService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,7 @@ public class DmsOperateMonitorController {
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<OperateMonitor> listData(@RequestBody OperateMonitor operateMonitor) {
         PagerResult<OperateMonitor> rest = new PagerResult<OperateMonitor>();
-        if(BusinessHelper.isPackageCode(operateMonitor.getPackageCode())){
+        if(WaybillUtil.isPackageCode(operateMonitor.getPackageCode())){
             List<OperateMonitor> data = operateMonitorService.queryOperateMonitorByPackageCode(operateMonitor.getPackageCode());
             rest.setRows(data);
             rest.setTotal(data.size());

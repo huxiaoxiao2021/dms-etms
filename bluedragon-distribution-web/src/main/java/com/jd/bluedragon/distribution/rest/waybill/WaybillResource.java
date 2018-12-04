@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.PackageWeigh;
 
@@ -219,7 +220,7 @@ public class WaybillResource implements DmsWaybillService {
     /**
      * 根据运单号或包裹号获取运单包裹信息接口
      *
-     * @param waybillCode Or package
+     * @param startDmsCode Or package
      * @return
      */
     @GET
@@ -234,7 +235,7 @@ public class WaybillResource implements DmsWaybillService {
         }
 
         // 转换运单号
-        String waybillCode = BusinessHelper.getWaybillCode(waybillCodeOrPackage);
+        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
 
         // 调用服务
         try {
@@ -471,8 +472,7 @@ public class WaybillResource implements DmsWaybillService {
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		// 转换运单号
-		String waybillCode = BusinessHelper
-				.getWaybillCode(waybillCodeOrPackage);
+		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
 		try {
 			
@@ -626,8 +626,7 @@ public class WaybillResource implements DmsWaybillService {
 			packOpeFlowFlg = Constants.INTEGER_FLG_FALSE;
 		}
 		// 转换运单号
-		String waybillCode = BusinessHelper
-				.getWaybillCode(waybillCodeOrPackage);
+		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
 		try {
 			Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
@@ -681,7 +680,7 @@ public class WaybillResource implements DmsWaybillService {
     /**
      * 根据运单号或包裹号获取运单包裹信息接口
      * 新接口调用预分拣接口获取基础资料信息
-     * @param waybillCode Or package
+     * @param busiId Or package
      * @return
      */
     @GET
@@ -751,7 +750,7 @@ public class WaybillResource implements DmsWaybillService {
     /**
      * 获取订单目的分拣中心siteCode
      * @param startDmsCode 起始分拣中心
-     * @param waybillCode 运单号
+     * @param startDmsCode 运单号
      * @return
      */
     @GET
@@ -771,7 +770,7 @@ public class WaybillResource implements DmsWaybillService {
      * 获取订单目的分拣中心siteCode
      * @param startDmsCode 起始分拣中心
      * @param siteCode 预分拣站点
-     * @param receiveCode目的分拣中心
+     * @param receiveCode 目的分拣中心
      * @return
      */
     @GET
@@ -1098,7 +1097,7 @@ public class WaybillResource implements DmsWaybillService {
 
     /**
      * B网运单称重 校验接口
-     * @param req 入参
+     * @param codeStr 入参
      * @return
      */
     @GET
@@ -1126,7 +1125,7 @@ public class WaybillResource implements DmsWaybillService {
 		try{
 			if(StringHelper.isNotEmpty(packageCode) && siteCode != null){
 				//获得运单的预分拣站点
-				Waybill waybill = waybillCommonService.findWaybillAndPack(BusinessHelper.getWaybillCode(packageCode), true, false, false, false);
+				Waybill waybill = waybillCommonService.findWaybillAndPack(WaybillUtil.getWaybillCode(packageCode), true, false, false, false);
 				if(waybill != null && StringHelper.isNotEmpty(waybill.getWaybillCode())){
 					preSortingSiteCode = waybill.getSiteCode();
 					//获得路由中的下一节点

@@ -81,7 +81,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 			popMessage.setBizType(20);
 			popMessage.setBusinessTime(new Date());
 
-			List<Product> productList = productService.getOrderProducts(Long.parseLong(waybillCode));
+			List<Product> productList = productService.getOrderProducts(Long.parseLong(waybill.getOrderId()));
 			if (productList != null && productList.size() > 0) {
 				for (Product product : productList) {
 					OrderItem orderItem = new OrderItem();
@@ -148,7 +148,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
 			popMessage.setBizType(20);
 			popMessage.setBusinessTime(new Date());
 			result.append("begin call back get products service.\r\n ");
-			List<Product> productList = productService.getOrderProducts(Long.parseLong(waybillCode));
+			List<Product> productList = productService.getOrderProducts(Long.parseLong(waybill.getOrderId()));
 			result.append("call back get products service success.\r\n ");
 			result.append(waybillCode).append("获取的商品个数为").append(productList.size()).append(".\r\n");
 			if (productList != null && productList.size() > 0) {

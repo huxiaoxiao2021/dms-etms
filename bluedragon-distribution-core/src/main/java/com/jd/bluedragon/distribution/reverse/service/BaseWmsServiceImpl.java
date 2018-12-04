@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,8 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 	
 	/**
 	 * 亚一未报丢的订单通过新接口获取商品明细
-	 * @param packCode
+	 * @param orderCode
+	 * @param packcodes
 	 * @param site
 	 * @param falge
 	 * @return 商品明细，如果是异地退取运单中商品明细，反之从上海亚一仓储接口取得商品明细
@@ -86,7 +88,7 @@ public class BaseWmsServiceImpl implements BaseWmsService {
 			isPackagedFull = true;
 		} else {
 			String packageBarCode = packNoList.get(0);
-			int packageNum = BusinessHelper.getPackageNum(packageBarCode);
+			int packageNum = WaybillUtil.getPackNumByPackCode(packageBarCode);
 			if (packNoSet.size() == packageNum) {
 				isPackagedFull = true;
 			}

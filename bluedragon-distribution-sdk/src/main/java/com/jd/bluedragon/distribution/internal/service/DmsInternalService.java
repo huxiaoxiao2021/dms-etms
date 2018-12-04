@@ -110,6 +110,11 @@ public interface DmsInternalService {
      */
     public LossProductResponse getLossOrderProducts(Long orderId);
 
+    /***
+     * 根据运单号获取报损信息
+     * @return
+     */
+    public LossProductResponse getLossOrderProductsByWaybillCode(String waybillCode);
 
     /***
      * 根据配置名称获取配置信息

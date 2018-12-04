@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -179,7 +180,7 @@ public class WeightAndMeasureResource {
             String barCode = weightMeasureRequest.getBarCode();
             if (StringUtils.isBlank(barCode)) {
                 errStr += "请扫描箱号/包裹号";
-            } else if (!BusinessHelper.isBoxcode(barCode) && !BusinessHelper.isPackageCode(barCode)) {
+            } else if (!BusinessHelper.isBoxcode(barCode) && !WaybillUtil.isPackageCode(barCode)) {
                 errStr += "箱号/包裹号不符合规则";
             }
 
