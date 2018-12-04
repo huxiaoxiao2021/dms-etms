@@ -100,7 +100,7 @@ $(function() {
                 width:120,
                 class:'min_120'
 			}, {
-				field : 'orgId',
+				field : 'createSiteName',
 				title : '合单操作机构',
                 width:120,
                 class:'min_120'
@@ -217,7 +217,6 @@ $(function() {
 
             //2.导出
 			$('#btn_export').click(function() {
-                //TODO
                 var newWaybillCode = $('#newWaybillCode').val();
                 var waybillCode = $('#waybillCode').val();
                 if(!newWaybillCode && !waybillCode){
@@ -247,7 +246,6 @@ $(function() {
 
 			//4.打印
 			$('#btn_print').click(function() {
-				//TODO
                 var newWaybillCode = $('#newWaybillCode').val();
                 var waybillCode = $('#waybillCode').val();
                 if(!newWaybillCode && !waybillCode){

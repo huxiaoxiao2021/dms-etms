@@ -7,12 +7,12 @@
 		<result column="sign_return_printM_id" property="signReturnPrintMId" />
 		<result column="waybill_code" property="waybillCode" />
 		<result column="delivered_time" property="deliveredTime" />
-		<result column="yn" property="yn" />
+		<result column="is_delete" property="isDelete" />
 	</resultMap>
 	
 	<insert id="batchAdd" parameterType="mergedWaybill" >
 		INSERT INTO merged_waybill (
-			sign_return_printM_id, waybill_code, delivered_time,yn)
+			sign_return_printM_id, waybill_code, delivered_time,is_delete)
 		VALUES
 		<foreach collection="list" item="item" index="index" separator=",">
 			(#{item.signReturnPrintMId,jdbcType=BIGINT},
@@ -23,7 +23,7 @@
 
 	<insert id="add" parameterType="mergedWaybill" >
 		INSERT INTO merged_waybill (
-		sign_return_printM_id, waybill_code, delivered_time,yn)
+		sign_return_printM_id, waybill_code, delivered_time,is_delete)
 		VALUES (
 		#{signReturnPrintMId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR},
 		#{deliveredTime,jdbcType=TIMESTAMP},1)
@@ -31,17 +31,17 @@
 
 	<select id="getListBySignReturnPrintMId" resultMap="mergedWaybill" parameterType="Long" >
 
-		SELECT id, sign_return_printM_id, waybill_code, delivered_time,yn
+		SELECT id, sign_return_printM_id, waybill_code, delivered_time,is_delete
 		FROM merged_waybill
-		WHERE yn = 1
+		WHERE is_delete = 1
         AND sign_return_printM_id = #{signReturnPrintMId,jdbcType=BIGINT}
 	</select>
 
 	<select id="getListByWaybillCode" resultMap="mergedWaybill" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
 
-		SELECT id, sign_return_printM_id, waybill_code, delivered_time,yn
+		SELECT id, sign_return_printM_id, waybill_code, delivered_time,is_delete
 		FROM merged_waybill
-		WHERE yn = 1
+		WHERE is_delete = 1
 		AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
 

@@ -40,6 +40,12 @@ public class SignReturnServiceImpl implements SignReturnService {
     @Autowired
     private MergedWaybillService mergedWaybillService;
 
+    //excel表格sheet和表头信息
+    private static final String sheettitle = "签单返回合单主表";
+    private static final String[] headers = new String[] {"签单返回合单运单号","商家编码","商家名称","返单周期","合单操作日期","合单操作机构","合单操作人","合单运单数"};
+    private static final String sheettitleDetail = "合单的运单号明细";
+    private static final String[] headersDetail = new String[] {"运单号","妥投时间"};
+
     /**
      * 导出
      * @param result
@@ -64,9 +70,7 @@ public class SignReturnServiceImpl implements SignReturnService {
             String nowdate = formatter1.format(new Date());
             String title = null;
             title = "签单返回合单打印交接单-" + nowdate + ".xls";
-            //TODO 第一个sheet页
-            String sheettitle = "签单返回合单主表";
-            String[] headers = new String[] {"签单返回合单运单号","商家编码","商家名称","返单周期","合单操作日期","合单操作机构","合单操作人","合单运单数"};
+            //第一个sheet页签单返回交接单信息
             List<Object[]> dataList = new ArrayList<Object[]>();
             Object[] objs = null;
             for(SignReturnPrintM signReturnPrintM : list){
@@ -76,21 +80,19 @@ public class SignReturnServiceImpl implements SignReturnService {
                 objs[2] = signReturnPrintM.getBusiName();
                 objs[3] = signReturnPrintM.getReturnCycle();
                 objs[4] = DateHelper.formatDate(signReturnPrintM.getOperateTime());
-                objs[5] = signReturnPrintM.getOrgId();
+                objs[5] = signReturnPrintM.getCreateSiteName();
                 objs[6] = signReturnPrintM.getOperateUser();
                 objs[7] = signReturnPrintM.getMergeCount();
                 dataList.add(objs);
             }
-            //TODO 第二个sheet页
-            String sheettitle1 = "合单的运单号明细";
-            String[] headers1 = new String[] {"运单号","妥投时间"};
-            List<Object[]> dataList1 = new ArrayList<Object[]>();
+            //第二个sheet页签单返回交接单运单明细
+            List<Object[]> dataListDetail = new ArrayList<Object[]>();
             Object[] objs1 = null;
             for(MergedWaybill mergedWaybill : mergedWaybillList){
-                objs1 = new Object[headers1.length];
+                objs1 = new Object[headersDetail.length];
                 objs1[0] = mergedWaybill.getWaybillCode();
                 objs1[1] = DateHelper.formatDate(mergedWaybill.getDeliveredTime(), Constants.DATE_TIME_FORMAT);
-                dataList1.add(objs1);
+                dataListDetail.add(objs1);
             }
 
             //使用流将数据导出
@@ -103,7 +105,7 @@ public class SignReturnServiceImpl implements SignReturnService {
             ex = new ExportExcelDownFee(sheettitle, headers, dataList);
             ex.export(workbook,out);
 
-            ex = new ExportExcelDownFee(sheettitle1, headers1, dataList1);
+            ex = new ExportExcelDownFee(sheettitleDetail, headersDetail, dataListDetail);
             ex.export(workbook,out);
 
             workbook.write(out);

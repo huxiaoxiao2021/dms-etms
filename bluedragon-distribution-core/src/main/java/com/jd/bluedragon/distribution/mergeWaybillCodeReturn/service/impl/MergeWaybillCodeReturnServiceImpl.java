@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -29,6 +30,8 @@ import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +108,8 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
      * @param dto
      */
     @Override
+    @JProfiler(jKey = "DMS.MERGEWAYBILLCODERETURN.MergeWaybillCodeReturnServiceImpl.mergeWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse mergeWaybillCode(WaybillReturnSignatureDTO dto,MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest) {
         JdResponse result = new JdResponse();
         String newWaybillCode = null;
@@ -153,7 +158,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         for(String waybillCode : mergeWaybillCodeReturnRequest.getWaybillCodeList()){
             MergedWaybill mergedWaybill = new MergedWaybill();
             mergedWaybill.setWaybillCode(waybillCode);
-            mergedWaybill.setYn(1);
+            mergedWaybill.setIsDelete(1);
             //根据运单号获得妥投时间
             BaseEntity<DeliverInfoDto> entity = waybillQueryApi.getDeliverInfo(waybillCode);
             if(entity != null && entity.getResultCode() == 1 &&
@@ -167,8 +172,8 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         signReturnPrintM.setNewWaybillCode(newWaybillCode);
         signReturnPrintM.setOperateTime(new Date(mergeWaybillCodeReturnRequest.getOperateTime()));
         signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
-        signReturnPrintM.setOrgId(mergeWaybillCodeReturnRequest.getSiteName());
-        signReturnPrintM.setYn(1);
+        signReturnPrintM.setCreateSiteName(mergeWaybillCodeReturnRequest.getSiteName());
+        signReturnPrintM.setIsDelete(1);
         BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
                 true, false, false, false);
         if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
@@ -178,7 +183,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                 if(responseDTO != null && responseDTO.isSuccess()){
                     List<BasicTraderReturnDTO> returnList = responseDTO.getResult();
                     if(returnList != null && !returnList.isEmpty()){
-                        signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle().toString()); //返单周期
+                        signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle()==null?"":returnList.get(0).getReturnCycle().toString()); //返单周期
                         signReturnPrintM.setBusiId(returnList.get(0).getTraderCode());    //商家编码和商家名称
                         signReturnPrintM.setBusiName(returnList.get(0).getTraderName());
                     }

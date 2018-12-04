@@ -39,7 +39,7 @@ public class SignReturnPrintM implements Serializable {
     /**
      * 合单操作机构
      * */
-    private String orgId;
+    private String createSiteName;
     /**
      * 合单操作人
      * */
@@ -55,10 +55,14 @@ public class SignReturnPrintM implements Serializable {
     /**
      * 是否删除 0-已删除，1-未删除
      * */
-    private Integer yn;
+    private Integer isDelete;
 
-    public Integer getYn() {
-        return yn;
+    public Integer getIsDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(Integer isDelete) {
+        this.isDelete = isDelete;
     }
 
     public Long getId() {
@@ -69,9 +73,6 @@ public class SignReturnPrintM implements Serializable {
         this.id = id;
     }
 
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
 
     public List<MergedWaybill> getMergedWaybillList() {
         return mergedWaybillList;
@@ -121,12 +122,12 @@ public class SignReturnPrintM implements Serializable {
         this.operateTime = operateTime;
     }
 
-    public String getOrgId() {
-        return orgId;
+    public String getCreateSiteName() {
+        return createSiteName;
     }
 
-    public void setOrgId(String orgId) {
-        this.orgId = orgId;
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
     }
 
     public String getOperateUser() {

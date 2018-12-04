@@ -30,7 +30,7 @@ public class MergedWaybill implements Serializable {
     /**
      * 是否删除 0-已删除，1-未删除
      * */
-    private Integer yn;
+    private Integer isDelete;
 
     public Long getSignReturnPrintMId() {
         return signReturnPrintMId;
@@ -64,11 +64,11 @@ public class MergedWaybill implements Serializable {
         this.deliveredTime = deliveredTime;
     }
 
-    public Integer getYn() {
-        return yn;
+    public Integer getIsDelete() {
+        return isDelete;
     }
 
-    public void setYn(Integer yn) {
-        this.yn = yn;
+    public void setIsDelete(Integer isDelete) {
+        this.isDelete = isDelete;
     }
 }
