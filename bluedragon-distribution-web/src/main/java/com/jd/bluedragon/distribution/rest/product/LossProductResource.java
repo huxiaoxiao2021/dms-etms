@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.rest.product;
 
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.message.MessageDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.LossProductResponse;
@@ -7,11 +9,15 @@ import com.jd.bluedragon.distribution.api.response.ProductResponse;
 import com.jd.bluedragon.distribution.consumer.reverse.LossOrderConsumer;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -32,6 +38,9 @@ public class LossProductResource {
 	@Autowired
 	private LossOrderConsumer lossOrderConsumer;
 
+	@Autowired
+	@Qualifier("waybillCommonService")
+	private WaybillCommonService waybillCommonService;
 
 	@POST
 	@Deprecated
@@ -53,12 +62,15 @@ public class LossProductResource {
 	}
 
 	@GET
-	@Path("/order/product/quantity/{orderId}")
-	public LossProductResponse getOrderProductQuantity(@PathParam("orderId") Long orderId) {
-		if (orderId == null) {
+	@Path("/order/product/quantity/{codeStr}")
+	public LossProductResponse getOrderProductQuantity(@PathParam("codeStr") String codeStr) {
+		if (codeStr == null) {
 			return paramError();
 		}
-
+		Long orderId = waybillCommonService.findOrderIdByWaybillCode(codeStr);
+		if(orderId == null){
+			return paramError();
+		}
 		this.logger.info("获取订单商品详情, 订单号：" + orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);
@@ -70,12 +82,15 @@ public class LossProductResource {
 	}
 
 	@GET
-	@Path("/order/loss/products/{orderId}")
-	public LossProductResponse getLossOrderProducts(@PathParam("orderId") Long orderId) {
-		if (orderId == null) {
+	@Path("/order/loss/products/{codeStr}")
+	public LossProductResponse getLossOrderProducts(@PathParam("codeStr") String codeStr) {
+		if (codeStr == null) {
 			return paramError();
 		}
-
+		Long orderId = waybillCommonService.findOrderIdByWaybillCode(codeStr);
+		if(orderId == null){
+			return paramError();
+		}
 		this.logger.info("获取订单商品详情及报损详情, 订单号：" + orderId);
 
 		List<Product> actualProducts = this.productService.getOrderProducts(orderId);

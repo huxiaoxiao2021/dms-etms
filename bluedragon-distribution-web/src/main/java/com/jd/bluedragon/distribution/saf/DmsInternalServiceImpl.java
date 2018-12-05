@@ -227,13 +227,26 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             logger.info("getLossOrderProducts param " + orderId);
         }
         try{
-            return lossProductResource.getLossOrderProducts(orderId);
+            return lossProductResource.getLossOrderProducts(orderId.toString());
         }catch (Exception e){
             logger.error("getLossOrderProducts error ", e);
             return null;
         }
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getLossOrderProductsByWaybillCode",mState = JProEnum.TP)
+    public LossProductResponse getLossOrderProductsByWaybillCode(String waybillCode) {
+        if(logger.isInfoEnabled()){
+            logger.info("getLossOrderProducts param " + waybillCode);
+        }
+        try{
+            return lossProductResource.getLossOrderProducts(waybillCode);
+        }catch (Exception e){
+            logger.error("getLossOrderProducts error ", e);
+            return null;
+        }
+    }
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getSwitchStatus",mState = JProEnum.TP)

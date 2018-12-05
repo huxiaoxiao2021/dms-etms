@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
@@ -38,10 +40,6 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
@@ -114,13 +112,45 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         if (waybill == null) {
             // 无数据
-            this.logger.info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件开始");
-            waybill = this.getWaybillFromOrderService(waybillCode);
+            //this.logger.info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件开始");
+            //waybill = this.getWaybillFromOrderService(waybillCode);
             this.logger
                     .info("运单号【 " + waybillCode + "】的调用运单WSS数据为空，调用订单中间件结束，返回值【" + waybill + "】");
         }
         return waybill;
     }
+
+    /**
+     * 根据运单号查询订单号 (仅限自营)
+     *
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public Long findOrderIdByWaybillCode(String waybillCode) {
+        try {
+            if(StringUtils.isBlank(waybillCode)){
+                return null;
+            }else if(SerialRuleUtil.isMatchNumeric(waybillCode)){
+                return Long.valueOf(waybillCode);
+            }else if(WaybillUtil.isWaybillCode(waybillCode)){
+                Waybill waybill = findByWaybillCode(waybillCode);
+                if(waybill!=null && StringUtils.isNotBlank(waybill.getOrderId()) && SerialRuleUtil.isMatchNumeric(waybill.getOrderId())){
+                    return Long.valueOf(waybill.getOrderId());
+                }else{
+                    logger.error("获取订单号失败，入参"+waybillCode);
+                    return null;
+                }
+            }else{
+                logger.info("获取订单号错误，入参"+waybillCode);
+                return null;
+            }
+        }catch (Exception e){
+            logger.error("获取订单号异常，入参"+waybillCode,e);
+        }
+        return null;
+    }
+
     @Override
     public Waybill findWaybillAndPack(String waybillCode) {
         Waybill waybill = null;
@@ -222,13 +252,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             this.logger.warn("通过运单号调用非运单接口获取运单数据，传入参数为空");
             return null;
         }
-        if (!StringUtils.isNumeric(waybillCode.trim())) {
-            this.logger.warn("通过运单号调用非运单接口获取运单数据，传入参数为非数字,立即返回NULL");
+        Long orderId = findOrderIdByWaybillCode(waybillCode);
+        if(orderId==null){
+            this.logger.error("通过运单号调用非运单接口获取运单数据，运单号:"+waybillCode+"未获取对应订单号,立即返回NULL");
             return null;
         }
         this.logger.info("通过运单号调用非运单接口获取运单数据，调用运单中间件开始");
-        Waybill waybill = this.orderWebService.getWaybillByOrderId(Long.valueOf(waybillCode));
-        List<Product> products = this.productService.getOrderProducts(Long.parseLong(waybillCode));
+        Waybill waybill = this.orderWebService.getWaybillByOrderId(orderId);
+        List<Product> products = this.productService.getOrderProducts(orderId);
 
         if (waybill != null) {
             this.logger.info("通过运单号调用非运单接口获取运单数据，调用运单中间件结束，运单【" + waybill + "】，非POP，运单类型【"
@@ -296,6 +327,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         waybill.setRoad(waybillWS.getRoadCode());
         // 设置站点
         waybill.setSiteCode(waybillWS.getOldSiteId());
+
         if (isSetName) {
             dealWaybillSiteName(waybill);
         }
@@ -313,7 +345,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         waybill.setWaybillSign(waybillWS.getWaybillSign());
         waybill.setImportantHint(waybillWS.getImportantHint());
-
+        waybill.setOrderId(waybillWS.getVendorId());
         if (isSetPack) {
         	//存放包裹的复重及打印信息
         	Map<String,PackOpeFlowDto> packOpeFlows = null;
@@ -603,6 +635,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         WaybillExt waybillExt = waybill.getWaybillExt();
         if(waybillExt != null){
             //从运单中取出备用站点id，转换成站点名称
+            target.setBackupSiteId(waybillExt.getBackupSiteId());
             target.setBackupSiteName(siteService.getSiteNameByCode(waybillExt.getBackupSiteId()));
         }
 
@@ -736,6 +769,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
+        }
+        //waybill_sign标识位，第三十一位为5，一体化面单显示"微小件"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
+            target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SMALL_PACKAGE);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){

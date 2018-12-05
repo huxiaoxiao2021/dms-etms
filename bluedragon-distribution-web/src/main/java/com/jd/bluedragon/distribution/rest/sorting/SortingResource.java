@@ -164,6 +164,8 @@ public class SortingResource {
 		Boolean canCancel = false;
 		for (Sorting eachSorting : sortingRecords) {
 			eachSorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
+			eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
+			eachSorting.setUpdateUser(sorting.getUpdateUser());
 			canCancel |= this.sortingService.canCancel2(eachSorting);
 		}
 
