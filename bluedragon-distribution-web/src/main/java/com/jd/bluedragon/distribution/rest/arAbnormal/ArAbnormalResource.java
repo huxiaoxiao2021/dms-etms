@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.arAbnormal;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
@@ -7,15 +8,23 @@ import com.jd.bluedragon.distribution.arAbnormal.ArAbnormalService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 
 /**
  * @author tangchunqing
  * @Description: 空铁异常
  * @date 2018年11月30日 15时:06分
  */
+@Component
+@Path(Constants.REST_URL)
+@Consumes({ MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON })
 public class ArAbnormalResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
