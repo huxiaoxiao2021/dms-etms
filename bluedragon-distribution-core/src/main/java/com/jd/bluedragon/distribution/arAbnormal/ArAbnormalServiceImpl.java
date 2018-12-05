@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -187,7 +188,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      * @param bdTraceDto
      */
     private void toWaybillStatus(ArAbnormalRequest arAbnormalRequest, BdTraceDto bdTraceDto) {
-        bdTraceDto.setOperateType(1);
+        bdTraceDto.setOperateType(WaybillStatus.WAYBILL_TRACK_ARQC);
         bdTraceDto.setOperatorSiteId(arAbnormalRequest.getSiteCode());
         bdTraceDto.setOperatorSiteName(arAbnormalRequest.getSiteName());
         bdTraceDto.setOperatorTime(DateHelper.parseAllFormatDateTime(arAbnormalRequest.getOperateTime()));
