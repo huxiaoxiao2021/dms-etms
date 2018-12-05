@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>签单返回合单打印交接单</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <style type="text/css">
+
+        table{ /* 表格整体样式 */
+            margin:20px;  /* 外边距50px */
+            border-collapse:collapse; /* 合并为单一的边框线 */
+            border:5px;
+            mso-cellspacing: 0px;
+            margin-top: 50px;
+            margin-left: 10px;
+            margin-right: 10px;
+            background-color: lightgrey;
+        }
+        /* 设置tr的表格样式 */
+        table td{
+            padding:10px;
+            border:1px
+            solid black;
+            text-align: center;
+            font-size: 15px;
+            word-wrap:break-word;
+            word-break:break-all;
+        }
+    </style>
+    <script src="#springUrl('/static/js/signReturn/signReturnPrintInfo.js')"></script>
+</head>
+<body class="container-fluid" >
+    <input style="display: none" id="newWaybillCode" value="${newWaybillCode}" />
+    <input style="display: none" id="waybillCode" value="${waybillCode}" />
+    <table id="printInfoM" width="1000" >
+        <tr>
+            <td>签单返回合单运单号</td>
+            <td>商家编码</td>
+            <td>商家名称</td>
+            <td>返单周期</td>
+            <td>合单操作时间</td>
+            <td>合单操作机构</td>
+            <td>合单操作人</td>
+            <td>合单运单数</td>
+        </tr>
+        <tr id="printMain"></tr>
+    </table>
+    <table id="printInfoD" width="1000" ></table>
+</body>
+</html>
