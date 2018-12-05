@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
 import com.jd.bluedragon.distribution.signAndReturn.service.MergedWaybillService;
 import com.jd.bluedragon.distribution.signAndReturn.service.SignReturnService;
 import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -63,15 +64,27 @@ public class SignReturnController extends DmsBaseController {
         result.setRows(Collections.<SignReturnPrintM>emptyList());
         result.setTotal(0);
         if(StringHelper.isNotEmpty(condition.getNewWaybillCode())){
+            if(WaybillUtil.isPackageCode(condition.getNewWaybillCode())){
+                String packageCode = condition.getNewWaybillCode();
+                condition.setNewWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+            }
             result = signReturnService.getListByWaybillCode(condition);
             if(result.getRows().size() == 0 && StringHelper.isNotEmpty(condition.getWaybillCode())){
+                if(WaybillUtil.isPackageCode(condition.getWaybillCode())){
+                    String packageCode = condition.getWaybillCode();
+                    condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+                }
                 result = mergedWaybillService.getSignReturnByConditon(condition);
             }
         }else if(StringHelper.isEmpty(condition.getNewWaybillCode()) && StringHelper.isNotEmpty(condition.getWaybillCode())) {
+            if(WaybillUtil.isPackageCode(condition.getWaybillCode())){
+                String packageCode = condition.getWaybillCode();
+                condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
+            }
             result = mergedWaybillService.getSignReturnByConditon(condition);
 
         }
-        return result;
+         return result;
     }
 
     /**
