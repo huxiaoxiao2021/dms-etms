@@ -77,6 +77,7 @@ public class DmsExternalServiceImpl implements DmsExternalService {
 	}
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.pushArAbnormal",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
         return arAbnormalService.pushArAbnormal(arAbnormalRequest);
     }
