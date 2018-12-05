@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
@@ -122,7 +124,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
         //操作人  操作时间
         bdInboundECLPDto.setOperatorName(sendDetail.getCreateUser());
-        bdInboundECLPDto.setOperateTime(sendDetail.getOperateTime());
+        bdInboundECLPDto.setOperateTime(DateHelper.formatDate(sendDetail.getOperateTime(),Constants.DATE_TIME_FORMAT));
 
 
         //理赔金额

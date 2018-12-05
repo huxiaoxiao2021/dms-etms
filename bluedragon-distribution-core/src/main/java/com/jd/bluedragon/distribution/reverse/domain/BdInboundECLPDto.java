@@ -51,9 +51,9 @@ public class BdInboundECLPDto implements Serializable {
      */
     private String operatorName;
     /**
-     * 操作时间
+     * 操作时间  yyyy-MM-dd hh:mm:ss
      */
-    private Date operateTime;
+    private String operateTime;
     /**
      * 商品明细
      */
@@ -152,11 +152,11 @@ public class BdInboundECLPDto implements Serializable {
         this.operatorName = operatorName;
     }
 
-    public Date getOperateTime() {
+    public String getOperateTime() {
         return operateTime;
     }
 
-    public void setOperateTime(Date operateTime) {
+    public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
     }
 
