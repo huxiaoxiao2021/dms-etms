@@ -179,13 +179,13 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
             Waybill waybill = entity.getData().getWaybill();
             if(waybill != null){
+                signReturnPrintM.setBusiId(waybill.getBusiId()==null?"":waybill.getBusiId().toString());    //商家编码和商家名称
+                signReturnPrintM.setBusiName(waybill.getBusiName());
                 com.jd.ldop.basic.dto.ResponseDTO<List<BasicTraderReturnDTO>> responseDTO = baseMinorManager.getBaseTraderReturnListByTraderId(waybill.getBusiId());
                 if(responseDTO != null && responseDTO.isSuccess()){
                     List<BasicTraderReturnDTO> returnList = responseDTO.getResult();
                     if(returnList != null && !returnList.isEmpty()){
                         signReturnPrintM.setReturnCycle(returnList.get(0).getReturnCycle()==null?"":returnList.get(0).getReturnCycle().toString()); //返单周期
-                        signReturnPrintM.setBusiId(returnList.get(0).getTraderCode());    //商家编码和商家名称
-                        signReturnPrintM.setBusiName(returnList.get(0).getTraderName());
                     }
                 }
             }
