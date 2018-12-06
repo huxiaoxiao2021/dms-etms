@@ -116,6 +116,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             try {
                 DateHelper.parseAllFormatDateTime(arAbnormalRequest.getOperateTime());
             } catch (Exception e) {
+                logger.warn("ArAbnormalServiceImpl.pushArAbnormal时间格式错误" + JsonHelper.toJson(arAbnormalRequest), e);
                 response.setCode(ArAbnormalResponse.CODE_TIMEERROR);
                 response.setMessage(ArAbnormalResponse.MESSAGE_TIMEERROR);
                 return response;
