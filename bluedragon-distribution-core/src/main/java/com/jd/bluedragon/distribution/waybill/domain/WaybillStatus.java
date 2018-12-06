@@ -57,7 +57,7 @@ public class WaybillStatus {
     /**
      * 空铁转陆运 全程跟踪节点
      */
-    public static final Integer WAYBILL_TRACK_ARQC = 1000;
+    public static final Integer WAYBILL_TRACK_ARQC = 10000;
     /**
      * 全程跟踪消息类型mstType-仓储收货确认
      **/
