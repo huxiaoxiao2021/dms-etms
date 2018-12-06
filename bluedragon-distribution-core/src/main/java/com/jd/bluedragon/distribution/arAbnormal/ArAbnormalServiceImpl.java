@@ -5,7 +5,6 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
-import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -44,9 +43,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     private WaybillQueryManager waybillQueryManager;
     @Autowired
     private SendDatailDao sendDatailDao;
-
-    @Autowired
-    private OperationLogService operationLogService;
 
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
         ArAbnormalResponse response = validateRequest(arAbnormalRequest);
