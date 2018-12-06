@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -13,6 +14,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
@@ -42,7 +45,34 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     @Autowired
     private SendDatailDao sendDatailDao;
 
+    @Autowired
+    private OperationLogService operationLogService;
+
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
+        ArAbnormalResponse response = validateRequest(arAbnormalRequest);
+        //发mq
+        if (ArAbnormalResponse.CODE_OK.equals(response.getCode())) {
+            try {
+                arAbnormalProducer.send(arAbnormalRequest.getPackageCode(), JsonHelper.toJson(arAbnormalRequest));
+            } catch (JMQException e) {
+                logger.error("ArAbnormalServiceImpl.pushArAbnormal推送消息错误" + JsonHelper.toJson(arAbnormalRequest), e);
+                response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+                response.setMessage(ArAbnormalResponse.MESSAGE_SERVICE_ERROR);
+                addBusinessLog(arAbnormalRequest, response);
+                return response;
+            }
+        }
+        addBusinessLog(arAbnormalRequest, response);
+        return response;
+    }
+
+    /**
+     * 校验参数
+     *
+     * @param arAbnormalRequest
+     * @return
+     */
+    private ArAbnormalResponse validateRequest(ArAbnormalRequest arAbnormalRequest) {
         ArAbnormalResponse response = new ArAbnormalResponse();
         if (arAbnormalRequest.getPackageCode() == null) {
             response.setCode(ArAbnormalResponse.CODE_NODATA);
@@ -97,14 +127,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         } else {
             response.setCode(ArAbnormalResponse.CODE_TIME);
             response.setMessage(ArAbnormalResponse.MESSAGE_TIME);
-            return response;
-        }
-        try {
-            arAbnormalProducer.send(arAbnormalRequest.getPackageCode(), JsonHelper.toJson(arAbnormalRequest));
-        } catch (JMQException e) {
-            logger.error("ArAbnormalServiceImpl.pushArAbnormal推送消息错误" + JsonHelper.toJson(arAbnormalRequest), e);
-            response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
-            response.setMessage(ArAbnormalResponse.MESSAGE_SERVICE_ERROR);
             return response;
         }
         response.setCode(ArAbnormalResponse.CODE_OK);
@@ -199,6 +221,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     /**
      * 原因  代码和描述互转
+     *
      * @param transpondReason
      * @return
      */
@@ -215,8 +238,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             return transpondReason.toString();
         }
     }
+
     /**
      * 类型  代码和描述互转
+     *
      * @param transpondType
      * @return
      */
@@ -230,5 +255,22 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         } else {
             return transpondType.toString();
         }
+    }
+
+    /**
+     * 插入pda操作日志表
+     *
+     * @param arAbnormalRequest
+     */
+    private void addBusinessLog(ArAbnormalRequest arAbnormalRequest, ArAbnormalResponse arAbnormalResponse) {
+        //写入自定义日志
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+        businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
+        businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_ARABNORMAL);
+        businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATETYPE_TYPE_ARABNORMAL);
+        businessLogProfiler.setOperateRequest(JsonHelper.toJson(arAbnormalRequest));
+        businessLogProfiler.setOperateResponse(JsonHelper.toJson(arAbnormalResponse));
+        businessLogProfiler.setTimeStamp(System.currentTimeMillis());
+        BusinessLogWriter.writeLog(businessLogProfiler);
     }
 }

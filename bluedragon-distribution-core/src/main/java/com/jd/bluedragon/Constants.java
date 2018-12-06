@@ -125,6 +125,14 @@ public class Constants {
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
     /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=101401;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_OPERATETYPE_TYPE_ARABNORMAL=1014;
+    /**
      * 业务类型-未知业务操作类型
      */
     public static final Integer OPERATE_TYPE_UNKNOWN = 0;
