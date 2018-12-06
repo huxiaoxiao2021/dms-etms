@@ -214,7 +214,7 @@
 
     <!-- 空铁转陆运 提报异常 -->
     <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.dmsWeb.transport">
-        <jmq:listener topic="dms_ar_abnormal" listener="arAbnormalConsumer"/>
+        <jmq:listener topic="${jmq.topic.arAbnormal}" listener="arAbnormalConsumer"/>
     </jmq:consumer>
 </beans>
 
