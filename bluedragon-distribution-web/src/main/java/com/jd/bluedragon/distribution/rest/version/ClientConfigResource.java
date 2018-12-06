@@ -209,9 +209,7 @@ public class ClientConfigResource {
             @PathParam("programType") Integer programType) {
     	return getCurrentVersion(siteCode,programType,false);
     }
-    private VersionResponse getCurrentVersion(
-            @PathParam("siteCode") String siteCode,
-            @PathParam("programType") Integer programType,boolean isNew) {
+    private VersionResponse getCurrentVersion(String siteCode,Integer programType,boolean isNew) {
     	//加入ump监控，动态生成key，监控每种客户端的调用量
     	String umpKey = "DMS.Web.ClientConfigResource.getCurrentVersion";
     	if(isNew){
