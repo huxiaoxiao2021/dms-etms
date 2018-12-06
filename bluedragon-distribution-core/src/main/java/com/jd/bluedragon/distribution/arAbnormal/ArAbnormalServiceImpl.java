@@ -264,7 +264,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
         businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
         businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_ARABNORMAL);
-        businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATETYPE_TYPE_ARABNORMAL);
+        businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL);
         businessLogProfiler.setOperateRequest(JsonHelper.toJson(arAbnormalRequest));
         businessLogProfiler.setOperateResponse(JsonHelper.toJson(arAbnormalResponse));
         businessLogProfiler.setTimeStamp(System.currentTimeMillis());
