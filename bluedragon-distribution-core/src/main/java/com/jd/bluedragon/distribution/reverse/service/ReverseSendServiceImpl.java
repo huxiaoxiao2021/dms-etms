@@ -1371,7 +1371,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     public Integer getLossType(Waybill waybill, SendDetail sendDetail) {
         Integer lossType = 4; // 默认配送损
-
+        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+        if(siteOrgDto !=null){
+            if(BusinessHelper.isBSite(siteOrgDto.getSubType())){
+                lossType = 15; //转运损
+            }
+        }
         if (waybill != null && sendDetail != null && sendDetail.getFeatureType() != null) {
             if (2 == NumberHelper.getIntegerValue(sendDetail.getFeatureType())) {
                 lossType = 13; // 三方打折
@@ -1382,6 +1387,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         return lossType;
     }
+
 
     /**
      * 判断一个目的地站点是否是亚一中件仓

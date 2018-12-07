@@ -355,4 +355,17 @@ public class BusinessHelper {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 判断是否是B网分拣
+     * @param siteType
+     * @return
+     */
+    public static boolean isBSite(Integer siteType){
+        if(siteType==null){
+            return false;
+        }
+        return siteType.equals(new Integer(6420));
+    }
+
 }
