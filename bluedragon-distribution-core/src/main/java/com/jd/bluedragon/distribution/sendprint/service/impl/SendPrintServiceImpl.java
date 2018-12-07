@@ -650,10 +650,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getOutVolume",Constants.UMP_APP_NAME_DMSWEB,false, true);
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(), sendM.getCreateSiteCode());
                 if (weightAndVolume != null) {
+                    Double volume = weightAndVolume.getVolume();
+                    //将cm³转换成m³
+                    volume = BigDecimalHelper.div(volume, PARAM_CM3_M3, 6);
                     if (weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
-                        outVolumeStatic = weightAndVolume.getVolume();
+                        outVolumeStatic = volume;
                     } else {
-                        outVolumeDynamic = weightAndVolume.getVolume();
+                        outVolumeDynamic = volume;
                     }
                 }
             }catch(Exception e){
