@@ -99,7 +99,7 @@ public class WeightAndMeasureResource {
             barCodeList.add(request.getBarCode());
             List<BoardMeasureDto> boardMeasureDtoList = null;
             try{
-                boardCombinationService.getBoardVolumeByBoardCode(barCodeList);
+                boardMeasureDtoList = boardCombinationService.getBoardVolumeByBoardCode(barCodeList);
             }catch (Exception e){
                 logger.error("调用TC接口查询板的体积信息异常.",e);
             }
