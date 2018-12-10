@@ -309,8 +309,7 @@
     </bean>
 
     <!--空铁转陆运 提报异常 -->
-    <bean id="arAbnormalProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.arAbnormal}"/>
-        <property name="timeout" value="1000"/>
     </bean>
 </beans>
