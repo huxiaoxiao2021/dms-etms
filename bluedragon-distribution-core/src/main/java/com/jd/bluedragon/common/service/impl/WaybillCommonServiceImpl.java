@@ -774,6 +774,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SMALL_PACKAGE);
         }
+        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
+            target.setTransportMode(ComposeService.SPECIAL_MARK_SENIOR);
+        }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
