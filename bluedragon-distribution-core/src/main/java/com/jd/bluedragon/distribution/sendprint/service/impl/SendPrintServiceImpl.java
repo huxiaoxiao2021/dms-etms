@@ -320,10 +320,13 @@ public class SendPrintServiceImpl implements SendPrintService {
             } else {
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(),criteria.getSiteCode());
                 if(weightAndVolume != null){
+                    //立方厘米转立方米
+                    Double volume = BigDecimalHelper.div(weightAndVolume.getVolume(), PARAM_CM3_M3, 6);
+                    ;
                     if(weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)){
-                        totalOutVolumeSt += weightAndVolume.getVolume();
+                        totalOutVolumeSt += volume;
                     }else{
-                        totalOutVolumeDy += weightAndVolume.getVolume();
+                        totalOutVolumeDy += volume;
                     }
                 }
             }
