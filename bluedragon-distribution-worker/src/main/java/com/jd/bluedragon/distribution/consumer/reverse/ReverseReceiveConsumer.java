@@ -232,15 +232,17 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+						taskService.add(this.toTask(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 1) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 2) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
 					}else {
 						return;
 					}
-					taskService.add(this.toTask(tWaybillStatus));
 				}else{
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
