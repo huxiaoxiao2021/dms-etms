@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturnRequest;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
@@ -50,8 +51,8 @@ public class MergeWaybillCodeReturnResource {
     public JdResponse checkIsMerge(@PathParam("firstWaybillCode") String firstWaybillCode,
                                                       @PathParam("secondWaybillCode") String secondWaybillCode){
         JdResponse result = new JdResponse();
-        if(!SerialRuleUtil.isMatchAllWaybillCode(firstWaybillCode) ||
-                !SerialRuleUtil.isMatchAllWaybillCode(secondWaybillCode)){
+        if(!WaybillUtil.isWaybillCode(firstWaybillCode) ||
+                !WaybillUtil.isWaybillCode(secondWaybillCode)){
             this.logger.error(InvokeResult.PARAM_ERROR);
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage(InvokeResult.PARAM_ERROR);

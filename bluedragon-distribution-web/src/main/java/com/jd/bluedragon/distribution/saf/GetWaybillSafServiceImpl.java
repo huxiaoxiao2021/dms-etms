@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.saf.domain.WaybillResponse;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +107,7 @@ public class GetWaybillSafServiceImpl implements GetWaybillSafService{
 				}else{
 					WaybillResponse  response = new WaybillResponse();
 					response.setPackageCode(newSendM.getBoxCode());
-					response.setWaybillCode(BusinessHelper.getWaybillCode(newSendM.getBoxCode()));
+					response.setWaybillCode(WaybillUtil.getWaybillCode(newSendM.getBoxCode()));
 					responseList.add(response);
 				}
 			}

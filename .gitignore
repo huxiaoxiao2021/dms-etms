@@ -42,3 +42,4 @@ overlays/
 *.ipr
 bluedragon-distribution.iws
 *.orig
+/bluedragon-distribution-utils/*.classpath

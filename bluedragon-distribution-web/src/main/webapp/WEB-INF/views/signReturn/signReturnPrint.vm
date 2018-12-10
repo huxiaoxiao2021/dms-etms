@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模块名称</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    ##将bootStrapTable中的的字体居中显示
+    <style type="text/css">
+        .table th, .table td {
+            text-align: center;
+        }
+    </style>
+    <script src="/static/js/signReturn/signReturnPrint.js"></script>
+</head>
+<body class="container-fluid">
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">工具</a></li>
+            <li class="active">签单返回合单交接单</li>
+        </ol>
+		<!-- 查询条件 -->
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal">
+                <fieldset>
+                	<div class="row">
+                    	<div class="col-xs-12">
+                    		<div class="col-xs-4">
+	                            <div class="form-group">
+	                                <label class="control-label col-xs-4">合单后运单号/包裹号：</label>
+	                                <div class="col-xs-5">
+										<input type="text" id="newWaybillCode" name="newWaybillCode" class="form-control search-param" >
+	                                </div>
+	                            </div>
+                        	</div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-5">合单内任意一个运单号/包裹号：</label>
+                                    <div class="col-xs-5">
+                                        <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <!-- 主页面操作按钮 -->
+                                <div id="toolbar" class="btn-group">
+                                    <button id="btn_query" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+                                    </button>
+                                    <button id="btn_export" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-export" aria-hidden="true"></span>&nbsp;导出
+                                    </button>
+                                    <button id="btn_print" type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-print" aria-hidden="true"></span>&nbsp;打印
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+    <table id="dataTable"></table>
+    <table id="dataTableList"></table>
+</div>
+
+</body>
+</html>

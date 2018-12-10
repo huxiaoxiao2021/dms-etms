@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -113,7 +114,32 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @throws WeighByWaybillExcpetion 运单号/包裹号格式错误异常 UnknownCodeException
      */
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
-        return WaybillUtil.getWaybillCode(codeStr);
+
+        String waybillCode = null;
+        logger.info("单号或包裹号正则校验"+codeStr);
+
+        if (WaybillUtil.isPackageCode(codeStr))
+        {
+            waybillCode = WaybillUtil.getWaybillCode(codeStr);
+        } else if (WaybillUtil.isWaybillCode(codeStr))
+        {
+            waybillCode = codeStr;
+        } else
+        {
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        if (null == waybillCode)
+        {
+            logger.warn("所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则"+codeStr);
+
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.UnknownCodeException);
+        }
+
+        return waybillCode;
+
     }
 
     /**
@@ -142,7 +168,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         //是否需要称重逻辑校验  2018 07 27  update 刘铎
 
-        if (waybill.getWaybillSign() != null && BusinessHelper.isNoNeedWeight(waybill.getWaybillSign())) {
+        if (waybill.getWaybillSign() != null && BusinessUtil.isNoNeedWeight(waybill.getWaybillSign())) {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
         }
 

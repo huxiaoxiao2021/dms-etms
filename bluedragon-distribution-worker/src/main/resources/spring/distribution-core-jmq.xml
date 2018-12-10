@@ -233,6 +233,13 @@
         <!--已修改主题-->
     </bean>
 
+    <!-- 空铁项目 - 发货登记 推送路由MQ -->
+    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_ar_air_sendRegister"/>
+        <property name="timeout" value="1000"/>
+        <!--已修改主题-->
+    </bean>
+
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
     <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="dms_waybill_weight"/>
@@ -301,5 +308,9 @@
     <!--驻厂打印面单成功，打印后发送mq信息给终端-->
     <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
+    </bean>
+    <!--空铁转陆运 提报异常 -->
+    <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.arAbnormal}"/>
     </bean>
 </beans>

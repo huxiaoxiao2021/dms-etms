@@ -2,6 +2,7 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.List;
  * @date 2018年10月12日 16时:06分
  */
 public class WaybillUtil extends WaybillCodeRuleValidateUtil {
+    private final static Logger logger = Logger.getLogger(WaybillUtil.class);
 
     /**
      * 根据包裹号解析运单号
@@ -20,10 +22,14 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static String getWaybillCode(String packCode) {
-        if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode) && !WaybillCodeRuleValidateUtil.isPackageCode(packCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode)) {
             return packCode;
         }
-        return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
+        String waybillCode= WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
+        if (waybillCode==null){
+            return packCode;
+        }
+        return waybillCode;
     }
 
     /**
@@ -32,7 +38,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * 兼容新运单号格式（JD开头）
      */
     public static boolean isWaybillCode(String waybillCode) {
-        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode) && !WaybillCodeRuleValidateUtil.isPackageCode(waybillCode)) {
+        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode)) {
             return true;
         }
         return false;
@@ -154,30 +160,39 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
 
         return Boolean.FALSE;
     }
+
     /**
      * 根据包裹号 生成所有的包裹号
      */
     public static List<String> generateAllPackageCodes(String packcode) {
+        logger.info("生成所有包裹号："+packcode);
         List<String> list = new ArrayList<String>();
         //如果是有效的包裹号，根据包裹总数生成包裹号列表
         if (WaybillUtil.isPackageCode(packcode)) {
             int totalPackageNum = WaybillUtil.getPackNumByPackCode(packcode);//包裹总数
+            if (totalPackageNum >=100){
+                logger.warn("生成包裹大于100：" + totalPackageNum + "packcode:" + packcode);
+            }
+            //超过2W 认为是不正常的单子
+            if (totalPackageNum > DmsConstants.MAX_NUMBER) {
+                logger.error("生成包裹出错，包裹总数过大：" + totalPackageNum + "packcode:" + packcode);
+                return list;
+            }
             //上海亚一包裹号处理
             if (packcode.contains("N") && packcode.contains("S") && packcode.contains("H")) {
                 for (int i = 1; i <= totalPackageNum; i++) {
-                    String packageCode =  packcode.replaceFirst("N\\d+S","N"+i+"S");
+                    String packageCode = packcode.replaceFirst("N\\d+S", "N" + i + "S");
                     list.add(packageCode);
                 }
             } else if (packcode.contains("-")) {
                 //非亚一包裹号处理
                 for (int i = 1; i <= totalPackageNum; i++) {
-                    String packageCode = packcode.replaceFirst("-\\d+-","-"+i+"-");
+                    String packageCode = packcode.replaceFirst("-\\d+-", "-" + i + "-");
                     list.add(packageCode);
                 }
             }
             return list;
         }
-        list.add(packcode);
         return list;
     }
 }

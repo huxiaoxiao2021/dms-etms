@@ -46,6 +46,23 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillByOrderIds", map);
 	}
 
+	/**
+	 * 根据运单号更新装载单状态
+	 * @param waybillCodes
+	 * @param trunkNo
+	 * @param loadId
+	 * @param approvalCode
+	 * @return
+	 */
+	public int updatePreLoadBillByWaybillCodes(List<String> waybillCodes, String trunkNo, String loadId, Integer approvalCode) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("data", waybillCodes);
+		map.put("loadId", loadId);
+		map.put("trunkNo", trunkNo);
+		map.put("approvalCode", approvalCode);
+		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillByWaybillCodes", map);
+	}
+
 	public LoadBill findByPackageBarcode(String packageBarcode) {
 		logger.info("LoadBillDao.findByPackageBarcode with packageBarcode is " + packageBarcode);
 		return (LoadBill) this.getSqlSession().selectOne(LoadBillDao.namespace + ".findByPackageBarcode", packageBarcode);

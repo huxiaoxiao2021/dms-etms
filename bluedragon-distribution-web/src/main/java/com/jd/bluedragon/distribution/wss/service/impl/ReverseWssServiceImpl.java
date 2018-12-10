@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -175,7 +176,7 @@ public class ReverseWssServiceImpl implements ReverseWssService {
 			this.logger.info("消息序列化出现异常。消息：" + message);
 			return Boolean.TRUE;
 		} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.equals(request.getReceiveType())) {
-			waybillCode = BusinessHelper.getWaybillCode(request.getPackageCode());
+			waybillCode = WaybillUtil.getWaybillCode(request.getPackageCode());
 		} else {
 			this.logger.info("消息来源：" + request.getReceiveType());
 			return Boolean.TRUE;

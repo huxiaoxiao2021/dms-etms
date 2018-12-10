@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -119,13 +120,13 @@ public class GlobalTradeController {
                 return new LoadBillReportResponse(2, "参数错误");
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            String[] orderIdArray = request.getIds().split(",");
-            if (orderIdArray.length == 0) {
+            String[] idArray = request.getIds().split(",");
+            if (idArray.length == 0) {
                 return new LoadBillReportResponse(2, "orderId数量为0");
             }
             List<LoadBill> loadBillList = new ArrayList<LoadBill>();
-            for (String orderid : orderIdArray) {
-                LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(orderid));
+            for (String id : idArray) {
+                LoadBill loadBill = loadBillService.findLoadbillByID(Long.parseLong(id));
                 if (erpUser != null) {
                     loadBill.setPackageUser(erpUser.getUserCode());
                     loadBill.setPackageUserCode(erpUser.getUserId());
@@ -197,7 +198,7 @@ public class GlobalTradeController {
         if (StringUtils.isNotBlank(request.getSendTimeTo())) {
             params.put("sendTimeTo", sdf.parse(request.getSendTimeTo()));
         }
-        String waybillCode = BusinessHelper.getWaybillCode(request.getWaybillOrPackageCode());
+        String waybillCode = WaybillUtil.getWaybillCode(request.getWaybillOrPackageCode());
         if (StringUtils.isNotBlank(waybillCode)) {
             params.put("waybillCode", waybillCode);
         }
@@ -269,7 +270,7 @@ public class GlobalTradeController {
         report.setStatus(request.getStatus());
         report.setWarehouseId(request.getWarehouseId());
         report.setNotes(request.getNotes());
-        report.setOrderId(request.getOrderId());
+        report.setWaybillCode(request.getOrderId());
         report.setCustBillNo(request.getCustBillNo());
         report.setCiqCheckFlag(request.getCiqCheckFlag());
         return report;

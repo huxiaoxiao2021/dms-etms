@@ -141,6 +141,25 @@ public class PopPrintRequest extends JdObject {
 	 * 业务类型-区分1-平台打印和2-站点平台打印
 	 */
 	private Integer businessType;
+	/**
+	 *打印入口类型
+	 */
+	public Integer interfaceType;
+
+	public Integer getInterfaceType() {
+		return interfaceType;
+	}
+
+	public void setInterfaceType(Integer interfaceType) {
+		this.interfaceType = interfaceType;
+	}
+
+
+	/**
+	 * 包裹托寄物名称
+	 */
+	private String categoryName;
+
 	public String getWaybillCode() {
 		return waybillCode;
 	}
@@ -322,4 +341,12 @@ public class PopPrintRequest extends JdObject {
 	public void setBusinessType(Integer businessType) {
 		this.businessType = businessType;
 	}
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

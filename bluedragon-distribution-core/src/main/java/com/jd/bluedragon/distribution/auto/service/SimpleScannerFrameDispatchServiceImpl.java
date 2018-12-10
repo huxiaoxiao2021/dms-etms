@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -141,7 +142,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSortMachineAutoSendConfig(UploadData domain, GantryDeviceConfig config) {
         String barCode = domain.getBarCode();
-        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+        if (!BusinessUtil.isBoxcode(barCode)) {
             // 获取运单号
             String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
             // 判断是否为拦截订单
@@ -245,7 +246,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean doGetSendCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 判断条码是箱号还是包裹号
-        if (SerialRuleUtil.isMatchBoxCode(domain.getBarCode())) {
+        if (BusinessUtil.isBoxcode(domain.getBarCode())) {
             // 箱号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为箱子", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
             // 获取目的站点
@@ -505,7 +506,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(String.valueOf(machineId));
             gantryException.setBarCode(barCode);
-            if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            if (!BusinessUtil.isBoxcode(barCode)) {
                 gantryException.setPackageCode(barCode);
                 gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
             }

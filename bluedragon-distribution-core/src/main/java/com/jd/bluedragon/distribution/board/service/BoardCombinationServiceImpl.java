@@ -22,9 +22,11 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -39,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -109,7 +110,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardResponse.setBoardCode(boardCode);
 
         //板号正则校验
-        if (!SerialRuleUtil.isBoardCode(boardCode)) {
+        if (!BusinessUtil.isBoardCode(boardCode)) {
             logger.error("板号正则校验不通过：" + boardCode);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_NOT_IRREGULAR, BoardResponse.MESSAGE_BOARD_NOT_IRREGULAR);
             return boardResponse;
@@ -171,7 +172,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardResponse.setBoardCode(boardCode);
 
         //板号正则校验
-        if (!SerialRuleUtil.isBoardCode(boardCode)) {
+        if (!BusinessUtil.isBoardCode(boardCode)) {
             logger.error("板号正则校验不通过：" + boardCode);
             boardResponse.addStatusInfo(BoardResponse.CODE_BOARD_NOT_IRREGULAR, BoardResponse.MESSAGE_BOARD_NOT_IRREGULAR);
             return boardResponse;
@@ -216,7 +217,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.sendBoardBindings", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer sendBoardBindings(BoardCombinationRequest request, BoardResponse boardResponse) throws Exception {
         boardResponse.setBoardCode(request.getBoardCode());
-        if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+        if (BusinessUtil.isBoxcode(request.getBoxOrPackageCode())) {
             boardResponse.setBoxCode(request.getBoxOrPackageCode());
         } else {
             boardResponse.setPackageCode(request.getBoxOrPackageCode());
@@ -267,7 +268,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             checkParam.setUserCode(request.getUserCode());
             checkParam.setUserName(request.getUserName());
 
-            if (BusinessHelper.isPackageCode(request.getBoxOrPackageCode())) {
+            if (WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
                 checkParam.setBoxOrPackageCode(request.getBoxOrPackageCode());
             } else if (BusinessHelper.isBoxcode(request.getBoxOrPackageCode())) {
                 Box box = boxService.findBoxByCode(request.getBoxOrPackageCode());
@@ -614,10 +615,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      */
     public void addOperationLog(BoardCombinationRequest request, Integer logType) {
         OperationLog operationLog = new OperationLog();
-        if (SerialRuleUtil.isMatchBoxCode(request.getBoxOrPackageCode())) {
+        if (BusinessUtil.isBoxcode(request.getBoxOrPackageCode())) {
             operationLog.setBoxCode(request.getBoxOrPackageCode());
         } else {
-            operationLog.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getBoxOrPackageCode()));
+            operationLog.setWaybillCode(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()));
             operationLog.setPackageCode(request.getBoxOrPackageCode());
         }
         operationLog.setRemark(request.getBoardCode());
@@ -711,6 +712,16 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         return boardCodes;
+    }
+
+    /**
+     * 将板的重量体积信息持久化
+     * @param request
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.persistentBoardMeasureData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Void> persistentBoardMeasureData(BoardMeasureRequest request) {
+        logger.info("调用TC接口存储板体积参数：" + JSON.toJSONString(request));
+        return boardMeasureService.persistentData(request);
     }
 
 }

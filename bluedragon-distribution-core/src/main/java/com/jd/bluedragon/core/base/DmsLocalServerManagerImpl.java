@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.DmsLocalServerInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
 import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService;
@@ -37,6 +38,10 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
     @Autowired
     @Qualifier("storageComponentJsfService")
     private StorageComponentJsfService storageComponentJsfService;
+
+    @Autowired
+    @Qualifier("dmsLocalInstanceInfoJsfService")
+    private DmsLocalInstanceInfoJsfService dmsLocalInstanceInfoJsfService;
 
     @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVipListByDmsId", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -85,6 +90,23 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
         }
 
         return result;
+    }
+
+    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVerAppUrlBySiteCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public String getVerAppUrlBySiteCode(String siteCode) {
+        try {
+            BaseDmsAutoJsfResponse<String> response=dmsLocalInstanceInfoJsfService.getSortSchemeUrlBySiteCode(siteCode);
+            if (response != null && response.getStatusCode() == BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                return response.getData();
+            }else {
+                logger.error("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  "+ JsonHelper.toJson(siteCode)+"  "+response.getStatusMessage());
+            }
+
+        } catch (Exception e) {
+            logger.error("[JSF接口调用异常]调用自动化JSF接口getVerAppUrlBySiteCode获取分拣中心本地服务器地址出现异常", e);
+        }
+        return null;
     }
 
     @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.checkStorage", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})

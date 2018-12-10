@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.Pickware;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.PickwareService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -95,7 +96,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
         }
         
         ReverseReject reverseRejectPO = this.getReverseReject(null,
-                BusinessHelper.getWaybillCode(request.getPackageCode()),
+                WaybillUtil.getWaybillCode(request.getPackageCode()),
                 request.getPackageCode());
         
         if (reverseRejectPO == null) {
@@ -250,12 +251,12 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
             reverseReject.setInspectTime(DateHelper.parseDateTime(request.getOperateTime()));
         }
         
-        if (BusinessHelper.isPackageCode(request.getPackageCode())) {
+        if (WaybillUtil.isPackageCode(request.getPackageCode())) {
             reverseReject.setPackageCode(request.getPackageCode());
-            reverseReject.setOrderId(BusinessHelper.getWaybillCode(request.getPackageCode()));
+            reverseReject.setOrderId(WaybillUtil.getWaybillCode(request.getPackageCode()));
         }
         
-        if (BusinessHelper.isWaybillCode(request.getPackageCode())) {
+        if (WaybillUtil.isWaybillCode(request.getPackageCode())) {
             reverseReject.setOrderId(request.getPackageCode());
         }
     }

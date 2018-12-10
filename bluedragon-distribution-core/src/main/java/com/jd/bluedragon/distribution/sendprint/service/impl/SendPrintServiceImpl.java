@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -290,7 +291,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     detail.setSealNo2("");
                 }
             } else {
-                if (BusinessHelper.isPackageCode(sendM.getBoxCode())) {
+                if (WaybillUtil.isPackageCode(sendM.getBoxCode())) {
                     totalPackageNum ++;
                     PackOpeFlowDto packOpeFlowDto = getOpeByPackageCode(sendM.getBoxCode());
                     if (null != packOpeFlowDto && null != packOpeFlowDto.getpLength() && null != packOpeFlowDto.getpWidth() && null != packOpeFlowDto.getpHigh()
@@ -319,10 +320,12 @@ public class SendPrintServiceImpl implements SendPrintService {
             } else {
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(),criteria.getSiteCode());
                 if(weightAndVolume != null){
+                    //立方厘米转立方米
+                    Double volume = BigDecimalHelper.div(weightAndVolume.getVolume(), PARAM_CM3_M3, 6);
                     if(weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)){
-                        totalOutVolumeSt += weightAndVolume.getVolume();
+                        totalOutVolumeSt += volume;
                     }else{
-                        totalOutVolumeDy += weightAndVolume.getVolume();
+                        totalOutVolumeDy += volume;
                     }
                 }
             }
@@ -366,7 +369,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     private PackOpeFlowDto getOpeByPackageCode(String packageCode) {
         try {
-            String waybillCode = BusinessHelper.getWaybillCode(packageCode);
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             BaseEntity<List<PackOpeFlowDto>> packageOpe = waybillPackageApi.getPackOpeByWaybillCode(waybillCode);
             for (PackOpeFlowDto packOpeFlowDto : packageOpe.getData()) {
                 if (packOpeFlowDto.getPackageCode().equals(packageCode)) {
@@ -649,10 +652,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getOutVolume",Constants.UMP_APP_NAME_DMSWEB,false, true);
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(), sendM.getCreateSiteCode());
                 if (weightAndVolume != null) {
+                    Double volume = weightAndVolume.getVolume();
+                    //将cm³转换成m³
+                    volume = BigDecimalHelper.div(volume, PARAM_CM3_M3, 6);
                     if (weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
-                        outVolumeStatic = weightAndVolume.getVolume();
+                        outVolumeStatic = volume;
                     } else {
-                        outVolumeDynamic = weightAndVolume.getVolume();
+                        outVolumeDynamic = volume;
                     }
                 }
             }catch(Exception e){
@@ -1051,7 +1057,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                     for (String scanCode : scanCodeList) {
                         if (BusinessHelper.isBoxcode(scanCode))
                             boxes.put(scanCode, scanCode);
-                        else if (BusinessHelper.isPackageCode(scanCode))
+                        else if (WaybillUtil.isPackageCode(scanCode))
                             packages.put(scanCode, scanCode);
                     }
                 }
@@ -1171,7 +1177,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                                 tBasicQueryEntity.setGoodValue(String.valueOf(tJoinDetail.getPrice()));
                                 tBasicQueryEntity.setGoodWeight(tJoinDetail.getGoodWeight());
                                 tBasicQueryEntity.setGoodWeight2(0.0);
-                                tBasicQueryEntity.setPackageBarNum(BusinessHelper.getPackageNum(dSendDatail.getPackageBarcode()));
+                                tBasicQueryEntity.setPackageBarNum(WaybillUtil.getPackNumByPackCode(dSendDatail.getPackageBarcode()));
                                 String sendPay = tJoinDetail.getSendPay();
                                 // 是否是奢侈品
                                 if (sendPay != null && sendPay.charAt(19) == '1') {

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.quickProduce.service.impl;
 
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -18,6 +20,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -48,6 +51,9 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    @Qualifier("waybillCommonService")
+    private WaybillCommonService waybillCommonService;
 
     /**
      * 快生项目获取运单信息
@@ -61,10 +67,10 @@ public class QuickProduceServiceImpl implements QuickProduceService {
             return null;
         QuickProduceWabill quickProduceWabill=new QuickProduceWabill();
         Waybill waybill=null;
-        if (SerialRuleUtil.isMatchWaybillNo(waybillCode)) {//自营定单
+        if (WaybillUtil.isJDWaybillCode(waybillCode)) {//自营定单
             waybill = getWabillFromOom(waybillCode);
         }
-        else if(SerialRuleUtil.isMatchAllWaybillNo(waybillCode)) {//外单
+        else if(WaybillUtil.isWaybillCode(waybillCode)) {//外单
             waybill = getQuickProduceWabillFromDrec(waybillCode);
         }
         else {//正则漏掉单号
@@ -134,15 +140,19 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private  Waybill getWabillFromOom(String waybillCode){
         Waybill waybill=null;
         try {//本机调试无host配置，台账接口错误，暂时加try，catch
-            if (NumberHelper.isNumber(waybillCode)) {
-                waybill = orderWebService.getWaybillByOrderId(Long.parseLong(waybillCode));
-                if (waybill != null) {
-                    OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(waybillCode);
-                    if (orderBankResponse != null&&orderBankResponse.getShouldPay()!=null) {
-                        waybill.setRecMoney(Double.parseDouble(orderBankResponse.getShouldPay().toString()));
-                    }
+
+            Long orderId = waybillCommonService.findOrderIdByWaybillCode(waybillCode);
+            if(orderId == null){
+                return waybill;
+            }
+            waybill = orderWebService.getWaybillByOrderId(orderId);
+            if (waybill != null) {
+                OrderBankResponse orderBankResponse = orderBankService.getOrderBankResponse(orderId.toString());
+                if (orderBankResponse != null&&orderBankResponse.getShouldPay()!=null) {
+                    waybill.setRecMoney(Double.parseDouble(orderBankResponse.getShouldPay().toString()));
                 }
             }
+
         }
         catch (Exception ex){
             logger.debug(ex);

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.express.domain.ExpressBoxDetailsResponse;
 import com.jd.bluedragon.distribution.express.domain.ExpressPackageDetailsResponse;
 import com.jd.bluedragon.distribution.express.enums.ExpressStatusTypeEnum;
 import com.jd.bluedragon.distribution.express.service.ExpressCollectionService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
@@ -51,7 +52,7 @@ public class ExpressCollectionResource {
         }
 
         //判断参数为包裹号还是运单号，如果是包裹号，则获取运单号
-        String waybillCode = BusinessHelper.getWaybillCode(paramQueryCode);
+        String waybillCode = WaybillUtil.getWaybillCode(paramQueryCode);
         if (null == waybillCode) {
             expressPackageDetailsResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             expressPackageDetailsResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR + "，获取运单信息失败，包裹号为：" + paramQueryCode);
@@ -83,7 +84,7 @@ public class ExpressCollectionResource {
         }
 
         //判断参数为包裹号还是运单号，如果是包裹号，则获取运单号
-        String waybillCode = BusinessHelper.getWaybillCode(paramQueryCode);
+        String waybillCode = WaybillUtil.getWaybillCode(paramQueryCode);
         if (null == waybillCode) {
             expressBoxDetailsResponse.setCode(JdResponse.CODE_PARAM_ERROR);
             expressBoxDetailsResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR + "，获取运单信息失败，包裹号为：" + paramQueryCode);

@@ -119,6 +119,19 @@ public class Constants {
      * 业务类型-未知业务类型
      */
     public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+
+    /**
+     * 操作日志业务编码-打印
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=101401;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=1014;
     /**
      * 业务类型-未知业务操作类型
      */
@@ -273,6 +286,11 @@ public class Constants {
     public static final int POLLING_INTERVAL_TIME = 1500;// 秒
 
     /**
+     * 时间：一小时的秒数
+     */
+    public static final int TIME_SECONDS_ONE_HOUR = 3600;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -329,12 +347,39 @@ public class Constants {
     //endregion
 
     // PDA登录信息
-    public static final int PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
-    public static final int PDA_USER_LOGIN_FAILUE = -1; //验证失败
-    public static final int PDA_USER_GETINFO_FAILUE = 0; //获取信息失败
+    public static final Integer PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
+    public static final Integer PDA_USER_LOGIN_FAILUE = -1; //验证失败
+    public static final Integer PDA_USER_GETINFO_FAILUE = 0; //获取基础资料数据失败
+    public static final Integer PDA_USER_JSF_FAILUE = -3; //获取基础账号JSF数据失败
+    public static final Integer PDA_USER_NO_EXIT = 2; //用户不存在
+    public static final Integer PDA_USER_PASSWORD_WRONG = 6; //密码错误
+    public static final Integer PDA_USER_LOCKED = 3; //密码错误超过十次pin被锁
+    public static final Integer PDA_USER_BUSY = 100; //系统繁忙
+    public static final Integer PDA_USER_NO_VERIFY = 7; //账号尚未审核通过
+    public static final Integer PDA_USER_SECURITY_LOCKED = 8; //因安全原因账号被锁
+    public static final Integer PDA_USER_LOGOUT = 14; //账号已经注销
+    public static final Integer PDA_USER_SECURITY_CHECK = 1100; //需要验证(命中风险检查)
+    public static final Integer PDA_USER_NO_USE = 1110; //无可用验证方式(命中风险检查)
+    public static final Integer PDA_USER_IP_WRONG = 105; //ip在黑名单中
+    public static final Integer PDA_USER_EMPTY = -4; //用户名或密码为空
+    public static final Integer PDA_USER_ABNORMAL = -2; //登录异常
+
     public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
     public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
-    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取信息失败"; //获取信息失败
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
+    public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
+    public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
+    public static final String PDA_USER_PASSWORD_WRONG_MSG = "密码错误"; //密码错误
+    public static final String PDA_USER_LOCKED_MSG = "密码错误超过十次pin被锁"; //密码错误超过十次pin被锁
+    public static final String PDA_USER_BUSY_MSG = "系统繁忙"; //系统繁忙
+    public static final String PDA_USER_NO_VERIFY_MSG = "账号尚未审核通过"; //账号尚未审核通过
+    public static final String PDA_USER_SECURITY_LOCKED_MSG = "因安全原因账号被锁"; //因安全原因账号被锁
+    public static final String PDA_USER_LOGOUT_MSG = "账号已经注销"; //账号已经注销
+    public static final String PDA_USER_SECURITY_CHECK_MSG = "需要验证(命中风险检查)"; //需要验证(命中风险检查)
+    public static final String PDA_USER_NO_USE_MSG = "无可用验证方式(命中风险检查)"; //无可用验证方式(命中风险检查)
+    public static final String PDA_USER_IP_WRONG_MSG = "ip在黑名单中"; //ip在黑名单中
+    public static final String PDA_USER_EMPTY_MSG = "用户名或密码为空"; //用户名或密码为空
+    public static final String PDA_USER_ABNORMAL_MSG = "登录异常"; //登录异常
 
     public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
     public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）
@@ -478,6 +523,7 @@ public class Constants {
     public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
     public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
     public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
+    public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
     public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
     public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
     public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
@@ -682,6 +728,17 @@ public class Constants {
     public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
     public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
 
+    /**
+     * 再投审核完成类型（1：按运单审核；2：按包裹审核）
+     */
+    public static final Integer PACKAGE_APPROVE_TYPE = 2;
 
-
+    /**
+     * 已发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_1 =1;
+    /**
+     * 取消发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
 }

@@ -79,4 +79,14 @@ public class ArSendCodeServiceImpl extends BaseService<ArSendCode> implements Ar
 		return arSendCodeDao.deleteBySendRegisterId(sendRegisterId, userCode) > 0 ? true : false;
 	}
 
+	/**
+	 *根据批次号查对应的sendRegisterId
+	 * @param sendCode
+	 * @return
+	 */
+	@Override
+	public ArSendCode getBySendCode(String sendCode){
+		return arSendCodeDao.getBySendCode(sendCode);
+	}
+
 }

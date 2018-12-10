@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.performance.domain.Commodity;
 import com.jd.bluedragon.distribution.performance.domain.Performance;
 import com.jd.bluedragon.distribution.performance.domain.PerformanceCondition;
 import com.jd.bluedragon.distribution.performance.service.PerformanceService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jp.assemble.sdk.GenericResult;
@@ -62,8 +63,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) ||
                 StringUtils.isEmpty(performanceCondition.getPerformanceCode().trim())){
             String waybillCode = performanceCondition.getWaybillorPackCode();
-            if(BusinessHelper.isPackageCode(performanceCondition.getWaybillorPackCode())){
-                waybillCode = BusinessHelper.getWaybillCode(performanceCondition.getWaybillorPackCode());
+            if(WaybillUtil.isPackageCode(performanceCondition.getWaybillorPackCode())){
+                waybillCode = WaybillUtil.getWaybillCode(performanceCondition.getWaybillorPackCode());
             }
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);
@@ -120,8 +121,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         HandoverBillPrint handoverBillPrint = new HandoverBillPrint();
         if(StringUtils.isEmpty(performanceCode) || StringUtils.isEmpty(performanceCode.trim())) {
             String waybillCode = waybillorPackCode;
-            if (BusinessHelper.isPackageCode(waybillorPackCode)) {
-                waybillCode = BusinessHelper.getWaybillCode(waybillorPackCode);
+            if (WaybillUtil.isPackageCode(waybillorPackCode)) {
+                waybillCode = WaybillUtil.getWaybillCode(waybillorPackCode);
             }
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);
@@ -211,8 +212,8 @@ public class PerformanceServiceImpl implements PerformanceService {
         if(StringUtils.isEmpty(performanceCondition.getPerformanceCode()) ||
                 StringUtils.isEmpty(performanceCondition.getPerformanceCode().trim())){
             String waybillCode = performanceCondition.getWaybillorPackCode();
-            if(BusinessHelper.isPackageCode(performanceCondition.getWaybillorPackCode())){
-                waybillCode = BusinessHelper.getWaybillCode(performanceCondition.getWaybillorPackCode());
+            if(WaybillUtil.isPackageCode(performanceCondition.getWaybillorPackCode())){
+                waybillCode = WaybillUtil.getWaybillCode(performanceCondition.getWaybillorPackCode());
             }
             try {
                 performanceCode = waybillCommonService.getPerformanceCode(waybillCode);

@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.globaltrade.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author dudong
@@ -12,15 +10,54 @@ import java.util.Set;
 public class PreLoadBill implements Serializable{
     private static final long serialVersionUID = -5571202720781495875L;
 
+    /**
+     * 预装载单号
+     */
     private String loadId;
+
+    /**
+     * 仓库ID
+     */
     private String warehouseId;
+
+    /**
+     * 预装载单对应的所有订单的包裹数量
+     */
     private String packgeAmount;
+
+    /**
+     * 关区编码
+     */
     private String ctno;
+
+    /**
+     * 检区编码
+     */
     private String gjno;
+
+    /**
+     * 物流企业编码
+     */
     private String tpl;
+
+    /**
+     * 运输工具编号（车牌号）
+     */
     private String truckNo;
+
+    /**
+     * 预装载时间
+     */
     private String genTime;
+
+    /**
+     * 订单数量
+     */
     private Integer orderCount;
+
+    /**
+     * 预装载单详情
+     */
     private List<LoadBill> orderList;
 
     public String getLoadId() {

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,7 +202,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(request.getWaybillCode());
         if(waybill!=null&&waybill.getWaybillSign()!=null){
-            if(BusinessHelper.isSignChar(waybill.getWaybillSign(),31,'3')){
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
                 labelPrinting.setOriginalDmsCode(null);
                 labelPrinting.setOriginalDmsName("");
                 labelPrinting.setPurposefulDmsCode(null);
@@ -264,7 +265,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         labelPrinting.setOriginalDmsCode(request.getDmsCode());
         labelPrinting.setOriginalDmsName(request.getDmsName());
-        labelPrinting.setOriginalCrossType(BusinessHelper.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay()));
+        labelPrinting.setOriginalCrossType(BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay()));
         //扩展追加字段方法
         labelPrinting = waybillExtensional(request,labelPrinting,waybill);
 

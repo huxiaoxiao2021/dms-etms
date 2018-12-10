@@ -344,9 +344,9 @@ public interface DeliveryService {
 
 	/**
 	 * 原包分拣发货
-	 * @param sendMList
+	 * @param sendM
 	 */
-    void packageSortSend(List<SendM> sendMList);
+    void packageSortSend(SendM sendM);
 	/**
 	 *  查询发货记录
 	 * @param sendCode 批次号
