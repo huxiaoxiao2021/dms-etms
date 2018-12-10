@@ -29,7 +29,7 @@ import javax.ws.rs.core.MediaType;
 @Produces({MediaType.APPLICATION_JSON})
 public class RecycleMaterialResource {
 
-    private final static String url = "/services/recycle/material/updateStatus";
+    private final static String url = "/services/recycleMaterial/updateStatus";
 
     private final static String PREFIX_VER_URL = "DMS_BUSINESS_ADDRESS";
 
