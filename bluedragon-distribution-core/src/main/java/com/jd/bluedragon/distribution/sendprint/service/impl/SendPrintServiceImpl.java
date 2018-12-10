@@ -322,7 +322,6 @@ public class SendPrintServiceImpl implements SendPrintService {
                 if(weightAndVolume != null){
                     //立方厘米转立方米
                     Double volume = BigDecimalHelper.div(weightAndVolume.getVolume(), PARAM_CM3_M3, 6);
-                    ;
                     if(weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)){
                         totalOutVolumeSt += volume;
                     }else{
