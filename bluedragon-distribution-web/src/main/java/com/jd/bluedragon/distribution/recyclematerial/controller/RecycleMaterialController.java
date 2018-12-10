@@ -19,7 +19,7 @@ public class RecycleMaterialController {
 
     @RequestMapping("/index")
     public String index() {
-        return "redirect:" + businessUrl + "/recyclematerial/manager/index";
+        return "redirect:" + businessUrl + "/recycleMaterialManager/index";
     }
 
 }
