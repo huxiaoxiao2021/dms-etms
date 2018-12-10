@@ -19,6 +19,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -128,6 +130,7 @@ public class ArReceiveResource implements DmsArReceiveService {
         return result;
     }
 
+    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
