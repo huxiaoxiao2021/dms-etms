@@ -174,7 +174,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         signReturnPrintM.setOperateUser(mergeWaybillCodeReturnRequest.getOperatorName());
         signReturnPrintM.setCreateSiteName(mergeWaybillCodeReturnRequest.getSiteName());
         signReturnPrintM.setIsDelete(1);
-        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(newWaybillCode,
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(mergedWaybillList.get(0).getWaybillCode(),
                 true, false, false, false);
         if(entity != null && entity.getResultCode() > 0 && entity.getData() != null){
             Waybill waybill = entity.getData().getWaybill();
