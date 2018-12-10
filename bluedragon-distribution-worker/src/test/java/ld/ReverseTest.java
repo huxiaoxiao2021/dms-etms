@@ -102,7 +102,7 @@ public class ReverseTest {
                 "    \"receiveType\": 7,\n" +
                 "    \"canReceive\": 1,\n" +
                 "    \"operaterName\": \"bjtc\",\n" +
-                "    \"operateTime\": \"2018-12-10 10:12:32\"\n" +
+                "    \"operateTime\": \"2018-12-10 10:13:32\"\n" +
                 "}");
         reverseReceiveConsumer.consume(message);
     }

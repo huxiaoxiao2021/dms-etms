@@ -109,6 +109,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				}else if(StringUtils.isNotBlank(jrequest.getOperateTime())){
 					date = sdf.parse(jrequest.getOperateTime());
 				}
+				if(reverseReceive.getReceiveType() == 7 && StringUtils.isNotBlank(jrequest.getOperaterName())){ //处理报文 操作人字段
+					reverseReceive.setOperatorName(jrequest.getOperaterName());
+				}
 				reverseReceive.setReceiveTime(date);
 			} catch (Exception e) {
 				this.logger.error("逆向收货消息转换失败：" + e);
