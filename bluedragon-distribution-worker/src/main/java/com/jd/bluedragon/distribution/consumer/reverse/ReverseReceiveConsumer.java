@@ -104,7 +104,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			try {
 				BeanHelper.copyProperties(reverseReceive, jrequest);
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				date = sdf.parse(jrequest.getReceiveTime());
+				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
+					date = sdf.parse(jrequest.getReceiveTime());
+				}else if(StringUtils.isNotBlank(jrequest.getOperateTime())){
+					date = sdf.parse(jrequest.getOperateTime());
+				}
 				reverseReceive.setReceiveTime(date);
 			} catch (Exception e) {
 				this.logger.error("逆向收货消息转换失败：" + e);
