@@ -19,6 +19,7 @@ import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +71,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      */
     private ArAbnormalResponse validateRequest(ArAbnormalRequest arAbnormalRequest) {
         ArAbnormalResponse response = new ArAbnormalResponse();
-        if (arAbnormalRequest.getPackageCode() == null) {
+        if (StringUtils.isBlank(arAbnormalRequest.getPackageCode())) {
             response.setCode(ArAbnormalResponse.CODE_NODATA);
             response.setMessage(ArAbnormalResponse.MESSAGE_NODATA);
             return response;
@@ -97,7 +98,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             response.setMessage(ArAbnormalResponse.MESSAGE_SITECODE);
             return response;
         }
-        if (arAbnormalRequest.getSiteName() == null) {
+        if (StringUtils.isBlank(arAbnormalRequest.getSiteName())) {
             response.setCode(ArAbnormalResponse.CODE_SITENAME);
             response.setMessage(ArAbnormalResponse.MESSAGE_SITENAME);
             return response;
@@ -107,7 +108,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             response.setMessage(ArAbnormalResponse.MESSAGE_USERCODE);
             return response;
         }
-        if (arAbnormalRequest.getUserName() == null) {
+        if (StringUtils.isBlank(arAbnormalRequest.getUserName())) {
             response.setCode(ArAbnormalResponse.CODE_USERNAME);
             response.setMessage(ArAbnormalResponse.MESSAGE_USERNAME);
             return response;
@@ -146,7 +147,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             if (null != sendDetailList && sendDetailList.size() > 0) {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
-                logger.error("批次没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal批次没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
             }
         } else if (BusinessUtil.isBoxcode(arAbnormalRequest.getPackageCode())) {
             //按箱号 和站点 查发货明细
@@ -157,7 +158,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             if (null != sendDetailList && sendDetailList.size() > 0) {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
-                logger.error("箱号没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal箱号没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
             }
         } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode())) {
             //按运单和站点查发货明细
@@ -168,7 +169,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             if (null != sendDetailList && sendDetailList.size() > 0) {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
-                logger.error("运单没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal运单没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
             }
         } else if (WaybillUtil.isPackageCode(arAbnormalRequest.getPackageCode())) {
             //查此包裹是否已发货
@@ -179,10 +180,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             if (null != sendDetailList && sendDetailList.size() > 0) {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
-                logger.error("包裹没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal包裹没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
             }
         } else {
-            logger.error("无可用扫描码" + JsonHelper.toJson(arAbnormalRequest));
+            logger.error("ArAbnormalServiceImpl.dealArAbnormal无可用扫描码" + JsonHelper.toJson(arAbnormalRequest));
         }
     }
 

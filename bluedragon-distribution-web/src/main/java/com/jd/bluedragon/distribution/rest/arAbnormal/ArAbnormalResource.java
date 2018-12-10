@@ -32,12 +32,12 @@ public class ArAbnormalResource {
     ArAbnormalService arAbnormalService;
     @POST
     @Path("/arAbnormal/pushArAbnormal")
-    public ArAbnormalResponse pushAbnormalOrder(ArAbnormalRequest request){
+    public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest request){
         ArAbnormalResponse response = new ArAbnormalResponse();
         try{
           return arAbnormalService.pushArAbnormal(request);
         }catch (Exception e) {
-            logger.error("ArAbnormalResource.pushAbnormalOrder操作出现异常", e);
+            logger.error("ArAbnormalResource.pushArAbnormal操作出现异常", e);
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
