@@ -8,7 +8,9 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
@@ -383,6 +385,7 @@ public class SortingServiceImpl implements SortingService {
 		List<SendDetail> sendDList = new ArrayList<SendDetail>();
 		for (Sorting sorting : sortings) {
 			if (sorting.getIsCancel().equals(SORTING_CANCEL_NORMAL)) {
+				this.b2bPushInspection(sorting);//B网建箱自动触发验货全程跟踪
 				this.addSorting(sorting, null); // 添加分拣记录
 				this.addSortingAdditionalTask(sorting); // 添加回传分拣的运单状态
 				// this.updatedBoxStatus(sorting); // 将箱号更新为分拣状态
@@ -829,7 +832,53 @@ public class SortingServiceImpl implements SortingService {
 		}
 		return null;
 	}
+	/**
+	 * B网建箱自动触发验货全程跟踪
+	 * 推验货任务
+	 * @param sorting
+	 */
+	private void b2bPushInspection(Sorting sorting) {
+		BaseStaffSiteOrgDto createSite = null;
+		try {
+			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
+		} catch (Exception e) {
+			this.logger.error("sortingServiceImpl.pushInspection"+e.getMessage(), e);
+		}
+		//B网建箱自动触发验货全程跟踪
+		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSiteType()){
+			return;
+		}
+		InspectionRequest inspection=new InspectionRequest();
+		inspection.setUserCode(sorting.getCreateUserCode());
+		inspection.setUserName(sorting.getCreateUser());
+		inspection.setSiteCode(sorting.getCreateSiteCode());
+		inspection.setSiteName(createSite.getSiteName());
+		//验货操作提前5秒
+		inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
+		inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+		inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
 
+		TaskRequest request=new TaskRequest();
+		request.setBusinessType(sorting.getType());
+		request.setKeyword1(String.valueOf(sorting.getCreateUserCode()));
+		request.setKeyword2(sorting.getPackageCode());
+		request.setType(Task.TASK_TYPE_INSPECTION);
+		request.setOperateTime(inspection.getOperateTime());
+		request.setSiteCode(sorting.getCreateSiteCode());
+		request.setSiteName(createSite.getSiteName());
+		request.setUserCode(sorting.getCreateUserCode());
+		request.setUserName(sorting.getCreateUser());
+		//request.setBody();
+		String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
+				+ JsonHelper.toJson(inspection)
+				+ Constants.PUNCTUATION_CLOSE_BRACKET;
+		Task task=this.taskService.toTask(request, eachJson);
+
+		int result= this.taskService.add(task, true);
+		if(logger.isDebugEnabled()){
+			logger.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
+		}
+	}
 	/**
 	 * 1.补中转发货sendD发货数据并且发送全程跟踪
 	 * 2.判断是否已发货，若已发货补SendD表数据并且发送全程跟踪

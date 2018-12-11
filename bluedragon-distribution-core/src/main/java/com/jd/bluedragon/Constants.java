@@ -93,6 +93,10 @@ public class Constants {
     public static final int TRANS_SORTING_SITE_TYPE = 64;
     /** 跨分拣中心收货站点类型二级 **/
     public static final int TRANS_SORTING_SITE_TYPE_SECOND = 256;
+    /**
+     * 快运中心站点类型
+     */
+    public static final int B2B_SITE_TYPE = 6420;
 
 
     /** 操作类型 **/
