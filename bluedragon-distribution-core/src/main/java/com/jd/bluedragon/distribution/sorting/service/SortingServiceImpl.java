@@ -845,7 +845,7 @@ public class SortingServiceImpl implements SortingService {
 			this.logger.error("sortingServiceImpl.pushInspection"+e.getMessage(), e);
 		}
 		//B网建箱自动触发验货全程跟踪
-		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSiteType()){
+		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSubType()){
 			return;
 		}
 		InspectionRequest inspection=new InspectionRequest();
