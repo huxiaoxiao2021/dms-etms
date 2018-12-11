@@ -100,9 +100,9 @@ public class ReverseTest {
                 "    \"waybillCode\": \"JDVA00000184905\",\n" +
                 "    \"sendCode\": \"910-11252-2018120720455885\",\n" +
                 "    \"receiveType\": 7,\n" +
-                "    \"canReceive\": 1,\n" +
-                "    \"operaterName\": \"bjtc\",\n" +
-                "    \"operateTime\": \"2018-12-10 10:13:32\"\n" +
+                "    \"canReceive\": 0,\n" +
+                "    \"operaterName\": \"刘铎测试\",\n" +
+                "    \"operateTime\": \"2018-12-10 10:15:32\"\n" +
                 "}");
         reverseReceiveConsumer.consume(message);
     }

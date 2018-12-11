@@ -106,11 +106,12 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
 					date = sdf.parse(jrequest.getReceiveTime());
-				}else if(StringUtils.isNotBlank(jrequest.getOperateTime())){
-					date = sdf.parse(jrequest.getOperateTime());
 				}
-				if(reverseReceive.getReceiveType() == 7 && StringUtils.isNotBlank(jrequest.getOperaterName())){ //处理报文 操作人字段
+				if(reverseReceive.getReceiveType() == 7 ){ //处理报文 操作人字段
+					date = sdf.parse(jrequest.getOperateTime());
 					reverseReceive.setOperatorName(jrequest.getOperaterName());
+					reverseReceive.setOrderId(jrequest.getWaybillCode());
+					reverseReceive.setPackageCode(jrequest.getWaybillCode());
 				}
 				reverseReceive.setReceiveTime(date);
 			} catch (Exception e) {
