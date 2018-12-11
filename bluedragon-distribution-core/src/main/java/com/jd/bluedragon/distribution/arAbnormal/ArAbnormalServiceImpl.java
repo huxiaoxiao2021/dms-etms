@@ -165,7 +165,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             }
         } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode())) {
             BaseEntity<BigWaybillDto> waybillDtoBaseEntity = getWaybillBaseEntity(arAbnormalRequest.getPackageCode());
-            if (waybillDtoBaseEntity == null) {
+            if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
                 return;
             }
@@ -178,7 +178,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
         } else if (WaybillUtil.isPackageCode(arAbnormalRequest.getPackageCode())) {
             BaseEntity<BigWaybillDto> waybillDtoBaseEntity = getWaybillBaseEntity(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()));
-            if (waybillDtoBaseEntity == null) {
+            if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
                 return;
             }
