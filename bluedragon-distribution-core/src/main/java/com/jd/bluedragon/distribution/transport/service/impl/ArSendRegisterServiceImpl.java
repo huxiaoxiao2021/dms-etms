@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.transport.dao.ArSendCodeDao;
 import com.jd.bluedragon.distribution.transport.dao.ArSendRegisterDao;
 import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
@@ -78,6 +79,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     @Autowired
+    private ArSendCodeDao arSendCodeDao;
+
+    @Autowired
     private SendDatailDao sendDetailDao;
 
     @Qualifier("arSendRegisterMQ")
@@ -143,6 +147,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 ArSendCode arSendCode=arSendCodeService.getBySendCode(sendCode);
                 //如果有批次号存在，判断航班号有没有改动
                 if (arSendCode != null) {
+                    //如果有批次号存在，把该批次is_delete置为1，因为新增同样的批次号，之前的批次作废(以免飞常准发老批次MQ)
+                    arSendCode.setIsDelete(1);
+                    arSendCodeDao.update(arSendCode);
+
                     ArSendRegister arSendRegisterExits=this.findById(arSendCode.getSendRegisterId());
                     if (arSendRegisterExits != null && arSendRegisterExits.getTransportName() != null) {
                         //航班号有改动,需要向路由推MQ，如果航班号没有改动，不需要向路由推MQ

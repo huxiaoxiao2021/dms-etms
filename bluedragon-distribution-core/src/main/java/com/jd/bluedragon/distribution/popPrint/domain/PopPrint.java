@@ -148,6 +148,18 @@ public class PopPrint implements Serializable {
 	 * B商家名称
 	 */
 	private String busiName;
+	/**
+	 *打印入口类型
+	 */
+	public Integer interfaceType;
+
+	public Integer getInterfaceType() {
+		return interfaceType;
+	}
+
+	public void setInterfaceType(Integer interfaceType) {
+		this.interfaceType = interfaceType;
+	}
 
 	/**
 	 * 包裹托寄物名称

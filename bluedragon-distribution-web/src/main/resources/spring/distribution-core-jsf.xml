@@ -155,6 +155,10 @@
                   alias="${ldop.basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="basicTraderReturnAPI" interface="com.jd.ldop.basic.api.BasicTraderReturnAPI" protocol="jsf"
+                  alias="${ldop.basic.return.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
@@ -345,6 +349,11 @@
     <!--报表的接口 唐春青-->
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
                   protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
+    <jsf:consumer id="dmsLocalInstanceInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService"
+                  protocol="jsf" alias="${jsf.dmsLocalInstanceInfo.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 理赔系统接口-->
     <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"

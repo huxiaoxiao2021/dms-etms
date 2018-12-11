@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.signAndReturn.dao.MergedWaybillDao" >
+
+	<resultMap id="mergedWaybill" type="mergedWaybill" >
+		<result column="id" property="id" />
+		<result column="sign_return_printM_id" property="signReturnPrintMId" />
+		<result column="waybill_code" property="waybillCode" />
+		<result column="delivered_time" property="deliveredTime" />
+		<result column="is_delete" property="isDelete" />
+	</resultMap>
+	
+	<insert id="batchAdd" parameterType="mergedWaybill" >
+		INSERT INTO merged_waybill (
+			sign_return_printM_id, waybill_code, delivered_time,is_delete)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(#{item.signReturnPrintMId,jdbcType=BIGINT},
+			#{item.waybillCode,jdbcType=VARCHAR},
+			#{item.deliveredTime,jdbcType=TIMESTAMP},1)
+		</foreach>
+	</insert>
+
+	<insert id="add" parameterType="mergedWaybill" >
+		INSERT INTO merged_waybill (
+		sign_return_printM_id, waybill_code, delivered_time,is_delete)
+		VALUES (
+		#{signReturnPrintMId,jdbcType=BIGINT},#{waybillCode,jdbcType=VARCHAR},
+		#{deliveredTime,jdbcType=TIMESTAMP},1)
+	</insert>
+
+	<select id="getListBySignReturnPrintMId" resultMap="mergedWaybill" parameterType="Long" >
+
+		SELECT id, sign_return_printM_id, waybill_code, delivered_time,is_delete
+		FROM merged_waybill
+		WHERE is_delete = 1
+        AND sign_return_printM_id = #{signReturnPrintMId,jdbcType=BIGINT}
+	</select>
+
+	<select id="getListByWaybillCode" resultMap="mergedWaybill" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
+
+		SELECT id, sign_return_printM_id, waybill_code, delivered_time,is_delete
+		FROM merged_waybill
+		WHERE is_delete = 1
+		AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

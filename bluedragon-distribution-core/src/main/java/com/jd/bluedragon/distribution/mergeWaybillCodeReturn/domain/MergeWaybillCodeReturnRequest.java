@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @ClassName: 123
- * @Description: 123
+ * @ClassName: MergeWaybillCodeReturnRequest
+ * @Description: 类描述信息
  * @author: hujiping
  * @date: 2018/9/17 22:00
  */
