@@ -309,4 +309,8 @@
     <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
     </bean>
+    <!--空铁转陆运 提报异常 -->
+    <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.arAbnormal}"/>
+    </bean>
 </beans>

@@ -320,10 +320,12 @@ public class SendPrintServiceImpl implements SendPrintService {
             } else {
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(),criteria.getSiteCode());
                 if(weightAndVolume != null){
+                    //立方厘米转立方米
+                    Double volume = BigDecimalHelper.div(weightAndVolume.getVolume(), PARAM_CM3_M3, 6);
                     if(weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)){
-                        totalOutVolumeSt += weightAndVolume.getVolume();
+                        totalOutVolumeSt += volume;
                     }else{
-                        totalOutVolumeDy += weightAndVolume.getVolume();
+                        totalOutVolumeDy += volume;
                     }
                 }
             }
@@ -650,10 +652,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.detailPrintQuery.getOutVolume",Constants.UMP_APP_NAME_DMSWEB,false, true);
                 DmsOutWeightAndVolume weightAndVolume = dmsOutWeightAndVolumeService.getOneByBarCodeAndDms(sendM.getBoxCode(), sendM.getCreateSiteCode());
                 if (weightAndVolume != null) {
+                    Double volume = weightAndVolume.getVolume();
+                    //将cm³转换成m³
+                    volume = BigDecimalHelper.div(volume, PARAM_CM3_M3, 6);
                     if (weightAndVolume.getOperateType().equals(DmsOutWeightAndVolume.OPERATE_TYPE_STATIC)) {
-                        outVolumeStatic = weightAndVolume.getVolume();
+                        outVolumeStatic = volume;
                     } else {
-                        outVolumeDynamic = weightAndVolume.getVolume();
+                        outVolumeDynamic = volume;
                     }
                 }
             }catch(Exception e){
