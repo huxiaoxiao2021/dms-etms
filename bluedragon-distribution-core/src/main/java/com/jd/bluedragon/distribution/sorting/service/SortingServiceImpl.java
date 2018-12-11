@@ -855,7 +855,7 @@ public class SortingServiceImpl implements SortingService {
 		inspection.setSiteName(createSite.getSiteName());
 		//验货操作提前5秒
 		inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
-		inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+		inspection.setBusinessType(sorting.getType());
 		inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
 
 		TaskRequest request=new TaskRequest();
