@@ -104,6 +104,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             bdInboundECLPDto.setOriginDeptId(itemInfos.get(0).getDeptId().toString());
             //商品信息
             for(ItemInfo itemInfo : itemInfos){
+                if(StringUtils.isBlank(itemInfo.getGoodsNo())){
+                    continue; //过滤商品编码不存在的数据
+                }
                 BdInboundECLPDetail bdInboundECLPDetail = new BdInboundECLPDetail();
                 bdInboundECLPDetail.setGoodsNo(itemInfo.getGoodsNo());
                 bdInboundECLPDetail.setGoodsName(itemInfo.getGoodsName());
