@@ -1428,14 +1428,19 @@ public class WaybillResource implements DmsWaybillService {
 	@Path("/waybill/eclpSpareSortingCheck/{waybillCode}")
 	public InvokeResult<Boolean> eclpSpareSortingCheck(@PathParam("waybillCode") String waybillCode){
 		InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
-
+		invokeResult.setData(true);
 		try{
 			if(WaybillUtil.isPackageCode(waybillCode)){
 				waybillCode = WaybillUtil.getWaybillCode(waybillCode);
 			}
 			Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
 			if(waybill!=null){
-				invokeResult.setData(!WaybillUtil.isECLPByBusiOrderCode(waybill.getBusiOrderCode()));
+				BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+				if(oldWaybill!=null && oldWaybill.getData()!=null
+						&& StringUtils.isNotBlank(oldWaybill.getData().getBusiOrderCode())){
+					invokeResult.setData(!WaybillUtil.isECLPByBusiOrderCode(oldWaybill.getData().getBusiOrderCode()));
+				}
+
 			}else{
 				invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 				invokeResult.setData(false);
