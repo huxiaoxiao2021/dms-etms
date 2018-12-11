@@ -168,7 +168,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(true);
             choice.setQueryPackList(true);
-            BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()), choice);
+            BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(arAbnormalRequest.getPackageCode(), choice);
             if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
                 return;
