@@ -717,35 +717,36 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.boardSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult boardSend(SendM domain) {
-        //1.组板发货批次，板号校验（强校验）
-        if(!checkSendM(domain)){
-            return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
-        }
-        //2.判断批次号是否已经封车
-        if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
-            return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
-        }
+    public SendResult boardSend(SendM domain,boolean isForceSend) {
         String boardCode = domain.getBoardCode();
-
-        //3.校验板号和批次号的目的地是否一致，并校验板号的合法性
-        try{
-            BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
-            if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
-                return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
+        if(!isForceSend){
+            //1.组板发货批次，板号校验（强校验）
+            if(!checkSendM(domain)){
+                return new SendResult(SendResult.CODE_SENDED, "当前批次始发ID与操作人所属单位ID不一致!");
             }
-            if(boardResponse.getReceiveSiteCode()==null){
-                return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
+            //2.判断批次号是否已经封车
+            if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
+                return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
             }
-            if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
-                return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
+            //3.校验板号和批次号的目的地是否一致，并校验板号的合法性
+            try{
+                BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
+                if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
+                    return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
+                }
+                if(boardResponse.getReceiveSiteCode()==null){
+                    return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
+                }
+                if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
+                    return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
+                }
+                if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
+                    return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
+                }
+            }catch (Exception e){
+                logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
+                return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
             }
-            if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
-                return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
-            }
-        }catch (Exception e){
-            logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
-            return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
         }
 
         //4.写发货任务
