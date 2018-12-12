@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.arAbnormal;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -152,6 +153,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal批次没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                ArAbnormalResponse response = new ArAbnormalResponse();
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("批次没有发货明细");
+                addBusinessLog(arAbnormalRequest, response);
             }
         } else if (BusinessUtil.isBoxcode(arAbnormalRequest.getPackageCode())) {
             //按箱号 和站点 查发货明细
@@ -163,6 +168,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 sendTraceForSendDetails(bdTraceDto, sendDetailList);
             } else {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal箱号没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+                ArAbnormalResponse response = new ArAbnormalResponse();
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("箱号没有发货明细");
+                addBusinessLog(arAbnormalRequest, response);
             }
         } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode())) {
             WChoice choice = new WChoice();
@@ -171,9 +180,21 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(arAbnormalRequest.getPackageCode(), choice);
             if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
+                ArAbnormalResponse response = new ArAbnormalResponse();
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("运单不存在");
+                addBusinessLog(arAbnormalRequest, response);
                 return;
             }
             List<DeliveryPackageD>  packlist= waybillDtoBaseEntity.getData().getPackageList();
+            if (packlist==null||packlist.size()==0){
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal没有包裹明细" + JsonHelper.toJson(arAbnormalRequest));
+                ArAbnormalResponse response = new ArAbnormalResponse();
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("运单没有包裹明细");
+                addBusinessLog(arAbnormalRequest, response);
+                return;
+            }
             for (DeliveryPackageD deliveryPackageD : packlist) {
                 bdTraceDto.setWaybillCode(arAbnormalRequest.getPackageCode());
                 bdTraceDto.setPackageBarCode(deliveryPackageD.getPackageBarcode());
@@ -186,6 +207,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()), choice);
             if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
+                ArAbnormalResponse response = new ArAbnormalResponse();
+                response.setCode(JdResponse.CODE_SERVICE_ERROR);
+                response.setMessage("运单不存在。");
+                addBusinessLog(arAbnormalRequest, response);
                 return;
             }
             bdTraceDto.setWaybillCode(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()));
@@ -193,6 +218,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             waybillQueryManager.sendBdTrace(bdTraceDto);
         } else {
             logger.error("ArAbnormalServiceImpl.dealArAbnormal无可用扫描码" + JsonHelper.toJson(arAbnormalRequest));
+            ArAbnormalResponse response = new ArAbnormalResponse();
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage("无可用扫描码");
+            addBusinessLog(arAbnormalRequest, response);
         }
     }
 
