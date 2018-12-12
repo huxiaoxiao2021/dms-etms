@@ -728,7 +728,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(newSealVehicleService.checkSendCodeIsSealed(domain.getSendCode())){
                 return new SendResult(SendResult.CODE_SENDED, "批次号已操作封车，请换批次！");
             }
-            //3.校验板号和批次号的目的地是否一致，并校验板号的合法性
+            //3.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
+            if(sendMDao.checkSendByBoard(domain)){
+                return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
+            }
+            //4.校验板号和批次号的目的地是否一致，并校验板号的合法性
             try{
                 BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
                 if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
@@ -749,10 +753,10 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
 
-        //4.写发货任务
+        //5.写发货任务
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
-        //5.写组板发货任务完成，调用TC执行关板
+        //6.写组板发货任务完成，调用TC执行关板
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
