@@ -459,4 +459,14 @@ public class BusinessUtil {
     public static boolean isNeedConsumable(String waybillSign) {
         return isSignChar(waybillSign, 72, '1');
     }
+
+    /**
+     * 判断是否是外单二次换单后退备件库的运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isTwiceExchageWaybillSpare(String waybillSign) {
+        return isSignChar(waybillSign,18,'5');
+    }
+
 }

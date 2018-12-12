@@ -307,4 +307,15 @@
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!--空铁转陆运 提报异常 -->
+    <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.arAbnormal}"/>
+    </bean>
+
+    <!-- ECLP退备件库-->
+    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
+    </bean>
 </beans>

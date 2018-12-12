@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.BoardMeasureDto;
+import com.jd.transboard.api.dto.BoardMeasureRequest;
 import com.jd.transboard.api.dto.Response;
 
 import java.util.List;
@@ -79,6 +80,12 @@ public interface BoardCombinationService {
      * @throws Exception
      */
     public List<BoardMeasureDto> getBoardVolumeByBoardCode(List<String> boardCodes) throws Exception;
+
+    /**
+     * 将板的重量体积信息持久化
+     * @param request
+     */
+    public Response<Void> persistentBoardMeasureData(BoardMeasureRequest request);
 
 
 }

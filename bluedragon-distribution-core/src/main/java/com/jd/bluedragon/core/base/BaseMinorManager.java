@@ -1,15 +1,17 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
+import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.AirTransport;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseSiteGoods;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
+
+import java.util.List;
 
 
 public interface BaseMinorManager {
@@ -67,4 +69,11 @@ public interface BaseMinorManager {
 	  * @return
 	  */
 	 JdResult<CrossPackageTagNew> queryCrossPackageTagForPrint(BaseDmsStore baseDmsStore, Integer targetSiteId, Integer originalDmsId, Integer originalCrossType);
+
+	/**
+	 * 根据商家id获取返单信息
+	 * @param busiId 商家id
+	 * @return
+	 */
+	 ResponseDTO<List<BasicTraderReturnDTO>> getBaseTraderReturnListByTraderId(Integer busiId);
 }

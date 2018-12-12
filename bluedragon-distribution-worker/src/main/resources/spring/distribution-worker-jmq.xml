@@ -211,5 +211,10 @@
     <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
         <jmq:listener topic="bd_dms_delivery_cancel_send" listener="cancelSendDetailGoodsPrintConsumer"/>
     </jmq:consumer>
+
+    <!-- 空铁转陆运 提报异常 -->
+    <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.arAbnormal}" listener="arAbnormalConsumer"/>
+    </jmq:consumer>
 </beans>
 
