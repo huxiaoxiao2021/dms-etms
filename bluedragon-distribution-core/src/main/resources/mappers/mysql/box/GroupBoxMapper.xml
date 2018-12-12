@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.box.dao.GroupBoxDao" >
+
+	<resultMap id="box" type="com.jd.bluedragon.distribution.box.domain.Box" >
+		<result column="box_id" property="id" />
+		<result column="box_code" property="code" />
+		<result column="group_name" property="groupName" />
+		<result column="yn" property="yn" />
+	</resultMap>
+	
+	<insert id="add" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
+		INSERT INTO group_box (
+			box_code, group_name, yn
+			)
+		VALUES (
+			#{code,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR},1
+			)
+	</insert>
+
+	<insert id="batchAdd" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
+		INSERT INTO group_box (
+		box_code, group_name, yn
+		)
+		VALUES
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.code,jdbcType=VARCHAR},
+			#{item.groupName,jdbcType=VARCHAR},
+			1
+			)
+		</foreach>
+	</insert>
+
+	<select id="getBoxInfoByBoxCode" resultMap="box" parameterType="String" >
+
+		SELECT
+			id, box_code, group_name, yn
+		FROM group_box
+		WHERE yn = 1 AND box_code = #{code,jdbcType=VARCHAR}
+		 LIMIT 1
+	</select>
+
+
+	<select id="getAllBoxByGroupName" resultMap="box" parameterType="String" >
+		SELECT
+			id, box_code, group_name, yn
+		FROM group_box
+		WHERE
+			yn = 1 AND group_name = #{groupName,jdbcType=VARCHAR}
+	</select>
+
+</mapper>
