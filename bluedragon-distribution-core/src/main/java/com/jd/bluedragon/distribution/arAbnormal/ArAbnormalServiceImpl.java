@@ -15,7 +15,11 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -161,27 +165,32 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 logger.error("ArAbnormalServiceImpl.dealArAbnormal箱号没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
             }
         } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode())) {
-            //按运单和站点查发货明细
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setWaybillCode(arAbnormalRequest.getPackageCode());
-            tSendDatail.setCreateSiteCode(arAbnormalRequest.getSiteCode());
-            List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(tSendDatail);
-            if (null != sendDetailList && sendDetailList.size() > 0) {
-                sendTraceForSendDetails(bdTraceDto, sendDetailList);
-            } else {
-                logger.error("ArAbnormalServiceImpl.dealArAbnormal运单没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(true);
+            choice.setQueryPackList(true);
+            BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(arAbnormalRequest.getPackageCode(), choice);
+            if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
+                return;
             }
+            List<DeliveryPackageD>  packlist= waybillDtoBaseEntity.getData().getPackageList();
+            for (DeliveryPackageD deliveryPackageD : packlist) {
+                bdTraceDto.setWaybillCode(arAbnormalRequest.getPackageCode());
+                bdTraceDto.setPackageBarCode(deliveryPackageD.getPackageBarcode());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+            }
+
         } else if (WaybillUtil.isPackageCode(arAbnormalRequest.getPackageCode())) {
-            //查此包裹是否已发货
-            SendDetail tSendDatail = new SendDetail();
-            tSendDatail.setPackageBarcode(arAbnormalRequest.getPackageCode());
-            tSendDatail.setCreateSiteCode(arAbnormalRequest.getSiteCode());
-            List<SendDetail> sendDetailList = sendDatailDao.findByWaybillCodeOrPackageCode(tSendDatail);
-            if (null != sendDetailList && sendDetailList.size() > 0) {
-                sendTraceForSendDetails(bdTraceDto, sendDetailList);
-            } else {
-                logger.error("ArAbnormalServiceImpl.dealArAbnormal包裹没有发货明细" + JsonHelper.toJson(arAbnormalRequest));
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(true);
+            BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()), choice);
+            if (waybillDtoBaseEntity == null || waybillDtoBaseEntity.getData() == null || waybillDtoBaseEntity.getData().getWaybill() == null) {
+                logger.error("ArAbnormalServiceImpl.dealArAbnormal运单不存在" + JsonHelper.toJson(arAbnormalRequest));
+                return;
             }
+            bdTraceDto.setWaybillCode(WaybillUtil.getWaybillCode(arAbnormalRequest.getPackageCode()));
+            bdTraceDto.setPackageBarCode(arAbnormalRequest.getPackageCode());
+            waybillQueryManager.sendBdTrace(bdTraceDto);
         } else {
             logger.error("ArAbnormalServiceImpl.dealArAbnormal无可用扫描码" + JsonHelper.toJson(arAbnormalRequest));
         }
