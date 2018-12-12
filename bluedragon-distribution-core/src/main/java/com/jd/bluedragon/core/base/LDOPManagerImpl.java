@@ -23,6 +23,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -225,9 +226,8 @@ public class LDOPManagerImpl implements LDOPManager {
         }
 
         //自定义地址
-        if(exchangeWaybillDto.getAddress()!=null && !"".equals(exchangeWaybillDto.getAddress())){
+        if(StringUtils.isNotBlank(exchangeWaybillDto.getAddress())){
             WaybillAddress waybillAddress = new WaybillAddress();
-
             waybillAddress.setAddress(exchangeWaybillDto.getAddress());
             waybillAddress.setContact(exchangeWaybillDto.getContact());
             waybillAddress.setPhone(exchangeWaybillDto.getPhone());

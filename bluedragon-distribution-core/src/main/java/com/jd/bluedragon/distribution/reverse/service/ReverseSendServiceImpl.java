@@ -1045,8 +1045,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                         && WaybillUtil.isECLPByBusiOrderCode(oldWaybillResp.getData().getBusiOrderCode())){
                     //此时才认为是eclp订单
                     eclpSendDetails.add(sd);
+                }else {
+                    logger.error("分离逆向退备件库运单集合时出现异常数据" + sd.getWaybillCode() + "|" + sd.getSendCode());
                 }
-                logger.error("分离逆向退备件库运单集合时出现异常数据"+sd.getWaybillCode()+"|"+sd.getSendCode());
             }else{
                 nomarlSendDetails.add(sd);
             }
