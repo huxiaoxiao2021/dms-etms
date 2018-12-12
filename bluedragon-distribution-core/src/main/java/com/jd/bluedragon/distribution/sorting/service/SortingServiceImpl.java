@@ -843,15 +843,6 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 */
 	private void b2bPushInspection(Sorting sorting) {
-		Inspection inspectionQ=new Inspection();
-		inspectionQ.setWaybillCode(sorting.getWaybillCode());
-		inspectionQ.setPackageBarcode(sorting.getPackageCode());
-		inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
-		boolean have=inspectionDao.haveInspectionByPackageCode(inspectionQ);
-		//如果已经验过货  就不用补了
-		if (have){
-			return;
-		}
 		BaseStaffSiteOrgDto createSite = null;
 		try {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
@@ -860,6 +851,15 @@ public class SortingServiceImpl implements SortingService {
 		}
 		//B网建箱自动触发验货全程跟踪
 		if (createSite==null ||Constants.B2B_SITE_TYPE!=createSite.getSubType()){
+			return;
+		}
+		Inspection inspectionQ=new Inspection();
+		inspectionQ.setWaybillCode(sorting.getWaybillCode());
+		inspectionQ.setPackageBarcode(sorting.getPackageCode());
+		inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
+		boolean have=inspectionDao.haveInspectionByPackageCode(inspectionQ);
+		//如果已经验过货  就不用补了
+		if (have){
 			return;
 		}
 		InspectionRequest inspection=new InspectionRequest();
