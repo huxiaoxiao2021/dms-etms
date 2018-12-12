@@ -15,7 +15,9 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.fastRefund.service.FastRefundService;
+import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
+import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -88,6 +90,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
+
+	@Autowired
+	private InspectionDao inspectionDao;
 
 	@Qualifier("bdBlockerCompleteMQ")
 	@Autowired
@@ -838,6 +843,15 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 */
 	private void b2bPushInspection(Sorting sorting) {
+		Inspection inspectionQ=new Inspection();
+		inspectionQ.setWaybillCode(sorting.getWaybillCode());
+		inspectionQ.setPackageBarcode(sorting.getPackageCode());
+		inspectionQ.setCreateSiteCode(sorting.getCreateSiteCode());
+		boolean have=inspectionDao.haveInspectionByPackageCode(inspectionQ);
+		//如果已经验过货  就不用补了
+		if (have){
+			return;
+		}
 		BaseStaffSiteOrgDto createSite = null;
 		try {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
@@ -855,11 +869,11 @@ public class SortingServiceImpl implements SortingService {
 		inspection.setSiteName(createSite.getSiteName());
 		//验货操作提前5秒
 		inspection.setOperateTime(DateHelper.formatDateTime(new Date(sorting.getOperateTime().getTime()-5000)));
-		inspection.setBusinessType(sorting.getType());
+		inspection.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
 		inspection.setPackageBarOrWaybillCode(sorting.getPackageCode());
 
 		TaskRequest request=new TaskRequest();
-		request.setBusinessType(sorting.getType());
+		request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
 		request.setKeyword1(String.valueOf(sorting.getCreateUserCode()));
 		request.setKeyword2(sorting.getPackageCode());
 		request.setType(Task.TASK_TYPE_INSPECTION);
