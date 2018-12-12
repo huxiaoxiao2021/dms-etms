@@ -27,8 +27,11 @@
 
 	<jmq:transport id="jmq.BlueDragonDistributionPop.transport"
 		address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"
-		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />	
-		
+		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />
+
+    <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+                   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+
 	<!-- jmq 消费客户端配置区 -->	    
     <!-- 一车一单发车 -->
     <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
