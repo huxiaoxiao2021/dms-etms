@@ -745,6 +745,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }catch (Exception e){
             logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
+            return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
         }
 
         //4.写发货任务
