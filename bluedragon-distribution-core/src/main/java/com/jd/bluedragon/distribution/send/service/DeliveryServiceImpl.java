@@ -728,26 +728,29 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
         String boardCode = domain.getBoardCode();
 
-        //3.校验板号是否有效
+        //3.校验板号和批次号的目的地是否一致，并校验板号的合法性
         try{
-            BoardResponse boardResponse = boardCombinationService.checkBoardCanSend(boardCode);
-            logger.info("组板发货查板号信息：" + JsonHelper.toJson(boardResponse));
+            BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
             if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
                 return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
             }
-        } catch (Exception e) {
+            if(boardResponse.getReceiveSiteCode()==null){
+                return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
+            }
+            if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
+                return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
+            }
+            if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
+                return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
+            }
+        }catch (Exception e){
             logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
-            return new SendResult(SendResult.CODE_SENDED, "服务异常：组板发货板号校验失败!");
         }
 
-        //4.校验是否操作过按板发货,按板号和createSiteCode查询send_m表看是是否有记录
-        if(sendMDao.checkSendByBoard(domain)){
-            return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
-        }
-        //5.写发货任务
+        //4.写发货任务
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
-        //6.写组板发货任务完成，调用TC执行关板
+        //5.写组板发货任务完成，调用TC执行关板
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
