@@ -2,6 +2,7 @@ package ld;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -9,11 +10,13 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -34,12 +37,12 @@ public class ReverseTest {
 
         Task tTask = new Task();
 
-        String sendCode = "910-595979-20181128135744590";
+        String sendCode = "910-11252-20181204152216605";
         tTask.setBoxCode(sendCode);
         tTask.setBody(sendCode);
         tTask.setCreateSiteCode(910);
         tTask.setKeyword2("20");
-        tTask.setReceiveSiteCode(14178);
+        tTask.setReceiveSiteCode(11252);
         tTask.setType(Task.TASK_TYPE_SEND_DELIVERY);
         tTask.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
         tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
@@ -86,6 +89,23 @@ public class ReverseTest {
         }
     }
 
+    @Autowired
+    @Qualifier("reverseReceiveConsumer")
+    private ReverseReceiveConsumer reverseReceiveConsumer;
+
+    @Test
+    public void testMQ(){
+        Message message = new Message();
+        message.setText("{\n" +
+                "    \"waybillCode\": \"JDVA00000184905\",\n" +
+                "    \"sendCode\": \"910-11252-2018120720455885\",\n" +
+                "    \"receiveType\": 7,\n" +
+                "    \"canReceive\": 0,\n" +
+                "    \"operaterName\": \"刘铎测试\",\n" +
+                "    \"operateTime\": \"2018-12-10 10:15:32\"\n" +
+                "}");
+        reverseReceiveConsumer.consume(message);
+    }
 
     @Autowired
     private BaseMajorManager baseMajorManager;

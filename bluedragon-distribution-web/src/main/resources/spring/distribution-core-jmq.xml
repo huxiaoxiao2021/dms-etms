@@ -312,4 +312,10 @@
     <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.arAbnormal}"/>
     </bean>
+
+    <!-- ECLP退备件库-->
+    <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
+    </bean>
 </beans>
