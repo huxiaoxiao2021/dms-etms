@@ -42,6 +42,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
 	<context:component-scan base-package="com.jd.dms.logger"/>
+	<context:component-scan base-package="com.jd.autotest.controller" />
 
 
     <!-- 扩容Mysql主备配置表 -->
@@ -67,4 +68,12 @@
 	   <property name="systemKey" value="Bluedragon_dms_web.system"></property>
 	</bean>
 	<!-- ump monitor end -->
+
+	<!-- autoTest配置缓存注入的id；数据源id -->
+	<bean id="jimClientId" class="java.lang.String">
+		<constructor-arg value="jimClient" />
+	</bean>
+	<bean id="dataSourceId" class="java.lang.String">
+		<constructor-arg value="dmsReadDataSource" />
+	</bean>
 </beans>
