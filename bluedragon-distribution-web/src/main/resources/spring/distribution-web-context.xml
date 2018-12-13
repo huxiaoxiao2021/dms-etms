@@ -69,12 +69,4 @@
 	   <property name="systemKey" value="Bluedragon_dms_web.system"></property>
 	</bean>
 	<!-- ump monitor end -->
-
-	<!-- autoTest配置缓存注入的id；数据源id -->
-	<bean id="jimClientId" class="java.lang.String">
-		<constructor-arg value="jimClient" />
-	</bean>
-	<bean id="dataSourceId" class="java.lang.String">
-		<constructor-arg value="dmsReadDataSource" />
-	</bean>
 </beans>
