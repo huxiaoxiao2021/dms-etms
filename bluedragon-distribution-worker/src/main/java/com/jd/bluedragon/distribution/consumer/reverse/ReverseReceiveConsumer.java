@@ -104,7 +104,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			try {
 				BeanHelper.copyProperties(reverseReceive, jrequest);
 				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				date = sdf.parse(jrequest.getReceiveTime());
+				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
+					date = sdf.parse(jrequest.getReceiveTime());
+				}
+				if(reverseReceive.getReceiveType() == 7 ){ //处理报文 操作人字段
+					date = sdf.parse(jrequest.getOperateTime());
+					reverseReceive.setOperatorName(jrequest.getOperaterName());
+					reverseReceive.setOrderId(jrequest.getWaybillCode());
+					reverseReceive.setPackageCode(jrequest.getWaybillCode());
+				}
 				reverseReceive.setReceiveTime(date);
 			} catch (Exception e) {
 				this.logger.error("逆向收货消息转换失败：" + e);
@@ -179,15 +187,21 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if (reverseReceive.getReceiveType() == 4) {
+			} else if (reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
-				reverseReceive.setOrderId(reverseReceive.getPackageCode());
+				if(reverseReceive.getReceiveType() == 7){
+					//ECLP退备件库时
+					reverseReceive.setOrderId(jrequest.getWaybillCode());
+				}else{
+					reverseReceive.setOrderId(reverseReceive.getPackageCode());
+				}
+
 			}
 			if (reverseReceive.getReceiveType() == 3) {
 				List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(sendCode);
@@ -218,18 +232,36 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if (reverseReceive.getReceiveType() == 4) {
+				} else if (reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
-				if (reverseReceive.getCanReceive() == 0){
-					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
-					taskService.add(this.toTask(tWaybillStatus));
-				} else if (reverseReceive.getCanReceive() == 1) {
-					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-					taskService.add(this.toTaskStatus(tWaybillStatus));
-				} else if (reverseReceive.getCanReceive() == 2) {
-					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
-					taskService.add(this.toTaskStatus(tWaybillStatus));
+
+				if(reverseReceive.getReceiveType() == 7){
+					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货
+					if (reverseReceive.getCanReceive() == 0){
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+						taskService.add(this.toTask(tWaybillStatus));
+					} else if (reverseReceive.getCanReceive() == 1) {
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					} else if (reverseReceive.getCanReceive() == 2) {
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					}else {
+						return;
+					}
+				}else{
+					if (reverseReceive.getCanReceive() == 0){
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+						taskService.add(this.toTask(tWaybillStatus));
+					} else if (reverseReceive.getCanReceive() == 1) {
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					} else if (reverseReceive.getCanReceive() == 2) {
+						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_JJREVERSE);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
+					}
 				}
 			}
 		}

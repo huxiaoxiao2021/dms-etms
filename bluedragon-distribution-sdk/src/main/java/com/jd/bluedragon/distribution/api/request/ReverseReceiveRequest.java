@@ -20,6 +20,9 @@ public class ReverseReceiveRequest extends JdRequest {
 	/** 操作人 */
     private String operatorName;
 
+	/** 操作人 兼容 */
+	private String operaterName;
+
 	private String orderId;
 
 	//机构ID
@@ -45,7 +48,9 @@ public class ReverseReceiveRequest extends JdRequest {
     
     /** 发货批次 */
     private String sendCode;
-    
+
+	private String waybillCode;
+
     public Integer getCanReceive() {
 		return canReceive;
 	}
@@ -140,6 +145,22 @@ public class ReverseReceiveRequest extends JdRequest {
 
 	public void setSendCode(String sendCode) {
 		this.sendCode = sendCode;
+	}
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
+
+	public String getOperaterName() {
+		return operaterName;
+	}
+
+	public void setOperaterName(String operaterName) {
+		this.operaterName = operaterName;
 	}
 
 	@Override
