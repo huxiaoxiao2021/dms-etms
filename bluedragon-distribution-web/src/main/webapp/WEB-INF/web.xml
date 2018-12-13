@@ -140,14 +140,4 @@
 		<servlet-name>jsp</servlet-name>
 		<url-pattern>*.jspx</url-pattern>
 	</servlet-mapping>
-	<!-- 引入自动化单元测试 -->
-	<servlet>
-		<servlet-name>AutotestServlet</servlet-name>
-		<servlet-class>com.jd.autotest.portable.http.SimpleResourceServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>AutotestServlet</servlet-name>
-		<url-pattern>/usecase/*</url-pattern>
-	</servlet-mapping>
 </web-app>
