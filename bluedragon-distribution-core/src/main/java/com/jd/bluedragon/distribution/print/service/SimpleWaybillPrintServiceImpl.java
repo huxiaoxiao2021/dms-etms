@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -204,7 +205,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
             commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
-            commonWaybill.setOriginalCrossType(BusinessHelper.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
+            commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             if(bigWaybillDto.getWaybillState()!=null){
                 commonWaybill.setWaybillStatus(bigWaybillDto.getWaybillState().getWaybillState()); //增加返回运单状态
             }
@@ -270,7 +271,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             commonWaybill.setType(tmsWaybill.getWaybillType());
             commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
-            if(BusinessHelper.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
+            if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
                 String scheduleCode = "";
                 TransbillM transbillM = transbillMService.getByWaybillCode(tmsWaybill.getWaybillCode());
                 if(transbillM != null){
@@ -286,7 +287,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.appendRemark(scheduleCode);
             }
             //sendpay的第153位为“1”，remark追加【合并送】
-            if(BusinessHelper.isSignY(commonWaybill.getSendPay(), 153)){
+            if(BusinessUtil.isSignY(commonWaybill.getSendPay(), 153)){
                 commonWaybill.appendRemark(TextConstants.REMARK_SEND_GATHER_TOGETHER);
             }
         	//路区-为空尝试从运单里获取
@@ -320,21 +321,16 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 commonWaybill.setStoreId(tmsWaybillManageDomain.getStoreId());
                 //commonWaybill.setStoreName(tmsWaybillManageDomain);
             }
+            List<PrintPackage> packageList=new ArrayList<PrintPackage>();
             if(null!=bigWaybillDto.getPackageList()){
-                List<PrintPackage> packageList=new ArrayList<PrintPackage>(bigWaybillDto.getPackageList().size());{
-                    for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
-                        PrintPackage pack=new PrintPackage();
-                        pack.setPackageCode(item.getPackageBarcode());
-                        pack.setWeight(item.getGoodWeight());
-                        packageList.add(pack);
-                    }
+                for (DeliveryPackageD item:bigWaybillDto.getPackageList()){
+                	PrintPackage pack=new PrintPackage();
+                    pack.setPackageCode(item.getPackageBarcode());
+                    pack.setWeight(item.getGoodWeight());
+                    packageList.add(pack);
                 }
-                commonWaybill.setPackList(packageList);
             }
-            //如果是一号店,那么需要在标签上打出其标志,这里将标志图片名称发到打印端，打印端自行处理图片路径加载
-            if(BusinessHelper.isYHD(tmsWaybill.getSendPay())){
-            	commonWaybill.setBrandImageKey(Constants.BRAND_IMAGE_KEY_YHD);
-            }
+            commonWaybill.setPackList(packageList);
            waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
         }
     }
@@ -378,8 +374,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     }
     /**
      * 
-     * @param originalWaybill 源运单信息
-     * @param printWaybill 
+     * @param printWaybill 源运单信息
      */
     private final void loadBasicData(final PrintWaybill printWaybill){
         BaseDmsStore baseDmsStore = new BaseDmsStore();

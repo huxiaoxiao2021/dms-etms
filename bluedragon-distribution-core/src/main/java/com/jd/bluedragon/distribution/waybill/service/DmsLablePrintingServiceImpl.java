@@ -6,9 +6,10 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -18,12 +19,12 @@ import com.jd.fce.dos.service.contract.OrderMarkingService;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignRequest;
 import com.jd.fce.dos.service.domain.OrderMarkingForeignResponse;
 import com.jd.ql.basic.domain.BaseDmsStore;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -81,17 +82,17 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             }
         }
         // 众包--运单 waybillSign 第 12位为 9--追打"众"字
-        if(BusinessHelper.isSignChar(waybill.getWaybillSign(),12,'9')) {
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),12,'9')) {
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_CROWD_SOURCING);
         }
         //分拣补打的运单和包裹小标签上添加“尊”字样:waybillsign 第35为1 打“尊”逻辑 2017年9月21日17:59:39
-        if(BusinessHelper.isSignY(waybill.getWaybillSign(),35)){
+        if(BusinessUtil.isSignY(waybill.getWaybillSign(),35)){
         	labelPrinting.appendSpecialMark(SPECIAL_MARK_SENIOR);
         }
 
         //港澳售进合包,sendpay第108位为1或2或3时，且senpay第124位为4时，视为是全球售合包订单，面单上打印"合"
-        if (BusinessHelper.isSignChar(waybill.getSendPay(),124,'4')
-                && BusinessHelper.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
+        if (BusinessUtil.isSignChar(waybill.getSendPay(),124,'4')
+                && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             labelPrinting.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
 
@@ -119,8 +120,8 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         try {
             if (request != null && request.getStartSiteType() != null && request.dmsCode != null
                     && waybill != null && StringHelper.isNotEmpty(request.getWaybillCode())
-                    && SerialRuleUtil.isMatchReceiveWaybillNo(request.getWaybillCode())
-                    && ((!BusinessHelper.isSignChar(waybill.getWaybillSign(),2,Constants.WAYBILL_SIGN_B)&& NumberHelper.isNumber(waybill.getVendorId()))||BusinessHelper.isSignChar(waybill.getWaybillSign(),1,Constants.WAYBILL_SIGN_B))) {
+                    && WaybillUtil.isBusiWaybillCode(request.getWaybillCode())
+                    && ((!BusinessUtil.isSignChar(waybill.getWaybillSign(),2,Constants.WAYBILL_SIGN_B)&& NumberHelper.isNumber(waybill.getVendorId()))||BusinessUtil.isSignChar(waybill.getWaybillSign(),1,Constants.WAYBILL_SIGN_B))) {
 
                 log.debug("调用promise获取外单时效开始");
 
@@ -154,6 +155,15 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                 }
                 log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
 
+                //C2C面单预计送达时间从运单获取REQUIRE_TIME
+                if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    String foreCastTime = "";
+                    if(waybill.getRequireTime() != null){
+                        foreCastTime = sdf.format(waybill.getRequireTime());
+                    }
+                    labelPrinting.setPromiseText(foreCastTime);
+                }
             }//外单增加promise时效代码逻辑,包裹标签业务是核心业务，如果promise接口异常，仍要保证包裹标签业务。
         }catch (Exception e){
             log.error("外单调用promise接口异常" + e.toString() + (request == null ? "" : JsonHelper.toJson(request)),e);

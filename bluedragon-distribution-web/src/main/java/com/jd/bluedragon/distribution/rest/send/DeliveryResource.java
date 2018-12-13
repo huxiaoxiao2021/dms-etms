@@ -1,66 +1,58 @@
 package com.jd.bluedragon.distribution.rest.send;
 
-import java.text.MessageFormat;
-import java.util.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-
-import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.api.request.*;
-import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
-import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
-import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
-import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
-import com.jd.bluedragon.distribution.send.domain.*;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.ump.profiler.CallerInfo;
-import com.jd.ump.profiler.proxy.Profiler;
-import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.dms.logger.aop.BusinessLogWriter;
-import com.jd.dms.logger.external.BusinessLogProfiler;
-import org.apache.commons.collections4.map.HashedMap;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
+import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
+import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -104,6 +96,9 @@ public class DeliveryResource implements DmsDeliveryService {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    private WaybillService waybillService;
+
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -128,6 +123,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @POST
     @Path("/delivery/newpackagesend")
     @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if(logger.isInfoEnabled()){
@@ -153,7 +149,7 @@ public class DeliveryResource implements DmsDeliveryService {
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if(SerialRuleUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+            if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
                 result.setData(deliveryService.boardSend(domain));
@@ -298,7 +294,7 @@ public class DeliveryResource implements DmsDeliveryService {
         if (BusinessHelper.isBoxcode(request.getBoxCode())) {
             loadBillReport.setBoxCode(request.getBoxCode());
         } else {
-            loadBillReport.setOrderId(request.getBoxCode());
+            loadBillReport.setWaybillCode(request.getBoxCode());
         }
         this.logger.info("开始获取 装载数据");
         try {
@@ -355,7 +351,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @Path("/delivery/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.verification", mState = {JProEnum.TP})
     public ThreeDeliveryResponse checkThreeDelivery(List<DeliveryRequest> request) {
-        this.logger.info("开始三方发货不全验证");
+        this.logger.info("开始三方发货不全验证:"+JsonHelper.toJson(request));
         try {
             if (check(request)) {
                 return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR,
@@ -393,6 +389,31 @@ public class DeliveryResource implements DmsDeliveryService {
             return response;
         } catch (Exception ex) {
             logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/delivery/performacne/verification")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.performacne.verification", mState = {JProEnum.TP})
+    public DeliveryResponse checkJpWaybill(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){
+                //快运发货金鹏订单拦截提示
+                if(response.getCode()==JdResponse.CODE_OK && WaybillUtil.isPackageCode(request.getBoxCode())){
+                    String waybillCode = WaybillUtil.getWaybillCode(request.getBoxCode());
+                    response = deliveryService.dealJpWaybill(request.getSiteCode(),waybillCode);
+                }
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货金鹏订单拦截出错：", ex);
             return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
@@ -472,6 +493,35 @@ public class DeliveryResource implements DmsDeliveryService {
         if (boxCode == null || siteCode == null || businessType == null || receiveSiteCode == null) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
+
+        //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
+        if (WaybillUtil.isPackageCode(boxCode)) {
+            try {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
+                if (baseStaffSiteOrgDto != null) {
+                    Integer siteType = baseStaffSiteOrgDto.getSiteType();
+                    //售后
+                    String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
+                    //仓储
+                    String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
+                    //备件库退货
+                    String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+                    if (siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)) {
+                        String waybillCode = WaybillUtil.getWaybillCode(boxCode);
+                        Boolean result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
+                        if(result != null && ! result) {
+                            return new DeliveryResponse(SortingResponse.CODE_29121, SortingResponse.MESSAGE_29121);
+                        }
+                    }
+                } else{
+                    this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
+                }
+            } catch (Exception e) {
+                this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
+            }
+        }
+        //adder end
+
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
         tSendM.setCreateSiteCode(Integer.parseInt(siteCode));
@@ -778,7 +828,7 @@ public class DeliveryResource implements DmsDeliveryService {
     @JProfiler(jKey = "DMSWEB.DeliveryResource.handAchieveSendCode", mState = {JProEnum.TP})
     public ScannerFrameBatchSendResponse handAchieveSendCode(SendGantryDeviceConfig config) {
         this.logger.info("手动获取设备对应的批次号");
-        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig());
+        ScannerFrameBatchSend scannerFrameBatchSend = scannerFrameBatchSendService.getOrGenerate(config.getOperateTime(), config.getReceiveSiteCode(), config.getConfig(),"");
         
         if (scannerFrameBatchSend != null) {
         	ScannerFrameBatchSendResponse response = new ScannerFrameBatchSendResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
@@ -869,15 +919,15 @@ public class DeliveryResource implements DmsDeliveryService {
             if(!packageSendCheckParam(request, result)){
                 return result;
             }
-            /**检查批次号是否已发货*/
-            List<SendM> sendedList = deliveryService.getSendMBySendCodeAndSiteCode(request.getSendCode(),
-                    request.getDistributeId(), request.getReceiveSiteCode());
-            //转成 boxCode List 方便后面检查是否boxCode已存在
-            List<String> sendedBoxCodes = initSendedBoxCodes(sendedList);
-            List<SendM> sendMList = initSendMList(request, sendedBoxCodes);
-            if(!sendMList.isEmpty()){
-                deliveryService.packageSortSend(sendMList);
+            List<SendM> sendMListInit = initQueryCondition(request);
+            for(SendM sendM : sendMListInit){
+                /**根据条件获取SendM*/
+                List<SendM> sendMList = deliveryService.queryCountByBox(sendM);
+                if(sendMList.isEmpty()){
+                    deliveryService.packageSortSend(sendM);
+                }
             }
+
             result.success();
         }catch (Exception e){
             logger.error("原包分拣发货异常，",e);
@@ -922,8 +972,8 @@ public class DeliveryResource implements DmsDeliveryService {
             result.parameterError("操作时间不能为空！");
             return false;
         }
-        if(request.getPackageList() == null || request.getPackageList().isEmpty()){
-            result.parameterError("包裹号不能为空！");
+        if((request.getPackageList() == null || request.getPackageList().isEmpty()) && request.getBoxCode() == null){
+            result.parameterError("包裹号和箱号不能同时为空！");
             return false;
         }
         /**
@@ -965,16 +1015,20 @@ public class DeliveryResource implements DmsDeliveryService {
                     request.getSendCode()));
             return false;
         }
+        /**校验箱号是否符合规则*/
+        if(request.getBoxCode()!=null && StringUtils.isBlank(request.getBoxCode())){
+            if(!BusinessUtil.isBoxcode(request.getBoxCode())){
+                result.parameterError(MessageFormat.format("发货箱号[{0}]不合法,正则校验未通过！",
+                        request.getBoxCode()));
+                return false;
+            }
 
+        }
         return true;
     }
 
-    /**
-     * 原包分拣发货构建 sendMList
-     * @param request
-     * @return
-     */
-    private List<SendM> initSendMList(PackageCodeRequest request, List<String> sendedBoxCodes) throws CloneNotSupportedException {
+
+    public List<SendM> initQueryCondition(PackageCodeRequest request) throws CloneNotSupportedException{
 
         SendM sendM = new SendM();
         sendM.setSendCode(request.getSendCode());
@@ -987,24 +1041,22 @@ public class DeliveryResource implements DmsDeliveryService {
         sendM.setOperateTime(DateHelper.parseDate(request.getOperateTime(), DateHelper.DATE_TIME_FORMAT[0]));
         sendM.setCreateUserCode(request.getOperatorId());
         List<SendM> sendMList = new ArrayList<SendM>();
-        for(String packageCode : request.getPackageList()){
-            if(StringUtils.isNotBlank(packageCode) && !sendedBoxCodes.contains(packageCode)){
+        boolean allNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() != null;
+        boolean packageListNotEmpty = request.getPackageList() != null && !request.getPackageList().isEmpty() && request.getBoxCode() == null;
+        boolean boxCodeNotEmpty = request.getBoxCode()!=null;
+        //包裹号和箱号都不为空 按原包发货
+        if(allNotEmpty || packageListNotEmpty){
+            for(String packageCode : request.getPackageList()){
                 SendM sendMClone = (SendM)sendM.clone();
                 sendMClone.setBoxCode(packageCode);
                 sendMList.add(sendMClone);
             }
+        }else if(boxCodeNotEmpty){
+            SendM sendMClone = (SendM)sendM.clone();
+            sendMClone.setBoxCode(request.getBoxCode());
+            sendMList.add(sendMClone);
         }
-        return sendMList;
-    }
 
-    private List<String> initSendedBoxCodes(List<SendM> sendedList){
-        if(sendedList == null || sendedList.isEmpty()){
-            return Collections.EMPTY_LIST;
-        }
-        List<String> sendedBoxCodes = new ArrayList<String>(sendedList.size());
-        for(SendM sendM : sendedList){
-            sendedBoxCodes.add(sendM.getBoxCode());
-        }
-        return sendedBoxCodes;
+        return sendMList;
     }
 }

@@ -14,7 +14,7 @@ public class JdRequest extends JdObject {
     
     /** 操作人姓名 */
     private String userName;
-    
+
     /** 操作人所属站点编号 */
     private Integer siteCode;
     

@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -59,19 +60,19 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         builderSite(request,context);
         String code = request.getPackageBarOrWaybillCode();
         // 如果是包裹号获取取件单号，则存在包裹号属性中
-        if (BusinessHelper.isPackageCode(code)|| BusinessHelper.isPickupCode(code)) {
+        if (WaybillUtil.isPackageCode(code)|| WaybillUtil.isSurfaceCode(code)) {
             request.setPackageBarcode(code);
-        } else if (BusinessHelper.isWaybillCode(code)) {// 否则为运单号
+        } else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
             request.setWaybillCode(code);
         } else {
             String errorMsg = "验货条码不符合规则:" + code;
             logger.warn(errorMsg);
             throw new WayBillCodeIllegalException(errorMsg);
         }
-        if(BusinessHelper.isPackageCode(code) && !SerialRuleUtil.isMatchCommonPackageCode(code)){
+        if(WaybillUtil.isPackageCode(code) && !WaybillUtil.isPackageCode(code)){
             throw new WayBillCodeIllegalException("验货包裹号不符合规则:" + code);
         }
-        String waybillCode = BusinessHelper.getWaybillCode(request.getPackageBarOrWaybillCode());
+        String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
 
         BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
         if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在或者服务暂不可用等
@@ -167,8 +168,8 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             }
         } else if (StringUtils.isNotEmpty(request.getPackageBarcode())) {
             if (StringUtils.isBlank(request.getWaybillCode())
-                    && !BusinessHelper.isPickupCode(request.getPackageBarcode())) {
-                request.setWaybillCode(BusinessHelper.getWaybillCodeByPackageBarcode(request.getPackageBarcode()));
+                    && !WaybillUtil.isSurfaceCode(request.getPackageBarcode())) {
+                request.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
             }
             inspectionList.add(Inspection.toInspection(request));
         }
@@ -187,7 +188,7 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
             CenConfirm cenConfirm= cenConfirmService.createCenConfirmByInspection(inspection);
             if (Constants.BUSSINESS_TYPE_POSITIVE == cenConfirm.getType()
                     || Constants.BUSSINESS_TYPE_REVERSE == cenConfirm.getType()) {
-                if (BusinessHelper.isPickupCode(cenConfirm.getPackageBarcode())) {
+                if (WaybillUtil.isSurfaceCode(cenConfirm.getPackageBarcode())) {
                     cenConfirm =cenConfirmService.fillPickupCode(cenConfirm);// 根据取件单序列号获取取件单号和运单号
 
                     cenConfirm.setOperateType(Constants.PICKUP_OPERATE_TYPE);

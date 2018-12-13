@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.alibaba.fastjson.TypeReference;
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
 import com.jd.bluedragon.distribution.api.request.BatchSummaryPrintImageRequest;
 import com.jd.bluedragon.distribution.api.response.BatchSendPrintImageResponse;
@@ -84,7 +82,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
     }
 
     @Override
-    public ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config) {
+    public ScannerFrameBatchSend getOrGenerate(Date operateTime, Integer receiveSiteCode, GantryDeviceConfig config, String packageCode) {
         if (null == config) {
             throw new RuntimeException("the parameter of config can not be null");
         }
@@ -98,8 +96,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         }else{
             String send_code = batchSend.getSendCode();
             if (newSealVehicleService.checkSendCodeIsSealed(send_code)) {
-                LOGGER.warn(MessageFormat.format("Current batchSend {0} already sealed，将生成新批次！", send_code));
                 batchSend = genarateBatchSend(operateTime, receiveSiteCode, config);
+                LOGGER.warn(MessageFormat.format("Current batchSend {0} already sealed，将生成新批次{1},操作时间为{2},包裹号为{3}",
+                        send_code, batchSend.getSendCode(), DateHelper.formatDateTimeMs(operateTime), packageCode));
             }
         }
         if (LOGGER.isInfoEnabled()) {
@@ -263,8 +262,8 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         summaryRequest.setSendCode(scannerFrameBatchSend.getSendCode());
         summaryRequest.setSendTime(itemResult.getSendTime());
         summaryRequest.setTotalBoxNum(itemResult.getTotalBoxNum());//周转箱
-        summaryRequest.setTotalPackageBarNum(itemResult.getTotalpackageBarNum());//原包个数
-        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalpackageBarNum());//合计 fixme
+        summaryRequest.setTotalPackageBarNum(itemResult.getTotalShouldSendPackageNum());//原包个数
+        summaryRequest.setTotalNum(itemResult.getTotalBoxNum() + itemResult.getTotalShouldSendPackageNum());//合计 fixme
         List<SummaryPrintBoxEntity> itemBoxEntitys = new ArrayList<SummaryPrintBoxEntity>();
         itemBoxEntitys = itemResult.getDetails();
         int packageBarRecNum = 0;//应发

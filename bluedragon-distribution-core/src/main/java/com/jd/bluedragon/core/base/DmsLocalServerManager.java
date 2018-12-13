@@ -24,4 +24,24 @@ public interface DmsLocalServerManager {
      */
     List<VipInfoJsfEntity> getAllVipList();
 
+    /**
+     * 获取本地服务器实例地址
+     */
+    String getVerAppUrlBySiteCode(String siteCode);
+
+    /**
+     * 根据 分拣中心 编号获取储位号
+     * @return
+     */
+    List<String> getStorageCodeByDmsId(Integer dmsId);
+
+    /**
+     * 检查储位是否存在
+     *
+     * @param dmsId
+     * @param storageCode
+     * @return
+     */
+    boolean checkStorage(Integer dmsId,String storageCode);
+
 }

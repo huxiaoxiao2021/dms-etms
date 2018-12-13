@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.gantry.domain.GantryException;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.authorization.RestAuthorization;
 import com.jd.ump.annotation.JProEnum;
@@ -416,7 +417,7 @@ public class TaskResource implements DmsTaskService {
         gantryException.setMachineId(domain.getRegisterNo());
         String barCode = domain.getBarCode();
         gantryException.setBarCode(barCode);
-        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+        if (!BusinessUtil.isBoxcode(barCode)) {
             gantryException.setPackageCode(barCode);
             gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
         }

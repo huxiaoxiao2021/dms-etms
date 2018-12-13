@@ -1,24 +1,14 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
+import com.jd.ldop.basic.api.BasicTraderReturnAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ldop.basic.dto.BasicTraderReturnDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ql.basic.domain.AirTransport;
@@ -35,6 +25,17 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 @Service("baseMinorManager")
 public class BaseMinorManagerImpl implements BaseMinorManager {
@@ -47,9 +48,13 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	private BasicTraderAPI basicTraderAPI;
 
 	@Autowired
+	@Qualifier("basicTraderReturnAPI")
+	private BasicTraderReturnAPI basicTraderReturnAPI;
+
+	@Autowired
 	@Qualifier("basicSecondaryWS")
 	private BasicSecondaryWS basicSecondaryWS;
-	
+
 	@Autowired
 	@Qualifier("baseCrossPackageTagWS")
 	private BaseCrossPackageTagWS baseCrossPackageTagWS;
@@ -73,7 +78,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderById", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BasicTraderInfoDTO getBaseTraderById(Integer paramInteger) {
 		ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
-		responseDTO = basicTraderAPI.getBaseTraderById(paramInteger);
+		responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
 		if(responseDTO != null && responseDTO.getResult() != null ){
 			responseDTO.getResult().setAllAddress(null);
 			return responseDTO.getResult();
@@ -336,7 +341,21 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		//航空或者航填，调用新接口
 		if(Constants.ORIGINAL_CROSS_TYPE_AIR.equals(originalCrossType)
 				|| Constants.ORIGINAL_CROSS_TYPE_FILL.equals(originalCrossType)){
-			return this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+			JdResult<CrossPackageTagNew> result = this.queryCrossPackageTagByParam(baseDmsStore, targetSiteId, originalDmsId, originalCrossType);
+			//如果新的大全表没有数据 则 继续查询老大全表
+			if(result.isSucceed() && result.getData()!= null && result.getData().getOriginalDmsId()!=null){
+				return result;
+			}else{
+				JdResult<CrossPackageTagNew> normalResult = this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
+				if(normalResult.isSucceed() && normalResult.getData()!=null
+						&& normalResult.getData().getOriginalDmsId()!=null && normalResult.getData().getDestinationDmsId()!=null){
+					//始发和目的相等维护了道口 可以返回陆运大全表
+					if(normalResult.getData().getOriginalDmsId().equals(normalResult.getData().getDestinationDmsId())){
+						return normalResult;
+					}
+				}
+				return result;
+			}
 		}else{
 			return this.getCrossPackageTagByPara(baseDmsStore, targetSiteId, originalDmsId);
 		}
@@ -380,5 +399,16 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			}
         }
 		return result;
+	}
+
+	/**
+	 * 根据商家id获得返单信息
+	 * @param busiId
+	 * @return
+	 */
+	@Override
+	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseTraderReturnListByTraderId", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public ResponseDTO<List<BasicTraderReturnDTO>> getBaseTraderReturnListByTraderId(Integer busiId){
+		return basicTraderReturnAPI.getBaseTraderReturnListByTraderId(busiId);
 	}
 }

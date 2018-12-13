@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.test.inspection;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.Test;
@@ -95,7 +96,7 @@ public class CheckWayBillCodeTest {
             int line = 1;
             // 一次读入一行，直到读入null为文件结束
             while ((code = reader.readLine()) != null) {
-                if(type == PACKAGE_TYPE && BusinessHelper.isPackageCode(code) && !SerialRuleUtil.isMatchCommonPackageCode(code)){
+                if(type == PACKAGE_TYPE && WaybillUtil.isPackageCode(code) && !WaybillUtil.isPackageCode(code)){
                     // 显示行号
                     System.out.println("line " + line + "error PackageCode: " + code);
                 }
@@ -132,7 +133,7 @@ public class CheckWayBillCodeTest {
             int line = 1;
             // 一次读入一行，直到读入null为文件结束
             while ((code = reader.readLine()) != null) {
-                if(type == PACKAGE_TYPE && BusinessHelper.isPackageCode(code) && SerialRuleUtil.isMatchCommonPackageCode(code)){
+                if(type == PACKAGE_TYPE && WaybillUtil.isPackageCode(code) && WaybillUtil.isPackageCode(code)){
                     // 显示行号
                     System.out.println("line " + line + " right PackageCode: " + code);
                 }

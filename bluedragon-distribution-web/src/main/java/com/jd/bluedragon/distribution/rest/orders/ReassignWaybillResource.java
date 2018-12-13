@@ -4,6 +4,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -69,7 +70,7 @@ public class ReassignWaybillResource {
 
         ReassignWaybill reassignWaybill = null;
         try{
-        	if(BusinessHelper.isPackageCode(packageCode))//判断是否是包裹号
+        	if(WaybillUtil.isPackageCode(packageCode))//判断是否是包裹号
         		reassignWaybill = reassignWaybillService.queryByPackageCode(packageCode);
         	else                                         //否则默认按运单号处理
         		reassignWaybill = reassignWaybillService.queryByWaybillCode(packageCode);

@@ -103,6 +103,10 @@
         <!-- RMA -->
         <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill" alias="RmaHandoverWaybill"/>
         <typeAlias type="com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail" alias="RmaHandoverDetail"/>
+
+        <!-- 签单返回 -->
+        <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
+        <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill" alias="mergedWaybill"/>
     </typeAliases>
 
     <plugins>
@@ -267,5 +271,14 @@
         <mapper resource="mappers/mysql/consumable/PackingConsumableInfoMapper.xml"/>
         <mapper resource="mappers/mysql/consumable/WaybillConsumableRecordMapper.xml"/>
         <mapper resource="mappers/mysql/consumable/WaybillConsumableRelationMapper.xml"/>
+
+        <!--储位暂存-->
+        <mapper resource="mappers/mysql/storage/StoragePackageDMapper.xml"/>
+        <mapper resource="mappers/mysql/storage/StoragePackageMMapper.xml"/>
+
+        <!-- 签单返回 -->
+        <mapper resource="mappers/mysql/mergeAndReturn/MergeAndReturnMapper.xml"/>
+        <mapper resource="mappers/mysql/mergeAndReturn/MergedWaybillMapper.xml"/>
+
     </mappers>
 </configuration>

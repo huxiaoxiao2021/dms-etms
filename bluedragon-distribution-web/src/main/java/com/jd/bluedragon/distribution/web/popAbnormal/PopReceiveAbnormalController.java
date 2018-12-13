@@ -341,8 +341,7 @@ public class PopReceiveAbnormalController {
 							orderCode = popAbnormal.getOrderCode();
 						}
 						LossProductResponse lossProductResponse = this.lossProductResource
-								.getOrderProductQuantity(Long
-										.valueOf(orderCode));
+								.getOrderProductQuantity(orderCode);
 						if (lossProductResponse != null
 								&& lossProductResponse.getActualQuantity() != null) {
 							attr1 = String.valueOf(lossProductResponse

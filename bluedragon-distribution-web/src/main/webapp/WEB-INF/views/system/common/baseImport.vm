@@ -34,15 +34,46 @@
 <link rel="stylesheet" href="/static/imports/bootstrap/v3.3.7/plugin/bootstrap-validator/bootstrapValidator.min.css">
 
 <script src="/static/imports/plugin/npmutil/date-and-time.min.js"></script>
-
+<script src="/static/imports/plugin/jqueryForm/jquery.form.min.js"></script>
 ####################
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
-
+#########
+##兼容jq1.9之前的版本 判断浏览器版本的方法
+########
+<script src="/static/js/plugins/jquery-migrate-1.2.1.js"></script>
+#########
+##基础工具包
+########
+<script src="/static/js/jd/jd.js"></script>
 ####################
-## 公共样式
+## 基础样式
 ####################
 <style type="text/css">
+    .min_120{
+        min-width: 120px;
+    }
+    .min_180{
+        min-width: 180px;
+    }
     body{font-family:"Arial","Microsoft YaHei","黑体","宋体",sans-serif;}
 </style>
+<script type="text/javascript">
+    var topDoc;
+    if (parent&&parent.document&&parent.document.getElementById("topFrame")){
+        topDoc=parent.document.getElementById("topFrame").contentDocument;
+    }
+    var currUserCode;
+    if (topDoc&& topDoc.getElementById("currUserCode")){
+        var currUserCode=topDoc.getElementById("currUserCode").textContent;
+        if(!currUserCode){
+            alert("用户信息加载异常，请重新登录");
+            parent.location.href="#springUrl('/quit')";
+        }
+    }else{
+        ## alert("用户信息加载失败，请重新登录");
+        ## parent.location.href="#springUrl('/quit')";
+    }
+</script>
+<script src="/static/js/jd/jd.ajax.js"></script>

@@ -119,6 +119,19 @@ public class Constants {
      * 业务类型-未知业务类型
      */
     public static final Integer BUSINESS_TYPE_UNKNOWN = 0;
+
+    /**
+     * 操作日志业务编码-打印
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=101401;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=1014;
     /**
      * 业务类型-未知业务操作类型
      */
@@ -273,6 +286,11 @@ public class Constants {
     public static final int POLLING_INTERVAL_TIME = 1500;// 秒
 
     /**
+     * 时间：一小时的秒数
+     */
+    public static final int TIME_SECONDS_ONE_HOUR = 3600;
+
+    /**
      * 时间：一天的秒数
      */
     public static final int TIME_SECONDS_ONE_DAY = 86400;
@@ -329,12 +347,39 @@ public class Constants {
     //endregion
 
     // PDA登录信息
-    public static final int PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
-    public static final int PDA_USER_LOGIN_FAILUE = -1; //验证失败
-    public static final int PDA_USER_GETINFO_FAILUE = 0; //获取信息失败
+    public static final Integer PDA_USER_GETINFO_SUCCESS = 1; //获取信息成功
+    public static final Integer PDA_USER_LOGIN_FAILUE = -1; //验证失败
+    public static final Integer PDA_USER_GETINFO_FAILUE = 0; //获取基础资料数据失败
+    public static final Integer PDA_USER_JSF_FAILUE = -3; //获取基础账号JSF数据失败
+    public static final Integer PDA_USER_NO_EXIT = 2; //用户不存在
+    public static final Integer PDA_USER_PASSWORD_WRONG = 6; //密码错误
+    public static final Integer PDA_USER_LOCKED = 3; //密码错误超过十次pin被锁
+    public static final Integer PDA_USER_BUSY = 100; //系统繁忙
+    public static final Integer PDA_USER_NO_VERIFY = 7; //账号尚未审核通过
+    public static final Integer PDA_USER_SECURITY_LOCKED = 8; //因安全原因账号被锁
+    public static final Integer PDA_USER_LOGOUT = 14; //账号已经注销
+    public static final Integer PDA_USER_SECURITY_CHECK = 1100; //需要验证(命中风险检查)
+    public static final Integer PDA_USER_NO_USE = 1110; //无可用验证方式(命中风险检查)
+    public static final Integer PDA_USER_IP_WRONG = 105; //ip在黑名单中
+    public static final Integer PDA_USER_EMPTY = -4; //用户名或密码为空
+    public static final Integer PDA_USER_ABNORMAL = -2; //登录异常
+
     public static final String PDA_USER_GETINFO_SUCCESS_MSG = "获取信息成功"; //成功信息
     public static final String PDA_USER_LOGIN_FAILUE_MSG = "验证失败"; //验证失败信息
-    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取信息失败"; //获取信息失败
+    public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
+    public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
+    public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
+    public static final String PDA_USER_PASSWORD_WRONG_MSG = "密码错误"; //密码错误
+    public static final String PDA_USER_LOCKED_MSG = "密码错误超过十次pin被锁"; //密码错误超过十次pin被锁
+    public static final String PDA_USER_BUSY_MSG = "系统繁忙"; //系统繁忙
+    public static final String PDA_USER_NO_VERIFY_MSG = "账号尚未审核通过"; //账号尚未审核通过
+    public static final String PDA_USER_SECURITY_LOCKED_MSG = "因安全原因账号被锁"; //因安全原因账号被锁
+    public static final String PDA_USER_LOGOUT_MSG = "账号已经注销"; //账号已经注销
+    public static final String PDA_USER_SECURITY_CHECK_MSG = "需要验证(命中风险检查)"; //需要验证(命中风险检查)
+    public static final String PDA_USER_NO_USE_MSG = "无可用验证方式(命中风险检查)"; //无可用验证方式(命中风险检查)
+    public static final String PDA_USER_IP_WRONG_MSG = "ip在黑名单中"; //ip在黑名单中
+    public static final String PDA_USER_EMPTY_MSG = "用户名或密码为空"; //用户名或密码为空
+    public static final String PDA_USER_ABNORMAL_MSG = "登录异常"; //登录异常
 
     public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
     public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）
@@ -436,8 +481,17 @@ public class Constants {
      * container_relation 发货状态 已发货
      */
     public static final Integer  CONTAINER_RELATION_SEND_STATUS_YES = 1;
-
-
+    /**
+     * 商家别名标识-YHD：一号店
+     */
+    public static final String BUSINESS_ALIAS_YHD="YHD";
+    /**
+     * 商家别名标识-CMBC：招商银行
+     */
+    public static final String BUSINESS_ALIAS_CMBC="CMBC";
+    /**
+     * 商家商标图片-一号店（yhd4949.gif）
+     */
     public static final String BRAND_IMAGE_KEY_YHD="yhd4949.gif";
     /**
      * 备件库条码前缀默认值-"null"
@@ -458,12 +512,28 @@ public class Constants {
     public static final String DMS_WEB_SORTING_SORTSCHEME_R ="DMS-WEB-SORTING-SORTSCHEME-R"; //分拣计划配置
     public static final String DMS_WEB_SORTING_ADDRESSCHANGE_R ="DMS-WEB-SORTING-ADDRESSCHANGE-R"; //客户改址查询
     public static final String DMS_WEB_SORTING_PARTNERINSPECTION_R ="DMS-WEB-SORTING-PARTNERINSPECTION-R"; //第三方差异处理
+    public static final String DMS_WEB_SORTING_OPERATELOG_R ="DMS-WEB-SORTING-OPERATELOG-R"; //分拣中心操作日志（新）
     public static final String DMS_WEB_SORTING_GODDESS_R ="DMS-WEB-SORTING-GODDESS-R"; //分拣运行时全程跟踪
     public static final String DMS_WEB_SORTING_OFFLINELOG_R ="DMS-WEB-SORTING-OFFLINELOG-R"; //分拣中心离线操作日志
     public static final String DMS_WEB_SORTING_FRESH_R ="DMS-WEB-SORTING-FRESH-R"; //生鲜温度录入
     public static final String DMS_WEB_SORTING_GANTRYAUTOSEND_R ="DMS-WEB-SORTING-GANTRYAUTOSEND-R"; //龙门架自动发货
     public static final String DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R ="DMS-WEB-SORTING-SORTMACHINEAUTOSEND-R"; //分拣机自动发货
+    public static final String DMS_WEB_SORTING_ECLPREFUSED_R="DMS-WEB-SORTING-ECLPREFUSED-R";//库房拒收外呼申请
+    public static final String DMS_WEB_SORTING_UNKNOWNWAYBILL_R="DMS-WEB-SORTING-UNKNOWNWAYBILL-R";//三无外单托寄物核实
     public static final String DMS_WEB_SORTING_ABNORMALDISPOSE_R ="DMS-WEB-SORTING-ABNORMALDISPOSE-R"; //批次清零
+    public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
+    public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
+    public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
+    public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
+    public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
+    public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
+    public static final String DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R="DMS-WEB-EXPRESS-PACKAGEHALFREDELIVERY-R";//包裹部分签收操作
+    public static final String DMS_WEB_EXPRESS_RMAHANDOVER_R="DMS-WEB-EXPRESS-RMAHANDOVER-R";//RMA交接单打印
+    public static final String DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R="DMS-WEB-EXPRESS-WAYBILLCONSUMABLERECORD-R";//B网包装耗材
+    public static final String DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R="DMS-WEB-EXPRESS-PACKINGCONSUMABLEINFO-R";//包装耗材基础信息管理
+    public static final String DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R="DMS-WEB-EXPRESS-DMSCONSUMABLERELATION-R";//快运中心包装耗材管理
+    public static final String DMS_WEB_EXPRESS_STORAGEPACKAGEM_R="DMS-WEB-EXPRESS-STORAGEPACKAGEM-R";//暂存管理
+    public static final String DMS_WEB_EXPRESS_PERFORMANCE_R="DMS-WEB-EXPRESS-PERFORMANCE-R";//加履交接单打印
     public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
     public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
     public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断
@@ -474,6 +544,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_SORTINGCENTER_R ="DMS-WEB-TOOL-SORTINGCENTER-R"; //分拣中心测试查询工具
     public static final String DMS_WEB_TOOL_AREADESTPLAN_R ="DMS-WEB-TOOL-AREADESTPLAN-R"; //龙门架发货关系维护
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
+    public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
     /********************************************* UIM权限资源码相关end ***********************************************/
@@ -509,6 +580,16 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
+
+    /**
+     * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）
+     */
+    public static final String SYS_CONFIG_PACKAGE_PAGE_SWITCH= "package.page.switch";
+    /**
+     * 配置信息-分拣机自动发货 封车自动换批次功能开关（config_content中维护的是开启自动换批次的分拣中心所属的分拣机编码）
+     */
+    public static final String SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE = "sortMachine.autoSend.sendCode.auto.change";
+
     /**
      * 三无寄托物核实 上报次数上限
      */
@@ -587,10 +668,15 @@ public class Constants {
     public static final Integer GANTRY_CHECK_DAYS= -30;
 
     /**
+     * 调用运单的分页接口一次获取的包裹数量
+     */
+    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
+
+    /**
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
-    
+
     /**
      * 始发道口号类型-1-普通
      */
@@ -633,4 +719,26 @@ public class Constants {
      * 包装耗材编号占位符
      */
     public static final String PACKING_PLACEHOLDER = "%03d";
+
+
+    /**
+     * 应付动态量方条码barcode类型 扫描到的号码类型1：包裹号 2：箱号 3：板号
+     */
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_PACKAGECODE = 1;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOXCODE = 2;
+    public static final int DMS_OUT_MEASURE_BARCODE_TYPE_BOARDCODE= 3;
+
+    /**
+     * 再投审核完成类型（1：按运单审核；2：按包裹审核）
+     */
+    public static final Integer PACKAGE_APPROVE_TYPE = 2;
+
+    /**
+     * 已发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_1 =1;
+    /**
+     * 取消发货状态（托寄物品名打印）
+     */
+    public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
 }

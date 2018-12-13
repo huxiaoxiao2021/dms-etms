@@ -1,9 +1,14 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.DmsLocalServerInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
+import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.entity.ComponentPositionJsfEntity;
+import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.request.ComponentPositionInfoJsfRequest;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -12,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,6 +34,14 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
     @Autowired
     @Qualifier("dmsLocalServerInfoJsfService")
     private DmsLocalServerInfoJsfService dmsLocalServerInfoJsfService;
+
+    @Autowired
+    @Qualifier("storageComponentJsfService")
+    private StorageComponentJsfService storageComponentJsfService;
+
+    @Autowired
+    @Qualifier("dmsLocalInstanceInfoJsfService")
+    private DmsLocalInstanceInfoJsfService dmsLocalInstanceInfoJsfService;
 
     @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVipListByDmsId", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -52,6 +66,75 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             logger.error("[JSF接口调用异常]调用自动化JSF接口getAllVipList()获取分拣中心本地服务器VIP地址出现异常", e);
         }
         return null;
+    }
+
+    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getStorageCodeByDmsId", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public List<String> getStorageCodeByDmsId(Integer dmsId) {
+        ComponentPositionInfoJsfRequest param = new ComponentPositionInfoJsfRequest();
+        List<String> result = new ArrayList<String>();
+        param.setCreateSiteCode(dmsId.toString());
+
+        try {
+            BaseDmsAutoJsfResponse<List<ComponentPositionJsfEntity>> baseDmsAutoJsfResponse = storageComponentJsfService.getPositionBySite(param);
+            if(BaseDmsAutoJsfResponse.SUCCESS_CODE == baseDmsAutoJsfResponse.getStatusCode()){
+                List<ComponentPositionJsfEntity> lst = baseDmsAutoJsfResponse.getData();
+                for(ComponentPositionJsfEntity pojo : lst){
+                    result.add(pojo.getCode());
+                }
+            }else{
+                logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySite  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
+            }
+        } catch (Exception e) {
+            logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySite "+ JsonHelper.toJson(param), e);
+        }
+
+        return result;
+    }
+
+    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVerAppUrlBySiteCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public String getVerAppUrlBySiteCode(String siteCode) {
+        try {
+            BaseDmsAutoJsfResponse<String> response=dmsLocalInstanceInfoJsfService.getSortSchemeUrlBySiteCode(siteCode);
+            if (response != null && response.getStatusCode() == BaseDmsAutoJsfResponse.SUCCESS_CODE){
+                return response.getData();
+            }else {
+                logger.error("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  "+ JsonHelper.toJson(siteCode)+"  "+response.getStatusMessage());
+            }
+
+        } catch (Exception e) {
+            logger.error("[JSF接口调用异常]调用自动化JSF接口getVerAppUrlBySiteCode获取分拣中心本地服务器地址出现异常", e);
+        }
+        return null;
+    }
+
+    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.checkStorage", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public boolean checkStorage(Integer dmsId, String storageCode) {
+        ComponentPositionInfoJsfRequest param = new ComponentPositionInfoJsfRequest();
+        param.setCreateSiteCode(dmsId.toString());
+        param.setPositionCode(storageCode);
+
+        try {
+            BaseDmsAutoJsfResponse<List<ComponentPositionJsfEntity>> baseDmsAutoJsfResponse = storageComponentJsfService.getPositionBySiteAndCode(param);
+            if(BaseDmsAutoJsfResponse.SUCCESS_CODE == baseDmsAutoJsfResponse.getStatusCode()){
+                List<ComponentPositionJsfEntity> lst = baseDmsAutoJsfResponse.getData();
+                if(lst!=null && lst.size()==1 && lst.get(0)!=null){
+                    if(storageCode.equals(lst.get(0).getCode())){
+                        //存在
+                        return true;
+                    }
+                }
+
+            }else{
+                logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySiteAndCode  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
+            }
+        } catch (Exception e) {
+            logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySiteAndCode "+ JsonHelper.toJson(param), e);
+        }
+
+        return false;
     }
 
     /**

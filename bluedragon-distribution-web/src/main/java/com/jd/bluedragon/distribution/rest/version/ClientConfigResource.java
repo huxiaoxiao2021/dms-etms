@@ -17,22 +17,25 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
-import com.jd.bluedragon.distribution.rest.version.resp.ServerVIPConfigResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
+import com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.entity.VipInfoJsfEntity;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ClientConfigRequest;
 import com.jd.bluedragon.distribution.api.response.VersionResponse;
 import com.jd.bluedragon.distribution.rest.version.resp.ClientConfigResponse;
+import com.jd.bluedragon.distribution.rest.version.resp.ServerVIPConfigResponse;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.domain.VersionEntity;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 @Component
 @Path(Constants.REST_URL)
@@ -178,9 +181,22 @@ public class ClientConfigResource {
         clientConfig.setYn(request.getYn());
         return clientConfig;
     }
-
     /**
-     * 依据分拣中心编号和应用程序类型查询该分拣中心的可用版本和下载地址
+     * 新接口-依据分拣中心编号和应用程序类型查询该分拣中心的可用版本和下载地址
+     * 
+     * @param siteCode
+     * @param programType
+     * @return
+     */
+    @GET
+    @Path("/versions/config/getCurrentVersionNew/{siteCode}/{programType}")
+    public VersionResponse getCurrentVersionNew(
+            @PathParam("siteCode") String siteCode,
+            @PathParam("programType") Integer programType) {
+    	return getCurrentVersion(siteCode,programType,true);
+    }
+    /**
+     * 旧接口-依据分拣中心编号和应用程序类型查询该分拣中心的可用版本和下载地址
      * 
      * @param siteCode
      * @param programType
@@ -188,15 +204,26 @@ public class ClientConfigResource {
      */
     @GET
     @Path("/versions/config/getCurrentVersion/{siteCode}/{programType}")
-    public VersionResponse getCurrentVersion(
+    public VersionResponse getCurrentVersionOld(
             @PathParam("siteCode") String siteCode,
             @PathParam("programType") Integer programType) {
+    	return getCurrentVersion(siteCode,programType,false);
+    }
+    private VersionResponse getCurrentVersion(String siteCode,Integer programType,boolean isNew) {
+    	//加入ump监控，动态生成key，监控每种客户端的调用量
+    	String umpKey = "DMS.Web.ClientConfigResource.getCurrentVersion";
+    	if(isNew){
+    		umpKey += "New"+programType;
+    	}else{
+    		umpKey += programType;
+    	}
+    	CallerInfo callerInfo = ProfilerHelper.registerInfo(umpKey);
         Assert.notNull(siteCode, "siteCode must not be null");
         Assert.notNull(programType, "programType must not be null");
 
         this.logger.info("siteCode " + siteCode);
         this.logger.info("programType " + programType);
-
+        Profiler.registerInfoEnd(callerInfo);
         VersionEntity versionEntity = new VersionEntity(siteCode, programType);
         VersionEntity entity = this.clientConfigService
                 .getVersionEntity(versionEntity);
@@ -207,7 +234,6 @@ public class ClientConfigResource {
 
         return this.toVersionResponse(entity);
     }
-
     private VersionResponse toVersionResponse(VersionEntity entity) {
         VersionResponse response = new VersionResponse(JdResponse.CODE_OK,
                 JdResponse.MESSAGE_OK);

@@ -15,9 +15,13 @@ public class ReverseSendWms {
 	private String operateTime;
 
 	private String userName;
-
+	/**
+	 * 订单号
+	 */
 	private String orderId;
-
+	/**
+	 * 新包裹号
+	 */
 	private String packageCodes;
 
 	private int lossQuantity;
@@ -36,6 +40,8 @@ public class ReverseSendWms {
 
     private String waybillSign;
 
+    private ExtInfos extInfos;
+
 	/**
 	 * 逆向编码，标识是用户退货，还是返仓再生产
 	 * @return
@@ -49,12 +55,18 @@ public class ReverseSendWms {
 	private String reverseReason;
 	
     private String sourceCode;
-    
-    private String busiOrderCode;
+	/**
+	 * 运单号
+	 */
+	private String busiOrderCode;
 
 	private boolean isSickWaybill;//true 病单， false 非病单
 
 	private String token;//防重码 取 task_send 表task_id
+
+	private String orderSource; // 订单来源
+
+	public final static String ORDER_SOURCE_JLZX = "JLZX"; //订单来源 加履中心
 
     public String getBusiOrderCode() {
 		return busiOrderCode;
@@ -208,5 +220,13 @@ public class ReverseSendWms {
 
 	public void setToken(String token) {
 		this.token = token;
+	}
+
+	public String getOrderSource() {
+		return orderSource;
+	}
+
+	public void setOrderSource(String orderSource) {
+		this.orderSource = orderSource;
 	}
 }

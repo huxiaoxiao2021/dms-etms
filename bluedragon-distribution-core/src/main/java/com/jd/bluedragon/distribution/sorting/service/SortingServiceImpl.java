@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.sorting.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -27,9 +28,10 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -37,6 +39,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -47,6 +50,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,6 +58,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
 public class SortingServiceImpl implements SortingService {
@@ -62,6 +67,7 @@ public class SortingServiceImpl implements SortingService {
 
 	private final static Integer DELIVERY_INFO_EXPIRE_SCONDS = 30 * 60; //半小时
 
+	public static final int TASK_1200_EX_TIME_5_S = 5;//1200分拣任务防重复提交执行，10秒时间
 	@Autowired
 	private SortingDao sortingDao;
 
@@ -77,8 +83,6 @@ public class SortingServiceImpl implements SortingService {
 	@Autowired
 	private OperationLogService operationLogService;
 
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 
 	@Autowired
 	private WaybillPickupTaskApi waybillPickupTaskApi;
@@ -114,6 +118,11 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	FastRefundService fastRefundService;
+    /**
+     * sorting任务处理告警时间，单位:ms，默认值100
+     */
+	@Value("${beans.SortingServiceImpl.sortingDealWarnTime:100}")
+	private long sortingDealWarnTime;
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Integer add(Sorting sorting) {
@@ -273,20 +282,43 @@ public class SortingServiceImpl implements SortingService {
 				+ Constants.SEPARATOR_COMMA + sortingResult.getData().isEmpty();
 	}
 
-	@JProfiler(jKey= "DMSWORKER.SortingService.doSorting",mState = {JProEnum.TP})
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
+				Constants.UMP_APP_NAME_DMSWORKER);
+		//记录本次分拣处理的包裹数量
+		int sortingNum = 0;
+		//记录本次分拣处理的结果
+		boolean result = false;
+		long beginTime = System.currentTimeMillis();
+		//1、pre单独加入监控点
+		CallerInfo step1Monitor = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting.prepareSorting",
+				Constants.UMP_APP_NAME_DMSWORKER);
 		List<Sorting> sortings = this.prepareSorting(task);
-		if (null == sortings || sortings.isEmpty()) {
-			return Boolean.FALSE;
-		} else {
-			if(!this.taskToSorting(sortings)){
-				//离线取消分拣：如果取消失败，则隔15分钟重新处理
-				return Boolean.FALSE;
-			}else{
-				return Boolean.TRUE;
-			}
+		Profiler.registerInfoEnd(step1Monitor);
+		long preEndTime = System.currentTimeMillis();
+		if (sortings != null) {
+			sortingNum = sortings.size();
 		}
+		//2、doSorting监控
+		CallerInfo step2Monitor = ProfilerHelper.registerInfo(
+				ProfilerHelper.genKeyByQuantity("DMSWORKER.SortingService.doSorting.deal", sortingNum),
+				Constants.UMP_APP_NAME_DMSWORKER);
+		//离线取消分拣：如果取消失败，则隔15分钟重新处理
+		if (sortingNum > 0) {
+			result = this.taskToSorting(sortings);
+		} else {
+			logger.warn("fail-doSorting:本次处理的包裹数为0，task:"+JsonHelper.toJson(task));
+		}
+		Profiler.registerInfoEnd(step2Monitor);
+		//耗时较长时，打印日志
+		long costTimeTotal = System.currentTimeMillis() - beginTime;
+		if(costTimeTotal >= sortingDealWarnTime){
+			long preCostTime = preEndTime - beginTime;
+			logger.warn("warn-doSorting-处理的包裹数:"+sortingNum+" 耗时：【pre:"+preCostTime+" ms,total:"+costTimeTotal+" ms】"+"task:"+JsonHelper.toJson(task));
+		}
+		Profiler.registerInfoEnd(doSorting);
+		return result;
 	}
 
 	private List<Sorting> prepareSorting(Task task) {
@@ -316,7 +348,7 @@ public class SortingServiceImpl implements SortingService {
 		if (StringHelper.isEmpty(sorting.getPackageCode())) { // 按运单分拣
 			this.logger.info("从运单系统获取包裹信息，运单号为：" + sorting.getWaybillCode());
 
-			BaseEntity<BigWaybillDto> waybill = this.waybillQueryApi.getWaybillAndPackByWaybillCode(sorting
+			BaseEntity<BigWaybillDto> waybill = this.waybillQueryManager.getWaybillAndPackByWaybillCode(sorting
 					.getWaybillCode());
 			if (waybill != null && waybill.getData() != null) {
 				List<DeliveryPackageD> packages = waybill.getData().getPackageList();
@@ -530,11 +562,11 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void fillSortingIfPickup(Sorting sorting) {
-		if (BusinessHelper.isPickupCode(sorting.getPackageCode())) {
+		if (WaybillUtil.isSurfaceCode(sorting.getPackageCode())) {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
 			sorting.setPackageCode(sorting.getPackageCode());
-			if(BusinessHelper.isPickupCodeWW(sorting.getPackageCode()))
+			if(WaybillUtil.isPickupCodeWW(sorting.getPackageCode()))
 			{
 				// sorting.setPickupCode(pickup.getData().getPickupCode());
 				sorting.setWaybillCode(sorting.getPackageCode());
@@ -639,7 +671,7 @@ public class SortingServiceImpl implements SortingService {
 					if(waybillsign != null && waybillsign.length()>0){
 						//waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
 						if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
-							if(BusinessHelper.isSick(waybill.getWaybillSign())){
+							if(BusinessUtil.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽快退MQ,运单号：" + waybill.getWaybillCode());
 								return;
@@ -673,7 +705,7 @@ public class SortingServiceImpl implements SortingService {
 		FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
 		//新运单号获取老运单号的所有信息  参数返单号
 		try{
-			BaseEntity<Waybill> wayBillOld = waybillQueryApi.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
+			BaseEntity<Waybill> wayBillOld = waybillQueryManager.getWaybillByReturnWaybillCode(sorting.getWaybillCode());
 			if(wayBillOld.getData() != null){
 				String vendorId = wayBillOld.getData().getVendorId();
 				if(vendorId == null || "".equals(vendorId)){
@@ -809,8 +841,8 @@ public class SortingServiceImpl implements SortingService {
 		if (sendDs.size() > 0) {
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
-			// 获取sendM表中的发货数据
-			this.setSendMListByBoxCode(sorting, sendMs, transitSendMs);
+			// 获取直接发货和中转发货的SendM数据
+			this.setListByTransitOrDirect(sorting, sendMs, transitSendMs);
 			// 判断是否存在跨分拣发货数据，则视为先发货后分拣，需要补中转的sendD发货明细数据和全程跟踪
 			if (transitSendMs.size() > 0) {
 				List<SendDetail> transitSendDs = new ArrayList<SendDetail>();
@@ -832,11 +864,9 @@ public class SortingServiceImpl implements SortingService {
             // 判断直发分拣类型是否已经发货，若存在sendM数据，则视为先发货后分拣，需要补直发的sendD发货明细数据和全程跟踪
 			if (sendMs.size() > 0) {
 				// 正常情况，分拣与发货一致的sendM仅有一条数据
-				for (SendM sendM : sendMs) {
-					for (SendDetail sendDetail : sendDs) {
-						// 补全发货数据
-						this.fixSendDetail(sendDetail, sendM);
-					}
+				for (SendDetail sendDetail : sendDs) {
+					// 补全发货数据
+					this.fixSendDetail(sendDetail, sendMs.get(0));
 				}
 				// 批量回传全程跟踪
 				this.deliveryService.updateWaybillStatus(sendDs);
@@ -851,18 +881,23 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sendMs
 	 * @param transitSendMs
 	 */
-	private void setSendMListByBoxCode(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
+	private void setListByTransitOrDirect(Sorting sorting, List<SendM> sendMs, List<SendM> transitSendMs) {
 		List<SendM> sendList = this.deliveryService.getSendMListByBoxCode(sorting.getBoxCode());
 		if (null != sendList && sendList.size() > 0) {
 			Iterator<SendM> iterator = sendList.iterator();
 			while (iterator.hasNext()) {
 				SendM sendM = iterator.next();
 				// 判断分拣始发站点与箱号的始发站点，目的站点是否都一致，不一致则为中转发货
-				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())){
+				if (sendM.getCreateSiteCode().equals(sorting.getCreateSiteCode()) && sendM.getReceiveSiteCode().equals(sorting.getReceiveSiteCode())) {
+					// 避免第一次发货封车一小时后再次发货，获取到第一次的批次号和操作信息
+					if (sendM.getOperateTime().before(sorting.getOperateTime())) {
+						logger.info("[分拣任务]过滤发货在前，分拣在后数据，运单号：" + sorting.getWaybillCode());
+						continue;
+					}
 					// 直发分拣
 					logger.info("[分拣任务]始发和目的站点一致补全，运单号：" + sorting.getWaybillCode());
 					sendMs.add(sendM);
-				}else {
+				} else {
 					// 跨分拣发货
 					transitSendMs.add(sendM);
 					logger.info("[分拣任务]分拣中转全程跟踪补全发货，批次号为：" + sendM.getSendCode() + "，运单号为" + sorting.getPackageCode());
@@ -918,8 +953,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	private void fillSendDetailIfPickup(SendDetail sendDetail) {
-		if (BusinessHelper.isPickupCode(sendDetail.getPackageBarcode())) {
-			if(BusinessHelper.isPickupCodeWW(sendDetail.getPackageBarcode())) {
+		if (WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())) {
+			if(WaybillUtil.isPickupCodeWW(sendDetail.getPackageBarcode())) {
 				sendDetail.setWaybillCode(sendDetail.getPackageBarcode());
 			} else {
 //			BaseEntity<PickupTask> pickup = this.getPickup(sendDetail.getPackageBarcode());
@@ -1023,7 +1058,7 @@ public class SortingServiceImpl implements SortingService {
 					if (waybill != null) {
 						String waybillsign = waybill.getWaybillSign();
 						if (waybillsign != null && waybillsign.length() > 0) {
-							if(BusinessHelper.isSick(waybill.getWaybillSign())){
+							if(BusinessUtil.isSick(waybill.getWaybillSign())){
 								//TODO 上线观察一段时间 可删除该log
 								this.logger.error("分拣中心逆向病单屏蔽退款100分MQ,运单号：" + waybill.getWaybillCode());
 								return;
@@ -1120,4 +1155,58 @@ public class SortingServiceImpl implements SortingService {
         return null;
     }
 
+	@Override
+	public List<Sorting> findPageSorting(Map<String, Object> params) {
+		logger.info("SortingServiceImpl.findPageSorting begin...");
+		return sortingDao.findPageSorting(params);
+	}
+
+
+	public final static String TASK_SORTING_FINGERPRINT_1200_5S = "TASK_1200_FP_5S_"; //5前缀
+
+	@Autowired
+	@Qualifier("jimdbCacheService")
+	private CacheService cacheService;
+
+	private static final String SPLIT_CHAR="$";
+
+	/**
+	 * 处理任务数据
+	 * @param task
+	 * @return 成功与否
+	 */
+	public boolean processTaskData(Task task){
+		CallerInfo process1200TaskData = ProfilerHelper.registerInfo("DMSWORKER.SortingService.processTaskData",
+				Constants.UMP_APP_NAME_DMSWORKER);
+		String fingerPrintKey = TASK_SORTING_FINGERPRINT_1200_5S + task.getCreateSiteCode() +"|"+ task.getBoxCode() +"|"+ task.getKeyword2();
+		try{
+			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
+			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
+			if(!isSucdess){//说明有重复任务
+				this.logger.error("1200分拣任务重复："+task.getBody());
+				return false;
+			}
+		}catch(Exception e){
+			this.logger.error("获得1200分拣任务指纹失败"+task.getBody(), e);
+		}
+
+		boolean result = Boolean.FALSE;
+		try {
+			this.logger.info("task id is " + task.getId());
+			result = this.doSorting(task);
+		} catch (Exception e) {
+			StringBuilder builder=new StringBuilder("task id is");
+			builder.append(task.getId());
+			builder.append(SPLIT_CHAR).append(task.getBoxCode());
+			builder.append(SPLIT_CHAR).append(task.getKeyword1());
+			builder.append(SPLIT_CHAR).append(task.getKeyword2());
+			this.logger.error(builder.toString());
+			this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
+			result = Boolean.FALSE;
+		}
+
+		cacheService.del(fingerPrintKey);
+		Profiler.registerInfoEnd(process1200TaskData);
+		return result;
+	}
 }

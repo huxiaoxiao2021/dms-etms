@@ -60,6 +60,9 @@ public class PackageHalfApprove extends DbEntity {
 	 /** 更新人名称 */
 	private String updateUserName;
 
+	/** 再投审核完成类型（1：按运单审核；2：按包裹审核） */
+	private Integer modelType;
+
 	/**
 	 * The set method for dmsSiteCode.
 	 * @param dmsSiteCode
@@ -300,5 +303,11 @@ public class PackageHalfApprove extends DbEntity {
 		return this.updateUserName;
 	}
 
+    public Integer getModelType() {
+        return modelType;
+    }
 
+    public void setModelType(Integer modelType) {
+        this.modelType = modelType;
+    }
 }

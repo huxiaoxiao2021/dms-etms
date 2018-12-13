@@ -22,7 +22,8 @@
 				<value>classpath:configured/db.properties</value>
 				<value>classpath:configured/dcam.properties</value>
 				<value>classpath:configured/dms_ip_mapper.properties</value>
-				<value>classpath:configured/mqsender.properties</value>
+				<value>classpath:configured/jsf.properties</value>
+				<value>classpath:configured/mq.properties</value>
 				<value>classpath:configured/order_service_config.properties</value>
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
@@ -58,7 +59,8 @@
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
-	
+	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
+
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->
 	<bean class="com.jd.ump.annotation.JAnnotation">

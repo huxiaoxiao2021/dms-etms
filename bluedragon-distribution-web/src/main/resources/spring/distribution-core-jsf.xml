@@ -155,6 +155,10 @@
                   alias="${ldop.basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="basicTraderReturnAPI" interface="com.jd.ldop.basic.api.BasicTraderReturnAPI" protocol="jsf"
+                  alias="${ldop.basic.return.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
@@ -196,18 +200,6 @@
     </jsf:consumer>
 
 
-    <!-- 用户组jsf接口，负责人 兰江
-         SourceId：ql_dms
-         Alias（测试）：userSdk-136
-         Alias（线上马驹桥）：userSdk-mjq-noah04（系统已配置alias，可用原有配置）
-         Alias（线上廊坊）：userSdk-lf-noah04（系统已配置alias，可用原有配置）
-    -->
-    <bean id="userSdkConsumerFilter" class="com.jd.user.sdk.export.filter.UserSdkConsumerFilter" scope="prototype"/>
-    <jsf:consumer id="userInfoRpc" interface="com.jd.user.sdk.export.UserInfoExportService" alias="${user.export.alias}"
-                  filter="userSdkConsumerFilter" retries="${jsf.retries}" timeout="${user.export.timeout}">
-        <jsf:parameter key="source" value="${user.export.sourceId}" hide="true"/>
-    </jsf:consumer>
-
     <!-- 台账 宏亮 张子敬-->
     <jsf:consumer id="orderQueryResource" interface="com.jd.orderbank.export.rest.OrderQueryResource" protocol="jsf"
                   alias="${orderBank.jsf.alias}" timeout="${orderBank.jsf.timeout}" retries="${jsf.retries}">
@@ -245,6 +237,10 @@
     </jsf:consumer>
     <!-- 任务封车简码查询 jsf接口 郝雄山-->
     <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!--  (TFC)运输流程中心系统 jsf接口  王京-->
+    <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
     </jsf:consumer>
 
@@ -303,6 +299,10 @@
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 外单签单返回合单接口-->
+    <jsf:consumer id="waybillReturnSignatureApi" interface="com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi"
+                  protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
     <!--eclp查商品明细 -->
     <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"
                   protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="5000" retries="${jsf.retries}">
@@ -337,5 +337,26 @@
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 加履系统 查询接口 郭海瑞 -->
+    <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
+                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="5000" check="false" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- automatic分拣自动化 -储位相关- 焦文强 -->
+    <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
+                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!--报表的接口 唐春青-->
+    <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
+    <jsf:consumer id="dmsLocalInstanceInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService"
+                  protocol="jsf" alias="${jsf.dmsLocalInstanceInfo.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 理赔系统接口-->
+    <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"
+                  protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 </beans>

@@ -45,6 +45,10 @@
     <bean id="KvIndexDao" class="com.jd.bluedragon.distribution.base.dao.KvIndexDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+
+    <bean id="dmsOutWeightAndVolumeDao" class="com.jd.bluedragon.distribution.weightAndMeasure.dao.DmsOutWeightAndVolumeDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
     <!-- 采用JProxy分库分表 end -->
 
     <bean id="scannerFrameBatchSendDao" class="com.jd.bluedragon.distribution.auto.dao.ScannerFrameBatchSendDao">
@@ -451,4 +455,17 @@
     <bean id="packingConsumableInfoDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.PackingConsumableInfoDaoImpl"/>
     <bean id="waybillConsumableRecordDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.WaybillConsumableRecordDaoImpl"/>
     <bean id="waybillConsumableRelationDao"  parent="unDivBaseDao" class="com.jd.bluedragon.distribution.consumable.dao.impl.WaybillConsumableRelationDaoImpl"/>
+
+    <bean id="storagePackageMDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageMDaoImpl"/>
+    <bean id="storagePackageDDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.storage.dao.impl.StoragePackageDDaoImpl"/>
+
+    <!-- 签单返回 -->
+    <bean id="signReturnDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+    <bean id="mergedWaybillDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.MergedWaybillDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>

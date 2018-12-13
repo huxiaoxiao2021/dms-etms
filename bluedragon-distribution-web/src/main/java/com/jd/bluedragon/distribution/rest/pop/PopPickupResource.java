@@ -11,6 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -55,7 +56,7 @@ public class PopPickupResource {
 	/**
 	 * 通过运单号获取包裹数量
 	 * 
-	 * @param PopPickupRequest
+	 * @param popPickupRequest
 	 * @return
 	 */
 
@@ -80,7 +81,7 @@ public class PopPickupResource {
 	/**
 	 * 根据pop id获取pop商家名称
 	 * 
-	 * @param PopPickupRequest
+	 * @param popPickupRequest
 	 * @return
 	 */
 
@@ -105,7 +106,7 @@ public class PopPickupResource {
 	/**
 	 * 按条件查询POP上门接货交接清单
 	 * 
-	 * @param pager
+	 * @param popPickupQuery
 	 *            分页对象
 	 * @return
 	 */
@@ -191,7 +192,7 @@ public class PopPickupResource {
 	/**
 	 * 根据pop id获取pop商家名称
 	 * 
-	 * @param PopPickupRequest
+	 * @param popPickupRequest
 	 * @return
 	 */
 	@POST
@@ -208,7 +209,7 @@ public class PopPickupResource {
 		try {
 			/*包裹号处理*/
 			if(popPickupRequest.getWaybillCode()==null){
-				popPickupRequest.setWaybillCode(BusinessHelper.getWaybillCode(popPickupRequest.getPackageBarcode()));
+				popPickupRequest.setWaybillCode(WaybillUtil.getWaybillCode(popPickupRequest.getPackageBarcode()));
 			}else if(popPickupRequest.getPackageBarcode()==null){
 				popPickupRequest.setPackageBarcode(popPickupRequest.getWaybillCode());
 			}

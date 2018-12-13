@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadedPackage;
 import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.base.service.DmsStorageAreaService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -24,16 +27,19 @@ import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.receive.service.CenConfirmService;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -59,6 +65,7 @@ public class InspectionServiceImpl implements InspectionService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	private final String PERFORMANCE_DMSSITECODE_SWITCH = "performance.dmsSiteCode.switch";
 
 	@Autowired
 	private InspectionDao inspectionDao;
@@ -94,6 +101,12 @@ public class InspectionServiceImpl implements InspectionService {
     @Autowired
 	private DmsStorageAreaService dmsStorageAreaService;
 
+    @Autowired
+	private WaybillCommonService waybillCommonService;
+
+    @Autowired
+    private StoragePackageMService storagePackageMService;
+
 	/**
 	 * 运单包裹关联信息
 	 */
@@ -103,9 +116,8 @@ public class InspectionServiceImpl implements InspectionService {
 	@Autowired
 	private TaskPopRecieveCountService taskPopRecieveCountService;
 
-	/* 运单查询 */
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	private SiteService siteService;
 
 	public List<Inspection> parseInspections(Task task) {
 		if (task == null || StringUtils.isBlank(task.getBody())) {
@@ -124,7 +136,7 @@ public class InspectionServiceImpl implements InspectionService {
             //pda不再区分用户入口， 所有订单都可以扫描， 由后台获取运单ordertype和storeid 判断以前的类型  2014年12月16日16:21:55 by guoyongzhi
             if(requestBean.getBusinessType()==Constants.BUSSINESS_TYPE_NEWTRANSFER)//包裹交接类型 以前是 1130： 50库房， 51夺宝岛 52协同仓  现在是50
             {
-                String waybillCode = BusinessHelper.getWaybillCode(requestBean.getPackageBarOrWaybillCode());
+                String waybillCode = WaybillUtil.getWaybillCode(requestBean.getPackageBarOrWaybillCode());
                 BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill()!=null) {
 
@@ -147,10 +159,10 @@ public class InspectionServiceImpl implements InspectionService {
 
 
 			// 如果是包裹号获取取件单号，则存在包裹号属性中
-			if (BusinessHelper.isPackageCode(code)
-					|| BusinessHelper.isPickupCode(code)) {
+			if (WaybillUtil.isPackageCode(code)
+					|| WaybillUtil.isSurfaceCode(code)) {
 				requestBean.setPackageBarcode(code);
-			} else if (BusinessHelper.isWaybillCode(code)) {// 否则为运单号
+			} else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
 				requestBean.setWaybillCode(code);
 			} else {
 				logger.error("验货executeInspectionWorker，数据错误，非正常包裹号、取件单号或运单号，code: "
@@ -206,11 +218,9 @@ public class InspectionServiceImpl implements InspectionService {
 		for (Inspection inspection : inspections) {
 			// 如果运单号为空，且取件单号，则根据规则匹配出运单号
 			if (StringUtils.isBlank(inspection.getWaybillCode())
-					&& !BusinessHelper.isPickupCode(inspection
+					&& !WaybillUtil.isSurfaceCode(inspection
 							.getPackageBarcode())) {
-				inspection.setWaybillCode(BusinessHelper
-						.getWaybillCodeByPackageBarcode(inspection
-								.getPackageBarcode()));
+				inspection.setWaybillCode(WaybillUtil.getWaybillCode(inspection.getPackageBarcode()));
 			}
 			//写入业务表数据和日志数据
 			service.saveData(inspection);
@@ -314,7 +324,7 @@ public class InspectionServiceImpl implements InspectionService {
 			}
 		} else if (StringUtils.isNotEmpty(requestBean.getPackageBarcode())) {
 			requestBean = getStoreIdByWaybillCode(requestBean,
-					BusinessHelper.getWaybillCodeByPackageBarcode(requestBean
+					WaybillUtil.getWaybillCode(requestBean
 							.getPackageBarcode()));
 			inspections.add(Inspection.toInspection(requestBean));
 		} else {
@@ -330,7 +340,7 @@ public class InspectionServiceImpl implements InspectionService {
 		if (Constants.BUSSINESS_TYPE_FC == requestBean.getBusinessType()
 				.intValue()) {
 			try {
-				BaseEntity<Waybill> baseEntity = waybillQueryApi
+				BaseEntity<Waybill> baseEntity = waybillQueryManager
 						.getWaybillByWaybillCode(waybillCode);
 				if (baseEntity != null && baseEntity.getData() != null
 						&& baseEntity.getData().getDistributeStoreId() != null) {
@@ -597,7 +607,7 @@ public class InspectionServiceImpl implements InspectionService {
 	public boolean popPrintInspection(Task task, String ownSign) throws Exception{
 		String body = task.getBody().substring(1, task.getBody().length() - 1);
 		PopPrint popPrint = com.jd.bluedragon.distribution.api.utils.JsonHelper.fromJson(body, PopPrint.class);
-		if (!BusinessHelper.isWaybillCode(popPrint.getWaybillCode())) {
+		if (!WaybillUtil.isWaybillCode(popPrint.getWaybillCode())) {
 			logger.info("平台订单已打印未收货处理 --> 打印单号【" + popPrint.getPopPrintId()
 					+ "】，运单号【" + popPrint.getWaybillCode()
 					+ "】， 操作人SiteCode【" + popPrint.getCreateSiteCode()
@@ -681,4 +691,45 @@ public class InspectionServiceImpl implements InspectionService {
 			return null;
 		}
 	}
+
+	@Override
+	public String getHintMessage(Integer dmsSiteCode, String waybillCode) {
+
+		String hintMessage = "";
+		Integer preSiteCode = null;
+		Integer destinationDmsId = null;
+		com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode);
+		if(waybill != null && waybill.getWaybillSign() != null){
+			//是否是金鹏订单
+			if(BusinessUtil.isPerformanceOrder(waybill.getWaybillSign())){
+				//预分拣站点
+				preSiteCode = waybill.getSiteCode();
+				BaseStaffSiteOrgDto bDto = siteService.getSite(preSiteCode);
+				if(bDto != null && bDto.getDmsId() != null){
+					//末级分拣中心
+					destinationDmsId = bDto.getDmsId();
+				}
+				if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH)) ||
+						Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH))){
+					//登陆人操作机构是否是末级分拣中心
+					if(dmsSiteCode.equals(destinationDmsId)){
+						//运单是否发货
+						Boolean isCanSend = storagePackageMService.checkWaybillCanSend(waybillCode,waybill.getWaybillSign());
+						if(!isCanSend){
+							hintMessage = "暂存集齐后发货";
+						}
+					}
+				}
+
+			}
+		}
+		return hintMessage;
+	}
+
+	@Override
+	public List<Inspection> findPageInspection(Map<String, Object> params) {
+		logger.info("InspectionServiceImpl.findPageInspection begin...");
+		return inspectionDao.findPageInspection(params);
+	}
+
 }

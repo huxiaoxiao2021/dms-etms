@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -65,7 +66,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
 
         if(checkReceiveSiteCode(request)){
             this.logger.info("一车一单离线发货 --> 开始写入发货信息");
-            if(SerialRuleUtil.isBoardCode(request.getBoxCode())) {//一车一单下的组板发货
+            if(BusinessUtil.isBoardCode(request.getBoxCode())) {//一车一单下的组板发货
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(toSendM(request)));
                 deliveryService.doBoardDelivery(task);
@@ -125,7 +126,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     private SendM toSendM(OfflineLogRequest offlineLogRequest) {
 
         SendM sendM = new SendM();
-        if(SerialRuleUtil.isBoardCode(offlineLogRequest.getBoxCode())) {//一车一单下的组板发货
+        if(BusinessUtil.isBoardCode(offlineLogRequest.getBoxCode())) {//一车一单下的组板发货
             sendM.setBoardCode(offlineLogRequest.getBoxCode());
         }else{//一车一单发货
             sendM.setBoxCode(offlineLogRequest.getBoxCode());

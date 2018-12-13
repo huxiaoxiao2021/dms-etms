@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
 
@@ -327,5 +328,24 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      */
     public List<SendDetail>  findByWaybillCodeOrPackageCode(SendDetail sendDetail){
         return this.getSqlSession().selectList(namespace + ".findByWaybillCodeOrPackageCode", sendDetail);
+    }
+
+    /**
+     * 根据始发分拣中心，目的分拣中心，包裹号查询一条发货记录
+     * @param sendDetail
+     * @return
+     */
+    public SendDetail queryOneSendDetailByPackageCode(SendDetail sendDetail){
+        if (sendDetail == null || sendDetail.getCreateSiteCode() == null ||
+                sendDetail.getReceiveSiteCode() == null ||
+                StringUtils.isBlank(sendDetail.getPackageBarcode())) {
+            throw new IllegalArgumentException("始发分拣、目的分拣、包裹号不能为空.");
+        }
+        return this.getSqlSession().selectOne(namespace+".queryOneSendDetailByPackageCode",sendDetail);
+    }
+
+    /**分页查询发货记录*/
+    public List<SendDetail> findPageSendDetail(Map<String,Object> params){
+        return this.getSqlSession().selectList(namespace + ".findPageSendDetail",params);
     }
 }

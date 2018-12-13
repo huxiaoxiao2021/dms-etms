@@ -113,11 +113,14 @@ public class BasePrintWaybill implements Serializable {
     */
     private String road;
     
-    
+    /**
+     * 商家别名：YHD(一号店)、 CMBC(招商银行)
+     */
+    private String dmsBusiAlias;
     /**
     * 商家商标图像key值也就是文件名
     */
-    private String brandImageKey ;
+    private String brandImageKey;
     /**
      * 标识是否SOP商家和纯外单
      */
@@ -183,6 +186,11 @@ public class BasePrintWaybill implements Serializable {
 	 * 特殊要求
 	 */
 	private String specialRequirement;
+
+	/**
+	 * B网面单备用站点id
+	 */
+	private Integer backupSiteId;
 
 	/**
 	 * B网面单备用站点名称
@@ -515,6 +523,20 @@ public class BasePrintWaybill implements Serializable {
 	}
 
 
+	/**
+	 * @return the dmsBusiAlias
+	 */
+	public String getDmsBusiAlias() {
+		return dmsBusiAlias;
+	}
+
+	/**
+	 * @param dmsBusiAlias the dmsBusiAlias to set
+	 */
+	public void setDmsBusiAlias(String dmsBusiAlias) {
+		this.dmsBusiAlias = dmsBusiAlias;
+	}
+
 	public String getBrandImageKey() {
 		return brandImageKey;
 	}
@@ -794,5 +816,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setTelLast(String telLast) {
 		this.telLast = telLast;
+	}
+
+	public Integer getBackupSiteId() {
+		return backupSiteId;
+	}
+
+	public void setBackupSiteId(Integer backupSiteId) {
+		this.backupSiteId = backupSiteId;
 	}
 }

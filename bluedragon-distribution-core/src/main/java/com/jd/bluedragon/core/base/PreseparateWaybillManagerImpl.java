@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,7 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
     @Override
     public Integer getPreseparateSiteId(String waybillCode) throws Exception {
         Integer siteId=null;
-        if(SerialRuleUtil.isMatchWaybillNo(waybillCode)){
+        if(WaybillUtil.isJDWaybillCode(waybillCode)){
             PsOrderSeparateVo domain=preseparateOrderService.getPreSeparateOrderByOrderId(waybillCode.trim());
             if(null!=domain){
                 if(logger.isDebugEnabled()){

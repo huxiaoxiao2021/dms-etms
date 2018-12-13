@@ -63,8 +63,13 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     @Autowired
     private BaseService baseService;
 
+    /**
+     * 分隔符号
+     */
+    private final static String SEPARATOR = "-";
+
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean add(RmaHandoverWaybill rmaHandoverWaybill) {
         if (rmaHandoverWaybill != null) {
             if (rmaHandOverWaybillDao.add(rmaHandoverWaybill) > 0) {
@@ -217,20 +222,22 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @JProfiler(jKey = "DMSCORE.RmaHandOverWaybillServiceImpl.buildAndStorage", mState = {JProEnum.TP})
     @Override
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean buildAndStorage(SendDetailMessage sendDetail, Waybill waybill, List<Goods> goods) {
+        boolean result = true;
         // 查询该运单号在该站点是否已经发货
         RmaHandoverWaybill history = this.getByParams(waybill.getWaybillCode(), sendDetail.getCreateSiteCode(), false);
         if (history == null) {
-            return this.add(this.buildHandoverObject(waybill, goods, sendDetail, true));
+            result = this.add(this.buildHandoverObject(waybill, goods, sendDetail, true));
         } else {
             Date sendDateHistory = history.getSendDate();
             if (sendDateHistory != null && sendDateHistory.before(new Date(sendDetail.getOperateTime()))) {
                 RmaHandoverWaybill current = this.buildHandoverObject(waybill, goods, sendDetail, false);
                 current.setId(history.getId());
-                return this.update(current);
+                result = this.update(current);
             }
         }
-        return true;
+        return result;
     }
 
     /**
@@ -299,13 +306,15 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
         rmaHandOverWaybill.setWaybillCode(waybill.getWaybillCode());
         /** 包裹数量 */
         rmaHandOverWaybill.setPackageCount(waybill.getGoodNumber());
-        /** 目的省ID */
+
         Integer provinceId = waybill.getProvinceId();
+        /** 目的省ID */
         rmaHandOverWaybill.setTargetProvinceId(provinceId);
         /** 目的省 */
         rmaHandOverWaybill.setTargetProvinceName(this.getLocationName(waybill.getProvinceName(), provinceId));
-        /** 目的城市ID */
+
         Integer cityId = waybill.getCityId();
+        /** 目的城市ID */
         rmaHandOverWaybill.setTargetCityId(cityId);
         /** 目的城市名称 */
         rmaHandOverWaybill.setTargetCityName(this.getLocationName(waybill.getCityName(), cityId));
@@ -347,36 +356,38 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
      * @param goodsList
      */
     private void buildGoodsDetailAttribute(RmaHandoverWaybill rmaHandOverWaybill, List<Goods> goodsList) {
+        Map<String, String> skuSnMap = null;
         BaseEntity<List<SkuSn>> baseEntity = waybillQueryManager.getSkuSnListByOrderId(rmaHandOverWaybill.getWaybillCode());
         if (baseEntity.getData() != null && !baseEntity.getData().isEmpty()) {
-            Map<String, String> skuSnMap = this.convertMap(baseEntity.getData());
-            List<RmaHandoverDetail> detailList = new ArrayList<RmaHandoverDetail>(goodsList.size());
-            for (Goods goods : goodsList) {
-                RmaHandoverDetail detail = new RmaHandoverDetail();
-                /** 运单号 */
-                detail.setWaybillCode(goods.getWaybillCode());
-                /** 商品数量 */
-                detail.setGoodCount(goods.getGoodCount());
-                /** 商品名称 */
-                detail.setGoodName(goods.getGoodName());
-                detail.setSkuCode(goods.getSku());
-                /** 获取备件条码 */
-                detail.setSpareCode(goods.getSku());
-                /** 获取备件库出库单号 */
-                detail.setOutboundOrderCode(skuSnMap.get(goods.getSku()));
-                detailList.add(detail);
-            }
-            rmaHandOverWaybill.setRmaHandoverDetail(detailList);
+            skuSnMap = this.convertMap(baseEntity.getData());
         }
+        List<RmaHandoverDetail> detailList = new ArrayList<RmaHandoverDetail>(goodsList.size());
+        for (Goods goods : goodsList) {
+            RmaHandoverDetail detail = new RmaHandoverDetail();
+            /** 运单号 */
+            detail.setWaybillCode(goods.getWaybillCode());
+            /** 商品数量 */
+            detail.setGoodCount(goods.getGoodCount());
+            /** 商品名称 */
+            detail.setGoodName(goods.getGoodName());
+            /** 获取备件条码 */
+            detail.setSpareCode(goods.getSku());
+            if (skuSnMap != null) {
+                /** 商品编码 69码*/
+                detail.setSkuCode(skuSnMap.get("2" + SEPARATOR + goods.getSku()));
+                /** 获取备件库出库单号 */
+                detail.setOutboundOrderCode(skuSnMap.get("3" + SEPARATOR + goods.getSku()));
+            }
+            detailList.add(detail);
+        }
+        rmaHandOverWaybill.setRmaHandoverDetail(detailList);
     }
 
     private Map<String, String> convertMap(List<SkuSn> skuSnList) {
         Map<String, String> resultMap = new HashMap<String, String>(skuSnList.size());
         for (SkuSn skuSn : skuSnList) {
-            // codeType为3 是备件库出库单号
-            if (skuSn.getCodeType() == 3) {
-                resultMap.put(skuSn.getSkuCode(), skuSn.getSnCode());
-            }
+            // codeType为3 SnCode是备件库出库单号，codeType为2 SnCode是商品编号 69码
+            resultMap.put(skuSn.getCodeType() + SEPARATOR + skuSn.getSkuCode(), skuSn.getSnCode());
         }
         return resultMap;
     }

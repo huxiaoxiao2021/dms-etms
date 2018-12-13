@@ -62,6 +62,12 @@ public class TextConstants {
      * 此时，waybill_sign第80位等于2时，面单打标“特准运”
      */
     public static final String B2B_TIMELY_TRANSPORT ="特准运";
-
-
+    /**
+     * 京准达快递到车
+     */
+    public static final String	TEXT_TRANSPORT_KDDC="京准达\n快递到车";
+    /**
+     * 常用字符串:‘无’
+     */
+    public static final String COMMON_TEXT_NOTHING ="无";
 }

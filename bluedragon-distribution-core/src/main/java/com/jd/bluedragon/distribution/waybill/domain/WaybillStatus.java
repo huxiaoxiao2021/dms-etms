@@ -15,6 +15,15 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40;
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
+    public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
+
+    /*退货完成 全收标志*/
+    public static final Integer WAYBILL_RETURN_COMPLETE_FLAG_ALL = 1;
+    /*退货完成 部分收标志*/
+    public static final Integer WAYBILL_RETURN_COMPLETE_FLAG_HALF = 2;
+    /*退货完成 收货标识扩展字段属性名*/
+    public static final String WAYBILL_RETURN_FLAG_NAME = "returnFlag";
+
 
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING_RETURN = 60;
 
@@ -53,7 +62,10 @@ public class WaybillStatus {
 
     /**配送异常节点全程跟踪类型*/
     public static final Integer WAYBILL_TRACK_QC = 2100;
-
+    /**
+     * 空铁转陆运 全程跟踪节点
+     */
+    public static final Integer WAYBILL_TRACK_ARQC = 10000;
     /**
      * 全程跟踪消息类型mstType-仓储收货确认
      **/
@@ -72,6 +84,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_MSGTYPE_UPDATE = 2400;
     public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
     public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "您的订单因信息修改，正在重新中转";
+
+    /**
+     * 全程跟踪消息类型mstType-运单修改补打
+     **/
+    public static final Integer WAYBILL_TRACK_MSGTYPE_PACK_REPRINT = 1000;
 
     /**
      * 逆向换单打印
@@ -150,9 +167,21 @@ public class WaybillStatus {
     public static final Integer WAYBILL_OPE_TYPE_HALF_SIGNIN= 7500;
 
     /**
+     * 暂存上架 操作码
+     */
+    public static final Integer WAYBILL_OPE_TYPE_PUTAWAY= 8400;
+
+    /**
      * 审核完成状态
      */
     public static final Integer WAYBILL_STATUS_CONSULT = 135;
+
+    /**
+     *  签单返回合单
+     * */
+    public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN = 8700;
+    public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD = 8701;
+    public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW = 8702;
 
     private Long id;
 
@@ -177,6 +206,9 @@ public class WaybillStatus {
     private Integer operateType;
     private Date operateTime;
 
+    private Integer reasonId;
+
+    private Integer returnFlag;
     private String remark;
 
     public Long getId() {
@@ -323,4 +355,19 @@ public class WaybillStatus {
         this.remark = remark;
     }
 
+    public Integer getReasonId() {
+        return reasonId;
+    }
+
+    public void setReasonId(Integer reasonId) {
+        this.reasonId = reasonId;
+    }
+
+    public Integer getReturnFlag() {
+        return returnFlag;
+    }
+
+    public void setReturnFlag(Integer returnFlag) {
+        this.returnFlag = returnFlag;
+    }
 }

@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weight.domain.OpeEntity;
 import com.jd.bluedragon.distribution.weight.domain.OpeObject;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -38,7 +40,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
 
     @Override
     public boolean onMessage(UploadData uploadData, GantryDeviceConfig config) {
-        if(SerialRuleUtil.isMatchAllPackageNo(uploadData.getBarCode())) { // 如果是包裹号，添加称重任务
+        if(WaybillUtil.isPackageCode(uploadData.getBarCode())) { // 如果是包裹号，添加称重任务
             OpeEntity opeEntity = new OpeEntity();
             opeEntity.setOpeType(1);//分拣中心称重、长宽高
             opeEntity.setWaybillCode(SerialRuleUtil.getWaybillCode(uploadData.getBarCode()));
@@ -71,7 +73,7 @@ public class ScannerFrameMeasureConsume implements ScannerFrameConsume {
             task.setOwnSign(BusinessHelper.getOwnSign());
             int result=taskService.add(task);
             return result>0;
-        } else if (SerialRuleUtil.isMatchBoxCode(uploadData.getBarCode())) {  //如果是箱号，更新箱号的长宽高信息
+        } else if (BusinessUtil.isBoxcode(uploadData.getBarCode())) {  //如果是箱号，更新箱号的长宽高信息
             //return boxDao.updateVolumeByCode(toBoxDto(uploadData)) > 0;
             return boxService.updateVolumeByCode(toBoxDto(uploadData))>0;
         }

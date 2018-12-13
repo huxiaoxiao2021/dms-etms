@@ -3,10 +3,10 @@ package com.jd.bluedragon.distribution.rest.sendprint;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.external.service.DmsSendPrintService;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -16,7 +16,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -41,8 +40,7 @@ public class SendPrintResource implements DmsSendPrintService {
 	private SendPrintService sendPrintService;
 
     @Autowired
-    @Qualifier("waybillQueryApiJsf")
-    private WaybillQueryApi asyncWaybillQueryApi;
+    WaybillQueryManager waybillQueryManager;
 
 	@POST
 	@GZIP
@@ -220,7 +218,7 @@ public class SendPrintResource implements DmsSendPrintService {
         List<ResponseFuture<BaseEntity<BigWaybillDto>>> middles=new ArrayList<ResponseFuture<BaseEntity<BigWaybillDto>>>(145);
         for (String parameter:parameters) {
             //parameters.add(String.valueOf(index));
-            asyncWaybillQueryApi.getDataByChoice(parameter,queryWChoice);
+            waybillQueryManager.getDataByChoice(parameter,queryWChoice);
             ResponseFuture<BaseEntity<BigWaybillDto>> responseFuture= RpcContext.getContext().getFuture();
             middles.add(responseFuture);
         }
@@ -328,4 +326,33 @@ public class SendPrintResource implements DmsSendPrintService {
 		}
 		return sendPrintService.selectBoxBySendCode(batchSends);
 	}
+
+    @POST
+    @GZIP
+    @Path("/sendprint/newBasicPrintQuery")
+    public BasicQueryEntityResponse newBasicPrintQuery(PrintQueryCriteria criteria) {
+        if(check(criteria)){
+            BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
+            tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tBasicQueryEntityResponse.setMessage("查询参数不全");
+            tBasicQueryEntityResponse.setData(null);
+            return tBasicQueryEntityResponse;
+        }
+        return sendPrintService.newBasicPrintQuery(criteria);
+    }
+
+
+    @POST
+    @GZIP
+    @Path("/sendprint/newBatchSummaryPrint")
+    public SummaryPrintResultResponse newBatchSummaryPrint(PrintQueryCriteria criteria) {
+        if(check(criteria)){
+            SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
+            tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tSummaryPrintResultResponse.setMessage("查询参数不全");
+            tSummaryPrintResultResponse.setData(null);
+            return tSummaryPrintResultResponse;
+        }
+        return sendPrintService.newBatchSummaryPrintQuery(criteria);
+    }
 }

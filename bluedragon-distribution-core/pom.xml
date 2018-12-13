@@ -22,10 +22,18 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.0.5-SNAPSHOT</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.18</etms.waybill.agent.version>
+		<!-- 用于源码tag -->
+		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
+		<project.scm.id>xnqlarch-gitlab</project.scm.id>
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>ql-dms-report</groupId>
+			<artifactId>report-sdk</artifactId>
+			<version>1.0.2-SNAPSHOT</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -119,7 +127,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.1.4-SNAPSHOT</version>
+			<version>1.2.2-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>bluedragon-distribution-utils</artifactId>
+			<version>1.0.4-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -373,7 +386,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.30-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
@@ -735,7 +748,7 @@
         <dependency>
             <groupId>com.jd.user.sdk</groupId>
             <artifactId>user-sdk-export</artifactId>
-            <version>0.5.7-SNAPSHOT</version>
+            <version>1.0.6-SNAPSHOT</version>
         </dependency>
 
         <!-- 主键生成服务 -->
@@ -783,7 +796,13 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.51-SNAPSHOT</version>
+			<version>1.2.103-SNAPSHOT</version>
+		</dependency>
+		<!-- 理赔系统接口 -->
+		<dependency>
+			<groupId>com.jd.obcs.api</groupId>
+			<artifactId>obcs-claim-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>
@@ -801,7 +820,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.0.4-SNAPSHOT</version>
+			<version>1.0.6-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -816,7 +835,23 @@
 			<artifactId>jtrace-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-    </dependencies>
+
+		<dependency>
+			<groupId>com.jd.jp.assemble</groupId>
+			<artifactId>jp-assemble-sdk</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+            <classifier>jdk16</classifier>
+        </dependency>
+
+	</dependencies>
+
+	<scm>
+		<url>http://git.jd.com/ql-zy-dms/ql-dms-distribution</url>
+		<connection>scm:git:http://git.jd.com/ql-zy-dms/ql-dms-distribution.git</connection>
+		<developerConnection>scm:git:git@git.jd.com:ql-zy-dms/ql-dms-distribution.git</developerConnection>
+		<tag>HEAD</tag>
+	</scm>
+
 
 	<build>
 		<plugins>
@@ -850,6 +885,19 @@
                         <additionalClasspathElement>${project.basedir/src/main/resources</additionalClasspathElement>
                     </additionalClasspathElements>
                     -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>3.4.0.905</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-scm-plugin</artifactId>
+				<version>1.11.1</version>
+				<configuration>
+					<tag>v_${project.version}_${maven.build.timestamp}</tag>
 				</configuration>
 			</plugin>
 		</plugins>

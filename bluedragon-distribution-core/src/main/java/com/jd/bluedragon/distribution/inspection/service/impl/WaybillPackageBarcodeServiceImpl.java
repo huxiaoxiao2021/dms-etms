@@ -1,12 +1,13 @@
 package com.jd.bluedragon.distribution.inspection.service.impl;
 
+import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.PackageResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -16,8 +17,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +32,10 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 
 	/*运单查询*/
 	@Autowired
-	WaybillQueryApi waybillQueryApi;
+	WaybillQueryManager waybillQueryManager;
 
 	@Autowired
-	WaybillPackageApi waybillPackageApi;
+	WaybillPackageManager waybillPackageManager;
 	
 	private final static Logger logger = Logger.getLogger(WaybillPackageBarcodeServiceImpl.class);
 	
@@ -49,7 +48,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		WChoice wChoice = new WChoice();
 		wChoice.setQueryWaybillC(true);
 		wChoice.setQueryPackList(true);
-		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity = waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+		BaseEntity<com.jd.etms.waybill.dto.BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
 		
 		if(null==entity){
 			logger.info(" Waybill wss: 运单接口waybillQueryWSProxy.getDataByChoice ,调用返回空，运单不存在， waybillCode: "+waybillCode);
@@ -93,11 +92,11 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		WaybillResponse waybillResponse = new WaybillResponse();
 
 		//根据规则查出是包裹还是运单
-		if(BusinessHelper.isPackageCode(code) || BusinessHelper.isPickupCode(code)){//如果是包裹或者取件单则调用getWaybillByPackCode方法查询
+		if(WaybillUtil.isPackageCode(code) || WaybillUtil.isSurfaceCode(code)){//如果是包裹或者取件单则调用getWaybillByPackCode方法查询
 			
 			waybillResponse = this.wssGetWaybillByPackCode(waybillResponse,code, siteCode, receiveSiteCode);
 			
-		}else if( BusinessHelper.isWaybillCode(code)){//如果是运单则调用getWaybillAndPackByWaybillCode方法查询
+		}else if( WaybillUtil.isWaybillCode(code)){//如果是运单则调用getWaybillAndPackByWaybillCode方法查询
 
 			waybillResponse = this.getWaybillAndPackByWaybillCode(waybillResponse,code,siteCode,receiveSiteCode);
 		}else{
@@ -154,7 +153,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 * @return
 	 */
 	private WaybillResponse wssGetWaybillByPackCode(WaybillResponse waybillResponse,String code, Integer siteCode, Integer receiveSiteCode) {
-		BaseEntity<Waybill> entity = waybillQueryApi.getWaybillByPackCode(code);
+		BaseEntity<Waybill> entity = waybillQueryManager.getWaybillByPackCode(code);
 		if(null==entity){
 			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) fail that entity is null . package barcode: "+code);
 			return waybillResponse;
@@ -170,7 +169,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 		
 		if( null==waybill || StringUtils.isBlank(waybill.getWaybillCode()) ){
 			logger.error(" Waybill wss: waybillWSInfoProxy.getWaybillByPackCode(code) error. waybill is null,package barcode: "+code);
-			pack =new PackageResponse(BusinessHelper.getWaybillCodeByPackageBarcode(code), code, null, null);
+			pack =new PackageResponse(WaybillUtil.getWaybillCode(code), code, null, null);
 			List<PackageResponse> responseList = new ArrayList<PackageResponse>();
 			responseList.add(pack);
 			waybillResponse.setPackages(responseList);
@@ -216,7 +215,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	 */
 	@Override
 	public Map<String, List<DeliveryPackageD>> getPackageBarcodeByWaybillCodeBatch(List<String> waybillCodes) {
-		BaseEntity<Map<String, List<DeliveryPackageD>>> entity = waybillPackageApi.batchGetPackListByCodeList(waybillCodes);
+		BaseEntity<Map<String, List<DeliveryPackageD>>> entity = waybillPackageManager.batchGetPackListByCodeList(waybillCodes);
 		if(entity.getResultCode()!=1)	throw new InspectionException(" batchGetPackListByCodeList is empty , parameter waybillCodes: "+waybillCodes);
 		Map<String, List<DeliveryPackageD>> map = entity.getData();
 		return map;

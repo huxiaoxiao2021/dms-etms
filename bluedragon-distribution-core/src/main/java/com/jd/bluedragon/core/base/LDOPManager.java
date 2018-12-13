@@ -1,6 +1,11 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
+import com.jd.ldop.center.api.reverse.dto.ReturnSignatureResult;
+import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
@@ -57,5 +62,25 @@ public interface LDOPManager {
      */
     List<WaybillPrintDataDTO> getPrintDataForCityOrder(String customerCode, String waybillCode);
 
+    /**
+     * 根据旧单号获取新单号
+     * @param dto 旧单号对象
+     * @return
+     */
+    ResponseDTO<ReturnSignatureResult> waybillReturnSignature(WaybillReturnSignatureDTO dto);
 
-    }
+    /**
+     * 根据运单号获得运单信息
+     * @param waybillCode 运单号
+     * @return
+     */
+    ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode);
+
+    /**
+     * 组装换单对象 支持二次换单
+     * @param exchangeWaybillDto
+     * @return
+     */
+    WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto);
+
+}

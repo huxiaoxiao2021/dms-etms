@@ -45,13 +45,6 @@ public interface DeliveryService {
 	void pushSorting(SendM domain);
 
 	/**
-	 * 校验批次号是否封车:默认返回false
-	 * @param sendCode
-	 * @return
-	 */
-	boolean checkSendCodeIsSealed(String sendCode);
-
-	/**
 	 * 一车一单离线发货
 	 * @param domain
      * @return
@@ -351,9 +344,9 @@ public interface DeliveryService {
 
 	/**
 	 * 原包分拣发货
-	 * @param sendMList
+	 * @param sendM
 	 */
-    void packageSortSend(List<SendM> sendMList);
+    void packageSortSend(SendM sendM);
 	/**
 	 *  查询发货记录
 	 * @param sendCode 批次号
@@ -362,4 +355,13 @@ public interface DeliveryService {
 	 * @return
 	 */
     List<SendM> getSendMBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode);
+
+
+	/**
+	 *  快运发货金鹏订单拦截提示
+	 * @param siteCode 站点id
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
 }

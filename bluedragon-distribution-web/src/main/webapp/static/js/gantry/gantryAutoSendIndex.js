@@ -116,6 +116,69 @@ $(document).ready(function () {
 
     });
 
+    /** 龙门架批次打印 **/
+    $("#printBatch").click(function () {
+
+        /** 获取要打印的批次数据 **/
+        var list = [];
+        $("input[name=item]:checked").each(function () {
+            var param = {};
+            param.createSiteCode =  $(this).parents("tr").find("[name=createSite]").attr("title");
+            param.createSiteName =  $(this).parents("tr").find("[name=createSite]").text();
+            param.receiveSiteName = $(this).parents("tr").find("[name=receiveSite]").text();
+            param.sendCode = $(this).parents("tr").find("[name=sendCode]").text();
+            param.packageSum = $(this).parents("tr").find("[name=packageSum]").text();
+
+            list.push(param);
+        });
+        if (list.length < 1) {
+            jQuery.messager.alert("提示", "请选择要打印的批次");
+        }
+
+        /** 调用打印批次组件 **/
+        labelPrint(list);
+
+    });
+
+    /** 龙门架批次打印调用组件*/
+    labelPrint = function(list){
+        for(var i=0;i<list.length;i++){
+
+            var param=list[i];
+            var labelPrintRequst = new Object();
+            labelPrintRequst['systemCode'] = 'dms';
+            labelPrintRequst['businessType'] = 'dms-sendBarcode';
+            labelPrintRequst['siteCode'] =param.createSiteCode;
+            labelPrintRequst['siteName'] = param.createSiteName;
+
+            var labelParams=new Object();
+            labelParams.SendCode=param.sendCode;
+            labelParams.receiveSiteName=param.receiveSiteName;
+            labelParams.createSiteName=param.createSiteName;
+            labelParams.SumNum=param.packageSum;
+
+            labelPrintRequst['labelParams']=labelParams;
+
+            var formJson = JSON.stringify(labelPrintRequst);
+            var labelPrintUrl = 'http://localhost:9099/services/label/print';
+            /*提交表单*/
+            CommonClient.asyncPost(labelPrintUrl,formJson,function (res) {
+                if(res != null && res.status=== 200){
+                    var result=$.parseJSON(res.responseText);
+                    if (result.code===200) {
+                        console.log("调用结果", "调用打印成功");
+                    }else{
+                        jQuery.messager.alert("提示", "请求发送成功但是调用打印组件失败", res.statusText.message);
+                    }
+                }else {
+                    jQuery.messager.alert("提示", "服务器异常", res.statusText);
+                }
+            });
+        }
+
+    };
+
+
     /** 换批次按钮点击事件 **/
     $("#generateSendCodeBtn").click(function () {
         //得到勾选框的值
@@ -280,6 +343,7 @@ function gantryStateInit(gantryConfig) {
     var inspectionObj = $("#inspection");   //验货复选框
     var sendObj = $("#send");               //发货复选框
     var measureObj = $("#measure");         //量方复选框
+    var paymeasureObj = $("#paymeasure");   //应付量方复选框
     if (gantryConfig != null && gantryConfig.lockStatus != null && gantryConfig.businessType != null) {
         var businessType = gantryConfig.businessType; //龙门架的操作类型 按位求于,1验货，2发货，4量方。5验货+量方。6发货+量方 添加3验货+发货
         var lockStatus = gantryConfig.lockStatus;     //锁定状态 0释放状态 1启用状态
@@ -320,6 +384,29 @@ function gantryStateInit(gantryConfig) {
                 sendObj.prop("checked", true);
                 measureObj.prop("checked", true);
                 inspectionObj.attr("disabled", true);
+                break;
+            case 8 :
+                inspectionObj.prop("checked", false);
+                sendObj.prop("checked", false);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                measureObj.attr("disable",true);
+                break;
+            case 9 :
+                inspectionObj.prop("checked", true);
+                sendObj.prop("checked", false);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                sendObj.attr("disable",true);
+                measureObj.attr("disable",true);
+                break;
+            case 10 :
+                inspectionObj.prop("checked", false);
+                sendObj.prop("checked", true);
+                measureObj.prop("checked", false);
+                paymeasureObj.prop("checked",true);
+                inspectionObj.attr("disable",true);
+                measureObj.attr("disable",true);
                 break;
         }
         if ((businessType & 2) == 2) {//是否包含发货功能
@@ -394,8 +481,11 @@ function enOrDisGantry(params) {
         if (params.businessType == 4) {
             jQuery.messager.alert("错误：", "‘量方’不可单独使用！！！", "error");
             return;
-        } else if (params.businessType == 3 || params.businessType == 7) {
+        }else if (params.businessType == 3 || params.businessType == 7) {
             jQuery.messager.alert("错误：", "‘发货’、‘验货’不可同时使用！！！", "error");
+            return;
+        }else if(params.businessType == 12 || params.businessType == 13 || params.businessType == 14 || params.businessType == 15){
+            jQuery.messager.alert("错误：", "‘量方’、‘应付量方’不可同时使用！！！", "error");
             return;
         } else if (params.businessType == 0) {
             return;
@@ -460,6 +550,30 @@ function getGantryParams(lockStatus) {
 
         case 7:
             operateTypeRemark = "验货+发货+量方";
+            break;
+        case 8:
+            operateTypeRemark = "应付量方";
+            break;
+        case 9:
+            operateTypeRemark = "验货+应付量方";
+            break;
+        case 10:
+            operateTypeRemark = "发货+应付量方";
+            break;
+        case 11:
+            operateTypeRemark = "验货+发货+应付量方";
+            break;
+        case 12:
+            operateTypeRemark = "量方+应付量方";
+            break;
+        case 13:
+            operateTypeRemark = "验货+量方+应付量方";
+            break;
+        case 14:
+            operateTypeRemark = "发货+量方+应付量方";
+            break;
+        case 15:
+            operateTypeRemark = "验货+发货+量方+应付量方";
             break;
         default:
             break;
@@ -544,6 +658,7 @@ function queryBatchSendCodes(params) {
                 })
                 temp += "<tr id='" + (i + 1) + "'>";
                 temp += "<td><input type='checkbox' name='item'></td>";
+                temp += "<td name='createSite' title='" +list[i].createSiteCode+ "' style='display:none'>" + list[i].createSiteName + "</td>";
                 temp += "<td name='receiveSite' title='" + list[i].receiveSiteCode + "'>" + list[i].receiveSiteName + "</td>";
                 temp += "<td name='sendCode'>" + list[i].sendCode + "</td>";
                 temp += "<td name='packageSum'>" + packageSum + "</td>";

@@ -1,41 +1,21 @@
 package com.jd.bluedragon.distribution.worker.sorting;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class SortingTask extends DBSingleScheduler {
     
     private final Log logger = LogFactory.getLog(this.getClass());
 
-    private static final String SPLIT_CHAR="$";
-
     @Autowired
     private SortingService sortingService;
-    
+
 	@Override
 	public boolean executeSingleTask(Task task, String ownSign) throws Exception {
-		boolean result = false;
-		try {
-            this.logger.info("task id is " + task.getId());
-            result = this.sortingService.doSorting(task);
-        } catch (Exception e) {
-            StringBuilder builder=new StringBuilder("task id is");
-            builder.append(task.getId());
-            builder.append(SPLIT_CHAR).append(task.getBoxCode());
-            builder.append(SPLIT_CHAR).append(task.getKeyword1());
-            builder.append(SPLIT_CHAR).append(task.getKeyword2());
-            this.logger.error(builder.toString());
-            this.logger.error("处理分拣任务发生异常，异常信息为：" + e.getMessage(), e);
-            return Boolean.FALSE;
-        }
-		return result;
+        return sortingService.processTaskData(task);
 	}
-
-
-
 }

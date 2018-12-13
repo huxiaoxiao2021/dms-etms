@@ -22,6 +22,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
         return "/base/dmsStorageArea";
@@ -234,6 +236,22 @@ public class DmsStorageAreaController extends DmsBaseController{
             }
         } catch (Exception e) {
             this.logger.error("加载站点失败areaId：" + areaId + "provinceId:" + provinceId + "cityId:" + cityId, e);
+        }
+        return allDms;
+    }
+    /**
+     * 获取所有分拣中心信息
+     *
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/getAllSiteList")
+    public Object getAllSiteList() {
+        List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
+        try {
+            allDms.addAll(siteService.getAllDmsSite());
+        } catch (Exception e) {
+            this.logger.error("加载站点失败：", e);
         }
         return allDms;
     }

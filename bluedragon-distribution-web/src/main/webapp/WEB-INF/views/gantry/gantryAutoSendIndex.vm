@@ -114,6 +114,7 @@
                                 <td><label><input type="checkbox" name="businessType" id="inspection" value="1" class="checkbox"><span>验货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="send" value="2" class="checkbox"><span>发货</span></label></td>
                                 <td><label><input type="checkbox" name="businessType" id="measure" value="4" class="checkbox"><span>量方</span></label></td>
+                                <td><label><input type="checkbox" name="businessType" id="paymeasure" value="8" class="checkbox"><span>应付量方</span></label></td>
                             </tr>
                             <tr>
                                 <td colspan="3">
@@ -136,7 +137,7 @@
                         <table>
                             <tr>
                                 <td colspan="3" class="divTitle">打印功能：</td>
-                                <td><input type="button" class="btn_c" value="设置打印机" id="printSetting" onclick="printSettingPopUp()"></td>
+                                <td><input type="button" class="btn_c" value="打印批次" id="printBatch" ></td>
                                 <td></td>
                             </tr>
                             <tr>
@@ -180,6 +181,7 @@
                         <thead>
                         <tr>
                             <th class="checkboxArea"><input type="checkbox" id="all" name="all" value="all" class="checkbox"><label for="all">全选</label></th>
+                            <th style='display:none'>发货站点</th>
                             <th>批次目的地</th>
                             <th>批次号</th>
                             <th>包裹数量</th>

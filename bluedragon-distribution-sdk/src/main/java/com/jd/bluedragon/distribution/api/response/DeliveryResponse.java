@@ -72,6 +72,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_Delivery_TRANSIT = 30006;
     public static final String MESSAGE_Delivery_TRANSIT = "箱号与目的地不一致，是否发货？";
 
+    public static final Integer CODE_Delivery_SAVE = 30008;
+    public static final String MESSAGE_Delivery_SAVE = "此单请先暂存，运单集齐后发货";
+
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
     public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "运单不齐是否强制发货？";
@@ -83,6 +86,12 @@ public class DeliveryResponse extends JdResponse {
      * 快运-拦截标识
      */
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
+
+    /**
+     * B网包装耗材服务确认标识，与Ver提示保持一致
+     */
+    public static final Integer CODE_29120 = 29120;
+    public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
     public DeliveryResponse() {
         super();

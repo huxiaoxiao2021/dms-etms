@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.auto.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDestPlanDetail;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestPlanDetailService;
 import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
@@ -19,9 +22,11 @@ import com.jd.bluedragon.distribution.gantry.service.GantryDeviceService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -76,6 +81,9 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
     @Autowired
     WaybillService waybillService;
+
+    @Autowired
+    SysConfigService sysConfigService;
 
     /**
      * 此处只能使用@Resource注解，使用@Autowired会报错
@@ -134,7 +142,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean getSortMachineAutoSendConfig(UploadData domain, GantryDeviceConfig config) {
         String barCode = domain.getBarCode();
-        if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+        if (!BusinessUtil.isBoxcode(barCode)) {
             // 获取运单号
             String waybillCode = SerialRuleUtil.getWaybillCode(barCode);
             // 判断是否为拦截订单
@@ -166,7 +174,26 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             this.addGantryException(domain, config, 24, null);
             return false;
         }
-        config.setSendCode(scannerFrameBatchSendService.getAndGenerate(domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode());
+
+        /*
+            获取sysConfig中CONFIG_NAME 为 "sortMachine.autoSend.sendCode.auto.change" 的CONFIG_CONTENT，
+            其中CONFIG_CONTENT中维护的是开启分拣机自动发货的封车自动换批次的分拣中心所属的分拣机代码
+         */
+        String sendCode = "";
+        SysConfig sysConfig = sysConfigService.findConfigContentByConfigName
+                (Constants.SYS_CONFIG_SORT_MACHINE_AUTO_CHANGE_SEND_CODE);
+        if (null != sysConfig && StringHelper.isNotEmpty(sysConfig.getConfigContent())
+                && Arrays.asList(sysConfig.getConfigContent().split(",")).contains(domain.getRegisterNo())) {
+            //开关为开启状态
+            sendCode = scannerFrameBatchSendService.getOrGenerate
+                    (domain.getScannerTime(), domain.getSendSiteCode(), config, domain.getPackageCode()).getSendCode();
+        } else {
+            //开关没有开启
+            sendCode = scannerFrameBatchSendService.getAndGenerate
+                    (domain.getScannerTime(), domain.getSendSiteCode(), config).getSendCode();
+        }
+
+        config.setSendCode(sendCode);
         return true;
     }
 
@@ -219,7 +246,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
      */
     private boolean doGetSendCode(UploadData domain, GantryDeviceConfig config) throws Exception {
         // 判断条码是箱号还是包裹号
-        if (SerialRuleUtil.isMatchBoxCode(domain.getBarCode())) {
+        if (BusinessUtil.isBoxcode(domain.getBarCode())) {
             // 箱号
             this.printInfoLog("龙门架自动发货判断货物类型registerNo={0},operateTime={1},barCode={2}|结果为箱子", domain.getRegisterNo(), domain.getScannerTime(), domain.getBarCode());
             // 获取目的站点
@@ -479,7 +506,7 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
             GantryException gantryException = new GantryException();
             gantryException.setMachineId(String.valueOf(machineId));
             gantryException.setBarCode(barCode);
-            if (!SerialRuleUtil.isMatchBoxCode(barCode)) {
+            if (!BusinessUtil.isBoxcode(barCode)) {
                 gantryException.setPackageCode(barCode);
                 gantryException.setWaybillCode(SerialRuleUtil.getWaybillCode(barCode));
             }

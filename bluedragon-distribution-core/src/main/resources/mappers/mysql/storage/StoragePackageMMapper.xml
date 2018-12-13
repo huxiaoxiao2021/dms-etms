@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.storage.dao.StoragePackageMDao">
+
+	<resultMap id="StoragePackageM" type="com.jd.bluedragon.distribution.storage.domain.StoragePackageM" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="performance_code" property="performanceCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="storage_code" property="storageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_sum" property="packageSum" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="putaway_package_sum" property="putawayPackageSum" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="force_send_reason" property="forceSendReason" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="plan_delivery_time" property="planDeliveryTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_time" property="sendTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="putaway_time" property="putawayTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,performance_code,storage_code,waybill_code,package_sum,putaway_package_sum,
+		status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,send_time,putaway_time,
+		create_user,create_time,update_user,update_time,is_delete,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
+		insert into storage_package_m
+			(
+			<trim suffixOverrides=",">
+
+				<if test="performanceCode != null">
+					performance_code,
+				</if>
+				<if test="storageCode != null">
+					storage_code,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="packageSum != null">
+					package_sum,
+				</if>
+				<if test="putawayPackageSum != null">
+					putaway_package_sum,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="forceSendReason != null">
+					force_send_reason,
+				</if>
+				<if test="planDeliveryTime != null">
+					plan_delivery_time,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_name,
+				</if>
+				<if test="putawayTime != null">
+					putaway_time,
+				</if>
+				<if test="sendTime != null">
+					send_time,
+				</if>
+
+					create_user,
+
+					create_time,
+
+					update_user,
+
+					update_time,
+
+					is_delete,
+
+					ts
+
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+
+				<if test="performanceCode != null">
+					#{performanceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="storageCode != null">
+					#{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageSum != null">
+					#{packageSum,jdbcType=BIGINT},
+				</if>
+				<if test="putawayPackageSum != null">
+					#{putawayPackageSum,jdbcType=BIGINT},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=BIGINT},
+				</if>
+				<if test="forceSendReason != null">
+					#{forceSendReason,jdbcType=VARCHAR},
+				</if>
+				<if test="planDeliveryTime != null">
+					#{planDeliveryTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="putawayTime != null">
+					#{putawayTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="sendTime != null">
+					#{sendTime,jdbcType=TIMESTAMP},
+				</if>
+
+				#{createUser,jdbcType=VARCHAR},
+
+				now(),
+
+				#{updateUser,jdbcType=VARCHAR},
+
+				now(),
+				0,
+				now()
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into storage_package_m
+			(
+				performance_code,storage_code,waybill_code,package_sum,
+				putaway_package_sum,status,force_send_reason,plan_delivery_time,create_site_code,create_site_name,putaway_time,
+				send_time,create_user,create_time,update_user,update_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.performanceCode,jdbcType=VARCHAR},
+					#{item.storageCode,jdbcType=VARCHAR},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.packageSum,jdbcType=BIGINT},
+					#{item.putawayPackageSum,jdbcType=BIGINT},
+					#{item.status,jdbcType=INTEGER},
+					#{item.forceSendReason,jdbcType=VARCHAR},
+					#{item.planDeliveryTime,jdbcType=TIMESTAMP},
+					#{item.createSiteCode,jdbcType=BIGINT},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.putawayTime,jdbcType=TIMESTAMP},
+					#{item.sendTime,jdbcType=TIMESTAMP},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateUser,jdbcType=VARCHAR},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
+		update storage_package_m
+			<set>
+				<if test="performanceCode != null">
+					performance_code = #{performanceCode,jdbcType=VARCHAR},
+				</if>
+				<if test="storageCode != null">
+					storage_code = #{storageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageSum != null">
+					package_sum = #{packageSum,jdbcType=BIGINT},
+				</if>
+				<if test="putawayPackageSum != null">
+					putaway_package_sum = #{putawayPackageSum,jdbcType=BIGINT},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=INTEGER},
+				</if>
+				<if test="forceSendReason != null">
+					force_send_reason = #{forceSendReason,jdbcType=VARCHAR},
+				</if>
+				<if test="planDeliveryTime != null">
+					plan_delivery_time = #{planDeliveryTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="putawayTime != null">
+					putaway_time = #{putawayTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="sendTime != null">
+					send_time = #{sendTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update storage_package_m
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update storage_package_m
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+
+	<update id="updateForceSendByPerformanceCodes" parameterType="List">
+		update storage_package_m
+		set status = 3
+		where performance_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+		and status = 1
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="StoragePackageM">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_m 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM" resultMap="StoragePackageM">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_m 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<sql id="Query_Params_Condition_Sql">
+		<if test="createSiteCode != null">
+			and create_site_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="putawayDateGE != null and putawayDateLE !=null">
+			and update_time BETWEEN #{putawayDateGE} and #{putawayDateLE}
+		</if>
+		<if test="putawayDateGE != null and putawayDateLE ==null">
+			and  <![CDATA[   update_time >= #{putawayDateGE}  ]]>
+		</if>
+		<if test="putawayDateGE == null and putawayDateLE !=null">
+			and  <![CDATA[   update_time <= #{putawayDateLE}  ]]>
+		</if>
+
+		<if test="performanceCode != null">
+			and performance_code = #{performanceCode,jdbcType=VARCHAR}
+		</if>
+
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+
+		<if test="storageCode != null">
+			and storage_code like CONCAT('%',#{storageCode,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="status != null">
+			and status = #{status,jdbcType=TINYINT}
+		</if>
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  storage_package_m 
+		where 1=1
+
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="StoragePackageM">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  storage_package_m 
+		where 1=1
+
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
+		order by performance_code,create_time
+
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryByWaybillCode" parameterType="String" resultMap="StoragePackageM">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_m
+		where
+		waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPerformanceCode" parameterType="String" resultMap="StoragePackageM">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		storage_package_m
+		where
+		performance_code = #{performanceCode}
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
+	<update id="updatePutawayPackageSum" parameterType="com.jd.bluedragon.distribution.storage.domain.StoragePackageM">
+		UPDATE storage_package_m
+		SET putaway_package_sum = putaway_package_sum + 1,
+		storage_code = #{storageCode},
+		putaway_time = #{putawayTime},
+		update_user = #{updateUser},
+		update_time = now()
+		WHERE  waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
+	<update id="updateStoragePackageMStatusForSendOfWaybill" parameterType="String">
+		UPDATE storage_package_m
+		SET status = 2
+		WHERE  waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
+	<update id="updateStoragePackageMStatusForSendOfPackage" parameterType="String">
+		UPDATE storage_package_m
+		SET status = 2
+		WHERE  waybill_code = #{waybillCode}
+		AND putaway_package_sum = package_sum
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
+
+	<update id="updateStoragePackageMStatusForSendOfPerformanceCode" parameterType="String">
+		UPDATE storage_package_m
+		SET status = 2
+		WHERE  performance_code = #{performanceCode}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
+	<update id="updateStoragePackageMStatusForBeSendOfPWaybill" parameterType="String">
+		UPDATE storage_package_m
+		SET status = 4
+		WHERE  waybill_code = #{waybillCode}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+</mapper>

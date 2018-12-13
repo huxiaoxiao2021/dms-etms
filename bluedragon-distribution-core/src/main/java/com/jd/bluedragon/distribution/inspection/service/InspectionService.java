@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -127,4 +127,15 @@ public interface InspectionService {
 	 * @throws Exception
 	 */
 	public boolean popPrintInspection(Task task, String ownSign) throws Exception;
+
+	/**
+	 * 获取金鹏订单提示语
+	 * @param dmsSiteCode
+	 * @param waybillCode
+	 * @return
+	 */
+	String getHintMessage(Integer dmsSiteCode, String waybillCode);
+
+	/**分页查询验货任务*/
+	public List<Inspection> findPageInspection(Map<String,Object> params);
 }

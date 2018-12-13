@@ -198,7 +198,7 @@ public class DateHelper {
     }
 
     public static Date parseDate(String dateString, String format) {
-        if (format == null) {
+        if (dateString == null || format == null) {
             return null;
         }
 

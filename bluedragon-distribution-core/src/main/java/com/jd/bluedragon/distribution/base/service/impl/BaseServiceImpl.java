@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.UserVerifyManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
@@ -10,11 +11,11 @@ import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.UserVerifyService;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.product.service.ProductService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -25,7 +26,6 @@ import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -65,9 +65,6 @@ public class BaseServiceImpl implements BaseService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-
-	@Autowired
-	WaybillQueryApi waybillQueryApi;
 	
 	@Autowired
 	WaybillQueryManager waybillQueryManager;
@@ -101,22 +98,23 @@ public class BaseServiceImpl implements BaseService {
 	@Qualifier("basicSecondaryWSProxy")
 	private BasicSecondaryWSProxy basicSecondaryWSProxy;
 
+
     @Autowired
-    private UserVerifyService userVerifyService;
+	private UserVerifyManager userVerifyManager;
     
     @Autowired
 	private VtsQueryWS vtsQueryWS;
 
     @Override
-    public BasePdaUserDto pdaUserLogin(String userid, String password) {
+    public BasePdaUserDto pdaUserLogin(String userid, String password,ClientInfo clientInfo) {
         BasePdaUserDto basePdaUserDto = new BasePdaUserDto();
         if (log.isInfoEnabled()){
             log.info("用户登录新接口，用户名 " + userid);
         }
 
         if (StringHelper.isEmpty(userid) || StringHelper.isEmpty(password)) {
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-            basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+			basePdaUserDto.setErrorCode(Constants.PDA_USER_EMPTY);
+			basePdaUserDto.setMessage(Constants.PDA_USER_EMPTY_MSG);
             return basePdaUserDto;
         }
 
@@ -126,25 +124,26 @@ public class BaseServiceImpl implements BaseService {
             if (userid.contains(Constants.PDA_THIRDPL_TYPE)) {
                 String thirdUserId = userid.replaceAll(Constants.PDA_THIRDPL_TYPE, "");
                 // 京东用户组接口验证
-                if (userVerifyService.passportVerify(thirdUserId,password)) {
-                    // 用户组接口验证通过后，从基础资料获取具体信息
-                    BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
-                    if (null == baseStaffDto) {
-                        basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE );
-                        basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
-                    } else {
-                        fillPdaUserDto(basePdaUserDto, baseStaffDto,password);
-                    }
-                } else {
-                    basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
-                }
+				BasePdaUserDto basePdaUserDtoNew = userVerifyManager.passportVerify(thirdUserId, password, clientInfo);
+				if (basePdaUserDtoNew.getErrorCode().equals(Constants.PDA_USER_GETINFO_SUCCESS)) {
+					// 用户组接口验证通过后，从基础资料获取具体信息
+					BaseStaffSiteOrgDto baseStaffDto = baseMajorManager.getThirdStaffByJdAccountNoCache(thirdUserId);
+					if (null == baseStaffDto) {
+						basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
+						basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+					} else {
+						fillPdaUserDto(basePdaUserDto, baseStaffDto, password);
+					}
+				} else {
+					basePdaUserDto.setErrorCode(basePdaUserDtoNew.getErrorCode());
+					basePdaUserDto.setMessage(basePdaUserDtoNew.getMessage());
+				}
                 // 自营登录
             } else {
                 // 调用人事接口验证用户
-                //User user = userVerifyService.baseVerify(userid, password);
+                //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-            	UserInfo user = userVerifyService.baseVerify(userid, password);
+            	UserInfo user = userVerifyManager.baseVerify(userid, password);
                 if (null == user) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
                     basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
@@ -162,8 +161,8 @@ public class BaseServiceImpl implements BaseService {
             }
         } catch (Exception e) {
             log.error("user login error " + userid, e);
-            basePdaUserDto.setErrorCode(Constants.PDA_USER_GETINFO_FAILUE);
-            basePdaUserDto.setMessage(Constants.PDA_USER_GETINFO_FAILUE_MSG);
+			basePdaUserDto.setErrorCode(Constants.PDA_USER_ABNORMAL);
+			basePdaUserDto.setMessage(Constants.PDA_USER_ABNORMAL_MSG);
         }
         return basePdaUserDto;
     }
@@ -185,7 +184,7 @@ public class BaseServiceImpl implements BaseService {
     }
 
     @Override
-	public PdaStaff login(String erpcode, String password) {
+	public PdaStaff login(String erpcode, String password, ClientInfo clientInfo) {
 		// TODO Auto-generated method stub
 		/** 验证结果 */
 		PdaStaff result = new PdaStaff();
@@ -193,7 +192,7 @@ public class BaseServiceImpl implements BaseService {
 		// 测试接口代码 baseMinorServiceProxy.getServerDate() 取服务器时间
 		BasePdaUserDto pdadata = null;
 		try {
-			pdadata = pdaUserLogin(erpcode, password);
+			pdadata = pdaUserLogin(erpcode, password,clientInfo);
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}
@@ -208,7 +207,20 @@ public class BaseServiceImpl implements BaseService {
 				result.setErrormsg("基础信息服务异常");
 				// 返回结果
 				return result;
-			case 0:/** errorcode=0表示获取用户信息失败 */
+			case 1110: //无可用验证方式(命中风险检查)
+			case 1100: //需要验证(命中风险检查)
+			case 105: //ip在黑名单中
+			case 100://系统繁忙
+			case 14://账号已经注销
+			case 8://因安全原因账号被锁
+			case 7://未验证的企业用户
+			case 6://密码错误
+			case 3: //密码错误超过十次pin被锁
+			case 2://用户不存在
+			case 0: //获取基础资料数据失败
+			case -4: //用户名或密码为空
+			case -3://获取基础账号JSF数据失败
+			case -2://登录异常
 			case -1:
 				/** errorcode=-1表示验证失败 */
 				// 设置错误标示和错误信息
@@ -577,8 +589,7 @@ public class BaseServiceImpl implements BaseService {
 			wChoice.setQueryWaybillM(true);
 			wChoice.setQueryGoodList(true);
 			wChoice.setQueryPackList(true);
-			BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(orderCode,
-			        wChoice);
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(orderCode,wChoice);
 			if (baseEntity != null && baseEntity.getData() != null) {
 				reverseSendWms = convWaybill(baseEntity.getData());
 				if (reverseSendWms == null) {
@@ -642,7 +653,7 @@ public class BaseServiceImpl implements BaseService {
 				log.info("运单商品明细为空, 改调用订单接口");
 				//自营的订单才可以调用此接口
 				if(SerialRuleUtil.isMatchNumeric(waybillWS.getWaybillCode())){
-					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getWaybillCode()));
+					List<com.jd.bluedragon.distribution.product.domain.Product> productList = this.productService.getOrderProducts(Long.valueOf(waybillWS.getVendorId()));
 					for(com.jd.bluedragon.distribution.product.domain.Product prod: productList){
 						Product product = new Product();
 						product.setProductId(prod.getProductId());
@@ -671,7 +682,7 @@ public class BaseServiceImpl implements BaseService {
         reverseSendWms.setWaybillSign(bigWaybillDto.getWaybill().getWaybillSign());
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
         reverseSendWms.setBusiOrderCode(bigWaybillDto.getWaybill().getBusiOrderCode());
-
+		reverseSendWms.setOrderId(bigWaybillDto.getWaybill().getVendorId());
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {

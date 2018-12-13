@@ -1,28 +1,6 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
@@ -65,6 +43,27 @@ import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -74,6 +73,10 @@ public class BaseResource implements DmsBaseService {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 	private final String DMS = "dms";
+
+	private static final Integer parentGroup = 70550731;
+	private static final Integer nodeLevel = 2;
+	private static final Integer typeGroup = 70550731;
 
 	@Autowired
 	private BaseSetConfig baseSetConfig;
@@ -354,8 +357,17 @@ public class BaseResource implements DmsBaseService {
 
 		String erpAccount = request.getErpAccount();
 		String erpAccountPwd = request.getPassword();
+		ClientInfo clientInfo = null;
+		//初始化客户端信息
+		if(StringUtils.isNotBlank(request.getClientInfo())){
+			clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+			clientInfo.setLoginUserErp(erpAccount);
+		}else{
+			clientInfo = new  ClientInfo();
+			clientInfo.setLoginUserErp(erpAccount);
+		}
 		/** 进行登录验证 */
-		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd);
+		PdaStaff loginResult = baseService.login(erpAccount, erpAccountPwd,clientInfo);
 
 		// 处理返回结果
 		if (loginResult.isError()) {
@@ -375,15 +387,6 @@ public class BaseResource implements DmsBaseService {
 			// 验证完成，返回相关信息
 			this.logger.info("erpAccount is " + erpAccount + " 验证成功");
 			try{
-				ClientInfo clientInfo = null;
-				//初始化客户端信息
-				if(StringUtils.isNotBlank(request.getClientInfo())){
-		            clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
-		            clientInfo.setLoginUserErp(erpAccount);
-		        }else{
-		            clientInfo = new  ClientInfo();
-		            clientInfo.setLoginUserErp(erpAccount);
-		        }
 				//检查客户端版本信息，版本不一致，不允许登录
 	            JdResult<String> checkResult = checkClientInfo(clientInfo,loginResult);
 	            if(!checkResult.isSucceed()){
@@ -1445,6 +1448,25 @@ public class BaseResource implements DmsBaseService {
 		}
 	}
 
+	/**
+	 * 从基础资料中获取托寄物
+	 * */
+	@GET
+	@Path("/bases/getConsignments")
+	public InvokeResult<List<String>> getConsignments(){
+		InvokeResult result = new InvokeResult();
+		List<String> list = new ArrayList<String>();
+		DatadictResponse response =getOrignalBackBusIds(parentGroup,nodeLevel,typeGroup);
+		if(response != null && response.getCode() == JdResponse.CODE_OK){
+			for (BaseDatadict bd :response.getDatadicts()) {
+				list.add(bd.getTypeName());
+			}
+		}
+		result.setCode(JdResponse.CODE_OK);
+		result.setData(list);
+		return result;
+	}
+
 	@GET
 	@GZIP
 	@Path("/bases/store/{storeType}/{cky2}/{storeID}")
@@ -1719,3 +1741,5 @@ public class BaseResource implements DmsBaseService {
         return response;
     }
 }
+
+

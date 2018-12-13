@@ -6,7 +6,7 @@ $(function () {
     var queryUrl = '/transport/arSendRegister/listData';
     var getTransportInfoUrl = '/transport/arSendRegister/getTransportInfo';
     var getAllBusTypeUrl = '/transport/arSendRegister/getAllBusType';
-    var isloadTransInfo = false;
+    var isLoadTransInfo = false;
 
     /**
      * 获取所有车辆类型信息
@@ -345,7 +345,7 @@ $(function () {
     }
 
     var clearTransportInfo = function () {
-        isloadTransInfo = false;
+        isLoadTransInfo = false;
         $("#transCompany").text('');
         $("#transCompanyCode").text('');
         $("#startCityId").val('');
@@ -362,7 +362,7 @@ $(function () {
     }
 
     var setTransportInfo = function (data, type) {
-        isloadTransInfo = true;
+        isLoadTransInfo = true;
         $("#transCompany").text(data.transCompany == null ? "" : data.transCompany);
         $("#transCompanyCode").text(data.transCompanyCode == null ? "" : data.transCompanyCode);
         $("#startCityId").val(data.startCityId);
@@ -483,7 +483,7 @@ $(function () {
                     if (res && res.data) {
                         $('#id').val(res.data.id);
                         $('#transportNameEdit').val(res.data.transportName);
-                        $("#transportNameEdit").attr("disabled", true);
+                        // $("#transportNameEdit").attr("disabled", true);
                         if (res.data.orderCode != null && res.data.orderCode != '') {
                             $('#orderCodeEdit').val(res.data.orderCode);
                             $("#siteOrderEdit").attr("disabled", true);
@@ -502,7 +502,7 @@ $(function () {
                         setTransportInfo(res.data, 1);
                     }
                     //不允许修改字段
-                    $(".no-update").attr("readonly",true);
+                    $(".no-update").attr("readonly", true);
                 });
                 $('#dataTableDiv').hide();
                 $('#dataEditDiv').show();
@@ -540,7 +540,7 @@ $(function () {
                 $('#edit-form').bootstrapValidator('validate');
                 var isValid = $("#edit-form").data("bootstrapValidator").isValid();
                 if (isValid) {
-                    if (isloadTransInfo){
+                    if (isLoadTransInfo) {
                         var url;
                         var id = $('#id').val();
                         if (id != null && id != '') {
@@ -569,7 +569,7 @@ $(function () {
                                 $('#dataEditDiv').hide();
                                 $('#dataTableDiv').show();
                                 //不允许修改字段
-                                $(".no-update").attr("readonly",false);
+                                $(".no-update").attr("readonly", false);
                             } else {
                                 alert(res.message);
                             }
@@ -588,7 +588,7 @@ $(function () {
                 $('#dataEditDiv').hide();
                 $('#dataTableDiv').show();
                 //不允许修改字段
-                $(".no-update").attr("readonly",false);
+                $(".no-update").attr("readonly", false);
             });
 
             $("#sendCode").keydown(function (event) {
@@ -598,7 +598,7 @@ $(function () {
                 }
             });
 
-            $("#orderCodeEdit").blur(function () {
+            $("#orderCodeEdit").change(function () {
                 $('#edit-form').bootstrapValidator('updateStatus', 'siteOrder', 'NOT_VALIDATED');
                 var orderCode = $(this).val();
                 if (orderCode != null && orderCode != '') {
@@ -624,7 +624,7 @@ $(function () {
                 }
             });
 
-            $("#siteOrderEdit").blur(function () {
+            $("#siteOrderEdit").change(function () {
                 $('#edit-form').bootstrapValidator('updateStatus', 'orderCode', 'NOT_VALIDATED');
                 var siteOrder = $(this).val();
                 if (siteOrder != null && siteOrder != '') {
@@ -647,6 +647,43 @@ $(function () {
                     }
                 } else {
                     $("#orderCodeEdit").attr("disabled", false);
+                }
+            });
+
+            $("#transportNameEdit").change(function () {
+                var transportName = $("#transportNameEdit").val();
+                if (transportName != null && transportName != '') {
+                    var orderCodeEdit = $("#orderCodeEdit");
+                    var siteOrderEdit = $("#siteOrderEdit");
+                    if (orderCodeEdit.attr("disabled") == undefined && siteOrderEdit.attr("disabled") == undefined) {
+                        return;
+                    }
+                    var param = {};
+                    if (siteOrderEdit.attr("disabled") == "disabled") {
+                        var orderCode = orderCodeEdit.val();
+                        if (orderCode != null && orderCode != '') {
+                            param["transportName"] = transportName;
+                            param["orderCode"] = orderCode;
+                        } else {
+                            return;
+                        }
+                    } else {
+                        var siteOrder = siteOrderEdit.val();
+                        if (siteOrder != null && siteOrder != '') {
+                            param["transportName"] = transportName;
+                            param["siteOrder"] = siteOrder;
+                        } else {
+                            return;
+                        }
+                    }
+                    $.ajaxHelper.doPostSync(getTransportInfoUrl, JSON.stringify(param), function (response) {
+                        clearTransportInfo();
+                        if (response.code == 200) {
+                            setTransportInfo(response.data, 2);
+                        } else {
+                            alert(response.message);
+                        }
+                    });
                 }
             });
         };

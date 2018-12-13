@@ -206,7 +206,12 @@ public class Waybill implements Serializable {
 	 * 发票数量
 	 */
 	private String importantHint;
+	/**
+	 * 自营订单号
+	 */
+	private String orderId;
 
+	private String busiOrderCode;
 
 	public String getWaybillCode() {
 		return this.waybillCode;
@@ -769,4 +774,19 @@ public class Waybill implements Serializable {
 		this.packageNum = packageNum;
 	}
 
+	public String getOrderId() {
+		return orderId;
+	}
+
+	public void setOrderId(String orderId) {
+		this.orderId = orderId;
+	}
+
+	public String getBusiOrderCode() {
+		return busiOrderCode;
+	}
+
+	public void setBusiOrderCode(String busiOrderCode) {
+		this.busiOrderCode = busiOrderCode;
+	}
 }

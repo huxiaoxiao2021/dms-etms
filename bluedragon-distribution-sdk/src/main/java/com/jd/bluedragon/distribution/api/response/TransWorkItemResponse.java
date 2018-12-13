@@ -14,6 +14,9 @@ public class TransWorkItemResponse extends NewSealVehicleResponse{
     /** 运输方式 */
     private Integer transType;
 
+    /** 派车明细简码	 */
+    private String transWorkItemCode;
+
     public TransWorkItemResponse(){
 
     }
@@ -36,5 +39,13 @@ public class TransWorkItemResponse extends NewSealVehicleResponse{
 
     public void setTransType(Integer transType) {
         this.transType = transType;
+    }
+
+    public String getTransWorkItemCode() {
+        return transWorkItemCode;
+    }
+
+    public void setTransWorkItemCode(String transWorkItemCode) {
+        this.transWorkItemCode = transWorkItemCode;
     }
 }
