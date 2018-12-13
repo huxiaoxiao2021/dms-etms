@@ -236,7 +236,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             Task task = new Task();
             task.setBoxCode(dto.getWaybillCode());
             task.setCreateSiteCode(null);
-            task.setKeyword1("dms_waybill_weight");
+            task.setKeyword1(weighByWaybillProducer.getTopic());
             task.setKeyword2(null);
             task.setTableName("task_message");
             task.setOwnSign(BusinessHelper.getOwnSign());
