@@ -708,6 +708,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
+        //waybill_sign标识位，第七十九位为2，打提字标
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
+        }
         //waybill_sign标识位，第二十九位为8，打C字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_C);
@@ -774,6 +778,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为5，一体化面单显示"微小件"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SMALL_PACKAGE);
+        }
+        //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
         }
         //拆包面单打印拆包员号码
         if(waybill.getWaybillExt() != null){

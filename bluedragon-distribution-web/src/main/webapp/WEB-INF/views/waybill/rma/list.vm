@@ -91,6 +91,8 @@
                             <input type="button" id="search" name="search" value="查询" class="btn_c"
                                    onclick="queryBtn(1)"/>
                             <input type="button" id="add" name="add" value="打印" class="btn_c" onclick="printBtn()"/>
+
+                            <input type="button" id="export" name="export" value="导出" class="btn_c" onclick="exportBtn()"/>
                         </td>
                     </tr>
                     </tbody>
