@@ -152,7 +152,7 @@ public class DeliveryResource implements DmsDeliveryService {
             if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
-                result.setData(deliveryService.boardSend(domain));
+                result.setData(deliveryService.boardSend(domain,request.getIsForceSend()));
             }else{//一车一单发货
                 domain.setBoxCode(request.getBoxCode());
                 if (request.getIsCancelLastSend() == null){
