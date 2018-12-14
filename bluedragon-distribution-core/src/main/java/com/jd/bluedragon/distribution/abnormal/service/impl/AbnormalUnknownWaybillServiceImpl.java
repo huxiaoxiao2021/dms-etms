@@ -547,8 +547,13 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                     data.add(abnormalUnknownWaybill);
                 }
                 pagerResult.setTotal(data.size());
-                int endIndex = (abnormalUnknownWaybillCondition.getOffset() + limit) > data.size() ? data.size() : (abnormalUnknownWaybillCondition.getOffset() + limit);
-                pagerResult.setRows(data.subList(abnormalUnknownWaybillCondition.getOffset(), endIndex));
+                if (limit == -1) {
+                    //导出的话，全部返回
+                    pagerResult.setRows(data);
+                } else {
+                    int endIndex = (abnormalUnknownWaybillCondition.getOffset() + limit) > data.size() ? data.size() : (abnormalUnknownWaybillCondition.getOffset() + limit);
+                    pagerResult.setRows(data.subList(abnormalUnknownWaybillCondition.getOffset(), endIndex));
+                }
                 return pagerResult;
             }
         } else {//如果没有查询结果，要补出前端输入的运单号
