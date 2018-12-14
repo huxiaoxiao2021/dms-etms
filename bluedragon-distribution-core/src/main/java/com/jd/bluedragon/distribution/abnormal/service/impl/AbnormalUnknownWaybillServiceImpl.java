@@ -21,7 +21,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
@@ -490,9 +489,9 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 body.add(abnormalUnknownWaybill.getTraderName());//商家名称
                 body.add(abnormalUnknownWaybill.getDmsSiteName());//机构名称
                 body.add(abnormalUnknownWaybill.getAreaName());//区域名称
-                body.add(abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
-                body.add(DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
-                body.add(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
+                body.add(abnormalUnknownWaybill.getIsReceipt() == null ? null : abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
+                body.add(abnormalUnknownWaybill.getReceiptTime() == null ? null : DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
+                body.add(abnormalUnknownWaybill.getReceiptFrom() == null ? null : AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
                 body.add(abnormalUnknownWaybill.getReceiptContent());
                 body.add(abnormalUnknownWaybill.getCreateUserName());
                 resList.add(body);
