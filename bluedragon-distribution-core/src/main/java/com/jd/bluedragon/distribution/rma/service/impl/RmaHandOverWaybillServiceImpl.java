@@ -195,6 +195,15 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Override
     public List<RmaHandoverPrint> getPrintInfo(List<Long> ids) {
+        Map<String, RmaHandoverPrint> result = getPrintInfoMap(ids);
+        if (result.size() > 0) {
+            return new ArrayList<RmaHandoverPrint>(result.values());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, RmaHandoverPrint> getPrintInfoMap(List<Long> ids) {
         List<RmaHandoverWaybill> rmaHandoverWaybills = this.getList(ids, true);
         Map<String, RmaHandoverPrint> result = new HashMap<String, RmaHandoverPrint>();
         for (RmaHandoverWaybill handoverWaybill : rmaHandoverWaybills) {
@@ -214,10 +223,8 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
                 result.put(key, printInfo);
             }
         }
-        if (result.size() > 0) {
-            return new ArrayList<RmaHandoverPrint>(result.values());
-        }
-        return Collections.emptyList();
+
+        return result;
     }
 
     @JProfiler(jKey = "DMSCORE.RmaHandOverWaybillServiceImpl.buildAndStorage", mState = {JProEnum.TP})

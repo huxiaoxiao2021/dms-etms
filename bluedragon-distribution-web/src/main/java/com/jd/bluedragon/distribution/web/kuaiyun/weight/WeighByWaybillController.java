@@ -116,7 +116,7 @@ public class WeighByWaybillController {
                 }
 
             } catch (Exception e) {
-                logger.error("运单称重：获取操作用户Erp账号失败");
+                logger.error("运单称重：获取操作用户Erp账号失败"+JsonHelper.toJson(erpUser),e);
             }
 
             service.insertWaybillWeightEntry(vo);

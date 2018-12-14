@@ -7,31 +7,40 @@ import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
 import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
+import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
+import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
+import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by zhanghao141 on 2018/9/18.
@@ -104,6 +113,7 @@ public class RmaHandOverController {
                 }
             } else {
                 response.toFail("获取当前登录用户信息失败，请重新登录ERP后尝试");
+                //queryParam.setCreateSiteCode(910); //TODO 上线删除 刘铎
                 return response;
             }
 
@@ -257,4 +267,74 @@ public class RmaHandOverController {
         }
         return rmaHandoverResponse;
     }
+
+    @RequestMapping(value = "/toExport")
+    public ModelAndView toExport(String sysnos, Model model) {
+        try {
+            getExportData(sysnos,model);
+            return new ModelAndView(new DefaultExcelView(), model.asMap());
+        } catch (Exception e) {
+            logger.error("toExport:" + e.getMessage(), e);
+            return null;
+        }
+    }
+
+
+
+    /**
+     * 组装导出数据
+     * @param sysnos
+     * @return
+     */
+    private List<List<Object>> getExportData(String sysnos,Model model) {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+
+        List<Object> heads = new ArrayList<Object>();
+
+        //"备件条码", "运单号", "出库单号", "商品编号", "商品名称", "异常备注"
+        heads.add("备件条码");
+        heads.add("运单号");
+        heads.add("出库单号");
+        heads.add("商品编号");
+        heads.add("商品名称");
+        heads.add("异常备注");
+        resList.add(heads);
+
+        String[] idsArray = sysnos.split(Constants.SEPARATOR_COMMA);
+        List<Long> idLs = new ArrayList<Long>();
+        for (String id : idsArray) {
+            Long idL = new Long(id);
+            idLs.add(idL);
+        }
+        Map<String, RmaHandoverPrint> rmaHandoverPrintMap = rmaHandOverWaybillService.getPrintInfoMap(idLs);
+
+        //能进来导出 就证明rmaHandoverPrints 集合只有一条数据，，根据他打印功能梳理出来的 导出只导出明细部分
+        if(rmaHandoverPrintMap.size() != 1){
+            logger.error("RMA交接清单导出存在异常数据"+sysnos);
+            return resList;
+        }
+        RmaHandoverPrint rmaHandoverPrint = null;
+        for(String key : rmaHandoverPrintMap.keySet()){
+            model.addAttribute("filename", key+".xls");
+            model.addAttribute("sheetname", "RMA交接清单");
+            rmaHandoverPrint = rmaHandoverPrintMap.get(key);
+        }
+        if(!rmaHandoverPrint.getHandoverDetails().isEmpty()){
+            for(RmaHandoverDetail rmaHandoverDetail : rmaHandoverPrint.getHandoverDetails()){
+                List<Object> body = new ArrayList<Object>();
+                body.add(rmaHandoverDetail.getSpareCode());
+                body.add(rmaHandoverDetail.getWaybillCode());
+                body.add(rmaHandoverDetail.getOutboundOrderCode());
+                body.add(rmaHandoverDetail.getSkuCode());
+                body.add(rmaHandoverDetail.getGoodName());
+                body.add(rmaHandoverDetail.getExceptionRemark());
+                resList.add(body);
+            }
+        }
+        model.addAttribute("contents", resList);
+        return resList;
+    }
+
+
 }
