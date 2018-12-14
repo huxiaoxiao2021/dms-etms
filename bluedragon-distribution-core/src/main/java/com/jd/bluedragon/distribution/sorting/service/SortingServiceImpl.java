@@ -35,6 +35,8 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -892,6 +894,23 @@ public class SortingServiceImpl implements SortingService {
 		if(logger.isDebugEnabled()){
 			logger.debug("B网建箱自动触发验货全程跟踪-验货任务插入条数:"+result+"条,请求参数:"+JsonHelper.toJson(task));
 		}
+        addBusinessLog(sorting,task);
+	}
+	/**
+	 * 记录业务日志
+	 *
+	 * @param sorting
+	 */
+	private void addBusinessLog(Sorting sorting,Task task) {
+		//写入自定义日志
+		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
+		businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_B_INSPECTION);
+		businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATE_TYPE_INSPECTION);
+		businessLogProfiler.setOperateRequest(JsonHelper.toJson(sorting));
+		businessLogProfiler.setOperateResponse(JsonHelper.toJson(task));
+		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
+		BusinessLogWriter.writeLog(businessLogProfiler);
 	}
 	/**
 	 * 1.补中转发货sendD发货数据并且发送全程跟踪
