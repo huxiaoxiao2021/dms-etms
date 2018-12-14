@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.reverse.dto.ReturnSignatureMessageDTO;
@@ -74,4 +75,12 @@ public interface LDOPManager {
      * @return
      */
     ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode);
-    }
+
+    /**
+     * 组装换单对象 支持二次换单
+     * @param exchangeWaybillDto
+     * @return
+     */
+    WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto);
+
+}

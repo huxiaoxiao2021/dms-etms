@@ -9,7 +9,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,6 +47,10 @@ public class SendDetailRouterDao extends SendDatailDao {
     public List<SendDetail> querySendDatailsByBoxCode(SendDetail tSendDatail) { //// FIXME: 2016/9/26
         if (null == tSendDatail || StringHelper.isEmpty(tSendDatail.getBoxCode())) {
             return new ArrayList<SendDetail>();
+        }
+        //如果传了站点，就只查当前站点的明细
+        if (tSendDatail.getCreateSiteCode()!=null){
+            return super.querySendDatailsByBoxCode(tSendDatail);
         }
         List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
         List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());

@@ -2,6 +2,7 @@ package com.jd.bluedragon.utils;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -354,5 +355,43 @@ public class BusinessHelper {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+    }
+
+    /**
+     * 划分理赔状态
+     * @param type
+     * @return
+     */
+    public static String getLPStatus(int type){
+        switch (type){
+            case 10:
+            case 20:
+            case 22:
+            case 30:
+            case 32:
+            case 50:
+            case 53:
+                //理赔中
+                //10-已保存,
+                //20-赔付审核中,,
+                //22-赔付审核通过,
+                //30-待商家确认,,
+                //32-商家已确认,,
+                //50-赔付中（已推送结算）,
+                //53-结算失败
+                return LocalClaimInfoRespDTO.LP_STATUS_DOING;
+            case 51:
+                //理赔完成
+                //51-已完成（结算成功）
+                return LocalClaimInfoRespDTO.LP_STATUS_DONE;
+        }
+        //无理赔状态
+        //21-赔付审核不通过
+        //31-商家拒绝
+        //40-已撤回,
+        //41-已取消
+        //90-已关闭
+        return LocalClaimInfoRespDTO.LP_STATUS_NONE;
+
     }
 }

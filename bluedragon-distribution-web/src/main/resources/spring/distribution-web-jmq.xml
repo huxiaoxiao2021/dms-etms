@@ -13,23 +13,14 @@
 	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
 	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
 
-	<jmq:transport id="jmq.bd.transport"
-		address="${jmq.bd.address}" user="${jmq.bd.user}"
-		password="${jmq.bd.password}" app="${jmq.bd.app}" />
-
-    <!--dmsWeb mq消费应用-->
+    <!--dmsWeb mq应用-->
     <jmq:transport id="jmq.dmsWeb.transport"
                    address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
                    password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
 
-	<jmq:transport id="jmq.BlueDragonDistributionStock.transport"
-		address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"
-		password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />
-
-	<jmq:transport id="jmq.BlueDragonDistributionPop.transport"
-		address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"
-		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />	
-		
+	<!--dmsWork mq应用-->
+	<jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+				   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 	<!-- jmq 消费客户端配置区 -->
 
     <!-- 武汉邮政自消费类型MQ created by wzx (全国和华中环境的注释掉此mq消费者，只保留外网分组的此消费者) -->
