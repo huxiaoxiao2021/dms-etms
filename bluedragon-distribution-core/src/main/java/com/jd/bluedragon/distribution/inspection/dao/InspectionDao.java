@@ -99,7 +99,7 @@ public class InspectionDao extends BaseDao<Inspection>{
 	
 	/**
 	 * 根据包裹号查询验货记录
-	 * @param haveInspection
+	 * @param inspection
 	 * @return
 	 */
 	public boolean haveInspection(Inspection inspection){
@@ -109,11 +109,21 @@ public class InspectionDao extends BaseDao<Inspection>{
 	
 	/**
 	 * 根据包裹号查询验货记录pop订单是否收货
-	 * @param haveInspection
+	 * @param inspection
 	 * @return
 	 */
 	public boolean havePOPInspection(Inspection inspection){
 		Object o = this.getSqlSession().selectOne(namespace+".havePOPInspection", inspection);
+		return  o==null?false:true;
+	}
+
+	/**
+	 * 根据包裹号查询验货记录 是否验货
+	 * @param inspection
+	 * @return
+	 */
+	public boolean haveInspectionByPackageCode(Inspection inspection){
+		Object o = this.getSqlSession().selectOne(namespace+".haveInspectionByPackageCode", inspection);
 		return  o==null?false:true;
 	}
 
