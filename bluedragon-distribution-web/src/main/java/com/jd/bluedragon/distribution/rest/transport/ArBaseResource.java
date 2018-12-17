@@ -5,11 +5,9 @@ package com.jd.bluedragon.distribution.rest.transport;
  */
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.external.service.DmsArBaseService;
 import com.jd.bluedragon.distribution.transport.domain.ARCommonDictionaryType;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.transport.service.impl.BusTypeService;
-import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.domain.DictionaryInfoModel;
@@ -18,7 +16,10 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,7 +29,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class ArBaseResource implements DmsArBaseService {
+public class ArBaseResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -64,17 +65,6 @@ public class ArBaseResource implements DmsArBaseService {
 
         Collections.sort(result);
         return result;
-    }
-
-    /**
-     * 登录获取字典信息,由于物流网关不支持无参方法，故通过该方法跳转
-     *
-     * @param arg 任意值
-     * @return
-     */
-    @Override
-    public List<DictionaryInfoModel> getARCommonDictionaryInfo(String arg) {
-        return this.getARCommonDictionaryInfo();
     }
 
 }

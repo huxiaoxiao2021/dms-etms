@@ -69,70 +69,77 @@
     <jsf:provider id="jsfDmsBaseService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsBaseService"
                   alias="${dms.jsf.alias}"
-                  ref="baseResource" server="dmsjsf">
+                  ref="dmsBaseService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 空铁项目-提货业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsArReceiveService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsArReceiveService"
                   alias="${dms.jsf.alias}"
-                  ref="arReceiveResource" server="dmsjsf">
+                  ref="dmsArReceiveService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 空铁项目-基础服务JSF接口 -->
     <jsf:provider id="jsfDmsArBaseService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsArBaseService"
                   alias="${dms.jsf.alias}"
-                  ref="arBaseResource" server="dmsjsf">
+                  ref="dmsArBaseService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 新版封车解封车相关JSF接口 -->
     <jsf:provider id="jsfDmsNewSealVehicleService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService"
                   alias="${dms.jsf.alias}"
-                  ref="newSealVehicleResource" server="dmsjsf">
+                  ref="dmsNewSealVehicleService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 箱号业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsBoxService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsBoxService"
                   alias="${dms.jsf.alias}"
-                  ref="boxResource" server="dmsjsf">
+                  ref="dmsBoxService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 发货业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsDeliveryService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsDeliveryService"
                   alias="${dms.jsf.alias}"
-                  ref="deliveryResource" server="dmsjsf">
+                  ref="dmsDeliveryService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 打印业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsSendPrintService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsSendPrintService"
                   alias="${dms.jsf.alias}"
-                  ref="sendPrintResource" server="dmsjsf">
+                  ref="dmsSendPrintService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 站点业务操作相关JSF接口 -->
     <jsf:provider id="jsfDmsSiteService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsSiteService"
                   alias="${dms.jsf.alias}"
-                  ref="siteResource" server="dmsjsf">
+                  ref="dmsSiteService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 调度任务业务相关JSF接口 -->
     <jsf:provider id="jsfDmsTaskService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsTaskService"
                   alias="${dms.jsf.alias}"
-                  ref="taskResource" server="dmsjsf">
+                  ref="dmsTaskService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 运单相关JSF接口 -->
     <jsf:provider id="jsfDmsWaybillService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsWaybillService"
                   alias="${dms.jsf.alias}"
-                  ref="waybillResource" server="dmsjsf">
+                  ref="dmsWaybillService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 收货功能相关JSF接口 -->
+    <jsf:provider id="jsfDmsReceiveService"
+                  interface="com.jd.bluedragon.distribution.external.service.DmsReceiveService"
+                  alias="${dms.jsf.alias}"
+                  ref="dmsReceiveService" server="dmsjsf">
     </jsf:provider>
 
     <!-- 包装耗材项目JSF接口 -->
