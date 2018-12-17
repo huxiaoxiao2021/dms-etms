@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.service;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
+import com.jd.common.web.LoginContext;
 
 /**
  * 运单称重
@@ -21,4 +22,5 @@ public interface WeighByWaybillService
 
     public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion;
 
+    public void errorLogForOperator(WaybillWeightVO dto,LoginContext loginContext,boolean isImport);
 }
