@@ -56,7 +56,7 @@ public interface DeliveryService {
      * @param domain
      * @return
      */
-	SendResult boardSend(SendM domain);
+	SendResult boardSend(SendM domain,boolean isForceSend);
 
 	/**
      * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证
