@@ -33,8 +33,7 @@ public class ClientLogResource {
     public JdResponse save(ClientRequest request) {
         request.setOperateTime(DateHelper.formatDate(new Date(), Constants.DATE_TIME_FORMAT));
         JdResponse response = new JdResponse();
-        if (StringUtils.isEmpty(request.getBusinessCode()) || request.getSiteCode() == null || request.getUserCode() == null)
-        {
+        if (StringUtils.isEmpty(request.getBusinessCode()) || StringUtils.isEmpty(request.getUserErp()) || request.getSiteCode() == null || request.getUserCode() == null) {
             response.setCode(JdResponse.CODE_PARAM_ERROR);
             response.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
             return response;

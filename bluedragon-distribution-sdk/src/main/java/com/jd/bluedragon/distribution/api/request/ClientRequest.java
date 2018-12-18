@@ -17,6 +17,24 @@ public class ClientRequest  extends JdRequest {
      */
     private String businessName;
 
+    private String userErp;
+
+    public String getBusinessName() {
+        return businessName;
+    }
+
+    public void setBusinessName(String businessName) {
+        this.businessName = businessName;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
+
     public String getBusinessCode() {
         return businessCode;
     }
