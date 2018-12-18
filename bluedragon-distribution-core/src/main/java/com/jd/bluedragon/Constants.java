@@ -145,6 +145,14 @@ public class Constants {
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_B_INSPECTION=50010;
     /**
+     * 操作日志业务编码-	客户端访问日志
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_CLIENTLOG=60010;
+    /**
+     * 操作日志业务编码-	客户端访问日志
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_CLIENTLOG=600;
+    /**
      * 业务类型-未知业务操作类型
      */
     public static final Integer OPERATE_TYPE_UNKNOWN = 0;
