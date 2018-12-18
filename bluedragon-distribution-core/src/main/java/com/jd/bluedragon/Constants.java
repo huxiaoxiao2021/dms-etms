@@ -131,11 +131,11 @@ public class Constants {
     /**
      * 操作日志业务编码-航空转陆运
      */
-    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=101401;
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=101401;
     /**
      * 操作日志业务编码-航空转陆运
      */
-    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=1014;
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=1014;
     /**
      * 操作日志业务编码-验货
      */
