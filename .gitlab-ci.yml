@@ -1,0 +1,63 @@
+image: maven:3.5-jdk-8
+
+stages:
+- build
+- test
+- deploy
+
+variables:
+  MAVEN_CLI_OPTS: "-s /usr/share/maven/ref/settings.xml --batch-mode"
+
+cache:
+  paths:
+  - target/
+
+build:
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS clean compile
+  except:
+    - tags
+
+sonar_preview:
+  stage: test
+  script:
+    - chmod +x ./.gitlab/ci/sonar_preview.sh
+    - ./.gitlab/ci/sonar_preview.sh
+  except:
+    - schedules
+    - tags
+
+sonar_schedule:
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS clean install
+    - mvn $MAVEN_CLI_OPTS sonar:sonar
+  only:
+    - schedules
+
+sonar_analyze:
+  stage: test
+  script:
+    - chmod +x ./.gitlab/ci/sonar_analyze.sh
+    - ./.gitlab/ci/sonar_analyze.sh
+  only:
+    - master
+    - merge-requests
+
+auto_test:
+  stage: test
+  script:
+    - chmod +x ./.gitlab/ci/auto_test.sh
+    - ./.gitlab/ci/auto_test.sh
+  except:
+    - tags
+
+scm_tag:
+  stage: deploy
+  script:
+    - mvn $MAVEN_CLI_OPTS scm:tag
+  only:
+    - master
+  except:
+    - schedules

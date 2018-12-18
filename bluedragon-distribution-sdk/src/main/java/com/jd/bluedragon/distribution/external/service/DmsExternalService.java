@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
+import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.distribution.wss.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleDto;
@@ -50,4 +52,11 @@ public interface DmsExternalService {
      * @return
      */
     String executeJsonCommand(String jsonCommand);
+
+    /**
+     * 航空转陆运异常提交
+     * @param arAbnormalRequest
+     * @return
+     */
+    ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest);
 }

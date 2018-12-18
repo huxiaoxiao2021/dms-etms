@@ -485,7 +485,8 @@ public class PopPrintResource {
 		
 		popPrint.setBusiId(request.getBusiId());
 		popPrint.setBusiName(request.getBusiName());
-		
+		popPrint.setInterfaceType(request.getInterfaceType());
+
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {
 			this.logger.info("--保存POP打印信息 -->  打印包裹：waybillCode: " + request.getWaybillCode() + ", 操作人：" + request.getOperatorCode() + ", 操作时间：" + request.getOperateTime());
 			popPrint.setPrintPackCode(request.getOperatorCode());
@@ -529,6 +530,8 @@ public class PopPrintResource {
 		
 		popPrint.setBusiId(request.getBusiId());
 		popPrint.setBusiName(request.getBusiName());
+		popPrint.setInterfaceType(request.getInterfaceType());
+
 		popPrint.setCategoryName(request.getCategoryName());
 
 		if (PopPrintRequest.PRINT_PACK_TYPE.equals(request.getOperateType())) {

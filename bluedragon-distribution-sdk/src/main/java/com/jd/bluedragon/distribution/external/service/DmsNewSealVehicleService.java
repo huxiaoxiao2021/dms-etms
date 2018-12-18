@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.SealBoxResponse;
+import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 
 /**
@@ -21,6 +23,7 @@ public interface DmsNewSealVehicleService {
 
     /**
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     *
      * @param request
      * @return
      */
@@ -28,23 +31,24 @@ public interface DmsNewSealVehicleService {
 
     /**
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
+     *
      * @param request
      * @return
      */
     TransWorkItemResponse checkTransportCode(NewSealVehicleRequest request);
 
-        /**
-         * 封车校验：批次号及运力编码|任务号的校验
-         * 1. 批次号校验：是否符合批次号编码规范
-         * 2. 批次号校验：是否已经封车
-         * 3. 批次号校验：是否有发货数据
-         * 4. 按运力封车：校验运力编码目的地是否和批次号目的地一致
-         *
-         * @param transportCode
-         * @param batchCode
-         * @param sealCarType
-         * @return
-         */
+    /**
+     * 封车校验：批次号及运力编码|任务号的校验
+     * 1. 批次号校验：是否符合批次号编码规范
+     * 2. 批次号校验：是否已经封车
+     * 3. 批次号校验：是否有发货数据
+     * 4. 按运力封车：校验运力编码目的地是否和批次号目的地一致
+     *
+     * @param transportCode
+     * @param batchCode
+     * @param sealCarType
+     * @return
+     */
     NewSealVehicleResponse newCheckTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
     /**
@@ -81,9 +85,26 @@ public interface DmsNewSealVehicleService {
 
     /**
      * 校验并获取运力编码信息
+     *
      * @param request
      * @return
      */
-     public RouteTypeResponse getTransportCode(NewSealVehicleRequest request);
+    RouteTypeResponse getTransportCode(NewSealVehicleRequest request);
+
+    /**
+     * 根据封车号获取封车信息
+     *
+     * @param sealCode
+     * @return
+     */
+    SealVehicleResponse findSealVehicleByCode(String sealCode);
+
+    /**
+     * 根据封箱号获取封箱信息
+     *
+     * @param sealBoxCode
+     * @return
+     */
+    SealBoxResponse findSealBoxByBoxCode(String sealBoxCode);
 
 }

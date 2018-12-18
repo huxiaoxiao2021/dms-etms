@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.signAndReturn.dao.SignReturnDao" >
+
+	<resultMap id="signReturnPrintM" type="signReturnPrintM" >
+		<result column="id" property="id" />
+		<result column="new_waybill_code" property="newWaybillCode" />
+		<result column="busi_id" property="busiId" />
+		<result column="busi_name" property="busiName" />
+		<result column="return_cycle" property="returnCycle" />
+		<result column="operate_time" property="operateTime" />
+		<result column="create_site_name" property="createSiteName" />
+		<result column="operate_user" property="operateUser" />
+		<result column="merge_count" property="mergeCount" />
+		<result column="is_delete" property="isDelete" />
+	</resultMap>
+	
+	<insert id="add" parameterType="signReturnPrintM" useGeneratedKeys="true" keyProperty="id" >
+		INSERT INTO sign_return (
+			new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, create_site_name, operate_user, merge_count,is_delete)
+		VALUES (
+			#{newWaybillCode,jdbcType=VARCHAR}, #{busiId,jdbcType=VARCHAR},
+			#{busiName,jdbcType=VARCHAR}, #{returnCycle,jdbcType=VARCHAR},
+			#{operateTime,jdbcType=TIMESTAMP}, #{createSiteName,jdbcType=VARCHAR},
+			#{operateUser,jdbcType=VARCHAR}, #{mergeCount,jdbcType=INTEGER},1)
+	</insert>
+
+	<select id="getListByWaybillCode" resultMap="signReturnPrintM" parameterType="com.jd.bluedragon.distribution.signReturn.SignReturnCondition" >
+
+		SELECT id, new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, create_site_name, operate_user, merge_count,is_delete
+		FROM sign_return
+		WHERE is_delete = 1
+		AND new_waybill_code = #{newWaybillCode,jdbcType=VARCHAR}
+		 LIMIT 1
+	</select>
+
+	<select id="getSignReturnById" resultMap="signReturnPrintM" parameterType="Long" >
+
+		SELECT id, new_waybill_code, busi_id, busi_name, return_cycle,
+			operate_time, create_site_name, operate_user, merge_count,is_delete
+		FROM sign_return
+		WHERE is_delete = 1
+		AND id = #{id,jdbcType=BIGINT}
+		 LIMIT 1
+	</select>
+
+</mapper>

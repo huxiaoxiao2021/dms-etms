@@ -75,8 +75,8 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         //计算体积
         double volume = BigDecimalHelper.mul(dmsOutWeightAndVolume.getHeight(), dmsOutWeightAndVolume.getWidth());
         volume = BigDecimalHelper.mul(volume, dmsOutWeightAndVolume.getLength());
-        //体积 立方厘米 转m³
-        volume = BigDecimalHelper.div(volume, 1000000, 6);
+//        体积 立方厘米 转m³
+//        volume = BigDecimalHelper.div(volume, 1000000, 6);
         dmsOutWeightAndVolume.setVolume(volume);
         //修改时间
         dmsOutWeightAndVolume.setUpdateTime(dmsOutWeightAndVolume.getCreateTime());

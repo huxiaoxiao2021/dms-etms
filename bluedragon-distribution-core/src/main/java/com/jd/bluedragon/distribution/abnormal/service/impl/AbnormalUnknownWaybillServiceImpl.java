@@ -21,7 +21,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
@@ -490,9 +489,9 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 body.add(abnormalUnknownWaybill.getTraderName());//商家名称
                 body.add(abnormalUnknownWaybill.getDmsSiteName());//机构名称
                 body.add(abnormalUnknownWaybill.getAreaName());//区域名称
-                body.add(abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
-                body.add(DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
-                body.add(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
+                body.add(abnormalUnknownWaybill.getIsReceipt() == null ? null : abnormalUnknownWaybill.getIsReceipt() == 1 ? "是" : "否");//是否回复
+                body.add(abnormalUnknownWaybill.getReceiptTime() == null ? null : DateHelper.formatDate(abnormalUnknownWaybill.getReceiptTime(), Constants.DATE_TIME_FORMAT));//回复时间
+                body.add(abnormalUnknownWaybill.getReceiptFrom() == null ? null : AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "运单系统" : AbnormalUnknownWaybill.RECEIPT_FROM_ECLP.equals(abnormalUnknownWaybill.getReceiptFrom()) ? "ECLP系统" : "商家回复");
                 body.add(abnormalUnknownWaybill.getReceiptContent());
                 body.add(abnormalUnknownWaybill.getCreateUserName());
                 resList.add(body);
@@ -548,8 +547,13 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                     data.add(abnormalUnknownWaybill);
                 }
                 pagerResult.setTotal(data.size());
-                int endIndex = (abnormalUnknownWaybillCondition.getOffset() + limit) > data.size() ? data.size() : (abnormalUnknownWaybillCondition.getOffset() + limit);
-                pagerResult.setRows(data.subList(abnormalUnknownWaybillCondition.getOffset(), endIndex));
+                if (limit == -1) {
+                    //导出的话，全部返回
+                    pagerResult.setRows(data);
+                } else {
+                    int endIndex = (abnormalUnknownWaybillCondition.getOffset() + limit) > data.size() ? data.size() : (abnormalUnknownWaybillCondition.getOffset() + limit);
+                    pagerResult.setRows(data.subList(abnormalUnknownWaybillCondition.getOffset(), endIndex));
+                }
                 return pagerResult;
             }
         } else {//如果没有查询结果，要补出前端输入的运单号

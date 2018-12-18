@@ -25,8 +25,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -713,6 +712,16 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
 
         return boardCodes;
+    }
+
+    /**
+     * 将板的重量体积信息持久化
+     * @param request
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.persistentBoardMeasureData", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Void> persistentBoardMeasureData(BoardMeasureRequest request) {
+        logger.info("调用TC接口存储板体积参数：" + JSON.toJSONString(request));
+        return boardMeasureService.persistentData(request);
     }
 
 }
