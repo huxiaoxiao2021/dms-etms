@@ -93,7 +93,7 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_CABINET);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_CABINET);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_CABINET);
-      //城配标和提冲突处理
+        //城配标和提冲突处理
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
