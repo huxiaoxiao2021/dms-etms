@@ -228,7 +228,8 @@ public class BoxResource {
         String flage = UUID.randomUUID().toString().replace("-", "");
         for(BoxRequest boxRequest : list){
             Box groupBox = new Box();
-            groupBox.setGroupName(boxRequest.getGroupName()+flage);
+            groupBox.setGroupName(boxRequest.getGroupName());
+            groupBox.setGroupSendCode(flage);
             groupBox.setCode(boxRequest.getBoxCode());
             groupList.add(groupBox);
         }

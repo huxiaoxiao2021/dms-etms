@@ -48,8 +48,8 @@ public class GroupBoxServiceImpl implements GroupBoxService {
     @Override
     public List<Box> getAllBoxByBoxCode(String boxCode) {
         Box box = groupBoxDao.getBoxInfoByBoxCode(boxCode);
-        if(box != null && StringHelper.isNotEmpty(box.getGroupName())){
-            List<Box> list = groupBoxDao.getAllBoxByGroupName(box.getGroupName());
+        if(box != null && StringHelper.isNotEmpty(box.getGroupSendCode())){
+            List<Box> list = groupBoxDao.getAllBoxByGroupSendCode(box.getGroupSendCode());
             return list;
         }else {
             return Collections.EMPTY_LIST;

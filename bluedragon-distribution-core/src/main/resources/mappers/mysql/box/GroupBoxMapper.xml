@@ -6,27 +6,29 @@
 		<result column="box_id" property="id" />
 		<result column="box_code" property="code" />
 		<result column="group_name" property="groupName" />
+		<result column="group_send_code" property="groupSendCode" />
 		<result column="yn" property="yn" />
 	</resultMap>
 	
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
 		INSERT INTO group_box (
-			box_code, group_name, yn
+			box_code, group_name, group_send_code, yn
 			)
 		VALUES (
-			#{code,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR},1
+			#{code,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{groupSendCode,jdbcType=VARCHAR},1
 			)
 	</insert>
 
 	<insert id="batchAdd" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
 		INSERT INTO group_box (
-		box_code, group_name, yn
+		box_code, group_name, group_send_code, yn
 		)
 		VALUES
 		<foreach collection="list" item="item" index="index" separator=",">
 			(
 			#{item.code,jdbcType=VARCHAR},
 			#{item.groupName,jdbcType=VARCHAR},
+			#{item.groupSendCode,jdbcType=VARCHAR},
 			1
 			)
 		</foreach>
@@ -35,19 +37,19 @@
 	<select id="getBoxInfoByBoxCode" resultMap="box" parameterType="String" >
 
 		SELECT
-			id, box_code, group_name, yn
+			id, box_code, group_name, group_send_code, yn
 		FROM group_box
 		WHERE yn = 1 AND box_code = #{code,jdbcType=VARCHAR}
 		 LIMIT 1
 	</select>
 
 
-	<select id="getAllBoxByGroupName" resultMap="box" parameterType="String" >
+	<select id="getAllBoxByGroupSendCode" resultMap="box" parameterType="String" >
 		SELECT
-			id, box_code, group_name, yn
+			id, box_code, group_name, group_send_code, yn
 		FROM group_box
 		WHERE
-			yn = 1 AND group_name = #{groupName,jdbcType=VARCHAR}
+			yn = 1 AND group_send_code = #{groupSendCode,jdbcType=VARCHAR}
 	</select>
 
 </mapper>

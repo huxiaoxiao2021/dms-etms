@@ -24,7 +24,7 @@ public class GroupBoxDao extends BaseDao<Box> {
         return this.getSqlSession().selectOne(namespace + ".getBoxInfoByBoxCode",boxCode);
     }
 
-    public List<Box> getAllBoxByGroupName(String groupName) {
-        return this.getSqlSession().selectList(namespace + ".getAllBoxByGroupName",groupName);
+    public List<Box> getAllBoxByGroupSendCode(String groupSendCode) {
+        return this.getSqlSession().selectList(namespace + ".getAllBoxByGroupSendCode",groupSendCode);
     }
 }

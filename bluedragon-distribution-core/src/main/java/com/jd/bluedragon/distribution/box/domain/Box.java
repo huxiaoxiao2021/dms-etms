@@ -120,6 +120,16 @@ public class Box {
 	/** 分组箱号组名 */
 	private String groupName;
 
+	private String groupSendCode;
+
+	public String getGroupSendCode() {
+		return groupSendCode;
+	}
+
+	public void setGroupSendCode(String groupSendCode) {
+		this.groupSendCode = groupSendCode;
+	}
+
 	public String getGroupName() {
 		return groupName;
 	}
