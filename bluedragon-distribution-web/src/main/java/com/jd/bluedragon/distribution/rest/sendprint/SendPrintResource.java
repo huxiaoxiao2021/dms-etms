@@ -1,12 +1,14 @@
 package com.jd.bluedragon.distribution.rest.sendprint;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
-import com.jd.bluedragon.distribution.external.service.DmsSendPrintService;
+import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -17,13 +19,13 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
-import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
-import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
-import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +35,7 @@ import java.util.Map;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class SendPrintResource implements DmsSendPrintService {
+public class SendPrintResource {
 
     private static final Log logger= LogFactory.getLog(SendPrintResource.class);
 	@Autowired
@@ -305,7 +307,6 @@ public class SendPrintResource implements DmsSendPrintService {
 	@POST
 	@GZIP
 	@Path("/sendprint/carrySendCarInfo")
-    @Override
 	public BatchSendInfoResponse carrySendCarInfo(List<BatchSend> batchSends) {
 
 		if(batchSends==null||batchSends.size()==0){

@@ -19,6 +19,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.common.web.LoginContext;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.logging.Log;
@@ -236,7 +237,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             Task task = new Task();
             task.setBoxCode(dto.getWaybillCode());
             task.setCreateSiteCode(null);
-            task.setKeyword1("dms_waybill_weight");
+            task.setKeyword1(weighByWaybillProducer.getTopic());
             task.setKeyword2(null);
             task.setTableName("task_message");
             task.setOwnSign(BusinessHelper.getOwnSign());
@@ -260,6 +261,28 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             goddess.setKey(dto.getWaybillCode());
             goddess.setBody(JsonHelper.toJson(dto));
             goddess.setHead(CASSANDRA_SIGN + String.valueOf(dto.getStatus()));
+
+            goddessService.save(goddess);
+        } catch (Exception e) {
+            logger.error("运单称重：cassandra操作日志记录失败：" + e);
+        }
+    }
+
+    /**
+     * 记录引操作人引起的异常
+     *
+     * @param dto 操作消息对象
+     */
+    public void errorLogForOperator(WaybillWeightVO dto,LoginContext loginContext,boolean isImport) {
+        try {
+            Goddess goddess = new Goddess();
+            if(isImport){
+                goddess.setKey("weightImportError");
+            }else{
+                goddess.setKey("weightError");
+            }
+            goddess.setBody(JsonHelper.toJson(dto)+"|"+JsonHelper.toJson(loginContext));
+            goddess.setHead(loginContext==null?"null":loginContext.getPin());
 
             goddessService.save(goddess);
         } catch (Exception e) {

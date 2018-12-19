@@ -93,6 +93,10 @@ public class Constants {
     public static final int TRANS_SORTING_SITE_TYPE = 64;
     /** 跨分拣中心收货站点类型二级 **/
     public static final int TRANS_SORTING_SITE_TYPE_SECOND = 256;
+    /**
+     * 快运中心站点类型
+     */
+    public static final int B2B_SITE_TYPE = 6420;
 
 
     /** 操作类型 **/
@@ -124,6 +128,22 @@ public class Constants {
      * 操作日志业务编码-打印
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_ARABNORMAL=101401;
+    /**
+     * 操作日志业务编码-航空转陆运
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_ARABNORMAL=1014;
+    /**
+     * 操作日志业务编码-验货
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_INSPECTION=500;
+    /**
+     * 操作日志业务编码-快运中心分拣补验货任务
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_B_INSPECTION=50010;
     /**
      * 业务类型-未知业务操作类型
      */

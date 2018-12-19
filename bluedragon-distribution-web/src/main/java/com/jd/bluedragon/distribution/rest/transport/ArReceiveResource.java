@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.transport;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -46,7 +45,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class ArReceiveResource implements DmsArReceiveService {
+public class ArReceiveResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
@@ -72,7 +71,6 @@ public class ArReceiveResource implements DmsArReceiveService {
      */
     @POST
     @Path("/arreceive/getARWaitReceive")
-    @Override
     public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
@@ -131,7 +129,6 @@ public class ArReceiveResource implements DmsArReceiveService {
     }
 
     @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
-    @Override
     public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
         if (StringUtils.isEmpty(transName)) {
@@ -223,7 +220,6 @@ public class ArReceiveResource implements DmsArReceiveService {
     @POST
     @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
-    @Override
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
         JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
         if (StringHelper.isEmpty(barcode)) {

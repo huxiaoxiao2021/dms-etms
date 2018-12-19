@@ -513,6 +513,17 @@
         AND YN=1
         LIMIT 1
     </select>
+    <select id="haveInspectionByPackageCode" resultMap="BaseResultMap"
+            parameterType="Inspection">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM Inspection where
+        waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
+        AND create_site_code = #{createSiteCode, jdbcType=INTEGER}
+        AND YN=1
+        LIMIT 1
+    </select>
 
     <select id="findPackageBoxCodesByWaybillCode" resultMap="BaseResultMap" parameterType="Inspection">
 		SELECT box_code ,package_barcode

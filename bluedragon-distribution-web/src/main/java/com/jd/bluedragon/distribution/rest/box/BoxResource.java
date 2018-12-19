@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
-import com.jd.bluedragon.distribution.external.service.DmsBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -43,7 +42,7 @@ import java.util.UUID;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class BoxResource implements DmsBoxService {
+public class BoxResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -64,7 +63,6 @@ public class BoxResource implements DmsBoxService {
 
     @GET
     @Path("/boxes/{boxCode}")
-    @Override
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.logger.info("box code's " + boxCode);
