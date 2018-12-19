@@ -236,7 +236,8 @@ public class ArReceiveResource {
         if (arSendCode != null) {
             rest.setData(arSendRegisterService.findById(arSendCode.getSendRegisterId()));
         } else {
-            rest.toFail("该包裹号/箱号不存在或未操作空铁发货登记！");
+            //不再作为强制校验
+            rest.setMessage("该包裹号/箱号不存在或未操作空铁发货登记！");
         }
 
         return rest;

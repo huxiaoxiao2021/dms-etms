@@ -140,10 +140,15 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 			String endStationName = "";
 			ArSendRegister arSendRegister = taskContext.getData(KEY_DATA_AR_SEND_REGISTER);
 			if(arSendRegister != null){
-				startStationName = arSendRegister.getStartStationName();
-				endStationName = arSendRegister.getEndStationName();
+				if(StringUtils.isNotBlank(arSendRegister.getStartStationName())) {
+					startStationName = arSendRegister.getStartStationName();
+				}
+				if(StringUtils.isNotBlank(arSendRegister.getEndStationName())) {
+					endStationName = arSendRegister.getEndStationName();
+				}
 			}
 			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_AR_RECEIVE);
+
 			waybillStatus.setRemark(String.format(TRAC_MESSAGE_FORMAT, startStationName,endStationName));
 			if (cenConfirmService.checkFormat(waybillStatus,
 					cenConfirm.getType())) {
