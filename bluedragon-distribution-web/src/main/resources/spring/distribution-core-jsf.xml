@@ -355,4 +355,8 @@
     <jsf:consumer id="dmsLocalInstanceInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService"
                   protocol="jsf" alias="${jsf.dmsLocalInstanceInfo.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 理赔系统接口-->
+    <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"
+                  protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

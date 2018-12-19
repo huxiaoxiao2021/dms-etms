@@ -796,7 +796,13 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.2.73-SNAPSHOT</version>
+			<version>1.2.103-SNAPSHOT</version>
+		</dependency>
+		<!-- 理赔系统接口 -->
+		<dependency>
+			<groupId>com.jd.obcs.api</groupId>
+			<artifactId>obcs-claim-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- eclp查商品信息接口-->
         <dependency>

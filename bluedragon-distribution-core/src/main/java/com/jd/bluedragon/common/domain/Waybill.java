@@ -211,6 +211,8 @@ public class Waybill implements Serializable {
 	 */
 	private String orderId;
 
+	private String busiOrderCode;
+
 	public String getWaybillCode() {
 		return this.waybillCode;
 	}
@@ -778,5 +780,13 @@ public class Waybill implements Serializable {
 
 	public void setOrderId(String orderId) {
 		this.orderId = orderId;
+	}
+
+	public String getBusiOrderCode() {
+		return busiOrderCode;
+	}
+
+	public void setBusiOrderCode(String busiOrderCode) {
+		this.busiOrderCode = busiOrderCode;
 	}
 }

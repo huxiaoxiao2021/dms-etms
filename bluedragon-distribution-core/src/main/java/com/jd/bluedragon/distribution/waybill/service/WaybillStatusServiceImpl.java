@@ -280,6 +280,17 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			param.setZdType(waybillStatus.getCreateSiteType());
 			param.setRemark(waybillStatus.getRemark());
 
+			if(WaybillStatus.WAYBILL_STATUS_SHREVERSE.equals(operateType)){
+				//退货完成增加扩展属性
+				Map<String, Object> extendSyncParam  =  param.getExtendSyncParam()==null?new HashMap<String, Object>():param.getExtendSyncParam();
+				//默认设置成全收
+				extendSyncParam.put(
+						WaybillStatus.WAYBILL_RETURN_FLAG_NAME,
+						waybillStatus.getReturnFlag()==null?WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_ALL:waybillStatus.getReturnFlag());
+
+				param.setExtendSyncParam(extendSyncParam);
+			}
+
 			WaybillSyncParameterExtend extend = new WaybillSyncParameterExtend();
 			extend.setTaskId(task.getId());
 			extend.setOperateType(operateType);

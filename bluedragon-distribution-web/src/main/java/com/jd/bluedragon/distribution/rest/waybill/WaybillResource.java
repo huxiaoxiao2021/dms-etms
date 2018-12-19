@@ -14,18 +14,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.external.service.DmsWaybillService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -70,12 +76,6 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -85,7 +85,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
-public class WaybillResource implements DmsWaybillService {
+public class WaybillResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -103,6 +103,10 @@ public class WaybillResource implements DmsWaybillService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+	@Qualifier("obcsManager")
+	private OBCSManager obcsManager;
 
     @Autowired
     @Qualifier("dmsModifyOrderInfoMQ")
@@ -1167,7 +1171,6 @@ public class WaybillResource implements DmsWaybillService {
 
 	@POST
 	@Path("/waybill/post/cancel")
-	@Override
 	public WaybillSafResponse isCancel(PdaOperateRequest pdaOperateRequest) {
 		return waybillSafService.isCancelPost(pdaOperateRequest);
 	}
@@ -1295,5 +1298,161 @@ public class WaybillResource implements DmsWaybillService {
 
 	}
 
+	/**
+	 * 外单新换单接口 POST接口
+	 * @return
+	 */
+	@POST
+	@Path("/dy/createReturnsWaybill")
+	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
+	public InvokeResult<WaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
+		InvokeResult invokeResult =new InvokeResult();
+
+		logger.debug("换单前获取信息接口入参："+JsonHelper.toJson(request));
+
+		try {
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
+			StringBuilder errorMessage = new StringBuilder();
+			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
+			if(waybillReverseResult == null){
+				//失败
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage(errorMessage.toString());
+			}else{
+				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				invokeResult.setData(waybillReverseResult);
+			}
+
+		}catch (Exception e){
+			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage("系统异常");
+		}finally {
+			return invokeResult;
+		}
+
+
+
+	}
+
+
+	/**
+	 * 换单前获取信息接口 POST接口
+
+	 * @return
+	 */
+	@POST
+	@Path("/dy/getOldOrderMessage")
+	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
+	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
+		InvokeResult invokeResult =new InvokeResult();
+
+		logger.debug("换单前获取信息接口入参："+JsonHelper.toJson(request));
+
+		try {
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
+			StringBuilder errorMessage = new StringBuilder();
+			WaybillReverseResponseDTO waybillReverseResponseDTO = ldopManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
+			if(waybillReverseResponseDTO == null){
+				//失败
+				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage(errorMessage.toString());
+			}else{
+				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+				invokeResult.setData(waybillReverseResponseDTO);
+			}
+
+		}catch (Exception e){
+			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setMessage("系统异常");
+		}finally {
+			return invokeResult;
+		}
+
+
+	}
+
+	/**
+	 * 二次换单检查
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/twiceExchange/check/{waybillCode}")
+	public InvokeResult<TwiceExchangeCheckDto> twiceExchangeCheck(@PathParam("waybillCode") String waybillCode){
+		InvokeResult<TwiceExchangeCheckDto> invokeResult = new InvokeResult<TwiceExchangeCheckDto>();
+		TwiceExchangeCheckDto twiceExchangeCheckDto = new TwiceExchangeCheckDto();
+		//获取老单号
+		BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+		if(oldWaybill.getResultCode()==1 && oldWaybill.getData()!=null && StringUtils.isNotBlank(oldWaybill.getData().getWaybillCode())){
+			String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+			twiceExchangeCheckDto.setOldWaybillCode(oldWaybillCode);
+			//获取理赔状态及物权归属
+			LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,oldWaybillCode);
+			if(claimInfoRespDTO == null){
+				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage("理赔接口失败，请稍后再试");
+				return invokeResult;
+			}
+			twiceExchangeCheckDto.setGoodOwner(claimInfoRespDTO.getGoodOwnerName());
+			//划分理赔状态 以及 物权归属
+			twiceExchangeCheckDto.setStatusOfLP(claimInfoRespDTO.getStatusDesc());
+
+			if(LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == 0){
+				//twiceExchangeCheckDto.setReturnDestinationTypes("000");
+				invokeResult.setCode(invokeResult.RESULT_THIRD_ERROR_CODE);
+				invokeResult.setMessage("理赔中运单禁止换单，请稍后再试");
+				return invokeResult;
+			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
+				twiceExchangeCheckDto.setReturnDestinationTypes("100");
+			}else if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) && claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_BUSI){
+				twiceExchangeCheckDto.setReturnDestinationTypes("011");
+			}else if(LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(twiceExchangeCheckDto.getStatusOfLP())){
+				twiceExchangeCheckDto.setReturnDestinationTypes("011");
+			}
+
+
+		}
+		invokeResult.setData(twiceExchangeCheckDto);
+		return invokeResult;
+	}
+
+	/**
+	 * ECLP备件库分拣 不允许按商品分拣
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/eclpSpareSortingCheck/{waybillCode}")
+	public InvokeResult<Boolean> eclpSpareSortingCheck(@PathParam("waybillCode") String waybillCode){
+		InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
+		invokeResult.setData(true);
+		try{
+			if(WaybillUtil.isPackageCode(waybillCode)){
+				waybillCode = WaybillUtil.getWaybillCode(waybillCode);
+			}
+			Waybill waybill = waybillCommonService.findByWaybillCode(waybillCode);
+			if(waybill!=null){
+				BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+				if(oldWaybill!=null && oldWaybill.getData()!=null
+						&& StringUtils.isNotBlank(oldWaybill.getData().getBusiOrderCode())){
+					invokeResult.setData(!WaybillUtil.isECLPByBusiOrderCode(oldWaybill.getData().getBusiOrderCode()));
+				}
+
+			}else{
+				invokeResult.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				invokeResult.setData(false);
+				invokeResult.setMessage("运单不存在");
+			}
+		}catch (Exception e){
+			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
+			invokeResult.setData(false);
+			invokeResult.setMessage("系统异常");
+			logger.error("备件库分拣检查异常"+waybillCode,e);
+		}
+
+		return invokeResult;
+	}
 
 }

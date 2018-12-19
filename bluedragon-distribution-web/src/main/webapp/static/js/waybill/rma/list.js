@@ -91,6 +91,69 @@ function printBtn() {
 }
 
 /**
+ * 导出
+ */
+function exportBtn() {
+    var checkedKeys = $("#paperTable tbody input[type=checkbox][name='record']:checked");
+    if (checkedKeys) {
+        if (checkedKeys.length > 0) {
+            var idList = "";
+            for (var i = 0; i < checkedKeys.length; i++) {
+                if (idList == "") {
+                    idList = $(checkedKeys[i]).val();
+                } else {
+                    idList = idList + "," + $(checkedKeys[i]).val()
+                }
+            }
+            var url = "/waybill/rma/printWaybillRmaPage";
+            jQuery.ajax({
+                type: 'post',
+                url: url,
+                dataType: "json",//必须json
+                contentType: "application/json", // 指定这个协议很重要
+                data: idList,
+                async: false,
+                success: function (msg) {
+                    if (msg == undefined || msg == null) {
+                        jQuery.messager.alert('提示:', '查询失败', 'error');
+                        return;
+                    }
+                    if (msg.code == 1) {
+                        var resultList = msg.data;
+                        for (var i = 0; i < resultList.length; i++) {
+
+                           /* var form = $("<form method='post' class='must-remove'></form>"),
+                                input;
+                            form.attr({"action":"/waybill/rma/toExport"});
+
+                            input = $("<input type='hidden'>");
+                            input.attr({"name":"sysnos"});
+                            input.val(resultList[i]);
+                            form.append(input);
+
+                            form.appendTo(document.body);
+                            debugger;
+                            form.submit();*/
+                            //$.post("/waybill/rma/toExport?sysnos="+resultList[i],{},function(data){});
+                            window.open("/waybill/rma/toExport?sysnos=" + resultList[i]);
+                            //document.body.removeChild($(".must-remove")[0]);
+                            //$(".must-remove").remove();
+
+                        }
+                    } else {
+                        jQuery.messager.alert('提示:', data.message, 'error');
+                    }
+                }
+            });
+        } else {
+            jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
+        }
+    } else {
+        jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
+    }
+}
+
+/**
  * 查询
  * @param pageNo
  */

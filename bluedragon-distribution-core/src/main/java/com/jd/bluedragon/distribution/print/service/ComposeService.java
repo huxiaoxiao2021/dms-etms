@@ -36,7 +36,7 @@ public interface ComposeService {
     String SPECIAL_MARK_SAME = "同";
     String SPECIAL_MARK_AIRTRANSPORT_FILL = "航填";
     String SPECIAL_MARK_FIRST = "优";
-    String SPECIAL_MARK_INTERCITY = "尊享";
+    String SPECIAL_MARK_INTERCITY = "城际";
     String SPECIAL_MARK_HELP_DELIVERY="代";
 
     /**
