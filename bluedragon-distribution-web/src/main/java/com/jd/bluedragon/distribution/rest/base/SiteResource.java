@@ -1,7 +1,25 @@
 package com.jd.bluedragon.distribution.rest.base;
 
+import java.text.MessageFormat;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
@@ -15,21 +33,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
-import java.util.List;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 @Component
 @Path(Constants.REST_URL)
@@ -124,11 +129,33 @@ public class SiteResource {
             result.setData(this.siteService.getSitesByPage(category,pageNo));
         }catch (Throwable throwable){
             logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
-            result.error("获取站点出现异常，请联系孔春飞");
+            result.error("获取站点出现异常，请联系IT运维！");
         }
         return result;
     }
-
+    /**
+     * 新接口-分页获取所有站点
+     * @param pageNo 当前页码
+     * @param category  1：站点---2：库房---3：商家
+     * @return
+     */
+    @GET
+    @Path("/site/getSitesWithPageNo/{category}/{pageNo}")
+    public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSitesWithPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
+        InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
+        //按站点类型添加监控
+        CallerInfo callerInfo = ProfilerHelper.registerInfo("DMS.siteResource.getSitesWithPageNo" + category);
+        try{
+            result.setData(this.siteService.getSitesByPage(category,pageNo));
+        }catch (Throwable throwable){
+            logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
+            result.error("获取站点出现异常，请联系IT运维！");
+            Profiler.functionError(callerInfo);
+        }finally{
+        	Profiler.registerInfoEnd(callerInfo);
+        }
+        return result;
+    }
 
 
 	@GET
