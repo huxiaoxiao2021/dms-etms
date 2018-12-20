@@ -17,19 +17,19 @@ public class HideInfoServiceImpl implements HideInfoService{
     private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
     public void setHideInfo(String waybillSign,BasePrintWaybill waybill){
+        if(StringUtils.isBlank(waybillSign)){
+            return;
+        }
         //收件人信息隐藏，根据waybill_sign第37位判断
-        if(StringUtils.isBlank(waybillSign) || waybillSign.length() < 37 || '0' == waybillSign.charAt(36)){
-            return;
+        if(waybillSign.length() >= 37 && '0' != waybillSign.charAt(36)){
+            char customerInfoHideType = waybillSign.charAt(36);
+            customerInfoHide(customerInfoHideType, waybill);
         }
-        char customerInfoHideType = waybillSign.charAt(36);
-        customerInfoHide(customerInfoHideType, waybill);
-
         //寄件人信息隐藏，根据waybill_sign第47位判断
-        if(StringUtils.isBlank(waybillSign) || waybillSign.length() < 47 || '0' == waybillSign.charAt(46)){
-            return;
+        if(waybillSign.length() >= 47 && '0' != waybillSign.charAt(46)){
+            char consignerInfoHideType = waybillSign.charAt(46);
+            consignerInfoHide(consignerInfoHideType,waybill);
         }
-        char consignerInfoHideType = waybillSign.charAt(46);
-        consignerInfoHide(consignerInfoHideType,waybill);
     }
 
     /**
