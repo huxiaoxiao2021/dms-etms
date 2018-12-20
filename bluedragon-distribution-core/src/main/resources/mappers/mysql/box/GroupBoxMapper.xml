@@ -7,21 +7,21 @@
 		<result column="box_code" property="code" />
 		<result column="group_name" property="groupName" />
 		<result column="group_send_code" property="groupSendCode" />
-		<result column="yn" property="yn" />
+		<result column="is_delete" property="yn" />
 	</resultMap>
 	
 	<insert id="add" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
 		INSERT INTO group_box (
-			box_code, group_name, group_send_code, yn
+			box_code, group_name, group_send_code, is_delete
 			)
 		VALUES (
-			#{code,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{groupSendCode,jdbcType=VARCHAR},1
+			#{code,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR}, #{groupSendCode,jdbcType=VARCHAR},0
 			)
 	</insert>
 
 	<insert id="batchAdd" parameterType="com.jd.bluedragon.distribution.box.domain.Box" >
 		INSERT INTO group_box (
-		box_code, group_name, group_send_code, yn
+		box_code, group_name, group_send_code, is_delete
 		)
 		VALUES
 		<foreach collection="list" item="item" index="index" separator=",">
@@ -29,7 +29,7 @@
 			#{item.code,jdbcType=VARCHAR},
 			#{item.groupName,jdbcType=VARCHAR},
 			#{item.groupSendCode,jdbcType=VARCHAR},
-			1
+			0
 			)
 		</foreach>
 	</insert>
@@ -37,19 +37,19 @@
 	<select id="getBoxInfoByBoxCode" resultMap="box" parameterType="String" >
 
 		SELECT
-			id, box_code, group_name, group_send_code, yn
+			id, box_code, group_name, group_send_code, is_delete
 		FROM group_box
-		WHERE yn = 1 AND box_code = #{code,jdbcType=VARCHAR}
+		WHERE is_delete = 0 AND box_code = #{code,jdbcType=VARCHAR}
 		 LIMIT 1
 	</select>
 
 
 	<select id="getAllBoxByGroupSendCode" resultMap="box" parameterType="String" >
 		SELECT
-			id, box_code, group_name, group_send_code, yn
+			id, box_code, group_name, group_send_code, is_delete
 		FROM group_box
 		WHERE
-			yn = 1 AND group_send_code = #{groupSendCode,jdbcType=VARCHAR}
+			is_delete = 0 AND group_send_code = #{groupSendCode,jdbcType=VARCHAR}
 	</select>
 
 </mapper>
