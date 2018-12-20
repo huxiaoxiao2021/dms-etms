@@ -117,6 +117,27 @@ public class Box {
 	/** 箱子路由信息 站点名称 */
 	private String routerName;
 
+	/** 分组箱号组名 */
+	private String groupName;
+
+	private String groupSendCode;
+
+	public String getGroupSendCode() {
+		return groupSendCode;
+	}
+
+	public void setGroupSendCode(String groupSendCode) {
+		this.groupSendCode = groupSendCode;
+	}
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
 	public Date getPredictSendTime() {
 		return predictSendTime;
 	}

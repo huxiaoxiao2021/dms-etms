@@ -93,10 +93,13 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_CABINET);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_CABINET);
         waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_CABINET);
-        //城配标和提冲突处理
-        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_SITE);
-        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
-        waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
+        //waybill_sign标识位，第七十九位为2，打提字标,C网覆盖掉B,B网不覆盖。也就是说B网不处理冲突。tangcq2018年12月18日14:34:13
+        if(!BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
+            //城配标和提冲突处理
+            waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_ZHI, SPECIAL_MARK_ARAYACAK_SITE);
+            waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_JI, SPECIAL_MARK_ARAYACAK_SITE);
+            waybill.dealConflictSpecialMark(CITY_DISTRIBUTION_CHENG, SPECIAL_MARK_ARAYACAK_SITE);
+        }
 
         //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
         if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
