@@ -1265,8 +1265,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 加send_code幂
         boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
         if (sendCodeIdempotence) {
-            return new DeliveryResponse(JdResponse.CODE_OK,
-                    JdResponse.MESSAGE_OK);
+            return new DeliveryResponse(JdResponse.CODE_SENDCODE_ERRPR,
+                    JdResponse.MESSAGE_SENDCODE_ERRPR);
         }
         List<String> list = batchQuerySendMList(sendMList);/*查询已发货的箱号*/
 
