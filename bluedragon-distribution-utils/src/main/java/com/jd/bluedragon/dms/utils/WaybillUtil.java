@@ -2,6 +2,7 @@ package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.UniformValidateUtil;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
@@ -12,8 +13,68 @@ import java.util.List;
  * @Description: 运单相关操作工具类
  * @date 2018年10月12日 16时:06分
  */
-public class WaybillUtil extends WaybillCodeRuleValidateUtil {
+public class WaybillUtil {
     private final static Logger logger = Logger.getLogger(WaybillUtil.class);
+
+    public static boolean isWaybillCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode);
+    }
+
+    public static boolean isPackageCode(String packageCode) {
+        return WaybillCodeRuleValidateUtil.isPackageCode(packageCode);
+    }
+
+    public static boolean isEffectiveOperateCode(String operateCode) {
+        return WaybillCodeRuleValidateUtil.isEffectiveOperateCode(operateCode);
+    }
+
+    public static boolean isBusiWaybillCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isBusiWaybillCode(waybillCode);
+    }
+
+    public static boolean isJDWaybillCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isJDWaybillCode(waybillCode);
+    }
+
+    public static boolean isSurfaceCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isSurfaceCode(waybillCode);
+    }
+
+    public static boolean isReturnCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isReturnCode(waybillCode);
+    }
+
+    public static boolean isSwitchCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isSwitchCode(waybillCode);
+    }
+
+    public static boolean isMobileWareHouseReturnCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isMobileWareHouseReturnCode(waybillCode);
+    }
+
+    public static boolean isPickupCode(String pickupCode) {
+        return WaybillCodeRuleValidateUtil.isPickupCode(pickupCode);
+    }
+
+    public static boolean isLasWaybillCode(String waybillCode) {
+        return WaybillCodeRuleValidateUtil.isLasWaybillCode(waybillCode);
+    }
+
+    public static String getWaybillCodeByPackCode(String packCode) {
+        return WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
+    }
+
+    public static boolean isFirstPack(String packCode) {
+        return WaybillCodeRuleValidateUtil.isFirstPack(packCode);
+    }
+
+    public static int getPackNumByPackCode(String packCode) {
+        return WaybillCodeRuleValidateUtil.getPackNumByPackCode(packCode);
+    }
+
+    public static int getPackIndexByPackCode(String packCode) {
+        return WaybillCodeRuleValidateUtil.getPackIndexByPackCode(packCode);
+    }
 
     /**
      * 根据包裹号解析运单号
@@ -25,24 +86,13 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
         if (WaybillCodeRuleValidateUtil.isWaybillCode(packCode)) {
             return packCode;
         }
-        String waybillCode= WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
-        if (waybillCode==null){
+        String waybillCode = WaybillCodeRuleValidateUtil.getWaybillCodeByPackCode(packCode);
+        if (StringUtils.isBlank(waybillCode)) {
             return packCode;
         }
         return waybillCode;
     }
 
-    /**
-     * 是否是运单号 京东订单(9到19位数字)、 11位（W开头的面单） 12位数字或V开头运单（B商家运单号）
-     * 或F开头的返单号、WW开头的移动仓返单号
-     * 兼容新运单号格式（JD开头）
-     */
-    public static boolean isWaybillCode(String waybillCode) {
-        if (WaybillCodeRuleValidateUtil.isWaybillCode(waybillCode)) {
-            return true;
-        }
-        return false;
-    }
 
     /**
      * 验证是否为备件退货
@@ -53,7 +103,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static Boolean isReverseSpare(Integer type, String aPackageCode) {
-        if (type == null || StringHelper.isEmpty(aPackageCode)) {
+        if (type == null || StringUtils.isEmpty(aPackageCode)) {
             return Boolean.FALSE;
         }
         if (DmsConstants.BUSSINESS_TYPE_REVERSE == type && isReverseSpareCode(aPackageCode)) {
@@ -70,7 +120,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static Boolean isReverseSpareCode(String s) {
-        if (StringHelper.isEmpty(s)) {
+        if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;
         }
         //正则改为2个字符|null+16位数字（8位日期+8位序列）
@@ -100,7 +150,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return 如果此字符串为包裹号，则返回 true，否则返回 false
      */
     public static Boolean isPickupCodeWW(String s) {
-        return isMobileWareHouseReturnCode(s);
+        return WaybillCodeRuleValidateUtil.isMobileWareHouseReturnCode(s);
     }
 
     /**
@@ -111,7 +161,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static Boolean isMCSCode(String s) {
-        if (StringHelper.isEmpty(s)) {
+        if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;
         }
         if (UniformValidateUtil.isWaybillCode(s)) {
@@ -132,7 +182,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static Boolean isECLPCode(String sourceCode) {
-        if (StringHelper.isEmpty(sourceCode)) {
+        if (StringUtils.isEmpty(sourceCode)) {
             return Boolean.FALSE;
         }
 
@@ -151,7 +201,7 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * @return
      */
     public static Boolean isECLPByBusiOrderCode(String busiOrderCode) {
-        if (StringHelper.isEmpty(busiOrderCode)) {
+        if (StringUtils.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_ECLP)) {
@@ -165,12 +215,12 @@ public class WaybillUtil extends WaybillCodeRuleValidateUtil {
      * 根据包裹号 生成所有的包裹号
      */
     public static List<String> generateAllPackageCodes(String packcode) {
-        logger.info("生成所有包裹号："+packcode);
+        logger.info("生成所有包裹号：" + packcode);
         List<String> list = new ArrayList<String>();
         //如果是有效的包裹号，根据包裹总数生成包裹号列表
-        if (WaybillUtil.isPackageCode(packcode)) {
-            int totalPackageNum = WaybillUtil.getPackNumByPackCode(packcode);//包裹总数
-            if (totalPackageNum >=100){
+        if (WaybillCodeRuleValidateUtil.isPackageCode(packcode)) {
+            int totalPackageNum = WaybillCodeRuleValidateUtil.getPackNumByPackCode(packcode);//包裹总数
+            if (totalPackageNum >= 100) {
                 logger.warn("生成包裹大于100：" + totalPackageNum + "packcode:" + packcode);
             }
             //超过2W 认为是不正常的单子
