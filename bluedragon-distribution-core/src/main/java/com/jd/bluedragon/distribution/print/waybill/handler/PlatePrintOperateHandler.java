@@ -24,8 +24,7 @@ import static com.jd.bluedragon.distribution.handler.InterceptResult.MESSAGE_NEE
  * @date: 2018年2月6日 上午9:10:00
  */
 public class PlatePrintOperateHandler implements InterceptHandler<WaybillPrintContext, String> {
-    @Autowired
-    private WaybillTraceApi waybillTraceApi;
+
     /**
      * 处理逻辑列表
      */
@@ -35,13 +34,6 @@ public class PlatePrintOperateHandler implements InterceptHandler<WaybillPrintCo
     public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();
-        if (BusinessHelper.isC2c(context.getWaybill().getWaybillSign())) {
-            BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getPkStateByWCodeAndState(context.getWaybill().getWaybillCode(), WAYBILLTRACE_STATE);
-            if (!(baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null && baseEntity.getData().size() > 0)) {
-                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, MESSAGE_NEED_RECEIVE);
-                return interceptResult;
-            }
-        }
         if (handlers != null && !handlers.isEmpty()) {
             for (Handler<WaybillPrintContext, JdResult<String>> handler : handlers) {
                 //拦截类型的处理
