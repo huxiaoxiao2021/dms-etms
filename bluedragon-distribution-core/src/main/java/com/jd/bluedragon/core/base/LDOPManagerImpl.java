@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
+import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.center.api.ResponseDTO;
@@ -47,6 +49,10 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     private WaybillReturnSignatureApi waybillReturnSignatureApi;
 
+    /*用于记录操作日志*/
+    @Autowired
+    private GoddessService goddessService;
+
     private final Logger logger = Logger.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -56,10 +62,11 @@ public class LDOPManagerImpl implements LDOPManager {
     public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO,JdResponse<Boolean> rest){
 
         CallerInfo info = null;
+        ResponseDTO responseDTO = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.LDOPManagerImpl.waybillReverse",false, true);
 
-            ResponseDTO responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
+            responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
             if(!responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
                 //失败
                 rest.setMessage("外单自动换单接口失败 "+responseDTO.getStatusMessage());
@@ -73,6 +80,7 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.functionError(info);
             return false;
         }finally{
+            insertLog(waybillReverseDTO,responseDTO);
             Profiler.registerInfoEnd(info);
         }
 
@@ -81,10 +89,11 @@ public class LDOPManagerImpl implements LDOPManager {
     @Override
     public WaybillReverseResult waybillReverse(WaybillReverseDTO waybillReverseDTO,StringBuilder errorMessage) {
         CallerInfo info = null;
+        ResponseDTO responseDTO = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.LDOPManagerImpl.waybillReverse",false, true);
 
-            ResponseDTO responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
+            responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
             if(responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
                 return (WaybillReverseResult) responseDTO.getData();
             }else {
@@ -98,6 +107,7 @@ public class LDOPManagerImpl implements LDOPManager {
             Profiler.functionError(info);
             return null;
         }finally{
+            insertLog(waybillReverseDTO,responseDTO);
             Profiler.registerInfoEnd(info);
 
         }
@@ -258,6 +268,24 @@ public class LDOPManagerImpl implements LDOPManager {
     @Override
     public ResponseDTO<ReturnSignatureMessageDTO> queryReturnSignatureMessage(String waybillCode){
         return waybillReturnSignatureApi.queryReturnSignatureMessage(waybillCode);
+    }
+
+
+    /**
+     * 记录日志
+     *
+     * @param dto 操作消息对象
+     */
+    private void insertLog(WaybillReverseDTO dto,ResponseDTO responseDTO) {
+        try {
+            Goddess goddess = new Goddess();
+            goddess.setKey(dto.getWaybillCode());
+            goddess.setBody(JsonHelper.toJson(dto)+"|"+JsonHelper.toJson(responseDTO));
+            goddess.setHead("reverse_waybill");
+            goddessService.save(goddess);
+        } catch (Exception e) {
+            logger.error("逆向换单：cassandra操作日志记录失败：" + e);
+        }
     }
 
 }
