@@ -92,6 +92,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：400-603-3600}")
     private String additionalComment;
 
+    /**
+     * 小米运单的青龙商家编码
+     * */
+    private static final String busiCodeOfKA = "010K258778";
+
 
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -590,8 +595,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
-        //联通华盛面单模板不显示京东字样
-        if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') ){
+        //联通华盛面单模板、小米运单不显示京东字样
+        if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') || busiCodeOfKA.equals(target.getBusiCode()) ){
             target.setAdditionalComment("");
         }else{
             target.setAdditionalComment(additionalComment);
