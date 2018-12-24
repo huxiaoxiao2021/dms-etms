@@ -32,7 +32,7 @@ public interface DmsArReceiveService {
     ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request);
 
     /**
-     * 根据运输类型、运力名称（值为航班号/列车号）、铁路站序、发货日期获取发货登记信息
+     * 根据运输类型、运力名称（值为航班号/列车号）、铁路站序、发货日期获取发货登记信息(包裹维度)
      *
      * @param transType
      * @param transName
@@ -42,4 +42,14 @@ public interface DmsArReceiveService {
      */
     JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate);
 
+    /**
+     * 根据运输类型、运力名称（值为航班号/列车号）、铁路站序、发货日期获取发货登记信息(航班维度)
+     *
+     * @param transType
+     * @param transName
+     * @param siteOrder
+     * @param sendDate
+     * @return
+     */
+    JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate);
 }
