@@ -41,4 +41,9 @@ public class DmsArReceiveServiceImpl implements DmsArReceiveService {
         return arReceiveResource.getArSendRegisterByTransInfo(transType, transName, siteOrder, sendDate);
     }
 
+    @Override
+    public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate) {
+        return arReceiveResource.getArSendRegisterListByParam(transType, transName, siteOrder, sendDate);
+    }
+
 }
