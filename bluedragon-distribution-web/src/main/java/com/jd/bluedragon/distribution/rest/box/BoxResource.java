@@ -8,14 +8,12 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
-import com.jd.bluedragon.distribution.external.service.DmsBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -25,19 +23,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Component
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class BoxResource implements DmsBoxService {
+public class BoxResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -53,9 +58,11 @@ public class BoxResource implements DmsBoxService {
     @Autowired
     private CrossBoxService crossBoxService;
 
+    @Autowired
+    private GroupBoxService groupBoxService;
+
     @GET
     @Path("/boxes/{boxCode}")
-    @Override
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
         Assert.notNull(boxCode, "boxCode must not be null");
         this.logger.info("box code's " + boxCode);
@@ -206,6 +213,49 @@ public class BoxResource implements DmsBoxService {
 
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
         return response;
+    }
+
+    /**
+     * 存储分组箱号
+     * @param list
+     * @return
+     */
+    @POST
+    @Path("/groupBoxes/batchAdd")
+    public void batch(List<BoxRequest> list) {
+
+        List<Box> groupList = new ArrayList<Box>();
+        String flage = UUID.randomUUID().toString().replace("-", "");
+        for(BoxRequest boxRequest : list){
+            Box groupBox = new Box();
+            groupBox.setGroupName(boxRequest.getGroupName());
+            groupBox.setGroupSendCode(flage);
+            groupBox.setCode(boxRequest.getBoxCode());
+            groupList.add(groupBox);
+        }
+        groupBoxService.batchAdd(groupList);
+    }
+
+    /**
+     * 根据箱号获取分组下所有箱号
+     * @param boxCode
+     * @return
+     */
+    @GET
+    @Path("/groupBoxes/getAllGroupBoxes/{boxCode}")
+    public InvokeResult<List<String>> getAllGroupBoxes(@PathParam("boxCode") String boxCode) {
+
+        this.logger.info("boxCode is " + boxCode);
+        InvokeResult<List<String>> result = new InvokeResult<List<String>>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        List<String> boxCodeList = new ArrayList<String>();
+        List<Box> boxList = groupBoxService.getAllBoxByBoxCode(boxCode);
+        for(Box box : boxList){
+            boxCodeList.add(box.getCode());
+        }
+        result.setData(boxCodeList);
+        return result;
     }
 
     /**

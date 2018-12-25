@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.transport;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.external.service.DmsArReceiveService;
 import com.jd.bluedragon.distribution.receive.service.ArReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -46,7 +45,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class ArReceiveResource implements DmsArReceiveService {
+public class ArReceiveResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
@@ -72,7 +71,6 @@ public class ArReceiveResource implements DmsArReceiveService {
      */
     @POST
     @Path("/arreceive/getARWaitReceive")
-    @Override
     public ListResponse<ArWaitReceive> getARWaitReceive(ArWaitReceiveRequest request) {
         //参数校验：始发城市id、操作人所属站点id必须
         //航空单号、运力名称非必须
@@ -130,8 +128,7 @@ public class ArReceiveResource implements DmsArReceiveService {
         return result;
     }
 
-    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
-    @Override
+    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
         if (StringUtils.isEmpty(transName)) {
@@ -145,7 +142,7 @@ public class ArReceiveResource implements DmsArReceiveService {
         try {
             //只支持航空单查询
             if (transType.equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode()) && siteOrder == null) {
-                List<ArSendRegister> sendRegisterListToRouter=new ArrayList<ArSendRegister>();
+                List<ArSendRegister> sendRegisterListToRouter = new ArrayList<ArSendRegister>();
                 //根据入参查询发货登记记录列表
                 List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
                 if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
@@ -171,11 +168,11 @@ public class ArReceiveResource implements DmsArReceiveService {
                                     logger.warn("空铁JSF接口---根据批次号获取发货明细为空，批次号：" + arSendCode);
                                 }
                             }
-                        }else{
+                        } else {
                             logger.warn("空铁JSF接口---根据发货登记id获取批次号列表为空，发货登记id：" + sendRegister.getId());
                         }
                     }
-                }else{
+                } else {
                     logger.warn("空铁JSF接口---根据入参获取发货登记列表明细为空");
                 }
                 response.toSucceed();
@@ -187,6 +184,40 @@ public class ArReceiveResource implements DmsArReceiveService {
         }
         return response;
     }
+
+    public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate) {
+        JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
+        if (StringUtils.isEmpty(transName)) {
+            response.toFail("运力名称不能为null或空字符串");
+        }
+
+        if (sendDate == null) {
+            response.toFail("发货日期不能为空");
+        }
+
+        try {
+            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
+            if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+                for (ArSendRegister sendRegister : sendRegisterList) {
+                    List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
+                    if (sendCodes != null && !sendCodes.isEmpty()) {
+                        List<String> sendCodeStrList = new ArrayList<String>(sendCodes.size());
+                        for (ArSendCode arSendCode : sendCodes) {
+                            sendCodeStrList.add(arSendCode.getSendCode());
+                        }
+                        sendRegister.setSendCodes(sendCodeStrList);
+                    }
+                }
+            }
+            response.toSucceed();
+            response.setData(sendRegisterList);
+        } catch (Exception e) {
+            logger.error("获取发货登记信息和批次信息时发生异常", e);
+            response.toError("获取发货登记信息和批次信息时发生异常");
+        }
+        return response;
+    }
+
 
     /**
      * 根据分拣中心id调用基础资料接口获取所在的城市
@@ -223,7 +254,6 @@ public class ArReceiveResource implements DmsArReceiveService {
     @POST
     @GET
     @Path("/arReceive/getArSendRegisterByBarcode/{barcode}")
-    @Override
     public JdResponse<ArSendRegister> getArSendRegisterByBarcode(@PathParam("barcode") String barcode) {
         JdResponse<ArSendRegister> rest = new JdResponse<ArSendRegister>();
         if (StringHelper.isEmpty(barcode)) {

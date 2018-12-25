@@ -50,6 +50,17 @@ public class BoxRequest extends JdRequest {
 	/** 路由信息*/
 	private String router;
 
+	/** 分组箱号组名 */
+	private String groupName;
+
+	public String getGroupName() {
+		return groupName;
+	}
+
+	public void setGroupName(String groupName) {
+		this.groupName = groupName;
+	}
+
 	public Date getPredictSendTime() {
 		return predictSendTime;
 	}

@@ -195,11 +195,20 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Override
     public List<RmaHandoverPrint> getPrintInfo(List<Long> ids) {
+        Map<String, RmaHandoverPrint> result = getPrintInfoMap(ids);
+        if (result.size() > 0) {
+            return new ArrayList<RmaHandoverPrint>(result.values());
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Map<String, RmaHandoverPrint> getPrintInfoMap(List<Long> ids) {
         List<RmaHandoverWaybill> rmaHandoverWaybills = this.getList(ids, true);
         Map<String, RmaHandoverPrint> result = new HashMap<String, RmaHandoverPrint>();
         for (RmaHandoverWaybill handoverWaybill : rmaHandoverWaybills) {
-            // 根据商家编号 + 收货地址作为判断是否属于同一RMA接货单的判断依据
-            String key = handoverWaybill.getBusiId() + "-" + handoverWaybill.getReceiverAddress();
+            // 获取判断是否属于同一RMA接货单的判断依据key值
+            String key = this.getRmaHandoverKey(handoverWaybill);
             RmaHandoverPrint printInfo = result.get(key);
             if (printInfo != null) {
                 printInfo.getIds().add(handoverWaybill.getId());
@@ -214,10 +223,19 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
                 result.put(key, printInfo);
             }
         }
-        if (result.size() > 0) {
-            return new ArrayList<RmaHandoverPrint>(result.values());
-        }
-        return Collections.emptyList();
+
+        return result;
+    }
+
+    /**
+     * 获取判断是否属于同一RMA接货单的判断依据key值
+     * 格式：收货人 + 分隔符 + 收货地址
+     *
+     * @param handoverWaybill
+     * @return
+     */
+    private String getRmaHandoverKey(RmaHandoverWaybill handoverWaybill) {
+        return handoverWaybill.getReceiver() + "-" + handoverWaybill.getReceiverAddress();
     }
 
     @JProfiler(jKey = "DMSCORE.RmaHandOverWaybillServiceImpl.buildAndStorage", mState = {JProEnum.TP})

@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -102,21 +103,44 @@ public class WeighByWaybillController {
         /*插入记录*/
         try {
             try {
-                if(erpUser==null || baseStaffSiteOrgDto==null){
-                    erpUser = ErpUserClient.getCurrUser();
-                    if (erpUser != null) {
-                        vo.setOperatorId(erpUser.getUserId());
-                        vo.setOperatorName(erpUser.getUserName());
-                        baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
-                        if (baseStaffSiteOrgDto != null) {
-                            vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
-                            vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
+                if(StringUtils.isBlank(vo.getOperatorName())){
+                    //入参自带操作人时不需要查操作人信息
+                    if(erpUser==null || baseStaffSiteOrgDto==null){
+                        erpUser = ErpUserClient.getCurrUser();
+                        if (erpUser != null) {
+                            vo.setOperatorId(erpUser.getUserId());
+                            vo.setOperatorName(erpUser.getUserName());
+                            baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
+                            if (baseStaffSiteOrgDto != null) {
+                                vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
+                                vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
+                            }else {
+                                logger.error("运单称重：未获取到当前操作人机构信息"+JsonHelper.toJson(erpUser));
+                                service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
+                                /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                                result.setMessage("未获取到当前操作人机构信息");
+                                result.setData(false);
+                                return result;*/
+                            }
+                        }else {
+                            logger.error("运单称重：未获取到当前操作人信息"+JsonHelper.toJson(erpUser));
+                            service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
+                            /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                            result.setMessage("未获取到当前操作人信息");
+                            result.setData(false);
+                            return result;*/
+
                         }
                     }
                 }
 
             } catch (Exception e) {
-                logger.error("运单称重：获取操作用户Erp账号失败");
+                logger.error("运单称重：获取操作用户Erp账号失败"+JsonHelper.toJson(erpUser),e);
+                service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
+                /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                result.setMessage("获取操作用户信息异常");
+                result.setData(false);
+                return result;*/
             }
 
             service.insertWaybillWeightEntry(vo);
@@ -269,6 +293,13 @@ public class WeighByWaybillController {
             if(erpUser!=null){
                 userCode = erpUser.getUserCode();
                 bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+                if(bssod == null){
+                    //return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息");
+                    service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
+                }
+            }else {
+                service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
+                //return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息");
             }
             //解析excel
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(file.getOriginalFilename());
