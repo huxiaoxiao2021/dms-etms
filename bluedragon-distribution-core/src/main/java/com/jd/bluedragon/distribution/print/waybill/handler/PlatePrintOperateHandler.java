@@ -4,18 +4,9 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.PackageState;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
-
-import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
-import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
-import static com.jd.bluedragon.distribution.handler.InterceptResult.MESSAGE_NEED_RECEIVE;
 
 /**
  * @ClassName: PlatePrintOperateHandler
