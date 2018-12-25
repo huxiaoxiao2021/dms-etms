@@ -19,8 +19,8 @@ import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
 /**
  * @ClassName: C2cInterceptHandler
  * @Description: C2C运单打印面单校验揽收完成
- * @author: wuyoude
- * @date: 2018年1月30日 上午9:18:31
+ * @author: tangcq
+ * @date: 2018年12月25日17:38:01
  */
 @Service("c2cInterceptHandler")
 public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {

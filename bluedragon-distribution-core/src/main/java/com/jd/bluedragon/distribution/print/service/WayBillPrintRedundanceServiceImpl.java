@@ -79,7 +79,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Qualifier("thirdOverRunInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
-    @Qualifier("c2cInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> c2cInterceptHandler;
     /**
      * 2次预分拣变更提示信息
