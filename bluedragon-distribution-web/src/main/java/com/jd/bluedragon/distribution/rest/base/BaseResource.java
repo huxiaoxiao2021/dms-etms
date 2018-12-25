@@ -1229,7 +1229,7 @@ public class BaseResource implements DmsBaseService {
 	 * */
 	@GET
 	@Path("/bases/perAndSelfSite/{waybillCode}")
-	public InvokeResult<List<Integer>> getThreePartnerD(@PathParam("waybillCode") String waybillCode) {
+	public InvokeResult<List<Integer>> perAndSelfSite(@PathParam("waybillCode") String waybillCode) {
 		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
 		List<Integer> siteCodes = new ArrayList<Integer>();
 		result.setData(siteCodes);
