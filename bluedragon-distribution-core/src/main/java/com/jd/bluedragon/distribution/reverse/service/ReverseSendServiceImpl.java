@@ -1399,11 +1399,15 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     public Integer getLossType(Waybill waybill, SendDetail sendDetail) {
         Integer lossType = 4; // 默认配送损
-        BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
-        if(siteOrgDto !=null){
-            if(BusinessHelper.isBSite(siteOrgDto.getSubType())){
-                lossType = 15; //转运损
+        try{
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+            if(siteOrgDto !=null){
+                if(BusinessHelper.isBSite(siteOrgDto.getSubType())){
+                    lossType = 15; //转运损
+                }
             }
+        }catch (Exception e){
+            logger.error("获取转运损标识异常"+JsonHelper.toJson(sendDetail));
         }
         if (waybill != null && sendDetail != null && sendDetail.getFeatureType() != null) {
             if (2 == NumberHelper.getIntegerValue(sendDetail.getFeatureType())) {
