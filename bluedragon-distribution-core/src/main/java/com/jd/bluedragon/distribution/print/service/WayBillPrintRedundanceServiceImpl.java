@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.waybill.handler.C2cInterceptHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
@@ -79,7 +80,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Qualifier("thirdOverRunInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
-    private InterceptHandler<WaybillPrintContext,String> c2cInterceptHandler;
+    private C2cInterceptHandler c2cInterceptHandler;
     /**
      * 2次预分拣变更提示信息
      */

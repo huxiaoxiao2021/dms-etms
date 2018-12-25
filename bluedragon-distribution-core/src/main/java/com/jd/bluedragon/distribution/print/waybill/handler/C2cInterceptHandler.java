@@ -30,7 +30,7 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
     WaybillTraceManager waybillTraceManager;
 
     @Override
-    public JdResult<String> handle(WaybillPrintContext context) {
+    public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.info("C2cInterceptHandler-C2C运单打印面单校验揽收完成");
         InterceptResult<String> interceptResult = new InterceptResult<String>();
         interceptResult.toSuccess();
