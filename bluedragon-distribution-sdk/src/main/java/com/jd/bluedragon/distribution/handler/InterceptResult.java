@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
  */
 public class InterceptResult<T> extends JdResult<T>{
 
-	public static final String MESSAGE_NEED_RECEIVE="此运单未揽收完成禁止打印面单，请先揽收";
 	/**
 	 * 
 	 */

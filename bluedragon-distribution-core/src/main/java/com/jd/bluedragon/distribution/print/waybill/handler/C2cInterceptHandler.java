@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
-import static com.jd.bluedragon.distribution.handler.InterceptResult.MESSAGE_NEED_RECEIVE;
 
 /**
  * @ClassName: C2cInterceptHandler
@@ -42,7 +41,7 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
             List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(context.getWaybill().getWaybillCode(), WAYBILLTRACE_STATE);
             //没有揽收完成的全程跟踪  就报错
             if (list.size() == 0) {
-                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, MESSAGE_NEED_RECEIVE);
+                interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
                 return interceptResult;
             }
         }
