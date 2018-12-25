@@ -468,4 +468,9 @@
     <bean id="mergedWaybillDao" class="com.jd.bluedragon.distribution.signAndReturn.dao.MergedWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 分组箱号 -->
+    <bean id="groupBoxDao" class="com.jd.bluedragon.distribution.box.dao.GroupBoxDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>

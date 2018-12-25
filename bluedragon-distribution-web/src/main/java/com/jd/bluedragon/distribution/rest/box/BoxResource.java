@@ -8,13 +8,12 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -36,6 +35,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @Component
@@ -57,6 +57,9 @@ public class BoxResource {
 
     @Autowired
     private CrossBoxService crossBoxService;
+
+    @Autowired
+    private GroupBoxService groupBoxService;
 
     @GET
     @Path("/boxes/{boxCode}")
@@ -210,6 +213,49 @@ public class BoxResource {
 
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
         return response;
+    }
+
+    /**
+     * 存储分组箱号
+     * @param list
+     * @return
+     */
+    @POST
+    @Path("/groupBoxes/batchAdd")
+    public void batch(List<BoxRequest> list) {
+
+        List<Box> groupList = new ArrayList<Box>();
+        String flage = UUID.randomUUID().toString().replace("-", "");
+        for(BoxRequest boxRequest : list){
+            Box groupBox = new Box();
+            groupBox.setGroupName(boxRequest.getGroupName());
+            groupBox.setGroupSendCode(flage);
+            groupBox.setCode(boxRequest.getBoxCode());
+            groupList.add(groupBox);
+        }
+        groupBoxService.batchAdd(groupList);
+    }
+
+    /**
+     * 根据箱号获取分组下所有箱号
+     * @param boxCode
+     * @return
+     */
+    @GET
+    @Path("/groupBoxes/getAllGroupBoxes/{boxCode}")
+    public InvokeResult<List<String>> getAllGroupBoxes(@PathParam("boxCode") String boxCode) {
+
+        this.logger.info("boxCode is " + boxCode);
+        InvokeResult<List<String>> result = new InvokeResult<List<String>>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        List<String> boxCodeList = new ArrayList<String>();
+        List<Box> boxList = groupBoxService.getAllBoxByBoxCode(boxCode);
+        for(Box box : boxList){
+            boxCodeList.add(box.getCode());
+        }
+        result.setData(boxCodeList);
+        return result;
     }
 
     /**

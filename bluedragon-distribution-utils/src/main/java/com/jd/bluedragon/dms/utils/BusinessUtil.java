@@ -317,6 +317,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否是小米运单
+     * @param busiCode
+     * @return
+     */
+    public static boolean isMillet(String busiCode){
+        if(StringUtils.isEmpty(busiCode)){
+            return false;
+        }
+        return DmsConstants.busiCodeOfMillet.equals(busiCode);
+    }
+
+    /**
      * 判断正向
      *
      * @param businessType

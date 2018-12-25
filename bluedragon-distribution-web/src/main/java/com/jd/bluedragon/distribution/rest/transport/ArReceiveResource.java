@@ -128,7 +128,7 @@ public class ArReceiveResource {
         return result;
     }
 
-    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
         if (StringUtils.isEmpty(transName)) {
@@ -142,7 +142,7 @@ public class ArReceiveResource {
         try {
             //只支持航空单查询
             if (transType.equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode()) && siteOrder == null) {
-                List<ArSendRegister> sendRegisterListToRouter=new ArrayList<ArSendRegister>();
+                List<ArSendRegister> sendRegisterListToRouter = new ArrayList<ArSendRegister>();
                 //根据入参查询发货登记记录列表
                 List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
                 if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
@@ -168,11 +168,11 @@ public class ArReceiveResource {
                                     logger.warn("空铁JSF接口---根据批次号获取发货明细为空，批次号：" + arSendCode);
                                 }
                             }
-                        }else{
+                        } else {
                             logger.warn("空铁JSF接口---根据发货登记id获取批次号列表为空，发货登记id：" + sendRegister.getId());
                         }
                     }
-                }else{
+                } else {
                     logger.warn("空铁JSF接口---根据入参获取发货登记列表明细为空");
                 }
                 response.toSucceed();
@@ -184,6 +184,40 @@ public class ArReceiveResource {
         }
         return response;
     }
+
+    public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate) {
+        JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
+        if (StringUtils.isEmpty(transName)) {
+            response.toFail("运力名称不能为null或空字符串");
+        }
+
+        if (sendDate == null) {
+            response.toFail("发货日期不能为空");
+        }
+
+        try {
+            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
+            if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
+                for (ArSendRegister sendRegister : sendRegisterList) {
+                    List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
+                    if (sendCodes != null && !sendCodes.isEmpty()) {
+                        List<String> sendCodeStrList = new ArrayList<String>(sendCodes.size());
+                        for (ArSendCode arSendCode : sendCodes) {
+                            sendCodeStrList.add(arSendCode.getSendCode());
+                        }
+                        sendRegister.setSendCodes(sendCodeStrList);
+                    }
+                }
+            }
+            response.toSucceed();
+            response.setData(sendRegisterList);
+        } catch (Exception e) {
+            logger.error("获取发货登记信息和批次信息时发生异常", e);
+            response.toError("获取发货登记信息和批次信息时发生异常");
+        }
+        return response;
+    }
+
 
     /**
      * 根据分拣中心id调用基础资料接口获取所在的城市
