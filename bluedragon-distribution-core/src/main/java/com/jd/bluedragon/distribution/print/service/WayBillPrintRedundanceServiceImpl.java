@@ -1,19 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.domain.PackageState;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -36,24 +22,24 @@ import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
-import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
-import static com.jd.bluedragon.distribution.handler.InterceptResult.MESSAGE_NEED_RECEIVE;
+import java.util.Date;
 
 /**
  * 面单打印冗余服务
@@ -84,9 +70,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     
     @Autowired
     private PreSortingSecondService preSortingSecondService;
-
-    @Autowired
-    private WaybillTraceApi waybillTraceApi;
 
     /* MQ消息生产者： topic:bd_waybill_original_site_change*/
     @Autowired
