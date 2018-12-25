@@ -23,9 +23,6 @@
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
 		<etms.waybill.agent.version>4.2.18</etms.waybill.agent.version>
-		<!-- 用于源码tag -->
-		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
-		<project.scm.id>xnqlarch-gitlab</project.scm.id>
 	</properties>
 
 	<dependencies>
@@ -845,14 +842,6 @@
 
 	</dependencies>
 
-	<scm>
-		<url>http://git.jd.com/ql-zy-dms/ql-dms-distribution</url>
-		<connection>scm:git:http://git.jd.com/ql-zy-dms/ql-dms-distribution.git</connection>
-		<developerConnection>scm:git:git@git.jd.com:ql-zy-dms/ql-dms-distribution.git</developerConnection>
-		<tag>HEAD</tag>
-	</scm>
-
-
 	<build>
 		<plugins>
 			<plugin>
@@ -885,19 +874,6 @@
                         <additionalClasspathElement>${project.basedir/src/main/resources</additionalClasspathElement>
                     </additionalClasspathElements>
                     -->
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonarsource.scanner.maven</groupId>
-				<artifactId>sonar-maven-plugin</artifactId>
-				<version>3.4.0.905</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-scm-plugin</artifactId>
-				<version>1.11.1</version>
-				<configuration>
-					<tag>v_${project.version}_${maven.build.timestamp}</tag>
 				</configuration>
 			</plugin>
 		</plugins>
