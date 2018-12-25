@@ -1407,7 +1407,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
             }
         }catch (Exception e){
-            logger.error("获取转运损标识异常"+JsonHelper.toJson(sendDetail));
+            logger.error("获取转运损标识异常"+JsonHelper.toJson(sendDetail),e);
         }
         if (waybill != null && sendDetail != null && sendDetail.getFeatureType() != null) {
             if (2 == NumberHelper.getIntegerValue(sendDetail.getFeatureType())) {
