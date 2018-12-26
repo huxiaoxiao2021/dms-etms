@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.VmsManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseDatadict;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
@@ -38,6 +40,9 @@ import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
 import com.jd.etms.vts.dto.DictDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
@@ -110,6 +115,8 @@ public class BaseResource {
 	
 	@Autowired
 	private ClientConfigService clientConfigService;
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	@GET
 	//Path("/bases/allsite/")
@@ -1172,6 +1179,68 @@ public class BaseResource {
 		response.setSiteCode(sitecode);
 
 		return response;
+	}
+
+	/**
+	 *
+	 *	通过运单号获取所属预分拣站点以及所属自营站点
+	 *
+	 * 	包含以下场景
+	 *
+	 *  根据自提柜、深度合作自提柜、合作自提代收点 获取所属自营站点
+	 *  根据三方-合作站点获取三方-合作站点所属自营站点
+	 *  @param
+	 *  @return 自营站点信息
+	 * */
+	@GET
+	@Path("/bases/perAndSelfSite/{waybillCode}")
+	public InvokeResult<List<Integer>> perAndSelfSite(@PathParam("waybillCode") String waybillCode) {
+		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+		List<Integer> siteCodes = new ArrayList<Integer>();
+		result.setData(siteCodes);
+		try{
+
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+			if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybill()!=null){
+				//获取运单信息
+				Waybill waybill = baseEntity.getData().getWaybill();
+				//获取预分拣站点信息
+				Integer perSiteCode = waybill.getOldSiteId();
+				BaseStaffSiteOrgDto perSite = baseMajorManager.getBaseSiteBySiteId(perSiteCode);
+				if(perSite!=null){
+					//记录预分拣站点
+					siteCodes.add(perSiteCode);
+					//根据三方-合作站点获取三方-合作站点所属自营站点
+					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
+							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())){
+						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
+						if(PartnerSite!=null){
+							//记录大站
+							siteCodes.add(PartnerSite);
+						}
+					}else if (BusinessUtil.isZiTiGui(waybill.getSendPay()) || BusinessUtil.isBianMinZiTi(waybill.getSendPay()) || BusinessUtil.isHeZuoDaiShou(waybill.getSendPay())) {
+						// 获取自提柜所属站点编号
+						Integer selfSiteCode = baseService.getSiteSelfDBySiteCode(perSiteCode);
+						if(selfSiteCode!= null ){
+							siteCodes.add(selfSiteCode);
+						}
+					}
+
+				}else{
+					result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+					result.setMessage("未获取到预分拣站点");
+				}
+
+			}else{
+				result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+				result.setMessage("未获取到运单信息");
+			}
+		}catch (Exception e){
+			logger.error("bases/perAndSelfSite error!"+waybillCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
 	}
 
 	@GET
