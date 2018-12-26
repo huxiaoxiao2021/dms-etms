@@ -61,9 +61,6 @@ public enum PackageHalfReasonTypeEnum {
      * @return 规则类型
      */
     public static String getNameByKey(String code) {
-        if(code == null || "-1".equals(code)){
-            return "";
-        }
         PackageHalfReasonTypeEnum _enum = codeMap.get(code);
         if (_enum != null) {
             return _enum.getName();
