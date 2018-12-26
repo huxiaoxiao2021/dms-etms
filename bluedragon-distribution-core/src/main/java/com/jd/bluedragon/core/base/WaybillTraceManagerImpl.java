@@ -1,11 +1,14 @@
 package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +23,7 @@ import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
  */
 @Service("waybillTraceManager")
 public class WaybillTraceManagerImpl implements WaybillTraceManager {
+    private static final Log logger = LogFactory.getLog(WaybillTraceManagerImpl.class);
     @Autowired
     private WaybillTraceApi waybillTraceApi;
 
@@ -34,9 +38,10 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.getPkStateByWCodeAndState", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<PackageState> getPkStateByWCodeAndState(String waybillCode, String state) {
         BaseEntity<List<PackageState>> baseEntity = waybillTraceApi.getPkStateByWCodeAndState(waybillCode, state);
-        if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null && baseEntity.getData().size() > 0) {
+        if (baseEntity != null && baseEntity.getResultCode() == RESULT_SUCCESS && baseEntity.getData() != null ) {
             return baseEntity.getData();
         } else {
+            logger.warn("WaybillTraceManagerImpl.getPkStateByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
             return Lists.newArrayList();
         }
     }
