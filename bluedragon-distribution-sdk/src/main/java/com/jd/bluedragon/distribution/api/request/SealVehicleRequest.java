@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.google.common.base.Splitter;
+import com.google.common.collect.Sets;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 public class SealVehicleRequest extends JdRequest {
@@ -54,22 +56,6 @@ public class SealVehicleRequest extends JdRequest {
 	/** 批次号 , 可以传多个, 逗号隔开 */
 	private String sendCodes;
 
-	private List<String> split(String str) {
-		List<String> list = new ArrayList<String>();
-		if (str != null) {
-			String array[] = str.trim().split(",");
-			for (String s : array) {
-				if (s != null) {
-                    String trimStr = s.trim();
-                    if (! "".equals(trimStr) && ! list.contains(trimStr)) {
-                        list.add(trimStr);
-                    }
-				}
-			}
-		}
-		return list;
-	}
-
 	public String getSealCodes() {
 		return sealCodes;
 	}
@@ -82,13 +68,30 @@ public class SealVehicleRequest extends JdRequest {
 		return sendCodes;
 	}
 
-
 	public List<String> getSealCodeList() {
-		return this.split(sealCodes);
+		if (null == sealCodes) {
+			return new ArrayList<String>();
+		}
+		List<String> sealCodeList = new ArrayList<String>();
+		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sealCodes);
+		Set<String> set = Sets.newTreeSet(it);
+		for (String s : set) {
+			sealCodeList.add(s);
+		}
+		return sealCodeList;
 	}
 
 	public List<String> getSendCodeList() {
-		return this.split(sendCodes);
+		if (null == sendCodes) {
+			return new ArrayList<String>();
+		}
+		List<String> sendCodeList = new ArrayList<String>();
+		Iterable<String> it = Splitter.on(',').trimResults().omitEmptyStrings().split(sendCodes);
+		Set<String> set = Sets.newTreeSet(it);
+		for (String s : set) {
+			sendCodeList.add(s);
+		}
+		return sendCodeList;
 	}
 
 	public void setSendCodes(String sendCodes) {
