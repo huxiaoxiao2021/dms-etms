@@ -57,7 +57,7 @@ public class SealVehicleRequest extends JdRequest {
 	private List<String> split(String str) {
 		List<String> list = new ArrayList<String>();
 		if (str != null) {
-			String array[] = sealCodes.trim().split(",");
+			String array[] = str.trim().split(",");
 			for (String s : array) {
 				if (s != null) {
                     String trimStr = s.trim();
