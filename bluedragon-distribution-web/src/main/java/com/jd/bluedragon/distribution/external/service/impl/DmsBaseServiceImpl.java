@@ -2,8 +2,10 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -20,10 +22,13 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @Autowired
     @Qualifier("baseResource")
     private BaseResource baseResource;
+    
+	@Autowired
+	private UserService userService;
 
     @Override
     public BaseResponse login(LoginRequest request) {
-        return baseResource.login(request);
+        return userService.jsfLogin(request);
     }
 
     @Override
