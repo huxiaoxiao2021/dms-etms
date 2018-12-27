@@ -23,4 +23,6 @@ public interface WeighByWaybillService
     public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion;
 
     public void errorLogForOperator(WaybillWeightVO dto,LoginContext loginContext,boolean isImport);
+
+    boolean isOpenIntercept();
 }
