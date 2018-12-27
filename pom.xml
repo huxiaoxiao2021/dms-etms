@@ -191,8 +191,8 @@
 			</plugin>
 		</plugins>
 	</build>
-    
-    <developers>
+
+	<developers>
     	<developer>
     		<id>Wang Zhipeng</id>
     		<name>Wang Zhipeng</name>

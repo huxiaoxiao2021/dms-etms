@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -259,10 +261,13 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             waybill.setRoadCode(context.getWaybill().getRoad());
         }
 
+        BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
+
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
-
+        //商家编码
+        labelPrinting.setBusiCode(dto!=null?dto.getTraderCode():null);
         labelPrinting.setOriginalDmsCode(request.getDmsCode());
         labelPrinting.setOriginalDmsName(request.getDmsName());
         labelPrinting.setOriginalCrossType(BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay()));

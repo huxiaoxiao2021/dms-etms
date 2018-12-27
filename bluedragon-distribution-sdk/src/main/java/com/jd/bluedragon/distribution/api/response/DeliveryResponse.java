@@ -93,6 +93,19 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_29120 = 29120;
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    /**
+     * 该批次是否已经发过货
+     */
+    public boolean sendCodeSendOver=false;
+
+    public boolean isSendCodeSendOver() {
+        return sendCodeSendOver;
+    }
+
+    public void setSendCodeSendOver(boolean sendCodeSendOver) {
+        this.sendCodeSendOver = sendCodeSendOver;
+    }
+
     public DeliveryResponse() {
         super();
     }
