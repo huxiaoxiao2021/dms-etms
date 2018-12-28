@@ -5,13 +5,11 @@ import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.request.PrintInfoParam;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -88,20 +86,20 @@ public interface RmaHandOverWaybillService {
     void updatePrintInfo(PrintInfoParam printInfoParam);
 
     /**
-     * 获取打印数据接口
+     * 根据ID列表获取数据集合Token
      *
      * @param ids
      * @return
      */
-    List<RmaHandoverPrint> getPrintInfo(List<Long> ids);
+    List<Integer> getTokenGroupByKey(List<Long> ids);
 
     /**
-     * 获取打印数据接口
+     * 根据Token获取打印对象
      *
-     * @param ids
+     * @param token
      * @return
      */
-    Map<String, RmaHandoverPrint> getPrintInfoMap(List<Long> ids);
+    RmaHandoverPrint getPrintObject(Integer token);
 
     /**
      * 构建逻辑RMA数据对象及数据存储

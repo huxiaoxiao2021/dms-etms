@@ -20,11 +20,10 @@ public class PrintHelper {
 
     private static final Logger log = LogManager.getLogger(PrintHelper.class);
 
-    public static void getPrintWaybillRma(List<RmaHandoverPrint> rmaHandoverPrints, OutputStream outputStream) throws Exception {
-        if (rmaHandoverPrints == null) {
+    public static void printRmaHandoverPDF(RmaHandoverPrint rmaHandoverPrint, OutputStream outputStream) throws Exception {
+        if (rmaHandoverPrint == null) {
             throw new Exception("获取打印数据为空");
         }
-        RmaHandoverPrint rmaHandoverPrint = rmaHandoverPrints.get(0);
 
         List<RmaHandoverDetail> handoverDetails = rmaHandoverPrint.getHandoverDetails();
         // 定义A4页面大小

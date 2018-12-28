@@ -20,6 +20,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -27,6 +28,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +38,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -62,6 +67,15 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
 
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    @Qualifier("redisClientCache")
+    private Cluster redisClientCache;
+
+    /**
+     * 缓存redis的key
+     */
+    private final static String REDIS_CACHE_KEY = "RMA-HANDOVER-TOKEN-";
 
     /**
      * 分隔符号
@@ -194,37 +208,70 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
     }
 
     @Override
-    public List<RmaHandoverPrint> getPrintInfo(List<Long> ids) {
-        Map<String, RmaHandoverPrint> result = getPrintInfoMap(ids);
-        if (result.size() > 0) {
-            return new ArrayList<RmaHandoverPrint>(result.values());
+    public List<Integer> getTokenGroupByKey(List<Long> ids) {
+        List<RmaHandoverWaybill> rmaHandoverWaybills = this.getList(ids, false);
+        if (rmaHandoverWaybills.size() > 0) {
+            Set<String> keySetSet = new HashSet<String>();
+            Set<Integer> hashCodeKeySet = new HashSet<Integer>();
+            for (RmaHandoverWaybill handoverWaybill : rmaHandoverWaybills) {
+                // 获取判断是否属于同一RMA接货单的判断依据key值
+                String key = this.getRmaHandoverKey(handoverWaybill);
+                // 获取token
+                Integer token = this.getHashCodeToken(keySetSet, hashCodeKeySet, key);
+                redisClientCache.sAdd(REDIS_CACHE_KEY + token, String.valueOf(handoverWaybill.getId()));
+            }
+            if (hashCodeKeySet.size() > 0) {
+                List<Integer> tokens = new ArrayList<Integer>(hashCodeKeySet);
+                for (Integer token : tokens) {
+                    redisClientCache.expire(REDIS_CACHE_KEY + token, 60, TimeUnit.SECONDS);
+                }
+                return tokens;
+            }
         }
         return Collections.emptyList();
     }
 
-    @Override
-    public Map<String, RmaHandoverPrint> getPrintInfoMap(List<Long> ids) {
-        List<RmaHandoverWaybill> rmaHandoverWaybills = this.getList(ids, true);
-        Map<String, RmaHandoverPrint> result = new HashMap<String, RmaHandoverPrint>();
-        for (RmaHandoverWaybill handoverWaybill : rmaHandoverWaybills) {
-            // 获取判断是否属于同一RMA接货单的判断依据key值
-            String key = this.getRmaHandoverKey(handoverWaybill);
-            RmaHandoverPrint printInfo = result.get(key);
-            if (printInfo != null) {
-                printInfo.getIds().add(handoverWaybill.getId());
-                // 已存在则将明细添加
-                List<RmaHandoverDetail> details = handoverWaybill.getRmaHandoverDetail();
-                printInfo.getHandoverDetails().addAll(details);
-                printInfo.setWaybillCount(printInfo.getWaybillCount() + 1);
-                printInfo.setPackageCount(printInfo.getPackageCount() + 1);
-                printInfo.setSpareCount(printInfo.getSpareCount() + details.size());
-            } else {
-                printInfo = this.buildPrintInfo(handoverWaybill);
-                result.put(key, printInfo);
+    /**
+     * 获取哈希Token
+     *
+     * @param hashCodeKey
+     * @param key
+     * @return
+     */
+    private Integer getHashCodeToken(Set<String> keySetSet, Set<Integer> hashCodeKey, String key) {
+        if (keySetSet.add(key)) {
+            while (!hashCodeKey.add(key.hashCode())) {
+                //出现哈希碰撞 再哈希
+                key = String.valueOf(key.hashCode());
             }
         }
+        return key.hashCode();
+    }
 
-        return result;
+    @Override
+    public RmaHandoverPrint getPrintObject(Integer token) {
+        Set<String> idSet = redisClientCache.sMembers(REDIS_CACHE_KEY + token);
+        redisClientCache.del(REDIS_CACHE_KEY + token);
+        if (idSet != null && idSet.size() > 0) {
+            List<String> idStrList = new ArrayList<String>(idSet);
+            List<Long> ids = new ArrayList<Long>(idStrList.size());
+            for (String id : idStrList) {
+                ids.add(Long.valueOf(id));
+            }
+            List<RmaHandoverWaybill> rmaHandoverWaybills = this.getList(ids, true);
+            RmaHandoverPrint printResult = this.buildPrintInfo(rmaHandoverWaybills.get(0));
+            for (int i = 1, len = rmaHandoverWaybills.size(); i < len; i++) {
+                printResult.getIds().add(rmaHandoverWaybills.get(i).getId());
+                // 已存在则将明细添加
+                List<RmaHandoverDetail> details = rmaHandoverWaybills.get(i).getRmaHandoverDetail();
+                printResult.getHandoverDetails().addAll(details);
+                printResult.setWaybillCount(printResult.getWaybillCount() + 1);
+                printResult.setPackageCount(printResult.getPackageCount() + 1);
+                printResult.setSpareCount(printResult.getSpareCount() + details.size());
+            }
+            return printResult;
+        }
+        return null;
     }
 
     /**

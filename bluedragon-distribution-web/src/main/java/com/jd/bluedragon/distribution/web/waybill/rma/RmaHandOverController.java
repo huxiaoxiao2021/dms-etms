@@ -12,17 +12,13 @@ import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
 import com.jd.bluedragon.distribution.rma.request.RmaHandoverQueryParam;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
-import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
-import com.jd.bluedragon.distribution.signReturn.SignReturnCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.print.PrintHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by zhanghao141 on 2018/9/18.
@@ -203,28 +198,25 @@ public class RmaHandOverController {
         RmaHandoverResponse<String> rmaResponse = new RmaHandoverResponse<String>();
         rmaResponse.setCode(RmaHandoverResponse.CODE_FAIL);
         try {
-            String billsNos = request.getParameter("sysnos");
-            String[] idsArray = billsNos.split(",");
-            List<Long> idLs = new ArrayList<Long>();
-            for (String id : idsArray) {
-                Long idL = new Long(id);
-                idLs.add(idL);
-            }
-            List<RmaHandoverPrint> rmaHandoverPrintList = rmaHandOverWaybillService.getPrintInfo(idLs);
-            PrintHelper.getPrintWaybillRma(rmaHandoverPrintList, response.getOutputStream());
-            Date date = new Date();
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null) {
-                for (Long id : idLs) {
-                    RmaHandoverWaybill rmaHandoverWaybill = new RmaHandoverWaybill();
-                    rmaHandoverWaybill.setId(id);
-                    rmaHandoverWaybill.setPrintStatus(PrintStatusEnum.HAD_PRINTED.getCode());
-                    rmaHandoverWaybill.setPrintTime(date);
-                    rmaHandoverWaybill.setPrintUserCode(erpUser.getUserId());
-                    rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
-                    rmaHandOverWaybillService.update(rmaHandoverWaybill);
+            String token = request.getParameter("token");
+            RmaHandoverPrint rmaHandoverPrint = rmaHandOverWaybillService.getPrintObject(Integer.valueOf(token));
+            if (rmaHandoverPrint != null) {
+                PrintHelper.printRmaHandoverPDF(rmaHandoverPrint, response.getOutputStream());
+                Date date = new Date();
+                ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+                if (erpUser != null) {
+                    for (Long id : rmaHandoverPrint.getIds()) {
+                        RmaHandoverWaybill rmaHandoverWaybill = new RmaHandoverWaybill();
+                        rmaHandoverWaybill.setId(id);
+                        rmaHandoverWaybill.setPrintStatus(PrintStatusEnum.HAD_PRINTED.getCode());
+                        rmaHandoverWaybill.setPrintTime(date);
+                        rmaHandoverWaybill.setPrintUserCode(erpUser.getUserId());
+                        rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
+                        rmaHandOverWaybillService.update(rmaHandoverWaybill);
+                    }
                 }
             }
+            rmaResponse.toNormal("");
         } catch (Exception e) {
             logger.error("[RMA交接清单打印]生成打印页面时发生异常", e);
             rmaResponse.toException("生成打印页面时发生异常，请联系管理员");
@@ -240,9 +232,9 @@ public class RmaHandOverController {
      */
     @RequestMapping("/printWaybillRmaPage")
     @ResponseBody
-    public RmaHandoverResponse<List<List<Long>>> printWaybillRmaPage(@RequestBody String idList) {
-        RmaHandoverResponse<List<List<Long>>> rmaHandoverResponse = new RmaHandoverResponse<List<List<Long>>>();
-        rmaHandoverResponse.setCode(CommonDto.CODE_FAIL);
+    public RmaHandoverResponse<List<Integer>> printWaybillRmaPage(@RequestBody String idList) {
+        RmaHandoverResponse<List<Integer>> response = new RmaHandoverResponse<List<Integer>>();
+        response.setCode(CommonDto.CODE_FAIL);
         try {
             String[] idsArray = idList.split(",");
             List<Long> idLs = new ArrayList<Long>();
@@ -250,28 +242,22 @@ public class RmaHandOverController {
                 Long idL = new Long(id);
                 idLs.add(idL);
             }
-            List<RmaHandoverPrint> rmaHandoverPrints = rmaHandOverWaybillService.getPrintInfo(idLs);
-            List<List<Long>> lists = new ArrayList<List<Long>>();
-            if (rmaHandoverPrints != null && rmaHandoverPrints.size() > 0) {
-                for (RmaHandoverPrint rmaHandoverPrint : rmaHandoverPrints) {
-                    lists.add(rmaHandoverPrint.getIds());
-                }
-                if (lists.size() > 0) {
-                    rmaHandoverResponse.setCode(CommonDto.CODE_NORMAL);
-                    rmaHandoverResponse.setData(lists);
-                }
+            List<Integer> tokenList = rmaHandOverWaybillService.getTokenGroupByKey(idLs);
+            if (tokenList.size() > 0) {
+                response.setCode(CommonDto.CODE_NORMAL);
+                response.setData(tokenList);
             }
         } catch (Exception e) {
             logger.error("[RMA交接清单打印]获取打印页面分组信息时发生异常", e);
-            rmaHandoverResponse.toException("获取打印页面分组信息时发生异常，请联系管理员");
+            response.toException("获取打印页面分组信息时发生异常，请联系管理员");
         }
-        return rmaHandoverResponse;
+        return response;
     }
 
     @RequestMapping(value = "/toExport")
-    public ModelAndView toExport(String sysnos, Model model) {
+    public ModelAndView toExport(String token, Model model) {
         try {
-            getExportData(sysnos,model);
+            this.getExportData(token, model);
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         } catch (Exception e) {
             logger.error("toExport:" + e.getMessage(), e);
@@ -279,17 +265,14 @@ public class RmaHandOverController {
         }
     }
 
-
-
     /**
      * 组装导出数据
-     * @param sysnos
+     *
+     * @param token
      * @return
      */
-    private List<List<Object>> getExportData(String sysnos,Model model) {
-
+    private List<List<Object>> getExportData(String token, Model model) {
         List<List<Object>> resList = new ArrayList<List<Object>>();
-
         List<Object> heads = new ArrayList<Object>();
 
         //"备件条码", "运单号", "出库单号", "商品编号", "商品名称", "异常备注"
@@ -301,27 +284,18 @@ public class RmaHandOverController {
         heads.add("异常备注");
         resList.add(heads);
 
-        String[] idsArray = sysnos.split(Constants.SEPARATOR_COMMA);
-        List<Long> idLs = new ArrayList<Long>();
-        for (String id : idsArray) {
-            Long idL = new Long(id);
-            idLs.add(idL);
-        }
-        Map<String, RmaHandoverPrint> rmaHandoverPrintMap = rmaHandOverWaybillService.getPrintInfoMap(idLs);
+        RmaHandoverPrint rmaHandoverPrint = rmaHandOverWaybillService.getPrintObject(Integer.valueOf(token));
 
         //能进来导出 就证明rmaHandoverPrints 集合只有一条数据，，根据他打印功能梳理出来的 导出只导出明细部分
-        if(rmaHandoverPrintMap.size() != 1){
-            logger.error("RMA交接清单导出存在异常数据"+sysnos);
+        if (rmaHandoverPrint == null) {
+            logger.error("RMA交接清单导出存在异常数据, 根据token获取打印数据为空，token:" + token);
             return resList;
         }
-        RmaHandoverPrint rmaHandoverPrint = null;
-        for(String key : rmaHandoverPrintMap.keySet()){
-            model.addAttribute("filename", key+".xls");
-            model.addAttribute("sheetname", "RMA交接清单");
-            rmaHandoverPrint = rmaHandoverPrintMap.get(key);
-        }
-        if(!rmaHandoverPrint.getHandoverDetails().isEmpty()){
-            for(RmaHandoverDetail rmaHandoverDetail : rmaHandoverPrint.getHandoverDetails()){
+        model.addAttribute("filename", "RMA交接清单-" + rmaHandoverPrint.getReceiver() + ".xls");
+        model.addAttribute("sheetname", "RMA交接清单");
+
+        if (!rmaHandoverPrint.getHandoverDetails().isEmpty()) {
+            for (RmaHandoverDetail rmaHandoverDetail : rmaHandoverPrint.getHandoverDetails()) {
                 List<Object> body = new ArrayList<Object>();
                 body.add(rmaHandoverDetail.getSpareCode());
                 body.add(rmaHandoverDetail.getWaybillCode());

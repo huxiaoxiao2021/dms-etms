@@ -75,7 +75,7 @@ function printBtn() {
                     if (msg.code == 1) {
                         var resultList = msg.data;
                         for (var i = 0; i < resultList.length; i++) {
-                            window.open("/waybill/rma/printWaybillRma?sysnos=" + resultList[i]);
+                            window.open("/waybill/rma/printWaybillRma?token=" + resultList[i]);
                         }
                     } else {
                         jQuery.messager.alert('提示:', data.message, 'error');
@@ -121,24 +121,7 @@ function exportBtn() {
                     if (msg.code == 1) {
                         var resultList = msg.data;
                         for (var i = 0; i < resultList.length; i++) {
-
-                           /* var form = $("<form method='post' class='must-remove'></form>"),
-                                input;
-                            form.attr({"action":"/waybill/rma/toExport"});
-
-                            input = $("<input type='hidden'>");
-                            input.attr({"name":"sysnos"});
-                            input.val(resultList[i]);
-                            form.append(input);
-
-                            form.appendTo(document.body);
-                            debugger;
-                            form.submit();*/
-                            //$.post("/waybill/rma/toExport?sysnos="+resultList[i],{},function(data){});
-                            window.open("/waybill/rma/toExport?sysnos=" + resultList[i]);
-                            //document.body.removeChild($(".must-remove")[0]);
-                            //$(".must-remove").remove();
-
+                            window.open("/waybill/rma/toExport?token=" + resultList[i]);
                         }
                     } else {
                         jQuery.messager.alert('提示:', data.message, 'error');
