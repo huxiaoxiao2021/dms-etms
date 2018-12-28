@@ -118,7 +118,7 @@ public class WeighByWaybillController {
                                 service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
                                 if(service.isOpenIntercept()){
                                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                                    result.setMessage("未获取到当前操作人机构信息");
+                                    result.setMessage("未获取到当前操作人机构信息，请在青龙基础资料维护员工信息");
                                     result.setData(false);
                                     return result;
                                 }
@@ -128,7 +128,7 @@ public class WeighByWaybillController {
                             service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
                             if(service.isOpenIntercept()) {
                                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                                result.setMessage("未获取到当前操作人信息");
+                                result.setMessage("未获取到当前操作人信息，请在青龙基础资料维护员工信息");
                                 result.setData(false);
                                 return result;
                             }
@@ -300,13 +300,13 @@ public class WeighByWaybillController {
                 if(bssod == null){
                     service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
                     if(service.isOpenIntercept()) {
-                        return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息");
+                        return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息，请在青龙基础资料维护员工信息");
                     }
                 }
             }else {
                 service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
                 if(service.isOpenIntercept()) {
-                    return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息");
+                    return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息，请在青龙基础资料维护员工信息");
                 }
             }
             //解析excel
