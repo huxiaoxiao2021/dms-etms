@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 import java.util.Date;
@@ -175,11 +174,23 @@ public class BoxRequest extends JdRequest {
 		this.mixBoxType = mixBoxType;
 	}
 
+	@Override
 	public String toString() {
-		return Objects.toStringHelper(BoxRequest.class).addValue(this.type).addValue(this.boxCode)
-				.addValue(this.createSiteCode).addValue(this.createSiteName).addValue(this.receiveSiteCode)
-				.addValue(this.receiveSiteName).addValue(this.quantity)
-				.addValue(this.transportType).addValue(this.createSiteType).addValue(this.receiveSiteType).toString();
+		return "BoxRequest{" +
+				"type='" + type + '\'' +
+				", boxCode='" + boxCode + '\'' +
+				", createSiteCode=" + createSiteCode +
+				", createSiteName='" + createSiteName + '\'' +
+				", receiveSiteCode=" + receiveSiteCode +
+				", receiveSiteName='" + receiveSiteName + '\'' +
+				", quantity=" + quantity +
+				", operateType=" + operateType +
+				", transportType=" + transportType +
+				", createSiteType='" + createSiteType + '\'' +
+				", receiveSiteType='" + receiveSiteType + '\'' +
+				", mixBoxType=" + mixBoxType +
+				", predictSendTime=" + predictSendTime +
+				", router='" + router + '\'' +
+				'}';
 	}
-
 }

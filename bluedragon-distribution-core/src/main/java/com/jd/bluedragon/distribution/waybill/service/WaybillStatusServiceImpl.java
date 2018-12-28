@@ -824,8 +824,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					PackageSyncPartParameter packageSyncPartParameter = new PackageSyncPartParameter();
 					packageSyncPartParameter.setPackageCode(packageHalfDetail.getPackageCode());
 					packageSyncPartParameter.setPackageOperateType(getPackageOperateTypeByResultType(packageHalfDetail.getResultType()));
-					packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
-
+					if(packageHalfDetail.getReasonType()==null || packageHalfDetail.getReasonType().toString().equals("-1")){
+						packageSyncPartParameter.setRemark("");
+					}else{
+						packageSyncPartParameter.setRemark(PackageHalfReasonTypeEnum.getNameByKey(packageHalfDetail.getReasonType().toString()));
+					}
 					packageSyncPartParameterList.add(packageSyncPartParameter);
 				}
 

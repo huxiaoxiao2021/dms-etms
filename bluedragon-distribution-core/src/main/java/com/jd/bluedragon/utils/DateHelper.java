@@ -52,6 +52,9 @@ public class DateHelper {
 
     public static final String DATE_FORMAT_YYYYMMDD = "yyyy-MM-dd";
 
+    public static final String DATE_FORMAT_HHmmss = "HH:mm:ss";
+
+
     public static Date add(final Date date, Integer field, Integer amount) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);

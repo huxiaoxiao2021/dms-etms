@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 import java.util.Date;
@@ -125,8 +124,18 @@ public class BatchInfoRequest extends JdRequest {
         this.yn = yn;
     }
 
-	public String toString() {
-		return Objects.toStringHelper(BatchInfoRequest.class).	addValue(this.createSiteCode).toString();
-	}
-
+    @Override
+    public String toString() {
+        return "BatchInfoRequest{" +
+                "batchCode='" + batchCode + '\'' +
+                ", createSiteCode=" + createSiteCode +
+                ", createUser='" + createUser + '\'' +
+                ", createUserCode=" + createUserCode +
+                ", createTime=" + createTime +
+                ", updateUserCode=" + updateUserCode +
+                ", updateUser='" + updateUser + '\'' +
+                ", updateTime=" + updateTime +
+                ", yn=" + yn +
+                '}';
+    }
 }

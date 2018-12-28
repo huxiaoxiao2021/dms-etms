@@ -59,7 +59,7 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-3 " for="startDate">预计起飞日期 ：</label>
                                 <div class=" col-xs-4">
-                                    <input type="text" id="planStartDateGE" name="planStartDateGE" class="form-control search-param ">
+                                    <input type="text" id="planStartDateGEStr" name="planStartDateGEStr" class="form-control search-param ">
 
                                 </div>
                                 <div class="col-xs-1" style="text-align:center;">
@@ -67,7 +67,7 @@
                                 </div>
                                 <div class="col-xs-4">
 
-                                    <input type="text" id="planStartDateLE" name="planStartDateLE" class="form-control search-param ">
+                                    <input type="text" id="planStartDateLEStr" name="planStartDateLEStr" class="form-control search-param ">
 
                                 </div>
                             </div>
@@ -136,7 +136,7 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">预计起飞日期 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="planStartDate" name="planStartDate"/>
+                                <input type="text" class="form-control edit-param" id="planStartDateStr" name="planStartDateStr"/>
                             </div>
                         </div>
 
@@ -171,13 +171,13 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">预计起飞时间 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="planStartTime" name="planStartTime"/>
+                                <input type="text" class="form-control edit-param" id="planStartTimeStr" name="planStartTimeStr"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-3 control-label">预计落地时间 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="planEndTime" name="planEndTime"/>
+                                <input type="text" class="form-control edit-param" id="planEndTimeStr" name="planEndTimeStr"/>
                             </div>
                         </div>
 
@@ -228,7 +228,7 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">订舱日期 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="bookingSpaceTime" name="bookingSpaceTime"/>
+                                <input type="text" class="form-control edit-param" id="bookingSpaceTimeStr" name="bookingSpaceTimeStr"/>
                             </div>
                         </div>
                         <div class="form-group">
