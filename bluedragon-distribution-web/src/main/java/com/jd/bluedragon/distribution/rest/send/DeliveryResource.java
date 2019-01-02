@@ -408,8 +408,8 @@ public class DeliveryResource {
             }
 
             //如果扫描的是运单号，判断是否是B冷链操作的快运发货
-            if((!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
-                    && WaybillUtil.isWaybillCode(request.getBoxCode()))){
+            if(!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
+                    && WaybillUtil.isWaybillCode(request.getBoxCode())){
                 DeliveryResponse response = isValidWaybillCode(request);
                 if(!JdResponse.CODE_OK.equals(response.getCode())){
                     return response;
@@ -421,7 +421,8 @@ public class DeliveryResource {
             if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
                 // 因为B冷链转运中心需要支持扫描运单号发货，
                 // 如果扫的是运单号，则生成第一个包裹号，用于校验
-                if (WaybillUtil.isWaybillCode(request.getBoxCode())) {
+                if (!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
+                        && WaybillUtil.isWaybillCode(request.getBoxCode())) {
                     List<String> waybillCodeList = WaybillUtil.generateAllPackageCodes(request.getBoxCode());
                     if(waybillCodeList == null || waybillCodeList.size() < 1){
                         logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.");
@@ -451,8 +452,8 @@ public class DeliveryResource {
             }
 
             //如果扫描的是运单号，判断是否是B冷链操作的快运发货
-            if((!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
-                    && WaybillUtil.isWaybillCode(request.getBoxCode()))){
+            if(!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
+                    && WaybillUtil.isWaybillCode(request.getBoxCode())){
                 DeliveryResponse response = isValidWaybillCode(request);
                 if(!JdResponse.CODE_OK.equals(response.getCode())){
                     return response;
