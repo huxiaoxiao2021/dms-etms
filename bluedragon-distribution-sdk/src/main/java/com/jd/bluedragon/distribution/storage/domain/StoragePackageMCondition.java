@@ -4,8 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
-import org.springframework.format.annotation.DateTimeFormat;
-
 /**
  *
  * @ClassName: StoragePackageMCondition

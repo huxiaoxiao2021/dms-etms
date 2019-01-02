@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
  *
  */
 public class InterceptResult<T> extends JdResult<T>{
+
 	/**
 	 * 
 	 */

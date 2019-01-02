@@ -766,4 +766,9 @@ public class Constants {
      * 取消发货状态（托寄物品名打印）
      */
     public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
+
+    /**
+     * 全程跟踪状态  揽收完成
+     */
+    public static final String WAYBILLTRACE_STATE ="-640";
 }

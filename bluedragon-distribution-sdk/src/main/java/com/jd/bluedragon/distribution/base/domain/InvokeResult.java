@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.base.domain;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.Serializable;
 
 /**
@@ -10,7 +7,6 @@ import java.io.Serializable;
  */
 public class InvokeResult<T> implements Serializable {
 
-    private static final Log        logger= LogFactory.getLog(InvokeResult.class);
     public static final int RESULT_NULL_CODE=0;
     public static final String  RESULT_NULL_MESSAGE="结果为空！";
 

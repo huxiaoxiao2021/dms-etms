@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
+import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.utils.DateHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -85,8 +87,10 @@ public class ArBookingSpaceController {
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<ArBookingSpace> detail(@PathVariable("id") Long id) {
     	JdResponse<ArBookingSpace> rest = new JdResponse<ArBookingSpace>();
-    	rest.setData(arBookingSpaceService.findById(id));
-    	return rest;
+		ArBookingSpace arBookingSpace = arBookingSpaceService.findById(id);
+		convertDate(arBookingSpace,false);
+    	rest.setData(arBookingSpace);
+		return rest;
     }
     /**
      * 保存数据
@@ -94,6 +98,8 @@ public class ArBookingSpaceController {
      */
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(ArBookingSpace arBookingSpace) {
+    	convertDate(arBookingSpace,true);
+
     	JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		String userCode = "";
@@ -142,6 +148,7 @@ public class ArBookingSpaceController {
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArBookingSpace> listData(@RequestBody ArBookingSpaceCondition arBookingSpaceCondition) {
     	JdResponse<PagerResult<ArBookingSpace>> rest = new JdResponse<PagerResult<ArBookingSpace>>();
+    	convertDate(arBookingSpaceCondition);
     	//模糊字段 运力名称
 		if(StringUtils.isNotBlank(arBookingSpaceCondition.getTransportName())){
 			arBookingSpaceCondition.setTransportName("%"+arBookingSpaceCondition.getTransportName()+"%");
@@ -153,7 +160,7 @@ public class ArBookingSpaceController {
 	@RequestMapping(value = "/toExport")
 	public ModelAndView toExport(ArBookingSpaceCondition arBookingSpaceCondition, Model model) {
 		try {
-
+			convertDate(arBookingSpaceCondition);
 			List<List<Object>> resultList = arBookingSpaceService.getExportData(arBookingSpaceCondition);
 
 			model.addAttribute("filename", "arBookingSpaceExport.xls");
@@ -230,5 +237,36 @@ public class ArBookingSpaceController {
 		return new JdResponse();
 	}
 
+	private void convertDate(ArBookingSpaceCondition arBookingSpaceCondition){
+		Date planStartDateLE = DateHelper.parseDate(arBookingSpaceCondition.getPlanStartDateLEStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		Date planStartDateGE = DateHelper.parseDate(arBookingSpaceCondition.getPlanStartDateGEStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		arBookingSpaceCondition.setPlanStartDateGE(planStartDateGE);
+		arBookingSpaceCondition.setPlanStartDateLE(planStartDateLE);
 
+	}
+
+	private void convertDate(ArBookingSpace arBookingSpace,boolean str2Date){
+    	if(str2Date){
+			Date planStartDate = DateHelper.parseDate(arBookingSpace.getPlanStartDateStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+			Date bookingSpaceTime = DateHelper.parseDate(arBookingSpace.getBookingSpaceTimeStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+			Date planStartTime = DateHelper.parseDate(arBookingSpace.getPlanStartTimeStr(),DateHelper.DATE_FORMAT_HHmmss);
+			Date planEndTime = DateHelper.parseDate(arBookingSpace.getPlanEndTimeStr(),DateHelper.DATE_FORMAT_HHmmss);
+
+			arBookingSpace.setPlanStartDate(planStartDate);
+			arBookingSpace.setBookingSpaceTime(bookingSpaceTime);
+			arBookingSpace.setPlanStartTime(planStartTime);
+			arBookingSpace.setPlanEndTime(planEndTime);
+		}else{
+			String planStartDateStr = DateHelper.formatDate(arBookingSpace.getPlanStartDate(),DateHelper.DATE_FORMAT_YYYYMMDD);
+			String bookingSpaceTimeStr = DateHelper.formatDate(arBookingSpace.getBookingSpaceTime(),DateHelper.DATE_FORMAT_YYYYMMDD);
+			String planStartTimeStr = DateHelper.formatDate(arBookingSpace.getPlanStartTime(),DateHelper.DATE_FORMAT_HHmmss);
+			String planEndTimeStr = DateHelper.formatDate(arBookingSpace.getPlanEndTime(),DateHelper.DATE_FORMAT_HHmmss);
+
+			arBookingSpace.setPlanStartDateStr(planStartDateStr);
+			arBookingSpace.setBookingSpaceTimeStr(bookingSpaceTimeStr);
+			arBookingSpace.setPlanStartTimeStr(planStartTimeStr);
+			arBookingSpace.setPlanEndTimeStr(planEndTimeStr);
+		}
+
+	}
 }

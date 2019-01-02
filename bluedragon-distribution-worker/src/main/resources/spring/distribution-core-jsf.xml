@@ -357,4 +357,10 @@
     <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"
                   protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- automatic分拣自动化：获取发货方案配置的接口 -->
+    <jsf:consumer id="areaDestJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>

@@ -160,7 +160,7 @@ $(function() {
             $('#dataEditDiv').hide();
             /*起始时间*/ /*截止时间*/
             $.datePicker.createNew({
-                elem: '#excpTimeGE',
+                elem: '#excpTimeGEStr',
                 theme: '#3f92ea',
                 btns: ['clear','now'],
                 done: function(value, date, endDate){
@@ -168,7 +168,7 @@ $(function() {
                 }
             });
             $.datePicker.createNew({
-                elem: '#excpTimeLE',
+                elem: '#excpTimeLEStr',
                 theme: '#3f92ea',
                 btns: ['clear','now'],
                 done: function(value, date, endDate){
@@ -372,31 +372,31 @@ function initSelect(){
 function initEditPage(){
     /*新增修改涉及的时间*/
     $.datePicker.createNew({
-        elem: '#excpTime',
+        elem: '#excpTimeStr',
         theme: '#3f92ea',
         btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"excpTime");
+            resetFieldValidator(value,"excpTimeStr");
         }
     });
 
     $.datePicker.createNew({
-        elem: '#planStartTime',
+        elem: '#planStartTimeStr',
         theme: '#3f92ea',
         type: 'time',
         //btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"planStartTime");
+            resetFieldValidator(value,"planStartTimeStr");
 
         }
     });
     $.datePicker.createNew({
-        elem: '#planEndTime',
+        elem: '#planEndTimeStr',
         theme: '#3f92ea',
         type: 'time',
         //btns: ['clear','now'],
         done: function(value, date, endDate){
-            resetFieldValidator(value,"planEndTime");
+            resetFieldValidator(value,"planEndTimeStr");
 
         }
     });
@@ -608,8 +608,8 @@ function changeExcpReasonEdit(selectVal){
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
 
-    $("#excpTimeGE").val(v);
-    $("#excpTimeLE").val(v);
+    $("#excpTimeGEStr").val(v);
+    $("#excpTimeLEStr").val(v);
 }
 
 

@@ -65,7 +65,7 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-4 " for="startDate">异常日期 ：</label>
                                 <div class=" col-xs-8">
-                                    <input type="text" id="excpTimeGE" name="excpTimeGE" class="form-control search-param ">
+                                    <input type="text" id="excpTimeGEStr" name="excpTimeGEStr" class="form-control search-param ">
 
                                 </div>
                             </div>
@@ -74,7 +74,7 @@
                             <div class="form-group">
                                 <label class="control-label col-xs-4 " for="startDate"> 至 </label>
                                 <div class=" col-xs-8">
-                                    <input type="text" id="excpTimeLE" name="excpTimeLE" class="form-control search-param ">
+                                    <input type="text" id="excpTimeLEStr" name="excpTimeLEStr" class="form-control search-param ">
 
                                 </div>
                             </div>
@@ -133,7 +133,7 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label"><span class="glyphicon glyphicon-star" style="color: red;"></span>异常日期 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="excpTime" name="excpTime"/>
+                                <input type="text" class="form-control edit-param" id="excpTimeStr" name="excpTimeStr"/>
                             </div>
                         </div>
 
@@ -224,13 +224,13 @@
                         <div class="form-group">
                             <label class="col-xs-3 control-label">起飞时间 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="planStartTime" name="planStartTime"/>
+                                <input type="text" class="form-control edit-param" id="planStartTimeStr" name="planStartTimeStr"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-xs-3 control-label">落地时间 ：</label>
                             <div class="col-xs-9">
-                                <input type="text" class="form-control edit-param" id="planEndTime" name="planEndTime"/>
+                                <input type="text" class="form-control edit-param" id="planEndTimeStr" name="planEndTimeStr"/>
                             </div>
                         </div>
                         <div class="form-group">
