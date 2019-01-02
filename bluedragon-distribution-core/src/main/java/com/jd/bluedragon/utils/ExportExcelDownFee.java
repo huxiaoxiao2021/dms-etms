@@ -11,7 +11,6 @@ import org.apache.poi.hssf.util.HSSFColor;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,27 +22,29 @@ import java.util.List;
 public class ExportExcelDownFee {
 
     //导出表的列名
-    private String[] rowName ;
-    //sheet表表名
-    private String sheettitle;
+    private String[] rowName;
 
-    private List<Object[]> dataList = new ArrayList<Object[]>();
+    //sheet表表名
+    private String sheetTitle;
+
+    private List<Object[]> dataList;
 
     HttpServletResponse response;
 
     //构造方法2，传入要导出的数据
-    public ExportExcelDownFee( String sheettitle, String[] rowName,List<Object[]> dataList){
+    public ExportExcelDownFee(String sheetTitle, String[] rowName, List<Object[]> dataList) {
         this.dataList = dataList;
         this.rowName = rowName;
-        this.sheettitle = sheettitle;
+        this.sheetTitle = sheetTitle;
     }
 
-    /*
+    /**
      * 导出数据
-     * */
-    public void export(HSSFWorkbook workbook,OutputStream out) throws Exception{
-        try{
-            HSSFSheet sheet = workbook.createSheet(sheettitle);                  // 创建工作表
+     *
+     */
+    public void export(HSSFWorkbook workbook, OutputStream out) throws Exception {
+        try {
+            HSSFSheet sheet = workbook.createSheet(sheetTitle);                  // 创建工作表
 
 //            HSSFCellStyle columnTopStyle = this.getColumnTopStyle(workbook);//获取列头样式对象
             HSSFCellStyle style = this.getStyle(workbook);                  //单元格样式对象
@@ -66,8 +67,8 @@ public class ExportExcelDownFee {
             HSSFRow rowRowName = sheet.createRow(0);                // 在索引2的位置创建行(最顶端的行开始的第二行)
 
             // 将列头设置到sheet的单元格中
-            for(int n=0;n<columnNum;n++){
-                HSSFCell  cellRowName = rowRowName.createCell(n);               //创建列头对应个数的单元格
+            for (int n = 0; n < columnNum; n++) {
+                HSSFCell cellRowName = rowRowName.createCell(n);               //创建列头对应个数的单元格
                 cellRowName.setCellType(HSSFCell.CELL_TYPE_STRING);             //设置列头单元格的数据类型
                 HSSFRichTextString text = new HSSFRichTextString(rowName[n]);
                 cellRowName.setCellValue(text);                                 //设置列头单元格的值
@@ -75,20 +76,22 @@ public class ExportExcelDownFee {
             }
 
             //将查询出的数据设置到sheet对应的单元格中
-            for(int i=0;i<dataList.size();i++){
+            if (dataList != null && dataList.size() > 0){
+                for (int i = 0; i < dataList.size(); i++) {
+                    Object[] obj = dataList.get(i);//遍历每个对象
+                    HSSFRow row = sheet.createRow(i + 1);//创建所需的行数（从第二行开始写数据）
 
-                Object[] obj = dataList.get(i);//遍历每个对象
-                HSSFRow row = sheet.createRow(i+1);//创建所需的行数（从第二行开始写数据）
-
-                for(int j=0; j<obj.length; j++){
-                    HSSFCell  cell = null;   //设置单元格的数据类型
-                    cell = row.createCell(j,HSSFCell.CELL_TYPE_STRING);
-                    if(!"".equals(obj[j]) && obj[j] != null){
-                        cell.setCellValue(obj[j].toString());                       //设置单元格的值
+                    for (int j = 0; j < obj.length; j++) {
+                        HSSFCell cell = null;   //设置单元格的数据类型
+                        cell = row.createCell(j, HSSFCell.CELL_TYPE_STRING);
+                        if (!"".equals(obj[j]) && obj[j] != null) {
+                            cell.setCellValue(obj[j].toString());                       //设置单元格的值
+                        }
+                        cell.setCellStyle(style);                                   //设置单元格样式
                     }
-                    cell.setCellStyle(style);                                   //设置单元格样式
                 }
             }
+
 
             //让列宽随着导出的列长自动适应
             for (int colNum = 0; colNum < columnNum; colNum++) {
@@ -117,14 +120,14 @@ public class ExportExcelDownFee {
                     }
 
                 }
-                if(colNum == 0){
-                    sheet.setColumnWidth(colNum, (columnWidth-2) * 256);
-                }else{
-                    sheet.setColumnWidth(colNum, (columnWidth+4) * 256);
+                if (colNum == 0) {
+                    sheet.setColumnWidth(colNum, (columnWidth - 2) * 256);
+                } else {
+                    sheet.setColumnWidth(colNum, (columnWidth + 4) * 256);
                 }
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -137,7 +140,7 @@ public class ExportExcelDownFee {
         // 设置字体
         HSSFFont font = workbook.createFont();
         //设置字体大小
-        font.setFontHeightInPoints((short)11);
+        font.setFontHeightInPoints((short) 11);
         //设置字体名字
         font.setFontName("宋体");
         //设置样式;
@@ -191,7 +194,6 @@ public class ExportExcelDownFee {
         style.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
 
         return style;
-
     }
 }
 

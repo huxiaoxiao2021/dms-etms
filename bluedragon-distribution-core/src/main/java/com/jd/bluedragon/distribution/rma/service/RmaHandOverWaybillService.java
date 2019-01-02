@@ -10,6 +10,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -86,20 +87,20 @@ public interface RmaHandOverWaybillService {
     void updatePrintInfo(PrintInfoParam printInfoParam);
 
     /**
-     * 根据ID列表获取数据集合Token
+     * 获取打印数据接口
      *
      * @param ids
      * @return
      */
-    List<Integer> getTokenGroupByKey(List<Long> ids);
+    List<RmaHandoverPrint> getPrintInfo(List<Long> ids);
 
     /**
-     * 根据Token获取打印对象
+     * 获取打印数据接口
      *
-     * @param token
+     * @param ids
      * @return
      */
-    RmaHandoverPrint getPrintObject(Integer token);
+    Map<String, RmaHandoverPrint> getPrintInfoMap(List<Long> ids);
 
     /**
      * 构建逻辑RMA数据对象及数据存储
