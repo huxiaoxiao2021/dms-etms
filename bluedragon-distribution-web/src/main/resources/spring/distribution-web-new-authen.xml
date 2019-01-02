@@ -54,6 +54,20 @@
 				<property name="excludePath" value="${sso.exclude.path}"/>
 			</bean>
 		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<!-- Spring mvc 拦截web页面判断当前登陆人是否在职 -->
+			<bean class="com.jd.bluedragon.distribution.interceptor.ResignationInterceptor" >
+				<property name="excludePath" value="${sso.exclude.path}"/>
+			</bean>
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<!-- 拦截rest请求判断当前登陆人是否在职 -->
+			<bean class="com.jd.bluedragon.distribution.interceptor.RestInterceptor" >
+				<property name="excludePath" value="${rest.exclude.path}"/>
+			</bean>
+		</mvc:interceptor>
 	</mvc:interceptors>
 
 

@@ -29,7 +29,11 @@
 		<error-code>401</error-code>
 		<location>/401.vm</location>
 	</error-page>
-	
+	<error-page>
+		<error-code>402</error-code>
+		<location>/402.vm</location>
+	</error-page>
+
 	<context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:spring/distribution-web-context.xml</param-value>
