@@ -98,6 +98,11 @@ public class Constants {
      */
     public static final int B2B_SITE_TYPE = 6420;
 
+    /**
+     * B冷链转运中心站点类型
+     */
+    public static final Integer B2B_CODE_SITE_TYPE = 6460;
+
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
