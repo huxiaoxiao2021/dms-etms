@@ -521,7 +521,7 @@ public class DeliveryResource {
             return false;
         }
         return !WaybillUtil.isPackageCode(waybillCode) && !BusinessUtil.isBoxcode(waybillCode)
-                && WaybillUtil.isWaybillCode(waybillCode)
+                && WaybillUtil.isWaybillCode(waybillCode);
     }
 
     @POST
