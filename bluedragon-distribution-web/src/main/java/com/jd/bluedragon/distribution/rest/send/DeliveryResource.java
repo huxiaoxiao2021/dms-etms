@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
+import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -121,6 +122,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private WaybillPackageBarcodeService waybillPackageBarcodeService;
 
 
     /**
@@ -423,9 +427,9 @@ public class DeliveryResource {
                 // 如果扫的是运单号，则生成第一个包裹号，用于校验
                 if (!WaybillUtil.isPackageCode(request.getBoxCode()) && !BusinessUtil.isBoxcode(request.getBoxCode())
                         && WaybillUtil.isWaybillCode(request.getBoxCode())) {
-                    List<String> waybillCodeList = WaybillUtil.generateAllPackageCodes(request.getBoxCode());
+                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
                     if(waybillCodeList == null || waybillCodeList.size() < 1){
-                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.");
+                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
                         response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
                         response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
                         return response;
@@ -734,7 +738,7 @@ public class DeliveryResource {
             sendMList.add(deliveryRequest2SendM(deliveryRequest));
         }else if(WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())){
             //生成包裹号
-            List<String> packageCodes = WaybillUtil.generateAllPackageCodes(deliveryRequest.getBoxCode());
+            List<String> packageCodes = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(deliveryRequest.getBoxCode());
             for(String packageCode: packageCodes){
                 SendM sendM = new SendM();
                 sendM.setBoxCode(packageCode);

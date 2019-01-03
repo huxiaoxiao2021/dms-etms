@@ -235,5 +235,21 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 			return entity.getData().getWaybill().getGoodNumber();
 		}
 	}
-	
+
+	/**
+	 * 通过运单号获取运单下的包裹号列表
+	 * @param waybillCode
+	 * @return
+	 */
+	public List<String> getPackageCodeListByWaybillCode(String waybillCode) {
+		List<String> packageCodeList = new ArrayList<String>();
+		BaseEntity<BigWaybillDto> entity = wssByWaybillCode(waybillCode);
+		if (null == entity) return null;
+
+		List<DeliveryPackageD> packages = entity.getData().getPackageList();
+		for(DeliveryPackageD packageD : packages){
+			packageCodeList.add(packageD.getPackageBarcode());
+		}
+		return packageCodeList;
+	}
 }
