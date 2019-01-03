@@ -37,4 +37,11 @@ public interface WaybillPackageBarcodeService {
 	 * @return
 	 */
 	Integer getPackageNumbersByWaybill(String waybillCode);
+
+	/**
+	 * 通过运单号获取所有的包裹号列表
+	 * @param waybillCode
+	 * @return
+	 */
+	List<String> getPackageCodeListByWaybillCode(String waybillCode);
 }
