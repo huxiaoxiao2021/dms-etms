@@ -209,7 +209,13 @@
 			<artifactId>ql-thirdtrack-interface</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-              
+
+		<dependency>
+			<groupId>com.jd.ql.dispatch</groupId>
+			<artifactId>dispatch-client</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-jexl</groupId>
 			<artifactId>commons-jexl</artifactId>
