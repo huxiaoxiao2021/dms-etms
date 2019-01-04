@@ -368,7 +368,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         try{
             return dmsInterturnManager.dispatchToExpress(siteCode, vendorId, waybillSign);
         }catch (Exception e){
-            logger.error(MessageFormat.format("C网转B网校验不通过，siteCode：{0},vendorId：{1},waybillSign:{2}", siteCode, vendorId, waybillSign), e);
+            logger.error(MessageFormat.format("C网转B网校验异常，siteCode：{0},vendorId：{1},waybillSign:{2}", siteCode, vendorId, waybillSign), e);
             InvokeResult<Boolean> errorResult = new InvokeResult<Boolean>();
             errorResult.setCode(JdResponse.CODE_INTERNAL_ERROR);
             errorResult.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
