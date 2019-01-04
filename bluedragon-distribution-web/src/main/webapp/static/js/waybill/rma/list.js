@@ -51,41 +51,18 @@ function printBtn() {
     var checkedKeys = $("#paperTable tbody input[type=checkbox][name='record']:checked");
     if (checkedKeys) {
         if (checkedKeys.length > 0) {
-            var idList = "";
-            for (var i = 0; i < checkedKeys.length; i++) {
-                if (idList == "") {
-                    idList = $(checkedKeys[i]).val();
-                } else {
-                    idList = idList + "," + $(checkedKeys[i]).val()
+            var idList = new String($(checkedKeys[0]).val());
+            if (checkedKeys.length > 1) {
+                for (var i = 1; i < checkedKeys.length; i++) {
+                    idList = idList + "," + $(checkedKeys[i]).val();
                 }
             }
-            var url = "/waybill/rma/printWaybillRmaPage";
-            jQuery.ajax({
-                type: 'post',
-                url: url,
-                dataType: "json",//必须json
-                contentType: "application/json", // 指定这个协议很重要
-                data: idList,
-                async: false,
-                success: function (msg) {
-                    if (msg == undefined || msg == null) {
-                        jQuery.messager.alert('提示:', '查询失败', 'error');
-                        return;
-                    }
-                    if (msg.code == 1) {
-                        var resultList = msg.data;
-                        for (var i = 0; i < resultList.length; i++) {
-                            window.open("/waybill/rma/printWaybillRma?sysnos=" + resultList[i]);
-                        }
-                    } else {
-                        jQuery.messager.alert('提示:', data.message, 'error');
-                    }
-                }
-            });
+            openPostWindow("/waybill/rma/printWaybillRma", "idList", idList);
         } else {
             jQuery.messager.alert('提示:', '请选择要打印的记录！', 'info');
         }
-    } else {
+    }
+    else {
         jQuery.messager.alert('提示:', '请选择要打印的记录！', 'info');
     }
 }
@@ -97,60 +74,49 @@ function exportBtn() {
     var checkedKeys = $("#paperTable tbody input[type=checkbox][name='record']:checked");
     if (checkedKeys) {
         if (checkedKeys.length > 0) {
-            var idList = "";
-            for (var i = 0; i < checkedKeys.length; i++) {
-                if (idList == "") {
-                    idList = $(checkedKeys[i]).val();
-                } else {
+            var url = "/waybill/rma/toExport";
+            var idList = new String($(checkedKeys[0]).val());
+            if (checkedKeys.length > 1) {
+                for (var i = 1; i < checkedKeys.length; i++) {
                     idList = idList + "," + $(checkedKeys[i]).val()
                 }
             }
-            var url = "/waybill/rma/printWaybillRmaPage";
-            jQuery.ajax({
-                type: 'post',
-                url: url,
-                dataType: "json",//必须json
-                contentType: "application/json", // 指定这个协议很重要
-                data: idList,
-                async: false,
-                success: function (msg) {
-                    if (msg == undefined || msg == null) {
-                        jQuery.messager.alert('提示:', '查询失败', 'error');
-                        return;
-                    }
-                    if (msg.code == 1) {
-                        var resultList = msg.data;
-                        for (var i = 0; i < resultList.length; i++) {
-
-                           /* var form = $("<form method='post' class='must-remove'></form>"),
-                                input;
-                            form.attr({"action":"/waybill/rma/toExport"});
-
-                            input = $("<input type='hidden'>");
-                            input.attr({"name":"sysnos"});
-                            input.val(resultList[i]);
-                            form.append(input);
-
-                            form.appendTo(document.body);
-                            debugger;
-                            form.submit();*/
-                            //$.post("/waybill/rma/toExport?sysnos="+resultList[i],{},function(data){});
-                            window.open("/waybill/rma/toExport?sysnos=" + resultList[i]);
-                            //document.body.removeChild($(".must-remove")[0]);
-                            //$(".must-remove").remove();
-
-                        }
-                    } else {
-                        jQuery.messager.alert('提示:', data.message, 'error');
-                    }
-                }
-            });
+            openPostWindow(url, "idList", idList);
         } else {
             jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
         }
     } else {
         jQuery.messager.alert('提示:', '请选择要导出的记录！', 'info');
     }
+}
+
+function openPostWindow(url, name, param) {
+    var tempForm = document.createElement("form");
+    tempForm.id = "tempForm";
+    tempForm.method = "post";
+    tempForm.action = url;
+    tempForm.target = "blank";
+
+    var hideInput = document.createElement("input");
+    hideInput.type = "hidden";
+    hideInput.name = name;
+    hideInput.value = param;
+
+    tempForm.appendChild(hideInput);
+    if (document.all) {
+        tempForm.attachEvent("onsubmit", function () {
+        });        //IE
+        document.body.appendChild(tempForm);
+        tempForm.fireEvent("onsubmit");
+    } else {
+        var subObj = tempForm.addEventListener("submit", function () {
+        }, false);    //firefox
+        document.body.appendChild(tempForm);
+        tempForm.dispatchEvent(new Event("submit"));
+    }
+
+    tempForm.submit();
+    document.body.removeChild(tempForm);
 }
 
 /**

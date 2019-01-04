@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
+import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -121,6 +122,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private WaybillPackageBarcodeService waybillPackageBarcodeService;
 
 
     /**
@@ -358,6 +362,7 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
+
         DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(toSendDatailList(request));
         this.logger.info("结束写入发货信息");
         if (tDeliveryResponse != null) {
@@ -406,9 +411,30 @@ public class DeliveryResource {
                     request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
                 return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
             }
+
+            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
+            if(isWaybillCode(request.getBoxCode())){
+                DeliveryResponse response = isValidWaybillCode(request);
+                if(!JdResponse.CODE_OK.equals(response.getCode())){
+                    return response;
+                }
+            }
+
             Integer opType = request.getOpType();
             DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
             if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                // 因为B冷链转运中心需要支持扫描运单号发货，
+                // 如果扫的是运单号，则生成第一个包裹号，用于校验
+                if (isWaybillCode(request.getBoxCode())) {
+                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
+                    if(waybillCodeList == null || waybillCodeList.size() < 1){
+                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
+                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
+                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
+                        return response;
+                    }
+                    request.setBoxCode(waybillCodeList.get(0));
+                }
                 response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
             }
             return response;
@@ -427,12 +453,27 @@ public class DeliveryResource {
                     request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
                 return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
             }
-            Integer opType = request.getOpType();
+
+            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
+            if(isWaybillCode(request.getBoxCode())){
+                DeliveryResponse response = isValidWaybillCode(request);
+                if(!JdResponse.CODE_OK.equals(response.getCode())){
+                    return response;
+                }
+            }
+
             DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            Integer opType = request.getOpType();
+
             if(KY_DELIVERY.equals(opType)){
                 //快运发货金鹏订单拦截提示
-                if(response.getCode()==JdResponse.CODE_OK && WaybillUtil.isPackageCode(request.getBoxCode())){
-                    String waybillCode = WaybillUtil.getWaybillCode(request.getBoxCode());
+                if(JdResponse.CODE_OK.equals(response.getCode())){
+                    String waybillCode = "";
+                    if(WaybillUtil.isPackageCode(request.getBoxCode())){
+                        waybillCode = WaybillUtil.getWaybillCode(request.getBoxCode());
+                    }else if(!BusinessUtil.isBoxcode(request.getBoxCode()) && WaybillUtil.isWaybillCode(request.getBoxCode())){
+                        waybillCode = request.getBoxCode();
+                    }
                     response = deliveryService.dealJpWaybill(request.getSiteCode(),waybillCode);
                 }
             }
@@ -441,6 +482,46 @@ public class DeliveryResource {
             logger.error("快运发货金鹏订单拦截出错：", ex);
             return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    /**
+     * B冷链转运中心--快运发货支持扫描运单号发货
+     * 如果扫描的是运单号，判断是否符是B冷链转运中心 && 入口是快运发货
+     * @param request
+     * @return
+     */
+    private DeliveryResponse isValidWaybillCode(DeliveryRequest request){
+        Integer opType = request.getOpType();
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        //判断是否是正确的箱号/包裹号--仅B冷链转运中心6460快运发货支持扫运单
+        //登录人机构不是冷链分拣中心
+        BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(request.getSiteCode());
+        if (siteOrgDto == null) {
+            response.setCode(JdResponse.CODE_NO_SITE);
+            response.setMessage(MessageFormat.format(JdResponse.MESSAGE_NO_SITE, request.getSiteCode()));
+            return response;
+        }
+        if (!(Constants.B2B_CODE_SITE_TYPE.equals(siteOrgDto.getSubType())&& KY_DELIVERY.equals(opType)) ) {
+            response.setCode(JdResponse.CODE_INVALID_PACKAGECODE_BOXCODE);
+            response.setMessage(JdResponse.MESSAGE_INVALID_PACKAGECODE_BOXCODE);
+            return response;
+        }
+        return response;
+    }
+
+    /**
+     * 严格判断是否是运单号
+     * 不是包裹号&&不是箱号&&是运单号
+     * @param waybillCode
+     * @return
+     */
+    private boolean isWaybillCode(String waybillCode){
+        if(StringUtils.isBlank(waybillCode)){
+            return false;
+        }
+        return !WaybillUtil.isPackageCode(waybillCode) && !BusinessUtil.isBoxcode(waybillCode)
+                && WaybillUtil.isWaybillCode(waybillCode);
     }
 
     @POST
@@ -646,12 +727,57 @@ public class DeliveryResource {
         List<SendM> sendMList = new ArrayList<SendM>();
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
-                sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) ||
+                        BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
+                } else if(WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())){
+                    //B冷链快运发货支持扫运单号发货
+                    DeliveryResponse response = isValidWaybillCode(deliveryRequest);
+                    if (!JdResponse.CODE_OK.equals(response.getCode())) {
+                        logger.error("DeliveryResource--toSendDatailList出现运单号，但非冷链快运发货,siteCode:" +
+                                deliveryRequest.getSiteCode() + ",单号:" + deliveryRequest.getBoxCode());
+                    }else {
+                        sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
+                    }
+                }
             }
         }
         return sendMList;
     }
 
+    /**
+     * 根据DeliveryRequest对象转成SendM列表
+     * 注意：DeliveryRequest中的boxCode对应运单号
+     * @param deliveryRequest
+     * @return
+     */
+    private List<SendM> deliveryRequest2SendMList(DeliveryRequest deliveryRequest){
+        List<SendM> sendMList = new ArrayList<SendM>();
+        if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) || BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+            sendMList.add(deliveryRequest2SendM(deliveryRequest));
+        }else if(WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())){
+            //生成包裹号
+            List<String> packageCodes = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(deliveryRequest.getBoxCode());
+            for(String packageCode: packageCodes){
+                SendM sendM = new SendM();
+                sendM.setBoxCode(packageCode);
+                sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
+                sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
+                sendM.setCreateUserCode(deliveryRequest.getUserCode());
+                sendM.setSendType(deliveryRequest.getBusinessType());
+                sendM.setCreateUser(deliveryRequest.getUserName());
+                sendM.setSendCode(deliveryRequest.getSendCode());
+                sendM.setCreateTime(new Date());
+                sendM.setOperateTime(new Date());
+                sendM.setYn(1);
+                sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
+                sendM.setTransporttype(deliveryRequest.getTransporttype());
+
+                sendMList.add(sendM);
+            }
+        }
+        return sendMList;
+    }
     /**
      * DeliveryRequest对象转sendM
      * @param deliveryRequest
