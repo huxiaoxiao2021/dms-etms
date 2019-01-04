@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.domain;
 
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -124,7 +125,7 @@ public class PopMessage {
             for (OrderItem orderItem : this.orderItemList) {
                 xmlStr.append("<OrderItem>");
                 xmlStr.append("<itemId>").append(orderItem.getItemId()).append("</itemId>");
-                xmlStr.append("<itemName>").append(this.invalidXmlStrFilter(orderItem.getItemName())).append("</itemName>");
+                xmlStr.append("<itemName>").append(XmlHelper.invalidXmlStrFilter(orderItem.getItemName())).append("</itemName>");
                 xmlStr.append("<itemPrice>").append(orderItem.getItemPrice()).append("</itemPrice>");
                 xmlStr.append("<itemNum>").append(orderItem.getItemNum()).append("</itemNum>");
                 xmlStr.append("</OrderItem>");
@@ -138,22 +139,6 @@ public class PopMessage {
             xmlStr.append(END_SCHEME2);
         }
         return xmlStr.toString();
-    }
-
-    /**
-     * 过滤xml无效字符
-     *
-     * @param xmlStr
-     * @return
-     */
-    private String invalidXmlStrFilter(String xmlStr) {
-        StringBuilder sb = new StringBuilder();
-        for (char c : xmlStr.toCharArray()) {
-            if (!(0x00 < c && c < 0x08 || 0x0b < c && c < 0x0c || 0x0e < c && c < 0x1f)) {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
     }
 
     public static void main(String[] args) {

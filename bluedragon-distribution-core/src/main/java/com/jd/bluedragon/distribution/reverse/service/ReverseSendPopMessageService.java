@@ -18,10 +18,18 @@ public interface ReverseSendPopMessageService {
     boolean sendPopMessage(String waybillCode);
 
     /**
-     * 测试接口
+     * 发送接口
      *
      * @param waybillCode
      * @return
      */
     String sendPopMessageForTest(String waybillCode);
+
+    /**
+     * 获取接口
+     *
+     * @param waybillCode
+     * @return
+     */
+    String getPopMessageForTest(String waybillCode);
 }

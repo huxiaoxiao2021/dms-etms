@@ -55,7 +55,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             }
             String xmlMessage = popMessage.toXml();
             messageLog.info("逆向回传POP发送的消息体：【 " + xmlMessage + "】,send_key:" + popMessage.getMessageType());
-            pushMessage(popMessage.getMessageType(), waybillCode, xmlMessage);
+            this.pushMessage(popMessage.getMessageType(), waybillCode, xmlMessage);
             messageLog.info("逆向回传POP发送的消息体：【 " + xmlMessage + "】，发送成功");
             return true;
         } catch (Exception e) {
@@ -207,7 +207,7 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             String xmlMessage = popMessage.toXml();
             result.append("translate popMessage to xml success.\r\n");
             result.append(waybillCode).append("逆向回传POP发送的消息体：【 " + xmlMessage + "】,send_key:" + popMessage.getMessageType() + ".\r\n");
-            pushMessage(popMessage.getMessageType(), waybillCode, xmlMessage);
+            this.pushMessage(popMessage.getMessageType(), waybillCode, xmlMessage);
             result.append(waybillCode).append("逆向回传POP发送的消息体：【 " + xmlMessage + "】,发送成功\r\n");
             return result.toString();
         } catch (Exception e) {
@@ -216,6 +216,27 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             return result.toString();
         }
 
+    }
+
+    @Override
+    public String getPopMessageForTest(String waybillCode) {
+        StringBuilder result = new StringBuilder();
+        try {
+            PopMessage popMessage = new PopMessage();
+            if (!this.buildAttributes(waybillCode, popMessage)) {
+                // 非POP订单
+                return "非POP订单";
+            }
+            String xmlMessage = popMessage.toXml();
+            result.append("逆向回传POP发送的消息体：【 ");
+            result.append(xmlMessage);
+            result.append("】,send_key:");
+            result.append(popMessage.getMessageType());
+        } catch (Exception e) {
+            result.append(e).append("\r\n");
+            log.error("处理失败，运单号：" + waybillCode, e);
+        }
+        return result.toString();
     }
 
     private final void pushMessage(String popMqType, String businessId, String text) {
