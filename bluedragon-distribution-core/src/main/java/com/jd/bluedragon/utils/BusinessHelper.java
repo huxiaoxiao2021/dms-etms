@@ -224,6 +224,25 @@ public class BusinessHelper {
     }
 
     /**
+     * 运单为非城配类型，sendpay 第146位不等于1，表示为自营非城配 || waybill_sign 第36位不等于1，表示为外单非城配
+     * @param waybillSign
+     * @param sendPay
+     * @return
+     */
+    public static boolean isDmsToVendor(String waybillSign,String sendPay) {
+        boolean waybillSignFlag = false;
+        boolean sendPayFlag = false;
+        //waybill_sign 第36位不等于1，表示为外单非城配,waybillSignFlag置为true
+        if(StringHelper.isNotEmpty(waybillSign) && !BusinessUtil.isSignChar(waybillSign, 36, '1')){
+            waybillSignFlag = true;
+        }
+        //sendPay 第146位不等于1，表示为自营非城配
+        if(StringHelper.isNotEmpty(sendPay) && !BusinessUtil.isSignChar(sendPay, 146, '1')){
+            sendPayFlag = true;
+        }
+        return waybillSignFlag || sendPayFlag;
+    }
+    /**
      * 校验运单总体积和总重量重泡比
      * 重泡比超过正常范围168:1到330:1
      *

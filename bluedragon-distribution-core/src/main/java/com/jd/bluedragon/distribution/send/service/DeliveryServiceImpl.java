@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import IceInternal.Ex;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
@@ -8,6 +7,7 @@ import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.DmsInterturnManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -44,6 +44,7 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
@@ -55,22 +56,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendDatailReadDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.ArSendDetailMQBody;
-import com.jd.bluedragon.distribution.send.domain.BoxInfo;
-import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
-import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
-import com.jd.bluedragon.distribution.send.domain.OrderInfo;
-import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.domain.SendTaskBody;
-import com.jd.bluedragon.distribution.send.domain.SendThreeDetail;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoConverter;
-import com.jd.bluedragon.distribution.send.domain.ShouHuoInfo;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.domain.TurnoverBoxInfo;
+import com.jd.bluedragon.distribution.send.domain.*;
 import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.DmsToTmsWebService;
 import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
@@ -265,6 +251,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
     @Autowired
+    @Qualifier("dmsToVendor")
+    private DefaultJMQProducer dmsToVendor;
+
+    @Autowired
     @Qualifier("operateHintTrackMQ")
     private DefaultJMQProducer operateHintTrackMQ;
 
@@ -300,6 +290,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private DmsInterturnManager dmsInterturnManager;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -1988,6 +1981,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             // 增加获取订单类型判断是否是LBP订单s
             Set<String> waybillset = new HashSet<String>();
             Map<String, Integer> sendDatailMap = new HashMap<String, Integer>();
+            Map<String, Waybill> sendDetailWaybillMap = new HashMap<String, Waybill>();
             for (SendDetail dSendDatail : sendDetails) {
                 waybillset.add(dSendDatail.getWaybillCode());
             }
@@ -2000,6 +1994,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if (tWaybill != null && tWaybill.getWaybill() != null &&
                             tWaybill.getWaybill().getWaybillCode() != null && tWaybill.getWaybill().getWaybillType() != null) {
                         sendDatailMap.put(tWaybill.getWaybill().getWaybillCode(), tWaybill.getWaybill().getWaybillType());
+                        sendDetailWaybillMap.put(tWaybill.getWaybill().getWaybillCode(), tWaybill.getWaybill());
                     }
                 }
             }
@@ -2065,7 +2060,13 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 Message sendMessage = parseSendDetailToMessage(tSendDatail,dmsWorkSendDetailMQ.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                 this.logger.info("发送MQ["+sendMessage.getTopic()+"],业务ID["+sendMessage.getBusinessId()+"],消息主题: " + sendMessage.getText());
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
-
+                                Waybill waybill = sendDetailWaybillMap.get(tSendDatail.getWaybillCode());
+                                //发货目的地是车队，且是非城配运单，要通知调度系统
+                                if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                                    Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill.getWaybillSign(), rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
+                                    this.logger.info("非城配运单，发车队通知调度系统发送MQ["+sendDispatchMessage.getTopic()+"],业务ID["+sendDispatchMessage.getBusinessId()+"],消息主题: " + sendDispatchMessage.getText());
+                                    dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(),sendDispatchMessage.getText());
+                                }
                                 //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
                                 int updateCount = gantryExceptionService.getGantryExceptionCountForUpdate(tSendDatail.getBoxCode(), Long.valueOf(tSendDatail.getCreateSiteCode()));
                                 if (updateCount > 0) {
@@ -2314,6 +2315,39 @@ public class DeliveryServiceImpl implements DeliveryService {
             message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDatail.getPackageBarcode());
+        }
+        return message;
+    }
+
+    /**
+     * 构建非城配运单发往车队通知调度系统MQ消息体
+     * @param sendDetail
+     * @param waybillSign
+     * @param receiveSiteName
+     * @param topic
+     * @param source
+     * @return
+     */
+    private Message parseSendDetailToMessageOfDispatch(SendDetail sendDetail,String waybillSign, String receiveSiteName, String topic,String source) {
+        Message message = new Message();
+        SendDispatchDto dto = new SendDispatchDto();
+        if (sendDetail != null) {
+            // MQ包含的信息:包裹号,发货站点,发货时间,组板发货时包含板号
+            dto.setPackageBarcode(sendDetail.getPackageBarcode());
+            dto.setCreateSiteCode(sendDetail.getCreateSiteCode());
+            dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
+            dto.setReceiveSiteName(receiveSiteName);
+            dto.setWaybillSign(waybillSign);
+            dto.setOperateTime(sendDetail.getOperateTime());
+            dto.setSendCode(sendDetail.getSendCode());
+            dto.setCreateUserCode(sendDetail.getCreateUserCode());
+            dto.setCreateUser(sendDetail.getCreateUser());
+            dto.setSource(source);
+            dto.setBoxCode(sendDetail.getBoxCode());
+            dto.setBoardCode(sendDetail.getBoardCode());
+            message.setTopic(topic);
+            message.setText(JSON.toJSONString(dto));
+            message.setBusinessId(sendDetail.getPackageBarcode());
         }
         return message;
     }
@@ -2919,6 +2953,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             return response;
         }
+        //快运发货非城配运单发往车队，判断是否可以C转B
+        if(!checkDmsToVendor(sendM)){
+            response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+            response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
+            return response;
+        }
         //1.判断路由
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
@@ -2983,6 +3023,40 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         return destinationSiteCode;
+    }
+
+    /**
+     * 快运发货非城配运单发往车队，判断是否可以C转B
+     * @param sendM
+     * @return
+     */
+    private boolean checkDmsToVendor(SendM sendM){
+        BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
+
+        //发货目的地不是车队，返回true，不再校验
+        if(Constants.BASE_SITE_MOTORCADE != receiveSite.getSiteType()){
+            return true;
+        }
+        String waybillCode = null;
+        if (!BusinessHelper.isBoxcode(sendM.getBoxCode())) {
+            if(WaybillUtil.isPackageCode(sendM.getBoxCode())){
+                waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
+            }else if(WaybillUtil.isWaybillCode(sendM.getBoxCode())){
+                waybillCode = sendM.getBoxCode();
+            }
+            if(StringUtils.isNotEmpty(waybillCode) && WaybillUtil.isWaybillCode(waybillCode)){
+                com.jd.bluedragon.common.domain.Waybill waybill =  waybillCommonService.findByWaybillCode(waybillCode);
+                //运单为非城配类型，且 发货目的地为【车队】类型的
+                if(waybill != null && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                    InvokeResult<Boolean> result = dmsInterturnManager.dispatchToExpress(sendM.getCreateSiteCode(), waybill.getBusiId(), waybill.getWaybillSign());
+                    if(JdResponse.CODE_OK == result.getCode() && result.getData() != null && result.getData().booleanValue() == false){
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
