@@ -361,10 +361,6 @@ public class DeliveryResource {
         DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(toSendDatailList(request));
         this.logger.info("结束写入发货信息");
         if (tDeliveryResponse != null) {
-            if (tDeliveryResponse.isSendCodeSendOver()){
-                tDeliveryResponse.setCode(JdResponse.CODE_SENDCODE_ERROR);
-                tDeliveryResponse.setMessage(JdResponse.MESSAGE_SENDCODE_ERROR);
-            }
             return tDeliveryResponse;
         } else {
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
