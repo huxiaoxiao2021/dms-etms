@@ -98,6 +98,9 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             popMessage.setBusinessTime(new Date());
 
             this.buildOrderItem(popMessage, baseEntity.getData().getGoodsList());
+        } else {
+            log.error("【运单号:" + waybillCode + "】调用运单接口返回baseEntity为null");
+            throw new RuntimeException("【运单号:" + waybillCode + "】调用运单接口返回baseEntity为null");
         }
         return true;
     }
