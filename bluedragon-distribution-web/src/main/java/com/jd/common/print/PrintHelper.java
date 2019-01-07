@@ -1,14 +1,22 @@
 package com.jd.common.print;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
-
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.*;
+import java.io.OutputStream;
 import java.util.List;
 
 /**
@@ -20,163 +28,146 @@ public class PrintHelper {
 
     private static final Logger log = LogManager.getLogger(PrintHelper.class);
 
-    public static void getPrintWaybillRma(List<RmaHandoverPrint> rmaHandoverPrints, OutputStream outputStream) throws Exception {
-        if (rmaHandoverPrints == null) {
-            throw new Exception("获取打印数据为空");
-        }
-        RmaHandoverPrint rmaHandoverPrint = rmaHandoverPrints.get(0);
+    private static final int COMMON_CELL_HEIGHT = 20;
 
-        List<RmaHandoverDetail> handoverDetails = rmaHandoverPrint.getHandoverDetails();
+    public static void printRmaHandoverPDF(List<RmaHandoverPrint> rmaHandoverPrintList, OutputStream outputStream) throws Exception {
         // 定义A4页面大小
         Rectangle rectPageSize = new Rectangle(PageSize.A4);
         Document document = new Document(rectPageSize, 30, 30, 30, 30);
         PdfWriter.getInstance(document, outputStream);
+        for (RmaHandoverPrint rmaHandoverPrint : rmaHandoverPrintList) {
+            buildRmaHandoverPDF(document, rmaHandoverPrint);
+            document.newPage();
+        }
+        document.close();
+    }
+
+    private static void buildRmaHandoverPDF(Document document, RmaHandoverPrint rmaHandoverPrint) throws Exception {
+        if (rmaHandoverPrint == null) {
+            throw new Exception("获取打印数据为空");
+        }
+
+        List<RmaHandoverDetail> handoverDetails = rmaHandoverPrint.getHandoverDetails();
+
         BaseFont bfChinese = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.NOT_EMBEDDED);
-        Font FontChinese14 = new Font(bfChinese, 14, Font.BOLD);
-        Font FontChinese12 = new Font(bfChinese, 12, Font.NORMAL);
-        Font FontChinese10 = new Font(bfChinese, 10, Font.NORMAL);
-        Font FontChinese8 = new Font(bfChinese, 8, Font.NORMAL);
+        Font fnCH14 = new Font(bfChinese, 14, Font.BOLD);
+        Font fnCH12 = new Font(bfChinese, 12, Font.NORMAL);
+        Font fnBoldCH12 = new Font(bfChinese, 12, Font.BOLD);
+        Font fnCH10 = new Font(bfChinese, 10, Font.NORMAL);
+        Font fnCH8 = new Font(bfChinese, 8, Font.NORMAL);
+
         document.open();
         //表头
-        Paragraph p1 = new Paragraph("JD发货交接单", FontChinese14);
+        Paragraph p1 = new Paragraph("JD发货交接单", fnCH14);
         p1.setAlignment(Element.ALIGN_CENTER);
         document.add(p1);
         //日期靠右--当前时间
-        Paragraph p2 = new Paragraph("打印日期：" + rmaHandoverPrint.getPrintDate(), FontChinese8);
+        Paragraph p2 = new Paragraph("打印日期：" + rmaHandoverPrint.getPrintDate(), fnCH8);
         p2.setAlignment(Element.ALIGN_RIGHT);
         document.add(p2);
 
-        Paragraph p3 = new Paragraph("地址信息", FontChinese12);
-        p3.setAlignment(Element.ALIGN_LEFT);
-        document.add(p3);
-
-        float[] width1 = {90f, 90f, 90f, 90f, 90f, 180f};
-        PdfPTable table1 = new PdfPTable(width1);
-        PdfPTable table2 = new PdfPTable(width1);
-        PdfPTable table3 = new PdfPTable(width1);
-        PdfPTable table4 = new PdfPTable(width1);
+        PdfPTable table1 = createTitleTable();
         //表格前有空白
         table1.setSpacingBefore(10);
-        //设置表格的宽度
-        table1.setTotalWidth(535);
-        //设置表格的宽度固定
-        table1.setLockedWidth(true);
 
-        table2.setTotalWidth(535);
-        table2.setLockedWidth(true);
-
-        table3.setTotalWidth(535);
-        table3.setLockedWidth(true);
-
-        table4.setTotalWidth(535);
-        table4.setLockedWidth(true);
+        createOneTitleCell(table1, "地址信息", fnBoldCH12);
 
         //发货城市、发货场地、目的城市
-        PdfPCell cellA1 = new PdfPCell(new Paragraph("发货城市", FontChinese12));
-        PdfPCell cellA2 = new PdfPCell(new Paragraph("发货场地", FontChinese12));
-        PdfPCell cellA3 = new PdfPCell(new Paragraph("目的城市", FontChinese12));
-        PdfPCell cellA11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendCityName(), FontChinese12));
-        PdfPCell cellA22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getCreateSiteName(), FontChinese12));
-        PdfPCell cellA33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getTargetCityName(), FontChinese12));
-        cellA1.setMinimumHeight(16);
-        table1.addCell(cellA1);
-        table1.addCell(cellA11);
-        table1.addCell(cellA2);
-        table1.addCell(cellA22);
-        table1.addCell(cellA3);
-        table1.addCell(cellA33);
+        createNameValueCell(table1, "发货城市", rmaHandoverPrint.getSendCityName(), fnCH12);
+        createNameValueCell(table1, "发货场地", rmaHandoverPrint.getCreateSiteName(), fnCH12);
+        createNameValueCell(table1, "目的城市", rmaHandoverPrint.getTargetCityName(), fnCH12);
+
+        PdfPTable table2 = createTitleTable();
         //发货联系人\联系电话\商家名称
-        PdfPCell cellB1 = new PdfPCell(new Paragraph("发货联系人", FontChinese12));
-        PdfPCell cellB2 = new PdfPCell(new Paragraph("联系电话", FontChinese12));
-        PdfPCell cellB3 = new PdfPCell(new Paragraph("商家名称", FontChinese12));
-        PdfPCell cellB11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendUserName(), FontChinese12));
-        PdfPCell cellB22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSendUserMobile(), FontChinese12));
-        PdfPCell cellB33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getBusiName(), FontChinese12));
-        cellB1.setMinimumHeight(16);
-        table2.addCell(cellB1);
-        table2.addCell(cellB11);
-        table2.addCell(cellB2);
-        table2.addCell(cellB22);
-        table2.addCell(cellB3);
-        table2.addCell(cellB33);
+        createNameValueCell(table2, "发货联系人", rmaHandoverPrint.getSendUserName(), fnCH12);
+        createNameValueCell(table2, "联系电话", rmaHandoverPrint.getSendUserMobile(), fnCH12);
+        createNameValueCell(table2, "商家名称", rmaHandoverPrint.getBusiName(), fnCH12);
 
         //发货联系人\联系电话\商家名称
-        PdfPCell cellC1 = new PdfPCell(new Paragraph("收货人", FontChinese12));
-        PdfPCell cellC2 = new PdfPCell(new Paragraph("联系电话", FontChinese12));
-        PdfPCell cellC3 = new PdfPCell(new Paragraph("收货地址", FontChinese12));
-        PdfPCell cellC11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiver(), FontChinese12));
-        PdfPCell cellC22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiverMobile(), FontChinese12));
-        PdfPCell cellC33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getReceiverAddress(), FontChinese12));
-        cellC1.setMinimumHeight(16);
-        table2.addCell(cellC1);
-        table2.addCell(cellC11);
-        table2.addCell(cellC2);
-        table2.addCell(cellC22);
-        table2.addCell(cellC3);
-        table2.addCell(cellC33);
+        createNameValueCell(table2, "收货人", rmaHandoverPrint.getReceiver(), fnCH12);
+        createNameValueCell(table2, "联系电话", rmaHandoverPrint.getReceiverMobile(), fnCH12);
+        createNameValueCell(table2, "收货地址", rmaHandoverPrint.getReceiverAddress(), fnCH12);
 
         document.add(table1);
         document.add(table2);
-        document.add(table3);
 
-        Paragraph p4 = new Paragraph("货物信息", FontChinese12);
-        p4.setAlignment(Element.ALIGN_LEFT);
-        document.add(p4);
-        //发货联系人\联系电话\商家名称
-        PdfPCell cellD1 = new PdfPCell(new Paragraph("运单数量", FontChinese12));
-        PdfPCell cellD2 = new PdfPCell(new Paragraph("包裹数", FontChinese12));
-        PdfPCell cellD3 = new PdfPCell(new Paragraph("备件数量", FontChinese12));
-        PdfPCell cellD11 = new PdfPCell(new Paragraph(rmaHandoverPrint.getWaybillCount().toString(), FontChinese12));
-        PdfPCell cellD22 = new PdfPCell(new Paragraph(rmaHandoverPrint.getPackageCount().toString(), FontChinese12));
-        PdfPCell cellD33 = new PdfPCell(new Paragraph(rmaHandoverPrint.getSpareCount().toString(), FontChinese12));
-        cellD1.setMinimumHeight(16);
-        table4.addCell(cellD1);
-        table4.addCell(cellD11);
-        table4.addCell(cellD2);
-        table4.addCell(cellD22);
-        table4.addCell(cellD3);
-        table4.addCell(cellD33);
+        PdfPTable table4 = createTitleTable();
         table4.setSpacingBefore(10);
+        createOneTitleCell(table4, "货物信息", fnBoldCH12);
+        //发货联系人\联系电话\商家名称
+        createNameValueCell(table4, "运单数量", rmaHandoverPrint.getWaybillCount().toString(), fnCH12);
+        createNameValueCell(table4, "包裹数", rmaHandoverPrint.getPackageCount().toString(), fnCH12);
+        createNameValueCell(table4, "备件数量", rmaHandoverPrint.getSpareCount().toString(), fnCH12);
         document.add(table4);
-        Paragraph p5 = new Paragraph("JD发货明细交接单", FontChinese14);
+
+        Paragraph p5 = new Paragraph("JD发货明细交接单", fnCH14);
         p5.setAlignment(Element.ALIGN_CENTER);
         p5.setSpacingBefore(10);
         document.add(p5);
 
-        float[] width2 = {90f, 90f, 90f, 90f, 180f, 90f};
-        PdfPTable table = new PdfPTable(width2);
+        PdfPTable table = createDetailTable(handoverDetails, fnCH12, fnCH10);
+        document.add(table);
+    }
+
+    private static PdfPTable createTitleTable() {
+        float[] width = {90f, 90f, 90f, 90f, 90f, 180f};
+        PdfPTable table = new PdfPTable(width);
+        //设置表格的宽度
+        table.setTotalWidth(535);
+        //设置表格的宽度固定
+        table.setLockedWidth(true);
+        return table;
+    }
+
+    private static PdfPCell getCommonCell(String value, Font font) {
+        PdfPCell valueCell = new PdfPCell(new Paragraph(value, font));
+        //垂直居中
+        valueCell.setUseAscender(true);
+        valueCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        valueCell.setMinimumHeight(COMMON_CELL_HEIGHT);
+        return valueCell;
+    }
+
+    private static void createOneTitleCell(PdfPTable table, String title, Font font) {
+        PdfPCell leftTitleOne = getCommonCell(title, font);
+        leftTitleOne.setColspan(6);
+        leftTitleOne.setHorizontalAlignment(Element.ALIGN_LEFT);
+        leftTitleOne.setBackgroundColor(new BaseColor(128, 128, 128));
+        table.addCell(leftTitleOne);
+    }
+
+    private static void createNameValueCell(PdfPTable table, String name, String value, Font font) {
+        PdfPCell nameCell = getCommonCell(name, font);
+        nameCell.setBackgroundColor(new BaseColor(191, 191, 191));
+        nameCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+
+        PdfPCell valueCell = getCommonCell(value, font);
+        table.addCell(nameCell);
+        table.addCell(valueCell);
+    }
+
+    private static PdfPTable createDetailTable(List<RmaHandoverDetail> data, Font tableFont, Font cellFont) {
+        float[] width = {90f, 90f, 90f, 90f, 180f, 90f};
+        PdfPTable table = new PdfPTable(width);
         table.setSpacingBefore(10);
         table.setTotalWidth(535);
         table.setLockedWidth(true);
         String[] titles = new String[]{"备件条码", "运单号", "出库单号", "商品编号", "商品名称", "异常备注"};
         for (String s : titles) {
-            PdfPCell cell = new PdfPCell(new Paragraph(s, FontChinese12));
+            PdfPCell cell = getCommonCell(s, tableFont);
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
-            cell.setMinimumHeight(16);
+            cell.setBackgroundColor(new BaseColor(191, 191, 191));
             table.addCell(cell);
         }
         //循环表格填充数据--Object换成遍历对象
-        for (RmaHandoverDetail rmaHandoverDetail : handoverDetails) {
-            PdfPCell cell01 = new PdfPCell(new Paragraph(rmaHandoverDetail.getSpareCode(), FontChinese10));
-            cell01.setMinimumHeight(16);
-            table.addCell(cell01);
-
-            PdfPCell cell02 = new PdfPCell(new Paragraph(rmaHandoverDetail.getWaybillCode(), FontChinese10));
-            table.addCell(cell02);
-
-            PdfPCell cell03 = new PdfPCell(new Paragraph(rmaHandoverDetail.getOutboundOrderCode(), FontChinese10));
-            table.addCell(cell03);
-
-            PdfPCell cell04 = new PdfPCell(new Paragraph(rmaHandoverDetail.getSkuCode(), FontChinese10));
-            table.addCell(cell04);
-
-            PdfPCell cell05 = new PdfPCell(new Paragraph(rmaHandoverDetail.getGoodName(), FontChinese10));
-            table.addCell(cell05);
-
-            PdfPCell cell06 = new PdfPCell(new Paragraph(rmaHandoverDetail.getExceptionRemark(), FontChinese10));
-            table.addCell(cell06);
+        for (RmaHandoverDetail rmaHandoverDetail : data) {
+            table.addCell(getCommonCell(rmaHandoverDetail.getSpareCode(), cellFont));
+            table.addCell(getCommonCell(rmaHandoverDetail.getWaybillCode(), cellFont));
+            table.addCell(getCommonCell(rmaHandoverDetail.getOutboundOrderCode(), cellFont));
+            table.addCell(getCommonCell(rmaHandoverDetail.getSkuCode(), cellFont));
+            table.addCell(getCommonCell(rmaHandoverDetail.getGoodName(), cellFont));
+            table.addCell(getCommonCell(rmaHandoverDetail.getExceptionRemark(), cellFont));
         }
-        document.add(table);
-        document.close();
+        return table;
     }
 }

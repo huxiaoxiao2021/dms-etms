@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.transport.domain;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
-import org.springframework.format.annotation.DateTimeFormat;
 
 
 /**
@@ -19,9 +19,8 @@ public class ArBookingSpace extends DbEntity {
 	private static final long serialVersionUID = 1L;
 
 	 /** 预计起飞时间（根据运力类型描述可代表不同含义） */
-	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	 private Date planStartDate;
-
+	private String planStartDateStr;
 	 /** 分拣中心编号 */
 	private Long createSiteCode;
 
@@ -48,14 +47,14 @@ public class ArBookingSpace extends DbEntity {
 	private String endCityName;
 
 	 /** 预计起飞时间（根据不同的运力类型可有不同含义） */
-	 @DateTimeFormat(pattern = "HH:mm:ss")
 	private Date planStartTime;
+	private String planStartTimeStr;
 
 	 /** 预计落地时间（根据不同的运力类型可有不同含义） */
-	 @DateTimeFormat(pattern = "HH:mm:ss")
 	 private Date planEndTime;
+	private String planEndTimeStr;
 
-	 /** 优先级 */
+	/** 优先级 */
 	private String priority;
 
 	 /** 可获取舱位（单位：kg） */
@@ -68,9 +67,8 @@ public class ArBookingSpace extends DbEntity {
 	private BigDecimal realSpace;
 
 	 /** 订舱日期 */
-	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	 private Date bookingSpaceTime;
-
+	private String bookingSpaceTimeStr;
 	 /** 供应商名称 */
 	private String supplierName;
 
@@ -485,5 +483,37 @@ public class ArBookingSpace extends DbEntity {
 
 	public void setTransportTypeForExcel(String transportTypeForExcel) {
 		this.transportTypeForExcel = transportTypeForExcel;
+	}
+
+	public String getPlanStartDateStr() {
+		return planStartDateStr;
+	}
+
+	public void setPlanStartDateStr(String planStartDateStr) {
+		this.planStartDateStr = planStartDateStr;
+	}
+
+	public String getPlanStartTimeStr() {
+		return planStartTimeStr;
+	}
+
+	public void setPlanStartTimeStr(String planStartTimeStr) {
+		this.planStartTimeStr = planStartTimeStr;
+	}
+
+	public String getPlanEndTimeStr() {
+		return planEndTimeStr;
+	}
+
+	public void setPlanEndTimeStr(String planEndTimeStr) {
+		this.planEndTimeStr = planEndTimeStr;
+	}
+
+	public String getBookingSpaceTimeStr() {
+		return bookingSpaceTimeStr;
+	}
+
+	public void setBookingSpaceTimeStr(String bookingSpaceTimeStr) {
+		this.bookingSpaceTimeStr = bookingSpaceTimeStr;
 	}
 }

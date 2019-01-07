@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.internal.service.DmsInternalService;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +72,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private BoxService boxService;
+    
+	@Autowired
+	private UserService userService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -314,7 +319,7 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             LoginRequest request = new LoginRequest();
             request.setErpAccount(userName);
             request.setPassword(passwd);
-            return baseResource.login(request);
+            return userService.jsfLogin(request);
         }catch (Exception e){
             logger.error("getPreseparateSiteId error ", e);
             return null;

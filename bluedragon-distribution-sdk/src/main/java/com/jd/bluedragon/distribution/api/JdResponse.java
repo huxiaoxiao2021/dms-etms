@@ -15,13 +15,22 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_PARAM_ERROR = 10000;
     public static final String MESSAGE_PARAM_ERROR = "参数错误";
-    
+
     public static final Integer CODE_NO_POP_WAYBILL = 11000;
     public static final String MESSAGE_NO_POP_WAYBILL = "运单不存在或者为非POP";
 
     public static final Integer CODE_POP_ABNORMAL_WAYBILL = 12000;
     public static final String MESSAGE_POP_ABNORMAL_WAYBILL = "运单正在进行POP差异订单审核，无法进行收货";
-    
+
+    public static final Integer CODE_NO_SITE = 13000;
+    public static final String MESSAGE_NO_SITE="站点【{0}】不存在或已关闭";
+
+    public static final Integer CODE_INVALID_PACKAGECODE_BOXCODE = 14000;
+    public static final String MESSAGE_INVALID_PACKAGECODE_BOXCODE="请扫描正确的包裹号/箱号";
+
+    public static final Integer CODE_CAN_NOT_GENERATE_PACKAGECODE =  15000;
+    public static final String MESSAGE_CAN_NOT_GENERATE_PACKAGECODE = "按运单号[{0}]发货失败";
+
     public static final Integer CODE_SERVICE_ERROR = 20000;
     public static final String MESSAGE_SERVICE_ERROR = "服务异常";
 
@@ -33,6 +42,9 @@ public class JdResponse extends JdObject {
     
     public static final Integer CODE_SENDED = 20002;
     public static final String MESSAGE_SENDED = "包裹或者运单已经发货，不能执行当前操作";
+
+    public static final Integer CODE_SENDCODE_ERROR = 20003;
+    public static final String MESSAGE_SENDCODE_ERROR = "此批次号已发货完成，请更换新批次号";
 
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";

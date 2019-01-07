@@ -84,7 +84,7 @@ function editFormValidator(){
          */
         fields: {
             //多个重复
-            excpTime: {
+            excpTimeStr: {
                 //隐藏或显示 该字段的验证
 
                 //错误提示信息
@@ -217,14 +217,14 @@ function editFormValidator(){
                     }
                 }
             },
-            planStartTime:{
+            planStartTimeStr:{
                 //message: '起飞时间不能为空',
                 validators: {
                     /*notEmpty: {
                     }*/
                 }
             },
-            planEndTime:{
+            planEndTimeStr:{
                 //message: '落地时间不能为空',
                 validators: {
                     /*notEmpty: {

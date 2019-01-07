@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.half.domain;
 
-import org.springframework.util.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -63,9 +61,6 @@ public enum PackageHalfReasonTypeEnum {
      * @return 规则类型
      */
     public static String getNameByKey(String code) {
-        if(StringUtils.isEmpty(code) || "-1".equals(code)){
-            return "";
-        }
         PackageHalfReasonTypeEnum _enum = codeMap.get(code);
         if (_enum != null) {
             return _enum.getName();

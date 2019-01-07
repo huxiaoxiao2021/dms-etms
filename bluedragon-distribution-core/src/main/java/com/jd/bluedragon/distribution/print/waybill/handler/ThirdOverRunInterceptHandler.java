@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import java.util.Arrays;
 import java.util.List;
 
-import com.jd.bluedragon.common.domain.Waybill;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +48,6 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 	 * 信任商家体积误差值
 	 * */
 	private Double diffVolume;
-    /**
-     * 三方超限拦截开关-默认为true
-     */
-    private boolean open = true;
 
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -110,7 +105,7 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 		}
 			//获取预分拣站点，校验是三方站点才走拦截
 			BaseStaffSiteOrgDto prepareSiteInfo = getPrepareSiteInfo(context);
-			if(open && BusinessHelper.isThirdSite(prepareSiteInfo)){
+			if(BusinessHelper.isThirdSite(prepareSiteInfo)){
 				String barCode = context.getRequest().getBarCode();
 
 				//先校验是否上传了重量，用上传重量和目的站点取校验是否超限，否则获取运单的重量和体积
@@ -212,18 +207,6 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 			}
 		}
         return maxWeight;
-	}
-	/**
-	 * @return the open
-	 */
-	public boolean isOpen() {
-		return open;
-	}
-	/**
-	 * @param open the open to set
-	 */
-	public void setOpen(boolean open) {
-		this.open = open;
 	}
 	public Double getDiffWeight() {
 		return diffWeight;

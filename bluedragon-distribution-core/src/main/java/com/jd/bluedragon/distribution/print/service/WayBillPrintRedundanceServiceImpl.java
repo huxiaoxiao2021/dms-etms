@@ -1,16 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import java.util.Date;
-
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -27,26 +16,31 @@ import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.waybill.handler.C2cInterceptHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.SystemLogContants;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * 面单打印冗余服务
@@ -85,6 +79,8 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Autowired
     @Qualifier("thirdOverRunInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
+    @Autowired
+    private C2cInterceptHandler c2cInterceptHandler;
     /**
      * 2次预分拣变更提示信息
      */
@@ -116,6 +112,11 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 context.setWaybill(waybill);
                 result = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
                 if(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(context.getRequest().getOperateType())){
+                    // C2C运单打印面单校验揽收完成
+                    InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
+                    if(!c2cInterceptResult.isSucceed()){
+                        return c2cInterceptResult;
+                    }
                 	InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
                     if(!overRunInterceptResult.isSucceed()){
                     	return overRunInterceptResult;

@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.transport.domain;
 
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
-import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  *
@@ -17,9 +16,8 @@ public class ArExcpRegister extends DbEntity {
 	private static final long serialVersionUID = 1L;
 
 	 /** 异常日期 */
-	 @DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date excpTime;
-
+	private String excpTimeStr;
 	 /** 异常节点 */
 	private Integer excpNode;
 
@@ -48,12 +46,12 @@ public class ArExcpRegister extends DbEntity {
 	private Integer endCityId;
 
 	 /** 起飞时间 */
-	 @DateTimeFormat(pattern = "HH:mm:ss")
 	 private Date planStartTime;
+	private String planStartTimeStr;
 
 	 /** 落地时间 */
-	 @DateTimeFormat(pattern = "HH:mm:ss")
 	 private Date planEndTime;
+	private String planEndTimeStr;
 
 	 /** 异常类型 */
 	private Integer excpType;
@@ -522,5 +520,29 @@ public class ArExcpRegister extends DbEntity {
 
 	public void setSendCode(String sendCode) {
 		this.sendCode = sendCode;
+	}
+
+	public String getExcpTimeStr() {
+		return excpTimeStr;
+	}
+
+	public void setExcpTimeStr(String excpTimeStr) {
+		this.excpTimeStr = excpTimeStr;
+	}
+
+	public String getPlanStartTimeStr() {
+		return planStartTimeStr;
+	}
+
+	public void setPlanStartTimeStr(String planStartTimeStr) {
+		this.planStartTimeStr = planStartTimeStr;
+	}
+
+	public String getPlanEndTimeStr() {
+		return planEndTimeStr;
+	}
+
+	public void setPlanEndTimeStr(String planEndTimeStr) {
+		this.planEndTimeStr = planEndTimeStr;
 	}
 }

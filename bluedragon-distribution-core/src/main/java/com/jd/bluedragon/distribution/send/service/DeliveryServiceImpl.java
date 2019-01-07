@@ -1265,8 +1265,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         // 加send_code幂
         boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
         if (sendCodeIdempotence) {
-            return new DeliveryResponse(JdResponse.CODE_OK,
+            DeliveryResponse deliveryResponse= new DeliveryResponse(JdResponse.CODE_OK,
                     JdResponse.MESSAGE_OK);
+            deliveryResponse.setSendCodeSendOver(true);
+            return deliveryResponse;
         }
         List<String> list = batchQuerySendMList(sendMList);/*查询已发货的箱号*/
 
@@ -4648,7 +4650,10 @@ public class DeliveryServiceImpl implements DeliveryService {
                     //末级分拣中心
                     destinationDmsId = bDto.getDmsId();
                 }
-                if(String.valueOf(destinationDmsId).equals(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH)) ||
+                String dmsIds = PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH);
+                String[] dmsCodes = dmsIds.split(",");
+                List<String> dmsList = Arrays.asList(dmsCodes);
+                if(dmsList != null && dmsList.size() > 0 && dmsList.contains(String.valueOf(destinationDmsId)) ||
                         Strings.isNullOrEmpty(PropertiesHelper.newInstance().getValue(PERFORMANCE_DMSSITECODE_SWITCH))){
                     //登陆人操作机构是否是末级分拣中心
                     if(dmsSiteCode.equals(destinationDmsId)){

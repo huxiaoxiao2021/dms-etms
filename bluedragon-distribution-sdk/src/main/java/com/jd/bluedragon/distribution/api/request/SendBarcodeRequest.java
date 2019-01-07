@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import com.google.common.base.Objects;
 import com.jd.bluedragon.distribution.api.JdRequest;
 
 public class SendBarcodeRequest extends JdRequest {
@@ -63,10 +62,14 @@ public class SendBarcodeRequest extends JdRequest {
 		this.receiveSiteName = receiveSiteName;
 	}
 
+	@Override
 	public String toString() {
-		return Objects.toStringHelper(SendBarcodeRequest.class).addValue(this.sendBarcode)
-				.addValue(this.createSiteCode).addValue(this.createSiteName).addValue(this.receiveSiteCode)
-				.addValue(this.receiveSiteName).toString();
+		return "SendBarcodeRequest{" +
+				"sendBarcode='" + sendBarcode + '\'' +
+				", createSiteCode=" + createSiteCode +
+				", createSiteName='" + createSiteName + '\'' +
+				", receiveSiteCode=" + receiveSiteCode +
+				", receiveSiteName='" + receiveSiteName + '\'' +
+				'}';
 	}
-
 }

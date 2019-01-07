@@ -23,4 +23,8 @@ public class WaybillPrintMessages{
 	 * 信任商家提示信息
 	 * */
 	public static final JdMessage WARN_MESSAGE_TRUST_BUSINESS = new JdMessage(21001002,"%s为防止认为操作错误导致误差过大，请重新称重量方。");
+	/**
+	 * c2c判断揽收
+	 */
+	public static final String MESSAGE_NEED_RECEIVE="此运单未揽收完成禁止打印面单，请先揽收";
 }

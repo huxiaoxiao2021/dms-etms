@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.half.domain;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
