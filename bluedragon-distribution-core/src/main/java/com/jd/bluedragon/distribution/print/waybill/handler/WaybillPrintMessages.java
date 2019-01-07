@@ -16,14 +16,18 @@ public class WaybillPrintMessages{
 	/**
 	 * 三方超限提示信息
 	 */
-	public static final JdMessage FAIL_MESSAGE_THIRD_OVERRUN = new JdMessage(41001003,"包裹%s超出三方站点配送范围无法配送，三方最大限额为%s，%s！");
+	public static final JdMessage FAIL_MESSAGE_THIRD_OVERRUN = new JdMessage(41001003,"包裹%s超出三方站点配送范围无法配送，%s，%s！");
 	public static final JdMessage WARN_MESSAGE = new JdMessage(21001001,"预分拣站点变更，务必重新打印包裹！");
 
+	/**
+	 * 三方超限-平台打印提示语
+	 */
 	public static final String FAIL_MESSAGE_THIRD_OVERRUN_PLATE_PRINT = "请提交异常后操作逆向换单返回商家";
+
+	/**
+	 * 三方超限-站点平台打印提示语
+	 */
 	public static final String FAIL_MESSAGE_THIRD_OVERRUN_SITE_PLATE_PRINT = "请操作揽收退回后返回商家";
-
-
-	包裹XXXX（体积/重量/长宽高）超出三方站点配送范围无法配送，三方最大限额为XXXX，请提交异常后操作逆向换单返回商家。
 
 
 	/**
