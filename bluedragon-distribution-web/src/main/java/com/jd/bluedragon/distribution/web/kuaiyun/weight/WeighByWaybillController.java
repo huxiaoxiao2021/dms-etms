@@ -17,6 +17,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -78,6 +79,7 @@ public class WeighByWaybillController {
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/insertWaybillWeight")
     @ResponseBody
+    @BusinessLog(sourceSys = 1,bizType = 1901,operateType = 1901001)
     public InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo) {
 
         return insertWaybillWeight(vo,null,null);
