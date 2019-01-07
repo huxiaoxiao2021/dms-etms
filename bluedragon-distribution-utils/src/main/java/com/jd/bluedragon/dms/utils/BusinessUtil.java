@@ -3,12 +3,27 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
 
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
+
 /**
  * @author tangchunqing
  * @Description: 业务相关判断
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
+    /**
+     * 是不是发货批次号
+     *
+     * @param sendCode
+     * @return
+     */
+    public static boolean isSendCode(String sendCode) {
+        if (StringUtils.isBlank(sendCode)) {
+            return false;
+        }
+        return sendCode.matches(SEND_CODE_REG);
+    }
+
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
      * B，正向；T，逆向；G取件退货;C普通物品；S奢侈品；2-8位，出发地编号；9-15位，到达地编号；最后8位，流水号。一共23位。 前面有两个字母
@@ -18,7 +33,7 @@ public class BusinessUtil {
      */
 
     public static Boolean isBoxcode(String s) {
-        if (StringHelper.isEmpty(s)) {
+        if (StringUtils.isEmpty(s)) {
             return Boolean.FALSE;
         }
         return isMatchBoxCode(s);
@@ -33,6 +48,7 @@ public class BusinessUtil {
     private static boolean isMatchBoxCode(String boxCode) {
         return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
     }
+
     /**
      * 判断是否板号
      *
@@ -110,7 +126,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSignChar(String signStr, int position, char signChar) {
-        if (StringHelper.isNotEmpty(signStr) && signStr.length() >= position) {
+        if (StringUtils.isNotEmpty(signStr) && signStr.length() >= position) {
             return signStr.charAt(position - 1) == signChar;
         }
         return false;
@@ -187,7 +203,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSignInChars(String signStr, int position, char... chars) {
-        if (StringHelper.isNotEmpty(signStr)
+        if (StringUtils.isNotEmpty(signStr)
                 && signStr.length() >= position
                 && chars != null
                 && chars.length > 0) {
@@ -411,14 +427,14 @@ public class BusinessUtil {
     public static Boolean isMMBWaybill(String waybillCode, String waybillSign, String sendPay) {
 
         try {
-            if (WaybillUtil.isJDWaybillCode(waybillCode)) {
-                if (!StringHelper.isEmpty(waybillSign) && DmsConstants.MMB_SELF_MARK == waybillSign.charAt(10)) {
+            if (WaybillCodeRuleValidateUtil.isJDWaybillCode(waybillCode)) {
+                if (!StringUtils.isEmpty(waybillSign) && DmsConstants.MMB_SELF_MARK == waybillSign.charAt(10)) {
                     return Boolean.TRUE;
                 }
             }
 
-            if (WaybillUtil.isBusiWaybillCode(waybillCode)) {
-                if (!StringHelper.isEmpty(sendPay) && DmsConstants.MMB_V_MARK.equals(sendPay.substring(59, 62))) {
+            if (WaybillCodeRuleValidateUtil.isBusiWaybillCode(waybillCode)) {
+                if (!StringUtils.isEmpty(sendPay) && DmsConstants.MMB_V_MARK.equals(sendPay.substring(59, 62))) {
                     return Boolean.TRUE;
                 }
             }
@@ -450,7 +466,7 @@ public class BusinessUtil {
      * @return
      */
     public static Boolean isCLPSByBusiOrderCode(String busiOrderCode) {
-        if (StringHelper.isEmpty(busiOrderCode)) {
+        if (StringUtils.isEmpty(busiOrderCode)) {
             return Boolean.FALSE;
         }
         if (busiOrderCode.startsWith(DmsConstants.BUSI_ORDER_CODE_PRE_CLPS)) {
@@ -474,11 +490,12 @@ public class BusinessUtil {
 
     /**
      * 判断是否是外单二次换单后退备件库的运单
+     *
      * @param waybillSign
      * @return
      */
     public static Boolean isTwiceExchageWaybillSpare(String waybillSign) {
-        return isSignChar(waybillSign,18,'5');
+        return isSignChar(waybillSign, 18, '5');
     }
 
 
