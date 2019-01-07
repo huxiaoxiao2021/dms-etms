@@ -76,7 +76,17 @@
 		<filter-name>dmsAuthorizationFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
+
+	<filter>
+		<filter-name>dmsRestFilter</filter-name>
+		<filter-class>com.jd.bd.dms.automatic.marshal.filter.DmsRestFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>dmsRestFilter</filter-name>
+		<url-pattern>/services/*</url-pattern>
+	</filter-mapping>
+
 	<servlet>
         <servlet-name>Resteasy</servlet-name>
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>

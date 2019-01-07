@@ -45,7 +45,7 @@ public class ResignationInterceptor implements HandlerInterceptor {
         LoginContext loginContext = LoginContext.getLoginContext();
         try {
             if(loginContext != null){
-                BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(loginContext.getPin());
+                BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpCache(loginContext.getPin());
                 if(basestaffDto != null){
                     return true;
                 }

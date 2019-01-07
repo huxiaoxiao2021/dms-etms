@@ -36,6 +36,9 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
+
+    public static final Integer CODE_RESIGNATION = 3000;
+    public static final String MESSAGE_RESIGNATION = "登陆用户已离职，请重新登陆";
     
     public static final Integer CODE_NOT_FOUND = 404;
     public static final Integer CODE_MISMATCH = 405;
