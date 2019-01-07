@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import java.util.Arrays;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -134,23 +136,55 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 				}
 				//查询三方站点超限标准
 				BaseSiteGoods baseSiteGoods = baseMinorManager.getGoodsVolumeLimitBySiteCode(prepareSiteInfo.getSiteCode());
+				//
+				String overRunUnit = "";
+				String standardLimit = "";
 				if (baseSiteGoods != null) {
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsWeight(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(weight, baseSiteGoods.getGoodsWeight())) {
-	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("重量"));
-	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsVolume(), Constants.DOUBLE_ZERO)
-	                		&&NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
-	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("体积"));
-	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsLength(), Constants.DOUBLE_ZERO)
-	                		&&NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsLength())) {
-	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("长度"));
-	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsWidth(), Constants.DOUBLE_ZERO)
-	                		&&NumberHelper.gt(volumes[1],baseSiteGoods.getGoodsWidth())) {
-	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("宽度"));
-	                }else if (NumberHelper.gt(baseSiteGoods.getGoodsHeight(), Constants.DOUBLE_ZERO)
-	                		&&NumberHelper.gt(volumes[0],baseSiteGoods.getGoodsHeight())) {
-	                	result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(), WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("高度"));
+	                	overRunUnit += "重量、";
+	                	standardLimit += "重量" + baseSiteGoods.getGoodsWeight() + "公斤、";
 	                }
+	                if (NumberHelper.gt(baseSiteGoods.getGoodsVolume(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
+						overRunUnit += "体积、";
+						standardLimit += "体积" + baseSiteGoods.getGoodsVolume() + "立方厘米、";
+	                }
+	                if (NumberHelper.gt(baseSiteGoods.getGoodsLength(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsLength())) {
+						overRunUnit += "长度、";
+						standardLimit += "长度" + baseSiteGoods.getGoodsLength() + "米、";
+	                }
+	                if (NumberHelper.gt(baseSiteGoods.getGoodsWidth(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[1],baseSiteGoods.getGoodsWidth())) {
+
+						overRunUnit += "宽度、";
+						standardLimit += "宽度" + baseSiteGoods.getGoodsWidth() + "米、";
+	                }
+	                if (NumberHelper.gt(baseSiteGoods.getGoodsHeight(), Constants.DOUBLE_ZERO)
+	                		&&NumberHelper.gt(volumes[0],baseSiteGoods.getGoodsHeight())) {
+
+	                	overRunUnit += "高度、";
+						standardLimit += "高度" + baseSiteGoods.getGoodsHeight() + "米、";
+	                }
+				}
+
+				if(StringUtils.isNotBlank(overRunUnit) && overRunUnit.length() > 1){
+					overRunUnit = overRunUnit.substring(0,overRunUnit.length() - 1 );
+				}
+				if(StringUtils.isNotBlank(standardLimit) && standardLimit.length() > 1){
+					standardLimit = standardLimit.substring(0,standardLimit.length() - 1);
+				}
+
+				WaybillPrintRequest request = context.getRequest();
+				if(StringUtils.isNotBlank(overRunUnit)) {
+					//平台打印和站点平台打印提示语个性设置
+					if (request.getOperateType().equals()) {
+						result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(),
+								WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg("高度"));
+					} else if (是站点平台打印) {
+
+					}
 				}
 			}
 		return result;
