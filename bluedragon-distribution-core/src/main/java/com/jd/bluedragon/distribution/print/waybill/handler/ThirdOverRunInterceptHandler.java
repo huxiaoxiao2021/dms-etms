@@ -192,7 +192,7 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 								WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg(overRunUnit,
 										WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN_PLATE_PRINT,
 										overRunMessage));
-					} else if (WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.equals(request.getOperateType())) {
+					} else if (WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(request.getOperateType())) {
 						result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(),
 								WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg(overRunUnit,
 										WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN_SITE_PLATE_PRINT,
