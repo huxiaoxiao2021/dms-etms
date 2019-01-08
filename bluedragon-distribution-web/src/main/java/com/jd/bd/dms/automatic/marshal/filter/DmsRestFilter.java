@@ -47,9 +47,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
         String requestURI = request.getRequestURI();
-
         //目前只拦截分拣、发货、验货三个主要流程
         int count = 0;
         for(String restUrl : restUrlList){
@@ -60,6 +58,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
         }
         if(count == restUrlList.size()){
             filterChain.doFilter(request,response);
+            return;
         }
         //获得rest请求中的登陆人erpCode
         String erpCode = request.getHeader("erpCode");
@@ -68,12 +67,14 @@ public class DmsRestFilter extends OncePerRequestFilter {
                 BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpCache(erpCode);
                 if(basestaffDto != null){
                     filterChain.doFilter(request,response);
+                    return;
                 }
                 this.logger.error("该登陆用户:" + erpCode + "已离职！");
                 JdResponse jdResponse = new JdResponse(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
                 showMessage(response,jdResponse);
             }else {
                 filterChain.doFilter(request,response);
+                return;
             }
         }catch (Exception e){
             e.printStackTrace();
