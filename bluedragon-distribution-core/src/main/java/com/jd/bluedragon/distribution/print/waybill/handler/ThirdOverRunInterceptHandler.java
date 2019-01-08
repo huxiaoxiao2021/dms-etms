@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,14 +35,12 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 @Service
 public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(ThirdOverRunInterceptHandler.class);
+
     @Autowired
     private BaseMinorManager baseMinorManager;
     @Autowired
-    private WaybillQueryManager waybillQueryManager;
-    @Autowired
     private BaseService baseService;
-    @Autowired
-    private SiteService siteService;
+
 	/**
 	 * 信任商家重量误差值
 	 * */
@@ -50,6 +49,11 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 	 * 信任商家体积误差值
 	 * */
 	private Double diffVolume;
+
+	/**
+	 * 	立方厘米和立方米的换算基数
+	 */
+	private static int PARAM_CM3_M3 = 1000000;
 
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -148,9 +152,13 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 	                }
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsVolume(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
-	                	//为给用户比较好的体验，将立方厘米转换成立方米
-						overRunUnit += "重量、";
-						overRunMessage += "体积不得大于" + NumberHelper.doubleFormat(baseSiteGoods.getGoodsVolume()) + "立方米、";
+	                	//为给用户比较好的体验，将立方厘米转换成立方米，四舍五入保留3位小数
+						Double standVolume = baseSiteGoods.getGoodsVolume()/ PARAM_CM3_M3;
+						BigDecimal bigDecimal=new BigDecimal(standVolume);
+						double doubleValue = bigDecimal.setScale(3, BigDecimal.ROUND_HALF_DOWN).doubleValue();
+
+						overRunUnit += "体积、";
+						overRunMessage += "体积不得大于" + doubleValue + "立方米、";
 	                }
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsLength(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsLength())) {
@@ -194,6 +202,7 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 			}
 		return result;
 	}
+
 	/**
 	 * 获取预分拣站点信息
 	 * @param context
