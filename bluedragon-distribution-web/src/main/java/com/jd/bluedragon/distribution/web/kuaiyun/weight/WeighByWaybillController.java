@@ -135,6 +135,12 @@ public class WeighByWaybillController {
                                 return result;
                             }
                         }
+                    }else if(erpUser!=null && baseStaffSiteOrgDto!=null){
+                        //供批量导入使用
+                        vo.setOperatorId(erpUser.getUserId());
+                        vo.setOperatorName(erpUser.getUserName());
+                        vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
+                        vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
                     }
                 }
 
