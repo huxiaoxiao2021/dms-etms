@@ -70,7 +70,6 @@ import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -516,7 +515,7 @@ public class DeliveryResource {
         if(StringUtils.isBlank(waybillCode)){
             return false;
         }
-        return !WaybillUtil.isPackageCode(waybillCode) && !BusinessUtil.isBoxcode(waybillCode)
+        return !WaybillUtil.isPackageCode(waybillCode) && !BusinessHelper.isBoxcode(waybillCode)
                 && WaybillUtil.isWaybillCode(waybillCode);
     }
 
@@ -724,7 +723,7 @@ public class DeliveryResource {
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
                 if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) ||
-                        BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+                        BusinessHelper.isBoxcode(deliveryRequest.getBoxCode())){
                     sendMList.add(deliveryRequest2SendM(deliveryRequest));
                 } else if(WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())){
                     //B冷链快运发货支持扫运单号发货
@@ -735,6 +734,8 @@ public class DeliveryResource {
                     }else {
                         sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
                     }
+                } else {
+                    sendMList.add(deliveryRequest2SendM(deliveryRequest));
                 }
             }
         }
@@ -749,7 +750,7 @@ public class DeliveryResource {
      */
     private List<SendM> deliveryRequest2SendMList(DeliveryRequest deliveryRequest){
         List<SendM> sendMList = new ArrayList<SendM>();
-        if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) || BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+        if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode()) || BusinessHelper.isBoxcode(deliveryRequest.getBoxCode())){
             sendMList.add(deliveryRequest2SendM(deliveryRequest));
         }else if(WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())){
             //生成包裹号

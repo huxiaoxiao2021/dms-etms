@@ -1261,6 +1261,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse dellCreateSendM(List<SendM> sendMList) {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
+
+        if(sendMList == null || sendMList.size() < 1){
+            return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY,
+                    JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
+        }
+
         Collections.sort(sendMList);
         //批次号封车校验，已封车不能发货
         if (newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
