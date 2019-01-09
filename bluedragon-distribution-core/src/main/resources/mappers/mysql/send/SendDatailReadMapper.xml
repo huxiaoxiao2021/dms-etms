@@ -59,7 +59,7 @@
 			resultType="String">
 		select distinct waybill_code
 		from send_d
-		where box_code=#{boxCode} and yn=1
+		where box_code=#{boxCode} and yn=1 and is_cancel=0
 		<if test="createSiteCode != null">
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		</if>
