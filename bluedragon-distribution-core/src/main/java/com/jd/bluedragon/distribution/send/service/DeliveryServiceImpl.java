@@ -2951,6 +2951,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
             logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
+            //快运发货非城配运单发往车队，判断是否可以C转B
+            if(!checkDmsToVendor(sendM)){
+                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
+                return response;
+            }
             return response;
         }
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
@@ -2960,12 +2966,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             return response;
         }
-        //快运发货非城配运单发往车队，判断是否可以C转B
-        if(!checkDmsToVendor(sendM)){
-            response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
-            response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
-            return response;
-        }
+
         //1.判断路由
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
