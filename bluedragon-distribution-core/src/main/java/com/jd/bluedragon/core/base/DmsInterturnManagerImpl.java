@@ -2,7 +2,6 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
-import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dispatch.api.DmsToVendorDispatchService;
 import com.jd.ql.dispatch.dto.BaseResponse;
