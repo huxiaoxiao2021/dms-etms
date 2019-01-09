@@ -2334,6 +2334,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (sendDetail != null) {
             // MQ包含的信息:包裹号,发货站点,发货时间,组板发货时包含板号
             dto.setPackageBarcode(sendDetail.getPackageBarcode());
+            dto.setWaybillCode(sendDetail.getWaybillCode());
             dto.setCreateSiteCode(sendDetail.getCreateSiteCode());
             dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
             dto.setReceiveSiteName(receiveSiteName);

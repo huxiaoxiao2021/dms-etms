@@ -22,6 +22,9 @@ public class SendDispatchDto implements Serializable {
     /** 包裹号 */
     private String packageBarcode;
 
+    /** 运单号 */
+    private String waybillCode;
+
     /** 操作单位编码 */
     private Integer createSiteCode;
 
@@ -220,5 +223,13 @@ public class SendDispatchDto implements Serializable {
 
     public void setOrderTime(Date orderTime) {
         this.orderTime = orderTime;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 }
