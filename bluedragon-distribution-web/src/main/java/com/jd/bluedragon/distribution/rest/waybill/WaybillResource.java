@@ -1080,6 +1080,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/weight")
+	@BusinessLog(sourceSys = 1,bizType = 1902,operateType = 1902001)
 	public InvokeResult<Boolean> saveWaybillWeight(WaybillWeightVO req){
 
 		InvokeResult<Boolean> checkResult = weighByWaybillController.verifyWaybillReality(req.getCodeStr());
