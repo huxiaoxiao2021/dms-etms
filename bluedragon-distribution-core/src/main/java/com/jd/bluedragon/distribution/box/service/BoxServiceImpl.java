@@ -8,15 +8,17 @@ import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -34,6 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service("boxService")
@@ -65,8 +68,15 @@ public class BoxServiceImpl implements BoxService {
 	BaseMinorManager baseMinorManager;
 
 	@Autowired
+	private SysConfigService sysConfigService;
+
+	@Autowired
 	@Qualifier("jimdbCacheService")
 	private CacheService jimdbCacheService;
+
+	@Autowired
+	@Qualifier("redisBoxSequenceGen")
+	private JimdbSequenceGen redisBoxSequenceGen;
 
 	@Autowired
 	private SendMDao sendMDao;
@@ -108,6 +118,102 @@ public class BoxServiceImpl implements BoxService {
 
         return boxes;
     }
+
+	/**
+	 * 位数	描述及取值
+		 1-2	2位前缀（2位大写字母）
+		 3-4	2位箱号标识，固定10
+		 5-6	2位生产标识 01-打印客户端生成箱号 02-自动分拣机箱号
+		 7-12	6位日期（yyMMdd）
+		 13	    1位序列号生产模式 1-redis 2-db
+		 14	    1位随机数（0-9）随机数
+	     15-22	8位序列号 seqNum
+		 23-24	2位校验位 checkNum = seqNum % 31
+		 示例：
+		 BC1001181227231000000121
+	 * @param param
+	 * @param systemType
+	 * @return
+	 */
+	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",mState = {JProEnum.TP})
+	public List<Box> batchAddNew(Box param,BoxSystemTypeEnum systemType) {
+		List<Box> boxes = Lists.newArrayList();
+		String boxCodePrefix = null;
+		long[] seqNos = new long[0];
+		boolean dbOpen = isOpenDB();
+		try{
+			boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,dbOpen);
+			seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),dbOpen);
+		}catch (Exception e){
+			logger.error("箱号生成序列号异常",e);
+			if(!dbOpen){
+				//redis 异常
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,false);
+				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),false);
+			}
+		}
+		for(long seqNo :seqNos){
+			Box box = new Box();
+			BeanHelper.copyProperties(box, param);
+			box.setCode(boxCodePrefix + StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
+			boxes.add(box);
+			this.add(box);
+
+			try {
+				//写入箱号之后添加缓存
+				//key箱号
+				box.setStatus(1);
+				redisManager.setex(box.getCode(), timeout,
+						JsonHelper.toJson(box));
+			} catch (Exception e) {
+				this.logger.error("打印箱号写入缓存失败",e);
+			}
+		}
+
+		return boxes;
+	}
+
+	/**
+	 * 新箱号开头规则
+	 *
+	 * 	 1-2	2位前缀（2位大写字母）
+		 3-4	2位箱号标识，固定10
+		 5-6	2位生产标识 01-打印客户端生成箱号 02-自动分拣机箱号
+		 7-12	6位日期（yyMMdd）
+		 13-14	2位随机数（0-99）随机数
+
+	 * @param box
+	 * @return
+	 */
+
+	private String generateBoxCodePrefixNew(Box box, BoxSystemTypeEnum systemType,boolean isDB) {
+		StringBuilder preFix = new StringBuilder();
+		return preFix.append(box.getType())
+				.append("10").append(systemType.getCode())
+				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
+				.append(isDB?"2":"1").append(RandomUtils.generateString(1)).toString();
+	}
+
+	/**
+	 * 生成序列号
+	 * @param key
+	 * @param count
+	 * @return
+	 */
+	private long[] generateBoxCodeSeqNoNew(Box param,String key,int count,boolean isDB) {
+		if(isDB){
+			//数据库模式
+			long[] seqNo = new long[param.getQuantity()];
+			for (Integer loop = 0; loop < param.getQuantity(); loop++) {
+				seqNo[loop] = this.genObjectId.getObjectId(key);
+			}
+			return seqNo;
+		}else{
+			//redis模式
+			return redisBoxSequenceGen.batchedGen(key,count);
+		}
+	}
+
 
 	private String generateBoxCodePrefix(Box box) {
 
@@ -427,6 +533,28 @@ public class BoxServiceImpl implements BoxService {
 		}
 
 		return result;
+	}
+
+	/**
+	 * box.seq.db.switch
+	 * 等于1 开启DB模式
+	 * 不维护 或者 等于0 采用redis模式
+	 * @return
+	 */
+	public boolean isOpenDB(){
+		try {
+			List<SysConfig> sysConfigs = sysConfigService.getListByConfigName("box.seq.db.switch");
+			if (null == sysConfigs || sysConfigs.size() <= 0) {
+				return false;
+			} else {
+				if(sysConfigs.get(0).getConfigContent()==null){
+					return false;
+				}
+				return sysConfigs.get(0).getConfigContent().equals("1");
+			}
+		} catch (Throwable ex) {
+			return false;
+		}
 	}
 
 	public static void main(String[] args) {

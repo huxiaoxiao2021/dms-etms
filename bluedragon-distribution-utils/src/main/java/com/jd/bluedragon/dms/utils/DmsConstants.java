@@ -64,9 +64,15 @@ public class DmsConstants {
     public static final char FLG_CHAR_YN_Y = '1';
 
     /**
-     * 箱号正则表达式
+     * 箱号正则表达式 旧版 废弃
      */
-    public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
+    @Deprecated
+    public static final Pattern RULE_BOXCODE_REGEX_OLD = Pattern.compile("^[A-Z]{2}[A-Z0-9]{14,16}[0-9]{8}$");
+
+    /**
+     * 箱号正则表达式 新版
+     */
+    public static final Pattern RULE_BOXCODE_REGEX = Pattern.compile("^[A-Z]{2}10[0-9]{18}[0-3]{1}[0-9]{1}$");
 
     /**
      * 返单号正则表达式
@@ -108,7 +114,16 @@ public class DmsConstants {
      * TS:退货奢侈品
      * TW:逆向内配
      */
-    public static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
+    @Deprecated
+    public static final Pattern RULE_REVERSE_BOXCODE_REGEX_OLD = Pattern.compile("^(TC|TS|TW){1}[A-Z0-9]{14,16}[0-9]{8}$");
+
+    /**
+     * 逆向箱号正则表达式: 新版
+     * TC:退货普通
+     * TS:退货奢侈品
+     * TW:逆向内配
+     */
+    public static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^[T|G][C|S|X|W]10[0-9]{18}[0-3][0-9]$");
 
 
     /**

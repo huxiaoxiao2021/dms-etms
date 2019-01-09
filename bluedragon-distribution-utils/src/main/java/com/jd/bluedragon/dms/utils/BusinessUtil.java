@@ -46,7 +46,8 @@ public class BusinessUtil {
      * @return
      */
     private static boolean isMatchBoxCode(String boxCode) {
-        return DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
+        return DmsConstants.RULE_BOXCODE_REGEX_OLD.matcher(boxCode.trim().toUpperCase()).matches()
+                || DmsConstants.RULE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches();
     }
 
     /**
@@ -73,7 +74,9 @@ public class BusinessUtil {
      * @return
      */
     public static final boolean isReverseBoxCode(String boxCode) {
-        if (StringUtils.isNotBlank(boxCode) && DmsConstants.RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches()) {
+        if (StringUtils.isNotBlank(boxCode) &&
+                (DmsConstants.RULE_REVERSE_BOXCODE_REGEX_OLD.matcher(boxCode.trim().toUpperCase()).matches()
+                ||DmsConstants.RULE_REVERSE_BOXCODE_REGEX.matcher(boxCode.trim().toUpperCase()).matches())) {
             return true;
         }
         return false;
