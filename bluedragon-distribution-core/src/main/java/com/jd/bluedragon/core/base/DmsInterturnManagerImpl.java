@@ -25,7 +25,7 @@ import java.text.MessageFormat;
 @Service("dmsInterturnManager")
 public class DmsInterturnManagerImpl implements DmsInterturnManager{
 
-    private final Logger logger = Logger.getLogger(DeliveryServiceImpl.class);
+    private final Logger logger = Logger.getLogger(DmsInterturnManagerImpl.class);
 
     @Autowired
     private DmsToVendorDispatchService dmsToVendorDispatchService;
@@ -44,7 +44,7 @@ public class DmsInterturnManagerImpl implements DmsInterturnManager{
         request.setWaybillSign(waybillSign);
         logger.info("C网转B网校验请求参数：" + JsonHelper.toJson(request));
         BaseResponse<Boolean> dmsToVendor =  dmsToVendorDispatchService.dispatchToExpress(request);
-        if(result.getCode() != BaseResponse.OK_CODE || result.getData() ==null || result.getData().booleanValue() == false) {
+        if(dmsToVendor.getCode() != BaseResponse.OK_CODE || dmsToVendor.getData() ==null || dmsToVendor.getData().booleanValue() == false) {
             logger.error(MessageFormat.format("C网转B网校验不通过，参数：{0}；结果：{1}",JsonHelper.toJson(request), JsonHelper.toJson(dmsToVendor)));
         }
         result.setCode(dmsToVendor.getCode());
