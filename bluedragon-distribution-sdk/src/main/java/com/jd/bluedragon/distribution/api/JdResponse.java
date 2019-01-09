@@ -46,6 +46,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SENDCODE_ERROR = 20003;
     public static final String MESSAGE_SENDCODE_ERROR = "此批次号已发货完成，请更换新批次号";
 
+    public static final Integer CODE_SENDDATA_GENERATED_EMPTY = 20004;
+    public static final String MESSAGE_SENDDATA_GENERATED_EMPTY = "生成发货数据为空";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

@@ -1261,14 +1261,16 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse dellCreateSendM(List<SendM> sendMList) {
         CallerInfo info1 = Profiler.registerInfo("Bluedragon_dms_center.dms.method.delivery.send", false, true);
+
+        if(sendMList == null || sendMList.size() < 1){
+            return new DeliveryResponse(JdResponse.CODE_SENDDATA_GENERATED_EMPTY,
+                    JdResponse.MESSAGE_SENDDATA_GENERATED_EMPTY);
+        }
+
         Collections.sort(sendMList);
-        // 加send_code幂
-        boolean sendCodeIdempotence = this.querySendCode(sendMList);/*判断当前批次号是否已经发货*/
-        if (sendCodeIdempotence) {
-            DeliveryResponse deliveryResponse= new DeliveryResponse(JdResponse.CODE_OK,
-                    JdResponse.MESSAGE_OK);
-            deliveryResponse.setSendCodeSendOver(true);
-            return deliveryResponse;
+        //批次号封车校验，已封车不能发货
+        if (newSealVehicleService.checkSendCodeIsSealed(sendMList.get(0).getSendCode())) {
+            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
         }
         List<String> list = batchQuerySendMList(sendMList);/*查询已发货的箱号*/
 
@@ -2881,6 +2883,10 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+        //批次号封车校验，已封车不能发货
+        if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
+            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        }
         response = deliveryCheckHasSend(sendM);
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
