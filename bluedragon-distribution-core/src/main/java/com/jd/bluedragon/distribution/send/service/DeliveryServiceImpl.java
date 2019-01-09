@@ -2063,7 +2063,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 Waybill waybill = sendDetailWaybillMap.get(tSendDatail.getWaybillCode());
                                 //发货目的地是车队，且是非城配运单，要通知调度系统
                                 if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
-                                    Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill.getWaybillSign(), rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
+                                    Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill, rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                     this.logger.info("非城配运单，发车队通知调度系统发送MQ["+sendDispatchMessage.getTopic()+"],业务ID["+sendDispatchMessage.getBusinessId()+"],消息主题: " + sendDispatchMessage.getText());
                                     dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(),sendDispatchMessage.getText());
                                 }
@@ -2322,13 +2322,13 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 构建非城配运单发往车队通知调度系统MQ消息体
      * @param sendDetail
-     * @param waybillSign
+     * @param waybill
      * @param receiveSiteName
      * @param topic
      * @param source
      * @return
      */
-    private Message parseSendDetailToMessageOfDispatch(SendDetail sendDetail,String waybillSign, String receiveSiteName, String topic,String source) {
+    private Message parseSendDetailToMessageOfDispatch(SendDetail sendDetail,Waybill waybill, String receiveSiteName, String topic,String source) {
         Message message = new Message();
         SendDispatchDto dto = new SendDispatchDto();
         if (sendDetail != null) {
@@ -2337,7 +2337,14 @@ public class DeliveryServiceImpl implements DeliveryService {
             dto.setCreateSiteCode(sendDetail.getCreateSiteCode());
             dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
             dto.setReceiveSiteName(receiveSiteName);
-            dto.setWaybillSign(waybillSign);
+            dto.setWaybillSign(waybill.getWaybillSign());
+            dto.setEndProvinceId(waybill.getProvinceId());
+            dto.setEndCityId(waybill.getCityId());
+            dto.setEndAddress(waybill.getReceiverAddress());
+            dto.setReceiverName(waybill.getReceiverName());
+            dto.setReceiverPhone(waybill.getReceiverMobile());
+            dto.setPaymentType(waybill.getPayment());
+            dto.setOrderTime(waybill.getOrderSubmitTime());
             dto.setOperateTime(sendDetail.getOperateTime());
             dto.setSendCode(sendDetail.getSendCode());
             dto.setCreateUserCode(sendDetail.getCreateUserCode());

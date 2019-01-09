@@ -49,6 +49,27 @@ public class SendDispatchDto implements Serializable {
     /** waybillSign */
     private String waybillSign;
 
+    /** 目的省份ID */
+    private Integer endProvinceId;
+
+    /** 目的城市ID */
+    private Integer endCityId;
+
+    /** 收件人详细地址 */
+    private String endAddress;
+
+    /** 收件人姓名 */
+    private String receiverName;
+
+    /** 收件人电话 */
+    private String  receiverPhone;
+
+    /** 支付类型  */
+    private Integer paymentType;
+
+    /** 下单时间 */
+    private Date orderTime;
+
     public String getSendCode() {
         return sendCode;
     }
@@ -143,5 +164,61 @@ public class SendDispatchDto implements Serializable {
 
     public void setWaybillSign(String waybillSign) {
         this.waybillSign = waybillSign;
+    }
+
+    public Integer getEndProvinceId() {
+        return endProvinceId;
+    }
+
+    public void setEndProvinceId(Integer endProvinceId) {
+        this.endProvinceId = endProvinceId;
+    }
+
+    public Integer getEndCityId() {
+        return endCityId;
+    }
+
+    public void setEndCityId(Integer endCityId) {
+        this.endCityId = endCityId;
+    }
+
+    public String getEndAddress() {
+        return endAddress;
+    }
+
+    public void setEndAddress(String endAddress) {
+        this.endAddress = endAddress;
+    }
+
+    public String getReceiverName() {
+        return receiverName;
+    }
+
+    public void setReceiverName(String receiverName) {
+        this.receiverName = receiverName;
+    }
+
+    public String getReceiverPhone() {
+        return receiverPhone;
+    }
+
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
+    }
+
+    public Integer getPaymentType() {
+        return paymentType;
+    }
+
+    public void setPaymentType(Integer paymentType) {
+        this.paymentType = paymentType;
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 }
