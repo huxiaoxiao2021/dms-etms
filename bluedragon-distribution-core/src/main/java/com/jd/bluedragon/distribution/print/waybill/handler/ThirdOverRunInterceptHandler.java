@@ -144,12 +144,14 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 				//组织三方超限提示语
 				String overRunUnit = "";
 				String overRunMessage = "";
+				boolean overLimitFlag = false;
 				if (baseSiteGoods != null) {
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsWeight(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(weight, baseSiteGoods.getGoodsWeight())) {
-	                	overRunUnit += "重量、";
+						overRunUnit += "重量、";
 						overRunMessage += "重量不得大于" + baseSiteGoods.getGoodsWeight() + "公斤、";
-	                }
+						overLimitFlag = true;
+					}
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsVolume(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volume,baseSiteGoods.getGoodsVolume())) {
 	                	//为给用户比较好的体验，将立方厘米转换成立方米，四舍五入保留3位小数
@@ -159,33 +161,34 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 
 						overRunUnit += "体积、";
 						overRunMessage += "体积不得大于" + doubleValue + "立方米、";
-	                }
+						overLimitFlag = true;
+					}
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsLength(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volumes[2],baseSiteGoods.getGoodsLength())) {
 						overRunUnit += "长度、";
 						overRunMessage += "长度不得大于" + baseSiteGoods.getGoodsLength() + "厘米、";
-	                }
+						overLimitFlag = true;
+					}
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsWidth(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volumes[1],baseSiteGoods.getGoodsWidth())) {
 						overRunUnit += "宽度、";
 						overRunMessage += "宽度不得大于" + baseSiteGoods.getGoodsWidth() + "厘米、";
-	                }
+						overLimitFlag = true;
+					}
 	                if (NumberHelper.gt(baseSiteGoods.getGoodsHeight(), Constants.DOUBLE_ZERO)
 	                		&&NumberHelper.gt(volumes[0],baseSiteGoods.getGoodsHeight())) {
 						overRunUnit += "高度、";
 						overRunMessage += "高度不得大于" + baseSiteGoods.getGoodsHeight() + "厘米、";
-	                }
+						overLimitFlag = true;
+					}
 				}
 
-				if(StringUtils.isNotBlank(overRunUnit) && overRunUnit.length() > 1){
-					overRunUnit = overRunUnit.substring(0, overRunUnit.length() -1);
-				}
-				if(StringUtils.isNotBlank(overRunMessage) && overRunMessage.length() > 1){
-					overRunMessage = overRunMessage.substring(0,overRunMessage.length() - 1 );
-				}
+				//如果超限，组织超限提示语
+				if(overLimitFlag) {
+					overRunUnit = overRunUnit.substring(0, overRunUnit.length() - 1);
+					overRunMessage = overRunMessage.substring(0, overRunMessage.length() - 1);
 
-				WaybillPrintRequest request = context.getRequest();
-				if(StringUtils.isNotBlank(overRunMessage)) {
+					WaybillPrintRequest request = context.getRequest();
 					//平台打印和站点平台打印提示语个性设置
 					if (WaybillPrintOperateTypeEnum.PLATE_PRINT_TYPE.equals(request.getOperateType())) {
 						result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(),
