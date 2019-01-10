@@ -7,6 +7,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.abnormal.dao.AbnormalUnknownWaybillDao;
 import com.jd.bluedragon.distribution.abnormal.domain.AbnormalUnknownWaybill;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -40,7 +42,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author wuyoude
@@ -70,6 +77,9 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
     @Autowired
     @Qualifier("abnormalUnknownSendProducer")
     private DefaultJMQProducer abnormalEclpSendProducer;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     public Dao<AbnormalUnknownWaybill> getDao() {
@@ -597,13 +607,16 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 pagerResult.setTotal(1);
                 AbnormalUnknownWaybill abnormalUnknownWaybill = new AbnormalUnknownWaybill();
                 abnormalUnknownWaybill.setWaybillCode(abnormalUnknownWaybillCondition.getWaybillCode());
+                //添加商家名称
+                abnormalUnknownWaybill.setTraderName(getBusiName(abnormalUnknownWaybillCondition.getWaybillCode()));
                 data.add(abnormalUnknownWaybill);
-
             } else {//代表输入的多个运单号
                 List<String> waybillCodes = abnormalUnknownWaybillCondition.getWaybillCodes();
                 for (String waybillCode : waybillCodes) {
                     AbnormalUnknownWaybill abnormalUnknownWaybill = new AbnormalUnknownWaybill();
                     abnormalUnknownWaybill.setWaybillCode(waybillCode);
+                    //添加商家名称
+                    abnormalUnknownWaybill.setTraderName(getBusiName(waybillCode));
                     data.add(abnormalUnknownWaybill);
                 }
                 pagerResult.setTotal(data.size());
@@ -611,5 +624,20 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             pagerResult.setRows(data);
             return pagerResult;
         }
+    }
+
+    /**
+     * 根据运单号获取商家名称
+     * @param waybillCode
+     * @return
+     */
+    private String getBusiName(String waybillCode) {
+        String busiName = "";
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode,
+                true, false, false, false);
+        if(entity != null && entity.getData() != null && entity.getData().getWaybill() != null){
+            busiName = entity.getData().getWaybill().getBusiName();
+        }
+        return busiName;
     }
 }
