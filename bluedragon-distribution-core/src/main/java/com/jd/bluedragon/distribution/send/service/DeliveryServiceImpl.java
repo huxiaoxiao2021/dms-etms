@@ -2345,6 +2345,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             dto.setReceiverName(waybill.getReceiverName());
             dto.setReceiverPhone(waybill.getReceiverMobile());
             dto.setPaymentType(waybill.getPayment());
+            dto.setBusiId(waybill.getBusiId());
             dto.setOrderTime(waybill.getOrderSubmitTime());
             dto.setOperateTime(sendDetail.getOperateTime());
             dto.setSendCode(sendDetail.getSendCode());

@@ -52,6 +52,9 @@ public class SendDispatchDto implements Serializable {
     /** waybillSign */
     private String waybillSign;
 
+    /** 商家ID */
+    private Integer busiId;
+
     /** 目的省份ID */
     private Integer endProvinceId;
 
@@ -231,5 +234,13 @@ public class SendDispatchDto implements Serializable {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public Integer getBusiId() {
+        return busiId;
+    }
+
+    public void setBusiId(Integer busiId) {
+        this.busiId = busiId;
     }
 }
