@@ -35,7 +35,7 @@ public class BasicSystemResource {
 
     private Logger log = Logger.getLogger(BasicSystemResource.class);
 
-    @Value("${BasicSystemResource.defaultTime}")
+    @Value("${BasicSystemResource.defaultTime:5}")
     private String defaultTime;
 
     @Autowired
