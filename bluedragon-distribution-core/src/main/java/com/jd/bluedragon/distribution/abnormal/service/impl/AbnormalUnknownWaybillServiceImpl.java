@@ -27,6 +27,7 @@ import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -207,7 +208,6 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             logger.info(waybillCode + "三无托寄物核实，运单查到了");
             return;
         }
-        logger.info(waybillCode + "三无托寄物核实，运单没查到");
         //第二步 查eclp
         //如果运单上没有明细 就判断是不是eclp订单 如果是，调用eclp接口
         String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
@@ -224,6 +224,18 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         } else {
             logger.info(waybillCode + "不是eclp运单");
         }
+        //第三步 查运单的托寄物
+        if(bigWaybillDto != null){
+            if(bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getWaybillExt() != null &&
+                    bigWaybillDto.getWaybill().getWaybillExt().getConsignWare() != null) {
+                buildWaybillDetailsByConsignWare(abnormalUnknownWaybill, waybillDetail, bigWaybillDto.getWaybill().getWaybillExt());
+                addList.add(abnormalUnknownWaybill);//后面将插入表中
+                hasDetailWaybillCodes.add(waybillCode);//前台用
+                logger.info(waybillCode + "三无托寄物核实，运单查到了");
+                return;
+            }
+        }
+        logger.info(waybillCode + "三无托寄物核实，运单没查到");
         //第三步 发B商家请求
         //查询运单
         if (AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
@@ -285,6 +297,28 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         //回复时间
         abnormalUnknownWaybill.setReceiptTime(new Date());
 
+    }
+
+    /**
+     * 组装运单里托寄物明细
+     * @param abnormalUnknownWaybill
+     * @param waybillDetail
+     * @param waybillExt
+     */
+    private void buildWaybillDetailsByConsignWare(AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail, WaybillExt waybillExt) {
+
+        //明细内容
+        waybillDetail.append(waybillExt.getConsignWare() + " * " + waybillExt.getConsignCount());
+        //设置回复系统
+        abnormalUnknownWaybill.setReceiptFrom(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL);
+        //设置已回复
+        abnormalUnknownWaybill.setIsReceipt(AbnormalUnknownWaybill.ISRECEIPT_YES);
+        //设置明细
+        abnormalUnknownWaybill.setReceiptContent(waybillDetail.toString());
+        //设计次数
+        abnormalUnknownWaybill.setOrderNumber(AbnormalUnknownWaybill.ORDERNUMBER_0);
+        //回复时间
+        abnormalUnknownWaybill.setReceiptTime(new Date());
     }
 
     /**
