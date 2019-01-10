@@ -224,9 +224,6 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         } else {
             logger.info(waybillCode + "不是eclp运单");
         }
-        //第三步 查是否有托寄物
-        //todo
-        //todo
         //第三步 发B商家请求
         //查询运单
         if (AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
