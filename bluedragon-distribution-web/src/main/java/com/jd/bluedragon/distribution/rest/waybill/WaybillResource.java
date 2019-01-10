@@ -1,31 +1,51 @@
 package com.jd.bluedragon.distribution.rest.waybill;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
+import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfRequest;
+import com.jd.bd.dms.automatic.sdk.modules.areadest.dto.AreaDestJsfVo;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Pack;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
+import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.external.service.DmsWaybillService;
+import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
+import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
+import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
+import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
+import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -33,12 +53,14 @@ import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
-
-import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
-import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -48,38 +70,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.Pack;
-import com.jd.bluedragon.common.domain.Waybill;
-import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.response.TaskResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
-import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
-import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
-import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.PackOpeFlowDto;
-import com.jd.etms.waybill.dto.WChoice;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -143,6 +136,9 @@ public class WaybillResource {
 
 	@Autowired
 	private WaybillSafService waybillSafService;
+
+	@Autowired
+	private AreaDestJsfService areaDestJsfService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1084,6 +1080,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/waybill/weight")
+	@BusinessLog(sourceSys = 1,bizType = 1902,operateType = 1902001)
 	public InvokeResult<Boolean> saveWaybillWeight(WaybillWeightVO req){
 
 		InvokeResult<Boolean> checkResult = weighByWaybillController.verifyWaybillReality(req.getCodeStr());
@@ -1167,6 +1164,173 @@ public class WaybillResource {
 		invokeResult.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		invokeResult.setData(result);
 		return invokeResult;
+	}
+
+	/**
+	 * 获取目的站点和路由的下一跳站点（新接口
+	 * 旧：{@link WaybillResource#getPreSortingSiteCodeAndNextRouter(java.lang.Integer, java.lang.String)}
+	 * <p>
+	 *     获取路由关系可以从路由jsfSortingResourceService.getRouterByWaybillCode(waybill.getWaybillCode())
+	 *     或者从自动化的发货关系配置中AreaDestJsfService.findAreaDest(AreaDestJsfRequest request)获取结果
+	 *     根据operateType判断哪个源获取。
+	 *     <doc>
+	 *         operateType:1 路由
+	 *         operateType:2 配置
+	 *     </doc>
+	 * </p>
+	 *
+	 * @param request createSiteCode 当前站点
+	 * @param request packageCode 包裹号
+	 * @param request operateType 操作类型，1走路由的查询，2走配置的查询
+	 * @param request operateTime 操作时间 形如：2018-12-20 16:27:17
+	 * @return
+	 */
+	@POST
+	@Path("/getBarCodeAllRouters")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getBarCodeAllRouters")
+	public InvokeResult<List<Integer>> getBarCodeAllRouters(PdaOperateRequest request) {
+		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+		/* 检查参数的有效性 */
+		if (null == request || StringHelper.isEmpty(request.getPackageCode())
+				|| StringHelper.isEmpty(request.getOperateTime()) || null == request.getCreateSiteCode()) {
+			logger.error("WaybillResource.getBarCodeAllRouters-->参数错误：{" + JsonHelper.toJson(request) + "}");
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+		/* 校验单号是否是运单号或者是包裹号 */
+		if (!WaybillUtil.isWaybillCode(request.getPackageCode()) && !WaybillUtil.isPackageCode(request.getPackageCode())) {
+			logger.error("WaybillResource.getBarCodeAllRouters-->参数错误：{" + JsonHelper.toJson(request) + "}，单号不是京东单号");
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage("单号不正确，未通过京东单号规则校验");
+			return result;
+		}
+
+		String barCode = request.getPackageCode();
+		String waybillCode = WaybillUtil.getWaybillCode(barCode);
+		Integer operateSiteCode = request.getCreateSiteCode();
+		Integer operateType = request.getOperateType();
+		long operateTime = DateHelper.parseAllFormatDateTime(request.getOperateTime()).getTime();
+		/* 预分拣站点 */
+		Integer siteCode = null;
+		try {
+			/* 获取包裹的运单数据，如果单号正确的话 */
+			Waybill waybill = waybillCommonService.findWaybillAndPack(waybillCode,true,
+					false,false,false);
+			/* 判断运单信息准确性 */
+			if (null == waybill || null == waybill.getSiteCode() || waybill.getSiteCode() < 0) {
+				logger.error("WaybillResource.getBarCodeAllRouters-->运单:{" + barCode + "}信息为空或者预分拣站点信息为空");
+				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				result.setMessage("运单信息为空");
+				return result;
+			}
+			/* 预分拣站点 */
+			siteCode = waybill.getSiteCode();
+		} catch (Exception e) {
+			logger.error("WaybillResource.getBarCodeAllRouters-->运单接口调用异常,单号为：" + waybillCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage("调用运单接口异常");
+			return result;
+		}
+
+		/* 路由站点关系 index:0 表示预分拣站点；index:>0 表示可能的下一跳的路由 */
+		List<Integer> siteRouters = new ArrayList<Integer>();
+		Set<Integer> nextRouters = new HashSet<Integer>();
+		siteRouters.add(siteCode);
+
+		/* 根据operateType判断是否走路由，还是走分拣的配置 */
+		if (1 == request.getOperateType()) {
+			/* 通过路由调用 */
+			result = getSiteRoutersFromRouterJsf(operateSiteCode,waybillCode,nextRouters);
+		} else if (2 == request.getOperateType()) {
+			/* 通过发货配置jsf接口调用 */
+			result = getSiteRoutersFromDMSAutoJsf(operateSiteCode,siteCode,operateTime,waybillCode,nextRouters);
+		}
+		siteRouters.addAll(nextRouters);
+		result.setData(siteRouters);
+		return result;
+	}
+
+	private InvokeResult<List<Integer>> getSiteRoutersFromRouterJsf
+			(Integer operateSiteCode, String waybillCode,Set<Integer> nextRouters) {
+
+		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+
+		try {
+			String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
+			if(StringHelper.isNotEmpty(routerStr)){
+				String[] routers = routerStr.split(WAYBILL_ROUTER_SPLITER);
+				if(routers.length > 0) {
+					for (int i = 0; i < routers.length - 1; i++) {
+						/* 将当前分拣中心的下一跳路由站点设置进返回值，并跳出循环 */
+						if(operateSiteCode.equals(Integer.valueOf(routers[i]))){
+							nextRouters.add(Integer.valueOf(routers[i+1]));
+							break;
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.error("WaybillResource.getBarCodeAllRouters-->路由接口调用异常,单号为：" + waybillCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage("调用路由接口异常");
+			return result;
+		}
+
+		return  result;
+	}
+
+	private InvokeResult<List<Integer>> getSiteRoutersFromDMSAutoJsf
+			(Integer operateSiteCode, Integer destinationSiteCode,Long operateTime,String waybillCode,Set<Integer> nextRouters) {
+
+		InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+
+		AreaDestJsfRequest jsfRequest = new AreaDestJsfRequest();
+		jsfRequest.setOriginalSiteCode(operateSiteCode);
+		jsfRequest.setDestinationSiteCode(destinationSiteCode);
+		jsfRequest.setOperateTime(operateTime);
+		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
+		try {
+				/* 调用发货配置jsf接口 */
+			jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
+		} catch (Exception e) {
+			logger.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：" + waybillCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage("发货配置接口异常");
+			return result;
+		}
+
+		if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE
+				|| jsfResponse.getData() == null) {
+			if (logger.isWarnEnabled()) {
+				logger.warn("WaybillResource.getBarCodeAllRouters-->从分拣的发货配置关系中没有获取到有效的路由配置，返回值为:"
+						+ JsonHelper.toJson(jsfResponse));
+			}
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage("未配置发货关系");
+			return result;
+		}
+		for (AreaDestJsfVo areaDestJsfVo : jsfResponse.getData()) {
+			if (!operateSiteCode.equals(areaDestJsfVo.getCreateSiteCode())) {
+				logger.error("WaybillResource.getBarCodeAllRouters-->areaDestJsfService接口数据获取错误");
+				continue;
+			}
+				/*
+				 * 如果中转场编号为空，或者为0，或者为当前分拣中心，则选receiveSiteCode作为下一跳
+				 * 否则直接将中转场编号作为下一跳
+				 * 如果返回的记录中有多条符合则拼接到siteRouters的后面
+				 */
+			if (areaDestJsfVo.getTransferSiteCode() == null
+					|| operateSiteCode.equals(areaDestJsfVo.getTransferSiteCode())
+					|| areaDestJsfVo.getTransferSiteCode() <= 0) {
+				if (null != areaDestJsfVo.getReceiveSiteCode() && areaDestJsfVo.getReceiveSiteCode() > 0) {
+					nextRouters.add(areaDestJsfVo.getReceiveSiteCode());
+				}
+			} else {
+				nextRouters.add(areaDestJsfVo.getTransferSiteCode());
+			}
+		}
+		return result;
 	}
 
 	@POST

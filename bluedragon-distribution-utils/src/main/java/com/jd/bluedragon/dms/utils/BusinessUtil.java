@@ -317,6 +317,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 是否是小米运单
+     * @param busiCode
+     * @return
+     */
+    public static boolean isMillet(String busiCode){
+        if(StringUtils.isEmpty(busiCode)){
+            return false;
+        }
+        return DmsConstants.busiCodeOfMillet.equals(busiCode);
+    }
+
+    /**
      * 判断正向
      *
      * @param businessType
@@ -469,4 +481,77 @@ public class BusinessUtil {
         return isSignChar(waybillSign,18,'5');
     }
 
+
+    /**
+     * 是否为三方-合作站点
+     * @param type
+     * @return
+     */
+    public static Boolean isThreePartner(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 22 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+    /**
+     * 是否为三方-校园派
+     * @param type
+     * @return
+     */
+    public static Boolean isSchoolyard(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 128 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断自提柜类型
+     *
+     * @param sendPay
+     * @return
+     */
+    public static Boolean isZiTiGui(String sendPay) {
+        if (sendPay == null) {
+            return Boolean.FALSE;
+        }
+        if ('5' == sendPay.charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 便民自提判断 【sendpay 第22位等于6(合作自提柜 )】
+     */
+    public static Boolean isBianMinZiTi(String sendPay) {
+        if (sendPay == null ) {
+            return Boolean.FALSE;
+        }
+        if ('6' == sendPay.charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 便民自提判断 【sendpay 7的订单(合作代收点)】
+     */
+    public static Boolean isHeZuoDaiShou(String sendPay) {
+        if (sendPay == null ) {
+            return Boolean.FALSE;
+        }
+        if ('7' == sendPay.charAt(21)) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }

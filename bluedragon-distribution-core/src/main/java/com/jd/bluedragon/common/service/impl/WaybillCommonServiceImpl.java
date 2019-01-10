@@ -590,16 +590,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
-        //联通华盛面单模板不显示京东字样
-        if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') ){
+        //联通华盛面单模板、小米运单不显示京东字样
+        if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') || BusinessUtil.isMillet(target.getBusiCode()) ){
             target.setAdditionalComment("");
         }else{
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
-        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3')
-//                && !BusinessHelper.isQWD(waybill.getWaybillSign())//这里写的有问题 传waybillsign的话，一直时true 不起作用，故删掉
-                )
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),15,'3'))
         {
             target.setBusiOrderCode(waybill.getSpareColumn3());
         }

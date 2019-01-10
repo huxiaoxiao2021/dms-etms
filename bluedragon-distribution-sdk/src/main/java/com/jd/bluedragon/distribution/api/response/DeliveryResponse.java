@@ -57,6 +57,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_BOARD_SENDED_ERROR =40011;
     public static final String MESSAGE_BOARD_SENDED_ERROR="板号已操作发车，不能取消发货";
 
+    public static final Integer CODE_SEND_CODE_ERROR =40012;
+    public static final String MESSAGE_SEND_CODE_ERROR="批次号已操作封车，请换批次!";
+
     public static final Integer CODE_Delivery_NO_SORTING = 30002;
     public static final String MESSAGE_Delivery_NO_SORTING = "包裹没有分拣记录，是否发货？";
     
@@ -91,6 +94,7 @@ public class DeliveryResponse extends JdResponse {
      * B网包装耗材服务确认标识，与Ver提示保持一致
      */
     public static final Integer CODE_29120 = 29120;
+
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
     public DeliveryResponse() {

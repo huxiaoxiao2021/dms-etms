@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
@@ -20,6 +22,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import org.apache.commons.logging.Log;
@@ -28,6 +31,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 /**
@@ -45,6 +50,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     private final String CASSANDRA_SIGN = "WaybillWeight_";
 
+    @Autowired
+    SysConfigService sysConfigService;
 
     /*运单接口 用于运单校验*/
     @Autowired
@@ -308,5 +315,32 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      */
     private Double convertVolumeUnitToRequired(Double cbm) {
         return cbm * 1000000.0;
+    }
+
+
+
+    /**
+     * b2b.weight.user.switch
+     * 等于1 开启校验
+     * 不维护 或者 等于0 不校验
+     * @return
+     */
+    @Override
+    @Cache(key = "WeighByWaybillController.isOpen", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 20 * 60 * 1000)
+    public boolean isOpenIntercept(){
+        try {
+            List<SysConfig> sysConfigs = sysConfigService.getRedisSwitchList("b2b.weight.user.switch");
+            if (null == sysConfigs || sysConfigs.size() <= 0) {
+                return false;
+            } else {
+                if(sysConfigs.get(0).getConfigContent()==null){
+                    return false;
+                }
+                return sysConfigs.get(0).getConfigContent().equals("1");
+            }
+        } catch (Throwable ex) {
+            return false;
+        }
     }
 }

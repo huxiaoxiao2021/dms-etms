@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -189,12 +190,14 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
             }
             PrintWaybill commonWaybill=result.getData();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
+            BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
+            commonWaybill.setBusiCode(dto!=null?dto.getTraderCode():null);
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
             commonWaybill.setOriginalDmsCode(dmsCode);

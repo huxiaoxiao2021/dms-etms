@@ -11,13 +11,13 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
-import com.jd.bluedragon.distribution.transport.domain.ArBookingSpaceCondition;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -79,6 +79,7 @@ public class WeighByWaybillController {
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/insertWaybillWeight")
     @ResponseBody
+    @BusinessLog(sourceSys = 1,bizType = 1901,operateType = 1901001)
     public InvokeResult<Boolean> insertWaybillWeight(WaybillWeightVO vo) {
 
         return insertWaybillWeight(vo,null,null);
@@ -117,30 +118,41 @@ public class WeighByWaybillController {
                             }else {
                                 logger.error("运单称重：未获取到当前操作人机构信息"+JsonHelper.toJson(erpUser));
                                 service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
-                                /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                                result.setMessage("未获取到当前操作人机构信息");
-                                result.setData(false);
-                                return result;*/
+                                if(service.isOpenIntercept()){
+                                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                                    result.setMessage("未获取到当前操作人机构信息，请在青龙基础资料维护员工信息");
+                                    result.setData(false);
+                                    return result;
+                                }
                             }
                         }else {
                             logger.error("运单称重：未获取到当前操作人信息"+JsonHelper.toJson(erpUser));
                             service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
-                            /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                            result.setMessage("未获取到当前操作人信息");
-                            result.setData(false);
-                            return result;*/
-
+                            if(service.isOpenIntercept()) {
+                                result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                                result.setMessage("未获取到当前操作人信息，请在青龙基础资料维护员工信息");
+                                result.setData(false);
+                                return result;
+                            }
                         }
+                    }else if(erpUser!=null && baseStaffSiteOrgDto!=null){
+                        //供批量导入使用
+                        vo.setOperatorId(erpUser.getUserId());
+                        vo.setOperatorName(erpUser.getUserName());
+                        vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
+                        vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
                     }
                 }
 
             } catch (Exception e) {
                 logger.error("运单称重：获取操作用户Erp账号失败"+JsonHelper.toJson(erpUser),e);
                 service.errorLogForOperator(vo, LoginContext.getLoginContext(),false);
-                /*result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                result.setMessage("获取操作用户信息异常");
-                result.setData(false);
-                return result;*/
+                if(service.isOpenIntercept()) {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    result.setMessage("获取操作用户信息异常");
+                    result.setData(false);
+                    return result;
+                }
             }
 
             service.insertWaybillWeightEntry(vo);
@@ -294,12 +306,16 @@ public class WeighByWaybillController {
                 userCode = erpUser.getUserCode();
                 bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
                 if(bssod == null){
-                    //return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息");
                     service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
+                    if(service.isOpenIntercept()) {
+                        return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息，请在青龙基础资料维护员工信息");
+                    }
                 }
             }else {
                 service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
-                //return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息");
+                if(service.isOpenIntercept()) {
+                    return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息，请在青龙基础资料维护员工信息");
+                }
             }
             //解析excel
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(file.getOriginalFilename());
@@ -492,4 +508,7 @@ public class WeighByWaybillController {
 
         return resList;
     }
+
+
+
 }

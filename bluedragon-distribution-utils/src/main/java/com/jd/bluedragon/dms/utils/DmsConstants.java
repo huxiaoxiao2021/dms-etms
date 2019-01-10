@@ -87,6 +87,10 @@ public class DmsConstants {
     public static final char MMB_SELF_MARK = '9';
     public static final String MMB_V_MARK = "009";
     /**
+     * 小米运单青龙商家编码
+     * */
+    public static final String busiCodeOfMillet = "010K258778";
+    /**
      * 最多包裹数
      */
     public static int MAX_NUMBER=20000;

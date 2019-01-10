@@ -16,11 +16,26 @@ public class WaybillPrintMessages{
 	/**
 	 * 三方超限提示信息
 	 */
-	public static final JdMessage FAIL_MESSAGE_THIRD_OVERRUN = new JdMessage(41001003,"包裹%s超出三方站点配送范围，请提交异常后操作逆向换单返回商家！");
+	public static final JdMessage FAIL_MESSAGE_THIRD_OVERRUN = new JdMessage(41001003,"包裹%s超出三方站点配送范围无法配送，%s，%s！");
 	public static final JdMessage WARN_MESSAGE = new JdMessage(21001001,"预分拣站点变更，务必重新打印包裹！");
+
+	/**
+	 * 三方超限-平台打印提示语
+	 */
+	public static final String FAIL_MESSAGE_THIRD_OVERRUN_PLATE_PRINT = "请提交异常后操作逆向换单返回商家";
+
+	/**
+	 * 三方超限-站点平台打印提示语
+	 */
+	public static final String FAIL_MESSAGE_THIRD_OVERRUN_SITE_PLATE_PRINT = "请操作揽收退回后返回商家";
+
 
 	/**
 	 * 信任商家提示信息
 	 * */
 	public static final JdMessage WARN_MESSAGE_TRUST_BUSINESS = new JdMessage(21001002,"%s为防止认为操作错误导致误差过大，请重新称重量方。");
+	/**
+	 * c2c判断揽收
+	 */
+	public static final String MESSAGE_NEED_RECEIVE="此运单未揽收完成禁止打印面单，请先揽收";
 }

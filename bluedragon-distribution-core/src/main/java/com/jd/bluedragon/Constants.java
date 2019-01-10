@@ -98,6 +98,11 @@ public class Constants {
      */
     public static final int B2B_SITE_TYPE = 6420;
 
+    /**
+     * B冷链转运中心站点类型
+     */
+    public static final Integer B2B_CODE_SITE_TYPE = 6460;
+
 
     /** 操作类型 **/
     public static final int TRANS_SORTING_OPERATE_TYPE = 1;
@@ -761,4 +766,9 @@ public class Constants {
      * 取消发货状态（托寄物品名打印）
      */
     public static final Integer GOODS_PRINT_WAYBILL_STATUS_0 =0;
+
+    /**
+     * 全程跟踪状态  揽收完成
+     */
+    public static final String WAYBILLTRACE_STATE ="-640";
 }

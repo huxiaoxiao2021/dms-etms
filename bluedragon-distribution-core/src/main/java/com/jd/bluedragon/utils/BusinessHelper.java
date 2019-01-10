@@ -8,6 +8,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.util.regex.Pattern;
@@ -183,6 +184,7 @@ public class BusinessHelper {
         }
         return true;
     }
+
     /**
      * 验证运单数据是否包含-寄付运费，WaybillSign62=1，且WaybillSign25=3时，freight<=0 返回false
      *
@@ -202,6 +204,7 @@ public class BusinessHelper {
         }
         return true;
     }
+
     /**
      * 到付运费或COD  TopayTotalReceivable > 0
      *
@@ -318,9 +321,9 @@ public class BusinessHelper {
         return waybillCode;
     }
 
-	public static boolean isSendCode(String sendCode){
-	    if (sendCode==null){
-	        return false;
+    public static boolean isSendCode(String sendCode) {
+        if (sendCode == null) {
+            return false;
         }
         return sendCode.matches(SEND_CODE_REG);
     }
@@ -332,26 +335,28 @@ public class BusinessHelper {
      * 且第16位等于1 （表示当日达）
      * 且第31位等于2 （表示同城配送）
      * 且第63位等于1 （中心站网络）
+     *
      * @param waybillSign
      * @return
      */
-    public static boolean isSameCityOneDay(String waybillSign){
-        return BusinessUtil.isSignChar(waybillSign,55,'0') &&
-                BusinessUtil.isSignChar(waybillSign,16,'1') &&
-                BusinessUtil.isSignChar(waybillSign,31,'2') &&
-                BusinessUtil.isSignChar(waybillSign,63,'1');
+    public static boolean isSameCityOneDay(String waybillSign) {
+        return BusinessUtil.isSignChar(waybillSign, 55, '0') &&
+                BusinessUtil.isSignChar(waybillSign, 16, '1') &&
+                BusinessUtil.isSignChar(waybillSign, 31, '2') &&
+                BusinessUtil.isSignChar(waybillSign, 63, '1');
     }
 
 
     /**
      * 判断是否是 需要显示代配站点新通路订单  sendPay 148-149 = 39且146=1
+     *
      * @param sendPay
      * @return
      */
-    public static boolean isNewPathWay(String sendPay){
-        if(BusinessUtil.isSignChar(sendPay,148,'3') &&
-                BusinessUtil.isSignChar(sendPay,149,'9') &&
-                BusinessUtil.isSignChar(sendPay,146,'1')){
+    public static boolean isNewPathWay(String sendPay) {
+        if (BusinessUtil.isSignChar(sendPay, 148, '3') &&
+                BusinessUtil.isSignChar(sendPay, 149, '9') &&
+                BusinessUtil.isSignChar(sendPay, 146, '1')) {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -359,11 +364,12 @@ public class BusinessHelper {
 
     /**
      * 划分理赔状态
+     *
      * @param type
      * @return
      */
-    public static String getLPStatus(int type){
-        switch (type){
+    public static String getLPStatus(int type) {
+        switch (type) {
             case 10:
             case 20:
             case 22:
@@ -394,4 +400,33 @@ public class BusinessHelper {
         return LocalClaimInfoRespDTO.LP_STATUS_NONE;
 
     }
+
+    /**
+     * c2c 且为到付或寄付
+     * waybill_sign第29位为8
+     * 且 waybill_sign第25位为2或3
+     */
+    public static boolean isC2c(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        if (BusinessUtil.isSignChar(waybillSign, 29, '8') && (BusinessUtil.isSignChar(waybillSign, 25, '2') || BusinessUtil.isSignChar(waybillSign, 25, '3'))) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 判断是否是B网分拣
+     * @param siteType
+     * @return
+     */
+    public static boolean isBSite(Integer siteType){
+        if(siteType==null){
+            return false;
+        }
+        return siteType.equals(new Integer(6420));
+    }
+
 }
