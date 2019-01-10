@@ -64,12 +64,12 @@ public class DmsRestFilter extends OncePerRequestFilter {
         String erpCode = request.getHeader("erpCode");
         try {
             if(StringHelper.isNotEmpty(erpCode)){
-                BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpCache(erpCode);
-                if(basestaffDto != null){
+                BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(erpCode);
+                if(basestaffDto != null && basestaffDto.getIsResign() != null && basestaffDto.getIsResign() == 1){
                     filterChain.doFilter(request,response);
                     return;
                 }
-                this.logger.error("该登陆用户:" + erpCode + "已离职！");
+                this.logger.error("该登陆用户:" + erpCode + "未在青龙基础资料中维护！");
                 JdResponse jdResponse = new JdResponse(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
                 showMessage(response,jdResponse);
             }else {

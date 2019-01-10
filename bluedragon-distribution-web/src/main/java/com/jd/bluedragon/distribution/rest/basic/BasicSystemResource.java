@@ -10,6 +10,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Consumes;
@@ -33,6 +34,9 @@ import java.util.Date;
 public class BasicSystemResource {
 
     private Logger log = Logger.getLogger(BasicSystemResource.class);
+
+    @Value("${BasicSystemResource.defaultTime}")
+    private String defaultTime;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -87,7 +91,7 @@ public class BasicSystemResource {
      */
     public boolean diffTime(Date operateTime, Date systemTime){
         long diff = Math.abs(operateTime.getTime() - systemTime.getTime());
-        if(diff/(1000*60) >= 5){
+        if(diff/(1000*60) >= Integer.valueOf(defaultTime)){
             return true;
         }
         return false;

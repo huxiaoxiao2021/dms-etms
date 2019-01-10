@@ -81,8 +81,6 @@ public interface BaseMajorManager {
 
     public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp);
 
-    public BaseStaffSiteOrgDto getBaseStaffByErpCache(String erp);
-
 	public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode);
 
     public Pager<List<SiteWareHouseMerchant>>  getBaseSiteByPage(int pageIndex);
