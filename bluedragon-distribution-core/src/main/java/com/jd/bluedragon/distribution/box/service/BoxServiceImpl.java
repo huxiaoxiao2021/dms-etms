@@ -148,8 +148,8 @@ public class BoxServiceImpl implements BoxService {
 			logger.error("箱号生成序列号异常",e);
 			if(!dbOpen){
 				//redis 异常
-				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,false);
-				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),false);
+				boxCodePrefix= this.generateBoxCodePrefixNew(param,systemType,true);
+				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
 		for(long seqNo :seqNos){
