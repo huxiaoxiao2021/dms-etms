@@ -186,7 +186,10 @@ public class Constants {
     public static final int BASE_SITE_BUSSINESS=1024;
 
     public static final int OPERATE_TYPE_THIRD_INSPECTION = 80;
-    
+
+    /* 站点operateState：2为线下运营 */
+    public static final Integer BASE_SITE_OPERATESTATE = 2;
+
     /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
      */
