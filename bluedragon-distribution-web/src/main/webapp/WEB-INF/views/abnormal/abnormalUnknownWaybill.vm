@@ -17,41 +17,21 @@
         </ol>
 		<!-- 查询条件 -->
         <div id="query-condition">
-            <form id="query-form" class="form-inline">
+            <form id="query-form" class="form-horizontal">
                 <fieldset>
                 	<div class="row">
                         <div class="col-xs-12">
-                            <div class="col-xs-3">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4 " for="startDate">上报时间</label>
-                                    <div class=" col-xs-8">
-                                        <input type="text" id="startTime" name="startTime" class="form-control search-param ">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-3">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-1 " for="startDate" style="text-align: center" >—</label>
-                                    <div class=" col-xs-8">
-                                        <input type="text" id="endTime" name="endTime" class="form-control search-param " >
-
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-xs-3">
+                            <div class="col-xs-4">
                                 <div class="form-group col-xs-12" >
-                                    <label class="control-label col-xs-4" for="box-code-input"> 运单号 </label>
+                                    <label class="control-label col-xs-4" for="box-code-input">运单号 ：</label>
                                     <div class="col-xs-6 ">
                                         <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param " >
                                     </div>
                                 </div>
-
                             </div>
-
-                            <div class="col-xs-3">
+                            <div class="col-xs-4">
                                 <div class="form-group  col-xs-12">
-                                    <label class="control-label col-xs-4 " for="box-code-input" > 是否回复 </label>
+                                    <label class="control-label col-xs-4 " for="box-code-input" >是否回复 ：</label>
                                     <div class=" col-xs-6">
                                         <select type="text" class="form-control" id="isReceiptSelect" name="isReceiptSelect">
                                             <option value="2" selected >全部</option>
@@ -62,9 +42,37 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="col-xs-4">
+                                <div class="form-group col-xs-12" >
+                                    <label class="control-label col-xs-4" for="box-code-input">提报人erp ：</label>
+                                    <div class="col-xs-6 ">
+                                        <input type="text" id="createUser" name="createUser" class="form-control search-param " >
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                		</div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group col-xs-12">
+                                    <label class="control-label col-xs-4 " for="startDate">上报时间 ：</label>
+                                    <div class=" col-xs-6">
+                                        <input type="text" id="startTime" name="startTime" class="form-control search-param ">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group col-xs-12">
+                                    <label class="control-label col-xs-4 " for="startDate">至</label>
+                                    <div class=" col-xs-6">
+                                        <input type="text" id="endTime" name="endTime" class="form-control search-param " >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </fieldset>
             </form>
         </div>
@@ -72,13 +80,13 @@
 	<!-- 主页面操作按钮 -->
     <div id="toolbar" class="btn-group">
         <button id="btn_query" type="button" class="btn btn-default">
-        	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
+        	<span class="glyphicon glyphicon-zoom-in" aria-hidden="true"></span>&nbsp;按条件搜索
         </button>
         <button id="btn_export" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
         </button>
         <button id="btn_add" type="button" class="btn btn-default">
-            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>新增
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询商品明细
         </button>
     </div>
     <table id="dataTable"></table>
@@ -99,13 +107,13 @@
                     </div>
                 	<div class="col-xs-10">
                 		<div class="form-group">
-                    		<label class="col-xs-2 control-label">运单号 ：</label>
+                    		<label class="col-xs-2 control-label">运单号/包裹号 ：</label>
                     		<div class="col-xs-4">
                     			<textarea rows="6" class="form-control edit-param" id="waybillCode" name="memo" style="width: 300px; height: 80px;">
 		                        </textarea>
                     		</div>
                             <div class="col-xs-3">
-                                <li class="active">（说明：一行一个运单号，支持批量录入）</li>
+                                <li class="active">（说明：一行一个运单号/包裹号，支持批量录入）</li>
                             </div>
                         </div>
                     </div>

@@ -108,11 +108,24 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         Map<String, BigWaybillDto> bigWaybillDtoMap = Maps.newHashMap();
         //没商家
         StringBuilder noTraderWaybills = new StringBuilder();
+        //返回给前台的运单号字符串
+        StringBuilder newWaybillCodes = new StringBuilder();
+        int count = 0;
         for (String waybillCodeInput : waybillcodes) {
+            count ++;
             if (StringUtils.isBlank(waybillCodeInput)) {
                 continue;
             }
+            if(count==waybillcodes.length){
+                newWaybillCodes.append(WaybillUtil.getWaybillCode(waybillCodeInput));
+            }else{
+                newWaybillCodes.append(WaybillUtil.getWaybillCode(waybillCodeInput)).append(",");
+            }
             String waybillCode = waybillCodeInput.trim();
+            //解析包裹号生成运单号
+            if(WaybillUtil.isPackageCode(waybillCode)){
+                waybillCode = WaybillUtil.getWaybillCode(waybillCode);
+            }
             if (WaybillUtil.isWaybillCode(waybillCode)) {
                 BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
@@ -132,22 +145,22 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
         }
         if (notWaybillCodes.length() > 0) {
-            rest.toFail("以下运单号不合法:" + notWaybillCodes + "请检查！");
-            logger.warn("以下运单号不合法:" + notWaybillCodes + "请检查！");
+            rest.toFail("以下运单号/包裹号不合法:" + notWaybillCodes + "请检查！");
+            logger.warn("以下运单号/包裹号不合法:" + notWaybillCodes + "请检查！");
             return rest;
         }
         if (noTraderWaybills.length() > 0) {
-            rest.toFail("以下运单号未找到商家:" + noTraderWaybills + "请检查！");
-            logger.warn("以下运单号未找到商家" + noTraderWaybills + "请检查！");
+            rest.toFail("以下运单号/包裹号未找到商家:" + noTraderWaybills + "请检查！");
+            logger.warn("以下运单号/包裹号未找到商家" + noTraderWaybills + "请检查！");
             return rest;
         }
         if (noExistsWaybills.length() > 0) {
-            rest.toFail("以下运单号不存在:" + noExistsWaybills + "请检查！");
-            logger.warn("以下运单号不存在:" + noExistsWaybills + "请检查！");
+            rest.toFail("以下运单号/包裹号不存在:" + noExistsWaybills + "请检查！");
+            logger.warn("以下运单号/包裹号不存在:" + noExistsWaybills + "请检查！");
             return rest;
         }
         if (waybillList.size() == 0) {
-            rest.toFail("无可用运单号");
+            rest.toFail("无可用运单号/包裹号");
             return rest;
         }
 
@@ -194,7 +207,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             }
         }
         if (waybillcodes != null && waybillcodes.length > 0) {
-            rest.setData(StringUtils.join(waybillcodes, ","));
+            rest.setData(newWaybillCodes.toString());
         } else {
             rest.setData(null);
         }
@@ -289,8 +302,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     private void buildWaybillDetails(AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail, List<Goods> goods) {
         for (int i = 0; i < goods.size(); i++) {
-            //明细内容： 商品名称*数量
-            waybillDetail.append(goods.get(i).getGoodName() + " * " + goods.get(i).getGoodCount());
+            //明细内容： 商品编码SKU：商品名称*数量
+            waybillDetail.append(goods.get(i).getSku() + ":" + goods.get(i).getGoodName() + " * " + goods.get(i).getGoodCount());
             if (i != goods.size() - 1) {
                 //除了最后一个，其他拼完加个,
                 waybillDetail.append(",");
