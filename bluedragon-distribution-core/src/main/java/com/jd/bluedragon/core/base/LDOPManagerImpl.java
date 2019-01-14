@@ -280,7 +280,7 @@ public class LDOPManagerImpl implements LDOPManager {
         params.setOrderId(busiCode);
         PageUtil< OrderInfoPrintDTO > pageParam = new PageUtil<OrderInfoPrintDTO>();
         pageParam.setCurPage(1);
-        pageParam.setPageSize(1);
+        pageParam.setPageSize(10);
 
         PageUtil<OrderInfoPrintDTO> jsfResult = orderInfoServiceJsf.queryOrderInfo4PrintByCondition(params, pageParam);
         if(jsfResult.getTotalRow()==0){
@@ -292,6 +292,7 @@ public class LDOPManagerImpl implements LDOPManager {
             if(datas==null || datas.size()!=1 || StringUtils.isBlank(datas.get(0).getDeliveryId())){
                 result.setMessage("外单接口数据返回异常。请联系运营处理！");
                 result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                logger.error("根据商家ID和商家单号获取运单号失败"+busiId+"|"+busiCode+"|"+JsonHelper.toJson(jsfResult));
             }else {
                 //返回运单号
                 result.setData(datas.get(0).getDeliveryId());
