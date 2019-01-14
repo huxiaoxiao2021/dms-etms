@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -191,13 +188,13 @@ public class ThirdOverRunInterceptHandler implements InterceptHandler<WaybillPri
 					WaybillPrintRequest request = context.getRequest();
 					//平台打印和站点平台打印提示语个性设置
 					if (WaybillPrintOperateTypeEnum.PLATE_PRINT_TYPE.equals(request.getOperateType())) {
-						result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(),
-								WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg(overRunUnit,
+						result.toFail(WaybillPrintMessages.FAIL_CODE__THIRD_OVERRUN,
+								String.format(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN,overRunUnit,
 										WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN_PLATE_PRINT,
 										overRunMessage));
 					} else if (WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(request.getOperateType())) {
-						result.toFail(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.getMsgCode(),
-								WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN.formatMsg(overRunUnit,
+						result.toFail(WaybillPrintMessages.FAIL_CODE__THIRD_OVERRUN,
+								String.format(WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN,overRunUnit,
 										WaybillPrintMessages.FAIL_MESSAGE_THIRD_OVERRUN_SITE_PLATE_PRINT,
 										overRunMessage));
 					}
