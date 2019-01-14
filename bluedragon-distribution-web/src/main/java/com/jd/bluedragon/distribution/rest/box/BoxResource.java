@@ -386,6 +386,7 @@ public class BoxResource {
             response.setRouterInfo(box.getRouterName().split("\\-\\-"));
             response.setRouterText(box.getRouterName().replace("--","-"));
         }
+        response.setMixBoxType(box.getMixBoxType());
         return response;
     }
 
