@@ -1,11 +1,13 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
@@ -21,6 +23,10 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ldop.center.api.update.dto.WaybillAddress;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.receive.api.dto.OrderInfoPrintDTO;
+import com.jd.ql.dms.receive.api.dto.OrderInfoQueryDTO;
+import com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf;
+import com.jd.ql.dms.receive.api.util.PageUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -48,6 +54,9 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private WaybillReturnSignatureApi waybillReturnSignatureApi;
+
+    @Autowired
+    private OrderInfoServiceJsf orderInfoServiceJsf ;
 
     /*用于记录操作日志*/
     @Autowired
@@ -244,6 +253,56 @@ public class LDOPManagerImpl implements LDOPManager {
             waybillReverseDTO.setWaybillAddress(waybillAddress);
         }
         return waybillReverseDTO;
+    }
+
+    /**
+     * 根据商家ID和商家单号获取运单号
+     *
+     * @param busiId   商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.LDOPManagerImpl.findWaybillCodeByBusiIdAndBusiCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<String> findWaybillCodeByBusiIdAndBusiCode(String busiId, String busiCode) {
+        InvokeResult<String> result = new InvokeResult<String>();
+        //检查
+        if(StringUtils.isBlank(busiId) || StringUtils.isBlank(busiCode) || !SerialRuleUtil.isMatchNumeric(busiId)){
+            result.setMessage("商家ID或商家单号参数不正确！");
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            return result;
+        }
+
+        //组装外单JSF接口入参。 业务定义同一个商家ID和商家单号只会对应一个运单号
+        OrderInfoQueryDTO params = new OrderInfoQueryDTO();
+        params.setCustomerId(Integer.valueOf(busiId));
+        params.setOrderId(busiCode);
+        PageUtil< OrderInfoPrintDTO > pageParam = new PageUtil<OrderInfoPrintDTO>();
+        pageParam.setCurPage(1);
+        pageParam.setPageSize(10);
+
+        PageUtil<OrderInfoPrintDTO> jsfResult = orderInfoServiceJsf.queryOrderInfo4PrintByCondition(params, pageParam);
+        if(jsfResult.getTotalRow()==0){
+            //未查询到数据
+            result.setMessage("未获取到运单数据。请确认商家ID和商家单号是否正确！");
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+        }else if(jsfResult.getTotalRow()==1){
+            List<OrderInfoPrintDTO> datas = jsfResult.getContents();
+            if(datas==null || datas.size()!=1 || StringUtils.isBlank(datas.get(0).getDeliveryId())){
+                result.setMessage("外单接口数据返回异常。请联系运营处理！");
+                result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                logger.error("根据商家ID和商家单号获取运单号失败"+busiId+"|"+busiCode+"|"+JsonHelper.toJson(jsfResult));
+            }else {
+                //返回运单号
+                result.setData(datas.get(0).getDeliveryId());
+            }
+        }else {
+            //违背义务定义
+            result.setMessage("通过商家ID和商家单号匹配到多个运单。请联系运营处理！");
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+        }
+        return result;
     }
 
     /**
