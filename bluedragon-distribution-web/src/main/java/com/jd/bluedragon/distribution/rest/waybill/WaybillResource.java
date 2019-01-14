@@ -1619,4 +1619,25 @@ public class WaybillResource {
 		return invokeResult;
 	}
 
+	/**
+	 * 根据商家ID和商家单号 获取运单号
+	 * @param busiId 商家ID
+	 * @param busiCode 商家单号
+	 *
+	 * @return 运单号
+	 */
+	@GET
+	@Path("/waybill/findByBusiCode/{busiId}/{busiCode}")
+	public InvokeResult<String> findWaybillByBusiIdAndBusiCode(@PathParam("busiId") String busiId,@PathParam("busiCode") String busiCode){
+		InvokeResult<String> result = new InvokeResult<String>();
+		try{
+			result = ldopManager.findWaybillCodeByBusiIdAndBusiCode(busiId,busiCode);
+		}catch (Exception e){
+			logger.error("根据商家ID和商家单号获取运单号异常"+busiId+" "+busiCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
 }
