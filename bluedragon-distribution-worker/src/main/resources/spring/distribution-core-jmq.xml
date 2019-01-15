@@ -173,6 +173,11 @@
         <property name="timeout" value="1000"/>
         <!---->
     </bean>
+    <!--非城配运单，发车队通知调度系统发送MQ-->
+    <bean id="dmsToVendor" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsToVendor}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
     <!--包裹称重信息发送mq-->
     <bean id="dmsWeightSendMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWeightSendMQ}"/>

@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.3-SNAPSHOT</version>
+			<version>1.2.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -209,7 +209,13 @@
 			<artifactId>ql-thirdtrack-interface</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-              
+
+		<dependency>
+			<groupId>com.jd.ql.dispatch</groupId>
+			<artifactId>dispatch-client</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+
 		<dependency>
 			<groupId>commons-jexl</groupId>
 			<artifactId>commons-jexl</artifactId>
@@ -538,7 +544,7 @@
         <dependency>
             <groupId>com.jd.etms.receive</groupId>
             <artifactId>etms-receive-api</artifactId>
-            <version>1.1.6-SNAPSHOT</version>
+            <version>1.2.64-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jd.etms.vehicle.manager.interface</groupId>

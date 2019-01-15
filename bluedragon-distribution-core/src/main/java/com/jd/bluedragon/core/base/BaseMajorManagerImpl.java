@@ -415,6 +415,12 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return basicPrimaryWS.getBaseStaffByErp(erp);
     }
 
+    @Override
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffIgnoreIsResignByErp", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode) {
+        return basicPrimaryWS.getBaseStaffIgnoreIsResignByErp(erpCode);
+    }
+
     public Pager<List<SiteWareHouseMerchant>> getBaseSiteByPage(int pageIndex) {
         PageDto<List<BaseStaffSiteOrgDto>> resPageDto = basicPrimaryWS.getBaseSiteAllByPage(pageIndex);
         Pager<List<SiteWareHouseMerchant>> result = new Pager<List<SiteWareHouseMerchant>>();

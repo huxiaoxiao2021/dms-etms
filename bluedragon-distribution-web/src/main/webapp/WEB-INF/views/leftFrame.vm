@@ -11,6 +11,11 @@
 <body id="leftframe">
 <div id="lsidebar" class="content">
     <dl>
+        <dt><a href="#" class="curr">三无运单处理</a></dt>
+        <dd><a href="http://exp.ql.jd.com/summary/main" target="mainFrame">三无商品录入</a></dd>
+        <dd><a href="http://exp.ql.jd.com/indicator/main" target="mainFrame">指标异常明细查询</a></dd>
+        <dd><a href="#springUrl('/barcode/toIndex')" target="mainFrame">69码查询商品名称</a></dd>
+        <dd><a href="#springUrl('/abnormal/abnormalUnknownWaybill/toIndex')" target="mainFrame">三无外单托寄物核实</a></dd>
         <dt><a href="#" class="curr">平台订单</a></dt>
         <!--
 	<dd><a href="#springUrl('/popReceive/goListPage')" target="mainFrame">已打印未收货处理</a></dd>
@@ -37,10 +42,8 @@
         <dd><a href="#springUrl('/gantryAutoSend/index')" target="mainFrame">龙门架自动发货</a></dd>
         <dd><a href="#springUrl('/sortMachineAutoSend/index')" target="mainFrame">分拣机自动发货</a></dd>
         <dd><a href="#springUrl('/abnormal/dmsAbnormalEclp/toIndex')" target="mainFrame">库房拒收外呼申请</a></dd>
-        <dd><a href="#springUrl('/abnormal/abnormalUnknownWaybill/toIndex')" target="mainFrame">三无外单托寄物核实</a></dd>
         <dd><a href="#springUrl('http://dms.sc.jd.com/kaSortingReport/toIndex')" target="mainFrame">KA商家实时报表</a></dd>
         <dd><a href="#springUrl('/abnormalDispose/abnormalDispose/toIndex')" target="mainFrame">分拣批次清零</a></dd>
-        <dd><a href="#springUrl('/barcode/toIndex')" target="mainFrame">69码查询商品名称</a></dd>
         <dd><a href="#springUrl('/transport/tmsProxy/toIndex')" target="mainFrame">运输委托书打印</a></dd>
         <dd><a href="#springUrl('/goodsPrint/toIndex')" target="mainFrame">托寄物品名打印</a></dd>
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>

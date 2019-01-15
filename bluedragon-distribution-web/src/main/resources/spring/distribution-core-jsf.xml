@@ -365,4 +365,14 @@
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
+    <!-- 外单商家相关接口 -->
+    <jsf:consumer id="orderInfoServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf"
+                  protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+
+    <!--预分拣 - 分拣中心查询商家是否可以走B网车队-->
+    <jsf:consumer id="dmsToVendorDispatchService" interface="com.jd.ql.dispatch.api.DmsToVendorDispatchService"
+                  protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
@@ -83,4 +84,11 @@ public interface LDOPManager {
      */
     WaybillReverseDTO makeWaybillReverseDTOCanTwiceExchange(ExchangeWaybillDto exchangeWaybillDto);
 
+    /**
+     * 根据商家ID和商家单号获取运单号
+     * @param busiId 商家ID
+     * @param busiCode 商家单号
+     * @return
+     */
+    InvokeResult<String> findWaybillCodeByBusiIdAndBusiCode(String busiId,String busiCode);
 }
