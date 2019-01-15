@@ -642,8 +642,9 @@ public class WaybillResource {
                 }
             }
         }catch (Exception e){
-            logger.error("获取返调度目的地信息出错，不再校验商家是否支持转3方：" + waybillCodeOrPackage, e);
-        }
+            logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
+			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
+		}
         // 转换运单号
         String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
         // 调用服务
