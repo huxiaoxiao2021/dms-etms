@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.DmsInterturnManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
@@ -20,7 +22,6 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
-import com.jd.bluedragon.distribution.send.manager.SendMManager;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,6 +29,8 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.text.MessageFormat;
 
 /**
  * @author dudong
@@ -75,6 +78,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     
 	@Autowired
 	private UserService userService;
+
+    @Autowired
+    private DmsInterturnManager dmsInterturnManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -354,5 +360,19 @@ public class DmsInternalServiceImpl implements DmsInternalService {
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.isBoxSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Boolean isBoxSent(String boxCode, Integer siteCode) {
         return boxService.checkBoxIsSent(boxCode, siteCode);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.dispatchToExpress", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> dispatchToExpress(Integer siteCode, Integer vendorId, String waybillSign) {
+        try{
+            return dmsInterturnManager.dispatchToExpress(siteCode, vendorId, waybillSign);
+        }catch (Exception e){
+            logger.error(MessageFormat.format("C网转B网校验异常，siteCode：{0},vendorId：{1},waybillSign:{2}", siteCode, vendorId, waybillSign), e);
+            InvokeResult<Boolean> errorResult = new InvokeResult<Boolean>();
+            errorResult.setCode(JdResponse.CODE_INTERNAL_ERROR);
+            errorResult.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            return errorResult;
+        }
     }
 }

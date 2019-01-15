@@ -370,4 +370,9 @@
                   protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 
+
+    <!--预分拣 - 分拣中心查询商家是否可以走B网车队-->
+    <jsf:consumer id="dmsToVendorDispatchService" interface="com.jd.ql.dispatch.api.DmsToVendorDispatchService"
+                  protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>
