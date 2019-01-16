@@ -180,6 +180,8 @@ public class Constants {
     public static final Integer BASE_SITE_TYPE_THIRD = 16;
     /* 基础资料siteType:64为分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_CENTER = 64;
+    /* 基础资料siteType:96车队 */
+    public static final Integer BASE_SITE_MOTORCADE = 96;
     /* 基础资料siteType:256为二级分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER = 256;
     /* 基础资料siteType:1024为B商家 */
