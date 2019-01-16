@@ -32,4 +32,12 @@ public interface AbnormalUnknownWaybillDao extends Dao<AbnormalUnknownWaybill> {
      * @return
      */
     public int updateReceive(AbnormalUnknownWaybill abnormalUnknownWaybill);
+
+
+    /**
+     * 根据运单号查询
+     * @param waybillCode
+     * @return
+     */
+    public List<AbnormalUnknownWaybill> queryByWaybillCode(String waybillCode);
 }

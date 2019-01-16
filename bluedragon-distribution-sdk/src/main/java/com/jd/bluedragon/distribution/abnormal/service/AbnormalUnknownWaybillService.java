@@ -56,4 +56,11 @@ public interface AbnormalUnknownWaybillService extends Service<AbnormalUnknownWa
      * @return
      */
     public PagerResult<AbnormalUnknownWaybill> queryByPagerCondition(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition);
+
+    /**
+     * 根据运单号查询
+     * @param waybillCodes
+     * @return
+     */
+    public JdResponse<String> queryByWaybillCode(List<String> waybillCodes);
 }

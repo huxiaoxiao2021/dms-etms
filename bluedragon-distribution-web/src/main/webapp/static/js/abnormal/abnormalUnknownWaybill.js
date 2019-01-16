@@ -164,10 +164,10 @@ $(function () {
                 waybillCodes = null;//清空批量查询
                 //校验输入的运单号
                 var flage = 0;
-                var url = '/abnormal/abnormalUnknownWaybill/checkWaybillCode?waybillCode=' + $("#waybillCode").val();
+                var url = '/abnormal/abnormalUnknownWaybill/checkWaybillCode?waybillCodes=' + $("#waybillCode").val();
                 $.ajaxHelper.doGetSync(url, null, function (res) {
                     if (res && !res.succeed) {
-                        alert('以下运单号：' + res.data + '不合法');
+                        alert(res.message);
                         flage = 1;
                     }
                 });

@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillSer
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.ws.rs.QueryParam;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -123,28 +123,21 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      */
     @RequestMapping(value = "/checkWaybillCode")
     public @ResponseBody
-    JdResponse checkWaybillCode(@QueryParam("waybillCode") String waybillCode) {
-        JdResponse<String> response = new JdResponse<String>();
+    JdResponse checkWaybillCode(@QueryParam("waybillCodes") String waybillCodes) {
+        JdResponse response = new JdResponse();
         response.setCode(JdResponse.CODE_SUCCESS);
-        StringBuilder notWaybillCodes = new StringBuilder();
-        String[] split = waybillCode.split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
-        List<String> waybillCodeList = Arrays.asList(split);
-        int count = 0;
-        for(String inputWaybillCode : waybillCodeList){
-            count++;
-            if(StringHelper.isNotEmpty(inputWaybillCode) && !WaybillUtil.isWaybillCode(inputWaybillCode)){
-                if(count == waybillCodeList.size()){
-                    notWaybillCodes.append(inputWaybillCode);
-                }else {
-                    notWaybillCodes.append(inputWaybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
-                }
+        if(StringHelper.isEmpty(waybillCodes.trim())){
+            return response;
+        }else {
+            List<String> waybillCodeList = new ArrayList<String>();
+            if(waybillCodes.contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)){
+                String[] split = waybillCodes.split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                waybillCodeList = Arrays.asList(split);
+            }else {
+                waybillCodeList.add(waybillCodes);
             }
+            return abnormalUnknownWaybillService.queryByWaybillCode(waybillCodeList);
         }
-        if(notWaybillCodes.length() > 0){
-            response.setCode(JdResponse.CODE_FAIL);
-            response.setData(notWaybillCodes.toString());
-        }
-        return response;
     }
 
     /**

@@ -24,6 +24,7 @@ import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -566,6 +567,42 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             //查询并补充无详细的运单号
             return queryAbnormalUnknownWaybillAndReplenish(abnormalUnknownWaybillCondition);
         }
+    }
+
+    @Override
+    public JdResponse<String> queryByWaybillCode(List<String> waybillCodes){
+
+        JdResponse response = new JdResponse();
+        response.setCode(JdResponse.CODE_SUCCESS);
+        //非法运单号
+        StringBuilder notWaybillCodes = new StringBuilder();
+        int count = 0;
+        for(String inputWaybillCode : waybillCodes){
+            inputWaybillCode = inputWaybillCode.trim();
+            count++;
+            //不存在的运单号
+            if(StringHelper.isNotEmpty(inputWaybillCode) && WaybillUtil.isWaybillCode(inputWaybillCode)){
+                List<AbnormalUnknownWaybill> list = abnormalUnknownWaybillDao.queryByWaybillCode(inputWaybillCode);
+                if(list == null || list.size() == 0){
+                    response.setCode(JdResponse.CODE_FAIL);
+                    response.setMessage("以下运单号不存在：" + inputWaybillCode);
+                    break;
+                }
+            }
+            if(StringHelper.isNotEmpty(inputWaybillCode) && !WaybillUtil.isWaybillCode(inputWaybillCode)){
+                if(count == waybillCodes.size()){
+                    notWaybillCodes.append(inputWaybillCode);
+                }else {
+                    notWaybillCodes.append(inputWaybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                }
+            }
+        }
+        if(notWaybillCodes.length() > 0){
+            response.setCode(JdResponse.CODE_FAIL);
+            response.setMessage("以下运单号不合法：" + notWaybillCodes.toString());
+            return response;
+        }
+        return response;
     }
 
     /**
