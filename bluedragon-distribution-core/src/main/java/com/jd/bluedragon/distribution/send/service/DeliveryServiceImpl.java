@@ -2064,11 +2064,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
                                 Waybill waybill = sendDetailWaybillMap.get(tSendDatail.getWaybillCode());
                                 //发货目的地是车队，且是非城配运单，要通知调度系统
-                                if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                                /*if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
                                     Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill, rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                     this.logger.info("非城配运单，发车队通知调度系统发送MQ["+sendDispatchMessage.getTopic()+"],业务ID["+sendDispatchMessage.getBusinessId()+"],消息主题: " + sendDispatchMessage.getText());
                                     dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(),sendDispatchMessage.getText());
-                                }
+                                }*/
                                 //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
                                 int updateCount = gantryExceptionService.getGantryExceptionCountForUpdate(tSendDatail.getBoxCode(), Long.valueOf(tSendDatail.getCreateSiteCode()));
                                 if (updateCount > 0) {
@@ -2960,11 +2960,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
             logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
             //快运发货非城配运单发往车队，判断是否可以C转B
-            if(!checkDmsToVendor(sendM)){
+            /*if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                 response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
                 return response;
-            }
+            }*/
             return response;
         }
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
