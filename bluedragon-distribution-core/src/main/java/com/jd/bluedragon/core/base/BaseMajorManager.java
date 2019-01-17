@@ -1,14 +1,15 @@
 package com.jd.bluedragon.core.base;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.dto.*;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.SimpleBaseSite;
+
+import java.util.List;
+import java.util.Map;
 
 
 public interface BaseMajorManager {
@@ -79,6 +80,8 @@ public interface BaseMajorManager {
     public BaseStaffSiteOrgDto getBaseStaffByStaffIdNoCache(Integer paramInteger);
 
     public BaseStaffSiteOrgDto getBaseStaffByErpNoCache(String erp);
+
+	public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode);
 
     public Pager<List<SiteWareHouseMerchant>>  getBaseSiteByPage(int pageIndex);
 

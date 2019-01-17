@@ -29,7 +29,11 @@
 		<error-code>401</error-code>
 		<location>/401.vm</location>
 	</error-page>
-	
+	<error-page>
+		<error-code>402</error-code>
+		<location>/402.vm</location>
+	</error-page>
+
 	<context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:spring/distribution-web-context.xml</param-value>
@@ -72,7 +76,17 @@
 		<filter-name>dmsAuthorizationFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
-	
+
+	<filter>
+		<filter-name>dmsRestFilter</filter-name>
+		<filter-class>com.jd.bd.dms.automatic.marshal.filter.DmsRestFilter</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>dmsRestFilter</filter-name>
+		<url-pattern>/services/*</url-pattern>
+	</filter-mapping>
+
 	<servlet>
         <servlet-name>Resteasy</servlet-name>
         <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>

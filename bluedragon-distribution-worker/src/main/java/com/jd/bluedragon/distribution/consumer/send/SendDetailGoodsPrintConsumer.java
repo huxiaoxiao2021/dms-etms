@@ -138,7 +138,7 @@ public class SendDetailGoodsPrintConsumer extends MessageBaseConsumer {
         }
         goodsPrintDto.setOperateTime(new Date(sendDetail.getOperateTime()));
         if (BusinessUtil.isBoxcode(sendDetail.getBoxCode())) {
-            sendDetail.setBoxCode(sendDetail.getBoxCode());
+            goodsPrintDto.setBoxCode(sendDetail.getBoxCode());
         }
         if (waybill.getWaybillExt() != null && waybill.getWaybillExt().getConsignWare() != null) {
             goodsPrintDto.setConsignWare(waybill.getWaybillExt().getConsignWare());

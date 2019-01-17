@@ -365,4 +365,9 @@
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
+    <!-- 外单商家相关接口 -->
+    <jsf:consumer id="orderInfoServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf"
+                  protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>
