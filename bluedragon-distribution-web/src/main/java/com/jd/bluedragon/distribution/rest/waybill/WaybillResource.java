@@ -48,6 +48,7 @@ import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
+import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -61,6 +62,7 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1640,4 +1642,166 @@ public class WaybillResource {
 		return result;
 	}
 
+
+	/**
+	 * 根据包裹号获取重量信息
+	 *
+	 * @param packageCode 包裹号
+	 * @param type 称重类型
+	 *              为以后方便接口扩展使用 ，如果有需求请扩展该字段
+	 *             	1 - 揽收称重信息  (揽收包括站点称重 车队称重 驻厂)
+	 *
+	 * @return 运单号
+	 */
+	@GET
+	@Path("/package/weight/{type}/{packageCode}")
+	public InvokeResult<PackWeightVO> findPackageWeight(@PathParam("type") String type,@PathParam("packageCode") String packageCode){
+		InvokeResult<PackWeightVO> result = new InvokeResult<PackWeightVO>();
+		try{
+			Integer[] opeTypes = {Constants.PACK_OPE_FLOW_TYPE_PSY_REC,Constants.PACK_OPE_FLOW_TYPE_CD_REC,Constants.PACK_OPE_FLOW_TYPE_ZC_REC};
+			//称重信息优先级 站点 > 车队 > 驻厂
+			for(Integer opeType : opeTypes){
+
+				Map<String,PackOpeFlowDto> packOpeFlows = this.waybillCommonService.getPackOpeFlowsByOpeType(WaybillUtil.getWaybillCode(packageCode),opeType);
+
+				if(packOpeFlows!= null && packOpeFlows.size() != 0 && packOpeFlows.get(packageCode)!=null){
+					PackOpeFlowDto packOpeFlowDto = packOpeFlows.get(packageCode);
+
+				PackWeightVO packWeightVO = new PackWeightVO();
+				packWeightVO.setHigh(packOpeFlowDto.getpHigh());
+				packWeightVO.setLength(packOpeFlowDto.getpLength());
+				packWeightVO.setWidth(packOpeFlowDto.getpWidth());
+				if(packOpeFlowDto.getpLength() != null && packOpeFlowDto.getpHigh() !=null && packOpeFlowDto.getpWidth() !=null){
+					packWeightVO.setVolume(packOpeFlowDto.getpLength() * packOpeFlowDto.getpHigh() * packOpeFlowDto.getpWidth());
+				}
+				packWeightVO.setWeight(packOpeFlowDto.getpWeight());
+				result.setData(packWeightVO);
+				return result;
+
+				}
+			}
+
+			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+			result.setMessage("未获取到揽收重量信息");
+			return result;
+
+		}catch (Exception e){
+			logger.error("根据包裹号获取揽收重量信息异常"+packageCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+
+	/**
+	 * 上传包裹称重信息
+	 * @param packWeightVO
+	 *
+	 * @return 运单号
+	 */
+	@POST
+	@Path("/package/weight")
+	public InvokeResult<Boolean> savePackageWeight(PackWeightVO packWeightVO){
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		try{
+			StringBuilder message = new StringBuilder();
+			if(packWeightVO.checkParam(message)){
+				this.taskService.add(packWeightVO.convertToTask("package/weight上传"), false);
+				result.setData(true);
+				return result;
+			}
+			result.setMessage(message.toString());
+			result.setData(false);
+		}catch (Exception e){
+			logger.error("上传包裹称重信息异常"+JsonHelper.toJson(packWeightVO),e);
+			result.setData(false);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 包裹称重 提示警告信息
+	 *
+	 *   1分拣称重重量kg	2 揽收重量kg
+ 	 *   本次分拣称重重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5kg为异常。
+	 	本次分拣称重重量大于5kg，对比项1减对比项2，正负误差值小于等于1.0 kg为正常，大于1.0 kg为异常，弹框提示语1。
+	 	如果揽收重量为0或空，则为异常，弹框提示语2
+
+	 	1分拣录入的长cm*宽cm*高cm除以8000=分拣体积重量kg	2揽收体积（立方厘米）除以8000=揽收体积重量kg
+	 	本次分拣体积重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5kg为异常。
+	 	本次分拣体积重量大于5kg，对比项1减对比项2，正负误差值小于等于1.0 kg为正常，大于1.0 kg为异常，弹框提示语3。
+	 	如果揽收体积为0或空，则为异常，弹框提示语4
+
+	 （1）提示语1：揽收重量为XXkg，经校验超出误差值XXkg
+	 （2）提示语2：揽收重量为0或空，无法进行校验。
+	 （3）提示语3：揽收体积重量（体积除以8000）为XXkg，经校验超出误差值XXkg
+	 （4）提示语4：揽收体积为0或空，无法进行校验。
+	 （5）若符合多条则显示多条提示语。
+
+	 *
+	 * @param packWeightVO
+	 *
+	 * @return
+	 */
+	@POST
+	@Path("/package/weight/warn/check")
+	public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		try{
+			//上传信息
+			double upWeight = packWeightVO.getWeight();
+			double upLength = packWeightVO.getLength();
+			double upWidth = packWeightVO.getWidth();
+			double upHigh = packWeightVO.getHigh();
+			double upVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?upLength*upWidth*upHigh : packWeightVO.getVolume();
+
+			//揽收信息
+			double weight = 0;
+			double volume = 0;
+			InvokeResult<PackWeightVO> weightResult = findPackageWeight("1",packWeightVO.getCodeStr());
+
+			if(weightResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+				weight = weightResult.getData().getWeight();
+				volume = weightResult.getData().getVolume();
+			}
+
+			if(weight == 0){
+				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				result.setData(false);
+				result.setMessage("揽收重量为0或空，无法进行校验");
+			}else{
+				if((upWeight <= 5 && Math.abs(upWeight-weight)>= 0.5) || (upWeight > 5 && Math.abs(upWeight-weight)>= 1)){
+					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+					result.setData(false);
+					result.setMessage("揽收重量为"+weight+"kg，经校验超出误差值"+Math.abs(upWeight-weight)+"kg");
+				}
+			}
+
+			if(volume == 0){
+				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+				result.setData(false);
+				result.setMessage("揽收体积为0或空，无法进行校验");
+			}else{
+				if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000>= 0.5) || (upVolume/8000 > 5 && Math.abs(upVolume-volume)/8000>= 1)){
+					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+					result.setData(false);
+					String message = "";
+					if(StringUtils.isBlank(result.getMessage())){
+						message = "揽收体积重量（体积除以8000）为"+upVolume/8000+"kg，经校验超出误差值"+Math.abs(upVolume-volume)/8000+"kg";
+					}else{
+						message = result.getMessage() +"\r\n揽收体积重量（体积除以8000）为"+upVolume/8000+"kg，经校验超出误差值"+Math.abs(upVolume-volume)/8000+"kg";
+					}
+					result.setMessage(message);
+				}
+			}
+		}catch (Exception e){
+			logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
 }
