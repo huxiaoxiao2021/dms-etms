@@ -44,6 +44,7 @@
         <dd><a href="#springUrl('/transport/tmsProxy/toIndex')" target="mainFrame">运输委托书打印</a></dd>
         <dd><a href="#springUrl('/goodsPrint/toIndex')" target="mainFrame">托寄物品名打印</a></dd>
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
+        <dd><a href="#springUrl('/coldchain/quarantinelicense/index')" target="mainFrame">冷链卡班检疫证票号管理</a></dd>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
         <dd><a href="#springUrl('/base/dmsStorageArea/toIndex')" target="mainFrame">流向库位配置表</a></dd>
         <dd><a href="#springUrl('/half/packageHalfRedelivery/toIndex')" target="mainFrame">快运协商再投</a></dd>
