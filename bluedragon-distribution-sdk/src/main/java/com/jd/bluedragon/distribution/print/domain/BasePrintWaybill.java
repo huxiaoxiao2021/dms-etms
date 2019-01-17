@@ -145,7 +145,7 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * 模板版本-默认为0，最后一个版本号
 	 */
-	private int templateVersion;
+	private Integer templateVersion = 0;
 	/**
 	 * 运费
 	 */
@@ -613,14 +613,14 @@ public class BasePrintWaybill implements Serializable {
 	/**
 	 * @return the templateVersion
 	 */
-	public int getTemplateVersion() {
+	public Integer getTemplateVersion() {
 		return templateVersion;
 	}
 
 	/**
 	 * @param templateVersion the templateVersion to set
 	 */
-	public void setTemplateVersion(int templateVersion) {
+	public void setTemplateVersion(Integer templateVersion) {
 		this.templateVersion = templateVersion;
 	}
 

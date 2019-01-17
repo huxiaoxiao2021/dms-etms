@@ -49,7 +49,7 @@ public class PlatePrintOperateHandler implements InterceptHandler<WaybillPrintCo
             }
         }
         interceptResult.setData(JsonHelper.toJson(context.getResponse()));
-        if (context.getStatus() == InterceptResult.STATUS_WEAK_PASSED) {
+        if (InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())) {
             interceptResult.setStatus(context.getStatus());
             interceptResult.setMessage(context.getMessages().get(0));
             interceptResult.setCode(JdResult.CODE_SUC);

@@ -255,7 +255,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
             return null;
         }
-        if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED == context.getStatus()){//二次预分拣时重置目的站点和路区
+        if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())){//二次预分拣时重置目的站点和路区
             waybill.setOldSiteId(context.getWaybill().getSiteCode());
             waybill.setSiteName(context.getWaybill().getSiteName());
             waybill.setRoadCode(context.getWaybill().getRoad());

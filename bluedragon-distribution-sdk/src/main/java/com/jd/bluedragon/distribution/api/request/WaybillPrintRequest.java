@@ -33,7 +33,7 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Integer dmsSiteCode;
 	/**
-	 * 扫描条码
+	 * 包裹号/运单号
 	 */
 	private String barCode;
 	/**
