@@ -153,9 +153,12 @@ public class BoxServiceImpl implements BoxService {
 			}
 		}
 		for(long seqNo :seqNos){
+			if(seqNo >= 100000000){
+				throw new RuntimeException("箱号序列号超限"+boxCodePrefix);
+			}
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
-			box.setCode(boxCodePrefix + StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
+			box.setCode(boxCodePrefix +RandomUtils.generateString(1)+ StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
 			boxes.add(box);
 			this.add(box);
 
@@ -191,7 +194,7 @@ public class BoxServiceImpl implements BoxService {
 		return preFix.append(box.getType())
 				.append("10").append(systemType.getCode())
 				.append(DateHelper.formatDate(new Date(),"yyMMdd"))
-				.append(isDB?"2":"1").append(RandomUtils.generateString(1)).toString();
+				.append(isDB?"2":"1").toString();
 	}
 
 	/**
