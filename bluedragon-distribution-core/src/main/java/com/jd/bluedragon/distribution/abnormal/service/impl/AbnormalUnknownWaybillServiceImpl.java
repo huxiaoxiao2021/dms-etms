@@ -257,10 +257,12 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             logger.info(waybillCode + "不是eclp运单");
         }
         //第三步 查运单的托寄物
-        if(bigWaybillDto != null){
-            if(bigWaybillDto.getWaybill() != null && bigWaybillDto.getWaybill().getWaybillExt() != null &&
-                    bigWaybillDto.getWaybill().getWaybillExt().getConsignWare() != null) {
-                buildWaybillDetailsByConsignWare(abnormalUnknownWaybill, waybillDetail, bigWaybillDto.getWaybill().getWaybillExt());
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, true, true, false, false);
+        if(entity != null && entity.getData() != null && entity.getData().getWaybill() != null){
+            Waybill waybill = entity.getData().getWaybill();
+            if(waybill.getWaybillExt() != null &&
+                    waybill.getWaybillExt().getConsignWare() != null) {
+                buildWaybillDetailsByConsignWare(abnormalUnknownWaybill, waybillDetail, waybill.getWaybillExt());
                 addList.add(abnormalUnknownWaybill);//后面将插入表中
                 hasDetailWaybillCodes.add(waybillCode);//前台用
                 logger.info(waybillCode + "三无托寄物核实，运单查到了");
