@@ -382,6 +382,21 @@ public class BusinessHelper {
     }
 
     /**
+     * traderSign的第29位：【1. 京配超区不转3PL】 或 【2. 京配超区只允许转指定3PL】
+     * 不允许转三方配送
+     *
+     * @param traderSign
+     * @return
+     */
+    public static boolean canThreePLSchedule(String traderSign) {
+        if (StringUtils.isNotEmpty(traderSign) &&
+                (BusinessUtil.isSignChar(traderSign, 29, '1') || BusinessUtil.isSignChar(traderSign, 29, '2'))) {
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
+    /**
      * 划分理赔状态
      *
      * @param type

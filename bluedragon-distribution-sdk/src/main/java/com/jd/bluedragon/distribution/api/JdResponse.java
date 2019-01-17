@@ -49,6 +49,12 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SENDDATA_GENERATED_EMPTY = 20004;
     public static final String MESSAGE_SENDDATA_GENERATED_EMPTY = "生成发货数据为空";
 
+    public static final Integer CODE_THREEPL_SCHEDULE_ERROR = 20005;
+    public static final String MESSAGE_THREEPL_SCHEDULE_ERROR = "此运单对应商家基础资料设置不允许转三方快递派送";
+
+    public static final Integer CODE_SITE_OFFLINE_ERROR = 20006;
+    public static final String MESSAGE_SITE_OFFLINE_ERROR = "不能预分拣到已经线下运营的站点!";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
