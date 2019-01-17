@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.abnormal.service.AbnormalUnknownWaybillSer
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -21,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.ws.rs.QueryParam;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -113,6 +116,28 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
             rest.toError("删除失败，服务异常！");
         }
         return rest;
+    }
+
+    /**
+     * 校验输入的运单号
+     */
+    @RequestMapping(value = "/checkWaybillCode")
+    public @ResponseBody
+    JdResponse checkWaybillCode(@QueryParam("waybillCodes") String waybillCodes) {
+        JdResponse response = new JdResponse();
+        response.setCode(JdResponse.CODE_SUCCESS);
+        if(StringHelper.isEmpty(waybillCodes.trim())){
+            return response;
+        }else {
+            List<String> waybillCodeList = new ArrayList<String>();
+            if(waybillCodes.contains(AbnormalUnknownWaybill.SEPARATOR_APPEND)){
+                String[] split = waybillCodes.split(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                waybillCodeList = Arrays.asList(split);
+            }else {
+                waybillCodeList.add(waybillCodes);
+            }
+            return abnormalUnknownWaybillService.queryByWaybillCode(waybillCodeList);
+        }
     }
 
     /**
