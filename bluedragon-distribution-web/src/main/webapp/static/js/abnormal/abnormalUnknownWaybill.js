@@ -163,17 +163,14 @@ $(function () {
             $('#btn_query').click(function () {
                 waybillCodes = null;//清空批量查询
                 //校验输入的运单号
-                var flage = 0;
                 var url = '/abnormal/abnormalUnknownWaybill/checkWaybillCode?waybillCodes=' + $("#waybillCode").val();
                 $.ajaxHelper.doGetSync(url, null, function (res) {
                     if (res && !res.succeed) {
                         alert(res.message);
-                        flage = 1;
+                    }else{
+                        tableInit().refresh();
                     }
                 });
-                if(flage == 0){
-                    tableInit().refresh();
-                }
             });
             $('#btn_add').click(function () {
                 $('.edit-param').each(function () {

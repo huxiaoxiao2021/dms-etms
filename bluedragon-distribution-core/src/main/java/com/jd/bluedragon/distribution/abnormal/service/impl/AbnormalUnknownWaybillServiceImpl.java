@@ -111,13 +111,21 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         StringBuilder noTraderWaybills = new StringBuilder();
         //返回给前台的运单号字符串
         StringBuilder newWaybillCodes = new StringBuilder();
+        //去重运单号/包裹号
+        Set<String> newWaybillCodesSet = new HashSet<String>();
+        for(String waybillCodeInput : waybillcodes){
+            if(WaybillUtil.isPackageCode(waybillCodeInput)){
+                waybillCodeInput = WaybillUtil.getWaybillCode(waybillCodeInput);
+            }
+            newWaybillCodesSet.add(waybillCodeInput);
+        }
         int count = 0;
-        for (String waybillCodeInput : waybillcodes) {
+        for (String waybillCodeInput : newWaybillCodesSet) {
             count ++;
             if (StringUtils.isBlank(waybillCodeInput)) {
                 continue;
             }
-            if(count==waybillcodes.length){
+            if(count==newWaybillCodesSet.size()){
                 newWaybillCodes.append(WaybillUtil.getWaybillCode(waybillCodeInput));
             }else{
                 newWaybillCodes.append(WaybillUtil.getWaybillCode(waybillCodeInput)).append(",");
@@ -207,7 +215,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 abnormalUnknownWaybillDao.batchInsert(addList);
             }
         }
-        if (waybillcodes != null && waybillcodes.length > 0) {
+        if (newWaybillCodesSet != null && newWaybillCodesSet.size() > 0) {
             rest.setData(newWaybillCodes.toString());
         } else {
             rest.setData(null);
@@ -585,7 +593,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 List<AbnormalUnknownWaybill> list = abnormalUnknownWaybillDao.queryByWaybillCode(inputWaybillCode);
                 if(list == null || list.size() == 0){
                     response.setCode(JdResponse.CODE_FAIL);
-                    response.setMessage("以下运单号不存在：" + inputWaybillCode);
+                    response.setMessage("未检索到该运单号：" + inputWaybillCode);
                     break;
                 }
             }
