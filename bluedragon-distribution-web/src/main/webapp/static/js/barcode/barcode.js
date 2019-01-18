@@ -33,12 +33,12 @@ $(function () {
             });
         };
         oTableInit.tableColums = [ {
-            field: 'barcode',
-            title: '69码'
-        }, {
             field: 'skuId',
             title: 'SKU'
-        }, {
+        },{
+            field: 'barcode',
+            title: '69码'
+        },{
             field: 'productName',
             title: '商品名称'
         }];

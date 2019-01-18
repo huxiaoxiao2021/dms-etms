@@ -313,6 +313,9 @@
                 #{item}
             </foreach>
         </if>
+        <if test="createUser != null">
+            AND create_User = #{createUser,jdbcType=VARCHAR}
+        </if>
         <if test="isReceipt != null">
            and is_receipt = #{isReceipt,jdbcType=TINYINT}
         </if>
@@ -347,6 +350,18 @@
         <if test="limit != -1">
             limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
         </if>
+    </select>
+
+    <select id="queryByWaybillCode" parameterType="String"
+            resultMap="AbnormalUnknownWaybill">
+        select
+        <include refid="Base_Column_List"/>
+        from
+        abnormal_unknown_waybill
+        where 1=1
+        AND waybill_code = #{waybillCode,jdbcType=VARCHAR}
+        AND is_delete=0
+        limit 1
     </select>
 
     <select id="queryHasDetailWaybillCode" parameterType="java.util.List" resultType="java.lang.String">

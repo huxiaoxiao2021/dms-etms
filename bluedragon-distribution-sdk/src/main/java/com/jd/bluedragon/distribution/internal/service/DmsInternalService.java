@@ -188,4 +188,13 @@ public interface DmsInternalService {
      * @return true:已发货 false:未发货或取消发货
      */
     public Boolean isBoxSent(String boxCode, Integer siteCode);
+
+    /**
+     * 预分拣 - 分拣中心查询商家是否可以走B网车队
+     * @param siteCode:当前场地code
+     * @param vendorId：商家ID
+     * @param waybillSign
+     * @return
+     */
+    InvokeResult<Boolean> dispatchToExpress(Integer siteCode, Integer vendorId, String waybillSign);
 }

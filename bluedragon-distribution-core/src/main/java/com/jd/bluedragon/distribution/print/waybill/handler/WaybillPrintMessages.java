@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.command.JdMessage;
 
-import java.text.MessageFormat;
-
 /**
  * 
  * @ClassName: JdMessage
@@ -18,8 +16,7 @@ public class WaybillPrintMessages{
 	/**
 	 * 三方超限提示信息
 	 */
-	public static final Integer FAIL_CODE__THIRD_OVERRUN = 41001003;
-	public static final String FAIL_MESSAGE_THIRD_OVERRUN = "包裹%s超出三方站点配送范围无法配送，%s，%s！";
+	public static final JdMessage FAIL_MESSAGE_THIRD_OVERRUN = new JdMessage(41001003,"包裹%s超出三方站点配送范围无法配送，%s，%s！");
 	public static final JdMessage WARN_MESSAGE = new JdMessage(21001001,"预分拣站点变更，务必重新打印包裹！");
 
 	/**

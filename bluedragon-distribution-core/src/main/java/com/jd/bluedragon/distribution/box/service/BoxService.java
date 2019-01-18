@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 
 import java.util.List;
 
@@ -10,7 +11,10 @@ public interface BoxService {
 
     /** 批量生成箱子信息 */
     List<Box> batchAdd(Box box);
-    
+
+    /** 批量生成箱子信息 */
+    List<Box> batchAddNew(Box box, BoxSystemTypeEnum systemType);
+
     /**重打*/
     Integer reprint(Box box);
     
