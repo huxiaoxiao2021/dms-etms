@@ -128,8 +128,8 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                 printInfo.setPurposefulCrossCode("");
                 printInfo.setPurposefulTableTrolley("");
 
-                //设置模板
-                printInfo.setTemplateName("dms-vonebody-s1");
+//                设置模板
+//                printInfo.setTemplateName("dms-vonebody-s1");
                 String busiCode = context.getBusiCode();
                 String waybillCode = printInfo.getWaybillCode();
                 List<WaybillPrintDataDTO> waybillPrintData = ldopManager.getPrintDataForCityOrder(busiCode,waybillCode);

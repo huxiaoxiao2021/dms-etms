@@ -217,6 +217,27 @@ public class BasePrintWaybill implements Serializable {
 	private String telFirst;
 	private String telLast;
 
+	/**
+	 * 京东logo图片路径
+	 */
+	private String jdLogoImageKey;
+
+	/**
+	 * 二维码内容
+	 */
+	private String popularizeMatrixCode;
+
+	/**
+	 * 已验视
+	 * @param waybillCode
+	 */
+	private String examineFlag;
+
+	/**
+	 * 已安检
+	 */
+	private String securityCheck;
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -824,5 +845,37 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setBackupSiteId(Integer backupSiteId) {
 		this.backupSiteId = backupSiteId;
+	}
+
+	public String getJdLogoImageKey() {
+		return jdLogoImageKey;
+	}
+
+	public void setJdLogoImageKey(String jdLogoImageKey) {
+		this.jdLogoImageKey = jdLogoImageKey;
+	}
+
+	public String getPopularizeMatrixCode() {
+		return popularizeMatrixCode;
+	}
+
+	public void setPopularizeMatrixCode(String popularizeMatrixCode) {
+		this.popularizeMatrixCode = popularizeMatrixCode;
+	}
+
+	public String getExamineFlag() {
+		return examineFlag;
+	}
+
+	public void setExamineFlag(String examineFlag) {
+		this.examineFlag = examineFlag;
+	}
+
+	public String getSecurityCheck() {
+		return securityCheck;
+	}
+
+	public void setSecurityCheck(String securityCheck) {
+		this.securityCheck = securityCheck;
 	}
 }

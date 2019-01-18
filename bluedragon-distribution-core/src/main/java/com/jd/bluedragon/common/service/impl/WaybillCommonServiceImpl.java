@@ -89,8 +89,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     HideInfoService hideInfoService;
 
     
-    @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：400-603-3600}")
+    @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
+
+    /**
+     * 京东logo的文件路径
+     */
+    private final String LOGO_IMAGE_KEY_JD="JDLogo.gif";
+
+    /**
+     * 推广二维码内容
+     */
+    private final String POPULARIZE_MATRIX_CODE_CONTENT="https://logistics-mrd.jd.com/cmail";
+
+    /**
+     * 验视
+     */
+    private final String EXAMINE_FLAG_COMMEN="[已验视]";
+    private final String EXAMINE_FLAG_COMMEN_BJ="[北京已验视]";
+
+    /**
+     * 安检
+     */
+    private final String SECURITY_CHECK="[已安检]";
 
 
     public Waybill findByWaybillCode(String waybillCode) {
@@ -590,10 +611,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
-        //联通华盛面单模板、小米运单不显示京东字样
+        //联通华盛面单模板、小米运单不显示京东字样 包括log，二维码，网址、电话
         if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') || BusinessUtil.isMillet(target.getBusiCode()) ){
+            target.setJdLogoImageKey("");
+            target.setPopularizeMatrixCode("");
             target.setAdditionalComment("");
         }else{
+            target.setJdLogoImageKey(LOGO_IMAGE_KEY_JD);
+            target.setPopularizeMatrixCode(POPULARIZE_MATRIX_CODE_CONTENT);
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
@@ -623,7 +648,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSenderCompany(waybill.getSenderCompany());
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessUtil.isSopOrExternal(waybill.getWaybillSign()));
+
+        //设置已验视已安检
         //判断始发分拣中心是否属于北京
+        if(siteService.getBjDmsSiteCodes()
+                .contains(target.getOriginalDmsCode())){
+            target.setExamineFlag(EXAMINE_FLAG_COMMEN_BJ);
+        }else {
+            target.setExamineFlag(EXAMINE_FLAG_COMMEN);
+        }
+        target.setSecurityCheck(SECURITY_CHECK);
+
         target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
         		.contains(target.getOriginalDmsCode()));
         //打印时间,取后台服务器时间
