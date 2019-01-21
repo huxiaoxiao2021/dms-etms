@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.external.service.DmsNewSealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.SealBoxResource;
 import com.jd.bluedragon.distribution.rest.seal.SealVehicleResource;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,10 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Autowired
     @Qualifier("sealBoxResource")
     private SealBoxResource sealBoxResource;
+
+    @Autowired
+    @Qualifier("newSealVehicleService")
+    private NewSealVehicleService newSealVehicleService;
 
     @Override
     public TransWorkItemResponse getVehicleNumBySimpleCode(String simpleCode) {
@@ -87,6 +92,14 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Override
     public SealBoxResponse findSealBoxByBoxCode(String sealBoxCode) {
         return sealBoxResource.findSealByCode(sealBoxCode);
+    }
+
+    @Override
+    public boolean checkSendCodeIsSealed(String sendCode) {
+        if (newSealVehicleService.getSealCarTimeBySendCode(sendCode) != null) {
+            return true;
+        }
+        return false;
     }
 
 
