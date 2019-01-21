@@ -820,8 +820,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
         }
-        //拆包面单打印拆包员号码
-        if(waybill.getWaybillExt() != null){
+        //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
+        if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
+            target.setRoad(waybill.getWaybillExt().getUnpackClassifyNum());
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
         }
         //特殊商家处理
