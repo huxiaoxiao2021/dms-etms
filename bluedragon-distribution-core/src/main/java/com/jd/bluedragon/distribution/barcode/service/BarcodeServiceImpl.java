@@ -63,8 +63,8 @@ public class BarcodeServiceImpl implements BarcodeService {
         List<Object> heads = new ArrayList<Object>();
 
         //添加表头
-        heads.add("69码");
         heads.add("SKU");
+        heads.add("69码");
         heads.add("商品名称");
         resList.add(heads);
 
@@ -72,8 +72,8 @@ public class BarcodeServiceImpl implements BarcodeService {
         if (data != null && data.size() > 0) {
             for (DmsBarCode barCode1 : data) {
                 List<Object> body = Lists.newArrayList();
-                body.add(barCode1.getBarcode());
                 body.add(barCode1.getSkuId());
+                body.add(barCode1.getBarcode());
                 body.add(barCode1.getProductName());
                 resList.add(body);
             }
