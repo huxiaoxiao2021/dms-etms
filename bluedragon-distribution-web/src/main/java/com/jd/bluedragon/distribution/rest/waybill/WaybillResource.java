@@ -1725,22 +1725,6 @@ public class WaybillResource {
 	/**
 	 * 包裹称重 提示警告信息
 	 *
-	 *   1分拣称重重量kg	2 揽收重量kg
- 	 *   本次分拣称重重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5kg为异常。
-	 	本次分拣称重重量大于5kg，对比项1减对比项2，正负误差值小于等于1.0 kg为正常，大于1.0 kg为异常，弹框提示语1。
-	 	如果揽收重量为0或空，则为异常，弹框提示语2
-
-	 	1分拣录入的长cm*宽cm*高cm除以8000=分拣体积重量kg	2揽收体积（立方厘米）除以8000=揽收体积重量kg
-	 	本次分拣体积重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5kg为异常。
-	 	本次分拣体积重量大于5kg，对比项1减对比项2，正负误差值小于等于1.0 kg为正常，大于1.0 kg为异常，弹框提示语3。
-	 	如果揽收体积为0或空，则为异常，弹框提示语4
-
-	 （1）提示语1：揽收重量为XXkg，经校验超出误差值XXkg
-	 （2）提示语2：揽收重量为0或空，无法进行校验。
-	 （3）提示语3：揽收体积重量（体积除以8000）为XXkg，经校验超出误差值XXkg
-	 （4）提示语4：揽收体积为0或空，无法进行校验。
-	 （5）若符合多条则显示多条提示语。
-
 	 *
 	 * @param packWeightVO
 	 *
@@ -1773,10 +1757,13 @@ public class WaybillResource {
 				result.setData(false);
 				result.setMessage("揽收重量为0或空，无法进行校验");
 			}else{
-				if((upWeight <= 5 && Math.abs(upWeight-weight)>= 0.5) || (upWeight > 5 && Math.abs(upWeight-weight)>= 1)){
+				if((upWeight <= 5 && Math.abs(upWeight-weight)> 0.3) || (upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5)
+						|| (upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1)
+						|| (upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02)){
 					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 					result.setData(false);
-					result.setMessage("揽收重量为"+weight+"kg，经校验超出误差值"+Math.abs(upWeight-weight)+"kg");
+					result.setMessage("此次操作重量为"+upWeight+"kg,揽收重量为"+weight+"kg，"
+							+"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : weight * 0.02)+"kg！");
 				}
 			}
 
@@ -1785,14 +1772,17 @@ public class WaybillResource {
 				result.setData(false);
 				result.setMessage("揽收体积为0或空，无法进行校验");
 			}else{
-				if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000>= 0.5) || (upVolume/8000 > 5 && Math.abs(upVolume-volume)/8000>= 1)){
+				if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000> 0.3)
+						|| (upVolume/8000 > 5 && upVolume/8000 <= 20  && Math.abs(upVolume-volume)/8000 > 0.5)
+						|| (upVolume/8000 > 20 && upVolume/8000 <= 50  && Math.abs(upVolume-volume)/8000 > 1)
+						|| (upVolume/8000 > 50 && Math.abs(upVolume-volume)/8000 > volume*0.02/8000)){
 					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 					result.setData(false);
-					String message = "";
-					if(StringUtils.isBlank(result.getMessage())){
-						message = "揽收体积重量（体积除以8000）为"+upVolume/8000+"kg，经校验超出误差值"+Math.abs(upVolume-volume)/8000+"kg";
-					}else{
-						message = result.getMessage() +"\r\n揽收体积重量（体积除以8000）为"+upVolume/8000+"kg，经校验超出误差值"+Math.abs(upVolume-volume)/8000+"kg";
+					String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", upVolume/8000)+"kg,揽收体积重量（体积除以8000）为"+String.format("%.6f", volume/8000)+"kg，"
+
+							+"经校验误差值"+Math.abs(upVolume-volume)/8000+"kg已超出规定"+ (upVolume/8000 <=5 ? "0.3":upVolume/8000<=20 ? "0.5":upVolume/8000<=50 ? "1" : volume/8000 * 0.02)+"kg！";
+					if(!StringUtils.isBlank(result.getMessage())){
+						message = result.getMessage()+"\r\n"+message;
 					}
 					result.setMessage(message);
 				}
