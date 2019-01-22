@@ -28,6 +28,11 @@ public class PrintPackage implements Serializable {
      */
     public String packSerial;
 
+    /**
+     * 包裹重量
+     */
+    public String packageWeight;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -58,5 +63,13 @@ public class PrintPackage implements Serializable {
 
     public void setPackSerial(String packSerial) {
         this.packSerial = packSerial;
+    }
+
+    public String getPackageWeight() {
+        return packageWeight;
+    }
+
+    public void setPackageWeight(String packageWeight) {
+        this.packageWeight = packageWeight;
     }
 }

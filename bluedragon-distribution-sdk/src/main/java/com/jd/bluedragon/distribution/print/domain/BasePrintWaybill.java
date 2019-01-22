@@ -238,6 +238,40 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String securityCheck;
 
+	/**
+	 * 派送方式 【送】【提】
+	 */
+	private String deliveryMethod;
+
+	/**
+	 * 运单号前几位
+	 */
+	private String waybillCodeFirst;
+
+	/**
+	 * 运单号后4位
+	 */
+	private String waybillCodeLast;
+
+	/**
+	 * 包裹号索引
+	 */
+	private String packageIndexUnderLine;
+
+	/**
+	 * 路由节点城市名称
+	 */
+	private String routerNode1;
+	private String routerNode2;
+	private String routerNode3;
+	private String routerNode4;
+	private String routerNode5;
+	private String routerNode6;
+	private String routerNode7;
+	private String routerNode8;
+
+
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -877,5 +911,101 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setSecurityCheck(String securityCheck) {
 		this.securityCheck = securityCheck;
+	}
+
+	public String getDeliveryMethod() {
+		return deliveryMethod;
+	}
+
+	public void setDeliveryMethod(String deliveryMethod) {
+		this.deliveryMethod = deliveryMethod;
+	}
+
+	public String getWaybillCodeFirst() {
+		return waybillCodeFirst;
+	}
+
+	public void setWaybillCodeFirst(String waybillCodeFirst) {
+		this.waybillCodeFirst = waybillCodeFirst;
+	}
+
+	public String getWaybillCodeLast() {
+		return waybillCodeLast;
+	}
+
+	public void setWaybillCodeLast(String waybillCodeLast) {
+		this.waybillCodeLast = waybillCodeLast;
+	}
+
+	public String getPackageIndexUnderLine() {
+		return packageIndexUnderLine;
+	}
+
+	public void setPackageIndexUnderLine(String packageIndexUnderLine) {
+		this.packageIndexUnderLine = packageIndexUnderLine;
+	}
+
+	public String getRouterNode1() {
+		return routerNode1;
+	}
+
+	public void setRouterNode1(String routerNode1) {
+		this.routerNode1 = routerNode1;
+	}
+
+	public String getRouterNode2() {
+		return routerNode2;
+	}
+
+	public void setRouterNode2(String routerNode2) {
+		this.routerNode2 = routerNode2;
+	}
+
+	public String getRouterNode3() {
+		return routerNode3;
+	}
+
+	public void setRouterNode3(String routerNode3) {
+		this.routerNode3 = routerNode3;
+	}
+
+	public String getRouterNode4() {
+		return routerNode4;
+	}
+
+	public void setRouterNode4(String routerNode4) {
+		this.routerNode4 = routerNode4;
+	}
+
+	public String getRouterNode5() {
+		return routerNode5;
+	}
+
+	public void setRouterNode5(String routerNode5) {
+		this.routerNode5 = routerNode5;
+	}
+
+	public String getRouterNode6() {
+		return routerNode6;
+	}
+
+	public void setRouterNode6(String routerNode6) {
+		this.routerNode6 = routerNode6;
+	}
+
+	public String getRouterNode7() {
+		return routerNode7;
+	}
+
+	public void setRouterNode7(String routerNode7) {
+		this.routerNode7 = routerNode7;
+	}
+
+	public String getRouterNode8() {
+		return routerNode8;
+	}
+
+	public void setRouterNode8(String routerNode8) {
+		this.routerNode8 = routerNode8;
 	}
 }
