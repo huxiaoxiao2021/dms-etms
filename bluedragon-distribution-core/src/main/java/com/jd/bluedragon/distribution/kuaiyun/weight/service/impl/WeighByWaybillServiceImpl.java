@@ -326,11 +326,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @return
      */
     @Override
-    @Cache(key = "WeighByWaybillController.isOpen", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
-            redisEnable = false, redisExpiredTime = 20 * 60 * 1000)
     public boolean isOpenIntercept(){
         try {
-            List<SysConfig> sysConfigs = sysConfigService.getRedisSwitchList("b2b.weight.user.switch");
+            List<SysConfig> sysConfigs = sysConfigService.getListByConfigName("b2b.weight.user.switch");
             if (null == sysConfigs || sysConfigs.size() <= 0) {
                 return false;
             } else {
