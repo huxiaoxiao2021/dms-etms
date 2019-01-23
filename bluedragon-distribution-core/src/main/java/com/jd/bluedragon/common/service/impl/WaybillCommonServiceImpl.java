@@ -503,13 +503,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 if (goodses == null || goodses.size() == 0) {
                     this.logger.info("调用运单接口获得商品明细数据为空");
                 }
-                for (Goods goods : goodses) {
-                    com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
-                    product.setProductId(goods.getSku());
-                    product.setName(goods.getGoodName());
-                    product.setQuantity(goods.getGoodCount());
-                    product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
-                    products.add(product);
+                if(goodses != null && !goodses.isEmpty()){
+                    for (Goods goods : goodses) {
+                        com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
+                        product.setProductId(goods.getSku());
+                        product.setName(goods.getGoodName());
+                        product.setQuantity(goods.getGoodCount());
+                        product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+                        products.add(product);
+                    }
                 }
 
                 waybill.setProList(products);
@@ -556,7 +558,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 				}
 			}
 		}else{
-			this.logger.warn(String.format("没有获取到包裹称重信息，{code:{},msg:{}}", rest.getResultCode(),rest.getMessage()));
+			this.logger.warn(String.format("没有获取到包裹称重信息，{code:%s,msg:%s}", rest.getResultCode(),rest.getMessage()));
 		}
 		return res;
 	}

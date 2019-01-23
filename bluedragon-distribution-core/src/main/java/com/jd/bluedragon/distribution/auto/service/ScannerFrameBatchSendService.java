@@ -67,7 +67,9 @@ public interface ScannerFrameBatchSendService {
     /**
      * 手动进行换批次操作
      */
+/*
     boolean transSendCode(long userCode,String userName,List<Long> ids);
+*/
 
     /**
      * 通过machineId 以及开始结束时间获取这段时间内此龙门架的发货目的列表

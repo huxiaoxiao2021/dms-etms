@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.PathParam;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
@@ -74,7 +74,7 @@ public class StockExportManagerImpl implements StockExportManager {
 			result = stockExportService.queryStockData(callerParam, businessNo, businessType);
 			
 			if(result==null||result.getQueryList()==null||result.getQueryList().isEmpty()){
-				this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData未获得数据,改调用queryStockHisData方法: resultMessage:"+result.getMessage());
+				this.logger.info("调用库管接口stockExportManager.getFullStockByBusiNo queryStockData未获得数据,改调用queryStockHisData方法,本次查询结果:"+ JsonHelper.toJson(result));
 				result = stockExportService.queryStockHisData(callerParam, businessNo, businessType);
 			}
 			

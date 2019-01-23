@@ -34,12 +34,12 @@ public class JsonHelper {
             JsonHelper.mapper.configure(FAIL_ON_UNKNOWN_PROPERTIES, false);
             return JsonHelper.mapper.readValue(json, responseType);
         } catch (Exception e) {
-            JsonHelper.logger.warn("反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+            JsonHelper.logger.warn("fromJson反序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
 
             try{
                 return  GSON_COMMON.fromJson(json,responseType);
             }catch (Exception ex){
-                JsonHelper.logger.error("GSON-反序列化JSON发生异常， 异常信息为：" +ex.getMessage(), ex);
+                JsonHelper.logger.error("fromJson方法GSON-反序列化JSON发生异常， 异常信息为：" +ex.getMessage(), ex);
             }
         }
         
@@ -67,17 +67,29 @@ public class JsonHelper {
     
     @SuppressWarnings("deprecation")
     public static String toJson(Object object, boolean prettyPrint) {
+        StringWriter writer = new StringWriter();
+        JsonGenerator generator = null;
         try {
-            StringWriter writer = new StringWriter();
-            JsonGenerator generator = JsonHelper.mapper.getJsonFactory()
-                    .createJsonGenerator(writer).useDefaultPrettyPrinter();
-            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(
-                    JsonSerialize.Inclusion.NON_NULL);
+            generator = JsonHelper.mapper.getJsonFactory().createJsonGenerator(writer);
+            generator.useDefaultPrettyPrinter();
+            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
             JsonHelper.mapper.writeValue(generator, object);
-            writer.close();
             return writer.getBuffer().toString();
         } catch (Exception e) {
             JsonHelper.logger.error("序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+        }finally {
+            try{
+                writer.close();
+            }catch (Exception e){
+                JsonHelper.logger.error("序列化JSON发生异常， writer关闭异常信息为：" + e.getMessage(), e);
+            }
+            if(generator != null){
+                try{
+                    generator.close();
+                }catch (Exception e){
+                    JsonHelper.logger.error("序列化JSON发生异常， generator关闭异常信息为：" + e.getMessage(), e);
+                }
+            }
         }
         return null;
     }

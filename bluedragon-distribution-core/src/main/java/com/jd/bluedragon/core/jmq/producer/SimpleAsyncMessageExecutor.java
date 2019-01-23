@@ -13,7 +13,7 @@ import java.util.Map;
 @Service("asyncMessageExecutor")
 public class SimpleAsyncMessageExecutor implements AsyncMessageExecutor {
 
-    private Map<String,DefaultJMQProducer> topicMap;
+    private static Map<String,DefaultJMQProducer> topicMap;
 
     @Override
     public void execute(String topic, String businessId, String body) throws Throwable {
@@ -29,19 +29,27 @@ public class SimpleAsyncMessageExecutor implements AsyncMessageExecutor {
     public DefaultJMQProducer getQueueByTopic(String topic) {
 
         if(null==topicMap) {
-            synchronized (SimpleAsyncMessageExecutor.class) {
-                if(null==topicMap) {
-
-                    Map<String,DefaultJMQProducer> queueMap=null;
-                    queueMap=SpringHelper.getBeans(DefaultJMQProducer.class);
-                    Collection<DefaultJMQProducer> list=queueMap.values();
-                    topicMap=new HashMap<String, DefaultJMQProducer>(list.size());
-                    for(DefaultJMQProducer item:list){
-                        topicMap.put(item.getTopic(),item);
-                    }
-                }
-            }
+            return getTopicMap().get(topic);
         }
         return topicMap.get(topic);
     }
+
+    /**
+     * 同步获取topicMap
+     * @return
+     */
+    public static synchronized Map<String,DefaultJMQProducer> getTopicMap() {
+        if(null==topicMap) {
+
+            Map<String,DefaultJMQProducer> queueMap=null;
+            queueMap=SpringHelper.getBeans(DefaultJMQProducer.class);
+            Collection<DefaultJMQProducer> list=queueMap.values();
+            topicMap=new HashMap<String, DefaultJMQProducer>(list.size());
+            for(DefaultJMQProducer item:list){
+                topicMap.put(item.getTopic(),item);
+            }
+        }
+        return topicMap;
+    }
+
 }

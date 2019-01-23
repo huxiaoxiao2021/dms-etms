@@ -163,9 +163,9 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         return result;
     }
 
-    @Override
+   /* @Override
     public boolean transSendCode(long userCode, String userName, List<Long> ids) {
-        if (null == ids && ids.size() == 0) {
+        if (null == ids || ids.size() == 0) {
             throw new RuntimeException("the parameter of list can not be null");
         }
         if (LOGGER.isInfoEnabled()) {
@@ -190,7 +190,7 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
             }
         }
         return true;
-    }
+    }*/
 
     /**
      * 通过ID获取其domain的方法
