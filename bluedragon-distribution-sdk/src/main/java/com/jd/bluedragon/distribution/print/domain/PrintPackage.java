@@ -24,14 +24,20 @@ public class PrintPackage implements Serializable {
     public Boolean isPrintPack;
 
     /**
-     * 包裹序号
+     * 包裹序号（1/1）
      */
-    public String packSerial;
+    public String packageIndex;
 
     /**
      * 包裹重量
      */
     public String packageWeight;
+
+    /**
+     * 包裹号后缀
+     */
+    public String packageSuffix;
+
 
     public String getPackageCode() {
         return packageCode;
@@ -57,19 +63,35 @@ public class PrintPackage implements Serializable {
         this.isPrintPack = isPrintPack;
     }
 
-    public String getPackSerial() {
-        return packSerial;
-    }
-
-    public void setPackSerial(String packSerial) {
-        this.packSerial = packSerial;
-    }
-
     public String getPackageWeight() {
         return packageWeight;
     }
 
     public void setPackageWeight(String packageWeight) {
         this.packageWeight = packageWeight;
+    }
+
+    public Boolean getPrintPack() {
+        return isPrintPack;
+    }
+
+    public void setPrintPack(Boolean printPack) {
+        isPrintPack = printPack;
+    }
+
+    public String getPackageIndex() {
+        return packageIndex;
+    }
+
+    public void setPackageIndex(String packageIndex) {
+        this.packageIndex = packageIndex;
+    }
+
+    public String getPackageSuffix() {
+        return packageSuffix;
+    }
+
+    public void setPackageSuffix(String packageSuffix) {
+        this.packageSuffix = packageSuffix;
     }
 }

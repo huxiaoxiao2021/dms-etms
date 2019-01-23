@@ -135,6 +135,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
 
+    /** 运单号突出显示的位数 **/
+    private static final int WAYBILL_CODE_HIGHLIGHT_NUMBER = 4;
+
     /**
      * 换单打印的操作类型
      */
@@ -190,6 +193,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
+            //B网面单要求将运单号后四位突出显示
+            String waybillCode = tmsWaybill.getWaybillCode();
+            if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
+                commonWaybill.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-4));
+                commonWaybill.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-4));
+            }
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
@@ -330,6 +339,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 	PrintPackage pack=new PrintPackage();
                     pack.setPackageCode(item.getPackageBarcode());
                     pack.setWeight(item.getGoodWeight());
+                    //设置包裹序号和包裹号后缀
+                    pack.setPackageIndex();
+
+                    pack.setPackageSuffix(截);
+                    pack.setPackageWeight();
                     packageList.add(pack);
                 }
             }
@@ -423,23 +437,34 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setPrintAddress(tag.getPrintAddress());
             }
             waybill.setPrepareSiteName(tag.getPrintSiteName());
+            waybill.setPrintSiteName(tag.getPrintSiteName());
             waybill.setOriginalDmsCode(tag.getOriginalDmsId());
             waybill.setOriginalDmsName(tag.getOriginalDmsName());
             waybill.setPurposefulDmsCode(tag.getDestinationDmsId());
             waybill.setPurposefulDmsName(tag.getDestinationDmsName());
+            waybill.setDestinationDmsName(tag.getDestinationDmsName());
+
             //笼车号
             waybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
+            waybill.setOriginalTabletrolleyCode(tag.getOriginalTabletrolleyCode());
+
             waybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
+            waybill.setDestinationTabletrolleyCode(tag.getDestinationTabletrolleyCode());
             //道口号
             waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
             waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+            waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
                 waybill.setOriginalDmsName("");
                 waybill.setPurposefulDmsName("");
+                waybill.setDestinationDmsName("");
                 waybill.setOriginalTabletrolley("");
+                waybill.setOriginalTabletrolleyCode("");
                 waybill.setPurposefulTableTrolley("");
+                waybill.setDestinationTabletrolleyCode("");
                 waybill.setOriginalCrossCode("");
                 waybill.setPurposefulCrossCode("");
+                waybill.setDestinationCrossCode("");
             }
         }
     }

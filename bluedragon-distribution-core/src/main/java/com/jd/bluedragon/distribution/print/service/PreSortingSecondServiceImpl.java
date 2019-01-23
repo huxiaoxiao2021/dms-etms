@@ -204,6 +204,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
     	if(context.getResponse()!=null){
     		context.getResponse().setPrepareSiteCode(newPreSiteInfo.getMediumStationId());
         	context.getResponse().setPrepareSiteName(newPreSiteInfo.getMediumStationName());
+        	context.getResponse().setPrintSiteName(newPreSiteInfo.getMediumStationName());
         	context.getResponse().setRoad(newPreSiteInfo.getMediumStationRoad());
     	}
     	//站点平台及驻场打印

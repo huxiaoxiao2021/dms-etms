@@ -584,6 +584,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     /**
      * 通过运单对象，设置基础打印信息
      * <p>设置商家id和name(busiId、busiName)
+     * <p>设置配送方式deliveryMethod
      * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
      * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
      * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
@@ -611,6 +612,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		target.setOriginalCityName(siteInfo.getCityName());
         	}
         }
+        //设置配送方式
+        target.setDeliveryMethod(TextConstants.DELIVERY_METHOD_SEND);
         //联通华盛面单模板、小米运单不显示京东字样 包括log，二维码，网址、电话
         if(!BusinessUtil.isSignChar(waybill.getWaybillSign(),69,'0') || BusinessUtil.isMillet(target.getBusiCode()) ){
             target.setJdLogoImageKey("");

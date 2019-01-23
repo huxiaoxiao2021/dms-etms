@@ -34,7 +34,12 @@ public class TextConstants {
     /**
      * 已称标识
      */
-    public static final String WEIGHT_FLAG_TRUE = "已称";
+    public static final String WEIGHT_FLAG_TRUE = "【已称】";
+
+    /**
+     * 配送方式 【送】/【提】
+     */
+    public static final String DELIVERY_METHOD_SEND="【送】";
 
     /**
      * waybill_sign36位=0 且waybill_sign40位=1 且 waybill_sign54位=2：冷链整车

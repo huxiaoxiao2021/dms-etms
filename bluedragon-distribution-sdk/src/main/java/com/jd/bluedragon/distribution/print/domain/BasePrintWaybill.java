@@ -229,7 +229,6 @@ public class BasePrintWaybill implements Serializable {
 
 	/**
 	 * 已验视
-	 * @param waybillCode
 	 */
 	private String examineFlag;
 
@@ -254,11 +253,6 @@ public class BasePrintWaybill implements Serializable {
 	private String waybillCodeLast;
 
 	/**
-	 * 包裹号索引
-	 */
-	private String packageIndexUnderLine;
-
-	/**
 	 * 路由节点城市名称
 	 */
 	private String routerNode1;
@@ -269,6 +263,22 @@ public class BasePrintWaybill implements Serializable {
 	private String routerNode6;
 	private String routerNode7;
 	private String routerNode8;
+
+
+	/** 预分拣站点 **/
+	private String printSiteName;
+
+	/** 始发道口号 **/
+	private String destinationCrossCode;
+
+	/** 始发分拣中心名称 **/
+	private String destinationDmsName;
+
+	/** 始发笼车号**/
+	private String destinationTabletrolleyCode;
+
+	/** 目的笼车号 **/
+	private String originalTabletrolleyCode;
 
 
 
@@ -937,14 +947,6 @@ public class BasePrintWaybill implements Serializable {
 		this.waybillCodeLast = waybillCodeLast;
 	}
 
-	public String getPackageIndexUnderLine() {
-		return packageIndexUnderLine;
-	}
-
-	public void setPackageIndexUnderLine(String packageIndexUnderLine) {
-		this.packageIndexUnderLine = packageIndexUnderLine;
-	}
-
 	public String getRouterNode1() {
 		return routerNode1;
 	}
@@ -1007,5 +1009,45 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setRouterNode8(String routerNode8) {
 		this.routerNode8 = routerNode8;
+	}
+
+	public String getPrintSiteName() {
+		return printSiteName;
+	}
+
+	public void setPrintSiteName(String printSiteName) {
+		this.printSiteName = printSiteName;
+	}
+
+	public String getDestinationCrossCode() {
+		return destinationCrossCode;
+	}
+
+	public void setDestinationCrossCode(String destinationCrossCode) {
+		this.destinationCrossCode = destinationCrossCode;
+	}
+
+	public String getDestinationDmsName() {
+		return destinationDmsName;
+	}
+
+	public void setDestinationDmsName(String destinationDmsName) {
+		this.destinationDmsName = destinationDmsName;
+	}
+
+	public String getDestinationTabletrolleyCode() {
+		return destinationTabletrolleyCode;
+	}
+
+	public void setDestinationTabletrolleyCode(String destinationTabletrolleyCode) {
+		this.destinationTabletrolleyCode = destinationTabletrolleyCode;
+	}
+
+	public String getOriginalTabletrolleyCode() {
+		return originalTabletrolleyCode;
+	}
+
+	public void setOriginalTabletrolleyCode(String originalTabletrolleyCode) {
+		this.originalTabletrolleyCode = originalTabletrolleyCode;
 	}
 }
