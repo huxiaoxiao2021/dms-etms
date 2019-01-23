@@ -347,7 +347,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
     private void buildWaybillDetailsByConsignWare(AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail, WaybillExt waybillExt) {
 
         //明细内容
-        waybillDetail.append(waybillExt.getConsignWare() + " * " + waybillExt.getConsignCount());
+        waybillDetail.append(waybillExt.getConsignWare() + (waybillExt.getConsignCount() == null ? "" : " * " + waybillExt.getConsignCount()));
+
         //设置回复系统
         abnormalUnknownWaybill.setReceiptFrom(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL);
         //设置已回复
