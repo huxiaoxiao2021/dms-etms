@@ -163,35 +163,6 @@ public class ScannerFrameBatchSendServiceImpl implements ScannerFrameBatchSendSe
         return result;
     }
 
-   /* @Override
-    public boolean transSendCode(long userCode, String userName, List<Long> ids) {
-        if (null == ids || ids.size() == 0) {
-            throw new RuntimeException("the parameter of list can not be null");
-        }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("换批次动作开始...换批次的条数为" + ids.size());
-        }
-        List<ScannerFrameBatchSend> batchSends = queryByIds(ids);
-        for (ScannerFrameBatchSend batchSend : batchSends) {
-            batchSend.setCreateSiteCode(batchSend.getCreateSiteCode());
-            batchSend.setCreateSiteName(batchSend.getCreateSiteName());
-            batchSend.setReceiveSiteCode(batchSend.getReceiveSiteCode());
-            batchSend.setReceiveSiteName(batchSend.getReceiveSiteName());
-            batchSend.setCreateTime(new Date());
-            batchSend.setCreateUserCode(userCode);
-            batchSend.setCreateUserName(userName);
-            batchSend.setYn(YN_DEFAULT);
-            batchSend.setUpdateTime(new Date());
-            batchSend.setSendCode(SerialRuleUtil.generateSendCode(batchSend.getCreateSiteCode(), batchSend.getReceiveSiteCode(), batchSend.getCreateTime()));
-            generateSend(batchSend);
-
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info(MessageFormat.format("result:{0}", batchSend.toString()));
-            }
-        }
-        return true;
-    }*/
-
     /**
      * 通过ID获取其domain的方法
      */
