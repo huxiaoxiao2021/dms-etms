@@ -33,7 +33,6 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -43,8 +42,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
+
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
@@ -63,9 +61,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
-
-    @Autowired
-    private BasicSecondaryWS basicSecondaryWS;
 
     @Autowired
     private AirTransportService airTransportService;
@@ -147,6 +142,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * 半收的运单状态
      */
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
+
+    private static final String UNIT_WEIGHT_KG = "kg";
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
@@ -340,13 +337,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageCode(item.getPackageBarcode());
                     pack.setWeight(item.getGoodWeight());
                     //设置包裹序号和包裹号后缀
-                    pack.setPackageIndex();
-
-                    pack.setPackageSuffix(截);
-                    pack.setPackageWeight();
+                    pack.setPackageIndex(getPackageIndex(item.getPackageBarcode()));
+                    pack.setPackageSuffix(getPackageSuffix(item.getPackageBarcode()));
+                    pack.setPackageWeight(item + UNIT_WEIGHT_KG);
                     packageList.add(pack);
                 }
             }
+
             commonWaybill.setPackList(packageList);
 
            //B网面单设置已称标识
@@ -506,5 +503,39 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
         }
         return result;
+    }
+
+    /**
+     * 获取包裹序列号
+     */
+    private String getPackageIndex(String packageCode) {
+        if (WaybillUtil.isPackageCode(packageCode)) {
+            int currentPackageNum = WaybillUtil.getCurrentPackageNum(packageCode);
+            int totalPackageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+            return currentPackageNum + "/" + totalPackageNum;
+        }
+        return "0/0";
+    }
+
+    /**
+     * 截取包裹号后缀
+     * @param packageCode
+     * @return
+     */
+    private String getPackageSuffix(String packageCode){
+        int index = -1;
+        if (WaybillUtil.isPackageCode(packageCode)) {
+            if (packageCode.indexOf("N") > 0 && packageCode.indexOf("S") > 0) {
+                index = packageCode.indexOf("N");
+            } else if (packageCode.indexOf("-") > 0 && (packageCode.split("-").length == 3 || packageCode.split("-").length == 4)) {
+                index = packageCode.indexOf("-");
+            }
+        }
+        if(index < 0){
+            return null;
+        } else{
+            return packageCode.substring(index);
+        }
+
     }
 }
