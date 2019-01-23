@@ -71,6 +71,11 @@ public class BoxResponse extends JdResponse {
 	/** 预计发货时间*/
 	private Date predictSendTime ;
 
+	/**
+	 * 混包类型 1混包，0非混包
+	 */
+	private Integer mixBoxType;
+
 	public String getRouterText() {
 		return routerText;
 	}
@@ -198,5 +203,12 @@ public class BoxResponse extends JdResponse {
 	public void setRouterInfo(String[] routerInfo) {
 		this.routerInfo = routerInfo;
 	}
-	
+
+	public Integer getMixBoxType() {
+		return mixBoxType;
+	}
+
+	public void setMixBoxType(Integer mixBoxType) {
+		this.mixBoxType = mixBoxType;
+	}
 }

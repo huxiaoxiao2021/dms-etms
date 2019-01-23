@@ -8,10 +8,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -57,10 +54,12 @@ import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
@@ -98,6 +97,9 @@ public class WaybillResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private BaseMinorManager baseMinorManager;
 
     @Autowired
 	@Qualifier("obcsManager")
@@ -462,6 +464,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
+	@JProfiler(jKey = "DMS.BASE.WaybillResource.getwaybillPackOld",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 													  @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless) {
@@ -627,18 +630,45 @@ public class WaybillResource {
 		if(packOpeFlowFlg==null){
 			packOpeFlowFlg = Constants.INTEGER_FLG_FALSE;
 		}
-		// 转换运单号
-		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
-		// 调用服务
-		try {
-			Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
-			if (waybill == null) {
-				this.logger.info("运单号【" + waybillCode
+
+		//判断返调度目的地是否为3pl站点
+		boolean isThreePLSchedule = false;
+		try{
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
+            if(siteOrgDto != null){
+                if(Constants.BASE_SITE_OPERATESTATE.equals(siteOrgDto.getOperateState())){
+                    return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_OFFLINE_ERROR, JdResponse.MESSAGE_SITE_OFFLINE_ERROR);
+                }
+                if(Constants.THIRD_SITE_TYPE.equals(siteOrgDto.getSiteType())){
+                    isThreePLSchedule = true;
+                }
+            }
+        }catch (Exception e){
+            logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
+			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
+		}
+        // 转换运单号
+        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+        // 调用服务
+        try {
+            Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
+            if (waybill == null) {
+                this.logger.info("运单号【" + waybillCode
 						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
-				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
+                return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
+            }
+
+            //如果是现场预分拣目的地是3pl站点，则判断商家是否支持转3方配送
+            if(isThreePLSchedule){
+                BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
+                //不支持转三方时，给前端提示
+                if(traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())){
+                    logger.warn("商家不支持转3方配送，返调度到3方站点失败：" + waybillCodeOrPackage);
+                    return new WaybillResponse<Waybill>(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
+				}
 			}
-			
+
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,startSiteType);
 

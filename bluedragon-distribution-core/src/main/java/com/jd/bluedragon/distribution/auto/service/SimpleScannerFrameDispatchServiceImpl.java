@@ -288,12 +288,6 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = null;
         if (box != null) {
             baseStaffSiteOrgDto = siteService.getSite(box.getReceiveSiteCode());
-        } else {
-            if (StringUtils.isNotEmpty(domain.getBarCode()) && domain.getBarCode().length() > 16) {
-                // 截取条码10到16位为预分拣站点
-                String siteCode = domain.getBarCode().substring(9, 16);
-                baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(siteCode);
-            }
         }
         if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getSiteCode() != null && baseStaffSiteOrgDto.getSiteCode() > 0) {
             return baseStaffSiteOrgDto.getSiteCode();

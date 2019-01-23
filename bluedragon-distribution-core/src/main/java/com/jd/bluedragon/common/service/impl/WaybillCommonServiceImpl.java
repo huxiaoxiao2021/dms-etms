@@ -734,6 +734,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
+	    //sendPay146位为3时，打传字标
+	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);
+        }
         //waybill_sign标识位，第四十六位为2或3，打安字标
         if(BusinessUtil.isSignInChars(waybill.getWaybillSign(), 46, '2','3')){
         	target.appendSpecialMark(ComposeService.SPECIAL_MARK_VALUABLE);

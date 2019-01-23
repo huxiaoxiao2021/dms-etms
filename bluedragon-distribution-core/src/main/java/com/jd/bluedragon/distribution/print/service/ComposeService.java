@@ -38,6 +38,7 @@ public interface ComposeService {
     String SPECIAL_MARK_FIRST = "优";
     String SPECIAL_MARK_INTERCITY = "城际";
     String SPECIAL_MARK_HELP_DELIVERY="代";
+    String SPECIAL_MARK_TRANSFER="传";
 
     /**
      * 全球售合包订单标识
