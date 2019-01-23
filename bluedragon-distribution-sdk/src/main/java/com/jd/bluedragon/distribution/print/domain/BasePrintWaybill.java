@@ -229,7 +229,6 @@ public class BasePrintWaybill implements Serializable {
 
 	/**
 	 * 已验视
-	 * @param waybillCode
 	 */
 	private String examineFlag;
 
