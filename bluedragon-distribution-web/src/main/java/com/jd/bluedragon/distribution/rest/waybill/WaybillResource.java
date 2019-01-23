@@ -1732,6 +1732,7 @@ public class WaybillResource {
 	 */
 	@POST
 	@Path("/package/weight")
+	@BusinessLog(sourceSys = 1,bizType = 1903,operateType = 1903001)
 	public InvokeResult<Boolean> savePackageWeight(PackWeightVO packWeightVO){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try{
@@ -1781,6 +1782,24 @@ public class WaybillResource {
 				weight = weightResult.getData().getWeight();
 				volume = weightResult.getData().getVolume();
 			}
+
+
+			/*
+			* 对比项1	             对比项2	                      			对比标准
+			分拣称重重量kg	          揽收重量kg	    1. 本次分拣称重重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.3 kg为正常，大于0.3kg为异常，弹框提示语1。
+														2. 本次分拣称重重量大于5kg小于等于20kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5 kg为异常，弹框提示语1。
+														3. 本次分拣称重重量大于20kg小于等于50kg，对比项1减对比项2，正负误差值小于等于1 kg为正常，大于1 kg为异常，弹框提示语1。
+														4. 本次分拣称重重量大于50kg，对比项1减对比项2，差值除以分拣重量，小于等于2% （0.02）为正常，大于2% 为异常，弹框提示语1。
+														5. 如果揽收重量为0或空，则为异常，弹框提示语2
+			分拣录入的长cm*宽cm*高cm   揽收体积
+			除以8000=分拣体积重量kg	    				1. 本次分拣称重重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.3 kg为正常，大于0.3kg为异常，弹框提示语3。
+														2. 本次分拣称重重量大于5kg小于等于20kg，对比项1减对比项2，正负误差值小于等于0.5 kg为正常，大于0.5 kg为异常，弹框提示语3。
+														3. 本次分拣称重重量大于20kg小于等于50kg，对比项1减对比项2，正负误差值小于等于1 kg为正常，大于1 kg为异常，弹框提示语3。
+														4. 本次分拣称重重量大于50kg，对比项1减对比项2，差值除以分拣重量，小于等于2% （0.02）为正常，大于2% 为异常，弹框提示语3。
+														5. 如果揽收体积为0或空，则为异常，弹框提示语4
+
+			*
+			* */
 
 			if(weight == 0){
 				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
