@@ -531,13 +531,18 @@
         <include refid="Base_Column_List"/>
         from ar_send_register
         where
-        transport_name = #{transportName,jdbcType=VARCHAR}
-        and DATE_FORMAT(send_date, '%Y-%m-%d') = DATE_FORMAT(#{sendDate,jdbcType=TIMESTAMP}, '%Y-%m-%d')
+        is_delete = 0
         <if test="transportType != null">
             and transport_type = #{transportType,jdbcType=SMALLINT}
         </if>
-        <if test="siteOrder != null">
-            and site_order = #{siteOrder,jdbcType=VARCHAR}
+        <if test="transportName != null">
+            and transport_name = #{transportName,jdbcType=VARCHAR}
+        </if>
+        <if test="sendDate != null">
+            and DATE_FORMAT(send_date, '%Y-%m-%d') = DATE_FORMAT(#{sendDate,jdbcType=TIMESTAMP}, '%Y-%m-%d')
+        </if>
+        <if test="orderCode != null">
+            and order_code = #{orderCode,jdbcType=VARCHAR}
         </if>
         order by create_time DESC
     </select>

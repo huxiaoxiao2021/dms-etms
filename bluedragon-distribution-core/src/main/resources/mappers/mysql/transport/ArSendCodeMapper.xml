@@ -151,7 +151,7 @@
         <include refid="Base_Column_List"/>
         from
         ar_send_code
-        where send_code = #{sendCode,jdbcType=VARCHAR}
+        where send_code = #{sendCode,jdbcType=VARCHAR} and is_delete = 0
         order by create_time DESC
         limit 1
     </select>
