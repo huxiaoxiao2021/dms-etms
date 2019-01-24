@@ -58,8 +58,6 @@
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseReceiveConsumer"/>
     </jmq:consumer>
 
-    
-    
     <!-- 配送外呼订单回传 -->
     <jmq:consumer id="jmq.fxmAbnormalConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.FXMDmsAoFB}" listener="fxmAbnormalConsumer"/>
@@ -160,11 +158,6 @@
         <jmq:listener topic="${jmq.topic.tms.air.flight.realtime.status}" listener="arAirFlightRealTimeConsumer"/>
     </jmq:consumer>
 
-    <!-- 消费中铁运输铁路发出到达时间 -->
-    <jmq:consumer id="jmq.arCreTransportBillTraceConsumer" transport="jmq.BlueDragonDistribution.transport">
-        <jmq:listener topic="${jmq.topic.tms.air.railway.transport.trace}" listener="arCreTransportBillTraceConsumer"/>
-    </jmq:consumer>
-
     <!-- B网半收协商再投MQ -->
     <jmq:consumer id="jmq.packageHalfRedeliveryConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.redeliver.checked.part}" listener="packageHalfRedeliveryConsumer"/>
@@ -223,6 +216,11 @@
     <!-- 空铁转陆运 提报异常 -->
     <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.dmsWeb.transport">
         <jmq:listener topic="${jmq.topic.arAbnormal}" listener="arAbnormalConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费中铁运输铁路发出到达时间 -->
+    <jmq:consumer id="jmq.arCreTransportBillTraceConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.air.railway.transport.trace}" listener="arCreTransportBillTraceConsumer"/>
     </jmq:consumer>
 </beans>
 
