@@ -4377,28 +4377,56 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult autoPackageSend(SendM domain, boolean isForceSend, UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, UploadData uploadData) {
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
 
-            /**
-             * modified at 2018/4/25
-             * 区分分拣机还是龙门架自动发货
-             * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
-             * */
-            if (isForceSend) {
-                // 分拣机自动发货
-                return this.sortMachineAutoPackageSend(domain, uploadData);
-            } else {
-                // 龙门架自动发货
-                return this.scannerFrameAutoPackageSend(domain);
-            }
+            /*
+                不在区分分拣机自动发货和龙门架自动发货逻辑，
+                新的抽象方式为: 按原包发货  和  按箱号进行发货
+                原来逻辑:
+                    分拣机 = this.sortMachineAutoPackageSend(domain, uploadData)
+                    龙门架 = this.scannerFrameAutoPackageSend(domain)
+                @TIME 2019-01-22 18:30:06
+             */
+            return this.scannerFrameAutoPackageSend(domain, uploadData);
+
         } catch (Exception e) {
             logger.error("一车一单自动发货异常，sendM：" + JsonHelper.toJson(domain), e);
             return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    /**
+     * 龙门架和分拣机共用自动发货逻辑
+     *
+     * @param domain
+     * @return
+     */
+    private SendResult scannerFrameAutoPackageSend(SendM domain, UploadData uploadData) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (null != lastSendM) {
+            SendResult result = this.checkIsEffectiveDelivery(domain, lastSendM);
+            if (result != null) {
+                return result;
+            }
+            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+            this.autoMultiSendCancelLast(domain, lastSendM);
+        }
+
+        /* 如果是分拣机原包发货的话，需要补上验货任务 */
+        if (uploadData.getSource() != null && uploadData.getSource() == 2) {
+            if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+                pushInspection(domain,null);
+            }
+        }
+
+        // 发货
+        this.packageSend(domain);
+        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
 
     /**
@@ -4469,9 +4497,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (StringUtils.isNotBlank(getSendedCode(domain))) {
             new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
         } else {
-            //插入SEND_M
-//            this.sendMDao.insertSendM(domain);
-            //使用管理接口代替sendMDao
+            /*
+             *  插入SEND_M
+             *  this.sendMDao.insertSendM(domain);
+             *  使用管理接口代替sendMDao
+             */
             this.sendMManager.insertSendM(domain);
         }
 
@@ -4485,6 +4515,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             pushAutoSorting(domain, uploadData.getPackageCode());
             return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         } else {
+            /* 原包发货 */
             pushInspection(domain, null);
             pushSorting(domain);
         }
