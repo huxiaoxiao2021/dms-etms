@@ -27,7 +27,6 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -203,11 +202,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 }
             } else {
                 //新增之前没有该批次号，向路由发MQ
-                try {
-                    this.mqToRouter(arSendRegister, new String[]{sendCode});
-                } catch (Exception e) {
-                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:" + arSendRegister.getTransportName(), e);
-                }
+                this.mqToRouter(arSendRegister, new String[]{sendCode});
             }
         }
     }
@@ -272,30 +267,32 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @param arSendRegister
      * @param sendCodes
      */
-    private void mqToRouter(ArSendRegister arSendRegister, String[] sendCodes) throws JMQException {
-        if (sendCodes != null) {
-            for (String arSendCode : sendCodes) {
-                List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(arSendCode);
-                if (null != sendDetailList && sendDetailList.size() > 0) {
-                    for (SendDetail sendDetail : sendDetailList) {
-                        /* 运单号 */
-                        arSendRegister.setWaybillCode(sendDetail.getWaybillCode());
-                        /* 包裹号 */
-                        arSendRegister.setPackageCode(sendDetail.getPackageBarcode());
-                        /* 批次号 */
-                        arSendRegister.setSendCode(arSendCode);
-                        /**
-                         * 推MQ
-                         */
-                        arSendRegisterMQ.send(arSendRegister.getWaybillCode(), JsonHelper.toJson(arSendRegister));
-                        logger.info("[空铁项目]新增或修改发货登记推送路由MQ消息成功，消息体：" + JsonHelper.toJson(arSendRegister));
+    private void mqToRouter(ArSendRegister arSendRegister, String[] sendCodes) {
+        try {
+            if (sendCodes != null) {
+                for (String arSendCode : sendCodes) {
+                    List<SendDetail> sendDetailList = sendDetailDao.queryWaybillsBySendCode(arSendCode);
+                    if (null != sendDetailList && sendDetailList.size() > 0) {
+                        for (SendDetail sendDetail : sendDetailList) {
+                            /* 运单号 */
+                            arSendRegister.setWaybillCode(sendDetail.getWaybillCode());
+                            /* 包裹号 */
+                            arSendRegister.setPackageCode(sendDetail.getPackageBarcode());
+                            /* 批次号 */
+                            arSendRegister.setSendCode(arSendCode);
+                            // 发送MQ
+                            arSendRegisterMQ.send(arSendRegister.getWaybillCode(), JsonHelper.toJson(arSendRegister));
+                            logger.info("[空铁项目]新增或修改发货登记推送路由MQ消息成功，消息体：" + JsonHelper.toJson(arSendRegister));
+                        }
+                    } else {
+                        logger.warn("空铁推路由MQ---根据批次号获取发货明细为空，批次号：" + arSendCode);
                     }
-                } else {
-                    logger.warn("空铁推路由MQ---根据批次号获取发货明细为空，批次号：" + arSendCode);
                 }
+            } else {
+                logger.warn("空铁推路由MQ---获取批次号列表为空");
             }
-        } else {
-            logger.warn("空铁推路由MQ---获取批次号列表为空");
+        } catch (Exception e) {
+            logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班/车次号:" + arSendRegister.getTransportName() + "，单号:" + arSendRegister.getOrderCode(), e);
         }
     }
 
@@ -316,24 +313,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             //该条发货登记记录已经给路由发过MQ
             if (arSendRegisterNew.getSendRouterMqType().equals(ArSendRouterMqTypeEnum.AIR_ALREADY_SEND.getCode())) {
                 arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_AFTERFLY.getCode());
-                try {
-                    this.mqToRouter(arSendRegister, sendCodes);
-                } catch (Exception e) {
-                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:" + arSendRegister.getTransportName(), e);
-                }
-                //再次更新发货登记表，把operateType字段落进去
-                this.getDao().update(arSendRegister);
             } else {
                 //如果没有发过MQ，说明飞机还未起飞
                 arSendRegister.setOperateType(ArSendRegisterEnum.AIR_UPDATE_BEFOREFLY.getCode());
-                try {
-                    this.mqToRouter(arSendRegister, sendCodes);
-                } catch (Exception e) {
-                    logger.error("[空铁项目]发货登记消息体发送给路由时发生异常，航班号:" + arSendRegister.getTransportName(), e);
-                }
-                //再次更新发货登记表，把operateType字段落进去
-                this.getDao().update(arSendRegister);
             }
+            this.mqToRouter(arSendRegister, sendCodes);
+            //再次更新发货登记表，把operateType字段落进去
+            this.getDao().update(arSendRegister);
         } else {
             logger.warn("空铁推路由MQ---查不到该航班号发货登记记录，航班号：" + resource.getTransportName());
         }
@@ -723,10 +709,12 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     private String getTrackRemark(ArSendRegister arSendRegister) {
         switch (ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())) {
             case AIR_TRANSPORT: {
-                return "航空：货物已发航空，" + arSendRegister.getStartStationName() + " — " + arSendRegister.getEndStationName() + "  航班号：" + arSendRegister.getTransportName();
+                return "航空：货物已发航空，" + arSendRegister.getStartStationName() == null ? "" : arSendRegister.getStartStationName()
+                        + " — " + arSendRegister.getEndStationName() == null ? "" : arSendRegister.getEndStationName() + "  航班号：" + arSendRegister.getTransportName();
             }
             case RAILWAY: {
-                return "铁路：货物已发铁路，" + arSendRegister.getStartStationName() + " — " + arSendRegister.getEndStationName() + "  车次号：" + arSendRegister.getTransportName();
+                return "铁路：货物已发铁路，" + arSendRegister.getStartStationName() == null ? "" : arSendRegister.getStartStationName()
+                        + " — " + arSendRegister.getEndStationName() == null ? "" : arSendRegister.getEndStationName() + "  车次号：" + arSendRegister.getTransportName();
             }
         }
         return null;
