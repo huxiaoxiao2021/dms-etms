@@ -707,14 +707,14 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     private String getTrackRemark(ArSendRegister arSendRegister) {
+        String startStationName = arSendRegister.getStartStationName() == null ? "" : arSendRegister.getStartStationName();
+        String endStationName = arSendRegister.getEndStationName() == null ? "" : arSendRegister.getEndStationName();
         switch (ArTransportTypeEnum.getEnum(arSendRegister.getTransportType())) {
             case AIR_TRANSPORT: {
-                return "航空：货物已发航空，" + arSendRegister.getStartStationName() == null ? "" : arSendRegister.getStartStationName()
-                        + " — " + arSendRegister.getEndStationName() == null ? "" : arSendRegister.getEndStationName() + "  航班号：" + arSendRegister.getTransportName();
+                return "航空：货物已发航空，" + startStationName + " — " + endStationName + "  航班号：" + arSendRegister.getTransportName();
             }
             case RAILWAY: {
-                return "铁路：货物已发铁路，" + arSendRegister.getStartStationName() == null ? "" : arSendRegister.getStartStationName()
-                        + " — " + arSendRegister.getEndStationName() == null ? "" : arSendRegister.getEndStationName() + "  车次号：" + arSendRegister.getTransportName();
+                return "铁路：货物已发铁路，" + startStationName + " — " + endStationName + "  车次号：" + arSendRegister.getTransportName();
             }
         }
         return null;
