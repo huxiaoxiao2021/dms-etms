@@ -454,6 +454,10 @@ public class Constants {
      */
     public static final Integer PACK_OPE_FLOW_TYPE_ZC_REC = 3;
     /**
+     * 包裹称重流水-操作类型-接货中心-车队操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_CD_REC = 5;
+    /**
      * 包裹称重流水-操作类型-仓储操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;

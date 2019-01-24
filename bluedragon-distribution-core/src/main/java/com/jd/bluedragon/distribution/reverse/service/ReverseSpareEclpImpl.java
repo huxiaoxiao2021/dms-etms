@@ -121,7 +121,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             }
 
         }else{
-            logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 "+waybillCode+"|"+sendDetail.getSendCode());
+            logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 v2:"+oldWaybillCodeV2+"|esl:"+eclpBusiOrderCode+"|v3"+waybillCode+"|"+sendDetail.getSendCode());
             return null;
         }
 

@@ -32,6 +32,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -257,7 +258,11 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
             logger.info(waybillCode + "不是eclp运单");
         }
         //第三步 查运单的托寄物
-        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, true, true, false, false);
+//        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, true, true, false, false);
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(Boolean.TRUE);
+        wChoice.setQueryWaybillExtend(Boolean.TRUE);
+        BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
         if(entity != null && entity.getData() != null && entity.getData().getWaybill() != null){
             Waybill waybill = entity.getData().getWaybill();
             if(waybill.getWaybillExt() != null &&
@@ -342,7 +347,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
     private void buildWaybillDetailsByConsignWare(AbnormalUnknownWaybill abnormalUnknownWaybill, StringBuilder waybillDetail, WaybillExt waybillExt) {
 
         //明细内容
-        waybillDetail.append(waybillExt.getConsignWare() + " * " + waybillExt.getConsignCount());
+        waybillDetail.append(waybillExt.getConsignWare() + (waybillExt.getConsignCount() == null ? "" : " * " + waybillExt.getConsignCount()));
+
         //设置回复系统
         abnormalUnknownWaybill.setReceiptFrom(AbnormalUnknownWaybill.RECEIPT_FROM_WAYBILL);
         //设置已回复
