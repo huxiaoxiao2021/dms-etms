@@ -305,8 +305,13 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      */
     private void mqToRouterDetailByUpdate(ArSendRegister resource, ArSendRegister arSendRegister, String[] sendCodes) {
         //查出当天该航班号起飞的发货登记记录
-        List<ArSendRegister> sendRegisterList = this.getAirListByTransParam(resource.getTransportName(), resource.getSendDate());
-        if (sendRegisterList != null && sendRegisterList.size() > 0) {
+        List<ArSendRegister> sendRegisterList;
+        if (ArTransportTypeEnum.AIR_TRANSPORT.getCode() == resource.getTransportType()) {
+            sendRegisterList = this.getAirListByTransParam(resource.getTransportName(), resource.getSendDate());
+        } else {
+            sendRegisterList = this.getRailwayListByTransParam(resource.getOrderCode());
+        }
+        if (sendRegisterList.size() > 0) {
             //同一个航班号有可能有多条发货登记记录
             //查出时间最近的一条数据
             ArSendRegister arSendRegisterNew = sendRegisterList.get(0);
@@ -554,6 +559,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 sendRegister.setAging(arTransportInfo.getAging());
                 sendRegister.setPlanStartTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanStartTime(), 0));
                 sendRegister.setPlanEndTime(getPlanDate(sendRegister.getSendDate(), arTransportInfo.getPlanEndTime(), arTransportInfo.getAging()));
+            } else {
+                logger.warn("[空铁发货登记]调用TMS运输接口获取航班信息/铁路信息为空，航班号/车次号:" + sendRegister.getTransportName() + "，主单号:" + sendRegister.getOrderCode() + "，发货日期:" + DateHelper.formatDate(sendRegister.getSendDate()));
             }
         } catch (Exception e) {
             logger.error("[空铁发货登记]调用TMS运输接口获取运输信息时发生异常", e);

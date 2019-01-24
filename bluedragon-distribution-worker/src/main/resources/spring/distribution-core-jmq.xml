@@ -18,6 +18,10 @@
 
     <!--dmsWorker生产者配置-->
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+    <bean id="dmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="workerProducer"/>
+    </bean>
 
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
@@ -240,13 +244,6 @@
         <!--已修改主题-->
     </bean>
 
-    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
-    <bean id="arRailwayWaybillStatusMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
-
     <!-- 空铁项目 - 发货登记 推送路由MQ -->
     <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
@@ -327,5 +324,10 @@
     <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
+    </bean>
+
+    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
+    <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
     </bean>
 </beans>
