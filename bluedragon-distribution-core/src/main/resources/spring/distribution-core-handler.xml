@@ -11,6 +11,7 @@
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
+				<entry key="1003"  value-ref="waybillPrintCommandHandler"/>
 			</map>
 		</property>
 	</bean>
@@ -30,6 +31,7 @@
 				<entry key="100106"  value-ref="basicPrint"/>
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
+				<entry key="100301"  value-ref="basicPrint"/>
 			</map>
 		</property>
 	</bean>
