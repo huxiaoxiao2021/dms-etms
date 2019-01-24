@@ -621,7 +621,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         if (StringUtils.isNotEmpty(creTransBillCode)) {
             Map<String, Object> parameter = new HashMap<String, Object>(2);
             parameter.put("transportType ", ArTransportTypeEnum.RAILWAY.getCode());
-            parameter.put("orderCode", creTransBillCode.trim().toLowerCase());
+            parameter.put("orderCode", creTransBillCode.trim().toUpperCase());
             return arSendRegisterDao.getListByTransInfo(parameter);
         }
         return Collections.EMPTY_LIST;

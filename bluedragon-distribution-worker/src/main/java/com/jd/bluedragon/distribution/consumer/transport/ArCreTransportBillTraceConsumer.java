@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -76,7 +77,12 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
     }
 
     private void doConsume(ArCreTransportBillTrace creTransportBillTrace) throws Exception {
-        List<ArSendRegister> sendRegisterList = arSendRegisterService.getRailwayListByTransParam(creTransportBillTrace.getCreTransbillCode());
+        String creTransBillCode = creTransportBillTrace.getCreTransbillCode();
+        if (StringUtils.isEmpty(creTransBillCode)) {
+            logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-中铁运单号为null");
+            return;
+        }
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getRailwayListByTransParam(creTransBillCode);
         if (!sendRegisterList.isEmpty()) {
             List<Long> sendRegisterIds = getRegisterIdList(sendRegisterList);
             List<String> sendCodes = this.getSendCodes(sendRegisterIds);
@@ -89,7 +95,7 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
                 logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据发货登记信息ID(" + sendRegisterIds.toString() + ")获取批次号列表为空或null");
             }
         } else {
-            logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据中铁运单号(" + creTransportBillTrace.getCreTransbillCode() + ")获取发货登记信息为null");
+            logger.warn("[空铁项目]消费TMS铁路运输订单信息MQ-根据中铁运单号(" + creTransBillCode + ")获取发货登记信息为null");
         }
     }
 
@@ -123,14 +129,16 @@ public class ArCreTransportBillTraceConsumer extends MessageBaseConsumer {
     private void buildRailwayWaybillAndSendMQ(String sendCode, ArCreTransportBillTrace creTransportBillTrace, SealCarDto sealCarDto) throws JMQException {
         ArRailwayTransportWaybillStatus railwayWaybillStatus = new ArRailwayTransportWaybillStatus();
         /* 航班号 */
-        railwayWaybillStatus.setCreTransbillCode(creTransportBillTrace.getCreTransbillCode().trim().toLowerCase());
-        /* 铁路车次号 */
-        railwayWaybillStatus.setTrainNumber(creTransportBillTrace.getTrainNumber().toLowerCase());
+        railwayWaybillStatus.setCreTransbillCode(creTransportBillTrace.getCreTransbillCode().trim().toUpperCase());
+        if (creTransportBillTrace.getTrainNumber() != null) {
+            /* 铁路车次号 */
+            railwayWaybillStatus.setTrainNumber(creTransportBillTrace.getTrainNumber().toUpperCase());
+        }
         /* 铁路类型：1 - 高铁，2 - 行包 */
         railwayWaybillStatus.setRailwayType(creTransportBillTrace.getRailwayType());
         /* 节点名称：0 承运制票、20 装车确认、30 卸车确认、40 提货交付 */
         railwayWaybillStatus.setStatus(creTransportBillTrace.getStatus());
-        if (creTransportBillTrace.getOperateTime() != null){
+        if (creTransportBillTrace.getOperateTime() != null) {
             /* 实际时间 起飞/降落时间 */
             railwayWaybillStatus.setOperateTime(new Date(creTransportBillTrace.getOperateTime()));
         }
