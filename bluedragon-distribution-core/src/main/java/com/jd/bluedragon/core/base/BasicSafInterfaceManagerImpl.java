@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseResult;
@@ -44,6 +45,22 @@ public class BasicSafInterfaceManagerImpl implements BasicSafInterfaceManager {
     public BaseResult<String> getCrossDmsBox(Integer createSiteCode, Integer receiveSiteCode) {
         // TODO Auto-generated method stub
         return basicMixedWS.getCrossDmsBox(createSiteCode, receiveSiteCode);
+    }
+
+    /**
+     * 根据库房信息获取绑定分拣中心Id
+     * @param storeType 库房类型 正常大库库房类型为： wms 备件库类型为：spwms
+     * @param cky2 配送中心
+     * @param storeId 库房ID
+     * @return
+     */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.BasicSafInterfaceManagerImpl.getStoreBindDms", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Integer getStoreBindDms(String storeType,Integer cky2,Integer storeId){
+        BaseDmsStoreDto dto = basicMixedWS.getStoreBindDms(storeType,cky2,storeId);
+        if(dto != null){
+            return dto.getDmsId();
+        }
+        return null;
     }
 
 }

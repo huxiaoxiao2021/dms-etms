@@ -1,13 +1,17 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import java.lang.reflect.Method;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.waybill.domain.WaybillPickup;
+import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -19,8 +23,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -64,6 +66,21 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private AirTransportService airTransportService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private AirTransportService airTransportService;
+
+    @Autowired
+    private BasicSafInterfaceManager basicSafInterfaceManager;
+
+    @Autowired
+    private PreseparateWaybillManager preseparateWaybillManager;
+
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
     /**
      * 奢侈品订单打标位起始值
      */
@@ -167,6 +184,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 loadPrintedData(context);
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
+                //加载路由信息
+                loadWaybillRouter(context.getResponse());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
@@ -373,7 +392,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                    }
                }
            }
-           waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
+        //加载始发站点信息
+        loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
+        waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
         StringBuilder sb=new StringBuilder();
@@ -537,5 +558,112 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             return packageCode.substring(index);
         }
 
+    }
+
+    /**
+     * 加载始发分拣中心信息
+     *
+     */
+    private void loadOriginalDmsInfo(WaybillPrintResponse printWaybill,BigWaybillDto bigWaybillDto) {
+        Integer dmsCode = printWaybill.getOriginalDmsCode();
+        String waybillCode = printWaybill.getWaybillCode();
+        if (dmsCode == null || dmsCode <= 0) {
+            logger.warn("参数中无始发分拣中心编码，从外部系统获取.运单号:" + waybillCode);
+            com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
+            WaybillPickup waybillPickup = bigWaybillDto.getWaybillPickup();
+
+            //判断有没有仓Id
+            if (etmsWaybill != null && etmsWaybill.getDistributeStoreId() != null && etmsWaybill.getCky2() != null) {
+                dmsCode = basicSafInterfaceManager.getStoreBindDms("wms", etmsWaybill.getCky2(), etmsWaybill.getDistributeStoreId());
+                logger.info("运单号:" + waybillCode + ".库房类型:wms+cky2:" + etmsWaybill.getCky2() + "+库房号:" +
+                        etmsWaybill.getDistributeStoreId() + "对应的分拣中心:" + dmsCode);
+            }
+
+            //判断有没有揽收站点
+            if (dmsCode == null && dmsCode > 0 && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
+                if (dto != null) {
+                    dmsCode = dto.getDmsId();
+                }
+                logger.info("运单号:" + waybillCode + ".揽收站点:" + waybillPickup.getPickupSiteId() + "对应的分拣中心:" + dmsCode);
+            }
+
+            //判断有没有寄件省
+            if (dmsCode == null) {
+                Integer consignerCityId = null;
+                if (waybillPickup != null && waybillPickup.getConsignerCityId() != null) {
+                    consignerCityId = waybillPickup.getConsignerCityId();
+                    logger.info("运单号：" + waybillCode + "在运单中获取的寄件城市为：" + consignerCityId);
+                } else if (etmsWaybill != null && StringUtils.isNotBlank(etmsWaybill.getConsignerAddress())) {
+                    //调预分拣接口
+                    AnalysisAddressResult addressResult = preseparateWaybillManager.analysisAddress(etmsWaybill.getConsignerAddress());
+                    if (addressResult != null) {
+                        consignerCityId = addressResult.getCityId();
+                    }
+                    logger.info("运单号：" + waybillCode + "根据寄件人地址获取到的寄件城市为:" + consignerCityId);
+                }
+                if (consignerCityId != null && consignerCityId > 0) {
+                    Integer parentId = 156;
+                    Integer layer = 2;
+                    Integer typeGroup = 156;
+                    List<BaseDataDict> baseDataDictList = baseMajorManager.getBaseDataDictList(parentId, layer, typeGroup);
+                    logger.info("运单号:" + waybillCode + "寄件城市对应的分拣中心为：" + dmsCode);
+                }
+            }
+        }
+        logger.info("组装包裹标签始发分拣中心信息，运单号：" + waybillCode + "对应的始发分拣中心为:" + dmsCode);
+        printWaybill.setOriginalDmsCode(dmsCode);
+    }
+
+    /**
+     * 根据始发和目的获取路由信息
+     * @param printWaybill
+     */
+    private void loadWaybillRouter(WaybillPrintResponse printWaybill){
+        Integer originalDmsCode = printWaybill.getOriginalDmsCode();
+        Integer destinationDmsCode = printWaybill.getPurposefulDmsCode();
+
+        //获取始发和目的的七位编码
+        BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsCode);
+        if (originalDms==null){
+            return ;
+        }
+        BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsCode);
+        if (destinationDms==null){
+            return ;
+        }
+
+        //调路由的接口获取路由节点
+        Date predictSendTime = new Date();
+        RouteProductEnum routeProduct = RouteProductEnum.T1;
+        String router=vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
+
+        if (StringUtils.isEmpty(router)){
+            return;
+        }
+        //拼接路由站点的名称
+        StringBuffer fullLineName=new StringBuffer();
+        StringBuffer fullLineId=new StringBuffer();
+        String[] siteArr=router.split("\\|");
+        //有路由节点的话，加上发出和接收节点，数量一定会>2个
+        if (siteArr.length<2){
+            return ;
+        }
+
+        for (int i =0;i<siteArr.length;i++){
+            //获取站点信息
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
+            if (baseStaffSiteOrgDto==null){
+                Integer cityId = baseStaffSiteOrgDto.getCityId();
+                String cityName = baseStaffSiteOrgDto.getCityName();
+                //直辖市要特别处理一下
+                try {
+                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i+1), String.class);
+                    setRouterNode.invoke(printWaybill, cityName);
+                }catch (Exception e){
+                    logger.error("获取路由信息,设置路由节点失败.",e);
+                }
+            }
+        }
     }
 }

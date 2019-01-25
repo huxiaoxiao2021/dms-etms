@@ -694,8 +694,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         	}else{
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
         	}
-
-            target.setTemplateName("dms-b2b-m");
         }else{
             //C网运费和货款
             //运费：waybillSign 25位为2时【到付现结】；25位为3时【寄付现结】
