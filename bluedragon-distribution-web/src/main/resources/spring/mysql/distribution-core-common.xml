@@ -140,8 +140,8 @@
             <set>
                 <value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByCode</value>
                 <value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByBoxCode</value>
-                <value>com.jd.bluedragon.distribution.send.dao.SendMDao.findSendMByBoxCode</value>
-                <value>com.jd.bluedragon.distribution.send.router.SendMRouter.findSendMByBoxCode</value>
+                <!--<value>com.jd.bluedragon.distribution.send.dao.SendMDao.findSendMByBoxCode</value>-->
+                <!--<value>com.jd.bluedragon.distribution.send.router.SendMRouter.findSendMByBoxCode</value>-->
             </set>
         </property>
     </bean>
