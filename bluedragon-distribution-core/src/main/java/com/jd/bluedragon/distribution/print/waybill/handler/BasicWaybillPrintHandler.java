@@ -10,7 +10,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
-import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -161,6 +160,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
 
     private static final String UNIT_WEIGHT_KG = "kg";
+
+    private static final String SPECIAL_REQUIRMENT_SIGNBACK ="签单返还";
+    private static final String SPECIAL_REQUIRMENT_PACK="包装";
+    private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
+    private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
+
+    /** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
+    private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
@@ -392,6 +399,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                    }
                }
            }
+
+        //设置特殊要求
+        loadSpecialRequirement(commonWaybill);
+
         //加载始发站点信息
         loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
@@ -603,10 +614,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     logger.info("运单号：" + waybillCode + "根据寄件人地址获取到的寄件城市为:" + consignerCityId);
                 }
                 if (consignerCityId != null && consignerCityId > 0) {
-                    Integer parentId = 156;
-                    Integer layer = 2;
-                    Integer typeGroup = 156;
-                    List<BaseDataDict> baseDataDictList = baseMajorManager.getBaseDataDictList(parentId, layer, typeGroup);
+                    dmsCode = baseMajorManager.getCityBindDms(consignerCityId);
                     logger.info("运单号:" + waybillCode + "寄件城市对应的分拣中心为：" + dmsCode);
                 }
             }
@@ -642,8 +650,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             return;
         }
         //拼接路由站点的名称
-        StringBuffer fullLineName=new StringBuffer();
-        StringBuffer fullLineId=new StringBuffer();
         String[] siteArr=router.split("\\|");
         //有路由节点的话，加上发出和接收节点，数量一定会>2个
         if (siteArr.length<2){
@@ -653,10 +659,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         for (int i =0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
-            if (baseStaffSiteOrgDto==null){
-                Integer cityId = baseStaffSiteOrgDto.getCityId();
+            if (baseStaffSiteOrgDto!=null){
+                Integer provinceId = baseStaffSiteOrgDto.getProvinceId();
                 String cityName = baseStaffSiteOrgDto.getCityName();
-                //直辖市要特别处理一下
+                //直辖市的城市显示直辖市
+                if(isMunicipality(provinceId)){
+                    cityName = baseStaffSiteOrgDto.getProvinceName();
+                }
                 try {
                     Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i+1), String.class);
                     setRouterNode.invoke(printWaybill, cityName);
@@ -665,5 +674,44 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 }
             }
         }
+    }
+
+    /**
+     * 加载特殊要求信息
+     * @param printWaybill
+     */
+    private void loadSpecialRequirement(WaybillPrintResponse printWaybill){
+        String waybillSign = printWaybill.getWaybillSign();
+        String specialRequirement = "";
+        if(StringUtils.isNotBlank(waybillSign)){
+            //签单返还
+            if(BusinessUtil.isSignChar(waybillSign,4,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
+            }
+            //包装服务
+            if(BusinessUtil.isSignChar(waybillSign,72,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PACK + ",";
+            }
+            //重货上楼
+            if(BusinessUtil.isSignChar(waybillSign,49,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
+            }
+            //送货入仓
+            if(BusinessUtil.isSignChar(waybillSign,42,'1')){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
+            }
+        }
+        if(StringUtils.isNotBlank(specialRequirement)){
+            printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
+        }
+    }
+
+    /**
+     * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
+     * @param provinceId
+     * @return
+     */
+    private boolean isMunicipality(Integer provinceId){
+        return municipalityList.contains(provinceId);
     }
 }
