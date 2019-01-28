@@ -71,7 +71,7 @@ public class WaybillPrintRequest extends JdRequest{
 	private String templateName;
 
 	/** 包裹标签模板版本 **/
-	private String templateVersion;
+	private Integer templateVersion;
 
 	/**
 	 * 操作人编码
@@ -237,11 +237,11 @@ public class WaybillPrintRequest extends JdRequest{
 		this.templateName = templateName;
 	}
 
-	public String getTemplateVersion() {
+	public Integer getTemplateVersion() {
 		return templateVersion;
 	}
 
-	public void setTemplateVersion(String templateVersion) {
+	public void setTemplateVersion(Integer templateVersion) {
 		this.templateVersion = templateVersion;
 	}
 
