@@ -24,14 +24,7 @@ public class PackagePrintRequest extends WaybillPrintRequest{
      * 纵向分辨率
      */
     private Integer dpiY = DPI_DEFAULT;
-	/**
-	 * 模板名称
-	 */
-    private String templateName;
-	/**
-	 * 模板版本
-	 */
-    private Integer templateVersion;
+
 	/**
 	 * @return the dpiX
 	 */
@@ -57,19 +50,4 @@ public class PackagePrintRequest extends WaybillPrintRequest{
 		this.dpiY = dpiY;
 	}
 
-	public String getTemplateName() {
-		return templateName;
-	}
-
-	public void setTemplateName(String templateName) {
-		this.templateName = templateName;
-	}
-
-	public Integer getTemplateVersion() {
-		return templateVersion;
-	}
-
-	public void setTemplateVersion(Integer templateVersion) {
-		this.templateVersion = templateVersion;
-	}
 }
