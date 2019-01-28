@@ -776,4 +776,8 @@ public class Constants {
      * 全程跟踪状态  揽收完成
      */
     public static final String WAYBILLTRACE_STATE ="-640";
+
+    /** 系统编码 **/
+    public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
 }

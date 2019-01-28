@@ -683,19 +683,23 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
         if(BusinessUtil.isB2b(waybill.getWaybillSign())){
             //B网运费和货款
-        	//读取waybill_sign第25位，25位等于2时，面单显示【到付现结】
+        	if(BusinessUtil.isSignChar(waybill.getWaybillSign(),25,'0')){
+                freightText = TextConstants.FREIGHT_MONTH;
+            }
         	if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '2')){
-        		freightText = TextConstants.FREIGHT_PAY_CASH;
-        	}
-        	//货款字段金额等于0时，则货款位置显示为【在线支付】
-        	//货款字段金额大于0时，则货款位置显示为【货到付款】
-        	if(NumberHelper.gt0(waybill.getCodMoney())){
-        		goodsPaymentText = TextConstants.GOODS_PAYMENT_COD;
-        	}else{
-        		goodsPaymentText = TextConstants.GOODS_PAYMENT_ONLINE;
+        		freightText = TextConstants.FREIGHT_PAY;
         	}
 
-            target.setTemplateName("dms-b2b-m");
+            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
+                freightText = TextConstants.FREIGHT_SEND;
+            }
+        	//货款字段金额等于0时，则货款位置显示为【0】
+        	//货款字段金额大于0时，则货款位置显示为【代收货款】
+        	if(NumberHelper.gt0(waybill.getCodMoney())){
+        		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
+        	}else{
+        		goodsPaymentText = "0";
+        	}
         }else{
             //C网运费和货款
             //运费：waybillSign 25位为2时【到付现结】；25位为3时【寄付现结】

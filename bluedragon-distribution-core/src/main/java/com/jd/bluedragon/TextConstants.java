@@ -17,6 +17,22 @@ public class TextConstants {
      * 运费-寄付现结
      */
     public static final String FREIGHT_CONSIGER_CLEAR="寄付现结";
+
+    /**
+     * B网运费 - 到付
+     */
+    public static final String FREIGHT_PAY = "到付";
+
+    /**
+     * B网运费-寄付
+     */
+    public static final String FREIGHT_SEND = "寄付";
+
+    /**
+     * B网运费-月结
+     */
+    public static final String FREIGHT_MONTH = "月结";
+
     /**
      * 货款-货到付款
      */
@@ -25,6 +41,11 @@ public class TextConstants {
      * 货款-在线支付
      */
     public static final String GOODS_PAYMENT_ONLINE = "在线支付";
+
+    /**
+     * 货款-代收货款
+     */
+    public static final String GOODS_PAYMENT_NEED_PAY = "代收货款";
     
     /**
      * 备注-【合并送】

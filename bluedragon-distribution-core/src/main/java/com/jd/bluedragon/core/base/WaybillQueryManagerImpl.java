@@ -266,6 +266,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         wChoice.setQueryWaybillM(Boolean.TRUE);
         wChoice.setQueryPackList(Boolean.TRUE);
         wChoice.setQueryWaybillExtend(Boolean.TRUE);
+        wChoice.setQueryWaybillP(Boolean.TRUE);
         return this.getDataByChoice(waybillCode, wChoice);
     }
 
