@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.2.18</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2-test-SNAPSHOT</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -148,6 +148,18 @@
 			<groupId>com.jd.etms.waybill</groupId>
 			<artifactId>etms-waybill-agent</artifactId>
 			<version>${etms.waybill.agent.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ham</groupId>
+			<artifactId>ham-cb-api</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd.ham</groupId>
+					<artifactId>ham_common</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		
 		<dependency>
@@ -845,6 +857,13 @@
 			<version>0.0.1-SNAPSHOT</version>
             <classifier>jdk16</classifier>
         </dependency>
+
+		<dependency>
+			<groupId>com.jd.tms.boss</groupId>
+			<artifactId>tms-boss-client</artifactId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
 
 	</dependencies>
 

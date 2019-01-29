@@ -3,9 +3,8 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.*;
-import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -19,9 +18,6 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.PackageState;
-import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -446,6 +442,35 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             if (baseEntity.getResultCode() != 1) {
                 logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
                         ".返回值code:" + baseEntity.getResultCode() + ",message" + baseEntity.getMessage());
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            Profiler.functionError(callerInfo);
+            logger.error("根据运单号调用运单接口获取订单号异常.",e);
+            return null;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+
+    /**
+     * 根据运单号和属性获取运单扩展属性
+     * @param waybillCodes
+     * @param properties
+     * @return
+     */
+    public List<WaybillExtPro>  getWaybillExtByProperties(List<String> waybillCodes, List<String> properties){
+        CallerInfo callerInfo = null;
+        try {
+            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getWaybillExtByProperties",Constants.UMP_APP_NAME_DMSWEB);
+            BaseEntity<List<WaybillExtPro>> baseEntity = waybillQueryApi.getWaybillExtByProperties(waybillCodes, properties);
+            if (baseEntity.getResultCode() != 1) {
+                logger.error("根据运单号调用运单接口运单扩展信息失败.waybillCodes:" +
+                        JsonHelper.toJson(waybillCodes) +
+                        ",properties:" + JsonHelper.toJson(properties) +
+                        ".返回值code:" + baseEntity.getResultCode() +
+                        ",message" + baseEntity.getMessage());
                 return null;
             }
             return baseEntity.getData();

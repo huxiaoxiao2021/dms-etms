@@ -132,6 +132,12 @@
                   alias="${dms.jsf.alias}" timeout="5000" retries="${jsf.retries}"
     >
     </jsf:consumer>
+
+    <!-- 循环箱 -->
+    <jsf:consumer id="cycleBoxExternalService" interface="com.jd.ham.cb.service.CycleBoxExternalService"
+                  protocol="jsf" alias="${jsf.waybill.ham.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
     <!-- 运单系统接口 结束 -->
     <!-- 基础资料系统接口 开始 -->
     <!--获取站点，员工，机构等数据-->
@@ -375,4 +381,11 @@
     <jsf:consumer id="dmsToVendorDispatchService" interface="com.jd.ql.dispatch.api.DmsToVendorDispatchService"
                   protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- Boss系统-青流箱 -->
+    <jsf:consumer id="bossQueryWS" interface="com.jd.tms.boss.ws.BossQueryWS"
+                  protocol="jsf" alias="${jsf.tms.boss.alias}"  timeout="5000" retries="${jsf.retries}">
+
+    </jsf:consumer>
+
 </beans>

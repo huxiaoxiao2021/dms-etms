@@ -183,4 +183,14 @@
         <property name="type" value="1321"/>
         <property name="desc" value="组板取消发货"/>
     </bean>
+
+    <bean id="cycleBoxStatusTask" class="com.jd.bluedragon.distribution.worker.cyclebox.CycleBoxStatusTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="CycleBoxStatusTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1330"/>
+        <property name="desc" value="同步青流箱状态"/>
+    </bean>
 </beans>
