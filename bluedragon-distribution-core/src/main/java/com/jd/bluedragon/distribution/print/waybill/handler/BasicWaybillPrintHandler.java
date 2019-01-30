@@ -70,9 +70,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private AirTransportService airTransportService;
-
-    @Autowired
     private BasicSafInterfaceManager basicSafInterfaceManager;
 
     @Autowired
