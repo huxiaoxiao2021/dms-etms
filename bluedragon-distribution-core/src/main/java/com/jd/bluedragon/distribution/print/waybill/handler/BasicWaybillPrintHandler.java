@@ -64,9 +64,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private BaseMinorManager baseMinorManager;
 
     @Autowired
-    private AirTransportService airTransportService;
-
-    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -624,10 +621,15 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     }
 
     /**
-     * 根据始发和目的获取路由信息
+     * B网根据始发和目的获取路由信息
      * @param printWaybill
      */
     private void loadWaybillRouter(WaybillPrintResponse printWaybill){
+        //非B网的不用查路由
+        if(!BusinessUtil.isB2b(printWaybill.getWaybillSign())){
+            return;
+        }
+
         Integer originalDmsCode = printWaybill.getOriginalDmsCode();
         Integer destinationDmsCode = printWaybill.getPurposefulDmsCode();
 
@@ -643,7 +645,22 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
         //调路由的接口获取路由节点
         Date predictSendTime = new Date();
-        RouteProductEnum routeProduct = RouteProductEnum.T1;
+        RouteProductEnum routeProduct = null;
+
+        /**
+         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+         * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+         * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+         */
+        String waybillSign = printWaybill.getWaybillSign();
+        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
+            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+                routeProduct = RouteProductEnum.TB1;
+            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+                routeProduct = RouteProductEnum.TB2;
+            }
+        }
+
         String router=vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
 
         if (StringUtils.isEmpty(router)){
@@ -652,11 +669,23 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //拼接路由站点的名称
         String[] siteArr=router.split("\\|");
         //有路由节点的话，加上发出和接收节点，数量一定会>2个
-        if (siteArr.length<2){
+        if (siteArr.length < 2){
             return ;
         }
 
-        for (int i =0;i<siteArr.length;i++){
+        Integer startNodeIndex = 0;
+        Integer endNodeIndex = 0;
+        //定位始发网点和目的网点在整条路由中的定位
+        for (int i = 0 ; i< siteArr.length; i++){
+            if(siteArr.equals(originalDms.getDmsSiteCode())){
+                startNodeIndex = i;
+            }
+            if(siteArr.equals(destinationDms.getDmsSiteCode())){
+                endNodeIndex = i;
+            }
+        }
+
+        for (int i = startNodeIndex ;i <= endNodeIndex; i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
             if (baseStaffSiteOrgDto!=null){
@@ -667,7 +696,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     cityName = baseStaffSiteOrgDto.getProvinceName();
                 }
                 try {
-                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i+1), String.class);
+                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i - startNodeIndex + 1), String.class);
                     setRouterNode.invoke(printWaybill, cityName);
                 }catch (Exception e){
                     logger.error("获取路由信息,设置路由节点失败.",e);
