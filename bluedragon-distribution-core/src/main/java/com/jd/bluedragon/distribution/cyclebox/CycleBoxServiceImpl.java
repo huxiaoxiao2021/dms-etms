@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-@Service("clearBoxService")
+@Service("cycleBoxService")
 public class CycleBoxServiceImpl implements CycleBoxService {
     private final Logger logger = Logger.getLogger(CycleBoxServiceImpl.class);
     @Autowired
