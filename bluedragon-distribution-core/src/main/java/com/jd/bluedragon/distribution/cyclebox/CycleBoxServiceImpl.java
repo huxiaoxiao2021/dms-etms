@@ -70,7 +70,10 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
             if (waybillExtProList != null) {
                 for (WaybillExtPro extPro : waybillExtProList) {
-                    clearBoxNum += (Integer) extPro.getProMap().get(FIELD_NAME_CLEAR_BOX_NUM);
+                    Integer boxNum = (Integer) extPro.getProMap().get(FIELD_NAME_CLEAR_BOX_NUM);
+                    if(boxNum != null){
+                        clearBoxNum += boxNum;
+                    }
                 }
             }
         }
