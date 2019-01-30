@@ -319,13 +319,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>ql-dms-print-engine</artifactId>
-			<version>1.3.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.codehaus.jackson</groupId>
-					<artifactId>jackson-mapper-asl</artifactId>
-				</exclusion>
-			</exclusions>
+			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
 		<!-- 打印引擎    start-->
 
