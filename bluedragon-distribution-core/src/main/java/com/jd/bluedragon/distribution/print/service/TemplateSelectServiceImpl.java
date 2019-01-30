@@ -49,8 +49,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         String templateName = context.getRequest().getTemplateName();
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
-        boolean noPaperFlag = context.getRequest().getNopaperFlg();
-        if(noPaperFlag){
+        Boolean noPaperFlag = context.getRequest().getNopaperFlg();
+        //不传标识，默认走无纸化
+        if(!Boolean.FALSE.equals(noPaperFlag)){
             if (StringUtils.isBlank(templateName)) {
                 if (BusinessUtil.isSignInChars(waybillSign, 40, '1', '2', '3')) {
                     //B网模板

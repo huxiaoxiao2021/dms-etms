@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.saf;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.codec.Base64;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -11,12 +13,17 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
+import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
+import com.jd.ql.dms.print.engine.toolkit.PrintPdfResponse;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -34,6 +41,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
     @Autowired
     private TemplateFactory templateFactory;
+
+    @Autowired
+    @Qualifier("printPdfHelper")
+    private IPrintPdfHelper printPdfHelper;
 
     private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
 
@@ -60,6 +71,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     public JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest) {
         logger.info("获取图片列表参数：" + JsonHelper.toJson(printRequest));
         JdResult<List<PrintPackageImage>> result = new JdResult<List<PrintPackageImage>>();
+        result.toSuccess();
         JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
         logger.info("获取图片列表之打印信息查询结果：" + JsonHelper.toJson(data));
         if(data == null || !data.isSucceed()){
@@ -72,15 +84,21 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             result.toError("查不到包裹信息!");
             return result;
         }
+
         JPGBase64Encoder encoder = new JPGBase64Encoder();
         List<Map<String, String>> printData = convertPrintMap(data.getData());
+        String templateName = printData.get(0).get("templateName");
+        Integer templateVersion = 0;
+        String version = printData.get(0).get("templateVersion");
+        if(StringUtils.isNotEmpty(version)){
+            templateVersion = Integer.valueOf(version);
+        }
         result.setData(new ArrayList<PrintPackageImage>(printData.size()));
         for(Map<String, String> map : printData){
             TemplateEngine engine = null;
-            String packageTagStr = null;
             PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
             try{
-                engine = templateFactory.buildEngine(request.getTemplateName(), request.getTemplateVersion());
+                engine = templateFactory.buildEngine(templateName, templateVersion);
                 engine.SetParameters(map);
                 long startTime = System.currentTimeMillis();
                 BufferedImage image = engine.GenerateImage(false, request.getDpiX(), request.getDpiY());
@@ -100,7 +118,53 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
     @Override
     public JdResult<String> generatePdf(JdCommand<String> printRequest) {
-        return null;
+        logger.info("获取PDF列表参数：" + JsonHelper.toJson(printRequest));
+        JdResult<String> result = new JdResult<String>();
+        JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
+        logger.info("获取PDF列表之打印信息查询结果：" + JsonHelper.toJson(data));
+        if(data == null || !data.isSucceed()){
+            result.setCode(data.getCode());
+            result.setMessage(data.getMessage());
+            result.setMessageCode(data.getMessageCode());
+            return result;
+        }
+        if(data.getData() == null || data.getData().isEmpty()){
+            result.toError("查不到包裹信息!");
+            return result;
+        }
+
+        List<Map<String, String>> printData = convertPrintMap(data.getData());
+        String templateName = printData.get(0).get("templateName");
+        Integer templateVersion = 0;
+        String version = printData.get(0).get("templateVersion");
+        if(StringUtils.isNotEmpty(version)){
+            templateVersion = Integer.valueOf(version);
+        }
+        PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
+        try{
+            PrintPdfResponse<Document> pdfResponse = printPdfHelper.encodePdf(templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
+            if(PrintPdfResponse.CODE_OK.equals(pdfResponse.getCode())){
+                if(pdfResponse.getReturnValue() != null){
+                    Document document = pdfResponse.getReturnValue();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(baos);//将数组流传入对象流
+                    oos.writeObject(document);//用对象流读取对象。
+                    byte[] bytes = baos.toByteArray();//用数组流将传入的对象转化为byte数组
+                    result.setData(Base64.encodeBytes(bytes));
+                    result.toSuccess();
+                }else{
+                    result.toFail("生成PDF文档为空！");
+                }
+            }else{
+                result.setCode(pdfResponse.getCode());
+                result.setMessage(pdfResponse.getMessage());
+            }
+        }catch (Throwable e){
+            logger.error("打印PDF服务异常，参数：" + JsonHelper.toJson(printRequest), e);
+            result.toError("打印PDF服务异常:" + e.getMessage());
+        }
+
+        return result;
     }
 
     /**

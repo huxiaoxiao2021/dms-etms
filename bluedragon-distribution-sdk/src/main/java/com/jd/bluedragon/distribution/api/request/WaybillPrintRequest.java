@@ -73,28 +73,6 @@ public class WaybillPrintRequest extends JdRequest{
 	/** 包裹标签模板版本 **/
 	private Integer templateVersion;
 
-	/**
-	 * 操作人编码
-	 */
-	private Integer userCode;
-
-	/**
-	 * 操作人姓名
-	 */
-	private String userName;
-
-	/**
-	 * 操作人所属站点编号
-	 */
-	private Integer siteCode;
-
-	/**
-	 * 操作人所属站点名称
-	 */
-	private String siteName;
-
-
-
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -245,43 +223,4 @@ public class WaybillPrintRequest extends JdRequest{
 		this.templateVersion = templateVersion;
 	}
 
-	@Override
-	public Integer getUserCode() {
-		return userCode;
-	}
-
-	@Override
-	public void setUserCode(Integer userCode) {
-		this.userCode = userCode;
-	}
-
-	@Override
-	public String getUserName() {
-		return userName;
-	}
-
-	@Override
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
-
-	@Override
-	public Integer getSiteCode() {
-		return siteCode;
-	}
-
-	@Override
-	public void setSiteCode(Integer siteCode) {
-		this.siteCode = siteCode;
-	}
-
-	@Override
-	public String getSiteName() {
-		return siteName;
-	}
-
-	@Override
-	public void setSiteName(String siteName) {
-		this.siteName = siteName;
-	}
 }

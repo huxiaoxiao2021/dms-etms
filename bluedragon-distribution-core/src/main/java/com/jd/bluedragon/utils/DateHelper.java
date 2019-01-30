@@ -50,6 +50,8 @@ public class DateHelper {
 
     public static final String DATE_FORMAT_YYYYMMDDHHmmss = "yyyyMMddHHmmss";
 
+    public static final String DATE_FORMAT_YYYYMMDDHHmmss2 = "yyyy-MM-dd HH:mm:ss";
+
     public static final String DATE_FORMAT_YYYYMMDD = "yyyy-MM-dd";
 
     public static final String DATE_FORMAT_HHmmss = "HH:mm:ss";
