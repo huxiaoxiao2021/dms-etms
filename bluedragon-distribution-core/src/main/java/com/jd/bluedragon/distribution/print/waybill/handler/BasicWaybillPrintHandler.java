@@ -588,7 +588,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
 
             //判断有没有揽收站点
-            if (dmsCode == null && dmsCode > 0 && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
+            if (dmsCode == null && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
                 if (dto != null) {
                     dmsCode = dto.getDmsId();
