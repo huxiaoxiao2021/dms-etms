@@ -55,6 +55,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private WaybillCommonService waybillCommonService;
 
     @Autowired
+    private AirTransportService airTransportService;
+    
+    @Autowired
     private PreSortingSecondService preSortingSecondService;
 
     @Autowired
