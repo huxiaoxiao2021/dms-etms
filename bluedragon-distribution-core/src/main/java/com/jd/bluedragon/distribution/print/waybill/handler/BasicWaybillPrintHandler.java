@@ -362,7 +362,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     //设置包裹序号和包裹号后缀
                     pack.setPackageIndex(getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(getPackageSuffix(item.getPackageBarcode()));
-                    pack.setPackageWeight(item + UNIT_WEIGHT_KG);
+                    pack.setPackageWeight(item.getGoodWeight() + UNIT_WEIGHT_KG);
                     packageList.add(pack);
                 }
             }
