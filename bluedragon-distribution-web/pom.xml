@@ -320,12 +320,6 @@
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>ql-dms-print-engine</artifactId>
 			<version>1.4.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.codehaus.jackson</groupId>
-					<artifactId>jackson-mapper-asl</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<!-- 打印引擎    start-->
 

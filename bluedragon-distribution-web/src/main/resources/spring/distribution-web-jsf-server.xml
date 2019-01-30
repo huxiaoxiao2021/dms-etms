@@ -61,7 +61,9 @@
     <bean id="packagePrintService" class="com.jd.bluedragon.distribution.saf.PackagePrintServiceImpl" />
     <jsf:provider id="jsfPackagePrintService" server="dmsjsf" ref="packagePrintService"
                   interface="com.jd.bluedragon.distribution.print.service.PackagePrintService"
-                  alias="${dms.jsf.print.alias}"/>
+                  alias="${dms.jsf.print.alias}">
+                  <jsf:parameter key="token" value="${dms.jsf.print.token}"/>
+    </jsf:provider>
 
     <!-- 阿尔法打印插件自动升级JSF接口 -->
     <!-- 实现类 -->
