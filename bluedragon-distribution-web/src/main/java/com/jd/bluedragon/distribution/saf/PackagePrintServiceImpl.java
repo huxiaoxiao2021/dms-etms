@@ -71,6 +71,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     public JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest) {
         logger.info("获取图片列表参数：" + JsonHelper.toJson(printRequest));
         JdResult<List<PrintPackageImage>> result = new JdResult<List<PrintPackageImage>>();
+        result.toSuccess();
         JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
         logger.info("获取图片列表之打印信息查询结果：" + JsonHelper.toJson(data));
         if(data == null || !data.isSucceed()){
