@@ -210,4 +210,17 @@ public class WaybillServiceImpl implements WaybillService {
 
         return true;
     }
+
+    @Override
+    public BigWaybillDto getWaybillProductAndState(String waybillCode) {
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
+
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryGoodList(true);
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillM(true);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode, wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
 }
