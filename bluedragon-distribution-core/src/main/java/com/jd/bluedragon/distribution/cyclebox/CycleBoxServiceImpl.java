@@ -52,7 +52,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
-    private static final Integer CYCLE_BOX_STATUS_SEND_OUT = 51;
+    private static final Integer CYCLE_BOX_STATUS_SEND_OUT = 22;
 
     @Override
     public CycleBox getCycleBoxNum(List<DeliveryRequest> request) {
