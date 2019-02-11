@@ -156,6 +156,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             if (StringUtils.isNotBlank(waybillCode)) {
                 //根据运单号获取青流箱箱号列表
                 List<String> cycleBoxList = cycleBoxExternalManager.getCbUniqueNoByWaybillCode(waybillCode);
+                logger.info("同步青流箱状态，根据运单号" + waybillCode + "获取到的青流箱号列表为:" + JsonHelper.toJson(cycleBoxList));
                 //清流箱号不为空，发送MQ
                 if (cycleBoxList != null && cycleBoxList.size() > 0) {
                     request.setUniqueCode(cycleBoxList); //设置青流箱号列表
