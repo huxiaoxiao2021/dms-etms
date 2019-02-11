@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -26,7 +27,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -155,14 +155,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             templateVersion = Integer.valueOf(version);
         }
         PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
+        ByteArrayOutputStream baos = null;
         try{
             PrintPdfResponse<Document> pdfResponse = printPdfHelper.encodePdf(templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
             if(PrintPdfResponse.CODE_OK.equals(pdfResponse.getCode())){
                 if(pdfResponse.getReturnValue() != null){
                     Document document = pdfResponse.getReturnValue();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(baos);//将数组流传入对象流
-                    oos.writeObject(document);//用对象流读取对象。
+                    baos = new ByteArrayOutputStream();
+                    PdfWriter.getInstance(document, baos);
                     byte[] bytes = baos.toByteArray();//用数组流将传入的对象转化为byte数组
                     result.setData(Base64.encodeBytes(bytes));
                     result.toSuccess();
@@ -176,6 +176,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         }catch (Throwable e){
             logger.error("打印PDF服务异常，参数：" + JsonHelper.toJson(printRequest), e);
             result.toError("打印PDF服务异常:" + e.getMessage());
+        }finally {
+            if(baos != null){
+                try{
+                    baos.close();
+                }catch (Exception e){
+
+                }
+            }
         }
 
         return result;
