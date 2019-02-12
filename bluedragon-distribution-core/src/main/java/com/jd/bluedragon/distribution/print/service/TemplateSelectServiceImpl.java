@@ -50,8 +50,10 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
         Boolean noPaperFlag = context.getRequest().getNopaperFlg();
-        //不传标识，默认走无纸化
-        if(!Boolean.FALSE.equals(noPaperFlag)){
+        //只有无纸化标识为false，才返回小标签
+        if(Boolean.FALSE.equals(noPaperFlag)){
+            templateName = TEMPLATE_NAME_10_5;
+        }else{
             if (StringUtils.isBlank(templateName)) {
                 if (BusinessUtil.isSignInChars(waybillSign, 40, '1', '2', '3')) {
                     //B网模板
@@ -82,14 +84,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                     }
-
                 }
             }
-        }else {
-            //小标签
-            templateName = TEMPLATE_NAME_10_5;
         }
-
 
         //得到业务模板
         //根据key查config
