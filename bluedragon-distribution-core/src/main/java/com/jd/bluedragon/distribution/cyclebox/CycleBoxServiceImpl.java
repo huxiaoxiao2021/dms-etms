@@ -132,6 +132,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
         if (cycleBoxCodeList != null) {
             cycleBox.setCycleBoxCodeList(cycleBoxCodeList);
+            cycleBox.setCycleBoxNum(cycleBoxCodeList.size());
         }
         return cycleBox;
     }
