@@ -238,7 +238,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             if(packageCode.equals(printPackage.getPackageCode())){
                 List<PrintPackage> temp = new ArrayList<PrintPackage>();
                 temp.add(printPackage);
-                data.put("packList", JsonHelper.toJson(temp));
+                data.put("packList", temp);
                 break;
             }
         }
