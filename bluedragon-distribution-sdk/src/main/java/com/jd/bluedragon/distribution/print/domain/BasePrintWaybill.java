@@ -280,7 +280,10 @@ public class BasePrintWaybill implements Serializable {
 	/** 目的笼车号 **/
 	private String originalTabletrolleyCode;
 
-
+	/**
+	 * 包裹特殊标识同specialMark
+	 */
+	private String waybillSignText ;
 
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
@@ -522,17 +525,18 @@ public class BasePrintWaybill implements Serializable {
 		specialMarkBuilder = new StringBuilder(specialMark);
 	}
     /**
-     * 特殊标记字段追加标记，不包含时加入标记
-     * @param markText
-     */
-    public void appendSpecialMark(String markText){
-    	//标识不为空，并且不包含此标记时加入标记
-    	if(markText!=null && markText.length()>0
-    			&& specialMarkBuilder.indexOf(markText) < 0){
-    		specialMarkBuilder.append(markText);
-    		this.specialMark = specialMarkBuilder.toString();
-    	}
-    }
+	 * 特殊标记字段追加标记，不包含时加入标记
+	 * @param markText
+	 */
+	public void appendSpecialMark(String markText){
+		//标识不为空，并且不包含此标记时加入标记
+		if(markText!=null && markText.length()>0
+				&& specialMarkBuilder.indexOf(markText) < 0){
+			specialMarkBuilder.append(markText);
+			this.specialMark = specialMarkBuilder.toString();
+			this.waybillSignText = specialMarkBuilder.toString();
+		}
+	}
     /**
      * 处理有冲突的标记，只保留第一个标记
      * @param markText
@@ -546,6 +550,7 @@ public class BasePrintWaybill implements Serializable {
     			&& specialMarkBuilder.indexOf(markText1) >= 0){
     		specialMarkBuilder.deleteCharAt(specialMarkBuilder.indexOf(markText1));
     		this.specialMark = specialMarkBuilder.toString();
+			this.waybillSignText = specialMarkBuilder.toString();
     	}
     }
 
@@ -1049,5 +1054,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setOriginalTabletrolleyCode(String originalTabletrolleyCode) {
 		this.originalTabletrolleyCode = originalTabletrolleyCode;
+	}
+
+	public String getWaybillSignText() {
+		return waybillSignText;
+	}
+
+	public void setWaybillSignText(String waybillSignText) {
+		this.waybillSignText = waybillSignText;
 	}
 }
