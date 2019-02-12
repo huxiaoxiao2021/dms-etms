@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.saf;
 
 import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.codec.Base64;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdCommandService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -23,7 +27,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -46,6 +49,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     @Qualifier("printPdfHelper")
     private IPrintPdfHelper printPdfHelper;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
+    /**
+     * 打印JSF接口token校验开关
+     */
+    private static final String PRINT_SWITCH = "print.switch";
+
     private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
 
     @Override
@@ -53,7 +64,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         logger.info("查询包裹信息参数：" + JsonHelper.toJson(printRequest));
         JdResult<Map<String, Object>> result = new JdResult<Map<String, Object>>();
         result.toSuccess();
-        //TODO 校验systemCode和secretKey是否匹配
+        if(!checkToken(printRequest.getSystemCode(), printRequest.getSecretKey())){
+            result.toFail("系统访问密钥校验失败，请维护并使用正确的秘钥！");
+            return result;
+        }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
         logger.info("查询包裹信息结果：" + commandResult);
         JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
@@ -141,14 +155,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             templateVersion = Integer.valueOf(version);
         }
         PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
+        ByteArrayOutputStream baos = null;
         try{
             PrintPdfResponse<Document> pdfResponse = printPdfHelper.encodePdf(templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
             if(PrintPdfResponse.CODE_OK.equals(pdfResponse.getCode())){
                 if(pdfResponse.getReturnValue() != null){
                     Document document = pdfResponse.getReturnValue();
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    ObjectOutputStream oos = new ObjectOutputStream(baos);//将数组流传入对象流
-                    oos.writeObject(document);//用对象流读取对象。
+                    baos = new ByteArrayOutputStream();
+                    PdfWriter.getInstance(document, baos);
                     byte[] bytes = baos.toByteArray();//用数组流将传入的对象转化为byte数组
                     result.setData(Base64.encodeBytes(bytes));
                     result.toSuccess();
@@ -162,6 +176,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         }catch (Throwable e){
             logger.error("打印PDF服务异常，参数：" + JsonHelper.toJson(printRequest), e);
             result.toError("打印PDF服务异常:" + e.getMessage());
+        }finally {
+            if(baos != null){
+                try{
+                    baos.close();
+                }catch (Exception e){
+
+                }
+            }
         }
 
         return result;
@@ -197,4 +219,27 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         }
         return printData;
     }
+
+    /**
+     * 校验秘钥
+     * @param source
+     * @param secretKey
+     * @return
+     */
+    private boolean checkToken(String source, String secretKey){
+
+        SysConfig printSwitch = sysConfigService.findConfigContentByConfigName(PRINT_SWITCH);
+        //未开启时不校验
+        if(printSwitch == null || !Constants.STRING_FLG_TRUE.equals(printSwitch.getConfigContent())){
+            return true;
+        }
+        //校验source和secretKey是否一致
+        SysConfig content = sysConfigService.findConfigContentByConfigName(source);
+        if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
