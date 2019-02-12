@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.print.engine.TemplateEngine;
@@ -77,6 +78,11 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         result.setCode(jdResult.getCode());
         result.setMessage(jdResult.getMessage());
         result.setMessageCode(jdResult.getMessageCode());
+
+        PackagePrintRequest packagePrintRequest = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
+        if(WaybillUtil.isPackageCode(packagePrintRequest.getBarCode())){
+            filterData(map, packagePrintRequest.getBarCode());
+        }
         result.setData(map);
         return result;
     }
@@ -218,6 +224,24 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
         }
         return printData;
+    }
+    /**
+     * 仅保留需要的包裹号信息
+     * @param data
+     * @return
+     */
+    private void filterData(Map<String, Object> data, String packageCode){
+
+        List<PrintPackage> printPackages = Arrays.asList(JsonHelper.jsonToArray(JsonHelper.toJson(data.get("packList")), PrintPackage[].class));
+
+        for(PrintPackage printPackage: printPackages){
+            if(packageCode.equals(printPackage.getPackageCode())){
+                List<PrintPackage> temp = new ArrayList<PrintPackage>();
+                temp.add(printPackage);
+                data.put("packList", JsonHelper.toJson(temp));
+                break;
+            }
+        }
     }
 
     /**
