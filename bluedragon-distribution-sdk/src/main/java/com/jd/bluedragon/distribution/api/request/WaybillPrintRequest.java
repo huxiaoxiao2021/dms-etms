@@ -43,7 +43,7 @@ public class WaybillPrintRequest extends JdRequest{
 	/**
 	 * 无纸化标识
 	 */
-	private Boolean nopaperFlg = false;
+	private Boolean nopaperFlg;
 	/**
 	 * 信任商家标识
 	 * */
