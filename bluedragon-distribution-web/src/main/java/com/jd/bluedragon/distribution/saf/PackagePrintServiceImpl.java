@@ -161,24 +161,11 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             templateVersion = Integer.valueOf(version);
         }
         PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
-        ByteArrayOutputStream baos = null;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try{
-            PrintPdfResponse<Document> pdfResponse = printPdfHelper.encodePdf(templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
-            if(PrintPdfResponse.CODE_OK.equals(pdfResponse.getCode())){
-                if(pdfResponse.getReturnValue() != null){
-                    Document document = pdfResponse.getReturnValue();
-                    baos = new ByteArrayOutputStream();
-                    PdfWriter.getInstance(document, baos);
-                    byte[] bytes = baos.toByteArray();//用数组流将传入的对象转化为byte数组
-                    result.setData(Base64.encodeBytes(bytes));
-                    result.toSuccess();
-                }else{
-                    result.toFail("生成PDF文档为空！");
-                }
-            }else{
-                result.setCode(pdfResponse.getCode());
-                result.setMessage(pdfResponse.getMessage());
-            }
+            printPdfHelper.generatePdf(baos, templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
+            result.setData(Base64.encodeBytes(baos.toByteArray()));
+            result.toSuccess();
         }catch (Throwable e){
             logger.error("打印PDF服务异常，参数：" + JsonHelper.toJson(printRequest), e);
             result.toError("打印PDF服务异常:" + e.getMessage());
@@ -187,7 +174,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
                 try{
                     baos.close();
                 }catch (Exception e){
-
+                    logger.error("pdfOutputStream close fail!", e);
                 }
             }
         }
