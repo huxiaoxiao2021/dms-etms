@@ -17,6 +17,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -70,10 +71,13 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
             if (waybillExtProList != null) {
                 for (WaybillExtPro extPro : waybillExtProList) {
-                    Integer boxNum = (Integer) extPro.getProMap().get(FIELD_NAME_CLEAR_BOX_NUM);
-                    if(boxNum != null){
-                        clearBoxNum += boxNum;
+                    String boxNumStr = (String)(extPro.getProMap().get(FIELD_NAME_CLEAR_BOX_NUM));
+                    Integer boxNum = 0;
+                    if(NumberHelper.isNumber(boxNumStr)){
+                        boxNum = Integer.parseInt(boxNumStr);
                     }
+                    logger.info("根据运单号:" + extPro.getWaybillCode() + "获取到的青流箱数量为:"+boxNumStr);
+                    clearBoxNum += boxNum;
                 }
             }
         }
