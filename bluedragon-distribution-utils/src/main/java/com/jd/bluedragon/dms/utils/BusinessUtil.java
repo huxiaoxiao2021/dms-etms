@@ -574,4 +574,17 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 纯配外单判断 【waybillSign 40在2-5】
+     * */
+    public static Boolean isPurematch(String waybillSign){
+        if(waybillSign == null){
+            return Boolean.FALSE;
+        }
+        if(isSignInChars(waybillSign,'2','5')){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
 }
