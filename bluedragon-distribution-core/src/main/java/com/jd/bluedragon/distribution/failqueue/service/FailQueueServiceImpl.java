@@ -94,6 +94,7 @@ public class FailQueueServiceImpl implements IFailQueueService {
 
     }
 
+    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void failData(List<TaskFailQueue> list) {
         List<TaskFailQueue> sendDatailAl = new ArrayList<TaskFailQueue>();
         List<TaskFailQueue> sendDatailAl_batch = new ArrayList<TaskFailQueue>();
@@ -175,7 +176,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
         logger.info("处理完毕");
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     private void departureFailData(List<TaskFailQueue> list) {
         if (list.size() == 0) {
             /** 数据为空不处理 */
@@ -225,7 +225,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
         logger.info("处理完毕");
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     private void sendDatailFailData(List<TaskFailQueue> list) {
         if (list.size() == 0) {
             /** 数据为空不处理 */

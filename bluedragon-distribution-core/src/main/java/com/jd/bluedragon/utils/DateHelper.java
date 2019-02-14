@@ -252,16 +252,18 @@ public class DateHelper {
         try {
             pdaTime = DateHelper.parseAllFormatDateTime(sPdaTime);
         } catch (IllegalArgumentException e) {
-            LOGGER.error(e.getMessage(), e);
+            LOGGER.error("解析PDA时间失败：" + e.getMessage(), e);
         } finally {
             if (pdaTime != null) {
                 Long interval = pdaTime.getTime() - serverTime.getTime();
                 if (pdaTime.after(serverTime) && DateHelper.TEN_MINUTES < interval) {
-                    return serverTime;
+                    pdaTime = serverTime;
                 }
+            }else{
+                pdaTime = serverTime;
             }
-            return pdaTime;
         }
+        return pdaTime;
     }
 
     /**

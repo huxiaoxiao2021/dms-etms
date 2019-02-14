@@ -1063,7 +1063,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void saveOrUpdateBatch(List<SendDetail> sdList) {
         List<SendDetail>[] sendArray = splitList(sdList);
-        List<SendDetail> result = new ArrayList<SendDetail>();
+        List<String> result = new ArrayList<String>();
 
         List<SendDetail> updateList = new ArrayList<SendDetail>();
         //批量查询是否存在send_d
@@ -3863,6 +3863,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
         // 判断sendD数据是否存在，若不存在则视为站点发货至分拣，调用TMS获取箱子对应的装箱明细信息
         if (sendDatailist == null || sendDatailist.isEmpty()) {
+            if(sendDatailist == null){
+                sendDatailist = new ArrayList<SendDetail>();
+            }
             SendInfoDto sendInfoDto = new SendInfoDto();
             sendInfoDto.setBoxCode(boxCode);
             com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);

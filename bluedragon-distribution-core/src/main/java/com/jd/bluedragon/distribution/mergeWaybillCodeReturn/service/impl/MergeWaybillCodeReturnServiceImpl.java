@@ -110,6 +110,7 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     @Override
     @JProfiler(jKey = "DMS.MERGEWAYBILLCODERETURN.MergeWaybillCodeReturnServiceImpl.mergeWaybillCode",
             mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JdResponse mergeWaybillCode(WaybillReturnSignatureDTO dto,MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest) {
         JdResponse result = new JdResponse();
         String newWaybillCode = null;
@@ -151,7 +152,6 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
      * @param mergeWaybillCodeReturnRequest
      * @param newWaybillCode
      */
-    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     private void insert(MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest, String newWaybillCode) {
         SignReturnPrintM signReturnPrintM = new SignReturnPrintM();
         List<MergedWaybill> mergedWaybillList = new ArrayList<MergedWaybill>();
@@ -228,8 +228,13 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                 result.setCode(InvokeResult.RESULT_MULTI_ERROR);
             }
         }else{
-            result.setCode(secondResponseDto.getStatusCode());
-            result.setMessage(secondResponseDto.getStatusMessage());
+            if(secondResponseDto != null){
+                result.setCode(secondResponseDto.getStatusCode());
+                result.setMessage(secondResponseDto.getStatusMessage());
+            }else{
+                result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            }
         }
         return result;
     }

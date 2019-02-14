@@ -220,7 +220,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<SendDetail> batchQuerySendDList(SendDetail querySendDatail) {
+    public List<String> batchQuerySendDList(SendDetail querySendDatail) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".batchQuerySendDList", querySendDatail);
     }

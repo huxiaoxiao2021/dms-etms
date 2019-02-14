@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.DictDto;
@@ -53,10 +54,11 @@ public class BusTypeServiceImpl implements BusTypeService {
             CommonDto<List<DictDto>> commonDtoList = vtsQueryWS.getDictList(BUSDICTIONARY_PARENTCODE,
                     BUSDICTIONARY_DICTLEVEL, BUSDICTIONARY_DICTGROUP);
             if(commonDtoList == null || commonDtoList.getCode() != 1){
-                logger.error("调用运输接口获取车型失败");
+                logger.error("调用运输接口获取车型失败:" + JsonHelper.toJson(commonDtoList));
+                return busTypes;
             }
             if(commonDtoList.getData() == null || commonDtoList.getData().size() < 1){
-                logger.error("调用运输接口获取的车型信息为空!");
+                logger.error("调用运输接口获取的车型信息为空：" + JsonHelper.toJson(commonDtoList));
                 return busTypes;
             }
             List<DictDto> dictDtoList =  commonDtoList.getData();
