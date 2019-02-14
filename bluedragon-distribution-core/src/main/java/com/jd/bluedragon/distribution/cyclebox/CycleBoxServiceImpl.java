@@ -55,6 +55,11 @@ public class CycleBoxServiceImpl implements CycleBoxService {
 
     private static final Integer CYCLE_BOX_STATUS_SEND_OUT = 22;
 
+    /**
+     * 根据快运发货的请求获取清流箱总数
+     * @param request
+     * @return
+     */
     @Override
     public CycleBox getCycleBoxNum(List<DeliveryRequest> request) {
         Integer clearBoxNum = 0;

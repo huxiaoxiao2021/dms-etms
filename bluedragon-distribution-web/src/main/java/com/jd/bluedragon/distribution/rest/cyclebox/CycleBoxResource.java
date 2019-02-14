@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
+import com.jd.dms.logger.annotation.BusinessLog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ public class CycleBoxResource {
      */
     @POST
     @Path("/cycleBox/getCycleBoxNum")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101501)
     public InvokeResult<CycleBox> getCycleBoxNum(List<DeliveryRequest> request) {
         this.logger.info("快运发货获取青流箱数量" + JsonHelper.toJson(request));
         InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();
@@ -48,6 +50,7 @@ public class CycleBoxResource {
 
     @POST
     @Path("/cycleBox/pushClearBoxStatus")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101502)
     public InvokeResult pushClearBoxStatus(WaybillCodeListRequest request) {
         InvokeResult result = new InvokeResult();
         try {
@@ -74,6 +77,7 @@ public class CycleBoxResource {
      */
     @GET
     @Path("/cycleBox/getCycleBoxByBatchCode/{batchCode}")
+    @BusinessLog(sourceSys = 1,bizType = 1015,operateType = 101503)
     public InvokeResult<CycleBox> getCycleBoxByBatchCode(@PathParam("batchCode") String batchCode) {
         this.logger.info("通过流水号获取青流箱明细，流水号:" + batchCode);
         InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();

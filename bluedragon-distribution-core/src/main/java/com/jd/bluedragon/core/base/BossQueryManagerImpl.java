@@ -18,7 +18,6 @@ import java.util.List;
 public class BossQueryManagerImpl implements BossQueryManager{
     private final Log logger = LogFactory.getLog(this.getClass());
 
-
     @Autowired
     private BossQueryWS bossQueryWS;
 
