@@ -457,7 +457,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     /**
      * 根据运单号和属性获取运单扩展属性
      * @param waybillCodes
-     * @param properties
+     * @param properties 运单的扩展属性
      * @return
      */
     public List<WaybillExtPro>  getWaybillExtByProperties(List<String> waybillCodes, List<String> properties){
@@ -476,7 +476,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             return baseEntity.getData();
         }catch (Exception e){
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号调用运单接口获取订单号异常.",e);
+            logger.error("根据运单号调用运单接口获取扩展信息异常.",e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);

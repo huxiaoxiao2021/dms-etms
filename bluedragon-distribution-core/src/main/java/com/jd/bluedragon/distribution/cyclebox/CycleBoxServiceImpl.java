@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.cyclebox;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BossQueryManager;
+import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
@@ -46,7 +46,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     private DeliveryService deliveryService;
 
     @Autowired
-    private BossQueryManager bossQueryManager;
+    private TMSBossQueryManager tmsBossQueryManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -127,7 +127,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     }
 
     /**
-     * 根据流水号调BOSS系统获取青流箱箱号列表
+     * 根据流水号调运输系统获取青流箱箱号列表
      *
      * @param batchCode
      * @return
@@ -137,7 +137,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
         cycleBox.setBatchCode(batchCode);
 
         //获取青流箱 箱号列表
-        List<String> cycleBoxCodeList = bossQueryManager.getRecyclingBoxFaceInfoByBatchCode(batchCode);
+        List<String> cycleBoxCodeList = tmsBossQueryManager.getRecyclingBoxFaceInfoByBatchCode(batchCode);
 
         if (cycleBoxCodeList != null) {
             cycleBox.setCycleBoxCodeList(cycleBoxCodeList);

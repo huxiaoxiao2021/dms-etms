@@ -374,7 +374,7 @@
                   protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
     </jsf:consumer>
 
-    <!-- 运输系统系统-根据流水号获取青流箱箱号 haofeihu-->
+    <!-- 运输B网运营支撑系统-根据流水号获取青流箱箱号 haofeihu-->
     <jsf:consumer id="bossQueryWS" interface="com.jd.tms.boss.ws.BossQueryWS"
                   protocol="jsf" alias="${jsf.tms.boss.alias}"  timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
