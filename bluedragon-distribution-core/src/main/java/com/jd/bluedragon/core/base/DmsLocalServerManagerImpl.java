@@ -100,7 +100,7 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             if (response != null && response.getStatusCode() == BaseDmsAutoJsfResponse.SUCCESS_CODE){
                 return response.getData();
             }else {
-                logger.error("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  "+ JsonHelper.toJson(siteCode)+"  "+response.getStatusMessage());
+                logger.error("[JSF接口调用失败]调用自动化JSF接口getVerAppUrlBySiteCode  "+ JsonHelper.toJson(siteCode)+",返回结果：" + JsonHelper.toJson(response));
             }
 
         } catch (Exception e) {

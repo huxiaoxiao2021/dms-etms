@@ -70,7 +70,7 @@ public class ArAirFlightRealTimeConsumer extends MessageBaseConsumer {
         /**
          * 把发给路由MQ标识落到arSendRegister表
          */
-        List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.AIR_TRANSPORT, realTimeStatus.getFlightNumber(), null, realTimeStatus.getFlightDate());
+        List<ArSendRegister> sendRegisterList = arSendRegisterService.getAirListByTransParam(realTimeStatus.getFlightNumber(), realTimeStatus.getFlightDate());
         //只有起飞才落字段
         if (realTimeStatus != null && realTimeStatus.getStatus() == 20) {
             //查出当天该航班号起飞的发货登记记录

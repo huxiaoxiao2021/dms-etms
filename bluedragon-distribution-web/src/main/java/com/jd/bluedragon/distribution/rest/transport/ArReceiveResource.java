@@ -144,7 +144,7 @@ public class ArReceiveResource {
             if (transType.equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode()) && siteOrder == null) {
                 List<ArSendRegister> sendRegisterListToRouter = new ArrayList<ArSendRegister>();
                 //根据入参查询发货登记记录列表
-                List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
+                List<ArSendRegister> sendRegisterList = arSendRegisterService.getAirListByTransParam(transName, sendDate);
                 if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
                     for (ArSendRegister sendRegister : sendRegisterList) {
                         //根据每一个发货登记表查询批次号列表---一对多的关系
@@ -185,18 +185,28 @@ public class ArReceiveResource {
         return response;
     }
 
-    public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String siteOrder, Date sendDate) {
+    public JdResponse<List<ArSendRegister>> getArSendRegisterListByParam(Integer transType, String transName, String creTransbillCode, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
-        if (StringUtils.isEmpty(transName)) {
-            response.toFail("运力名称不能为null或空字符串");
-        }
-
-        if (sendDate == null) {
-            response.toFail("发货日期不能为空");
+        if (transType == null){
+            response.toFail("运输类型不能为空");
         }
 
         try {
-            List<ArSendRegister> sendRegisterList = arSendRegisterService.getListByTransInfo(ArTransportTypeEnum.getEnum(transType), transName, siteOrder, sendDate);
+            List<ArSendRegister> sendRegisterList;
+            if (ArTransportTypeEnum.AIR_TRANSPORT.getCode() == transType) {
+                if (StringUtils.isEmpty(transName)) {
+                    response.toFail("查询航空类型时，运力名称不能为null或空字符串");
+                }
+                if (sendDate == null) {
+                    response.toFail("查询航空类型时，发货日期不能为空");
+                }
+                sendRegisterList = arSendRegisterService.getAirListByTransParam(transName, sendDate);
+            } else {
+                if (StringUtils.isEmpty(creTransbillCode)) {
+                    response.toFail("查询铁路类型时，中铁运单号不能为null或空字符串");
+                }
+               sendRegisterList = arSendRegisterService.getRailwayListByTransParam(creTransbillCode);
+            }
             if (sendRegisterList != null && !sendRegisterList.isEmpty()) {
                 for (ArSendRegister sendRegister : sendRegisterList) {
                     List<ArSendCode> sendCodes = arSendCodeService.getBySendRegisterId(sendRegister.getId());
