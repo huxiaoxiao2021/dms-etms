@@ -136,9 +136,9 @@ public class GantryAutoSendController {
             }
             logger.debug(userName + "试图修改或插入龙门架的状态 --> UpsertGantryDeviceBusinessOrStatus ");
         } catch (Exception e) {
-            this.logger.info("无法从cookie中获取登录人的信息");
+            logger.info("无法从cookie中获取登录人的信息");
         }
-        if (null == request && request.getMachineId() == null) {
+        if (null == request || request.getMachineId() == null) {
             logger.error("没有需要修改的龙门架设备信息");
             return null;
         }
@@ -407,25 +407,24 @@ public class GantryAutoSendController {
     @RequestMapping(value = "/queryExceptionNum", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> queryExceptionNum(SendExceptionRequest request) {
-        this.logger.debug("获取龙门架异常信息 --> queryExceptionNum");
+        logger.debug("获取龙门架异常信息 --> queryExceptionNum");
         InvokeResult<Integer> result = new InvokeResult<Integer>();
-        result.setCode(400);
-        result.setMessage("服务处理异常");
         result.setData(0);
-        if (null == request) {
+        if (null == request || StringUtils.isBlank(request.getMachineId())) {
             logger.error("龙门架参数异常，获取异常数据失败");
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
         }
         try {
-            if (StringUtils.isNotBlank(request.getMachineId())) {
-                Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
-                result.setCode(200);
-                result.setMessage("龙门架异常数据获取成功");
-                result.setData(count);
-            } else {
-                logger.error("龙门架ID参数错误");
-            }
-        } catch (NullPointerException e) {
+            Integer count = gantryExceptionService.getGantryExceptionCount( request.getMachineId(), request.getStartTime(), request.getEndTime());
+            result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+            result.setMessage("龙门架异常数据获取成功");
+            result.setData(count);
+        } catch (Exception e) {
             logger.error("获取龙门架自动发货异常数据失败，龙门架ID为：" + request.getMachineId());
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
 
         return result;

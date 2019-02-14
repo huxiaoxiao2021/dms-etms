@@ -36,7 +36,6 @@ public class SpareServiceImpl implements SpareService {
 	@Autowired
 	private IGenerateObjectId genObjectId;
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private Integer add(Spare spare) {
 		Assert.notNull(spare, "spare must not be null");
 		return this.spareDao.add(SpareDao.namespace, spare);
@@ -52,7 +51,6 @@ public class SpareServiceImpl implements SpareService {
 		return this.batchAdd(spare);
 	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private List<Spare> batchAdd(Spare spare) {
 		List<Spare> spares = new ArrayList<Spare>();
 		String spareCodePrefix = this.generateSpareCodePrefix(spare);

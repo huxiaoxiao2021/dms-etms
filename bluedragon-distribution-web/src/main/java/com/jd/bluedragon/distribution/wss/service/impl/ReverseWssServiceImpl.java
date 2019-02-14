@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.spare.domain.SpareSale;
 import com.jd.bluedragon.distribution.spare.service.SpareSaleService;
 import com.jd.bluedragon.distribution.wss.service.ReverseWssService;
 import com.jd.bluedragon.utils.BeanHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectMapHelper;
@@ -140,11 +139,11 @@ public class ReverseWssServiceImpl implements ReverseWssService {
 			reverseReject.setBusinessType(reverseReceive.getReceiveType());
 			reverseReject.setPackageCode(reverseReceive.getPackageCode());
 			reverseReject.setOrderId(reverseReceive.getPackageCode());
-			if(null!=xrequest.getOrgId()){
+			if(xrequest != null && null!=xrequest.getOrgId()){
 				reverseReject.setOrgId(Integer.parseInt(xrequest.getOrgId()));
 			}
 			
-			if(null!=xrequest.getStoreId()){
+			if(xrequest != null && null!=xrequest.getStoreId()){
 				reverseReject.setStoreId(Integer.parseInt(xrequest.getStoreId()));
 			}else{
 				reverseReject.setStoreId(sd.getReceiveSiteCode());

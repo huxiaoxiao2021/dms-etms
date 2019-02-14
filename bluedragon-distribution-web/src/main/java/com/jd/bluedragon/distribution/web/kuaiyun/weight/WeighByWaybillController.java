@@ -162,7 +162,6 @@ public class WeighByWaybillController {
                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
                 result.setMessage(exceptionType.toString());
                 result.setData(false);
-                throw weighByWaybillExcpetion;
             } else {
                 if (weighByWaybillExcpetion.exceptionType.equals(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -173,10 +172,8 @@ public class WeighByWaybillController {
                     result.setData(false);
                 }
             }
-        } finally {
-            return result;
         }
-
+        return result;
     }
 
     /**
@@ -214,7 +211,6 @@ public class WeighByWaybillController {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
                     logger.error("运单称重：" + exceptionType.exceptionMessage);
-                    throw weighByWaybillExcpetion;
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
@@ -234,10 +230,8 @@ public class WeighByWaybillController {
                 }
 
             }
-        } finally {
-            return result;
         }
-
+        return result;
     }
 
     /**
@@ -262,9 +256,8 @@ public class WeighByWaybillController {
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setMessage("运单号/包裹号错误，不符合运单号/包裹号格式!");
             }
-        } finally {
-            return result;
         }
+        return result;
     }
 
     /**

@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -116,19 +115,7 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Override
     public WaybillPackageDTO getWaybillPackage(String packageCode) {
-        WaybillPackageDTO waybillPackageDTO = null;
-//        try{
-//            waybillPackageDTO = waybillPackageDao.get(packageCode);
-//        }catch(Exception e){
-//            this.logger.warn("获取总部运单包裹缓存表信息出现异常,包裹号：" + packageCode , e);
-//            return getPackageByWaybillInterface(packageCode);
-//        }
-
-        if(waybillPackageDTO == null){
             return getPackageByWaybillInterface(packageCode);
-        }else{
-            return waybillPackageDTO;
-        }
     }
 
     private WaybillPackageDTO getPackageByWaybillInterface(String packageCode){

@@ -81,7 +81,7 @@ public class ArReceiveResource {
         } else if (request.getSiteCode() == null || request.getSiteCode() == 0) {
             result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
             result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR + ":参数-siteCode为0！");
-        } else if (request.getStartCityId() == null || request.getStartCityId() == null) {
+        } else if (request.getStartCityId() == null) {
             result.setCode(com.jd.ql.dms.common.domain.JdResponse.CODE_ERROR);
             result.setMessage(com.jd.ql.dms.common.domain.JdResponse.MESSAGE_ERROR + ":参数-startCityId为0！");
         } else {
@@ -189,6 +189,7 @@ public class ArReceiveResource {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
         if (transType == null){
             response.toFail("运输类型不能为空");
+            return response;
         }
 
         try {
@@ -242,12 +243,13 @@ public class ArReceiveResource {
         try {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(siteCode + "");
             //判断是否是北京(1)、上海(2)、天津(3)、重庆(4)这4个直辖市
-            if (baseStaffSiteOrgDto != null &&
-                    (baseStaffSiteOrgDto.getProvinceId() == 1 || baseStaffSiteOrgDto.getProvinceId() == 2
-                            || baseStaffSiteOrgDto.getProvinceId() == 3 || baseStaffSiteOrgDto.getProvinceId() == 4)) {
-                cityId = baseStaffSiteOrgDto.getProvinceId();
-            } else {
-                cityId = baseStaffSiteOrgDto.getCityId();
+            if (baseStaffSiteOrgDto != null){
+                if (baseStaffSiteOrgDto.getProvinceId() == 1 || baseStaffSiteOrgDto.getProvinceId() == 2
+                                || baseStaffSiteOrgDto.getProvinceId() == 3 || baseStaffSiteOrgDto.getProvinceId() == 4) {
+                    cityId = baseStaffSiteOrgDto.getProvinceId();
+                } else {
+                    cityId = baseStaffSiteOrgDto.getCityId();
+                }
             }
         } catch (Exception e) {
             logger.error("中心服务调用基础资料getDmsBaseSiteByCode出错 siteCode=" + siteCode, e);

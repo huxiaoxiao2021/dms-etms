@@ -58,14 +58,9 @@ public class ArSendRegisterController {
     private final static String SEPARATOR = "\n";
 
     /**
-     * 分隔符 冒号
-     */
-    private final static String COLON = ":";
-
-    /**
      * 时间格式化
      */
-    private final static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     /**
      * 根据id获取实体基本信息
@@ -127,8 +122,10 @@ public class ArSendRegisterController {
                 String[] sendCodeArray = null;
                 if (StringUtils.isNotEmpty(sendCodeStr)) {
                     sendCodeArray = sendCodeStr.split(SEPARATOR);
+                    response.setData(arSendRegisterService.insert(arSendRegister, sendCodeArray));
+                }else {
+                    response.toFail("请输入批次号!");
                 }
-                response.setData(arSendRegisterService.insert(arSendRegister, sendCodeArray));
             } else {
                 response.toFail("新增失败，获取ERP信息失败，请重新登录后再操作！");
             }
@@ -223,12 +220,11 @@ public class ArSendRegisterController {
     public
     @ResponseBody
     JdResponse<ArTransportInfo> getTransportInfo(@RequestBody ArSendRegisterCondition condition) {
-        JdResponse<ArTransportInfo> response = null;
+        JdResponse<ArTransportInfo> response = new JdResponse<ArTransportInfo>();
         try {
             String transportName = condition.getTransportName();
             if (StringUtils.isNotEmpty(transportName)) {
                 ArTransportInfo arTransportInfo = null;
-                response = new JdResponse<ArTransportInfo>();
                 String orderCode = condition.getOrderCode();
                 if (StringUtils.isNotEmpty(orderCode)) {
                     arTransportInfo = arSendRegisterService.getTransportInfo(transportName, null, ArTransportTypeEnum.AIR_TRANSPORT);

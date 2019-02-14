@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
-import com.jd.bluedragon.distribution.cross.service.CrossSortingImpl;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.ErpUserClient.ErpUser;
@@ -19,7 +18,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.jgroups.protocols.EXAMPLE;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,7 +30,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
@@ -327,17 +324,20 @@ public class CrossSortingController {
             ErpUser erpUser = ErpUserClient.getCurrUser();
             if (null == erpUser) throw new DataFormatException("未登录用户，没有权限");
             crossSortingService.importCrossSortingRules(sheet0, erpUser.getUserName(), String.valueOf(erpUser.getUserId()));
+            writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
         } catch (Exception e) {
-            if (e instanceof IOException) {
-                logger.error("导入分拣配置规则失败", e);
-                writeAndClose(pw,JsonHelper.toJson(new JdResponse(701, e.getMessage())));
-            } else if (e instanceof DataFormatException) {
-                logger.error("导入分拣配置规则失败", e);
-                writeAndClose(pw,JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+            if(pw != null){
+                if (e instanceof IOException) {
+                    logger.error("导入分拣配置规则失败", e);
+                    writeAndClose(pw,JsonHelper.toJson(new JdResponse(701, e.getMessage())));
+                } else if (e instanceof DataFormatException) {
+                    logger.error("导入分拣配置规则失败", e);
+                    writeAndClose(pw,JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+                }else{
+                    writeAndClose(pw,JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
+                }
             }
-            writeAndClose(pw,JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
         }
-        writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
     }
 
     /**

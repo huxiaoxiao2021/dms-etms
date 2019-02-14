@@ -345,8 +345,7 @@ public class PopPrintResource {
 				CacheKeyConstants.POP_PRINT_BACKUP_KEY, JsonUtil.getInstance()
 						.object2Json(popPrint));
 		if (result < 0) {
-			logger.error("savePopPrintToRedis failed:" + popPrint == null ? ""
-					: popPrint.getWaybillCode());
+			logger.error("savePopPrintToRedis failed:" + JsonHelper.toJson(popPrint));
 		}
 	}
 	

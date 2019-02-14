@@ -23,6 +23,9 @@ public class AesRestAuthorization implements RestAuthorization {
             return false;
         }
         byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
+        if(sourceArr == null){
+            return false;
+        }
         String middleAuthorization=parseByte2HexStr(sourceArr);
         //byte[] targetArr=encrypt(middleAuthorization,requestTime);
         //String targetAuthorization=parseByte2HexStr(targetArr);
@@ -45,6 +48,9 @@ public class AesRestAuthorization implements RestAuthorization {
             return null;
         }
         byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
+        if(sourceArr == null){
+            return null;
+        }
         String middleAuthorization=parseByte2HexStr(sourceArr);
         return middleAuthorization;
     }
