@@ -94,7 +94,7 @@ public class SimpleSortingPrepareServiceImpl extends AbstractSortingPrepareServi
         Integer originalCrossType = BusinessUtil.getOriginalCrossType(waybill.getWaybillSign(), waybill.getSendPay());
         JdResult<CrossPackageTagNew> br = baseMinorManager.queryCrossPackageTag(bds, entity.getReceiveSiteCode(), entity.getCreateSiteCode(),originalCrossType);
         log.info("自动分拣：获取目的分拣中心"+(null==br?"获取目的分拣中心对象为NULL":JsonHelper.toJson(br)));
-        if(br.isSucceed() && br.getData()!=null
+        if(br!= null && br.isSucceed() && br.getData()!=null
                 &&br.getData().getDestinationDmsId()!=null
                 &&br.getData().getDestinationDmsId()>0
                 &&!br.getData().getDestinationDmsId().equals(entity.getCreateSiteCode())){

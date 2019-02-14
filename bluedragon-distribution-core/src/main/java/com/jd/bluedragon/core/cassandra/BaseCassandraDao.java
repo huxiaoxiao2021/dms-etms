@@ -246,48 +246,6 @@ public class BaseCassandraDao{
         return returnResult;
     }
     
-    @JProfiler(jKey = "baseCassandra.selectByPartitionKeyReturnBean", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
-    public List<? extends Object> selectByPartitionKeyReturnBean(String tableName,String partitionKey,Class c,Object... args) throws Exception{
-        long startTime=System.currentTimeMillis();
-        if(StringUtils.isBlank(tableName)){
-            throw new Exception("cassandra selectByPartitionKeyReturnBean tableName must be not empty");
-        }
-        if(args==null||args.length<1){
-            throw new Exception("cassandra selectByPartitionKeyReturnBean args must be not empty");
-        }
-
-
-        int size=args.length;
-        String params="";
-        for(int i=0;i<size;i++){
-            if(i==0){
-                params+="(";
-            }
-            params+="?";
-            if(i==size-1){
-                params+=")";
-            }else{
-                params+=",";
-            }
-        }
-        String cql="select * from "+tableName +" where "+partitionKey+" in "+params;
-        RegularStatement toPrepare = new SimpleStatement(cql);
-        List<Object> returnResult=null;
-        ResultSet result=null;
-        if(args!=null){
-            BoundStatement bounded = session.prepare(toPrepare).bind(args);
-            result = session.execute(bounded);
-        }else{
-            result = session.execute(toPrepare);
-        }
-        if(null!=result){
-            returnResult=transferRowToBean(result.all(),c);
-        }
-        logger.info("cassandra selectByPartitionKeyReturnBean execute success cost:"+(System.currentTimeMillis()-startTime)+"ms");
-
-        return returnResult;
-    }
-    
     @JProfiler(jKey = "baseCassandra.selectByCqlReturnBean", mState = { JProEnum.TP,JProEnum.Heartbeat, JProEnum.FunctionError })
     public List<? extends Object> selectByCqlReturnBean(String cql,Object[] args,Class c) throws Exception{
         long startTime=System.currentTimeMillis();
