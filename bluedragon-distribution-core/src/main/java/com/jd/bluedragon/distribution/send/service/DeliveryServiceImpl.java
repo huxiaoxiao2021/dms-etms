@@ -15,11 +15,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -86,10 +82,7 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
@@ -1536,7 +1529,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         RecyclableBoxSend res=new RecyclableBoxSend();
 
         try {
-            recyclableBoxSendMQ.send(null, JsonHelper.toJson(request));
+            String businessId = "";
+            if(StringUtils.isNotBlank(request.getBatchCode())){
+                businessId = request.getBatchCode();
+            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
+                businessId = request.getWayBillNo();
+            }
+
+            request.setSourceSysCode("DMS");
+            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
             res.setCode(JdResponse.CODE_OK);
             res.setMessage(JdResponse.MESSAGE_OK);
         } catch (Exception e) {
