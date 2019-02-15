@@ -78,7 +78,6 @@ public class SqlkitController {
 	@RequestMapping(value = "/executeSql", method = { RequestMethod.GET, RequestMethod.POST })
 	public String executeSql(Sqlkit sqlkit, @SuppressWarnings("rawtypes") Pager pager, Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		Statement statement = null;
         PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
 		Connection connection = null;
@@ -92,15 +91,15 @@ public class SqlkitController {
 
 			connection = this.dataSource.getConnection();
 			
-			statement = connection.createStatement();
-			
-			statement.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
-
 			if (sql.toLowerCase().startsWith("select")) {
 				pager = setPager(pager);
 				setTotalSize(pager, connection, sql);
-				String sqlExecute = sql + " limit " + pager.getStartIndex() + "," + pager.getPageSize();
-				resultSet = statement.executeQuery(sqlExecute);
+				String sqlExecute = sql + " limit ?,?" ;
+                pstmt = connection.prepareStatement(sqlExecute);
+                pstmt.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
+                pstmt.setInt(1, pager.getStartIndex());
+                pstmt.setInt(2, pager.getPageSize());
+				resultSet = pstmt.executeQuery();
 				logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql[" + sql
 				        + "]");
 				ResultSetMetaData rsmd = resultSet.getMetaData();
@@ -147,14 +146,6 @@ public class SqlkitController {
 			try {
 				if (resultSet != null) {
 					resultSet.close();
-				}
-			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
-			}
-
-			try {
-				if (statement != null) {
-					statement.close();
 				}
 			} catch (SQLException se) {
 				this.logger.error("关闭文件流发生异常！", se);
