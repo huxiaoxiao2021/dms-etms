@@ -399,7 +399,7 @@ public class Constants {
     public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
     public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
     public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
-    public static final String PDA_USER_PASSWORD_WRONG_MSG = "密码错误"; //密码错误
+    public static final String PDA_USER_PASS_WORD_WRONG_MSG = "密码错误"; //密码错误
     public static final String PDA_USER_LOCKED_MSG = "密码错误超过十次pin被锁"; //密码错误超过十次pin被锁
     public static final String PDA_USER_BUSY_MSG = "系统繁忙"; //系统繁忙
     public static final String PDA_USER_NO_VERIFY_MSG = "账号尚未审核通过"; //账号尚未审核通过

@@ -2,11 +2,7 @@ package com.jd.bluedragon.distribution.web.sqlkit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -98,10 +94,10 @@ public class SqlkitController {
 			statement = connection.createStatement();
 			
 			statement.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
-			
+
 			if (sql.toLowerCase().startsWith("select")) {
 				pager = setPager(pager);
-				setTotalSize(pager, statement, sql);
+				setTotalSize(pager, connection, sql);
 				String sqlExecute = sql + " limit " + pager.getStartIndex() + "," + pager.getPageSize();
 				resultSet = statement.executeQuery(sqlExecute);
 				logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql[" + sql
@@ -180,11 +176,14 @@ public class SqlkitController {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void setTotalSize(Pager pager, Statement statement, String sql) throws SQLException {
+	private void setTotalSize(Pager pager, Connection connection, String sql) throws SQLException {
 		ResultSet resultSet = null;
+        PreparedStatement pstmt = null;
 		try {
-			String sqlCount = "select count(1) from (" + sql + ") AS b";
-			resultSet = statement.executeQuery(sqlCount);
+            String sqlCount = "select count(1) from (?) AS b";
+            pstmt = connection.prepareStatement(sqlCount);
+            pstmt.setString(1, sql);
+			resultSet = pstmt.executeQuery();
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
 		} finally {
@@ -195,6 +194,13 @@ public class SqlkitController {
 			} catch (SQLException se) {
 				this.logger.error("关闭文件流发生异常！", se);
 			}
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException se) {
+                this.logger.error("关闭PreparedStatement发生异常！", se);
+            }
 		}
 	}
 
