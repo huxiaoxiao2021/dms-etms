@@ -79,6 +79,7 @@ public class SqlkitController {
 	public String executeSql(Sqlkit sqlkit, @SuppressWarnings("rawtypes") Pager pager, Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
 		Statement statement = null;
+        PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
 		Connection connection = null;
 		int errorCount = 0;
@@ -120,7 +121,8 @@ public class SqlkitController {
 			} else if (sql.toLowerCase().startsWith("update")
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
-					int changeRows = statement.executeUpdate(sql);
+                    pstmt = connection.prepareStatement(sql);
+					int changeRows = pstmt.executeUpdate();
 //					connection.commit();
 					model.addAttribute("message", "影响行数" + changeRows);
 					logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql["
@@ -157,7 +159,13 @@ public class SqlkitController {
 			} catch (SQLException se) {
 				this.logger.error("关闭文件流发生异常！", se);
 			}
-
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException se) {
+                this.logger.error("关闭PreparedStatement发生异常！", se);
+            }
 			try {
 				if (connection != null) {
 					connection.close();
