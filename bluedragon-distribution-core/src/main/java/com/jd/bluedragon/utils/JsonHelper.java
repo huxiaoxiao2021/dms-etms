@@ -196,10 +196,9 @@ public class JsonHelper {
         JsonGenerator generator = null;
         try {
             StringWriter writer = new StringWriter();
-            generator = JsonHelper.mapper.getJsonFactory()
-                    .createJsonGenerator(writer).useDefaultPrettyPrinter();
-            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(
-                    JsonSerialize.Inclusion.NON_NULL);
+            generator = JsonHelper.mapper.getJsonFactory().createJsonGenerator(writer);
+            generator.useDefaultPrettyPrinter();
+            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
             JsonHelper.mapper.writeValue(generator, object);
             writer.close();
             return writer.getBuffer().toString();

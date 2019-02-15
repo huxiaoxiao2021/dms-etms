@@ -2830,7 +2830,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
 
-        if(StringHelper.isEmpty(routerStr)){
+        if(routerStr == null || StringHelper.isEmpty(routerStr)){
             return response;
         }
 
