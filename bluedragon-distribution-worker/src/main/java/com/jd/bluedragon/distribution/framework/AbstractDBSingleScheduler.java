@@ -37,7 +37,7 @@ public abstract class AbstractDBSingleScheduler extends DBSingleScheduler {
 
         int dealDataFail = 0;
         for (Task task : tasks) {
-            boolean result = handleSingleTask(task, ownSign);
+            boolean result = handleExtendSingleTask(task, ownSign);
             if (!result) {
                 dealDataFail++;
             }
@@ -51,7 +51,7 @@ public abstract class AbstractDBSingleScheduler extends DBSingleScheduler {
         }
     }
 
-    private boolean handleSingleTask(Task task, String ownSign) throws Exception {
+    private boolean handleExtendSingleTask(Task task, String ownSign) throws Exception {
         if (task == null) {
             return false;
         }
