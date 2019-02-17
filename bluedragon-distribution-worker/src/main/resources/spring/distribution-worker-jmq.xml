@@ -32,6 +32,11 @@
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
+    <!--UAT特殊配置  uatDmsWeb mq应用-->
+    <jmq:transport id="jmq.uatDmsWeb.transport"
+                   address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
+                   password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
+
 	<!-- jmq 消费客户端配置区 -->	    
     <!-- 一车一单发车 -->
     <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">

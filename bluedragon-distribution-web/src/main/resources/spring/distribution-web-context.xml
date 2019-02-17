@@ -47,6 +47,7 @@
 
     <!-- 扩容Mysql主备配置表 -->
     <import resource="classpath:spring/mysql/distribution-core-common.xml" />
+	<import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
     <!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
     <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
     
@@ -57,6 +58,7 @@
 	<import resource="classpath:spring/distribution-web-wss-service.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
+	<import resource="classpath:spring/distribution-core-jmq-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>

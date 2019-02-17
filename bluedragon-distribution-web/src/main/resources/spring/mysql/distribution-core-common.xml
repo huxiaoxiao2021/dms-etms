@@ -105,30 +105,6 @@
         <constructor-arg index="0" ref="slaveSqlSessionFactory" />
     </bean>
 
-    <!-- DMS主库（拆分库）JDDL数据源 -->
-    <bean id="jddlShardingDataSource" class="com.jd.jddl.client.jdbc.TDataSource" init-method="doInit">
-        <property name="appName" value="${jddl.app.name}"/>
-        <property name="dynamicRule" value="false"/>
-        <property name="appRuleFile" value="classpath:spring/mysql/distribution-core-sharding-rule-${profiles.env}.xml"/>
-    </bean>
-
-    <!-- DMS主库（拆分库）JDDL 工厂类 -->
-    <bean id="sqlSessionShardingSlaveFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="jddlShardingDataSource" />
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
-    </bean>
-
-    <!-- DMS主库（拆分库）JDDL 模板类 -->
-    <bean id="sqlSessionSlaveShardingTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg ref="sqlSessionShardingSlaveFactory"/>
-    </bean>
-
-    <!-- DMS主库（拆分库）JDDL 事务管理器 -->
-    <bean id="transactionShardingSlaveManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="jddlShardingDataSource" />
-        <property name="rollbackOnCommitFailure" value="true"></property>
-    </bean>
-
     <!--读写分离数据源，DataSourceSwitchInterceptor拦截器搭配 -->
     <bean id="dms_rw_split" class="com.jd.coo.sa.mybatis.plugins.wr.DataSourceSwitchFactoryBean">
         <!-- 配置写数据源， 默认sqlId使用此数据源 -->
