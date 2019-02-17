@@ -425,6 +425,13 @@
 				<profiles.env>release</profiles.env>
 			</properties>
 		</profile>
+		<!--uat环境  -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<profiles.env>uat</profiles.env>
+			</properties>
+		</profile>
 	</profiles>
 
 	<build>
