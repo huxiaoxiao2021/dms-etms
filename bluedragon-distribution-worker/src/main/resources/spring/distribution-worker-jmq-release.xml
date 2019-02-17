@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jmq="http://code.jd.com/schema/jmq"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd">
+
+	<!-- jmq transport配置区 -->
+	<jmq:transport id="jmq.BlueDragonDistribution.transport"
+	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
+	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
+
+	<jmq:transport id="jmq.bd.transport"
+		address="${jmq.bd.address}" user="${jmq.bd.user}"
+		password="${jmq.bd.password}" app="${jmq.bd.app}" />
+
+    <!--dmsWeb mq消费应用-->
+    <jmq:transport id="jmq.dmsWeb.transport"
+                   address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
+                   password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
+
+	<jmq:transport id="jmq.BlueDragonDistributionStock.transport"
+		address="${jmq.BlueDragonDistributionStock.address}" user="${jmq.BlueDragonDistributionStock.user}"
+		password="${jmq.BlueDragonDistributionStock.password}" app="${jmq.BlueDragonDistributionStock.app}" />
+
+	<jmq:transport id="jmq.BlueDragonDistributionPop.transport"
+		address="${jmq.BlueDragonDistributionPop.address}" user="${jmq.BlueDragonDistributionPop.user}"
+		password="${jmq.BlueDragonDistributionPop.password}" app="${jmq.BlueDragonDistributionPop.app}" />
+
+    <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+                   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+
+	<!-- jmq 消费客户端配置区 -->	    
+    <!-- 一车一单发车 -->
+    <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.vos.send.car}" listener="sendCarConsumer"/>
+    </jmq:consumer>
+
+    <!-- 一车一单取消发车 -->
+    <jmq:consumer id="jmq.cancelSendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.vos.cancel.send}" listener="cancelSendCarConsumer"/>
+    </jmq:consumer>
+    	
+    <!-- 逆向备件库收货消息消费回传库存中间件 -->
+    <jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseStockConsumer"/>
+    </jmq:consumer>
+
+    <!-- 逆向收货消息消费回传POP系统 -->
+    <jmq:consumer id="jmq.reversePopConsumer" transport="jmq.BlueDragonDistributionPop.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reversePopConsumer"/>
+    </jmq:consumer>
+    
+    <!-- 逆向大库收货消息内部系统消费 -->
+    <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseReceiveConsumer"/>
+    </jmq:consumer>
+
+    <!-- 配送外呼订单回传 -->
+    <jmq:consumer id="jmq.fxmAbnormalConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.FXMDmsAoFB}" listener="fxmAbnormalConsumer"/>
+    </jmq:consumer>
+
+    <!-- POP差异包裹审核结果处理 -->
+    <jmq:consumer id="jmq.popAbnormalConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.dms.pop.abnormal.order}" listener="popAbnormalConsumer"/>
+    </jmq:consumer>
+
+    <!-- POP差异包裹审核结果处理新 -->
+    <jmq:consumer id="jmq.popAbnormalNewConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.pop.bd.abnormal.deal}" listener="popAbnormalNewConsumer"/>
+    </jmq:consumer>
+
+    <!-- B商家订单差异审核结果处理分发地址 -->
+    <jmq:consumer id="jmq.RecAbnormalDealConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.rec.abnormal.deal}" listener="popAbnormalNewConsumer"/>
+    </jmq:consumer>
+    
+    <!-- 逆向报损订单 -->
+    <jmq:consumer id="jmq.lossOrderConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.ldms.to.bluedragon}" listener="lossOrderConsumer"/>
+    </jmq:consumer>
+
+
+    <!-- 备件库取件单 -->
+    <jmq:consumer id="jmq.pickWareConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.sph.reverse1}" listener="pickWareConsumer"/>
+    </jmq:consumer>
+
+    <!-- DMS同步外部系统 -->
+    <jmq:consumer id="jmq.dmsRouterConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.dms.router}" listener="dmsRouterConsumer"/>
+    </jmq:consumer>
+    
+    <!-- 华中_DMS同步外部系统 -->
+    <jmq:consumer id="jmq.dmsRouterConsumer1" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.dms.router1}" listener="dmsRouterConsumer"/>
+    </jmq:consumer>
+	
+	<!-- PDA推送POP收货消息 -->
+    <jmq:consumer id="jmq.popPickupConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.dms.pop.pickup}" listener="popPickupConsumer"/>
+    </jmq:consumer>
+	
+	<!-- 逆向拒收货消息 -->
+    <jmq:consumer id="jmq.reverseRejectConsumer" transport="jmq.bd.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.reverse.reject}" listener="reverseRejectConsumer"/>
+    </jmq:consumer>
+
+    <!-- 武汉邮政自消费类型MQ created by wzx (全国和华中环境的注释掉此mq消费者，只保留外网分组的此消费者) -->
+    <!--<jmq:consumer id="jmq.ReverseDeliveryToWhSmsConsumer" transport="jmq.BlueDragonDistribution.transport">-->
+            <!--<jmq:listener topic="bd_dms_whSms_mq" listener="reverseDeliveryToWhSmsConsumer"/>-->
+    <!--</jmq:consumer>-->
+
+    <!-- 全国邮政自消费类型MQ created by wzx -->
+    <!--
+    <jmq:consumer id="jmq.ReverseDeliveryToEmsConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="bd_dms_ems_mq" listener="reverseDeliveryToEmsConsumer"/>
+    </jmq:consumer>
+	-->
+    <!-- 消费龙门架扫描MQ added by zhanglei -->
+    <jmq:consumer id="jmq.gantryScanPackageConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.bd.gantry.scan.package}" listener="gantryScanPackageConsumer"/>
+    </jmq:consumer>
+
+    <!-- TMS发车报文 createed by wzx-->
+    <jmq:consumer id="jmq.carScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="${jmq.topic.tms.cargovolume.inbound}" listener="carScheduleFromTMSConsumer"/>
+    </jmq:consumer>
+
+    <!-- TMS取消发车报文 create by wzx -->
+    <jmq:consumer id="jmq.cancelScheduleFromTMSConsumer" transport="jmq.BlueDragonDistribution.transport">
+            <jmq:listener topic="${jmq.topic.tms.cancel.sendcar}" listener="cancelScheduleFromTMSConsumer"/>
+    </jmq:consumer>
+    <!--jmq.transbillMSyncConsumer 城配运单mq消费应用-->
+    <jmq:consumer id="jmq.transbillMSyncConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.bd.transbill.m}" listener="transbillMSyncConsumer"/>
+    </jmq:consumer>
+
+    <bean id="sortSchemeConsumer" class="com.jd.bluedragon.distribution.consumer.sortScheme.SortSchemeConsumer">
+        <property name="stores">
+            <list>
+                <value>6,6,80</value>
+                <value>006,006,080</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 分拣计划发送至DTC，自消费 create by wzx -->
+    <jmq:consumer id="jmq.sortSchemeSelfConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.bd.sortscheme.send.DTC}" listener="sortSchemeConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费运输非常准起飞降落时间 -->
+    <jmq:consumer id="jmq.arAirFlightRealTimeConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.tms.air.flight.realtime.status}" listener="arAirFlightRealTimeConsumer"/>
+    </jmq:consumer>
+
+    <!-- B网半收协商再投MQ -->
+    <jmq:consumer id="jmq.packageHalfRedeliveryConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.redeliver.checked.part}" listener="packageHalfRedeliveryConsumer"/>
+    </jmq:consumer>
+
+    <!-- B网半收终端提交协商再投MQ -->
+    <jmq:consumer id="jmq.packageHalfApproveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.bd.waybill.w.check}" listener="packageHalfApproveConsumer"/>
+    </jmq:consumer>
+    <!-- 库房拒收 外呼返回消费-->
+    <jmq:consumer id="jmq.abnormalWarehouseRejectReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.bd.wms.reject.outbound.feedback}" listener="dmsAbnormalEclpConsumer"/>
+    </jmq:consumer>
+    <!-- 三无寄托物核实-->
+    <jmq:consumer id="jmq.abnormalUnknownReceiveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.dms.unknown.verify.feedback}" listener="dmsAbnormalUnknownConsumer"/>
+    </jmq:consumer>
+
+    <jmq:consumer id="jmq.operateHintTrackConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.operateHint.track}" listener="operateHintTrackConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费发货明细MQ 用于RMA项目打印 -->
+    <jmq:consumer id="jmq.sendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="sendDetailConsumer"/>
+    </jmq:consumer>
+
+    <!-- B网半收终端提交协商再投MQ -->
+    <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.bd.pack.sync.waybill}" listener="packingConsumableConsumer"/>
+    </jmq:consumer>
+    <!--履约单剔除消息-->
+    <jmq:consumer id="jmq.performanceRemoveConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.waybill.order.flag}" listener="performanceRemoveConsumer"/>
+    </jmq:consumer>
+
+    <!--  动态量方一期先注释存es的，待和es交互部分完成再打开by jinjingcheng  &lt;!&ndash; 消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsWorkSendDetailConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="dmsWorkSendDetail" listener="dmsWorkSendDetailConsumer"/>
+    </jmq:consumer>
+
+    &lt;!&ndash; 消费取消费发货消息 &ndash;&gt;
+    <jmq:consumer id="jmq.dmsDeliveryCancelSendConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="bd_dms_delivery_cancel_send" listener="dmsDeliveryCancelSendConsumer"/>
+    </jmq:consumer>
+    -->
+    <!-- 消费发货明细MQ 用于托寄物品名打印 -->
+    <jmq:consumer id="jmq.sendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dmsWorkSendDetail}" listener="sendDetailGoodsPrintConsumer"/>
+    </jmq:consumer>
+    <!-- 消费取消发货明细MQ 用于托寄物品名打印 -->
+    <jmq:consumer id="jmq.cancelSendDetailGoodsPrintConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="cancelSendDetailGoodsPrintConsumer"/>
+    </jmq:consumer>
+
+    <!-- 空铁转陆运 提报异常 -->
+    <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.dmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.arAbnormal}" listener="arAbnormalConsumer"/>
+    </jmq:consumer>
+
+    <!-- 消费中铁运输铁路发出到达时间 -->
+    <jmq:consumer id="jmq.arCreTransportBillTraceConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.air.railway.transport.trace}" listener="arCreTransportBillTraceConsumer"/>
+    </jmq:consumer>
+</beans>
+
