@@ -32,12 +32,7 @@
     <jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
-    <!--UAT特殊配置  uatDmsWeb mq应用-->
-    <jmq:transport id="jmq.uatDmsWeb.transport"
-                   address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
-                   password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
-
-	<!-- jmq 消费客户端配置区 -->	    
+	<!-- jmq 消费客户端配置区 -->
     <!-- 一车一单发车 -->
     <jmq:consumer id="jmq.sendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.vos.send.car}" listener="sendCarConsumer"/>
@@ -47,7 +42,7 @@
     <jmq:consumer id="jmq.cancelSendCarConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.vos.cancel.send}" listener="cancelSendCarConsumer"/>
     </jmq:consumer>
-    	
+
     <!-- 逆向备件库收货消息消费回传库存中间件 -->
     <jmq:consumer id="jmq.reverseStockConsumer" transport="jmq.BlueDragonDistributionStock.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseStockConsumer"/>
@@ -57,7 +52,7 @@
     <jmq:consumer id="jmq.reversePopConsumer" transport="jmq.BlueDragonDistributionPop.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reversePopConsumer"/>
     </jmq:consumer>
-    
+
     <!-- 逆向大库收货消息内部系统消费 -->
     <jmq:consumer id="jmq.reverseReceiveConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.receive}" listener="reverseReceiveConsumer"/>
@@ -82,7 +77,7 @@
     <jmq:consumer id="jmq.RecAbnormalDealConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.rec.abnormal.deal}" listener="popAbnormalNewConsumer"/>
     </jmq:consumer>
-    
+
     <!-- 逆向报损订单 -->
     <jmq:consumer id="jmq.lossOrderConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.ldms.to.bluedragon}" listener="lossOrderConsumer"/>
@@ -98,17 +93,17 @@
     <jmq:consumer id="jmq.dmsRouterConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.dms.router}" listener="dmsRouterConsumer"/>
     </jmq:consumer>
-    
+
     <!-- 华中_DMS同步外部系统 -->
     <jmq:consumer id="jmq.dmsRouterConsumer1" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.dms.router1}" listener="dmsRouterConsumer"/>
     </jmq:consumer>
-	
+
 	<!-- PDA推送POP收货消息 -->
     <jmq:consumer id="jmq.popPickupConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.dms.pop.pickup}" listener="popPickupConsumer"/>
     </jmq:consumer>
-	
+
 	<!-- 逆向拒收货消息 -->
     <jmq:consumer id="jmq.reverseRejectConsumer" transport="jmq.bd.transport">
         <jmq:listener topic="${jmq.topic.bd.dms.reverse.reject}" listener="reverseRejectConsumer"/>
