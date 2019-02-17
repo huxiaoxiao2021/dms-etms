@@ -39,13 +39,15 @@ public class ProvinceAndCityServiceImpl implements ProvinceAndCityService {
 
         try {
             List<Assort> assortList = basicSecondaryWS.getAssortByFid(provinceId);
-            if(null == assortList || assortList.size()<1){
+            if(null != assortList && assortList.size() > 0){
+                for(Assort assort : assortList){
+                    cityList.add(new ProvinceAndCity(assort.getAssId().toString(),assort.getAssDis()));
+                }
+            }else{
                 logger.info("ProvinceAndCityServiceImpl.getCityByProvince根据省ID："
                         +provinceId+"调用基础资料接口获取的城市信息为空");
             }
-            for(Assort assort : assortList){
-                cityList.add(new ProvinceAndCity(assort.getAssId().toString(),assort.getAssDis()));
-            }
+
         }catch (Exception e){
             logger.error("ProvinceAndCityServiceImpl.getCityByProvince根据省ID调用基础资料接口获取城市错误，错误信息为："+e.getMessage(),e);
         }

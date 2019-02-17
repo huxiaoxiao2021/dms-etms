@@ -37,7 +37,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
             return null;
         }
         if (komResponse == null || komResponse.getResultCode() < 1 || komResponse.getData() == null) {
-            logger.warn("EclpItemManagerImpl-getltemBySoNo 查询失败：" + komResponse.getResultMessage() + ",参数：" + JsonHelper.toJson(soNoItemRequest));
+            logger.warn("EclpItemManagerImpl-getltemBySoNo 查询失败，查询结果：" + JsonHelper.toJson(komResponse) + ",参数：" + JsonHelper.toJson(soNoItemRequest));
             return null;
         }
         return komResponse.getData().getItemInfoList();

@@ -7,6 +7,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDetail;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
@@ -57,6 +59,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
     @Qualifier("obcsManager")
     private OBCSManager obcsManager;
 
+    @Autowired
+    private SysConfigService sysConfigService;
+
     @Override
     public BdInboundECLPDto makeEclpMessage(String waybillCode, SendDetail sendDetail) {
 
@@ -71,7 +76,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         String dmdStoreId = siteOrgDto.getStoreCode();
 
         String[] cky2AndStoreId = dmdStoreId.split("-");
-        String cky2 = cky2AndStoreId[1];
+
+        //退备件库时启用默认值 -1 原因为ECLP只认-1 如果开关开启则使用青龙基础资料维护的CKY2
+        String cky2 = "-1";
+        if(useQLBaiscCky2()){
+            cky2 = cky2AndStoreId[1];
+        }
         String storeId = cky2AndStoreId[2];
 
         // 组装 机构编码 配送中心编码 库房编码
@@ -121,7 +131,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             }
 
         }else{
-            logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 "+waybillCode+"|"+sendDetail.getSendCode());
+            logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 v2:"+oldWaybillCodeV2+"|esl:"+eclpBusiOrderCode+"|v3"+waybillCode+"|"+sendDetail.getSendCode());
             return null;
         }
 
@@ -156,4 +166,19 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         return bdInboundECLPDto;
     }
 
+    private boolean useQLBaiscCky2(){
+        try {
+            List<SysConfig> sysConfigs = sysConfigService.getListByConfigName("reverse.eclp.cky2.switch");
+            if (null == sysConfigs || sysConfigs.size() <= 0) {
+                return false;
+            } else {
+                if(sysConfigs.get(0).getConfigContent()==null){
+                    return false;
+                }
+                return sysConfigs.get(0).getConfigContent().equals("1");
+            }
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
 }
