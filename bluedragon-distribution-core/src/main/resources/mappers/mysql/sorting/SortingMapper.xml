@@ -359,4 +359,10 @@
 		order by operate_time limit #{startIndex},#{pageSize}
 	</select>
 
+	<select id="findLossSortingCount" parameterType="sorting" resultType="Integer">
+		select count(1) from sorting where create_site_code = #{create_site_code,jdbcType=INTEGER}
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR} and yn = 1 and is_cancel = 0 and is_loss = 1
+
+	</select>
+
 </mapper>

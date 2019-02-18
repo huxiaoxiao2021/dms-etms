@@ -4,12 +4,19 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
+import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
+import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -18,6 +25,8 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.loss.client.LossProduct;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +49,15 @@ public class WaybillServiceImpl implements WaybillService {
     WaybillQueryManager waybillQueryManager;
 
     @Autowired
+    private SortingDao sortingDao;
+
+    @Autowired
     AbnormalWayBillService abnormalWayBillService;
+    @Autowired
+    private LossServiceManager lossServiceManager;
+
+    @Autowired
+    private ReverseReceiveService reverseReceiveService;
 
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
@@ -188,9 +205,11 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
-    public Boolean isReverseOperationAllowed(String waybillCode, Integer siteCode) throws Exception {
+    public InvokeResult<Boolean> isReverseOperationAllowed(String waybillCode, Integer siteCode) throws Exception {
+
+        InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
         //获取运单信息
-        BigWaybillDto bigWaybillDto = this.getWaybillState(waybillCode);
+        BigWaybillDto bigWaybillDto = this.getWaybill(waybillCode);
         if(bigWaybillDto != null && bigWaybillDto.getWaybillState() != null) {
             WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
             //判断运单是否妥投
@@ -199,15 +218,61 @@ public class WaybillServiceImpl implements WaybillService {
                 AbnormalWayBill abnormalWaybill = abnormalWayBillService.getAbnormalWayBillByWayBillCode(waybillCode, siteCode);
                 //异常操作运单记录为空，不能进行逆向操作，需提示妥投订单逆向操作需提交异常处理记录
                 if(abnormalWaybill == null) {
-                    return false;
+                    invokeResult.setData(false);
+                    invokeResult.setCode(SortingResponse.CODE_29121);
+                    invokeResult.setMessage(SortingResponse.MESSAGE_29121);
+                    return invokeResult;
                 }
             }
+
         } else {
             String log = "isReverseOperationAllowed方法获取运单状态失败，waybillCode：" + waybillCode + ", siteCode：" + siteCode;
             logger.error(log);
             throw new Exception(log);
         }
 
-        return true;
+        //判断运单是否为仓储收货运单 是则提示 不强制
+        // reverse_receive 中的包裹号字段存的是运单号
+        ReverseReceive reverseReceive = reverseReceiveService.findByPackageCode(waybillCode);
+        if(reverseReceive!=null && reverseReceive.getCanReceive()!=null){
+            if(reverseReceive.getCanReceive().equals(new Integer(1))){
+                //1代表已收货 则提示
+                invokeResult.setData(false);
+                invokeResult.setCode(SortingResponse.CODE_31121);
+                invokeResult.setMessage(SortingResponse.MESSAGE_31121);
+                return invokeResult;
+            }
+        }
+
+        //判断运单是否为报丢报损 是则提示 （切记报丢分拣时不需要提示 需要调用者去自行判断）
+
+        if(WaybillUtil.isJDWaybillCode(waybillCode)){
+            String orderId = bigWaybillDto.getWaybill().getVendorId();
+            if(StringUtils.isNotBlank(orderId)){
+                int lossCount = this.lossServiceManager.getLossProductCountOrderId(orderId);
+                logger.error(waybillCode+"报丢记录"+lossCount);
+                if(lossCount>0){
+                    //存在报丢
+
+                    //不存在报丢分拣 才提示
+                    Sorting query = new Sorting();
+                    query.setCreateSiteCode(siteCode);
+                    query.setWaybillCode(waybillCode);
+                    int lossSortingSize = sortingDao.findLossSortingCount(query);
+                    logger.error(waybillCode+"报丢分拣记录"+lossSortingSize);
+                    if(lossSortingSize == 0){
+                        invokeResult.setData(false);
+                        invokeResult.setCode(SortingResponse.CODE_31122);
+                        invokeResult.setMessage(SortingResponse.MESSAGE_31122);
+                        return invokeResult;
+                    }
+
+
+                }
+            }
+        }
+
+
+        return invokeResult;
     }
 }

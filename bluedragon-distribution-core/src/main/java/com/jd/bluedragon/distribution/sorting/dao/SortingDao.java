@@ -135,4 +135,14 @@ public class SortingDao extends BaseDao<Sorting> {
     public List<Sorting> findPageSorting(Map<String,Object> params){
         return this.getSqlSession().selectList(namespace +".findPageSorting",params);
     }
+
+    /**
+     * 查询报丢分拣数据
+     * @param sorting
+     * @return
+     */
+    public Integer findLossSortingCount(Sorting sorting){
+        return this.getSqlSession().selectOne(namespace +".findLossSortingCount",sorting);
+    }
+
 }
