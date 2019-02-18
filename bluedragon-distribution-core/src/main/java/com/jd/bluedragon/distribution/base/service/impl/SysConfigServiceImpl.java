@@ -106,4 +106,32 @@ public class SysConfigServiceImpl implements SysConfigService {
 		}
 		return null;
 	}
+
+	/**
+	 * 获取开关值使用
+	 * <p>
+	 * 默认存1返回TRUE 0返回false
+	 *
+	 * 3 分钟缓存
+	 * @param configName
+	 * @return
+	 */
+	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000,redisEnable = false)
+	@Override
+	public boolean getCofigByName(String configName) {
+		try {
+			List<com.jd.bluedragon.distribution.base.domain.SysConfig> sysConfigs = getListByConfigName(configName);
+			if (null == sysConfigs || sysConfigs.size() <= 0) {
+				return false;
+			} else {
+				if(sysConfigs.get(0).getConfigContent()==null){
+					return false;
+				}
+				return sysConfigs.get(0).getConfigContent().equals("1");
+			}
+		} catch (Throwable ex) {
+			return false;
+		}
+
+	}
 }

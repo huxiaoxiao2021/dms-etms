@@ -141,8 +141,8 @@ public class SortingDao extends BaseDao<Sorting> {
      * @param sorting
      * @return
      */
-    public Integer findLossSortingCount(Sorting sorting){
-        return this.getSqlSession().selectOne(namespace +".findLossSortingCount",sorting);
+    public Integer findLossSortingNoSendCount(Sorting sorting){
+        return this.getSqlSession().selectOne(namespace +".findLossSortingNoSendCount",sorting);
     }
 
 }

@@ -39,4 +39,13 @@ public interface SysConfigService {
 	 * @return
 	 */
 	SysConfigContent getSysConfigJsonContent(String key);
+
+	/**
+	 * 获取开关值使用
+	 *
+	 * 默认存1返回TRUE 0返回false
+	 * @param configName
+	 * @return
+	 */
+	boolean getCofigByName(String configName);
 }

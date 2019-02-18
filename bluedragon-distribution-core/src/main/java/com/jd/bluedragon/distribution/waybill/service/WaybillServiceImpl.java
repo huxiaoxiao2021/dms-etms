@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.SysConfig;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -55,6 +58,9 @@ public class WaybillServiceImpl implements WaybillService {
     AbnormalWayBillService abnormalWayBillService;
     @Autowired
     private LossServiceManager lossServiceManager;
+
+    @Autowired
+    private SysConfigService sysConfigService;
 
     @Autowired
     private ReverseReceiveService reverseReceiveService;
@@ -233,32 +239,33 @@ public class WaybillServiceImpl implements WaybillService {
 
         //判断运单是否为仓储收货运单 是则提示 不强制
         // reverse_receive 中的包裹号字段存的是运单号
-        ReverseReceive reverseReceive = reverseReceiveService.findByPackageCode(waybillCode);
-        if(reverseReceive!=null && reverseReceive.getCanReceive()!=null){
-            if(reverseReceive.getCanReceive().equals(new Integer(1))){
-                //1代表已收货 则提示
-                invokeResult.setData(false);
-                invokeResult.setCode(SortingResponse.CODE_31121);
-                invokeResult.setMessage(SortingResponse.MESSAGE_31121);
-                return invokeResult;
+        if(sysConfigService.getCofigByName("reverse.receive.alert.switch") ){
+            ReverseReceive reverseReceive = reverseReceiveService.findByPackageCode(waybillCode);
+            if(reverseReceive!=null && reverseReceive.getCanReceive()!=null){
+                if(reverseReceive.getCanReceive().equals(new Integer(1))){
+                    //1代表已收货 则提示
+                    invokeResult.setData(false);
+                    invokeResult.setCode(SortingResponse.CODE_31121);
+                    invokeResult.setMessage(SortingResponse.MESSAGE_31121);
+                    return invokeResult;
+                }
             }
         }
 
         //判断运单是否为报丢报损 是则提示 （切记报丢分拣时不需要提示 需要调用者去自行判断）
 
-        if(WaybillUtil.isJDWaybillCode(waybillCode)){
+        if(sysConfigService.getCofigByName("reverse.loss.alert.switch") && WaybillUtil.isJDWaybillCode(waybillCode)){
             String orderId = bigWaybillDto.getWaybill().getVendorId();
             if(StringUtils.isNotBlank(orderId)){
                 int lossCount = this.lossServiceManager.getLossProductCountOrderId(orderId);
                 logger.error(waybillCode+"报丢记录"+lossCount);
                 if(lossCount>0){
                     //存在报丢
-
-                    //不存在报丢分拣 才提示
+                    //存在未发货的报丢分拣不提示  因为还需要继续发货
                     Sorting query = new Sorting();
                     query.setCreateSiteCode(siteCode);
                     query.setWaybillCode(waybillCode);
-                    int lossSortingSize = sortingDao.findLossSortingCount(query);
+                    int lossSortingSize = sortingDao.findLossSortingNoSendCount(query);
                     logger.error(waybillCode+"报丢分拣记录"+lossSortingSize);
                     if(lossSortingSize == 0){
                         invokeResult.setData(false);
@@ -275,4 +282,5 @@ public class WaybillServiceImpl implements WaybillService {
 
         return invokeResult;
     }
+
 }
