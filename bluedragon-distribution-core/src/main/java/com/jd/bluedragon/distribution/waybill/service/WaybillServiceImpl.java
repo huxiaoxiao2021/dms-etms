@@ -258,7 +258,6 @@ public class WaybillServiceImpl implements WaybillService {
             String orderId = bigWaybillDto.getWaybill().getVendorId();
             if(StringUtils.isNotBlank(orderId)){
                 int lossCount = this.lossServiceManager.getLossProductCountOrderId(orderId);
-                logger.error(waybillCode+"报丢记录"+lossCount);
                 if(lossCount>0){
                     //存在报丢
                     //存在未发货的报丢分拣不提示  因为还需要继续发货
@@ -266,7 +265,6 @@ public class WaybillServiceImpl implements WaybillService {
                     query.setCreateSiteCode(siteCode);
                     query.setWaybillCode(waybillCode);
                     int lossSortingSize = sortingDao.findLossSortingNoSendCount(query);
-                    logger.error(waybillCode+"报丢分拣记录"+lossSortingSize);
                     if(lossSortingSize == 0){
                         invokeResult.setData(false);
                         invokeResult.setCode(SortingResponse.CODE_31122);
