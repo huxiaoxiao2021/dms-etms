@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.PackageState;
 import org.apache.commons.logging.Log;
@@ -45,6 +46,27 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
                 return interceptResult;
             }
         }
+
+        //校验是否已经妥投
+        String waybillCode = WaybillUtil.getWaybillCode(context.getResponse().getWaybillCode());
+        if(needCheckWaybillFinished(context) && waybillTraceManager.isWaybillFinished(waybillCode)){
+            interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
+            return interceptResult;
+        }
         return interceptResult;
+    }
+
+    /**
+     * 根据操作类型判断是否需要校验运单是否已经妥投
+     * @param context
+     * @return
+     */
+    private boolean needCheckWaybillFinished(WaybillPrintContext context){
+        return WaybillPrintOperateTypeEnum.PLATE_PRINT.equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.FIELD_PRINT.equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.equals(context.getRequest().getOperateType());
     }
 }

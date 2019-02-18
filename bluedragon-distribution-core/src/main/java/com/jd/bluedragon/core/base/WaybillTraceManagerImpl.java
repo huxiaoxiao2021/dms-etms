@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
+import static com.jd.bluedragon.Constants.WAYBILLTRACE_FINISHED;
 
 /**
  * @author tangchunqing
@@ -44,5 +47,18 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
             logger.warn("WaybillTraceManagerImpl.getPkStateByWCodeAndState无揽收全程跟踪，baseEntity："+JsonHelper.toJson(baseEntity)+",waybillCode:"+waybillCode);
             return Lists.newArrayList();
         }
+    }
+
+    /**
+     * 判断运单是否已经妥投
+     * @param waybillCode 运单号
+     * @return true表示已经妥投，false表示还没有妥投
+     */
+    public boolean isWaybillFinished(String waybillCode){
+        List<PackageState> list = getPkStateByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
+        if(list != null && list.size() > 0 ){
+            return true;
+        }
+        return false;
     }
 }

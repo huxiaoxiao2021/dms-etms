@@ -27,6 +27,8 @@ import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
+import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
+import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
@@ -121,6 +123,9 @@ public class WaybillResource {
 
 	@Autowired
 	private JsfSortingResourceService jsfSortingResourceService;
+
+	@Autowired
+	WaybillTraceManager waybillTraceManager;
 
 	@Autowired
 	@Qualifier("ldopManager")
@@ -1737,6 +1742,14 @@ public class WaybillResource {
 		try{
 			StringBuilder message = new StringBuilder();
 			if(packWeightVO.checkParam(message)){
+				//验证是否妥投
+				String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
+				if(waybillTraceManager.isWaybillFinished(waybillCode)){
+					result.setMessage("此运单为妥投状态，禁止操作此功能，请检查单号是否正确");
+					result.setData(false);
+					return result;
+				}
+
 				this.taskService.add(packWeightVO.convertToTask("package/weight上传"), false);
 				result.setData(true);
 				return result;
