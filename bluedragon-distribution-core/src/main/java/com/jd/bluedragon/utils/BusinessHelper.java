@@ -463,4 +463,36 @@ public class BusinessHelper {
         return siteType.equals(new Integer(6420));
     }
 
+    /**
+     * 是否为逆向回仓
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isReverseToStore(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        if (BusinessUtil.isSignChar(waybillSign, 88, '1')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static final String WMS_SITE_TYPE = PropertiesHelper.newInstance().getValue("wms_type");
+
+    /**
+     * 判断站点类型是否为仓
+     *
+     * @param siteType
+     * @return
+     */
+    public static boolean isWms(Integer siteType) {
+        if (siteType == null) {
+            return false;
+        }
+        return siteType.equals(new Integer(WMS_SITE_TYPE));
+    }
+
 }

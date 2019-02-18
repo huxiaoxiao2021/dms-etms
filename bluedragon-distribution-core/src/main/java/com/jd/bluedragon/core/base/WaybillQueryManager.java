@@ -10,7 +10,6 @@ import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
@@ -199,4 +198,14 @@ public interface WaybillQueryManager{
 	 * @return 订单号
 	 */
 	String getOrderCodeByWaybillCode(String waybillCode, boolean source);
+
+	/**
+	 * 根据配送中心ID和仓ID查询是否强制换单
+	 *
+	 * @param cky2 配送中心ID
+	 * @param storeId 仓ID
+	 * @return
+	 */
+	Boolean ifForceCheckByWarehouse(Integer cky2, Integer storeId);
+
 }
