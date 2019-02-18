@@ -58,6 +58,11 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      */
     private static final String PRINT_SWITCH = "print.switch";
 
+    /**
+     * 打印JSF接口系统来源前缀
+     */
+    private static final String PRINT_PREFIX = "PRINT_SOURCE_";
+
     private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
 
     @Override
@@ -245,7 +250,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             return true;
         }
         //校验source和secretKey是否一致
-        SysConfig content = sysConfigService.findConfigContentByConfigName(source);
+        SysConfig content = sysConfigService.findConfigContentByConfigName(PRINT_PREFIX + source.toUpperCase());
         if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
             return true;
         }else{
