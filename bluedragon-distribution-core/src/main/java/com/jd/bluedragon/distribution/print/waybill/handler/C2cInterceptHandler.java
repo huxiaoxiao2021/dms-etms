@@ -62,11 +62,11 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
      * @return
      */
     private boolean needCheckWaybillFinished(WaybillPrintContext context){
-        return WaybillPrintOperateTypeEnum.PLATE_PRINT.equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.FIELD_PRINT.equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.equals(context.getRequest().getOperateType());
+        return WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.FIELD_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType().equals(context.getRequest().getOperateType());
     }
 }
