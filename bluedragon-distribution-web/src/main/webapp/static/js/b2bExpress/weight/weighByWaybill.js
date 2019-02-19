@@ -108,6 +108,8 @@
                     }else if(res.code == NO_NEED_WEIGHT)
                     {
                         $.messager.alert('提示',res.message,'warning');
+                    }else if(res.code==WAYBILL_STATES_FINISHED){
+                        $.messager.alert('提示',res.message,'warning');
                     }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
