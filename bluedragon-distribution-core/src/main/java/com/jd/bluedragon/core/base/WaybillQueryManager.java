@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -199,4 +200,12 @@ public interface WaybillQueryManager{
 	 * @return 订单号
 	 */
 	String getOrderCodeByWaybillCode(String waybillCode, boolean source);
+
+	/**
+	 * 根据运单号和属性获取运单扩展属性
+	 * @param waybillCodes
+	 * @param properties
+	 * @return
+	 */
+	List<WaybillExtPro> getWaybillExtByProperties(List<String> waybillCodes, List<String> properties);
 }

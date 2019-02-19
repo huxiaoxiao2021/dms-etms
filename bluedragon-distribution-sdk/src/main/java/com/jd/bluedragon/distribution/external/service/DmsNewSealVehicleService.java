@@ -107,4 +107,12 @@ public interface DmsNewSealVehicleService {
      */
     SealBoxResponse findSealBoxByBoxCode(String sealBoxCode);
 
+    /**
+     * 校验批次号是否封车:默认返回false
+     *
+     * @param sendCode
+     * @return
+     */
+    boolean checkSendCodeIsSealed(String sendCode);
+
 }

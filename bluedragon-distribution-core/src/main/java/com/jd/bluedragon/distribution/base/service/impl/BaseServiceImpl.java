@@ -196,17 +196,18 @@ public class BaseServiceImpl implements BaseService {
 		} catch (Exception e) {
 			log.error("调用baseMinorServiceProxy.pdaUserLogin接口出现异常！", e);
 		}
+		if(pdadata == null){
+            /** 返回空数据 */
+            // 设置错误标示和错误信息
+            result.setError(true);
+            result.setErrormsg("基础信息服务异常");
+            // 返回结果
+            return result;
+        }
 		/** 错误标示 */
-		Integer errorcode = pdadata != null ? pdadata.getErrorCode() : 99999;
+		Integer errorcode = pdadata.getErrorCode();
 		/** 根据返回的错误标示进行处理 */
 		switch (errorcode) {
-			case 99999:
-				/** 返回空数据 */
-				// 设置错误标示和错误信息
-				result.setError(true);
-				result.setErrormsg("基础信息服务异常");
-				// 返回结果
-				return result;
 			case 1110: //无可用验证方式(命中风险检查)
 			case 1100: //需要验证(命中风险检查)
 			case 105: //ip在黑名单中

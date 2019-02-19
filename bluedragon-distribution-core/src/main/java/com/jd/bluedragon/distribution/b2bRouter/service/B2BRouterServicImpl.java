@@ -182,7 +182,7 @@ public class  B2BRouterServicImpl implements B2BRouterService{
                 }
 
                 //表中有重复数据，只保留最新的一条，其他的逻辑删除
-                if(routerList.size()>0){
+                if(routerList != null && routerList.size()>0){
                     //更新第一条
                     B2BRouter routerTemp = routerList.get(0);
                     routerTemp.setOperatorUserErp(router.getOperatorUserErp());
