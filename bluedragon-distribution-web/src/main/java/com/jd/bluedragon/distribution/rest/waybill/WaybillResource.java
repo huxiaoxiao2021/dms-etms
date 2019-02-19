@@ -1877,8 +1877,15 @@ public class WaybillResource {
 
 			//判断运单是否存在
 			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			if(baseEntity == null || baseEntity.getResultCode() != 1 || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
-				logger.error("调用运单获取运单主数据失败，waybillCode:"+waybillCode);
+			if(baseEntity == null){
+				logger.error("调用运单获取运单数据失败，waybillCode:"+waybillCode);
+				result.setData(false);
+				result.setCode(InvokeResult.RESULT_NULL_CODE);
+				result.setMessage("调用运单接口获取运单信息异常");
+				return result;
+			}
+			if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+				logger.info("调用运单获取运单信息为空，waybillCode:"+waybillCode);
 				result.setData(false);
 				result.setCode(InvokeResult.RESULT_NULL_CODE);
 				result.setMessage("运单信息为空，请联系IT人员处理");
