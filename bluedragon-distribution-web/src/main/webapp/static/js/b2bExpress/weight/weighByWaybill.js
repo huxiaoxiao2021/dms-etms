@@ -25,6 +25,7 @@
     var VALID_EXISTS_STATUS_CODE = 10;
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
     var NO_NEED_WEIGHT = 201; //不需要称重
+    var WAYBILL_STATES_FINISHED=202; //
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
