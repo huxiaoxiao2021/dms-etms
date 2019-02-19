@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.8-SNAPSHOT</version>
+			<version>1.2.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
