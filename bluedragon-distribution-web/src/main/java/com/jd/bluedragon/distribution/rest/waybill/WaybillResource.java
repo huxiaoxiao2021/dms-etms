@@ -1872,6 +1872,8 @@ public class WaybillResource {
 			}
 			WChoice choice = new WChoice();
 			choice.setQueryWaybillM(true);
+			choice.setQueryWaybillC(true);
+			choice.setQueryWaybillE(true);
 
 			//判断运单是否存在
 			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
