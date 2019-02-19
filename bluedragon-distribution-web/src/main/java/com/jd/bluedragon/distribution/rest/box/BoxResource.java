@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.box.service.GroupBoxService;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBox;
@@ -178,7 +179,23 @@ public class BoxResource {
 
     @POST
     @Path("/boxes")
+    @Deprecated
     public BoxResponse add(BoxRequest request) {
+        return add(request,BoxSystemTypeEnum.PRINT_CLIENT,false);
+    }
+
+    /**
+     * 新版 打印客户端获取箱号
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/printClient/boxes")
+    public BoxResponse printClientBoxes(BoxRequest request) {
+        return add(request,BoxSystemTypeEnum.PRINT_CLIENT,true);
+    }
+
+    private BoxResponse add(BoxRequest request, BoxSystemTypeEnum systemType,boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -209,7 +226,12 @@ public class BoxResource {
             this.logger.error("获得站点路由信息失败： ", e);
         }
         //生成箱号
-        List<Box> availableBoxes = this.boxService.batchAdd(this.toBoxWithRouter(request,routInfoRes));
+        List<Box> availableBoxes;
+        if(isNew){
+            availableBoxes = this.boxService.batchAddNew(this.toBoxWithRouter(request,routInfoRes),systemType);
+        }else{
+            availableBoxes = this.boxService.batchAdd(this.toBoxWithRouter(request,routInfoRes));
+        }
 
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
         return response;
@@ -258,6 +280,7 @@ public class BoxResource {
         return result;
     }
 
+
     /**
      * 为自动分拣机生成箱号
      *
@@ -266,7 +289,24 @@ public class BoxResource {
      */
     @POST
     @Path("/boxes/create")
+    @Deprecated
     public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request) {
+        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE,false);
+    }
+
+    /**
+     * 为自动分拣机生成箱号 新版
+     *
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/autoSorting/boxes")
+    public com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> autoSortingBoxes(BoxRequest request) {
+        return create(request,BoxSystemTypeEnum.AUTO_SORTING_MACHINE,true);
+    }
+
+    private com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> create(BoxRequest request,BoxSystemTypeEnum systemType,boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
@@ -274,7 +314,13 @@ public class BoxResource {
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
         this.logger.info("BoxRequest's " + request.toString());
 
-        List<Box> availableBoxes = this.boxService.batchAdd(this.toBox(request));
+        List<Box> availableBoxes;
+        if(isNew){
+            availableBoxes = this.boxService.batchAddNew(this.toBox(request),systemType);
+        }else {
+            availableBoxes = this.boxService.batchAdd(this.toBox(request));
+        }
+
         com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult> result=new com.jd.bluedragon.distribution.jsf.domain.InvokeResult<AutoSortingBoxResult>();
         AutoSortingBoxResult boxResult=new AutoSortingBoxResult();
         List<String> boxs=new ArrayList<String>(availableBoxes.size());
@@ -386,6 +432,7 @@ public class BoxResource {
             response.setRouterInfo(box.getRouterName().split("\\-\\-"));
             response.setRouterText(box.getRouterName().replace("--","-"));
         }
+        response.setMixBoxType(box.getMixBoxType());
         return response;
     }
 

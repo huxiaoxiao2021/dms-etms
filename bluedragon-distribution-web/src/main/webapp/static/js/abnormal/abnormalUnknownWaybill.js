@@ -162,7 +162,15 @@ $(function () {
             });
             $('#btn_query').click(function () {
                 waybillCodes = null;//清空批量查询
-                tableInit().refresh();
+                //校验输入的运单号
+                var url = '/abnormal/abnormalUnknownWaybill/checkWaybillCode?waybillCodes=' + $("#waybillCode").val();
+                $.ajaxHelper.doGetSync(url, null, function (res) {
+                    if (res && !res.succeed) {
+                        alert(res.message);
+                    }else{
+                        tableInit().refresh();
+                    }
+                });
             });
             $('#btn_add').click(function () {
                 $('.edit-param').each(function () {
@@ -270,7 +278,7 @@ $(function () {
                 params['isReport'] = 1;//查询并上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
-                        alert('操作成功');
+                        alert(res.message);
                         if (res.data) {
                             //批量查询
                             waybillCodes = res.data;

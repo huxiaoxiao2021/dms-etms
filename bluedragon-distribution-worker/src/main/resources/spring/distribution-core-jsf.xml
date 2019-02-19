@@ -132,6 +132,7 @@
                   alias="${dms.jsf.alias}" timeout="5000" retries="${jsf.retries}"
     >
     </jsf:consumer>
+
     <!-- 运单系统接口 结束 -->
     <!-- 基础资料系统接口 开始 -->
     <!--获取站点，员工，机构等数据-->
@@ -362,5 +363,24 @@
     <jsf:consumer id="areaDestJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 外单商家相关接口 -->
+    <jsf:consumer id="orderInfoServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf"
+                  protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!--预分拣 - 分拣中心查询商家是否可以走B网车队-->
+    <jsf:consumer id="dmsToVendorDispatchService" interface="com.jd.ql.dispatch.api.DmsToVendorDispatchService"
+                  protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 运输B网运营支撑系统-根据流水号获取青流箱箱号 haofeihu-->
+    <jsf:consumer id="bossQueryWS" interface="com.jd.tms.boss.ws.BossQueryWS"
+                  protocol="jsf" alias="${jsf.tms.boss.alias}"  timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 物资系统-根据运单号获取青流箱明细 jiangbing17-->
+    <jsf:consumer id="cycleBoxExternalService" interface="com.jd.ham.cb.service.CycleBoxExternalService"
+                  protocol="jsf" alias="${jsf.waybill.ham.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 </beans>

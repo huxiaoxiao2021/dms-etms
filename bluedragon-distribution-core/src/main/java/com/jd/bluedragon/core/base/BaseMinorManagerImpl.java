@@ -180,8 +180,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
 				return baseResult.getData();
 			}else{
-				log.warn("获取三方站点超限配置为空，siteCode："+siteCode+
-						",返回结果："+baseResult==null?"null":JsonHelper.toJson(baseResult));
+				log.warn("获取三方站点超限配置为空，siteCode："+siteCode + ",返回结果："+ JsonHelper.toJson(baseResult));
 			}
 		} catch (Exception e) {
 			log.error("获取三方站点超限配置异常，siteCode："+siteCode, e);

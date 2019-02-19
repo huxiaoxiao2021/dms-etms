@@ -23,10 +23,7 @@ import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.RouteType;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -115,10 +112,31 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
 
             Byte version = getVersion(Integer.valueOf(config.getMachineId()));
             config.setVersion(version);
-            // 多批次发货龙门架
+            /* 判断龙门架版本 */
             if (version != null && version.intValue() == 1) {
+                // 多批次发货龙门架
                 if (!this.doGetSendCode(domain, config)) {
                     return true;
+                }
+            } else {
+                // 龙门架老版本超过24小时换批次逻辑
+                Calendar now = Calendar.getInstance();
+                now.setTime(config.getStartTime());
+                now.add(Calendar.HOUR, 25);
+                Date endTime = now.getTime();
+                if (endTime.before(domain.getScannerTime())) {/*如果一天后，则进行自动切换批次号*/
+                    String sendCode = new StringBuilder()
+                            .append(SerialRuleUtil.getCreateSiteCodeFromSendCode(config.getSendCode()))
+                            .append("-")
+                            .append(SerialRuleUtil.getReceiveSiteCodeFromSendCode(config.getSendCode()))
+                            .append("-")
+                            .append(DateHelper.formatDate(new Date(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmssSSS)).toString();
+                    GantryDeviceConfig model = gantryDeviceConfigService.findMaxStartTimeGantryDeviceConfigByMachineId(Integer.valueOf(config.getMachineId()));
+                    model.setSendCode(sendCode);
+                    model.setStartTime(new Date(domain.getScannerTime().getTime() - 1000));
+                    model.setEndTime(new Date(model.getStartTime().getTime() + 1000 * 60 * 60 * 24));
+                    gantryDeviceConfigService.addUseJavaTime(model);
+                    config.setSendCode(sendCode);
                 }
             }
         }
@@ -288,12 +306,6 @@ public class SimpleScannerFrameDispatchServiceImpl implements ScannerFrameDispat
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = null;
         if (box != null) {
             baseStaffSiteOrgDto = siteService.getSite(box.getReceiveSiteCode());
-        } else {
-            if (StringUtils.isNotEmpty(domain.getBarCode()) && domain.getBarCode().length() > 16) {
-                // 截取条码10到16位为预分拣站点
-                String siteCode = domain.getBarCode().substring(9, 16);
-                baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(siteCode);
-            }
         }
         if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getSiteCode() != null && baseStaffSiteOrgDto.getSiteCode() > 0) {
             return baseStaffSiteOrgDto.getSiteCode();

@@ -180,13 +180,18 @@ public class Constants {
     public static final Integer BASE_SITE_TYPE_THIRD = 16;
     /* 基础资料siteType:64为分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_CENTER = 64;
+    /* 基础资料siteType:96车队 */
+    public static final Integer BASE_SITE_MOTORCADE = 96;
     /* 基础资料siteType:256为二级分拣中心 */
     public static final Integer BASE_SITE_DISTRIBUTION_SUBSIDIARY_CENTER = 256;
     /* 基础资料siteType:1024为B商家 */
     public static final int BASE_SITE_BUSSINESS=1024;
 
     public static final int OPERATE_TYPE_THIRD_INSPECTION = 80;
-    
+
+    /* 站点operateState：2为线下运营 */
+    public static final Integer BASE_SITE_OPERATESTATE = 2;
+
     /**
      * 承运商类型 1:司机 0:承运商（三方快递，即站点表中类型为16的数据）
      */
@@ -448,6 +453,10 @@ public class Constants {
      * 包裹称重流水-操作类型-接货中心-驻场操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_ZC_REC = 3;
+    /**
+     * 包裹称重流水-操作类型-接货中心-车队操作
+     */
+    public static final Integer PACK_OPE_FLOW_TYPE_CD_REC = 5;
     /**
      * 包裹称重流水-操作类型-仓储操作
      */

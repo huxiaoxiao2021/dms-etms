@@ -49,8 +49,20 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SENDDATA_GENERATED_EMPTY = 20004;
     public static final String MESSAGE_SENDDATA_GENERATED_EMPTY = "生成发货数据为空";
 
+    public static final Integer CODE_THREEPL_SCHEDULE_ERROR = 20005;
+    public static final String MESSAGE_THREEPL_SCHEDULE_ERROR = "此运单对应商家基础资料设置不允许转三方快递派送";
+
+    public static final Integer CODE_SITE_OFFLINE_ERROR = 20006;
+    public static final String MESSAGE_SITE_OFFLINE_ERROR = "不能预分拣到已经线下运营的站点!";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
+
+    public static final Integer CODE_RESIGNATION = 3000;
+    public static final String MESSAGE_RESIGNATION = "登陆用户未在青龙基础资料中维护，请重新登陆!";
+
+    public static final Integer CODE_TIMEOUT = 3001;
+    public static final String MESSAGE_TIMEOUT = "客户端时间和服务器时间相差5分钟";
     
     public static final Integer CODE_NOT_FOUND = 404;
     public static final Integer CODE_MISMATCH = 405;

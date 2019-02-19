@@ -239,7 +239,6 @@ public class JimdbCacheServiceImpl implements CacheService{
 	/**
 	 * 获取key所有成员，返回set集合
 	 * @param key
-	 * @param responseType
 	 * @return
 	 */
 	public Set<String> sMembers(String key){
@@ -326,9 +325,7 @@ public class JimdbCacheServiceImpl implements CacheService{
 		try {
 			return JsonHelper.fromJsonMs(in, responseType);
 		} catch (Exception e) {
-			logger.error(String.format(
-					"Caught Exception decoding %",in)
-					+ e);
+			logger.error(String.format("Caught Exception decoding %s",in), e);
 		}
 		return null;
 	}
