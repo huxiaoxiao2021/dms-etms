@@ -46,6 +46,7 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -1840,6 +1841,38 @@ public class WaybillResource {
 			logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 纯配外单换单校验
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/CheckIsPureMatch/{waybillCode}")
+	public InvokeResult<Boolean> CheckIsPureMatch(@PathParam("waybillCode") String waybillCode) {
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		result.setData(false);
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
+				true,false, false, false);
+		String waybillSign = null;
+		if(baseEntity != null && baseEntity.getData() != null &&
+				baseEntity.getData().getWaybill() !=null &&
+				StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
+			waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
+			//纯配外单且理赔完成且物权归京东-退备件库
+			if(BusinessUtil.isPurematch(waybillSign)){
+				TwiceExchangeCheckDto twiceExchangeCheckDto = new TwiceExchangeCheckDto();
+				LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
+				if(claimInfoRespDTO != null && LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) &&
+						claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
+					result.setData(true);
+				}
+			}
 		}
 		return result;
 	}

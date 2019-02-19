@@ -576,13 +576,13 @@ public class BusinessUtil {
     }
 
     /**
-     * 纯配外单判断 【waybillSign 40在2-5】
+     * 纯配外单判断 【waybillSign第1位为3】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignInChars(waybillSign,'2','5')){
+        if(isSignChar(waybillSign,1,'3')){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

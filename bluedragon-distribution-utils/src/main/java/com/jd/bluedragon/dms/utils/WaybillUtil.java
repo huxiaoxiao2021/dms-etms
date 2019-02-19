@@ -194,7 +194,7 @@ public class WaybillUtil {
     }
 
     /**
-     * 判断是否是ECLP订单
+     * 判断是否是仓配ECLP订单
      * ECLP : 仓储开发平台
      *
      * @param busiOrderCode 运单中的busiOrderCode字段,判断它是不是esl开头单号
@@ -208,6 +208,22 @@ public class WaybillUtil {
             return Boolean.TRUE;
         }
 
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 判断是否是纯配ECLP订单
+     * @param waybillSign
+     * @param busiOrderCode
+     * @return
+     */
+    public static Boolean isPureMatchECLP(String waybillSign,String busiOrderCode){
+        if (StringUtils.isEmpty(busiOrderCode) || StringUtils.isEmpty(waybillSign)) {
+            return Boolean.FALSE;
+        }
+        if(StringUtils.isNotBlank(waybillSign) && !isECLPByBusiOrderCode(busiOrderCode)){
+            return Boolean.TRUE;
+        }
         return Boolean.FALSE;
     }
 

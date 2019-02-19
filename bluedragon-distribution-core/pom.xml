@@ -846,6 +846,11 @@
             <classifier>jdk16</classifier>
         </dependency>
 
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-spare-ext-api</artifactId>
+			<version>0.0.1-TEST-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>

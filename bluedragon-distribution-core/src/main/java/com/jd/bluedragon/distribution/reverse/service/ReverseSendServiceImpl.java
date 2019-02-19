@@ -1059,6 +1059,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         sendDetails = nomarlSendDetails;//非维修外单集合        
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
         pushECLPMessageToSpwms(eclpSendDetails);//ECLP
+        //退备件库给ECLP发消息改成jsf接口的形式
+
 
 
         //------------------------维修外单---end----------------------------
@@ -1694,7 +1696,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     /**
-     * ECLP退备件库的数据推送给ECLP
+     * ECLP退备件库的数据推送给ECLP（mq的形式）
      *
      * @param sendDetailList
      */
