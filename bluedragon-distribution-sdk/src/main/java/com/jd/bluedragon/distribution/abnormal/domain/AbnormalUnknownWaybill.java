@@ -25,6 +25,7 @@ public class AbnormalUnknownWaybill extends DbEntity {
     public static final Integer REPORT_YES = 1;//查询并上报
     public static final String SEPARATOR_APPEND = ",";//分隔符
     public static final String SEPARATOR_SPLIT = "\\n";//批量运单号分割
+    public static final Integer DELIVERED_WAYBILL_NOTICE_MAX_COUNT = 10;//妥投提示运单的最大数量
     /**
      * 运单号
      */

@@ -45,4 +45,9 @@ public interface WaybillService {
      * @return true:可以操作逆向操作 false:反之
      */
     public Boolean isReverseOperationAllowed(String waybillCode, Integer siteCode) throws Exception;
+
+    /**
+     * 获取商品明细和运单状态接口
+     */
+    BigWaybillDto getWaybillProductAndState(String waybillCode);
 }
