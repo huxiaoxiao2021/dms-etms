@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.PackageState;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,13 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         }
 
         //校验是否已经妥投
-        String waybillCode = WaybillUtil.getWaybillCode(context.getResponse().getWaybillCode());
+        String waybillCode = null;
+        if(context.getWaybill() != null){
+            waybillCode = context.getWaybill().getWaybillCode();
+        }
+        if(StringUtils.isBlank(waybillCode)){
+            waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
+        }
         if(needCheckWaybillFinished(context) && waybillTraceManager.isWaybillFinished(waybillCode)){
             interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
             return interceptResult;
