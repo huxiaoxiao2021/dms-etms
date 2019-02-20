@@ -78,6 +78,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
+    public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
 
     /**
      * 整板发货任务
@@ -185,6 +186,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 整板取消发货任务表
      */
     public static final String TABLE_NAME_BOARD_SEND_CANCEL = "task_board_send_cancel";
+
+    /**
+     * 同步青流箱状态
+     */
+    public static final String TABLE_NAME_CYCLE_BOX_STATUS = "task_cycle_box";
 
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
@@ -560,6 +566,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_BOARD_SEND;
         }else if(Task.TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
             return Task.TABLE_NAME_BOARD_SEND_CANCEL;
+        }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
+            return Task.TABLE_NAME_CYCLE_BOX_STATUS;
         }
         
         return Task.TABLE_NAME_SORTING;
