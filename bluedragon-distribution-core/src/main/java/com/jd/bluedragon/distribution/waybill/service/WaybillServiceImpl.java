@@ -6,29 +6,27 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.SysConfig;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.loss.client.LossProduct;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,7 +50,7 @@ public class WaybillServiceImpl implements WaybillService {
     WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private SortingDao sortingDao;
+    private SendDatailDao sendDetailDao;
 
     @Autowired
     AbnormalWayBillService abnormalWayBillService;
@@ -239,7 +237,7 @@ public class WaybillServiceImpl implements WaybillService {
 
         //判断运单是否为仓储收货运单 是则提示 不强制
         // reverse_receive 中的包裹号字段存的是运单号
-        if(sysConfigService.getCofigByName("reverse.receive.alert.switch") ){
+        if(sysConfigService.getConfigByName("reverse.receive.alert.switch") ){
             ReverseReceive reverseReceive = reverseReceiveService.findByPackageCode(waybillCode);
             if(reverseReceive!=null && reverseReceive.getCanReceive()!=null){
                 if(reverseReceive.getCanReceive().equals(new Integer(1))){
@@ -254,17 +252,17 @@ public class WaybillServiceImpl implements WaybillService {
 
         //判断运单是否为报丢报损 是则提示 （切记报丢分拣时不需要提示 需要调用者去自行判断）
 
-        if(sysConfigService.getCofigByName("reverse.loss.alert.switch") && WaybillUtil.isJDWaybillCode(waybillCode)){
+        if(sysConfigService.getConfigByName("reverse.loss.alert.switch") && WaybillUtil.isJDWaybillCode(waybillCode) && bigWaybillDto.getWaybill()!=null){
             String orderId = bigWaybillDto.getWaybill().getVendorId();
             if(StringUtils.isNotBlank(orderId)){
                 int lossCount = this.lossServiceManager.getLossProductCountOrderId(orderId);
                 if(lossCount>0){
                     //存在报丢
                     //存在未发货的报丢分拣不提示  因为还需要继续发货
-                    Sorting query = new Sorting();
+                    SendDetail query = new SendDetail();
                     query.setCreateSiteCode(siteCode);
                     query.setWaybillCode(waybillCode);
-                    int lossSortingSize = sortingDao.findLossSortingNoSendCount(query);
+                    int lossSortingSize = sendDetailDao.findLossSortingNoSendCount(query);
                     if(lossSortingSize == 0){
                         invokeResult.setData(false);
                         invokeResult.setCode(SortingResponse.CODE_31122);

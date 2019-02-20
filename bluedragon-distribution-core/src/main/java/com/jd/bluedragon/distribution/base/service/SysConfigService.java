@@ -47,5 +47,5 @@ public interface SysConfigService {
 	 * @param configName
 	 * @return
 	 */
-	boolean getCofigByName(String configName);
+	boolean getConfigByName(String configName);
 }

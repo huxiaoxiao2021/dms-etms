@@ -136,13 +136,5 @@ public class SortingDao extends BaseDao<Sorting> {
         return this.getSqlSession().selectList(namespace +".findPageSorting",params);
     }
 
-    /**
-     * 查询报丢分拣数据
-     * @param sorting
-     * @return
-     */
-    public Integer findLossSortingNoSendCount(Sorting sorting){
-        return this.getSqlSession().selectOne(namespace +".findLossSortingNoSendCount",sorting);
-    }
 
 }

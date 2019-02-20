@@ -116,9 +116,9 @@ public class SysConfigServiceImpl implements SysConfigService {
 	 * @param configName
 	 * @return
 	 */
-	@Cache(key = "SiteServiceImpl.getSysConfigJsonContent@args0",memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000,redisEnable = false)
+	@Cache(key = "sysConfigService.getConfigByName@args0",memoryEnable = true, memoryExpiredTime = 3 * 60 * 1000,redisEnable = false)
 	@Override
-	public boolean getCofigByName(String configName) {
+	public boolean getConfigByName(String configName) {
 		try {
 			List<com.jd.bluedragon.distribution.base.domain.SysConfig> sysConfigs = getListByConfigName(configName);
 			if (null == sysConfigs || sysConfigs.size() <= 0) {

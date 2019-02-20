@@ -328,7 +328,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Override
     public boolean isOpenIntercept(){
 
-        return sysConfigService.getCofigByName("b2b.weight.user.switch");
+        return sysConfigService.getConfigByName("b2b.weight.user.switch");
 
     }
 }
