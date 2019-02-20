@@ -9,24 +9,24 @@ import java.util.List;
  */
 public class DifferentialQueryRequest extends JdRequest {
   /** 已扫描的包裹、箱号列表 */
-  private List<DeliveryRequest> SendList;
+  private List<DeliveryRequest> sendList;
 
   /** 查询类型 1：查询未扫描数据 2：查询已扫描数据 3：查询已扫、未扫数据 */
-  private Integer QueryType;
+  private Integer queryType;
 
     public List<DeliveryRequest> getSendList() {
-        return SendList;
+        return sendList;
     }
 
     public void setSendList(List<DeliveryRequest> sendList) {
-        SendList = sendList;
+        this.sendList = sendList;
     }
 
     public Integer getQueryType() {
-        return QueryType;
+        return queryType;
     }
 
     public void setQueryType(Integer queryType) {
-        QueryType = queryType;
+        this.queryType = queryType;
     }
 }
