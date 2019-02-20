@@ -147,13 +147,13 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                     //暂存起来
                     bigWaybillDtoMap.put(waybillCode, bigWaybillDto);
                     //如果要上报
+                    // 必须有商家
+                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName())) {
+                        noTraderWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                    } else {
+                        waybillList.add(waybillCode);
+                    }
                     if (AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
-                        // 必须有商家
-                        if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName())) {
-                            noTraderWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
-                        } else {
-                            waybillList.add(waybillCode);
-                        }
                         //判断运单的妥投状态
                         if (bigWaybillDto.getWaybillState() != null && bigWaybillDto.getWaybillState() != null) {
                             WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
