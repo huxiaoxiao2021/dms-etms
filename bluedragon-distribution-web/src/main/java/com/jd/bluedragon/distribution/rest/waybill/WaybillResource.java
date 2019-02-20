@@ -682,7 +682,7 @@ public class WaybillResource {
 			}
 
 			// 根据运单打标和预分拣站点判断是否需要进行黑名单校验
-			WaybillResponse<Waybill> response = this.validateBlackList(waybill, localScheduleSiteType);
+			WaybillResponse<Waybill> response = this.validateWaybillBlackList(waybill, localScheduleSiteType);
 			if (response != null) {
 				return response;
 			}
@@ -714,32 +714,30 @@ public class WaybillResource {
 
 	}
 
-    /**
-     * 根据运单打标和预分拣站点判断是否需要校验黑名单
-     *
-     * @param waybill 运单信息
-     * @return true-需要，false-不需要
-     */
-    private WaybillResponse validateBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
-        if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
-            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
-            if (siteOrgDto != null) {
-                if (BusinessHelper.isSiteType(siteOrgDto.getSiteType())) {
-                    if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
-                        // 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
-                        if (BusinessHelper.isWms(localScheduleSiteType)) {
-                            return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
-                        }
-                    }
-                } else if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
-                    if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
-                        return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
-                    }
-                }
-            }
-        }
-        return null;
-    }
+	/**
+	 * 根据运单打标和预分拣站点判断是否需要校验黑名单
+	 *
+	 * @param waybill 运单信息
+	 * @return true-需要，false-不需要
+	 */
+	private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
+		if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
+			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+			if (siteOrgDto != null) {
+				if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
+					if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
+						return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
+					} else {
+						// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
+						if (BusinessHelper.isWms(localScheduleSiteType)) {
+							return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * 调用运单接口进黑名单校验
