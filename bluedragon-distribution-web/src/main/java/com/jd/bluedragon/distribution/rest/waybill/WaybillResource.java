@@ -632,6 +632,7 @@ public class WaybillResource {
 	 * @param packOpeFlowFlg - 是否获取称重流水信息
 	 * @return
 	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@GET
 	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
 	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
@@ -651,15 +652,15 @@ public class WaybillResource {
 
 		//判断返调度目的地是否为3pl站点
 		boolean isThreePLSchedule = false;
-		Integer localScheduleSiteType = null;
+		BaseStaffSiteOrgDto scheduleSiteOrgDto;
 
 		try {
-			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
-			if (siteOrgDto != null) {
-				if (Constants.BASE_SITE_OPERATESTATE.equals(siteOrgDto.getOperateState())) {
+			scheduleSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
+			if (scheduleSiteOrgDto != null) {
+				if (Constants.BASE_SITE_OPERATESTATE.equals(scheduleSiteOrgDto.getOperateState())) {
 					return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_OFFLINE_ERROR, JdResponse.MESSAGE_SITE_OFFLINE_ERROR);
 				}
-				localScheduleSiteType = siteOrgDto.getSiteType();
+				Integer localScheduleSiteType = scheduleSiteOrgDto.getSiteType();
 				if (Constants.THIRD_SITE_TYPE.equals(localScheduleSiteType)) {
 					isThreePLSchedule = true;
 				}
@@ -680,11 +681,13 @@ public class WaybillResource {
 				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
 						JdResponse.MESSAGE_OK_NULL);
 			}
-
-			// 根据运单打标和预分拣站点判断是否需要进行黑名单校验
-			WaybillResponse<Waybill> response = this.validateWaybillBlackList(waybill, localScheduleSiteType);
-			if (response != null) {
-				return response;
+			// 只有输入正确预分拣
+			if (scheduleSiteOrgDto != null){
+				// 根据运单打标和预分拣站点判断是否需要进行黑名单校验
+				WaybillResponse<Waybill> response = this.validateWaybillBlackList(waybill, scheduleSiteOrgDto.getSiteType());
+				if (response != null) {
+					return response;
+				}
 			}
 
 			//如果是现场预分拣目的地是3pl站点，则判断商家是否支持转3方配送
