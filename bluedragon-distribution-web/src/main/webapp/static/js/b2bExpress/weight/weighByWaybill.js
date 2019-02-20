@@ -109,7 +109,7 @@
                     {
                         $.messager.alert('提示',res.message,'warning');
                     }else if(res.code==WAYBILL_STATES_FINISHED){
-                        $.messager.alert('提示',res.message,'warning');
+                        $.messager.alert('提示',res.message,'error');
                     }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
@@ -252,6 +252,10 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
 
                 if(res.code == NO_NEED_WEIGHT){
                     $.messager.alert('提示',res.message,'warning');
+                    return ;
+                }
+                if(res.code == WAYBILL_STATES_FINISHED){
+                    $.messager.alert('提示',res.message,'error');
                     return ;
                 }
                 /*单号通过正则校验、但单号对应运单不存在*/

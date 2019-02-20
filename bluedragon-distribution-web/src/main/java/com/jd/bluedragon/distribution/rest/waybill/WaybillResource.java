@@ -1745,6 +1745,7 @@ public class WaybillResource {
 				//验证是否妥投
 				String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
 				if(waybillTraceManager.isWaybillFinished(waybillCode)){
+					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 					result.setMessage("此运单为妥投状态，禁止操作此功能，请检查单号是否正确");
 					result.setData(false);
 					return result;
@@ -1754,6 +1755,7 @@ public class WaybillResource {
 				result.setData(true);
 				return result;
 			}
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage(message.toString());
 			result.setData(false);
 		}catch (Exception e){
