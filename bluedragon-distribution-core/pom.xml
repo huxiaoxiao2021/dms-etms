@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.8-SNAPSHOT</version>
+			<version>1.2.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -829,7 +829,7 @@
 		<dependency>
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
+			<version>1.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
