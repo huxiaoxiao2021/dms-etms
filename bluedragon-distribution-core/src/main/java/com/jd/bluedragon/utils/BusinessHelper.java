@@ -224,7 +224,7 @@ public class BusinessHelper {
     }
 
     /**
-     * 运单为非城配类型，sendpay 第146位不等于1，表示为自营非城配 || waybill_sign 第36位不等于1，表示为外单非城配
+     * 运单为城配类型，sendpay 第146位等于1，表示为自营城配 || waybill_sign 第36位等于1，表示为外单城配
      * @param waybillSign
      * @param sendPay
      * @return
@@ -232,12 +232,12 @@ public class BusinessHelper {
     public static boolean isDmsToVendor(String waybillSign,String sendPay) {
         boolean waybillSignFlag = false;
         boolean sendPayFlag = false;
-        //waybill_sign 第36位不等于1，表示为外单非城配,waybillSignFlag置为true
-        if(StringHelper.isNotEmpty(waybillSign) && !BusinessUtil.isSignChar(waybillSign, 36, '1')){
+        //waybill_sign 第36位等于1，表示为外单城配,waybillSignFlag置为true
+        if(StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '1')){
             waybillSignFlag = true;
         }
-        //sendPay 第146位不等于1，表示为自营非城配
-        if(StringHelper.isNotEmpty(sendPay) && !BusinessUtil.isSignChar(sendPay, 146, '1')){
+        //sendPay 第146位等于1，表示为自营城配
+        if(StringHelper.isNotEmpty(sendPay) && BusinessUtil.isSignChar(sendPay, 146, '1')){
             sendPayFlag = true;
         }
         return waybillSignFlag || sendPayFlag;
