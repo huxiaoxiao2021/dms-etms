@@ -72,9 +72,9 @@ public class WaybillUtil {
         return WaybillCodeRuleValidateUtil.getPackNumByPackCode(packCode);
     }
 
-    public static int getPackIndexByPackCode(String packCode) {
+    /*public static int getPackIndexByPackCode(String packCode) {
         return WaybillCodeRuleValidateUtil.getPackIndexByPackCode(packCode);
-    }
+    }*/
 
     /**
      * 根据包裹号解析运单号

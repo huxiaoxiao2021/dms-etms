@@ -14,14 +14,15 @@ import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrderTypeEnum;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
+import com.jd.eclp.spare.ext.api.outbound.GoodsInfoItem;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.uad.api.claim.facade.claim.resp.ClaimInfoRespDTO;
-import com.jd.uad.api.core.APIResultDTO;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -164,6 +165,106 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         bdInboundECLPDto.setSupportLack( (byte)(1));
 
         return bdInboundECLPDto;
+    }
+
+    @Override
+    public InboundOrder createInboundOrder(String waybillCode, SendDetail sendDetail) {
+        InboundOrder inboundOrder = new InboundOrder();
+        inboundOrder.setOrderNo(sendDetail.getSendCode());
+        inboundOrder.setSource(InboundSourceEnum.SPARE);
+        inboundOrder.setOrderType(InboundOrderTypeEnum.PURCHASE);
+        String oldWaybillCodeV1 = null; //一次换单原单号
+        String oldWaybillCodeV2 = null; //二次换单原单号
+        String eclpBusiOrderCode = null;
+        Waybill waybill =  waybillCommonService.findByWaybillCode(waybillCode);
+        if(waybill != null) {
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {
+                oldWaybillCodeV1 = oldWaybill1.getData().getWaybillCode();
+                eclpBusiOrderCode = oldWaybill1.getData().getBusiOrderCode();
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV1);
+                //仓配和纯配二次换单一样
+                if (oldWaybill2 != null && oldWaybill2.getData() != null && oldWaybill2.getData().getBusiOrderCode() != null){
+                    oldWaybillCodeV2 = oldWaybill2.getData().getWaybillCode();
+                    eclpBusiOrderCode = oldWaybill2.getData().getBusiOrderCode();
+                    LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV2);
+                    if(claimInfoRespDTO != null){
+                        //理赔金额 结算主体 结算主体名称
+                        inboundOrder.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney().toString());
+                        inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
+                        inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
+                    }else{
+                        logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常"+waybillCode+"|"+sendDetail.getSendCode());
+                        return null;
+                    }
+                }
+
+                if(WaybillUtil.isPureMatchECLP(waybill.getWaybillSign(),oldWaybill1.getData().getBusiOrderCode())){
+                    //纯配
+                    if(oldWaybillCodeV2 == null){
+                        //一次换单
+                        LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1);
+                        if(claimInfoRespDTO != null){
+                            inboundOrder.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney().toString());
+                            inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
+                            inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
+                        }else{
+                            logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常"+waybillCode+"|"+sendDetail.getSendCode());
+                            return null;
+                        }
+                    }
+                }
+            }else {
+                logger.error("组装逆向退备件库运单集合时出现异常数据，运单空"+waybillCode+"|"+sendDetail.getSendCode());
+                return null;
+            }
+            //商品明细
+            List<ItemInfo> itemInfos =  eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
+            if(itemInfos!=null && itemInfos.size()>0){
+                for(ItemInfo itemInfo : itemInfos){
+                    if(StringUtils.isBlank(itemInfo.getGoodsNo())){
+                        continue;
+                    }
+                    GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
+                    goodsInfoItem.setGoodsNo(itemInfo.getGoodsNo());
+                    goodsInfoItem.setGoodsName(itemInfo.getGoodsName());
+                    if(itemInfo.getDeptRealOutQty() == null){
+                        //使用实际发货数量
+                        goodsInfoItem.setNum(itemInfo.getRealOutstoreQty());
+                    }else{
+                        //使用事业部实际发货的数量
+                        goodsInfoItem.setNum(itemInfo.getDeptRealOutQty());
+                    }
+                }
+            }else{
+                logger.error("组装逆向退备件库运单集合时出现异常数据,获取商品信息为空 oldWaybillCodeV1:"+oldWaybillCodeV1+"|esl:"+eclpBusiOrderCode+"|oldWaybillCodeV2:"+oldWaybillCodeV1+"|"+sendDetail.getSendCode());
+                return null;
+            }
+        }
+        //单据号 √
+        //运单号（字段不存在）
+        //销售单号
+        //结算主体 √
+        //结算主体名称 √
+        //原事业部ID
+        //原事业部编号
+        //原事业部名称
+        //目的事业部ID
+        //目的事业部编号
+        //目的事业部名称
+        //来源 √
+        //单据类型 √
+        //出库机构号
+        //出库配送中心
+        //出库库房号
+        //入库机构号
+        //入库配送中心
+        //入库库房号
+        //理赔金额 √
+        //操作人（字段不存在）
+        //商品明细 √
+
+        return null;
     }
 
     private boolean useQLBaiscCky2(){
