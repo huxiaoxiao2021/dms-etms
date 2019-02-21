@@ -5,16 +5,16 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.PackageState;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
 
@@ -30,6 +30,21 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
 
     @Autowired
     WaybillTraceManager waybillTraceManager;
+
+    /**
+     * 需要校验运单是否已经妥投的类型
+     */
+    private static Set<Integer> needCheckWaybillFinished = new HashSet<Integer>();
+    static {
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());//平台打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());//站点平台打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());//换单打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.getType());//包裹称重
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());//驻场打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType());//批量分拣称重
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
+    }
+
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -48,32 +63,11 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
             }
         }
 
-        //校验是否已经妥投
-        String waybillCode = null;
-        if(context.getWaybill() != null){
-            waybillCode = context.getWaybill().getWaybillCode();
-        }
-        if(StringUtils.isBlank(waybillCode)){
-            waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
-        }
-        if(needCheckWaybillFinished(context) && waybillTraceManager.isWaybillFinished(waybillCode)){
+        logger.info("C2cInterceptHandler-校验运单是否已经妥投");
+        if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
             interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
             return interceptResult;
         }
         return interceptResult;
-    }
-
-    /**
-     * 根据操作类型判断是否需要校验运单是否已经妥投
-     * @param context
-     * @return
-     */
-    private boolean needCheckWaybillFinished(WaybillPrintContext context){
-        return WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.getType().equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.FIELD_PRINT.getType().equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType().equals(context.getRequest().getOperateType()) ||
-                WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType().equals(context.getRequest().getOperateType());
     }
 }

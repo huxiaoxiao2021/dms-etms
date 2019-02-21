@@ -1,8 +1,6 @@
 package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
