@@ -2065,7 +2065,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
                                 Waybill waybill = sendDetailWaybillMap.get(tSendDatail.getWaybillCode());
                                 //发货目的地是车队，且是非城配运单，要通知调度系统
-                                if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                                if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
                                     Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill, rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                     this.logger.info("非城配运单，发车队通知调度系统发送MQ["+sendDispatchMessage.getTopic()+"],业务ID["+sendDispatchMessage.getBusinessId()+"],消息主题: " + sendDispatchMessage.getText());
                                     dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(),sendDispatchMessage.getText());
@@ -3064,7 +3064,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(StringUtils.isNotEmpty(waybillCode) && WaybillUtil.isWaybillCode(waybillCode)){
                 com.jd.bluedragon.common.domain.Waybill waybill =  waybillCommonService.findByWaybillCode(waybillCode);
                 //运单为非城配类型，且 发货目的地为【车队】类型的
-                if(waybill != null && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                if(waybill != null && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
                     InvokeResult<Boolean> result = dmsInterturnManager.dispatchToExpress(sendM.getCreateSiteCode(), waybill.getBusiId(), waybill.getWaybillSign());
                     if(JdResponse.CODE_OK == result.getCode() && result.getData() != null && result.getData().booleanValue() == false){
                         return false;
