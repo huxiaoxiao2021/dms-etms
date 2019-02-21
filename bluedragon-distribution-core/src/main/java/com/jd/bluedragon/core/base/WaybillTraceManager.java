@@ -17,4 +17,11 @@ public interface WaybillTraceManager {
      * @return
      */
     List<PackageState> getPkStateByWCodeAndState(String waybillCode, String state);
+
+    /**
+     * 判断运单是否已经妥投
+     * @param waybillCode 运单号
+     * @return true表示已经妥投，false表示还没有妥投
+     */
+    boolean isWaybillFinished(String waybillCode);
 }

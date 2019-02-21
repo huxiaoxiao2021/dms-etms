@@ -57,6 +57,7 @@ public class WeighByWaybillController {
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     private final Integer NO_NEED_WEIGHT = 201;
+    private final Integer WAYBILL_STATE_FINISHED = 202;
 
     @Autowired
     WeighByWaybillService service;
@@ -219,6 +220,10 @@ public class WeighByWaybillController {
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
                     logger.debug("运单称重：" +codeStr+ "  " + exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
+                    //运单已经妥投，不允许录入
+                    result.setCode(WAYBILL_STATE_FINISHED);
+                    logger.debug("运单称重:" + codeStr + " " +exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);
