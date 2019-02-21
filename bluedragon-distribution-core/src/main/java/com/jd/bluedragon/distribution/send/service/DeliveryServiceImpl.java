@@ -2809,7 +2809,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         notScanned = forwardComputer.compute(allList, false);
       }
       if (null != notScanned) {
-          res.addAll(notScanned);
+        for (int i = 0; i < notScanned.size() - 1; i++) {
+          if (notScanned.get(i).getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
+            notScanned.remove(i);
+          }
+        }
+
+        res.addAll(notScanned);
       }
     }
     if (queryType == 2 || queryType == 3) {
