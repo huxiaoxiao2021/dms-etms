@@ -135,4 +135,6 @@ public class SortingDao extends BaseDao<Sorting> {
     public List<Sorting> findPageSorting(Map<String,Object> params){
         return this.getSqlSession().selectList(namespace +".findPageSorting",params);
     }
+
+
 }

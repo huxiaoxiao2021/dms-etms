@@ -335,18 +335,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      */
     @Override
     public boolean isOpenIntercept(){
-        try {
-            List<SysConfig> sysConfigs = sysConfigService.getListByConfigName("b2b.weight.user.switch");
-            if (null == sysConfigs || sysConfigs.size() <= 0) {
-                return false;
-            } else {
-                if(sysConfigs.get(0).getConfigContent()==null){
-                    return false;
-                }
-                return sysConfigs.get(0).getConfigContent().equals("1");
-            }
-        } catch (Throwable ex) {
-            return false;
-        }
+
+        return sysConfigService.getConfigByName("b2b.weight.user.switch");
+
     }
 }

@@ -8,7 +8,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -49,7 +53,12 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
@@ -72,9 +81,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -409,7 +428,7 @@ public class WaybillResource {
 		if (waybill == null) {
 		    return waybill;
 		}
-		
+
 		// 获取该运单号的打印记录
 		try {
 			List<Pack> packs = waybill.getPackList();
@@ -484,9 +503,9 @@ public class WaybillResource {
 		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
 		try {
-			
+
 			Waybill waybill = findWaybillMessage(waybillCode,Constants.INTEGER_FLG_FALSE);
-			
+
 			if (waybill == null) {
 				this.logger.info("运单号【" + waybillCode
 						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
@@ -618,63 +637,76 @@ public class WaybillResource {
 	 * @param packOpeFlowFlg - 是否获取称重流水信息
 	 * @return
 	 */
+	@JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@GET
 	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
 	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
-												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
-			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType,@PathParam("packOpeFlowFlg") Integer packOpeFlowFlg) {
+												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage, @PathParam("localSchedule") Integer localSchedule
+			, @PathParam("paperless") Integer paperless, @PathParam("startSiteType") Integer startSiteType, @PathParam("packOpeFlowFlg") Integer packOpeFlowFlg) {
 		// 判断传入参数
-		if (startDmsCode == null || startDmsCode.equals(0)
-				|| StringUtils.isEmpty(waybillCodeOrPackage)) {
+		if (startDmsCode == null || startDmsCode.equals(0) || StringUtils.isEmpty(waybillCodeOrPackage)) {
 			this.logger.error("根据初始分拣中心-运单号/包裹号【" + startDmsCode + "-"
 					+ waybillCodeOrPackage + "】获取运单包裹信息接口 --> 传入参数非法");
 			return new WaybillResponse<Waybill>(JdResponse.CODE_PARAM_ERROR,
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		if(packOpeFlowFlg==null){
+
+		if (packOpeFlowFlg == null) {
 			packOpeFlowFlg = Constants.INTEGER_FLG_FALSE;
 		}
 
 		//判断返调度目的地是否为3pl站点
 		boolean isThreePLSchedule = false;
-		try{
-            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
-            if(siteOrgDto != null){
-                if(Constants.BASE_SITE_OPERATESTATE.equals(siteOrgDto.getOperateState())){
-                    return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_OFFLINE_ERROR, JdResponse.MESSAGE_SITE_OFFLINE_ERROR);
-                }
-                if(Constants.THIRD_SITE_TYPE.equals(siteOrgDto.getSiteType())){
-                    isThreePLSchedule = true;
-                }
-            }
-        }catch (Exception e){
-            logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
+		BaseStaffSiteOrgDto scheduleSiteOrgDto;
+
+		try {
+			scheduleSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
+			if (scheduleSiteOrgDto != null) {
+				if (Constants.BASE_SITE_OPERATESTATE.equals(scheduleSiteOrgDto.getOperateState())) {
+					return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_OFFLINE_ERROR, JdResponse.MESSAGE_SITE_OFFLINE_ERROR);
+				}
+				Integer localScheduleSiteType = scheduleSiteOrgDto.getSiteType();
+				if (Constants.THIRD_SITE_TYPE.equals(localScheduleSiteType)) {
+					isThreePLSchedule = true;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
 		}
-        // 转换运单号
-        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
-        // 调用服务
-        try {
-            Waybill waybill = findWaybillMessage(waybillCode,packOpeFlowFlg);
-            if (waybill == null) {
-                this.logger.info("运单号【" + waybillCode
-						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
-                return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
-						JdResponse.MESSAGE_OK_NULL);
-            }
 
-            //如果是现场预分拣目的地是3pl站点，则判断商家是否支持转3方配送
-            if(isThreePLSchedule){
-                BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
-                //不支持转三方时，给前端提示
-                if(traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())){
-                    logger.warn("商家不支持转3方配送，返调度到3方站点失败：" + waybillCodeOrPackage);
-                    return new WaybillResponse<Waybill>(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
+		// 转换运单号
+		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+		// 调用服务
+		try {
+			Waybill waybill = findWaybillMessage(waybillCode, packOpeFlowFlg);
+			if (waybill == null) {
+				this.logger.info("运单号【" + waybillCode
+						+ "】调用根据运单号获取运单包裹信息接口成功, 无数据");
+				return new WaybillResponse<Waybill>(JdResponse.CODE_OK_NULL,
+						JdResponse.MESSAGE_OK_NULL);
+			}
+			// 只有输入正确预分拣
+			if (scheduleSiteOrgDto != null){
+				// 根据运单打标和预分拣站点判断是否需要进行黑名单校验
+				WaybillResponse<Waybill> response = this.validateWaybillBlackList(waybill, scheduleSiteOrgDto.getSiteType());
+				if (response != null) {
+					return response;
+				}
+			}
+
+			//如果是现场预分拣目的地是3pl站点，则判断商家是否支持转3方配送
+			if (isThreePLSchedule) {
+				BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
+				//不支持转三方时，给前端提示
+				if (traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())) {
+					logger.warn("商家不支持转3方配送，返调度到3方站点失败：" + waybillCodeOrPackage);
+					return new WaybillResponse<Waybill>(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
 				}
 			}
 
 			//调用分拣接口获得基础资料信息
-			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless,startSiteType);
+			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
 
 			this.logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
@@ -688,6 +720,55 @@ public class WaybillResource {
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
 
+	}
+
+	/**
+	 * 根据运单打标和预分拣站点判断是否需要校验黑名单
+	 *
+	 * @param waybill 运单信息
+	 * @return true-需要，false-不需要
+	 */
+	private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
+		if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
+			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+			if (siteOrgDto != null) {
+				if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
+					if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
+						return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
+					} else {
+						// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
+						if (BusinessHelper.isWms(localScheduleSiteType)) {
+							return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 调用运单接口进黑名单校验
+	 *
+	 * @param cky2
+	 * @param storeId
+	 * @return
+	 */
+	private boolean doValidateBlackList(Integer cky2, Integer storeId) throws Exception {
+		// 调用运单接口
+		if (cky2 != null && storeId != null) {
+			try {
+				// 如果接口调用成功且是强制换单返回true，否则返回false
+				Boolean result = waybillQueryManager.ifForceCheckByWarehouse(cky2, storeId);
+				if (result != null) {
+					return result;
+				}
+			} catch (Exception e){
+				logger.error("调用运单JSF接口-根据配送中心ID和仓ID查询是否强制换单-发生异常", e);
+				throw e;
+			}
+		}
+		return false;
 	}
 
     /**
