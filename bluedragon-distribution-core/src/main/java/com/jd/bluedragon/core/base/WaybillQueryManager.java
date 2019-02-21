@@ -11,7 +11,6 @@ import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
@@ -208,4 +207,14 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<WaybillExtPro> getWaybillExtByProperties(List<String> waybillCodes, List<String> properties);
+
+	/**
+	 * 根据配送中心ID和仓ID查询是否强制换单
+	 *
+	 * @param cky2 配送中心ID
+	 * @param storeId 仓ID
+	 * @return
+	 */
+	Boolean ifForceCheckByWarehouse(Integer cky2, Integer storeId);
+
 }

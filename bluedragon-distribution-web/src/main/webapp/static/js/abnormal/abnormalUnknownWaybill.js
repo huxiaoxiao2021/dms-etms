@@ -278,7 +278,7 @@ $(function () {
                 params['isReport'] = 1;//查询并上报
                 $.ajaxHelper.doPostSync(saveUrl, JSON.stringify(params), function (res) {
                     if (res && res.succeed) {
-                        alert('操作成功');
+                        alert(res.message);
                         if (res.data) {
                             //批量查询
                             waybillCodes = res.data;

@@ -60,11 +60,13 @@ public class BasicSystemResource {
             return result;
         }
         try{
-            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(request.getErpCode());
-            if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
-                result.setCode(JdResponse.CODE_RESIGNATION);
-                result.setMessage(JdResponse.MESSAGE_RESIGNATION);
-                return result;
+            if(!request.getErpCode().toLowerCase().contains(Constants.PDA_THIRDPL_TYPE)){
+                BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(request.getErpCode());
+                if(baseDto == null || baseDto.getIsResign() == null || baseDto.getIsResign() != 1){
+                    result.setCode(JdResponse.CODE_RESIGNATION);
+                    result.setMessage(JdResponse.MESSAGE_RESIGNATION);
+                    return result;
+                }
             }
             Date pdaTime = new SimpleDateFormat(Constants.DATE_TIME_FORMAT).parse(request.getOperateTime());
             if(diffTime(pdaTime,systemTime)){

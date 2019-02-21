@@ -174,16 +174,17 @@ $(function () {
                 formParams.type = formParams.type.trim();
                 formParams.volumeCoefficient = formParams.volumeCoefficient.trim();
 
-                if (formParams.type == "TY001") {
-                    // if (formParams.volumeCoefficient == null || formParams.volumeCoefficient == "") {
-                    //     $.msg.warn('类型为' + formParams.typeName + '必须录入体积系数！');
-                    //     $.pageBlocker.close(blocker);
-                    //     return;
-                    // }
-                    if (withValue != null && withValue !="" && lengthValue != null && lengthValue !="" && heightValue != null && heightValue != "") {
-                        formParams.volume = withValue * lengthValue * heightValue;
-                        formParams.specification = lengthValue + "*" + withValue + "*" + heightValue;
-                    } else {
+
+                // if (formParams.volumeCoefficient == null || formParams.volumeCoefficient == "") {
+                //     $.msg.warn('类型为' + formParams.typeName + '必须录入体积系数！');
+                //     $.pageBlocker.close(blocker);
+                //     return;
+                // }
+                if (withValue != null && withValue !="" && lengthValue != null && lengthValue !="" && heightValue != null && heightValue != "") {
+                    formParams.volume = withValue * lengthValue * heightValue;
+                    formParams.specification = lengthValue + "*" + withValue + "*" + heightValue;
+                } else {
+                    if (formParams.type == "TY001") {
                         $.msg.warn('类型为【' + formParams.typeName + ']需要计算标准体积' + '必须录入长、宽、高！');
                         $.pageBlocker.close(blocker);
                         return;
