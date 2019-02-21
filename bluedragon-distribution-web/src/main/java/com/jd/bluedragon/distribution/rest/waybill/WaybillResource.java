@@ -1822,6 +1822,7 @@ public class WaybillResource {
 				result.setData(true);
 				return result;
 			}
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage(message.toString());
 			result.setData(false);
 		}catch (Exception e){
