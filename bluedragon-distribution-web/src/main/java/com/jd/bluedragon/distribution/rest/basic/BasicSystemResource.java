@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BaseSystemRequest;
 import com.jd.bluedragon.distribution.api.response.BaseSystemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -71,7 +72,7 @@ public class BasicSystemResource {
             Date pdaTime = new SimpleDateFormat(Constants.DATE_TIME_FORMAT).parse(request.getOperateTime());
             if(diffTime(pdaTime,systemTime)){
                 result.setCode(JdResponse.CODE_TIMEOUT);
-                result.setMessage(JdResponse.MESSAGE_TIMEOUT);
+                result.setMessage(JdResponse.MESSAGE_TIMEOUT + "[PDA时间:" + request.getOperateTime() + ",服务器时间:" + DateHelper.formatDate(systemTime, DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2) + "]");
                 return result;
             }
 
