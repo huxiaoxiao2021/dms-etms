@@ -205,12 +205,12 @@ public class JsonHelper {
         } catch (Exception e) {
             JsonHelper.logger.error("序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
         }finally {
-            try{
-                if(generator != null){
+            if(generator != null){
+                try{
                     generator.close();
+                }catch (Exception e){
+                    logger.error("generator关闭失败:" + e.getMessage(), e);
                 }
-            }catch (Exception e){
-                logger.error("generator关闭失败:" + e.getMessage(), e);
             }
         }
         return null;

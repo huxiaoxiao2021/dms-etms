@@ -700,12 +700,12 @@ public class LoadBillServiceImpl implements LoadBillService {
         Integer limit = SQL_IN_EXPRESS_LIMIT;
         Integer total = id.size();
         Integer arrayIndex = 0;
-        List<Long> subList;
         Map<Integer, List<Long>> splitedLoadBillid = new HashMap<Integer, List<Long>>();
         for (int index = 0; index < total; index = index + limit) {
+            List<Long> subList;
             int end = index + limit;
             if(end > total){
-                subList = id.subList(index, id.size());
+                subList = id.subList(index, total);
             }else{
                 subList = id.subList(index, end);
             }
@@ -728,12 +728,12 @@ public class LoadBillServiceImpl implements LoadBillService {
         Integer limit = SQL_IN_EXPRESS_LIMIT;
         Integer total = waybillCodes.size();
         Integer arrayIndex = 0;
-        List<String> subList;
         Map<Integer, List<String>> splitedLoadBillid = new HashMap<Integer, List<String>>();
         for (int index = 0; index < total; index = index + limit) {
+            List<String> subList;
             int end = index + limit;
             if(end > total){
-                subList = waybillCodes.subList(index, waybillCodes.size());
+                subList = waybillCodes.subList(index, total);
             }else{
                 subList = waybillCodes.subList(index, end);
             }

@@ -94,7 +94,6 @@ public class FailQueueServiceImpl implements IFailQueueService {
 
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
     public void failData(List<TaskFailQueue> list) {
         List<TaskFailQueue> sendDatailAl = new ArrayList<TaskFailQueue>();
         List<TaskFailQueue> sendDatailAl_batch = new ArrayList<TaskFailQueue>();

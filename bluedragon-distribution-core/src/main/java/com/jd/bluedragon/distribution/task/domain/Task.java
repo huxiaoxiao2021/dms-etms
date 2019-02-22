@@ -730,22 +730,17 @@ public class Task implements java.io.Serializable, TaskModeAware{
 			ownSign = BusinessHelper.getOwnSign();
 		
 		//3.计算任务的队列号
-        int theQueueId = 0;
+        int hashCode = 0;
         if(getFingerprint() != null){
-            int fingerHashCode = getFingerprint().hashCode();
-            if(Integer.MIN_VALUE == fingerHashCode){
-                fingerHashCode = Integer.MAX_VALUE;
-            }
-            theQueueId = Math.abs(fingerHashCode) % RedisTaskHelper.getQueueNum();
+            hashCode = getFingerprint().hashCode();
         }else{
-            int bodyHashCode = getBody().hashCode();
-            if(Integer.MIN_VALUE == bodyHashCode){
-                bodyHashCode = Integer.MAX_VALUE;
-            }
-            theQueueId = Math.abs(bodyHashCode) % RedisTaskHelper.getQueueNum();
+            hashCode = getBody().hashCode();
         }
+        if(Integer.MIN_VALUE == hashCode){
+            hashCode = Integer.MAX_VALUE;
+        }
+        int theQueueId = Math.abs(hashCode) % RedisTaskHelper.getQueueNum();
 
-				
 		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(theQueueId);
 		
 		//4.设定QueueKeyInfo

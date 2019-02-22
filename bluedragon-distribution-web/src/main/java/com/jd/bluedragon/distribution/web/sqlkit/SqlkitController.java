@@ -179,9 +179,10 @@ public class SqlkitController {
 		ResultSet resultSet = null;
         PreparedStatement pstmt = null;
 		try {
-            String sqlCount = "select count(1) from (?) AS b";
-            pstmt = connection.prepareStatement(sqlCount);
-            pstmt.setString(1, sql);
+            StringBuilder sqlBuilder = new StringBuilder("select count(1) from (");
+            sqlBuilder.append(sql);
+            sqlBuilder.append(") AS b");
+            pstmt = connection.prepareStatement(sqlBuilder.toString());
 			resultSet = pstmt.executeQuery();
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
