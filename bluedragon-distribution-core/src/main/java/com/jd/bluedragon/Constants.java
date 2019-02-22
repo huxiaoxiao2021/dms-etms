@@ -780,4 +780,9 @@ public class Constants {
      * 全程跟踪状态  揽收完成
      */
     public static final String WAYBILLTRACE_STATE ="-640";
+
+    /**
+     * 运单状态  妥投
+     */
+    public static final String WAYBILLTRACE_FINISHED = "150";
 }

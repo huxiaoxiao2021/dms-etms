@@ -624,33 +624,7 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
 
-        //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
-        if (WaybillUtil.isPackageCode(boxCode)) {
-            try {
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
-                if (baseStaffSiteOrgDto != null) {
-                    Integer siteType = baseStaffSiteOrgDto.getSiteType();
-                    //售后
-                    String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
-                    //仓储
-                    String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
-                    //备件库退货
-                    String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
-                    if (siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)) {
-                        String waybillCode = WaybillUtil.getWaybillCode(boxCode);
-                        Boolean result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
-                        if(result != null && ! result) {
-                            return new DeliveryResponse(SortingResponse.CODE_29121, SortingResponse.MESSAGE_29121);
-                        }
-                    }
-                } else{
-                    this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
-                }
-            } catch (Exception e) {
-                this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
-            }
-        }
-        //adder end
+
 
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
@@ -663,7 +637,40 @@ public class DeliveryResource {
             DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
-                return tDeliveryResponse;
+                if(JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())){
+
+                    //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
+                    if (WaybillUtil.isPackageCode(boxCode)) {
+                        try {
+                            BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
+                            if (baseStaffSiteOrgDto != null) {
+                                Integer siteType = baseStaffSiteOrgDto.getSiteType();
+                                //售后
+                                String asm_type = PropertiesHelper.newInstance().getValue("asm_type");
+                                //仓储
+                                String wms_type = PropertiesHelper.newInstance().getValue("wms_type");
+                                //备件库退货
+                                String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+                                if (siteType == Integer.parseInt(asm_type) || siteType == Integer.parseInt(wms_type) || siteType == Integer.parseInt(spwms_type)) {
+                                    String waybillCode = WaybillUtil.getWaybillCode(boxCode);
+                                    InvokeResult<Boolean> result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
+                                    if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
+                                        return new DeliveryResponse(result.getCode(), result.getMessage());
+                                    }
+                                }
+                            } else{
+                                this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
+                            }
+                        } catch (Exception e) {
+                            this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
+                        }
+
+                    }
+                    return tDeliveryResponse;
+                    //adder end
+                }else{
+                    return tDeliveryResponse;
+                }
             } else {
                 return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
             }

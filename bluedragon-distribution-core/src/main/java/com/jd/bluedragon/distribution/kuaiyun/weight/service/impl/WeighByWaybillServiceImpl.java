@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -72,6 +73,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Autowired
     private TaskDao dao;
 
+    @Autowired
+    WaybillTraceManager waybillTraceManager;
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
      *
@@ -180,6 +183,11 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException);
         }
 
+        //校验是否已经妥投
+        if(waybillTraceManager.isWaybillFinished(waybillCode)){
+            //弹出提示
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
+        }
         return true;
     }
 
@@ -327,18 +335,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      */
     @Override
     public boolean isOpenIntercept(){
-        try {
-            List<SysConfig> sysConfigs = sysConfigService.getListByConfigName("b2b.weight.user.switch");
-            if (null == sysConfigs || sysConfigs.size() <= 0) {
-                return false;
-            } else {
-                if(sysConfigs.get(0).getConfigContent()==null){
-                    return false;
-                }
-                return sysConfigs.get(0).getConfigContent().equals("1");
-            }
-        } catch (Throwable ex) {
-            return false;
-        }
+
+        return sysConfigService.getConfigByName("b2b.weight.user.switch");
+
     }
 }

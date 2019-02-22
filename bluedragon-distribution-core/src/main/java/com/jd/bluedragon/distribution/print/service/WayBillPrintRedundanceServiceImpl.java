@@ -111,12 +111,12 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 //调用分拣接口获得基础资料信息
                 context.setWaybill(waybill);
                 result = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
+                // C2C运单打印面单校验揽收完成
+                InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
+                if(!c2cInterceptResult.isSucceed()){
+                    return c2cInterceptResult;
+                }
                 if(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(context.getRequest().getOperateType())){
-                    // C2C运单打印面单校验揽收完成
-                    InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
-                    if(!c2cInterceptResult.isSucceed()){
-                        return c2cInterceptResult;
-                    }
                 	InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
                     if(!overRunInterceptResult.isSucceed()){
                     	return overRunInterceptResult;
