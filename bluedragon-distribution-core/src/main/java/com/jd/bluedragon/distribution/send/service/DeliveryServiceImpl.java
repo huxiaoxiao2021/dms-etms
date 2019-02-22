@@ -108,6 +108,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -115,6 +116,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -2784,6 +2786,51 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+  /**
+   * 快运发货差异查询
+   *
+   * @param sendMList
+   * @param queryType
+   * @return
+   */
+  public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType) {
+    // 未扫描包裹
+    List<SendThreeDetail> notScanned = null;
+    List<SendThreeDetail> res = new ArrayList<SendThreeDetail>();
+    Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
+    List<SendDetail> allList = new ArrayList<SendDetail>();
+    this.logger.info("快运发货差异查询");
+    getAllList(sendMList, allList);
+
+    if (queryType == 1 || queryType == 3) {
+      if (businessType.equals(20)) {
+        notScanned = reverseComputer.compute(allList, false);
+      } else {
+        notScanned = forwardComputer.compute(allList, false);
+      }
+      if (null != notScanned) {
+        for (int i = 0; i < notScanned.size() - 1; i++) {
+          if (notScanned.get(i).getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
+            notScanned.remove(i);
+          }
+        }
+
+        res.addAll(notScanned);
+      }
+    }
+    if (queryType == 2 || queryType == 3) {
+      for (SendDetail item : allList) { // 遍历该箱的所有包裹
+        SendThreeDetail diff = new SendThreeDetail();
+        diff.setBoxCode(item.getBoxCode());
+        diff.setPackageBarcode(item.getPackageBarcode());
+        diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
+        diff.setIsWaybillFull(1);
+        res.add(diff);
+      }
+    }
+
+    return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, res);
+    }
 
     /**
      * 一车一单按箱发货路由检验
@@ -4105,7 +4152,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             int scanCount = 0;
             int pacageSumShoudBe = 0;
             int hasDiff = 0;
-            ;
             List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
             for (SendDetail item : list) {//遍历该箱的所有包裹
                 //包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
