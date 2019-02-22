@@ -320,7 +320,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }
         /** 写入日志时间处理：cassandra主键包含时间字段，为避免写入太快前面的数据被覆盖，做此处理 */
         long date = System.currentTimeMillis();
-        long correctValue = 0l;
+        long correctValue = 0L;
         for(SealCarDto dto : sealCars){
             Goddess goddess = new Goddess();
             goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
