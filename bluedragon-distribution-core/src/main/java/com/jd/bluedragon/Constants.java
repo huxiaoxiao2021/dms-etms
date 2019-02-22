@@ -645,7 +645,14 @@ public class Constants {
      * 字典名称-SendPay打标配置标识
      */
     public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
-
+    /**
+     * 字典名称-包裹标签打印字典配置标识
+     */
+    public static final String DIC_NAME_PACKAGE_PRINT_DIC_CONFIG = "PackagePrintDic";  
+    /**
+     * 字典名称-包裹标签打印字典-Product
+     */
+    public static final Integer DIC_CODE_PACKAGE_PRINT_PRODUCT = 1010201;
     /**
      * 发货明细MQ source类型  ar代表空铁  dms默认正常
      */
