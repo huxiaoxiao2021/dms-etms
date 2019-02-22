@@ -6,7 +6,6 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- DMS数据源父类  -start-->
     <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
@@ -22,7 +21,7 @@
         <property name="removeAbandonedTimeout" value="${db.removeAbandonedTimeout}" />
         <property name= "testWhileIdle" value="${db.testWhileIdle}" />
         <property name= "testOnBorrow" value="${db.testOnBorrow}" />
-        <property name= "validationQuery" value="${db.validationQuery}" />
+		<property name= "validationQuery" value="${db.validationQuery}" />
         <property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"/>
         <property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"/>
         <property name="poolPreparedStatements" value="false" />
@@ -54,25 +53,25 @@
         <property name="removeAbandonedTimeout" value="${dms.read.db.removeAbandonedTimeout}" />
         <property name= "testWhileIdle" value="${dms.read.db.testWhileIdle}" />
         <property name= "testOnBorrow" value="${dms.read.db.testOnBorrow}" />
-        <property name= "validationQuery" value="${dms.read.db.validationQuery}" />
+		<property name= "validationQuery" value="${dms.read.db.validationQuery}" />
         <property name="minEvictableIdleTimeMillis" value="${dms.read.db.minEvictableIdleTimeMillis}" />
         <property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
     </bean>
 
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
-    <!--destroy-method="close">-->
-    <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
-    <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
-    <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
-    <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
-    <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->
-    <!--<property name="maxActive" value="${dms.waybill.db.maxActive}" />-->
-    <!--<property name="maxIdle" value="${dms.waybill.db.maxIdle}" />-->
-    <!--<property name="maxWait" value="${dms.waybill.db.maxWait}" />-->
-    <!--<property name="initialSize" value="${dms.waybill.db.initialSize}" />-->
-    <!--<property name="minIdle" value="${dms.waybill.db.minIdle}" />-->
-    <!--<property name="minEvictableIdleTimeMillis" value="${dms.waybill.db.minEvictableIdleTimeMillis}" />-->
-    <!--<property name="timeBetweenEvictionRunsMillis" value="${dms.waybill.db.timeBetweenEvictionRunsMillis}" />-->
+          <!--destroy-method="close">-->
+        <!--<property name="driverClassName" value="${dms.waybill.mysql.db.driverClassName}"/>-->
+        <!--<property name="url" value="${dms.waybill.mysql.db.url}"/>-->
+        <!--<property name="username" value="${dms.waybill.mysql.db.username}"/>-->
+        <!--<property name="password" value="${dms.waybill.mysql.db.password}"/>-->
+        <!--<property name="defaultAutoCommit" value="${dms.waybill.db.defaultAutoCommit}" />-->
+        <!--<property name="maxActive" value="${dms.waybill.db.maxActive}" />-->
+        <!--<property name="maxIdle" value="${dms.waybill.db.maxIdle}" />-->
+        <!--<property name="maxWait" value="${dms.waybill.db.maxWait}" />-->
+        <!--<property name="initialSize" value="${dms.waybill.db.initialSize}" />-->
+        <!--<property name="minIdle" value="${dms.waybill.db.minIdle}" />-->
+        <!--<property name="minEvictableIdleTimeMillis" value="${dms.waybill.db.minEvictableIdleTimeMillis}" />-->
+        <!--<property name="timeBetweenEvictionRunsMillis" value="${dms.waybill.db.timeBetweenEvictionRunsMillis}" />-->
     <!--</bean>-->
 
     <!-- DMS主库（拆分库）工厂类 -->
@@ -133,6 +132,7 @@
     <!--</bean>-->
 
     <!-- worker配置数据源    -start-->
+
     <bean id="taskDataSource" parent="parentDataSource">
         <property name="url" value="${mysqlTaskDb.url}"/>
         <property name="username" value="${mysqlTaskDb.username}" />

@@ -36,7 +36,7 @@
     <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
     
 	<import resource="classpath:spring/distribution-core-context.xml" />
-	<import resource="classpath:spring/distribution-worker-jmq-test.xml" />
+	<import resource="classpath:spring/distribution-worker-jmq.xml" />
 	<import resource="classpath:spring/worker/distribution-worker-execute-conf.xml" />
 	<import resource="classpath:spring/distribution-worker-wss.xml"/>
     <import resource="classpath:spring/distribution-worker-special-jsf.xml"/>

@@ -34,9 +34,6 @@
     <!-- 扩容Mysql主备配置表 -->
     <import resource="classpath:spring/mysql/distribution-core-common.xml" />
 	<import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
-    <!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
-    <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
-    
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-core-jmq-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
