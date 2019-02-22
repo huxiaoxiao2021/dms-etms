@@ -743,7 +743,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
-        //waybillExt.productCode产品名称，对应字典表
+        //waybillExt.productType产品名称，对应字典表
         if(waybillExt != null){
         	 waybillPrintService.dealDicTexts(waybillExt.getProductType(), Constants.DIC_CODE_PACKAGE_PRINT_PRODUCT, target);
         }
