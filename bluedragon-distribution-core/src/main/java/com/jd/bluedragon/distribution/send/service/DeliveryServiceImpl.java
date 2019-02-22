@@ -2795,31 +2795,33 @@ public class DeliveryServiceImpl implements DeliveryService {
    */
   public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType) {
     // 未扫描包裹
-    List<SendThreeDetail> notScanned = null;
+    List<SendThreeDetail> notScaned = null;
     List<SendThreeDetail> res = new ArrayList<SendThreeDetail>();
     Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
-    List<SendDetail> allList = new ArrayList<SendDetail>();
+    List<SendDetail> hasScaned = new ArrayList<SendDetail>();
     this.logger.info("快运发货差异查询");
-    getAllList(sendMList, allList);
-
-    if (queryType == 1 || queryType == 3) {
+    getAllList(sendMList, hasScaned);
+    //查询未扫描或者查询所有
+    if (AbstructDiffrenceComputer.QUERY_NOSCANED.equals(queryType) || AbstructDiffrenceComputer.QUERY_ALL.equals(queryType)) {
       if (businessType.equals(20)) {
-        notScanned = reverseComputer.compute(allList, false);
+        notScaned = reverseComputer.compute(hasScaned, false);
       } else {
-        notScanned = forwardComputer.compute(allList, false);
+        notScaned = forwardComputer.compute(hasScaned, false);
       }
-      if (null != notScanned) {
-        for (int i = 0; i < notScanned.size() - 1; i++) {
-          if (notScanned.get(i).getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
-            notScanned.remove(i);
+      if (null != notScaned) {
+          //循环删除已扫描数据只保留未扫数据
+          for (int index = 0; index < notScaned.size(); ++index) {
+          if (AbstructDiffrenceComputer.HAS_SCANED.equals(notScaned.get(index).getMark())) {
+            notScaned.remove(index--);
           }
         }
 
-        res.addAll(notScanned);
+        res.addAll(notScaned);
       }
     }
-    if (queryType == 2 || queryType == 3) {
-      for (SendDetail item : allList) { // 遍历该箱的所有包裹
+      //查询已扫描或者查询所有
+    if (AbstructDiffrenceComputer.QUERY_HASSCANED.equals(queryType) || AbstructDiffrenceComputer.QUERY_ALL.equals(queryType)) {
+      for (SendDetail item : hasScaned) { // 遍历该箱的所有包裹
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
@@ -4118,163 +4120,174 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest);
     }
 
+  /** 利用排序法计算差异 1：按运单号升序排序 */
+  public static abstract class AbstructDiffrenceComputer implements PackageDiffrence {
+
+    @Autowired private SendDatailDao sendDatailDao;
+
+    @Autowired private WaybillCommonService waybillCommonService;
+
+    @Override
+    public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
+      Collections.sort(
+          list,
+          new Comparator<SendDetail>() {
+            @Override
+            public int compare(SendDetail lhs, SendDetail rhs) {
+              return lhs.getPackageBarcode().compareToIgnoreCase(rhs.getPackageBarcode());
+            }
+          });
+      return computeUsePackage(list, isScheduleRequest);
+    }
+
     /**
-     * 利用排序法计算差异
-     * 1：按运单号升序排序
+     * 只保留不全订单的包裹，因为PDA操作界面太小，只应该看不全订单
+     *
+     * @param list
+     * @return
      */
-    public static abstract class AbstructDiffrenceComputer implements PackageDiffrence {
-
-        @Autowired
-        private SendDatailDao sendDatailDao;
-
-        @Autowired
-        private WaybillCommonService waybillCommonService;
-
-        @Override
-        public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
-            Collections.sort(list, new Comparator<SendDetail>() {
-                @Override
-                public int compare(SendDetail lhs, SendDetail rhs) {
-                    return lhs.getPackageBarcode().compareToIgnoreCase(rhs.getPackageBarcode());
-                }
-            });
-            return computeUsePackage(list, isScheduleRequest);
+    private final List<SendThreeDetail> computeUsePackage(
+        List<SendDetail> list, boolean isScheduleRequest) {
+      String lastWaybillCode = null;
+      int scanCount = 0;
+      int pacageSumShoudBe = 0;
+      int hasDiff = 0;
+      List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
+      for (SendDetail item : list) { // 遍历该箱的所有包裹
+        // 包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
+        if (isScheduleRequest && hasDiff > 0) {
+          break;
         }
-
-        /**
-         * 只保留不全订单的包裹，因为PDA操作界面太小，只应该看不全订单
-         *
-         * @param list
-         * @return
-         */
-        private final List<SendThreeDetail> computeUsePackage(List<SendDetail> list, boolean isScheduleRequest) {
-            String lastWaybillCode = null;
-            int scanCount = 0;
-            int pacageSumShoudBe = 0;
-            int hasDiff = 0;
-            List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
-            for (SendDetail item : list) {//遍历该箱的所有包裹
-                //包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
-                if(isScheduleRequest && hasDiff > 0){
-                    break;
-                }
-                SendThreeDetail diff = new SendThreeDetail();
-                diff.setBoxCode(item.getBoxCode());
-                diff.setPackageBarcode(item.getPackageBarcode());
-                diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
-                diff.setIsWaybillFull(1);
-                if (!item.getWaybillCode().equals(lastWaybillCode)) {//初次验单 或 每验完一单货，下一单开始验时 进入分支
-                    //1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
-                    //2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
-                    hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
-                    lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
-                    pacageSumShoudBe = WaybillUtil.getPackNumByPackCode(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
-                    if(pacageSumShoudBe == 0){ //特殊包裹号，包裹总数位是0时，从运单获取包裹总数
-                        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(lastWaybillCode);
-                        if(waybill!=null && waybill.getPackList()!=null && waybill.getPackList().size()>0){
-                            pacageSumShoudBe = waybill.getPackList().size();
-                        }
-                    }
-
-                    scanCount = 0;
-                }
-                ++scanCount;//扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
-                diffrenceList.add(diff);//每次循环均加入结果diffrenceList，如中间某单的包裹不齐，会在invoke中将不齐的单子加入diffrenceList 以便最终结算时 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
+        SendThreeDetail diff = new SendThreeDetail();
+        diff.setBoxCode(item.getBoxCode());
+        diff.setPackageBarcode(item.getPackageBarcode());
+        diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
+        diff.setIsWaybillFull(1);
+        if (!item.getWaybillCode().equals(lastWaybillCode)) { // 初次验单 或 每验完一单货，下一单开始验时 进入分支
+          // 1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
+          // 2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
+          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
+          lastWaybillCode = item.getWaybillCode(); // 获取当前要验证的运单号
+          pacageSumShoudBe =
+              WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
+          if (pacageSumShoudBe == 0) { // 特殊包裹号，包裹总数位是0时，从运单获取包裹总数
+            com.jd.bluedragon.common.domain.Waybill waybill =
+                waybillCommonService.findWaybillAndPack(lastWaybillCode);
+            if (waybill != null
+                && waybill.getPackList() != null
+                && waybill.getPackList().size() > 0) {
+              pacageSumShoudBe = waybill.getPackList().size();
             }
-            hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);//遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
-            if (hasDiff > 0) {//hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
-                List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
-                Integer createSiteCode = list.get(0).getCreateSiteCode();
-                Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
-                return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
-            } else {
-                return null;
-            }
+          }
+
+          scanCount = 0;
         }
+        ++scanCount; // 扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
+        diffrenceList.add(
+            diff); // 每次循环均加入结果diffrenceList，如中间某单的包裹不齐，会在invoke中将不齐的单子加入diffrenceList 以便最终结算时
+        // 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
+      }
+      hasDiff +=
+          invoke(pacageSumShoudBe, scanCount, diffrenceList); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
+      if (hasDiff > 0) { // hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
+        List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
+        Integer createSiteCode = list.get(0).getCreateSiteCode();
+        Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+        return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
+      } else {
+        return null;
+      }
+    }
 
-
-        /**
-         * 设置未发货包裹的箱号[便于现场判断哪个已分拣的箱子未发货]！！！！
-         * 1：已分拣包裹的箱号显示分拣箱号
-         * 2：未分拣包裹的箱号显示空
-         *
-         * @param createSiteCode  发货站点
-         * @param receiveSiteCode 收货站点
-         * @param list            差异列表      差异列表
-         * @return
-         */
-        private final List<SendThreeDetail> setSortingBoxCode(Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
-            if (null == list || list.isEmpty())
-                return list;
-            List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
-            for (SendThreeDetail item : list) {
-                if (item.getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
-                    targetList.add(item);
-                } else {
-                    targetList.addAll(getUnSendPackages(createSiteCode, receiveSiteCode, item.getPackageBarcode()));
-                }
-            }
-            return targetList;
+    /**
+     * 设置未发货包裹的箱号[便于现场判断哪个已分拣的箱子未发货]！！！！ 1：已分拣包裹的箱号显示分拣箱号 2：未分拣包裹的箱号显示空
+     *
+     * @param createSiteCode 发货站点
+     * @param receiveSiteCode 收货站点
+     * @param list 差异列表 差异列表
+     * @return
+     */
+    private final List<SendThreeDetail> setSortingBoxCode(
+        Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
+      if (null == list || list.isEmpty()) return list;
+      List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
+      for (SendThreeDetail item : list) {
+        if (item.getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
+          targetList.add(item);
+        } else {
+          targetList.addAll(
+              getUnSendPackages(createSiteCode, receiveSiteCode, item.getPackageBarcode()));
         }
+      }
+      return targetList;
+    }
 
-        /**
-         * 获取未发货包裹【若已分拣，则箱号显示已分拣箱号，否中央电视台显示空箱号表示未分拣】
-         *
-         * @param createSiteCode  发货站点
-         * @param receiveSiteCode 接收站点
-         * @param packageCode     包裹号
-         * @return
-         */
-        private final List<SendThreeDetail> getUnSendPackages(Integer createSiteCode, Integer receiveSiteCode, String packageCode) {
-            SendDetail sendDatail = new SendDetail();
-            sendDatail.setPackageBarcode(packageCode);
-            sendDatail.setCreateSiteCode(createSiteCode);
-            sendDatail.setReceiveSiteCode(receiveSiteCode);
-            sendDatail.setIsCancel(0);
-            List<SendDetail> resultList = sendDatailDao.querySendDatailsBySelective(sendDatail);
-            List<SendThreeDetail> list = new ArrayList<SendThreeDetail>(1);
-            if (resultList != null && !resultList.isEmpty()) {
-                for (SendDetail rendDatail : resultList) {
-                    SendThreeDetail mSend = new SendThreeDetail();
-                    mSend.setPackageBarcode(packageCode);
-                    mSend.setBoxCode(rendDatail.getBoxCode());
-                    mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
-                    list.add(mSend);
-                }
-            } else {
-                SendThreeDetail mSend = new SendThreeDetail();
-                mSend.setPackageBarcode(packageCode);
-                mSend.setBoxCode("");
-                mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
-                list.add(mSend);
-            }
-            return list;
+    /**
+     * 获取未发货包裹【若已分拣，则箱号显示已分拣箱号，否中央电视台显示空箱号表示未分拣】
+     *
+     * @param createSiteCode 发货站点
+     * @param receiveSiteCode 接收站点
+     * @param packageCode 包裹号
+     * @return
+     */
+    private final List<SendThreeDetail> getUnSendPackages(
+        Integer createSiteCode, Integer receiveSiteCode, String packageCode) {
+      SendDetail sendDatail = new SendDetail();
+      sendDatail.setPackageBarcode(packageCode);
+      sendDatail.setCreateSiteCode(createSiteCode);
+      sendDatail.setReceiveSiteCode(receiveSiteCode);
+      sendDatail.setIsCancel(0);
+      List<SendDetail> resultList = sendDatailDao.querySendDatailsBySelective(sendDatail);
+      List<SendThreeDetail> list = new ArrayList<SendThreeDetail>(1);
+      if (resultList != null && !resultList.isEmpty()) {
+        for (SendDetail rendDatail : resultList) {
+          SendThreeDetail mSend = new SendThreeDetail();
+          mSend.setPackageBarcode(packageCode);
+          mSend.setBoxCode(rendDatail.getBoxCode());
+          mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
+          list.add(mSend);
         }
+      } else {
+        SendThreeDetail mSend = new SendThreeDetail();
+        mSend.setPackageBarcode(packageCode);
+        mSend.setBoxCode("");
+        mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
+        list.add(mSend);
+      }
+      return list;
+    }
 
-        /**
-         * 从列表中去除已完全扫描[一单多件齐全]的包裹（按运单为单）
-         *
-         * @param list
-         * @return
-         */
-        private final List<SendThreeDetail> removeFullPackages(List<SendThreeDetail> list) {
-            if (null != list) {
-                for (int index = 0; index < list.size(); ++index) {/*去除全的包裹*/
-                    if (list.get(index).getIsWaybillFull() > 0) {
-                        list.remove(index--);
-                    }
-                }
-                return list;
-            } else {
-                return null;
-            }
+    /**
+     * 从列表中去除已完全扫描[一单多件齐全]的包裹（按运单为单）
+     *
+     * @param list
+     * @return
+     */
+    private final List<SendThreeDetail> removeFullPackages(List<SendThreeDetail> list) {
+      if (null != list) {
+        for (int index = 0; index < list.size(); ++index) {
+          /*去除全的包裹*/
+          if (list.get(index).getIsWaybillFull() > 0) {
+            list.remove(index--);
+          }
         }
+        return list;
+      } else {
+        return null;
+      }
+    }
 
-        public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
+    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
 
-        public static final String HAS_SCANED = "已扫描";
+    public static final String HAS_SCANED = "已扫描";
 
-        public static final String NO_SCANEd = "未扫描";
+    public static final String NO_SCANEd = "未扫描";
+    /** 查询未扫描 */
+    public static final Integer QUERY_NOSCANED = 1;
+    /** 查询已扫描 */
+    public static final Integer QUERY_HASSCANED = 2;
+    /** 查询所有 */
+    public static final Integer QUERY_ALL = 3;
     }
 
     /**

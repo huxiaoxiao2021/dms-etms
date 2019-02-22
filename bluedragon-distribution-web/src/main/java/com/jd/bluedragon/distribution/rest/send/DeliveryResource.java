@@ -373,10 +373,16 @@ public class DeliveryResource {
         }
     }
 
+    /**
+     * 快运发货差异查询
+     * @param request
+     * @return
+     */
   @POST
   @Path("/delivery/differentialQuery")
   @JProfiler(
     jKey = "DMSWEB.DeliveryResource.differentialQuery",
+    jAppName=Constants.UMP_APP_NAME_DMSWEB,
     mState = {JProEnum.TP}
   )
   public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
