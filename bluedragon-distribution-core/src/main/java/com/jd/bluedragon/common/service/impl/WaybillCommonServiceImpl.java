@@ -756,10 +756,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
-        //waybillExt.productType产品名称，对应字典表
-        if(waybillExt != null){
-        	 waybillPrintService.dealDicTexts(waybillExt.getProductType(), Constants.DIC_CODE_PACKAGE_PRINT_PRODUCT, target);
-        }
         //waybill_sign标识位，第七十九位为2，打提字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
@@ -788,6 +784,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
+        //根据waybillExt.productType的值取，给jZDFlag赋值
+        if(waybillExt != null){
+        	 waybillPrintService.dealDicTexts(waybillExt.getProductType(), Constants.DIC_CODE_PACKAGE_PRINT_PRODUCT, target);
+        }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);
