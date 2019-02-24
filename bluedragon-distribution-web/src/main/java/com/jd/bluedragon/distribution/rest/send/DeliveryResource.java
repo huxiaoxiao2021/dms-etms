@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeliveryBatchRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.DifferentialQueryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageCodeRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
@@ -370,6 +371,41 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    /**
+     * 快运发货差异查询
+     * @param request
+     * @return
+     */
+  @POST
+  @Path("/delivery/differentialQuery")
+  @JProfiler(
+    jKey = "DMSWEB.DeliveryResource.differentialQuery",
+    jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    mState = {JProEnum.TP}
+  )
+  public ThreeDeliveryResponse differentialQuery(DifferentialQueryRequest request) {
+    this.logger.info("快运发货差异查询:" + JsonHelper.toJson(request));
+    try {
+      if (check(request.getSendList())) {
+        return new ThreeDeliveryResponse(
+            JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+      }
+      Integer queryType = request.getQueryType();
+      Integer opType = request.getSendList().get(0).getOpType();
+      ThreeDeliveryResponse response = null;
+      /** 快运发货 */
+      if (KY_DELIVERY.equals(opType)) {
+        response =
+            deliveryService.differentialQuery(toSendDatailList(request.getSendList()), queryType);
+      }
+      this.logger.info("结束快运发货差异查询");
+      return response;
+    } catch (Exception ex) {
+      logger.error("快运发货差异查询", ex);
+      return new ThreeDeliveryResponse(JdResponse.CODE_INTERNAL_ERROR, ex.getMessage(), null);
+    }
     }
 
     @POST

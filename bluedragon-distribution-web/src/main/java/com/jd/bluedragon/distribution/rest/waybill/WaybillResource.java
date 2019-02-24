@@ -8,11 +8,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -140,6 +136,9 @@ public class WaybillResource {
 
 	@Autowired
 	private JsfSortingResourceService jsfSortingResourceService;
+
+	@Autowired
+	WaybillTraceManager waybillTraceManager;
 
 	@Autowired
 	@Qualifier("ldopManager")
@@ -1818,6 +1817,15 @@ public class WaybillResource {
 		try{
 			StringBuilder message = new StringBuilder();
 			if(packWeightVO.checkParam(message)){
+				//验证是否妥投
+				String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
+				if(waybillTraceManager.isWaybillFinished(waybillCode)){
+					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+					result.setMessage("此运单为妥投状态，禁止操作此功能，请检查单号是否正确");
+					result.setData(false);
+					return result;
+				}
+
 				this.taskService.add(packWeightVO.convertToTask("package/weight上传"), false);
 				result.setData(true);
 				return result;
@@ -1919,6 +1927,61 @@ public class WaybillResource {
 			}
 		}catch (Exception e){
 			logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 判断运单是否存在是否妥投
+	 * @param barCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/isWaybillExistAndNotFinished/{barCode}")
+	public InvokeResult<Boolean> isWaybillExistAndNotFinished(@PathParam("barCode") String barCode){
+		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		try{
+			String waybillCode = barCode;
+			if(WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)){
+				waybillCode = WaybillUtil.getWaybillCode(barCode);
+			}
+			WChoice choice = new WChoice();
+			choice.setQueryWaybillM(true);
+			choice.setQueryWaybillC(true);
+			choice.setQueryWaybillE(true);
+
+			//判断运单是否存在
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,choice);
+			if(baseEntity == null){
+				logger.error("调用运单获取运单数据失败，waybillCode:"+waybillCode);
+				result.setData(false);
+				result.setCode(InvokeResult.RESULT_NULL_CODE);
+				result.setMessage("调用运单接口获取运单信息异常");
+				return result;
+			}
+			if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+				logger.info("调用运单获取运单信息为空，waybillCode:"+waybillCode);
+				result.setData(false);
+				result.setCode(InvokeResult.RESULT_NULL_CODE);
+				result.setMessage("运单信息为空，请联系IT人员处理");
+				return result;
+			}
+			//判断运单是否妥投
+			if(waybillTraceManager.isWaybillFinished(waybillCode)){
+				logger.warn("运单已经妥投，waybillCode:"+waybillCode);
+				result.setData(false);
+				result.setCode(InvokeResult.RESULT_NULL_CODE);
+				result.setMessage("此运单为妥投状态，禁止操作此功能，请检查单号是否正确");
+				return result;
+			}
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			return result;
+
+		}catch (Exception e){
+			logger.error("判断运单是否存在是否妥投异常，barCode"+barCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}
