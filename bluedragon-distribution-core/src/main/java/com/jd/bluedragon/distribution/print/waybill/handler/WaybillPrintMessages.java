@@ -37,5 +37,5 @@ public class WaybillPrintMessages{
 	/**
 	 * c2c判断揽收
 	 */
-	public static final String MESSAGE_NEED_RECEIVE="此运单未揽收完成禁止打印面单，请先揽收";
+	public static final String MESSAGE_NEED_RECEIVE="此运单未揽收/交接完成禁止打印面单，请先操作揽收/交接";
 }
