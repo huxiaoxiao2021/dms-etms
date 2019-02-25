@@ -394,6 +394,7 @@ function initOrg() {
     });
 
 }
+var initLogin = true;
 
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
