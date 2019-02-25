@@ -289,7 +289,8 @@ function allSendPackSumClick(event,waybillCode,createSiteCode){
 
 			var htmlStr = "";
 			for(var sd in data.data){
-                htmlStr += "<tr><td>"+data.data[sd].sendCode+"</td><td>"+data.data[sd].packNo+"</th> <td>"+$.dateHelper.formateDateTimeOfTs(data.data[sd].sendTime)+"</td></tr>";
+
+                htmlStr += "<tr><td>"+data.data[sd].sendCode+"</td><td>"+data.data[sd].receiveSiteName+"</td><td>"+data.data[sd].packNo+"</th> <td>"+$.dateHelper.formateDateTimeOfTs(data.data[sd].sendTime)+"</td></tr>";
 			}
 
             $("#allPackSendModalTbody").html(htmlStr);

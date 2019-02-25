@@ -159,6 +159,7 @@
                     <thead>
                         <tr>
                             <th>批次号</th>
+                            <th>目的地</th>
                             <th>包裹号</th>
                             <th>发货时间</th>
                         </tr>
