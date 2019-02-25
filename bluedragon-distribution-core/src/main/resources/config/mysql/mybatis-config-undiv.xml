@@ -282,6 +282,8 @@
 
         <!-- 分组箱号 -->
         <mapper resource="mappers/mysql/box/GroupBoxMapper.xml"/>
+        <!-- 半退明细 -->
+        <mapper resource="mappers/mysql/reverse/part/ReversePartDetailMapper.xml"/>
 
     </mappers>
 </configuration>
