@@ -27,7 +27,7 @@ public class HideInfoWaybillHandler implements Handler<WaybillPrintContext,JdRes
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-微笑面单-隐藏电话和地址");
 		String waybillSign = "";
-		if(context != null && context.getBigWaybillDto() !=null && context.getBigWaybillDto().getWaybill()!=null){
+		if(context.getBigWaybillDto() !=null && context.getBigWaybillDto().getWaybill()!=null){
 			waybillSign=context.getBigWaybillDto().getWaybill().getWaybillSign();
 		}
 		//hideInfoService.setHideInfo(waybillSign,context.getResponse());

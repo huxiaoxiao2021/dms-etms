@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -75,11 +76,14 @@ public  class SendMDao extends BaseDao<SendM>  {
 	
 	@SuppressWarnings("unchecked")
 	public List<SendM> selectBySendSiteCode(SendM sendM) {
-        if(null !=sendM && null != sendM.getSendCode() && null == sendM.getCreateSiteCode()) {
-            sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
+		logger.info("selectBySendSiteCode-->参数sendM：" + JsonHelper.toJson(sendM));
+		if(sendM == null){
+            return Collections.emptyList();
         }
+		if(null != sendM.getSendCode() && null == sendM.getCreateSiteCode()) {
+			sendM.setCreateSiteCode(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendM.getSendCode()));
+		}
 		if(null == sendM.getCreateSiteCode()){
-			logger.info("selectBySendSiteCode-->参数sendM：" + sendM);
 			logger.info("createSiteCode = null");
 			return Collections.emptyList();
 		}

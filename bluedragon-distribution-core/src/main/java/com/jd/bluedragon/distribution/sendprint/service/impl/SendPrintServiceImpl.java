@@ -37,7 +37,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import oracle.jdbc.driver.Const;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -503,7 +502,7 @@ public class SendPrintServiceImpl implements SendPrintService {
                             dBasicQueryEntity.setIsnew(SendPrintConstants.TEXT_YES);
                     }
                 } else {
-                    message = "打印交接清单-取件单基础信息调用失败，运单号：" + dBasicQueryEntity.getWaybill() + "，" + tPickupTask == null ? "返回的BaseEntity对象为null" : "返回的状态码为" + tPickupTask.getResultCode();
+                    message = "打印交接清单-取件单基础信息调用失败，运单号：" + dBasicQueryEntity.getWaybill() + "；取件单接口获取取件单信息结果：" + JsonHelper.toJson(tPickupTask);
                     logger.warn(message);
                 }
             } catch (Exception e) {

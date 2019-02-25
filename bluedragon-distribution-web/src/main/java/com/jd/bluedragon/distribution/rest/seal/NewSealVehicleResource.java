@@ -336,8 +336,11 @@ public class NewSealVehicleResource {
     public NewSealVehicleResponse seal(NewSealVehicleRequest request) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
-            if (request == null) {
-                this.logger.error("NewSealVehicleResource seal --> 传入参数非法");
+            if (request == null || request.getData() == null) {
+                logger.warn("NewSealVehicleResource seal --> 传入参数非法");
+                sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
             }
 
             CommonDto<String> returnCommonDto = newsealVehicleService.seal(request.getData());
@@ -369,10 +372,7 @@ public class NewSealVehicleResource {
         NewSealVehicleResponse<List<SealCarDto>> sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
 
-            if (request == null) {
-                this.logger.error("NewSealVehicleResource findSealInfo --> 传入参数非法");
-            }
-            if (StringHelper.isEmpty(request.getEndSiteId()) ||
+            if (request == null || StringHelper.isEmpty(request.getEndSiteId()) ||
                     (StringHelper.isEmpty(request.getStartSiteId()) && StringHelper.isEmpty(request.getVehicleNumber()) && StringHelper.isEmpty(request.getBatchCode()))) {
                 //目的站点为空，或者始发站点和车牌号同时为空
                 sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
@@ -476,8 +476,11 @@ public class NewSealVehicleResource {
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
-            if (request == null) {
-                this.logger.error("NewSealVehicleResource unseal --> 传入参数非法");
+            if (request == null || request.getData() == null) {
+                logger.warn("NewSealVehicleResource unseal --> 传入参数非法");
+                sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
             }
 
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());

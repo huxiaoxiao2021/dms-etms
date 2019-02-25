@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleTo;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +46,9 @@ public class CarScheduleFromTMSConsumer extends MessageBaseConsumer{
      */
     @Override
     public void consume(Message message) throws Exception {
-        if(null == message && null == message.getText() && "".equals(message.getText())){
-            this.logger.error("来自TMS的车辆调度任务消息内容为空,消息businessID：" + message.getBusinessId());
+        if(null == message || StringUtils.isEmpty(message.getText())){
+            this.logger.error("来自TMS的车辆调度任务消息内容为空：" + JsonHelper.toJson(message));
+            return;
         }
         String body = message.getText();
         this.logger.info(MessageFormat.format("来自TMS的车辆调度任务消息内容为空,消息businessID：{0},消息内容为：{1}",message.getBusinessId(),body));

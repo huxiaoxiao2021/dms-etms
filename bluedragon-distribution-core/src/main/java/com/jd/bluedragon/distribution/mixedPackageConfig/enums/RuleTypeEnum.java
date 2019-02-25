@@ -57,11 +57,6 @@ public enum RuleTypeEnum {
         this.name = name;
     }
 
-    public boolean equals(Integer code) {
-        return this.getCode().equals(code);
-    }
-
-
     public Integer getCode() {
         return code;
     }

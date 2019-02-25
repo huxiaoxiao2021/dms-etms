@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
-import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
@@ -15,11 +14,9 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -60,7 +57,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     @Override
     public int parseToTask(OfflineLogRequest request) {
         if (request == null || request.getBoxCode() == null || request.getSiteCode() == null || request.getBusinessType() == null) {
-            this.logger.error("一车一单离线发货 --> 传入参数有误：" + request.toString());
+            this.logger.error("一车一单离线发货 --> 传入参数有误：" + JsonHelper.toJson(request));
             return Constants.RESULT_FAIL;
         }
 
