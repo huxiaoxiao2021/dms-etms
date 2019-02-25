@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.reverse.part.domain;
 
 import java.util.Date;
+import java.util.List;
+
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -15,17 +18,17 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
 
-	 /** 累计发货包裹数 */
-	private Integer allSendPackSum;
-
-	 /** 本次发货包裹数 */
-	private Integer sendPackSum;
-
-	 /** 未退包裹数 */
-	private Integer noSendPackSum;
+	 /** 总计包裹数 */
+	private Integer allPackSum;
 
 	 /** 运单号  */
 	private String waybillCode;
+
+	/** 批次号 */
+	private String sendCode;
+
+	/** 多个运单号*/
+	private List<String> waybillCodes;
 
 	 /** 操作单位编码 */
 	private Integer createSiteCode;
@@ -34,10 +37,10 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 	private String createSiteName;
 
 	 /** 目的地编码 */
-	private Integer reverseSiteCode;
+	private Integer receiveSiteCode;
 
 	 /** 目的地 */
-	private String reverseSiteName;
+	private String receiveSiteName;
 
 	 /** 半退类型 1-ECLP半退至仓 */
 	private Integer type;
@@ -57,52 +60,20 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 	 /** 更新人 */
 	private String updateUser;
 
-	/**
-	 * The set method for allSendPackSum.
-	 * @param allSendPackSum
-	 */
-	public void setAllSendPackSum(Integer allSendPackSum) {
-		this.allSendPackSum = allSendPackSum;
+	private Date sendTimeGE;
+
+	private Date sendTimeLE;
+
+	private String sendTimeGEStr;
+
+	private String sendTimeLEStr;
+
+	public Integer getAllPackSum() {
+		return allPackSum;
 	}
 
-	/**
-	 * The get method for allSendPackSum.
-	 * @return this.allSendPackSum
-	 */
-	public Integer getAllSendPackSum() {
-		return this.allSendPackSum;
-	}
-
-	/**
-	 * The set method for sendPackSum.
-	 * @param sendPackSum
-	 */
-	public void setSendPackSum(Integer sendPackSum) {
-		this.sendPackSum = sendPackSum;
-	}
-
-	/**
-	 * The get method for sendPackSum.
-	 * @return this.sendPackSum
-	 */
-	public Integer getSendPackSum() {
-		return this.sendPackSum;
-	}
-
-	/**
-	 * The set method for noSendPackSum.
-	 * @param noSendPackSum
-	 */
-	public void setNoSendPackSum(Integer noSendPackSum) {
-		this.noSendPackSum = noSendPackSum;
-	}
-
-	/**
-	 * The get method for noSendPackSum.
-	 * @return this.noSendPackSum
-	 */
-	public Integer getNoSendPackSum() {
-		return this.noSendPackSum;
+	public void setAllPackSum(Integer allPackSum) {
+		this.allPackSum = allPackSum;
 	}
 
 	/**
@@ -153,36 +124,20 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 		return this.createSiteName;
 	}
 
-	/**
-	 * The set method for reverseSiteCode.
-	 * @param reverseSiteCode
-	 */
-	public void setReverseSiteCode(Integer reverseSiteCode) {
-		this.reverseSiteCode = reverseSiteCode;
+	public Integer getReceiveSiteCode() {
+		return receiveSiteCode;
 	}
 
-	/**
-	 * The get method for reverseSiteCode.
-	 * @return this.reverseSiteCode
-	 */
-	public Integer getReverseSiteCode() {
-		return this.reverseSiteCode;
+	public void setReceiveSiteCode(Integer receiveSiteCode) {
+		this.receiveSiteCode = receiveSiteCode;
 	}
 
-	/**
-	 * The set method for reverseSiteName.
-	 * @param reverseSiteName
-	 */
-	public void setReverseSiteName(String reverseSiteName) {
-		this.reverseSiteName = reverseSiteName;
+	public String getReceiveSiteName() {
+		return receiveSiteName;
 	}
 
-	/**
-	 * The get method for reverseSiteName.
-	 * @return this.reverseSiteName
-	 */
-	public String getReverseSiteName() {
-		return this.reverseSiteName;
+	public void setReceiveSiteName(String receiveSiteName) {
+		this.receiveSiteName = receiveSiteName;
 	}
 
 	/**
@@ -281,5 +236,54 @@ public class ReversePartDetailCondition extends BasePagerCondition {
 		return this.updateUser;
 	}
 
+	public List<String> getWaybillCodes() {
+		return waybillCodes;
+	}
 
+	public void setWaybillCodes(List<String> waybillCodes) {
+		this.waybillCodes = waybillCodes;
+	}
+
+	public String getSendCode() {
+		return sendCode;
+	}
+
+	public void setSendCode(String sendCode) {
+		this.sendCode = sendCode;
+	}
+
+	public Date getSendTimeGE() {
+		return sendTimeGE;
+	}
+
+	public void setSendTimeGE(Date sendTimeGE) {
+		this.sendTimeGE = sendTimeGE;
+	}
+
+	public Date getSendTimeLE() {
+		return sendTimeLE;
+	}
+
+	public void setSendTimeLE(Date sendTimeLE) {
+		this.sendTimeLE = sendTimeLE;
+	}
+
+	public String getSendTimeGEStr() {
+		return sendTimeGEStr;
+	}
+
+	public void setSendTimeGEStr(String sendTimeGEStr) {
+		this.sendTimeGEStr = sendTimeGEStr;
+		sendTimeGE = DateHelper.parseDate(sendTimeGEStr,DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
+	}
+
+	public String getSendTimeLEStr() {
+		return sendTimeLEStr;
+	}
+
+	public void setSendTimeLEStr(String sendTimeLEStr) {
+		this.sendTimeLEStr = sendTimeLEStr;
+		sendTimeLE = DateHelper.parseDate(sendTimeLEStr,DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
+
+	}
 }

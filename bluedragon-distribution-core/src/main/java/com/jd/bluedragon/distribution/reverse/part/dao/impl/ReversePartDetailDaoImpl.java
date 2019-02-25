@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.reverse.part.dao.impl;
 
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
 import com.jd.bluedragon.distribution.reverse.part.dao.ReversePartDetailDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
+
+import java.util.List;
 
 /**
  *
@@ -18,4 +21,22 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 public class ReversePartDetailDaoImpl extends BaseDao<ReversePartDetail> implements ReversePartDetailDao {
 
 
+    @Override
+    public List<ReversePartDetail> queryByParam(ReversePartDetailCondition reversePartDetailCondition) {
+        return this.sqlSession.selectList(getNameSpace()+".queryByParam", reversePartDetailCondition);
+    }
+
+    @Override
+    public int queryByParamCount(ReversePartDetailCondition reversePartDetailCondition) {
+        return this.sqlSession.selectOne(getNameSpace()+".queryByParamCount", reversePartDetailCondition);
+    }
+    @Override
+    public int updateReceiveTime(ReversePartDetail reversePartDetail){
+        return this.sqlSession.update(getNameSpace()+".updateReceiveTime", reversePartDetail);
+    }
+
+    @Override
+    public int updateForCancelSend(ReversePartDetail reversePartDetail) {
+        return this.sqlSession.update(getNameSpace()+".updateForCancelSend", reversePartDetail);
+    }
 }

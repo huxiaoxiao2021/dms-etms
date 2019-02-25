@@ -1,11 +1,20 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,6 +25,7 @@ import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondi
 import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  *
@@ -26,7 +36,7 @@ import com.jd.ql.dms.common.web.mvc.api.PagerResult;
  *
  */
 @Controller
-@RequestMapping("reverse.part/reversePartDetail")
+@RequestMapping("reverse/part/reversePartDetail")
 public class ReversePartDetailController {
 
 	private static final Log logger = LogFactory.getLog(ReversePartDetailController.class);
@@ -34,13 +44,33 @@ public class ReversePartDetailController {
 	@Autowired
 	private ReversePartDetailService reversePartDetailService;
 
+	@Autowired
+	private BaseMajorManager baseMajorManager;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
 	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
-		return "/reverse.part/reversePartDetail";
+	public String toIndex(Model model) {
+
+		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+		String userCode = "";
+		Long createSiteCode = new Long(-1);
+		Integer orgId = new Integer(-1);
+
+		if(erpUser!=null){
+			userCode = erpUser.getUserCode();
+			BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
+			if (bssod!=null && bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
+				createSiteCode = new Long(bssod.getSiteCode());
+				orgId = bssod.getOrgId();
+			}
+		}
+
+		model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+
+		return "/reverse/part/reversePartDetail";
 	}
 	/**
 	 * 根据id获取基本信息
@@ -93,7 +123,74 @@ public class ReversePartDetailController {
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<ReversePartDetail> listData(@RequestBody ReversePartDetailCondition reversePartDetailCondition) {
 		JdResponse<PagerResult<ReversePartDetail>> rest = new JdResponse<PagerResult<ReversePartDetail>>();
+
+
 		rest.setData(reversePartDetailService.queryByPagerCondition(reversePartDetailCondition));
 		return rest.getData();
+	}
+
+	@RequestMapping(value = "/allSendPack/{createSiteCode}/{waybillCode}")
+	public @ResponseBody JdResponse<List<ReversePartDetail>> allSendPack(@PathVariable("waybillCode") String waybillCode,@PathVariable("createSiteCode") String createSiteCode) {
+		JdResponse<List<ReversePartDetail>> rest = new JdResponse<List<ReversePartDetail>>();
+		try{
+			rest.setData(reversePartDetailService.queryAllSendPack(waybillCode,createSiteCode));
+		}catch (Exception e){
+			logger.error("获取累计发货数据异常"+waybillCode+" "+createSiteCode,e);
+			rest.setCode(JdResponse.CODE_ERROR);
+			rest.setMessage(JdResponse.MESSAGE_ERROR);
+		}
+		return rest;
+	}
+
+	@RequestMapping(value = "/noSendPack/{createSiteCode}/{waybillCode}")
+	public @ResponseBody JdResponse<List<String>> noSendPack(@PathVariable("waybillCode") String waybillCode,@PathVariable("createSiteCode") String createSiteCode) {
+		JdResponse<List<String>> rest = new JdResponse<List<String>>();
+		try{
+			rest.setData(reversePartDetailService.queryNoSendPack(waybillCode,createSiteCode));
+		}catch (Exception e){
+			logger.error("获取未发货数据异常"+waybillCode+" "+createSiteCode,e);
+			rest.setCode(JdResponse.CODE_ERROR);
+			rest.setMessage(JdResponse.MESSAGE_ERROR);
+		}
+		return rest;
+	}
+
+
+	/**
+	 * 导出
+ 	 * @param reversePartDetailCondition
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/toExport")
+	public ModelAndView toExport(ReversePartDetailCondition reversePartDetailCondition, Model model) {
+		try {
+
+
+			//超过5000条不允许导出
+			int count = reversePartDetailService.queryByParamCount(reversePartDetailCondition);
+
+			List<List<Object>> resultList = new ArrayList<List<Object>>();
+			if(count>5000){
+
+				List<Object> errorResult = new ArrayList<Object>();
+				errorResult.add("导出数据过多，请变更条件筛选");
+				resultList.add(errorResult);
+
+			}else{
+				resultList = reversePartDetailService.getExportData(reversePartDetailCondition);
+			}
+
+
+			model.addAttribute("filename", "半退发货明细.xls");
+			model.addAttribute("sheetname", "半退发货明细");
+			model.addAttribute("contents", resultList);
+
+			return new ModelAndView(new DefaultExcelView(), model.asMap());
+
+		} catch (Exception e) {
+			logger.error("toExport:" + e.getMessage(), e);
+			return null;
+		}
 	}
 }

@@ -473,4 +473,7 @@
     <bean id="groupBoxDao" class="com.jd.bluedragon.distribution.box.dao.GroupBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <bean id="reversePartDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.reverse.part.dao.impl.ReversePartDetailDaoImpl"/>
 </beans>

@@ -574,4 +574,14 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 支持半退标
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isPartReverse(String waybillSign){
+        return isSignChar(waybillSign, 27, '5');
+    }
+
 }

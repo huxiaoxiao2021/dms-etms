@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.reverse.part.dao;
 
 import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+
+import java.util.List;
 
 /**
  *
@@ -14,4 +17,11 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
 public interface ReversePartDetailDao extends Dao<ReversePartDetail> {
 
 
+    List<ReversePartDetail> queryByParam (ReversePartDetailCondition reversePartDetailCondition);
+
+    int queryByParamCount(ReversePartDetailCondition reversePartDetailCondition);
+
+    int updateReceiveTime(ReversePartDetail reversePartDetail);
+
+    int updateForCancelSend(ReversePartDetail reversePartDetail);
 }

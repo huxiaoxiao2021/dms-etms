@@ -827,6 +827,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
         }
+        //半退
+        if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
+        }
         //waybill_sign标识位，第三十一位为5，一体化面单显示"微小件"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
             target.setTransportMode(ComposeService.PREPARE_SITE_NAME_SMALL_PACKAGE);

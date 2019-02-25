@@ -1,8 +1,9 @@
 $(function() {
-	var saveUrl = '/reverse.part/reversePartDetail/save';
-	var deleteUrl = '/reverse.part/reversePartDetail/deleteByIds';
-  var detailUrl = '/reverse.part/reversePartDetail/detail/';
-  var queryUrl = '/reverse.part/reversePartDetail/listData';
+	var saveUrl = '/reverse/part/reversePartDetail/save';
+	var deleteUrl = '/reverse/part/reversePartDetail/deleteByIds';
+  var detailUrl = '/reverse/part/reversePartDetail/detail/';
+  var queryUrl = '/reverse/part/reversePartDetail/listData';
+  var exportUrl = '/reverse/part/reversePartDetail/toExport';
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
@@ -72,12 +73,45 @@ $(function() {
 		oTableInit.tableColums = [ {
 				checkbox : true
 			}, {
-				field : 'typeCode',
-				title : '编码'
+				field : 'waybillCode',
+				title : '运单号'
 			}, {
-				field : 'typeName',
-				title : '名称'
-			} ];
+				field : 'createSiteName',
+				title : '操作分拣中心'
+			}, {
+				field : 'allSendPackSum',
+				title : '累计发货包裹数',
+				formatter : function(value,row,index){
+					return "<a href='javascript:void(0);' onclick='allSendPackSumClick(event,\""+row.waybillCode+"\",\""+row.createSiteCode+"\")'>"+value+"</a>";
+				}
+			}, {
+				field : 'noSendPackSum',
+				title : '未退包裹数',
+				formatter : function(value,row,index){
+					return "<a href='javascript:void(0);' onclick='noSendPackSumClick(event,\""+row.waybillCode+"\",\""+row.createSiteCode+"\")'>"+value+"</a>";
+				}
+			}, {
+				field : 'sendTime',
+				title : '发货时间',
+				formatter : function(value,row,index){
+					return $.dateHelper.formateDateTimeOfTs(value);
+				}
+
+			}, {
+				field : 'receiveTime',
+				title : '仓储收货时间',
+				formatter : function(value,row,index){
+					return $.dateHelper.formateDateTimeOfTs(value);
+				}
+			}, {
+				field : 'createSiteCode',
+				title : '操作分拣中ID',
+				visible: false
+			} , {
+				field : 'reverseSiteCode',
+				title : '目的地ID',
+				visible: false
+			}];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
@@ -86,10 +120,55 @@ $(function() {
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
+
+            $.datePicker.createNew({
+                elem: '#sendTimeGEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                //btns: ['clear','now'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+
+            $.datePicker.createNew({
+                elem: '#sendTimeLEStr',
+                theme: '#3f92ea',
+                type: 'datetime',
+                //btns: ['clear','now'],
+                done: function(value, date, endDate){
+                    /*重置表单验证状态*/
+                }
+            });
+
 			$('#dataEditDiv').hide();		
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
+		    //导出
+		    $('#btn_export').click(function(){
+
+                var params = tableInit().getSearchCondition();
+
+                var form = $("<form method='post'></form>"),
+                    input;
+                form.attr({"action":exportUrl});
+
+                $.each(params,function(key,value){
+
+                    input = $("<input type='hidden' class='search-param'>");
+                    input.attr({"name":key});
+                    input.val(value);
+                    form.append(input);
+                });
+                form.appendTo(document.body);
+                form.submit();
+                document.body.removeChild(form[0]);
+			});
+
+
+
+
 			$('#btn_add').click(function() {
 			    $('.edit-param').each(function () {
 			    	var _k = this.id;
@@ -180,9 +259,185 @@ $(function() {
 				$('#dataTableDiv').show();
 			});		
 		};
+
 		return oInit;
 	};
-	
+
+    initOrg();
+
 	tableInit().init();
 	pageInit().init();
 });
+
+/**
+ * 累计发货明细
+ * @param waybillCode
+ * @param createSiteCode
+ */
+function allSendPackSumClick(event,waybillCode,createSiteCode){
+
+    event.stopPropagation();
+
+
+    var url = "/reverse/part/reversePartDetail/allSendPack/"+createSiteCode+"/"+waybillCode;
+
+	$.get(url,function(data){
+
+		if(data.code != 200){
+			alert(data.message);
+		}else{
+
+			var htmlStr = "";
+			for(var sd in data.data){
+                htmlStr += "<tr><td>"+data.data[sd].sendCode+"</td><td>"+data.data[sd].packNo+"</th> <td>"+$.dateHelper.formateDateTimeOfTs(data.data[sd].sendTime)+"</td></tr>";
+			}
+
+            $("#allPackSendModalTbody").html(htmlStr);
+            $("#allPackSendModal").modal('show');
+		}
+
+	},'json');
+
+
+	return false;
+}
+
+/**
+ * 未退包裹明细
+ * @param waybillCode
+ * @param createSiteCode
+ */
+function noSendPackSumClick(event,waybillCode,createSiteCode){
+
+    event.stopPropagation();
+
+
+    var url = "/reverse/part/reversePartDetail/noSendPack/"+createSiteCode+"/"+waybillCode;
+
+    $.get(url,function(data){
+
+        if(data.code != 200){
+            alert(data.message);
+        }else{
+
+            var htmlStr = "";
+            for(var sd in data.data){
+                htmlStr += "<tr><td>"+data.data[sd]+"</td></tr>";
+            }
+
+            $("#noPackSendModalTbody").html(htmlStr);
+            $("#noPackSendModal").modal('show');
+        }
+
+    },'json');
+
+
+    return false;
+}
+
+// 初始化大区下拉框
+function initOrg() {
+
+
+    var url = "/services/bases/allorgs";
+    var param = {};
+    $.ajax({
+        type: "get",
+        url: url,
+        data: param,
+        async: false,
+        success: function (data) {
+
+            var result = [];
+            for (var i in data) {
+                if (data[i].orgId && data[i].orgId != "") {
+                    result.push({id: data[i].orgId, text: data[i].orgName});
+
+                }
+
+            }
+
+            $('#site-group-select').select2({
+                width: '100%',
+                placeholder: '请选择机构',
+                allowClear: true,
+                data: result
+            });
+
+            $("#site-group-select")
+                .on("change", function (e) {
+                    $("#query-form #createSiteCode").val("");
+                    var orgId = $("#site-group-select").val();
+                    if (orgId) {
+                        var siteListUrl = '/services/bases/dms/' + orgId;
+                        findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
+                    }
+
+                });
+
+            $("#site-select").on("change", function (e) {
+                var _s = $("#site-select").val();
+                $("#query-form #createSiteCode").val(_s);
+            });
+
+
+            if ($("#loginUserOrgId").val() != -1) {
+                //登录人大区
+                $('#site-group-select').val($("#loginUserOrgId").val()).trigger('change');
+            } else {
+                $('#site-group-select').val(null).trigger('change');
+            }
+
+
+        }
+    });
+
+}
+
+function findSite(selectId,siteListUrl,initIdSelectId){
+    $(selectId).html("");
+    $.ajax({
+        type : "get",
+        url : siteListUrl,
+        data : {},
+        async : false,
+        success : function (data) {
+
+
+            var result = [];
+            if(data.length==1 && data[0].code!="200"){
+
+
+                result.push({id:"-999",text:data[0].message});
+
+            }else{
+                for(var i in data){
+                    if(data[i].siteCode && data[i].siteCode != ""){
+                        result.push({id:data[i].siteCode,text:data[i].siteName});
+                    }
+                }
+
+            }
+            if(initIdSelectId && result[0].id!="-999"){
+                $(initIdSelectId).val(result[0].id);
+            }
+
+            $(selectId).select2({
+                width: '100%',
+                placeholder:'请选择分拣中心',
+                allowClear:true,
+                data:result
+            });
+
+            if(initLogin){
+                //第一次登录 初始化登录人分拣中心
+                if($("#loginUserCreateSiteCode").val() != -1){
+                    //登录人大区
+                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
+                }
+            }
+            initLogin = false;
+
+        }
+    });
+}

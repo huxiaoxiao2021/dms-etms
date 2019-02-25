@@ -15,13 +15,12 @@ public class ReversePartDetail extends DbEntity {
 
 	private static final long serialVersionUID = 1L;
 
-	 /** 累计发货包裹数 */
+	 /** 总计包裹数 */
+	private Integer allPackSum;
+
+	/** 累计发货包裹数 */
 	private Integer allSendPackSum;
-
-	 /** 本次发货包裹数 */
-	private Integer sendPackSum;
-
-	 /** 未退包裹数 */
+	/** 未 退包裹数 */
 	private Integer noSendPackSum;
 
 	 /** 运单号  */
@@ -34,16 +33,22 @@ public class ReversePartDetail extends DbEntity {
 	private String createSiteName;
 
 	 /** 目的地编码 */
-	private Integer reverseSiteCode;
+	private Integer receiveSiteCode;
 
 	 /** 目的地 */
-	private String reverseSiteName;
+	private String receiveSiteName;
 
 	 /** 半退类型 1-ECLP半退至仓 */
 	private Integer type;
 
 	 /** 状态 1-发货 2-取消发货 3-收货 4-拒收 */
 	private Integer status;
+
+	/** 包裹号 */
+	private String packNo;
+
+	/** 批次号 */
+	private String sendCode;
 
 	 /** 发货时间 */
 	private Date sendTime;
@@ -57,53 +62,14 @@ public class ReversePartDetail extends DbEntity {
 	 /** 更新人 */
 	private String updateUser;
 
-	/**
-	 * The set method for allSendPackSum.
-	 * @param allSendPackSum
-	 */
-	public void setAllSendPackSum(Integer allSendPackSum) {
-		this.allSendPackSum = allSendPackSum;
+	public Integer getAllPackSum() {
+		return allPackSum;
 	}
 
-	/**
-	 * The get method for allSendPackSum.
-	 * @return this.allSendPackSum
-	 */
-	public Integer getAllSendPackSum() {
-		return this.allSendPackSum;
+	public void setAllPackSum(Integer allPackSum) {
+		this.allPackSum = allPackSum;
 	}
 
-	/**
-	 * The set method for sendPackSum.
-	 * @param sendPackSum
-	 */
-	public void setSendPackSum(Integer sendPackSum) {
-		this.sendPackSum = sendPackSum;
-	}
-
-	/**
-	 * The get method for sendPackSum.
-	 * @return this.sendPackSum
-	 */
-	public Integer getSendPackSum() {
-		return this.sendPackSum;
-	}
-
-	/**
-	 * The set method for noSendPackSum.
-	 * @param noSendPackSum
-	 */
-	public void setNoSendPackSum(Integer noSendPackSum) {
-		this.noSendPackSum = noSendPackSum;
-	}
-
-	/**
-	 * The get method for noSendPackSum.
-	 * @return this.noSendPackSum
-	 */
-	public Integer getNoSendPackSum() {
-		return this.noSendPackSum;
-	}
 
 	/**
 	 * The set method for waybillCode.
@@ -153,36 +119,21 @@ public class ReversePartDetail extends DbEntity {
 		return this.createSiteName;
 	}
 
-	/**
-	 * The set method for reverseSiteCode.
-	 * @param reverseSiteCode
-	 */
-	public void setReverseSiteCode(Integer reverseSiteCode) {
-		this.reverseSiteCode = reverseSiteCode;
+
+	public Integer getReceiveSiteCode() {
+		return receiveSiteCode;
 	}
 
-	/**
-	 * The get method for reverseSiteCode.
-	 * @return this.reverseSiteCode
-	 */
-	public Integer getReverseSiteCode() {
-		return this.reverseSiteCode;
+	public void setReceiveSiteCode(Integer receiveSiteCode) {
+		this.receiveSiteCode = receiveSiteCode;
 	}
 
-	/**
-	 * The set method for reverseSiteName.
-	 * @param reverseSiteName
-	 */
-	public void setReverseSiteName(String reverseSiteName) {
-		this.reverseSiteName = reverseSiteName;
+	public String getReceiveSiteName() {
+		return receiveSiteName;
 	}
 
-	/**
-	 * The get method for reverseSiteName.
-	 * @return this.reverseSiteName
-	 */
-	public String getReverseSiteName() {
-		return this.reverseSiteName;
+	public void setReceiveSiteName(String receiveSiteName) {
+		this.receiveSiteName = receiveSiteName;
 	}
 
 	/**
@@ -281,5 +232,35 @@ public class ReversePartDetail extends DbEntity {
 		return this.updateUser;
 	}
 
+	public String getPackNo() {
+		return packNo;
+	}
 
+	public void setPackNo(String packNo) {
+		this.packNo = packNo;
+	}
+
+	public String getSendCode() {
+		return sendCode;
+	}
+
+	public void setSendCode(String sendCode) {
+		this.sendCode = sendCode;
+	}
+
+	public Integer getAllSendPackSum() {
+		return allSendPackSum;
+	}
+
+	public void setAllSendPackSum(Integer allSendPackSum) {
+		this.allSendPackSum = allSendPackSum;
+	}
+
+	public Integer getNoSendPackSum() {
+		return noSendPackSum;
+	}
+
+	public void setNoSendPackSum(Integer noSendPackSum) {
+		this.noSendPackSum = noSendPackSum;
+	}
 }
