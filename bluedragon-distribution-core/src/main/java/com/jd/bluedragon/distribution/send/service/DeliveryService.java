@@ -368,4 +368,11 @@ public interface DeliveryService {
 	 * @return
 	 */
 	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
+
+	/**
+	 * 根据箱号查询箱号的运单号
+	 * @param boxCode
+	 * @return
+	 */
+	List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum);
 }

@@ -98,6 +98,16 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    private Integer waybillType;
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
     public DeliveryResponse() {
         super();
     }

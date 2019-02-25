@@ -51,4 +51,11 @@ public interface WaybillService {
      * 获取商品明细和运单状态接口
      */
     BigWaybillDto getWaybillProductAndState(String waybillCode);
+
+    /**
+     * 根据waybillSign获取运单类型
+     * @param waybillCode
+     * @return
+     */
+    Integer getWaybillTypeByWaybillSign(String waybillCode);
 }

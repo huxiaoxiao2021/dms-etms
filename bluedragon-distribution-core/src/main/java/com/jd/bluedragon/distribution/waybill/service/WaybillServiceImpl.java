@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -62,6 +63,16 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private ReverseReceiveService reverseReceiveService;
+
+    /**
+     * 普通运单类型（非移动仓内配）
+     **/
+    private static final Integer WAYBILL_TYPE_COMMON = 1;
+
+    /**
+     * 移动仓内配运单类型
+     **/
+    private static final Integer WAYBILL_TYPE_MOVING_WAREHOUSE_INNER = 2;
 
 //    @Autowired
 //    private WaybillPackageDao waybillPackageDao;
@@ -291,4 +302,24 @@ public class WaybillServiceImpl implements WaybillService {
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
+
+    /**
+     * 根据waybillSign获取运单类型
+     * waybillSign第15位==‘1’表示是移动仓内配单
+     * @param waybillCode
+     * @return
+     */
+    public Integer getWaybillTypeByWaybillSign(String waybillCode){
+        BigWaybillDto dto = getWaybillProductAndState(waybillCode);
+        if(dto != null &&
+                dto.getWaybill() != null &&
+                StringUtils.isNotBlank(dto.getWaybill().getWaybillSign())){
+            String waybillSign = dto.getWaybill().getWaybillSign();
+            if(BusinessUtil.isSignChar(waybillSign,15,'1')){
+                return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER;
+            }
+        }
+        return WAYBILL_TYPE_COMMON;
+    }
+
 }

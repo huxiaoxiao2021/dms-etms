@@ -644,9 +644,10 @@ public class DeliveryResource {
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
                 if(JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())){
-
+                    String waybillCodeToJudgeType = null;
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
                     if (WaybillUtil.isPackageCode(boxCode)) {
+                        waybillCodeToJudgeType = WaybillUtil.getWaybillCode(boxCode);
                         try {
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
                             if (baseStaffSiteOrgDto != null) {
@@ -670,8 +671,18 @@ public class DeliveryResource {
                         } catch (Exception e) {
                             this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
                         }
-
+                    }else if(BusinessUtil.isBoxcode(boxCode)){
+                        //从箱子中取出一单
+                        List<String> waybillCodeList = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(boxCode,1);
+                        if(waybillCodeList != null && waybillCodeList.size() > 0){
+                            waybillCodeToJudgeType = waybillCodeList.get(0);
+                        }
                     }
+
+                    //获取运单类型
+                    Integer waybillType = waybillService.getWaybillTypeByWaybillSign(waybillCodeToJudgeType);
+                    tDeliveryResponse.setWaybillType(waybillType);
+
                     return tDeliveryResponse;
                     //adder end
                 }else{
