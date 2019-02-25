@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -347,5 +348,14 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     /**分页查询发货记录*/
     public List<SendDetail> findPageSendDetail(Map<String,Object> params){
         return this.getSqlSession().selectList(namespace + ".findPageSendDetail",params);
+    }
+
+    /**
+     * 查询报丢分拣未发货数据
+     * @param sendDetail
+     * @return
+     */
+    public Integer findLossSortingNoSendCount(SendDetail sendDetail){
+        return this.getSqlSession().selectOne(namespace +".findLossSortingNoSendCount",sendDetail);
     }
 }

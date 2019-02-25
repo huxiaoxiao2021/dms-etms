@@ -863,4 +863,10 @@
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		order by operate_time limit #{startIndex},#{pageSize}
 	</select>
+
+	<select id="findLossSortingNoSendCount" parameterType="SendDetail" resultType="Integer">
+		select count(1) from send_d where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and waybill_code = #{waybillCode,jdbcType=VARCHAR}  and yn = 1 and is_cancel = 0 and is_loss = 1 and send_code is null
+
+	</select>
 </mapper>

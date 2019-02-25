@@ -341,11 +341,11 @@ public class DmsInternalServiceImpl implements DmsInternalService {
         invokeResult.setData(true);
         try {
             //获取判断是否可以逆向操作的结果
-            Boolean result = waybillService.isReverseOperationAllowed(waybillCode, siteCode);
-            if(result != null && ! result) {
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> result = waybillService.isReverseOperationAllowed(waybillCode, siteCode);
+            if(result != null && com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
                 invokeResult.setData(false);
-                invokeResult.setCode(SortingResponse.CODE_29121);
-                invokeResult.setMessage(SortingResponse.MESSAGE_29121);
+                invokeResult.setCode(result.getCode());
+                invokeResult.setMessage(result.getMessage());
             }
         } catch (Exception e) {
             invokeResult.setData(false);
