@@ -59,22 +59,23 @@ public class InspectionTaskExecute extends AbstractTaskExecute<InspectionTaskExe
         }
         builderSite(request,context);
         String code = request.getPackageBarOrWaybillCode();
+        /** 是否按运单验货 */
+        boolean isByWayBillCode = false;
         // 如果是包裹号获取取件单号，则存在包裹号属性中
         if (WaybillUtil.isPackageCode(code)|| WaybillUtil.isSurfaceCode(code)) {
             request.setPackageBarcode(code);
         } else if (WaybillUtil.isWaybillCode(code)) {// 否则为运单号
+            isByWayBillCode = true;
             request.setWaybillCode(code);
         } else {
             String errorMsg = "验货条码不符合规则:" + code;
             logger.warn(errorMsg);
             throw new WayBillCodeIllegalException(errorMsg);
         }
-        if(WaybillUtil.isPackageCode(code) && !WaybillUtil.isPackageCode(code)){
-            throw new WayBillCodeIllegalException("验货包裹号不符合规则:" + code);
-        }
+
         String waybillCode = WaybillUtil.getWaybillCode(request.getPackageBarOrWaybillCode());
 
-        BigWaybillDto bigWaybillDto = getWaybill(waybillCode);
+        BigWaybillDto bigWaybillDto = getWaybill(waybillCode, isByWayBillCode);
         if(bigWaybillDto == null){    //没有查到运单信息，可能运单号不存在或者服务暂不可用等
             context.setPassCheck(false);
             return context;
