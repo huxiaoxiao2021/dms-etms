@@ -42,6 +42,7 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
@@ -55,6 +56,7 @@ import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.WaybillSignDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
@@ -67,6 +69,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.jboss.util.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -127,6 +130,9 @@ public class WaybillResource {
 	@Autowired
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -1876,4 +1882,45 @@ public class WaybillResource {
 		}
 		return result;
 	}
+
+	/**
+	 * 判断仓配/纯配订单
+     * 0:非法运单号 1：纯配运单 2：仓配运单 3：既不是纯配也不是仓配 4：运单数据为空
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/checkIsPureMatchOrWarehouse/{waybillCode}")
+	public InvokeResult<Integer> checkIsPureMatchOrWarehouse(@PathParam("waybillCode") String waybillCode){
+		InvokeResult<Integer> result = new InvokeResult<Integer>();
+		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		result.setData(3);//既不是纯配也不是仓配
+		if(StringUtils.isBlank(waybillCode)){
+			result.setData(0);
+			this.logger.error("运单号不能为空!");
+			return result;
+		}
+        BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null &&
+                StringUtils.isNotBlank(bigWaybillDto.getWaybill().getBusiOrderCode()) &&
+                StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
+		    String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
+            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+            //纯配外单
+            if(BusinessUtil.isPurematch(waybillSign)){
+                result.setData(1);
+                return result;
+            }
+            //仓配订单
+            if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
+                result.setData(2);
+                return result;
+            }
+        }else{
+		    this.logger.error("通过运单号查询运单为空!");
+            result.setData(4);
+        }
+        return result;
+    }
 }

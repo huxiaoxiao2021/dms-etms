@@ -4082,6 +4082,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         @Autowired
         private WaybillCommonService waybillCommonService;
 
+        @Autowired
+        private SiteService siteService;
+
         @Override
         public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
             Collections.sort(list, new Comparator<SendDetail>() {
@@ -4110,6 +4113,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                 //包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
                 if(isScheduleRequest && hasDiff > 0){
                     break;
+                }
+                //纯配外单支持缺量退备件库因此剔除
+                String waybillCode = item.getWaybillCode();
+                com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
+                if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
+                    BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
+                    Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+                    if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
+                        break;
+                    }
                 }
                 SendThreeDetail diff = new SendThreeDetail();
                 diff.setBoxCode(item.getBoxCode());

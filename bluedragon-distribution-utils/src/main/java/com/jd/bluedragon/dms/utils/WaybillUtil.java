@@ -221,7 +221,7 @@ public class WaybillUtil {
         if (StringUtils.isEmpty(busiOrderCode) || StringUtils.isEmpty(waybillSign)) {
             return Boolean.FALSE;
         }
-        if(StringUtils.isNotBlank(waybillSign) && !isECLPByBusiOrderCode(busiOrderCode)){
+        if(BusinessUtil.isPurematch(waybillSign) && !isECLPByBusiOrderCode(busiOrderCode)){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

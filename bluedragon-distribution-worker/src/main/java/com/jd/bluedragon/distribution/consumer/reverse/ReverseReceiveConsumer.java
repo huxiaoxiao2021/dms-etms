@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -18,7 +19,14 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -31,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -248,6 +257,8 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
 						taskService.add(this.toTaskStatus(tWaybillStatus));
+						//调运单接口获取已退包裹号，发包裹维度全程跟踪 TODO
+						sendWaybillTrackByPackage(reverseReceive,tWaybillStatus);
 					}else {
 						return;
 					}
@@ -267,6 +278,41 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 	}
+
+	private void sendWaybillTrackByPackage(ReverseReceive reverseReceive,WaybillStatus tWaybillStatus) {
+
+		String waybillCode = reverseReceive.getWaybillCode();
+		List<String> packageCodeList = new ArrayList<String>();
+        List<Eclp2BdReceiveDetail> detailList = reverseReceive.getDetailList();
+        for(Eclp2BdReceiveDetail detail : detailList){
+            packageCodeList.add(detail.getBatchNo());
+        }
+        //查询运单接口获取已退包裹号
+        List<String> retiredPackageCodeList = new ArrayList<String>();
+        for(String packageCode : retiredPackageCodeList){
+            Task task = new Task();
+            task.setTableName(Task.TABLE_NAME_POP);
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setKeyword2(String.valueOf(tWaybillStatus.getOperateType()));
+            task.setKeyword1(packageCode);
+            task.setCreateSiteCode(tWaybillStatus.getCreateSiteCode());
+            task.setBody(JsonHelper.toJson(tWaybillStatus));
+            task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            StringBuffer fingerprint = new StringBuffer();
+            fingerprint
+                    .append(tWaybillStatus.getCreateSiteCode())
+                    .append("__")
+                    .append((tWaybillStatus.getReceiveSiteCode() == null ? "-1"
+                            : tWaybillStatus.getReceiveSiteCode())).append("_")
+                    .append(tWaybillStatus.getOperateType()).append("_")
+                    .append(tWaybillStatus.getWaybillCode()).append("_")
+                    .append(tWaybillStatus.getOperateTime()).append("_")
+                    .append(tWaybillStatus.getSendCode());
+            task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
+            taskService.add(task);
+        }
+    }
 
 	private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();
