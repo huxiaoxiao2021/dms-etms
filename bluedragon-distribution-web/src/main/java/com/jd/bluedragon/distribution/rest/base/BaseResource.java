@@ -932,11 +932,11 @@ public class BaseResource {
 		SysConfig aSysConfig = sysConfigs.get(0);
 		if (aSysConfig == null || StringHelper.isEmpty(aSysConfig.getConfigContent())) {
 			response.setCode(SysConfigResponse.CODE_OLD_PASSWORD_ERROR);
-			response.setMessage(SysConfigResponse.MESSAGE_OLD_PASSWORD_ERROR);
+			response.setMessage(SysConfigResponse.MESSAGE_OLD_PASS_WORD_ERROR);
 			return response;
 		} else if (!aSysConfig.getConfigContent().equalsIgnoreCase(sysConfig.getOldPassword())) {
 			response.setCode(SysConfigResponse.CODE_OLD_PASSWORD_ERROR);
-			response.setMessage(SysConfigResponse.MESSAGE_OLD_PASSWORD_ERROR);
+			response.setMessage(SysConfigResponse.MESSAGE_OLD_PASS_WORD_ERROR);
 			return response;
 		} else {
 			sysConfig.setConfigContent(sysConfig.getNewPassword());

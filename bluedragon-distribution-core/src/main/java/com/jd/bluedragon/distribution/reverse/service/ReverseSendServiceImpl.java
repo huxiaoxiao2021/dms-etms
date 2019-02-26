@@ -1094,6 +1094,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<Product> products = waybill.getProList();
                     if (products == null || products.size() == 0) {
                         this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
+                        /**
+                         * products在查运单信息时默认给力空对象，这里避免上游逻辑更改，判断为null时赋一个空List，避免报空指针，此处更改不影响后续逻辑
+                         */
+                        if(products == null){
+                            products = new ArrayList<Product>();
+                        }
                     }
                     List<Spare> spares = this.getSpare(baseOrgId,Integer.parseInt(baseStoreId), sendDetail, products);
                     if(spares==null || spares.isEmpty()){

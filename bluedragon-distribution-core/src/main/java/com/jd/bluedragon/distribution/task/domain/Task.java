@@ -727,17 +727,24 @@ public class Task implements java.io.Serializable, TaskModeAware{
 		
 		//2.计算任务的灰度 FIXME:是否应从配置文件中得来
 		if(StringUtils.isEmpty(ownSign))
-			ownSign = BusinessHelper.getOwnSign();;
+			ownSign = BusinessHelper.getOwnSign();
 		
 		//3.计算任务的队列号
-		Integer queueId = getFingerprint() != null ? Math.abs(getFingerprint()
-				.hashCode()) % RedisTaskHelper.getQueueNum() : Math.abs(getBody()
-				.hashCode()) % RedisTaskHelper.getQueueNum();
-				
-		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(queueId);
+        int hashCode = 0;
+        if(getFingerprint() != null){
+            hashCode = getFingerprint().hashCode();
+        }else{
+            hashCode = getBody().hashCode();
+        }
+        if(Integer.MIN_VALUE == hashCode){
+            hashCode = Integer.MAX_VALUE;
+        }
+        int theQueueId = Math.abs(hashCode) % RedisTaskHelper.getQueueNum();
+
+		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(theQueueId);
 		
 		//4.设定QueueKeyInfo
-		result = new QueueKeyInfo(taskType, ownSign, queueId, queueKey.toString());
+		result = new QueueKeyInfo(taskType, ownSign, theQueueId, queueKey.toString());
 		
 		return result;
 	}
@@ -910,10 +917,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             logger.error("获取任务队列数异常 "+e.getMessage());
         }finally {
             Profiler.registerInfoEnd(info);
-            return queueSize;
         }
-
-
+        return queueSize;
     }
 
     public String allToString() {

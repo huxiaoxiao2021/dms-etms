@@ -224,6 +224,9 @@ public class BoxResource {
             }
         } catch (Exception e) {
             this.logger.error("获得站点路由信息失败： ", e);
+            response.setCode(BoxResponse.CODE_SERVICE_ERROR);
+            response.setMessage("获得站点路由信息失败!");
+            return response;
         }
         //生成箱号
         List<Box> availableBoxes;
