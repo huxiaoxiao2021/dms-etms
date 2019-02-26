@@ -14,8 +14,6 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -321,5 +319,15 @@ public class WaybillServiceImpl implements WaybillService {
         }
         return WAYBILL_TYPE_COMMON;
     }
+
+    /**
+     * 判断是否移动仓内配单
+     * @param waybillCode
+     * @return
+     */
+    public boolean isMovingWareHouseInnerWaybill(String waybillCode){
+        return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER.equals(getWaybillTypeByWaybillSign(waybillCode));
+    }
+
 
 }

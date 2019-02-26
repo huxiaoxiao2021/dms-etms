@@ -16,13 +16,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.common.util.JacksonUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.fastjson.JSON;
@@ -61,7 +60,6 @@ import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -148,6 +146,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -724,6 +725,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
                 ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, lossCount, bDto, taskId,wayBillCode);
             }
+
+            /*** 如果该批次是否是移动仓内配的批次调DTC给wms发一新的消息 ***/
+            if(allsendList != null && allsendList.size() > 0) {
+                if (waybillService.isMovingWareHouseInnerWaybill(allsendList.get(0).getWaybillCode())) {
+                    sendMoveWarehouseInnerWaybillToWMS(allsendList, bDto);
+                }
+            }
+            /*** 移动仓内配单单独给wms发消息 end ***/
+
+
             return ifSendSuccess;
         } catch (Exception e) {
             this.logger.error(sendM.getSendCode() + "wms发货库房失败", e);
@@ -818,6 +829,67 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         return send;
     }
+
+    /**
+     * 移动仓内配单发货消息推送到WMS
+     * @param sendDetailList
+     * @param bDto
+     * @return
+     */
+    public boolean sendMoveWarehouseInnerWaybillToWMS(List<SendDetail> sendDetailList,BaseStaffSiteOrgDto bDto){
+        //获取cky2、库房号信息
+        Integer orgId = bDto.getOrgId();
+        String dmdStoreId = bDto.getStoreCode();
+
+        String[] cky2AndStoreId = dmdStoreId.split("-");
+        String cky2 = cky2AndStoreId[1];
+        String storeId = cky2AndStoreId[2];
+
+        //获取批次内所有运单号
+        List<String> waybillCodeList = new ArrayList<String>();
+        for(SendDetail sendDetail : sendDetailList){
+            waybillCodeList.add(sendDetail.getWaybillCode());
+        }
+        SendDetail detail = sendDetailList.get(0);
+
+        //组装传给WMS的报文
+        MovingWarehouseInnerWaybill waybill = new MovingWarehouseInnerWaybill();
+        waybill.setBusiOrderCode(detail.getSendCode());
+        waybill.setDeliveryCenterId(cky2);
+        waybill.setWareHouseId(storeId);
+        waybill.setCaseNos(waybillCodeList);
+
+        //调DTC接口给WMS发报文
+        String target = orgId + "," + cky2 + "," + storeId;
+        com.jd.staig.receiver.rpc.Result result = null;
+        String outboundType = "";
+        String messageValue = JSON.toJSONString(waybill);
+        String source="DMS";
+        String outboundNo="";
+        try {
+            result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, outboundNo);
+            logger.info("移动仓没配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
+            if(result.getResultCode() != 1){
+                logger.error("移动仓没配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
+            }
+        } catch (Exception e) {
+            logger.error("移动仓没配单发货信息推送给WMS异常.推送报文" + messageValue, e);
+            return false;
+        } finally {
+            //写系统日志?写到es里？
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword2(detail.getSendCode());
+            sLogDetail.setKeyword3(target);
+            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            sLogDetail.setType(Long.valueOf(12005)); //?这个值是不是需要改一下
+            sLogDetail.setContent(messageValue);
+            SystemLogUtil.log(sLogDetail);
+        }
+
+        return true;
+    }
+
+
 
     @SuppressWarnings("rawtypes")
     public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,

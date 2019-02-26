@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WorkTaskServiceManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -18,9 +20,12 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -58,6 +63,12 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
     @Autowired
     private ReversePrintService reversePrintService;
+
+	@Autowired
+	WaybillService waybillService;
+
+	@Autowired
+	WorkTaskServiceManager workTaskServiceManager;
 
 	@Override
 	public void consume(Message message) {
@@ -116,7 +127,28 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		} catch (Exception e) {
 			this.logger.error("推送UMP发生异常.", e);
 		}
-		
+
+		//如果是移动仓内配单，而且是退大库的，要调终端的接口
+		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
+		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(waybillCode)){
+			//
+			OrderDeliverWorkTask task = new OrderDeliverWorkTask();
+			task.setRefId(waybillCode);//运单号
+			task.setTaskType(7);//妥投任务，类型为7
+			task.setTaskExeCount(0);
+			task.setStatus(1);
+			task.setCreateSiteId(reverseReceive.getReceiveTime());
+			task.setCreateTime(reverseReceive.getReceiveTime());
+			task.setUpdateTime(reverseReceive.getReceiveTime());
+			task.setRemark("移动仓内配单妥投");//
+			task.setYn(1);
+			task.setOwnsign("BASE");
+
+
+			workTaskServiceManager.orderDeliverWorkTaskEntry(task);
+
+		}
+
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
@@ -166,6 +198,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 			this.reverseRejectService.reject(reverseReject);
 		}
+
 
 		//添加全称跟踪
 		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {

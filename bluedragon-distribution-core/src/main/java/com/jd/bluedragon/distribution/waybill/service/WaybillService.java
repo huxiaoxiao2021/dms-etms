@@ -58,4 +58,11 @@ public interface WaybillService {
      * @return
      */
     Integer getWaybillTypeByWaybillSign(String waybillCode);
+
+    /**
+     * 判断是否移动仓内配单
+     * @param waybillCode
+     * @return
+     */
+    boolean isMovingWareHouseInnerWaybill(String waybillCode);
 }
