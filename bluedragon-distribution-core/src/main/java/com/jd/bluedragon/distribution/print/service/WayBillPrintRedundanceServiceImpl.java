@@ -81,9 +81,11 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
     private C2cInterceptHandler c2cInterceptHandler;
+
     @Autowired
     @Qualifier("templateSelectService")
     private TemplateSelectService templateSelectService;
+
     /**
      * 2次预分拣变更提示信息
      */
@@ -130,9 +132,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                     result = temp;
                 }
                 logger.info("运单号【" + waybillCode + "】调用根据运单号获取运单包裹信息接口成功");
-
-                //获取模板
-                templateSelectService.handle(context);
             }
         } catch (Exception e) {
             // 调用服务异常
@@ -223,6 +222,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 return result;
             }
 
+            //设置模板名称
+            labelPrinting.setTemplateName(templateSelectService.handle(context));
+
             if (response != null) {
                 waybill.setCrossCode(String.valueOf(labelPrinting.getOriginalCrossCode()));
                 waybill.setTrolleyCode(String.valueOf(labelPrinting.getOriginalTabletrolley()));
@@ -231,7 +233,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 waybill.setTargetDmsDkh(String.valueOf(labelPrinting.getPurposefulCrossCode()));
                 waybill.setTargetDmsLch(String.valueOf(labelPrinting.getPurposefulTableTrolley()));
                 waybill.setAddress(labelPrinting.getOrderAddress());
-                waybill.setJsonData(response.getJsonData());
+                waybill.setJsonData(JsonHelper.toJson(labelPrinting));
                 waybill.setRoad(labelPrinting.getRoad());
                 result.toSuccess();
                 if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){

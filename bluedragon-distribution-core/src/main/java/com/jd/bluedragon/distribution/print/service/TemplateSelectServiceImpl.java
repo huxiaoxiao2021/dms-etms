@@ -45,7 +45,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 
 
     @Override
-    public void handle(WaybillPrintContext context) {
+    public String handle(WaybillPrintContext context) {
         String templateName = context.getRequest().getTemplateName();
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
@@ -97,7 +97,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
             }
         }
 
-        context.getResponse().setTemplateName(templateName);
+        return templateName;
     }
 
     /**

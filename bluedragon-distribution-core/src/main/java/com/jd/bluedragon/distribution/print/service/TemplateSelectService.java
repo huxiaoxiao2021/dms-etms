@@ -7,5 +7,5 @@ public interface TemplateSelectService {
      * 模板选择
      * @param context
      */
-    void handle(final WaybillPrintContext context);
+    String handle(final WaybillPrintContext context);
 }
