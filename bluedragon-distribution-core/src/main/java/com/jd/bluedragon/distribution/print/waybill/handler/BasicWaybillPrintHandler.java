@@ -673,19 +673,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             return ;
         }
 
-        Integer startNodeIndex = 0;
-        Integer endNodeIndex = 0;
-        //定位始发网点和目的网点在整条路由中的定位
-        for (int i = 0 ; i< siteArr.length; i++){
-            if(siteArr.equals(originalDms.getDmsSiteCode())){
-                startNodeIndex = i;
-            }
-            if(siteArr.equals(destinationDms.getDmsSiteCode())){
-                endNodeIndex = i;
-            }
-        }
-
-        for (int i = startNodeIndex ;i <= endNodeIndex; i++){
+        String preCityName = "";
+        int cityNameIndex = 0;
+        for(int i=0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
             if (baseStaffSiteOrgDto!=null){
@@ -695,11 +685,17 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 if(isMunicipality(provinceId)){
                     cityName = baseStaffSiteOrgDto.getProvinceName();
                 }
-                try {
-                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i - startNodeIndex + 1), String.class);
-                    setRouterNode.invoke(printWaybill, cityName);
-                }catch (Exception e){
-                    logger.error("获取路由信息,设置路由节点失败.",e);
+                if(cityName.equals(preCityName)){
+                    continue;
+                }else{
+                    try {
+                        Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (cityNameIndex + 1), String.class);
+                        setRouterNode.invoke(printWaybill, cityName);
+                    }catch (Exception e){
+                        logger.error("获取路由信息,设置路由节点失败.",e);
+                    }
+                    preCityName = cityName;
+                    cityNameIndex ++;
                 }
             }
         }
