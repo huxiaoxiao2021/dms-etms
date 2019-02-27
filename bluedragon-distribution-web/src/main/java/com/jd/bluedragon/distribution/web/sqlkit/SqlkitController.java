@@ -106,7 +106,7 @@ public class SqlkitController {
 				int columnCount = rsmd.getColumnCount();// 获得列数
 				List<String> columnList = setColumnList(rsmd, columnCount);
 				List<Map<String, Object>> rowList = setRows(resultSet, rsmd, columnCount);
-				int rowCount = resultSet.getRow();
+				int rowCount = rowList.size();
 				logger.debug("结果条数=" + rowCount);
 				model.addAttribute("rowList", rowList);
 				model.addAttribute("columnList", columnList);
