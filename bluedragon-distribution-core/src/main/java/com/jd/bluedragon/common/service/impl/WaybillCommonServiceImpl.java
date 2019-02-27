@@ -834,6 +834,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
         if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
             target.setRoad(waybill.getWaybillExt().getUnpackClassifyNum());
+            target.setRoadCode(waybill.getWaybillExt().getUnpackClassifyNum());
         	target.setUnpackClassifyNum(waybill.getWaybillExt().getUnpackClassifyNum());
         }
         //特殊商家处理

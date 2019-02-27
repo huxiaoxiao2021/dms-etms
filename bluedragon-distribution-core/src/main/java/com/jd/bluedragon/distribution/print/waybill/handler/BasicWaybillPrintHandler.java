@@ -329,6 +329,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         		}
         	}
         	commonWaybill.setRoad(roadCode);
+        	commonWaybill.setRoadCode(roadCode);
+
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);

@@ -285,6 +285,8 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private String waybillSignText ;
 
+	private String roadCode;
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -1062,5 +1064,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setWaybillSignText(String waybillSignText) {
 		this.waybillSignText = waybillSignText;
+	}
+
+	public String getRoadCode() {
+		return roadCode;
+	}
+
+	public void setRoadCode(String roadCode) {
+		this.roadCode = roadCode;
 	}
 }
