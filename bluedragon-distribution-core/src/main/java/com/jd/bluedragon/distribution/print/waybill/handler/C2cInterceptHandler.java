@@ -12,7 +12,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_STATE;
 
@@ -29,6 +31,21 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
     @Autowired
     WaybillTraceManager waybillTraceManager;
 
+    /**
+     * 需要校验运单是否已经妥投的类型
+     */
+    private static Set<Integer> needCheckWaybillFinished = new HashSet<Integer>();
+    static {
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());//平台打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());//站点平台打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType());//换单打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.PACKAGE_WEIGH_PRINT.getType());//包裹称重
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());//驻场打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType());//批量分拣称重
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
+    }
+
+
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
         logger.info("C2cInterceptHandler-C2C运单打印面单校验揽收完成");
@@ -44,6 +61,12 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
                 interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_NEED_RECEIVE);
                 return interceptResult;
             }
+        }
+
+        logger.info("C2cInterceptHandler-校验运单是否已经妥投");
+        if(needCheckWaybillFinished.contains(context.getRequest().getOperateType()) && waybillTraceManager.isWaybillFinished(context.getWaybill().getWaybillCode())){
+            interceptResult.toFail(InterceptResult.STATUS_NO_PASSED, WaybillPrintMessages.MESSAGE_WAYBILL_STATE_FINISHED);
+            return interceptResult;
         }
         return interceptResult;
     }

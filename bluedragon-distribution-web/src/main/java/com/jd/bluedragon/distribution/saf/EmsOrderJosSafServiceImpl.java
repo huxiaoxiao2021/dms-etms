@@ -176,9 +176,10 @@ public class EmsOrderJosSafServiceImpl implements EmsOrderJosSafService {
 										.parseDouble(declaredValue) * 100) / 100.00;
 							}
 						}
-
-						info.setFeeUppercase(new CnUpperCaser(declaredValue)
-								.getCnString());
+						if(declaredValue == null){
+							declaredValue = "";
+						}
+						info.setFeeUppercase(new CnUpperCaser(declaredValue).getCnString());
 						info.setFee(needFund);
 						info.setPayMode("1");// 1现金
 						info.setBusinessType(collection);

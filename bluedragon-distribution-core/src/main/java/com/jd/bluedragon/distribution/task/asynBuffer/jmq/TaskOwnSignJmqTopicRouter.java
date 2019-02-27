@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.task.asynBuffer.jmq;
 
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class TaskOwnSignJmqTopicRouter implements JmqTopicRouter<Task> {
             return null;
         }
         String ownSign = task.getOwnSign().trim();
-        if(ownSign==null||ownSign.equals("")||ownSign.equals(null)){
+        if(StringUtils.isBlank(ownSign)){
             ownSign = "DMS";
         }
         return routerMap.get(task.getTableName() + "_" + task.getType() + "_" + ownSign);

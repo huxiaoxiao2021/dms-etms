@@ -103,7 +103,7 @@
 
     <!-- 运单系统接口 开始 -->
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="5000"  serialization="hessian" retries="${jsf.retries}" check="false">
     </jsf:consumer>
 
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"

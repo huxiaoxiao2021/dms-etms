@@ -318,12 +318,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if(sealCars == null || sealCars.isEmpty()){
             return;
         }
+        /** 写入日志时间处理：cassandra主键包含时间字段，为避免写入太快前面的数据被覆盖，做此处理 */
+        long date = System.currentTimeMillis();
+        long correctValue = 0L;
         for(SealCarDto dto : sealCars){
             Goddess goddess = new Goddess();
             goddess.setHead(dto.getSealSiteId() + "-" + dto.getDesealSiteId());
             dto.setRemark(remark);
             goddess.setBody(JsonHelper.toJson(dto));
-            goddess.setDateTime(new Date());
+            goddess.setDateTime(new Date(date + correctValue));
             if(StringUtils.isNotBlank(dto.getSealCarCode())){//解封车日志
                 goddess.setKey(dto.getSealCarCode());
             }else if(StringUtils.isNotBlank(dto.getTransportCode())){//按运力编码封车日志
@@ -332,6 +335,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 goddess.setKey(dto.getItemSimpleCode());
             }
             goddessService.save(goddess);
+            correctValue++;
         }
     }
 

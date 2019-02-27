@@ -237,7 +237,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					.toList(waybillset);
 			boolean bool = sendMqToWhsmsServer(waybillList);
 			if(!bool){
-				this.logger.error("武汉邮政推送自消费类型的MQ失败：" + waybillList.toArray());
+				this.logger.error("武汉邮政推送自消费类型的MQ失败：" + waybillList.toString());
 			}
 		}
 	}

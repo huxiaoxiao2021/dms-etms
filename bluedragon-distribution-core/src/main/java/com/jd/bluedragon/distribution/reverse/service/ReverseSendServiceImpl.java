@@ -16,13 +16,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.distribution.reverse.domain.*;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.common.util.JacksonUtils;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.fastjson.JSON;
@@ -61,7 +59,6 @@ import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.external.service.LossServiceManager;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -252,7 +249,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             try {
                 bDto = this.baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("查询获取目的地信息失败，siteCode：" + sendM.getReceiveSiteCode(), e);
             }
             if (null != bDto) {
                 siteType = bDto.getSiteType();
@@ -282,7 +279,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 bl = this.sendReverseMessageToSpwms(sendM, baseOrgId, baseStoreId);
             } else {
                 StringBuilder sb = new StringBuilder().append(asm_type).append(",").append(wms_type).append(",").append(spwms_type).append(",");
-                this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteName:" + bDto.getSiteName());
+                this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteCode:" + sendM.getReceiveSiteCode());
                 bl = true;
             }
             //直接以bl的值做返回值
@@ -880,7 +877,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setKeyword1(wallBillCode);
             sLogDetail.setKeyword2(sendM.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
@@ -973,7 +974,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setKeyword1(wallBillCode);
             sLogDetail.setKeyword2(sendM.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
@@ -1089,6 +1094,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<Product> products = waybill.getProList();
                     if (products == null || products.size() == 0) {
                         this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
+                        /**
+                         * products在查运单信息时默认给力空对象，这里避免上游逻辑更改，判断为null时赋一个空List，避免报空指针，此处更改不影响后续逻辑
+                         */
+                        if(products == null){
+                            products = new ArrayList<Product>();
+                        }
                     }
                     List<Spare> spares = this.getSpare(baseOrgId,Integer.parseInt(baseStoreId), sendDetail, products);
                     if(spares==null || spares.isEmpty()){

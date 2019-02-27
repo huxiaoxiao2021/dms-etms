@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeService;
 import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
-import com.jd.bluedragon.distribution.systemLog.service.SystemLogService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ExportByPOIUtil;
 import com.jd.bluedragon.utils.IntegerHelper;
@@ -36,7 +35,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.jd.bluedragon.distribution.cacheClean.service.CacheCleanService;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -92,33 +90,6 @@ public class SortSchemeController {
     @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index(Integer siteCode, String siteName, Model model) {
-
-//        if (null == siteName || "".equals(siteName)) {
-//            /** 该字段为空，需要从登陆用户的ERP信息中查找分拣中心的信息 **/
-//            logger.info("开始获取当前登录用户的ERP信息......");
-//            try {
-//                ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
-//                logger.info("获取用户ERP：" + user.getUserCode());
-//                BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
-//                if (bssod.getSiteType() == 64) {/** 站点类型为64的时候为分拣中心 **/
-//                    siteCode = bssod.getSiteCode();
-//                    siteName = bssod.getSiteName();
-//                }
-//            } catch (Exception e) {
-//                logger.error("用户分拣中心初始化失败：", e);
-//            }
-//        } else {
-//            try {
-//                siteName = getSiteNameParam(URLDecoder.decode(siteName, "UTF-8"));//需要截取字段
-//
-//            } catch (UnsupportedEncodingException e) {
-//                logger.error("分拣中心参数解码异常：", e);
-//            }
-//        }
-//
-//        model.addAttribute("siteCode", siteCode);
-//        model.addAttribute("siteName", siteName);
-
         return "sortscheme/sort-scheme-index";
     }
 
@@ -222,32 +193,31 @@ public class SortSchemeController {
             if (null == sheet0) {
                 throw new DataFormatException("文件只能是Excel");
             }
-//            SortScheme sortScheme = null;
-//            SortSchemeResponse<SortScheme> sortSchemeResponse = sortSchemeService.findById2(new SortSchemeRequest(id), HTTP + url + "/autosorting/sortScheme/find/id");
-//            if (sortSchemeResponse != null && IntegerHelper.compare(sortSchemeResponse.getCode(), JdResponse.CODE_OK)) {
-//                sortScheme = sortSchemeResponse.getData();
-//            } else {
-//                throw new DataFormatException("远程获取Sortscheme数据失败!!");
-//            }
+
             SortSchemeRequest request = new SortSchemeRequest();
             request.setId(id);
             request.setSortSchemeDetailJson(JsonHelper.toJson(sortSchemeDetailService.parseSortSchemeDetail2(sheet0)));
             SortSchemeResponse remoteResponse = sortSchemeService.importSortSchemeDetail2(request, HTTP + url + "/autosorting/sortScheme/import");
             if (remoteResponse == null || !IntegerHelper.compare(remoteResponse.getCode(), JdResponse.CODE_OK)) {
-                throw new DataFormatException(remoteResponse.getMessage());
+                String msg = "导入分拣计划明细失败!";
+                if(remoteResponse != null && StringUtils.isNotBlank(remoteResponse.getMessage())){
+                    msg = remoteResponse.getMessage();
+                }
+                throw new DataFormatException(msg);
             }
+            writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
         } catch (Exception e) {
             logger.error("导入分拣计划明细失败", e);
-            if (e instanceof IOException) {
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
-            } else if (e instanceof DataFormatException) {
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
-            }else{
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
+            if(pw != null){
+                if (e instanceof IOException) {
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
+                } else if (e instanceof DataFormatException) {
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+                }else{
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入分拣配置规则失败,系统异常")));
+                }
             }
-
         }
-        writeAndClose(pw, JsonHelper.toJson(new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK)));
     }
 
     /**
@@ -271,11 +241,13 @@ public class SortSchemeController {
             if (id == null || siteNo == null) {
                 PrintWriter pw = response.getWriter();
                 writeAndClose(pw, "参数为空,无法导出明细数据!");
+                return;
             }
             String url = PropertiesHelper.newInstance().getValue(prefixKey + siteNo);
             if (StringUtils.isBlank(url)) {
                 PrintWriter pw = response.getWriter();
                 writeAndClose(pw, "根据分拣中心ID,无法定位访问地址,请检查properties配置!!");
+                return;
             }
             SortSchemeDetailResponse<List<SortSchemeDetail>> remoteResponse = sortSchemeDetailService.findBySchemeId2(//
                     new SortSchemeDetailRequest(id.toString()), //
@@ -287,6 +259,7 @@ public class SortSchemeController {
                     ) {
                 PrintWriter pw = response.getWriter();
                 writeAndClose(pw, MessageFormat.format("分拣计划[{0}]没有明细数据,不能导出!", id));
+                return;
             }
             response.setContentType("application/vnd.ms-excel");
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode("分拣计划明细.xls", "UTF-8"));

@@ -156,7 +156,7 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                     //如果要上报
                     if (AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
                         //判断运单的妥投状态
-                        if (bigWaybillDto.getWaybillState() != null && bigWaybillDto.getWaybillState() != null) {
+                        if (bigWaybillDto.getWaybillState() != null) {
                             WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
                             //判断运单是否妥投
                             if (Constants.WAYBILL_DELIVERED_CODE.equals(waybillManageDomain.getWaybillState())) {

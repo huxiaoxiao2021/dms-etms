@@ -22,7 +22,6 @@ public class WeighByWaybillExcpetion extends Exception
 
     public WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum exceptionType)
     {
-        this.exceptionMessage = exceptionMessage;
         this.exceptionType = exceptionType;
     }
 

@@ -2,10 +2,8 @@ package com.jd.bluedragon.distribution.rollcontainer.service.impl;
 
 
 import com.jd.bluedragon.Pager;
-import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.rollcontainer.domain.ContainerRelationCondition;
 import com.jd.bluedragon.utils.ObjectMapHelper;
-import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +49,9 @@ public class ContainerRelationServiceImpl implements ContainerRelationService{
 	@Override
 	public Pager<List<ContainerRelation>> getContainerRelationPager(ContainerRelationCondition condition,
 																	Pager<List<ContainerRelation>> pager) {
+		if(pager == null){
+            pager = new Pager<List<ContainerRelation>>(condition.getPage(), condition.getPageSize());
+        }
 		Map<String, Object> param = convertContainerRelationCondition2Map(condition, pager);
 		List<ContainerRelation> containerRelationList = containerRelationDao.getContainerRelationByModel(param);
 		Integer count = containerRelationDao.getContainerRelationCountByModel(param);

@@ -6,7 +6,7 @@ import java.util.*;
  */
 public interface RestAuthorization {
 
-    static String PASSWORD_PREFIX="RESTAUTHORIZATION";
+    static String PASS_WORD_PREFIX ="RESTAUTHORIZATION";
 
     /**
      * 注册号
