@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -135,7 +136,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		} catch (Exception e) {
 			this.logger.error("推送UMP发生异常.", e);
 		}
-		
+
+
+		//如果是移动仓内配单需要推送终端
+		String waybillCode = reverseReceive.getWaybillCode();
+		if(waybillService.isMovingWareHouseInnerWaybill(waybillCode)){
+			OrderDeliverWorkTask task = new OrderDeliverWorkTask();
+			task.
+		}
+
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());

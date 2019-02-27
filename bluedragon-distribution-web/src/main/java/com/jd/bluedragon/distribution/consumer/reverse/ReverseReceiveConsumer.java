@@ -25,6 +25,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.domain.OrderDeliverBody;
 import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
@@ -33,10 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
@@ -137,13 +135,30 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			task.setTaskType(7);//妥投任务，类型为7
 			task.setTaskExeCount(0);
 			task.setStatus(1);
-			task.setCreateSiteId(reverseReceive.getReceiveTime());
+			task.setCreateSiteId();
 			task.setCreateTime(reverseReceive.getReceiveTime());
 			task.setUpdateTime(reverseReceive.getReceiveTime());
-			task.setRemark("移动仓内配单妥投");//
+			task.setRemark("移动仓内配单分拣操作妥投");//
 			task.setYn(1);
 			task.setOwnsign("BASE");
 
+			OrderDeliverBody body = new OrderDeliverBody();
+			body.setWaybillCode(reverseReceive.getWaybillCode());
+			//?这个操作员
+			body.setPayee(); //收款人
+			body.setCourierName(); //配送员名称
+			body.setPayWayId(2);//2表示在线支付
+			body.setPayWayName("在线支付");
+			body.setTimepaid(reverseReceive.getReceiveTime());//妥投时间
+			body.setSiteId();//操作站点
+			body.setOperatorUserId(); //操作人编号
+			body.setOperatorType();//操作类型
+			body.setRemark("移动仓内配单分拣操作妥投");
+			body.setAmount(0);//实收金额received_money
+			body.setPrice(0);//应收金额rec_money
+			body.setSource();//系统来源，待终端分配
+
+			task.setOrderDeliverBodys(Arrays.asList(body));
 
 			workTaskServiceManager.orderDeliverWorkTaskEntry(task);
 
