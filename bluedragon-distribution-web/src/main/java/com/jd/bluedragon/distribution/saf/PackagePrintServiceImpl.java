@@ -206,8 +206,9 @@ public class PackagePrintServiceImpl implements PackagePrintService {
                 }
 
                 map.put("packageCode", printPackage.getPackageCode());
+                map.put("packageIndex", printPackage.getPackageIndex());
                 map.put("packageWeight", printPackage.getPackageWeight());
-                map.put("packSerial", printPackage.getPackageIndex());
+                map.put("packageSuffix", printPackage.getPackageSuffix());
                 if(printPackage.getWeight() != null ){
                     map.put("weight", printPackage.getWeight().toString());
                 }
