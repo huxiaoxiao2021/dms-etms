@@ -138,7 +138,7 @@ public class SqlkitController {
 				model.addAttribute("displayPageBar", false);
 			}
 			model.addAttribute("sqlkitDto", sqlkit);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			e.printStackTrace(ps);
