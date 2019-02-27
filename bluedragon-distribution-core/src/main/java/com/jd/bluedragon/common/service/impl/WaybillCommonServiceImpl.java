@@ -409,8 +409,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                         Pack pack = new Pack();
                         pack.setWaybillCode(d.getWaybillCode());
                         pack.setPackCode(d.getPackageBarcode());
+                        pack.setPackageCode(d.getPackageBarcode());
+                        pack.setPackageIndex(WaybillUtil.getPackageIndex(d.getPackageBarcode()));
+                        pack.setPackageSuffix(WaybillUtil.getPackageSuffix(d.getPackageBarcode()));
                         if (d.getGoodWeight() != null) {
                             pack.setWeight(String.valueOf(d.getGoodWeight()));
+                            pack.setPackageWeight(d.getGoodWeight() + "kg");
                         }
                         if (StringUtils.isNotEmpty(d.getPackageBarcode())) {
                             String[] pcs = d.getPackageBarcode().split("[-NS]");

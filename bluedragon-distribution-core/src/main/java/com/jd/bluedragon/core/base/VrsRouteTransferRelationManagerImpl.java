@@ -2,7 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
@@ -28,9 +30,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 路由系统的jsf接口，查询路由信息
@@ -66,6 +66,9 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
 
+    /** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
+    private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
+
     @Override
     @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
@@ -80,7 +83,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return commonDto.getData().getRecommendRouting();
             }
         } catch (Exception e) {
-            logger.error("查询远程路由中转信息失败：" + e);
+            logger.error("查询远程路由中转信息异常." , e);
             return null;
         }
 
@@ -312,5 +315,75 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         pageDto.setResult(list);
         commonDto.setData(pageDto);
         return commonDto;
+    }
+
+
+    /**
+     * B网根据始发和目的获取路由信息
+     * @param originalDmsCode 始发网点
+     * @param destinationDmsCode 目的网点
+     * @param routeProduct 产品类型
+     * @param predictSendTime 预计发货时间
+     * @return
+     */
+    public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
+        List<String> cityNameList = new ArrayList<String>();
+
+        //校验参数
+        if(originalDmsCode == null || destinationDmsCode == null || routeProduct == null || predictSendTime == null){
+            return cityNameList;
+        }
+        //获取始发和目的的七位编码
+        BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsCode);
+        if (originalDms==null){
+            return cityNameList;
+        }
+        BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsCode);
+        if (destinationDms==null){
+            return cityNameList;
+        }
+
+        //调路由的接口获取路由节点
+        String router=queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
+
+        if (StringUtils.isEmpty(router)){
+            return cityNameList;
+        }
+        //拼接路由站点的名称
+        String[] siteArr=router.split("\\|");
+        //有路由节点的话，加上发出和接收节点，数量一定会>2个
+        if (siteArr.length < 2){
+            return cityNameList;
+        }
+
+        String preCityName = "";
+        for(int i=0;i<siteArr.length;i++){
+            //获取站点信息
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
+            if (baseStaffSiteOrgDto!=null){
+                Integer provinceId = baseStaffSiteOrgDto.getProvinceId();
+                String cityName = baseStaffSiteOrgDto.getCityName();
+                //直辖市的城市显示直辖市
+                if(isMunicipality(provinceId)){
+                    cityName = baseStaffSiteOrgDto.getProvinceName();
+                }
+                if(cityName.equals(preCityName)){
+                    continue;
+                }else{
+                    preCityName = cityName;
+                    cityNameList.add(cityName);
+                }
+            }
+        }
+        return cityNameList;
+    }
+
+    /**
+     * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
+     * @param provinceId
+     * @return
+     */
+    private boolean isMunicipality(Integer provinceId){
+        return municipalityList.contains(provinceId);
     }
 }

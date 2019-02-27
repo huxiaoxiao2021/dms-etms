@@ -1,12 +1,18 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 
+import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 路由系统的jsf接口，查询路由信息
@@ -70,4 +76,15 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     public String queryWaveInfoByWaybillCodeAndNodeCode(String waybillCode, Integer nodeCode);
+
+    /**
+     * B网根据始发和目的获取路由信息
+     * @param originalDmsCode 始发网点
+     * @param destinationDmsCode 目的网点
+     * @param routeProduct 产品类型
+     * @param predictSendTime 预计发货时间
+     * @return
+     */
+    List<String> loadWaybillRouter(Integer originalDmsCode, Integer destinationDmsCode, RouteProductEnum routeProduct, Date predictSendTime);
 }
+

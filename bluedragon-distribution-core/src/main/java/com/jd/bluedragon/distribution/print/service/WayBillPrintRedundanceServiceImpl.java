@@ -5,11 +5,13 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
+import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
@@ -26,6 +28,7 @@ import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -40,7 +43,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 面单打印冗余服务
@@ -85,6 +90,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Autowired
     @Qualifier("templateSelectService")
     private TemplateSelectService templateSelectService;
+
+    @Autowired
+    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     /**
      * 2次预分拣变更提示信息
@@ -221,6 +229,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 result.toError(JdResponse.CODE_PARAM_ERROR, "根据运单号【" + waybill.getWaybillCode() + "】 获取预分拣的包裹打印信息为空labelPrinting对象");
                 return result;
             }
+
+            //设置路由信息
+            loadWaybillRouter(context,labelPrinting);
 
             //设置模板名称
             labelPrinting.setTemplateName(templateSelectService.handle(context));
@@ -396,6 +407,54 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
             logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
+        }
+    }
+
+    /**
+     * B网根据始发和目的获取路由信息
+     * @param context
+     * @param labelPrinting
+     */
+    private void loadWaybillRouter(WaybillPrintContext context,LabelPrintingResponse labelPrinting){
+        String waybillSign = "";
+        if(context.getWaybill() != null && StringUtils.isNotBlank(context.getWaybill().getWaybillSign())){
+            waybillSign = context.getWaybill().getWaybillSign();
+        }
+        //非B网的不用查路由
+        if(StringUtils.isBlank(waybillSign)&& !BusinessUtil.isB2b(waybillSign)){
+            return;
+        }
+
+        Integer originalDmsCode = labelPrinting.getOriginalDmsCode();
+        Integer destinationDmsCode = labelPrinting.getPurposefulDmsCode();
+
+        //调路由的接口获取路由节点
+        Date predictSendTime = new Date();
+        RouteProductEnum routeProduct = null;
+
+        /**
+         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+         * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+         * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+         */
+        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
+            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+                routeProduct = RouteProductEnum.TB1;
+            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+                routeProduct = RouteProductEnum.TB2;
+            }
+        }
+
+        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        if(routerNameList != null && routerNameList.size() > 0){
+            for(int i=0;i<routerNameList.size();i++){
+                try {
+                    Method setRouterNode = labelPrinting.getClass().getMethod("setRouterNode" + (i + 1), String.class);
+                    setRouterNode.invoke(labelPrinting, routerNameList.get(i));
+                }catch (Exception e){
+                    logger.error("获取路由信息,设置路由节点失败.",e);
+                }
+            }
         }
     }
 }

@@ -268,16 +268,16 @@ public class BasePrintWaybill implements Serializable {
 	/** 预分拣站点 **/
 	private String printSiteName;
 
-	/** 始发道口号 **/
+	/** 目的道口号 **/
 	private String destinationCrossCode;
 
-	/** 始发分拣中心名称 **/
+	/** 目的分拣中心名称 **/
 	private String destinationDmsName;
 
-	/** 始发笼车号**/
+	/** 目的笼车号**/
 	private String destinationTabletrolleyCode;
 
-	/** 目的笼车号 **/
+	/** 始发笼车号 **/
 	private String originalTabletrolleyCode;
 
 	/**

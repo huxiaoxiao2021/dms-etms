@@ -69,6 +69,7 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
         }else{
             labelPrinting.setPrepareSiteCode(request.getPreSeparateCode());
             labelPrinting.setPrepareSiteName(request.getPreSeparateName());
+            labelPrinting.setPrintSiteName(request.getPreSeparateName());
             //如果调度的新地址为空，则应当显示老地址
             labelPrinting.setPrintAddress(StringHelper.isEmpty(waybill.getNewRecAddr())?waybill.getReceiverAddress():waybill.getNewRecAddr());
         }

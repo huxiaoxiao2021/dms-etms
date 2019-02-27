@@ -163,8 +163,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
 
-    /** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
-    private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
@@ -360,8 +358,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageCode(item.getPackageBarcode());
                     pack.setWeight(item.getGoodWeight());
                     //设置包裹序号和包裹号后缀
-                    pack.setPackageIndex(getPackageIndex(item.getPackageBarcode()));
-                    pack.setPackageSuffix(getPackageSuffix(item.getPackageBarcode()));
+                    pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
+                    pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
                     pack.setPackageWeight(item.getGoodWeight() + UNIT_WEIGHT_KG);
                     packageList.add(pack);
                 }
@@ -535,40 +533,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     }
 
     /**
-     * 获取包裹序列号
-     */
-    private String getPackageIndex(String packageCode) {
-        if (WaybillUtil.isPackageCode(packageCode)) {
-            int currentPackageNum = WaybillUtil.getCurrentPackageNum(packageCode);
-            int totalPackageNum = WaybillUtil.getPackNumByPackCode(packageCode);
-            return currentPackageNum + "/" + totalPackageNum;
-        }
-        return "0/0";
-    }
-
-    /**
-     * 截取包裹号后缀
-     * @param packageCode
-     * @return
-     */
-    private String getPackageSuffix(String packageCode){
-        int index = -1;
-        if (WaybillUtil.isPackageCode(packageCode)) {
-            if (packageCode.indexOf("N") > 0 && packageCode.indexOf("S") > 0) {
-                index = packageCode.indexOf("N");
-            } else if (packageCode.indexOf("-") > 0 && (packageCode.split("-").length == 3 || packageCode.split("-").length == 4)) {
-                index = packageCode.indexOf("-");
-            }
-        }
-        if(index < 0){
-            return null;
-        } else{
-            return packageCode.substring(index);
-        }
-
-    }
-
-    /**
      * 加载始发分拣中心信息
      *
      */
@@ -633,16 +597,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         Integer originalDmsCode = printWaybill.getOriginalDmsCode();
         Integer destinationDmsCode = printWaybill.getPurposefulDmsCode();
 
-        //获取始发和目的的七位编码
-        BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsCode);
-        if (originalDms==null){
-            return ;
-        }
-        BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsCode);
-        if (destinationDms==null){
-            return ;
-        }
-
         //调路由的接口获取路由节点
         Date predictSendTime = new Date();
         RouteProductEnum routeProduct = null;
@@ -661,41 +615,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
         }
 
-        String router=vrsRouteTransferRelationManager.queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
-
-        if (StringUtils.isEmpty(router)){
-            return;
-        }
-        //拼接路由站点的名称
-        String[] siteArr=router.split("\\|");
-        //有路由节点的话，加上发出和接收节点，数量一定会>2个
-        if (siteArr.length < 2){
-            return ;
-        }
-
-        String preCityName = "";
-        int cityNameIndex = 0;
-        for(int i=0;i<siteArr.length;i++){
-            //获取站点信息
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
-            if (baseStaffSiteOrgDto!=null){
-                Integer provinceId = baseStaffSiteOrgDto.getProvinceId();
-                String cityName = baseStaffSiteOrgDto.getCityName();
-                //直辖市的城市显示直辖市
-                if(isMunicipality(provinceId)){
-                    cityName = baseStaffSiteOrgDto.getProvinceName();
-                }
-                if(cityName.equals(preCityName)){
-                    continue;
-                }else{
-                    try {
-                        Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (cityNameIndex + 1), String.class);
-                        setRouterNode.invoke(printWaybill, cityName);
-                    }catch (Exception e){
-                        logger.error("获取路由信息,设置路由节点失败.",e);
-                    }
-                    preCityName = cityName;
-                    cityNameIndex ++;
+        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        if(routerNameList != null && routerNameList.size() > 0){
+            for(int i=0;i<routerNameList.size();i++){
+                try {
+                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i + 1), String.class);
+                    setRouterNode.invoke(printWaybill, routerNameList.get(i));
+                }catch (Exception e){
+                    logger.error("获取路由信息,设置路由节点失败.",e);
                 }
             }
         }
@@ -729,14 +656,5 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         if(StringUtils.isNotBlank(specialRequirement)){
             printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
         }
-    }
-
-    /**
-     * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
-     * @param provinceId
-     * @return
-     */
-    private boolean isMunicipality(Integer provinceId){
-        return municipalityList.contains(provinceId);
     }
 }
