@@ -777,6 +777,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //sendpay167位不等于0时，面单模板打印【京准达快递到车】
 	    if(StringHelper.isNotEmpty(waybill.getSendPay())
+	    		&& waybill.getSendPay().length() >= 167
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
