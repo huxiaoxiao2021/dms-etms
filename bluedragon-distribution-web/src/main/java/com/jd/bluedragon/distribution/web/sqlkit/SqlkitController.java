@@ -142,6 +142,7 @@ public class SqlkitController {
 			String msg = baos.toString();
 			model.addAttribute("error", msg);
 			errorCount++;
+			logger.error(e);
 		} finally {
 			try {
 				if (resultSet != null) {
