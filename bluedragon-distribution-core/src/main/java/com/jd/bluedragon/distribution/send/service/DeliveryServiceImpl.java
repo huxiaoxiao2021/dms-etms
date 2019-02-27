@@ -4856,7 +4856,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private ThreeDeliveryResponse checkReversePartSend(List<SendThreeDetail> tDeliveryResponse , List<SendDetail> allList){
 
         ThreeDeliveryResponse response = new ThreeDeliveryResponse();
-
+        response.setCode(DeliveryResponse.CODE_OK);
+        response.setMessage(DeliveryResponse.MESSAGE_OK);
         //tDeliveryResponse 此列表中为未集齐
         //allList 此次发货全部明细
 
