@@ -198,16 +198,16 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
         SysConfig printSwitch = sysConfigService.findConfigContentByConfigName(PRINT_SWITCH);
         //未开启时不校验
-        if(printSwitch == null || !Constants.STRING_FLG_TRUE.equals(printSwitch.getConfigContent())){
-            return true;
+        if(printSwitch != null && Constants.STRING_FLG_TRUE.equals(printSwitch.getConfigContent())){
+            //校验source和secretKey是否一致
+            SysConfig content = sysConfigService.findConfigContentByConfigName(PRINT_PREFIX + source.toUpperCase());
+            if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
+                return true;
+            }else{
+                return false;
+            }
         }
-        //校验source和secretKey是否一致
-        SysConfig content = sysConfigService.findConfigContentByConfigName(PRINT_PREFIX + source.toUpperCase());
-        if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
-            return true;
-        }else{
-            return false;
-        }
+        return true;
     }
 
 }
