@@ -544,12 +544,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         if (dmsCode == null || dmsCode <= 0) {
             logger.warn("参数中无始发分拣中心编码，从外部系统获取.运单号:" + waybillCode);
             com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
+            WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
             WaybillPickup waybillPickup = bigWaybillDto.getWaybillPickup();
 
             //判断有没有仓Id
-            if (etmsWaybill != null && etmsWaybill.getDistributeStoreId() != null && etmsWaybill.getCky2() != null) {
-                dmsCode = basicSafInterfaceManager.getStoreBindDms("wms", etmsWaybill.getCky2(), etmsWaybill.getDistributeStoreId());
-                logger.info("运单号:" + waybillCode + ".库房类型:wms+cky2:" + etmsWaybill.getCky2() + "+库房号:" +
+            if (etmsWaybill != null && etmsWaybill.getDistributeStoreId() != null && waybillState.getCky2() != null) {
+                dmsCode = basicSafInterfaceManager.getStoreBindDms("wms", waybillState.getCky2(), etmsWaybill.getDistributeStoreId());
+                logger.info("运单号:" + waybillCode + ".库房类型:wms+cky2:" + waybillState.getCky2() + "+库房号:" +
                         etmsWaybill.getDistributeStoreId() + "对应的分拣中心:" + dmsCode);
             }
 
