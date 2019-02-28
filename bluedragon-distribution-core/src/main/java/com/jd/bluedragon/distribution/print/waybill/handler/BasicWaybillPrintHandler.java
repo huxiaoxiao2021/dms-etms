@@ -1,16 +1,11 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.*;
 
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.api.common.enums.RouteProductEnum;
-import com.jd.etms.waybill.domain.WaybillPickup;
-import com.jd.preseparate.vo.external.AnalysisAddressResult;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -43,7 +38,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.ws.BasicSecondaryWS;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
@@ -171,7 +165,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
                 //加载路由信息
-                waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getResponse().getWaybillSign());
+                waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
@@ -198,8 +192,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //B网面单要求将运单号后四位突出显示
             String waybillCode = tmsWaybill.getWaybillCode();
             if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
-                commonWaybill.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-4));
-                commonWaybill.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-4));
+                commonWaybill.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
+                commonWaybill.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
             }
             commonWaybill.setPopSupId(tmsWaybill.getConsignerId());
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.common.service.impl;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -20,6 +18,7 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,19 +39,15 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
-import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BigDecimalHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -68,20 +63,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 
 @Service("waybillCommonService")
@@ -130,7 +111,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
-    
+
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
@@ -163,6 +144,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
 
+    private static final String STORE_TYPE_WMS = "wms";
 
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -1039,7 +1021,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     public void loadOriginalDmsInfo(BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto) {
         Integer dmsCode = printWaybill.getOriginalDmsCode();
         String waybillCode = printWaybill.getWaybillCode();
-        if (dmsCode == null || dmsCode <= 0) {
+        if (!isVaildDms(dmsCode)) {
             logger.warn("参数中无始发分拣中心编码，从外部系统获取.运单号:" + waybillCode);
             com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
             WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
@@ -1047,13 +1029,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
             //判断有没有仓Id
             if (etmsWaybill != null && etmsWaybill.getDistributeStoreId() != null && waybillState.getCky2() != null) {
-                dmsCode = basicSafInterfaceManager.getStoreBindDms("wms", waybillState.getCky2(), etmsWaybill.getDistributeStoreId());
+                dmsCode = basicSafInterfaceManager.getStoreBindDmsCode(STORE_TYPE_WMS, waybillState.getCky2(), etmsWaybill.getDistributeStoreId());
                 logger.info("运单号:" + waybillCode + ".库房类型:wms+cky2:" + waybillState.getCky2() + "+库房号:" +
                         etmsWaybill.getDistributeStoreId() + "对应的分拣中心:" + dmsCode);
             }
 
             //判断有没有揽收站点
-            if (dmsCode == null && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
+            if (!isVaildDms(dmsCode) && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
                 if (dto != null) {
                     dmsCode = dto.getDmsId();
@@ -1061,8 +1043,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 logger.info("运单号:" + waybillCode + ".揽收站点:" + waybillPickup.getPickupSiteId() + "对应的分拣中心:" + dmsCode);
             }
 
-            //判断有没有寄件省
-            if (dmsCode == null) {
+            //判断有没有寄件城市
+            if (!isVaildDms(dmsCode)) {
                 Integer consignerCityId = null;
                 if (waybillPickup != null && waybillPickup.getConsignerCityId() != null) {
                     consignerCityId = waybillPickup.getConsignerCityId();
@@ -1076,13 +1058,26 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     logger.info("运单号：" + waybillCode + "根据寄件人地址获取到的寄件城市为:" + consignerCityId);
                 }
                 if (consignerCityId != null && consignerCityId > 0) {
-                    dmsCode = baseMajorManager.getCityBindDms(consignerCityId);
+                    dmsCode = getCityBindDmsCode(consignerCityId);
                     logger.info("运单号:" + waybillCode + "寄件城市对应的分拣中心为：" + dmsCode);
                 }
             }
+            if(!isVaildDms(dmsCode)) {
+                logger.warn("组装包裹标签始发分拣中心信息，运单号：" + waybillCode + "对应的始发分拣中心:" + dmsCode);
+            }else{
+                logger.info("组装包裹标签始发分拣中心信息，运单号：" + waybillCode + "对应的始发分拣中心:" + dmsCode);
+            }
         }
-        logger.info("组装包裹标签始发分拣中心信息，运单号：" + waybillCode + "对应的始发分拣中心为:" + dmsCode);
         printWaybill.setOriginalDmsCode(dmsCode);
+    }
+
+    /**
+     * 判断是否是有效的分拣中心编码
+     * @param dmsCode
+     * @return
+     */
+    private boolean isVaildDms(Integer dmsCode){
+        return dmsCode != null && dmsCode > 0;
     }
 
     /**
@@ -1116,8 +1111,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
                 try {
-                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i + 1), String.class);
-                    setRouterNode.invoke(printWaybill, routerNameList.get(i));
+                    ObjectHelper.setValue(printWaybill,"setRouterNode" + (i + 1),routerNameList.get(i));
                 }catch (Exception e){
                     logger.error("获取路由信息,设置路由节点失败.",e);
                 }
@@ -1152,5 +1146,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(StringUtils.isNotBlank(specialRequirement)){
             printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
         }
+    }
+
+    private Integer getCityBindDmsCode(Integer cityId){
+        List<BaseDataDict> cityAndDmsList = baseMajorManager.getAllCityBindDms();
+        if(cityAndDmsList != null && cityAndDmsList.size() < 1){
+            for(BaseDataDict dataDict : cityAndDmsList){
+                if(dataDict.getTypeName().equals(cityId)){
+                    return dataDict.getTypeCode();
+                }
+            }
+        }
+        return null;
     }
 }

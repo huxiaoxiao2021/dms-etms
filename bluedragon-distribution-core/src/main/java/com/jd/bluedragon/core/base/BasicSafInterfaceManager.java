@@ -26,6 +26,6 @@ public interface BasicSafInterfaceManager {
      * @param storeId 库房ID
      * @return
      */
-    Integer getStoreBindDms(String storeType,Integer cky2,Integer storeId);
+    Integer getStoreBindDmsCode(String storeType,Integer cky2,Integer storeId);
 
 }

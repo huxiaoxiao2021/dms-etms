@@ -130,11 +130,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                     //能够查到测试模板的信息，则循环测试模板，获取匹配的模板
                     List<TemporaryPackageTemplate> temporaryTemplateList = packageTemplate.getTemporaryTemplate();
                     for (TemporaryPackageTemplate template : temporaryTemplateList) {
-                        if (template.getSiteCodeList() == null || template.getSiteCodeList().size() < 1) {
-                            continue;
-                        }
-                        //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
-                        if (template.getSiteCodeList().contains(siteCode)) {
+                        if (template.getSiteCodeList() != null && template.getSiteCodeList().size() > 0 &&
+                                template.getSiteCodeList().contains(siteCode)) {
+                            //如果当前测试模板的适用分拣中心列表中包含当前分拣中心，返回该测试模板
                             return template.getTemporaryTemplateName();
                         }
                     }

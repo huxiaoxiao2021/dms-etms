@@ -1,16 +1,11 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
 
-import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;
 

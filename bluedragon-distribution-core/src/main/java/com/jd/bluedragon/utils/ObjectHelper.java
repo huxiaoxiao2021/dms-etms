@@ -238,6 +238,10 @@ public class ObjectHelper {
     		field.set(obj, fieldVal);
     	}
     }
+
+    public static <T,V> void setValue(T obj,String fieldName, V fieldVal)throws IllegalArgumentException, IllegalAccessException{
+		setValue(obj,getField(obj,fieldName),fieldVal);
+	}
     /**
      * 获取指定对象的属性值
      * @param obj 对象

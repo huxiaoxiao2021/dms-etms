@@ -2,9 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.api.bnet.VrsBNetQueryAPI;
 import com.jd.etms.api.bnet.req.BnetPerFormanceConfigJsfReq;
@@ -29,7 +27,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Method;
 import java.util.*;
 
 /**

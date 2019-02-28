@@ -118,13 +118,4 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	public List<BaseDataDict> getAllCityBindDms();
-
-	/**
-	 * 根据城市Id获取该城市绑定的分拣中心
-	 * @param cityId
-	 * @return
-	 */
-	public Integer getCityBindDms(Integer cityId);
-
-
 }

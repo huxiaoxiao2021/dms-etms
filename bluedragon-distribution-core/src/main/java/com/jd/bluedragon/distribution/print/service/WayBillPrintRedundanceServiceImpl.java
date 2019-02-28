@@ -5,13 +5,11 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.domain.SiteChangeMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
@@ -28,7 +26,6 @@ import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -43,9 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Method;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 面单打印冗余服务
@@ -90,9 +85,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     @Autowired
     @Qualifier("templateSelectService")
     private TemplateSelectService templateSelectService;
-
-    @Autowired
-    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
 
     /**
      * 2次预分拣变更提示信息

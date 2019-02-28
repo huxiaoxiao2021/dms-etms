@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
-import org.joda.time.base.BaseDateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -613,6 +612,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return result.getBelongCode();
     }
 
+    @Cache(key = "baseMajorManagerImpl.allCityBindDms", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getAllCityBindDms", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseDataDict> getAllCityBindDms(){
         Integer parentId= 156;
@@ -632,20 +633,4 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
         return cityAndDmsList;
     }
-
-    @Cache(key = "baseMajorManagerImpl.getCityBindDms@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getCityBindDms", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Integer getCityBindDms(Integer cityId){
-        List<BaseDataDict> cityAndDmsList = getAllCityBindDms();
-        if(cityAndDmsList != null && cityAndDmsList.size() < 1){
-            for(BaseDataDict dataDict : cityAndDmsList){
-                if(dataDict.getTypeName().equals(cityId)){
-                    return dataDict.getTypeCode();
-                }
-            }
-        }
-        return null;
-    }
-
 }

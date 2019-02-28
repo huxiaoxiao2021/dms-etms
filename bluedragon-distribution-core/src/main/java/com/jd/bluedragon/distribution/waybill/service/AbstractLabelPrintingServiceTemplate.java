@@ -262,8 +262,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
         	return null;
         }
-        context.setBigWaybillDto(bigWaybillDto);
-
         Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill==null){
             log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
@@ -281,8 +279,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         //B网面单要求将运单号后四位突出显示
         String waybillCode = request.getWaybillCode();
         if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
-            labelPrinting.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-4));
-            labelPrinting.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-4));
+            labelPrinting.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
+            labelPrinting.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
         }
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
