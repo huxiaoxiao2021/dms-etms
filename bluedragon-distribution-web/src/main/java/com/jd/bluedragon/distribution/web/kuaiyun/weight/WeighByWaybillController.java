@@ -57,6 +57,7 @@ public class WeighByWaybillController {
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     private final Integer NO_NEED_WEIGHT = 201;
+    private final Integer WAYBILL_STATE_FINISHED = 202;
 
     @Autowired
     WeighByWaybillService service;
@@ -162,7 +163,6 @@ public class WeighByWaybillController {
                 result.setCode(InvokeResult.SERVER_ERROR_CODE);
                 result.setMessage(exceptionType.toString());
                 result.setData(false);
-                throw weighByWaybillExcpetion;
             } else {
                 if (weighByWaybillExcpetion.exceptionType.equals(WeightByWaybillExceptionTypeEnum.MQServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -173,10 +173,8 @@ public class WeighByWaybillController {
                     result.setData(false);
                 }
             }
-        } finally {
-            return result;
         }
-
+        return result;
     }
 
     /**
@@ -214,11 +212,14 @@ public class WeighByWaybillController {
                 if (exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillServiceNotAvailableException)) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
                     logger.error("运单称重：" + exceptionType.exceptionMessage);
-                    throw weighByWaybillExcpetion;
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillNoNeedWeightException)){
                     //不称重
                     result.setCode(NO_NEED_WEIGHT);
                     logger.debug("运单称重：" +codeStr+ "  " + exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.WaybillFinishedException)){
+                    //运单已经妥投，不允许录入
+                    result.setCode(WAYBILL_STATE_FINISHED);
+                    logger.debug("运单称重:" + codeStr + " " +exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);
@@ -234,10 +235,8 @@ public class WeighByWaybillController {
                 }
 
             }
-        } finally {
-            return result;
         }
-
+        return result;
     }
 
     /**
@@ -262,9 +261,8 @@ public class WeighByWaybillController {
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setMessage("运单号/包裹号错误，不符合运单号/包裹号格式!");
             }
-        } finally {
-            return result;
         }
+        return result;
     }
 
     /**

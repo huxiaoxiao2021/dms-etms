@@ -37,9 +37,11 @@ public class CsvExportUtil {
             log.error("导出失败", e);
         } finally {
             try {
-                csvFileOutputStream.close();
+                if(csvFileOutputStream != null){
+                    csvFileOutputStream.close();
+                }
             } catch (IOException e) {
-                throw new RuntimeException("BufferedWriter 关闭异常", e);
+                log.error("BufferedWriter 关闭异常", e);
             }
         }
     }
@@ -55,9 +57,11 @@ public class CsvExportUtil {
             log.error("订单导出失败", e);
         } finally {
             try {
-                csvFileOutputStream.close();
+                if(csvFileOutputStream != null){
+                    csvFileOutputStream.close();
+                }
             } catch (IOException e) {
-                throw new RuntimeException("BufferedWriter 关闭异常", e);
+                log.error("BufferedWriter 关闭异常", e);
             }
         }
     }

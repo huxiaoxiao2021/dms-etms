@@ -43,7 +43,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-
+import com.jd.ql.basic.ws.BasicSecondaryWS;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
@@ -484,7 +484,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
         if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())){
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
-            if (bigWaybillDto != null) {
+            if (bigWaybillDto != null && bigWaybillDto.getPackageList() != null && !bigWaybillDto.getPackageList().isEmpty()) {
                 Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
                 for(PrintPackage pack : commonWaybill.getPackList()){
                     DeliveryPackageD deliveryPackageD = againWeightMap.get(pack.getPackageCode());
@@ -505,12 +505,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @return
      */
     private Map<String, DeliveryPackageD> getAgainWeightMap(List<DeliveryPackageD> packageDList) {
-        Map<String, DeliveryPackageD> result = null;
-        if (packageDList != null && packageDList.size() > 0) {
-            result = new HashMap<String, DeliveryPackageD>(packageDList.size());
-            for (DeliveryPackageD deliveryPackageD : packageDList) {
-                result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
-            }
+        Map<String, DeliveryPackageD> result = new HashMap<String, DeliveryPackageD>(packageDList.size());
+        for (DeliveryPackageD deliveryPackageD : packageDList) {
+            result.put(deliveryPackageD.getPackageBarcode(), deliveryPackageD);
         }
         return result;
     }

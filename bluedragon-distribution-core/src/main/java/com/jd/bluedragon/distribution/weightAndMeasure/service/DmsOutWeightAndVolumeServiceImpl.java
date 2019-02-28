@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("dmsOutWeightAndVolumeService")
@@ -43,8 +44,8 @@ public class DmsOutWeightAndVolumeServiceImpl implements DmsOutWeightAndVolumeSe
         dmsOutWeightAndVolume.setCreateSiteCode(dmsCode);
 
         List<DmsOutWeightAndVolume> weightAndVolumeList = dmsOutWeightAndVolumeDao.queryByBarCode(dmsOutWeightAndVolume);
-        if(weightAndVolumeList == null && weightAndVolumeList.size() < 1){
-            return null;
+        if(weightAndVolumeList == null || weightAndVolumeList.size() < 1){
+            return new ArrayList<DmsOutWeightAndVolume>();
         }
         return weightAndVolumeList;
     }

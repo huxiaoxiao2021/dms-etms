@@ -40,7 +40,7 @@ public class PlatePrintOperateHandler implements InterceptHandler<WaybillPrintCo
                     }
                 } else {
                     JdResult<String> jdResult = handler.handle(context);
-                    if (jdResult == null || !jdResult.isSucceed()) {
+                    if (!jdResult.isSucceed()) {
                         context.setStatus(InterceptResult.STATUS_NO_PASSED);
                         interceptResult.toFail(jdResult.getMessageCode(), jdResult.getMessage());
                         return interceptResult;

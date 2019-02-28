@@ -76,7 +76,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(vrsRouteTransferRelationApiToken, startNode, endNodeCode, predictSendTime, routeProduct);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
                 logger.warn("查询远程路由中转信息失败,参数列表：startNode:" + startNode + ",endNodeCode:" + endNodeCode + ",predictSendTime:" + predictSendTime.getTime() + ",routeProduct:" + routeProduct);
-                logger.warn("查询远程路由中转信息失败，返回消息：" + commonDto.getMessage());
+                logger.warn("查询远程路由中转信息失败，返回消息：" + JsonHelper.toJson(commonDto));
                 return null;
             } else {
                 logger.warn("查询远程路由成功：" + commonDto.getData().getRecommendRouting() + ",参数：startNode:" + startNode + ",endNodeCode:" + endNodeCode + ",predictSendTime:" + predictSendTime.getTime() + ",routeProduct:" + routeProduct);
@@ -118,7 +118,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             CommonDto<String> commonDto = vrsBNetQueryApi.queryPerformanceTime(baseDto, bnetPerFormanceConfigJsfReq);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData())) {
                 logger.warn("查询远程路由时效信息失败,参数列表：configType:" + configType + ",bizzType:" + bizzType + ",startSiteNode:" + startSiteNode + ",toSiteNode:" + toSiteNode);
-                logger.warn("查询远程路由时效信息失败，返回消息：" + commonDto.getMessage());
+                logger.warn("查询远程路由时效信息失败，返回消息：" + JsonHelper.toJson(commonDto));
                 return null;
             } else {
                 logger.debug("查询远程路由时效成功：" + commonDto.getData() + ",参数：configType:" + configType + ",bizzType:" + bizzType + ",startSiteNode:" + startSiteNode + ",toSiteNode:" + toSiteNode);

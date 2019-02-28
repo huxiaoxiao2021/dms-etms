@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.service.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +52,11 @@ public class RdWmsStoreServiceImpl implements RdWmsStoreService {
 				rest.setData(serviceResult.getResultBody());
 			}else{
 				LOGGER.error("获取备件条码前缀异常,返回信息：" + (serviceResult==null?"":JsonHelper.toJson(serviceResult)));
-				rest.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,serviceResult.getResultMsg());
+				String errorMsg = "调用备件库接口获取前缀结果为空";
+				if(serviceResult != null && StringUtils.isNotEmpty(serviceResult.getResultMsg())){
+                    errorMsg = serviceResult.getResultMsg();
+                }
+				rest.customMessage(InvokeResult.RESULT_THIRD_ERROR_CODE,errorMsg);
 			}
 		} catch (Exception e) {
 			LOGGER.error("获取备件条码前缀异常", e);

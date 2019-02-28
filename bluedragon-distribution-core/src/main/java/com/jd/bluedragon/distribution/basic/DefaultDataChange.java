@@ -113,7 +113,7 @@ public class DefaultDataChange implements DataChange {
 		boolean ret = false;
 		if (field.getType() == Integer.class) {
 			ret = true;
-		} else if ("int".equals(field.getType().getName())) {
+		} else if (int.class.equals(field.getType())) {
 			ret = true;
 		}
 		return ret;
@@ -123,7 +123,7 @@ public class DefaultDataChange implements DataChange {
 		boolean ret = false;
 		if (field.getType() == Long.class) {
 			ret = true;
-		} else if ("long".equals(field.getType().getName())) {
+		} else if (long.class.equals(field.getType())) {
 			ret = true;
 		}
 		return ret;
@@ -133,7 +133,7 @@ public class DefaultDataChange implements DataChange {
 		boolean ret = false;
 		if (field.getType() == Double.class) {
 			ret = true;
-		} else if ("double".equals(field.getType().getName())) {
+		} else if (double.class.equals(field.getType())) {
 			ret = true;
 		}
 		return ret;
@@ -143,10 +143,12 @@ public class DefaultDataChange implements DataChange {
 		boolean ret = false;
 		if (field.getType() == Float.class) {
 			ret = true;
-		} else if ("float".equals(field.getType().getName())) {
+		} else if (float.class.equals(field.getType())) {
 			ret = true;
 		}
 		return ret;
 	}
+
+
 }
 

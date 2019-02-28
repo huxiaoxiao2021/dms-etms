@@ -81,10 +81,10 @@ public class SystemlogCassandra {
 		long startTime = System.currentTimeMillis();
 		try {
 			BoundStatement bs = null;
-			if (preparedswaybill == null)
+			if (preparedswaybill == null){
 				preparedswaybill = preparedSelectBywaybill();
-			else
-				bs = preparedswaybill.bind(code);
+			}
+			bs = preparedswaybill.bind(code);
 			bs.setFetchSize(pager.getPageSize());
 			PagingState pagingState = null;
 			ResultSet rs = null;
@@ -115,10 +115,10 @@ public class SystemlogCassandra {
 		int size =0;
 		try {
 			BoundStatement bs = null;
-			if (preparedswaybill == null)
-				preparedswaybill = preparedSelectBywaybill();
-			else
-				bs = preparedswaybill.bind(code);
+			if (preparedswaybill == null){
+                preparedswaybill = preparedSelectBywaybill();
+            }
+            bs = preparedswaybill.bind(code);
 			ResultSet rs = baseCassandraDao.preparedSelectBycode(bs);
 			size = rs.getAvailableWithoutFetching();
 			logger.info("OperationlogCassandra totalSize execute success cost:" + (System.currentTimeMillis() - startTime)

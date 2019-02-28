@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -436,7 +438,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
     }
 
     /**
-     * 处理打标信息
+     * 处理打标信息（SendPay、WaybillSign单个标位字典处理）
      */
     @Override
 	public void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName){
@@ -457,6 +459,25 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
 					ObjectHelper.setValue(target, field, signText);
 				} catch (Exception e) {
 					logger.error(signConfig.getFieldName() + "属性设置异常", e);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void dealDicTexts(String dicKey, Integer dicTypeCode,
+			BasePrintWaybill target) {
+		if(StringHelper.isNotEmpty(dicKey) && NumberHelper.gt0(dicTypeCode)){
+			Map<Integer,SignConfig> signConfigs = dmsBaseDictService.getSignConfigsByConfigName(Constants.DIC_NAME_PACKAGE_PRINT_DIC_CONFIG);
+			if(signConfigs.containsKey(dicTypeCode)){
+				SignConfig signConfig = signConfigs.get(dicTypeCode);
+				if(signConfig.getSignTexts() != null && signConfig.getSignTexts().containsKey(dicKey)){
+					Field field = ObjectHelper.getField(target, signConfig.getFieldName());
+					try {
+						ObjectHelper.setValue(target, field, signConfig.getSignTexts().get(dicKey));
+					} catch (Exception e) {
+						logger.error(signConfig.getFieldName() + "属性设置异常", e);
+					}
 				}
 			}
 		}

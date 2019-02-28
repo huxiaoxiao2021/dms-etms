@@ -16,14 +16,12 @@ import org.codehaus.jackson.type.JavaType;
 
 import java.io.StringWriter;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
 public class JsonHelper {
     
     private final static Log logger = LogFactory.getLog(JsonHelper.class);
-    private static final DateFormat DATEFORMAT_ONE = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private static final String DATE_FORMAT_MS = "yyyy-MM-dd HH:mm:ss.SSS";
     private static ObjectMapper mapper = new ObjectMapper();
     private static ObjectMapper dfOneJson2ListMapper = new ObjectMapper();
@@ -50,7 +48,7 @@ public class JsonHelper {
 
 
     static {
-    	dfOneJson2ListMapper.getDeserializationConfig().setDateFormat(DATEFORMAT_ONE);
+    	dfOneJson2ListMapper.getDeserializationConfig().setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
     	//毫秒格式的初始化
         objectMapperMs = new ObjectMapper();
         //序列化对象时：空对象不会出现在json中
@@ -195,17 +193,25 @@ public class JsonHelper {
     }
     @SuppressWarnings("deprecation")
     public static String toJson(Object object, boolean prettyPrint) {
+        JsonGenerator generator = null;
         try {
             StringWriter writer = new StringWriter();
-            JsonGenerator generator = JsonHelper.mapper.getJsonFactory()
-                    .createJsonGenerator(writer).useDefaultPrettyPrinter();
-            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(
-                    JsonSerialize.Inclusion.NON_NULL);
+            generator = JsonHelper.mapper.getJsonFactory().createJsonGenerator(writer);
+            generator.useDefaultPrettyPrinter();
+            JsonHelper.mapper.getSerializationConfig().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);
             JsonHelper.mapper.writeValue(generator, object);
             writer.close();
             return writer.getBuffer().toString();
         } catch (Exception e) {
             JsonHelper.logger.error("序列化JSON发生异常， 异常信息为：" + e.getMessage(), e);
+        }finally {
+            if(generator != null){
+                try{
+                    generator.close();
+                }catch (Exception e){
+                    logger.error("generator关闭失败:" + e.getMessage(), e);
+                }
+            }
         }
         return null;
     }

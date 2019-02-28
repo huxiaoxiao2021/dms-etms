@@ -418,8 +418,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Override
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffIgnoreIsResignByErp", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Cache(key = "baseMajorManagerImpl.getBaseStaffIgnoreIsResignByErp@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffIgnoreIsResignByErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode) {
         return basicPrimaryWS.getBaseStaffIgnoreIsResignByErp(erpCode);
     }

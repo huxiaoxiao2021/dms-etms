@@ -54,6 +54,7 @@ public class DeliveryToFinanceConvertTask extends DBSingleScheduler {
 
                 //加入监控结束
                 Profiler.registerInfoEnd(info);
+                return false;
             }
             for (SendDetail sendD : sendDetailList) {
                 //转换成DealData_SendDatail对象，写入表

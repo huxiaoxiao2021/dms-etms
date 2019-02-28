@@ -1,12 +1,14 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.Serializable;
 import java.util.List;
 
-public class RecyclableBoxRequest {
+public class RecyclableBoxRequest implements Serializable{
+  private static final long serialVersionUID = 1L;
 
+  /**
+   * 青流箱号
+   */
   private List<String> uniqueCode;
 
   private String oneLevelNodeNo;
@@ -19,16 +21,32 @@ public class RecyclableBoxRequest {
 
   private Integer nodeType;
 
+  /**
+   * 订单号
+   */
   private String orderNo;
 
   /**
-   * 加备注
+   * 运单号
    */
   private String wayBillNo;
 
+  /**
+   * 操作人erp
+   */
   private String operator;
 
+  /**
+   * 操作时间
+   */
   private String operateTime;
+
+  /**
+   * 流水号
+   */
+  private String batchCode;
+
+  private String sourceSysCode;
 
   public List<String> getUniqueCode() {
     return uniqueCode;
@@ -106,5 +124,21 @@ public class RecyclableBoxRequest {
 
   public void setOperateTime(String operateTime) {
     this.operateTime = operateTime;
+  }
+
+  public String getBatchCode() {
+    return batchCode;
+  }
+
+  public void setBatchCode(String batchCode) {
+    this.batchCode = batchCode;
+  }
+
+  public String getSourceSysCode() {
+    return sourceSysCode;
+  }
+
+  public void setSourceSysCode(String sourceSysCode) {
+    this.sourceSysCode = sourceSysCode;
   }
 }

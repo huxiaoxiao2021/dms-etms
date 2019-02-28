@@ -40,10 +40,26 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.WaybillExt;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -52,6 +68,20 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
 @Service("waybillCommonService")
@@ -206,6 +236,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 waybill = this.convWaybillWS(baseEntity.getData(), true, true);
+                WaybillManageDomain waybillState = baseEntity.getData().getWaybillState();
+                if (waybillState != null) {
+                    waybill.setStoreId(waybillState.getStoreId());
+                    waybill.setCky2(waybillState.getCky2());
+                }
                 if (Waybill.isInvalidWaybill(waybill)) {
                     this.logger.warn("运单号【 " + waybillCode + "】验证运单数据缺少必要字段，运单【" + waybill + "】");
                     return null;
@@ -548,13 +583,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 if (goodses == null || goodses.size() == 0) {
                     this.logger.info("调用运单接口获得商品明细数据为空");
                 }
-                for (Goods goods : goodses) {
-                    com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
-                    product.setProductId(goods.getSku());
-                    product.setName(goods.getGoodName());
-                    product.setQuantity(goods.getGoodCount());
-                    product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
-                    products.add(product);
+                if(goodses != null && !goodses.isEmpty()){
+                    for (Goods goods : goodses) {
+                        com.jd.bluedragon.distribution.product.domain.Product product = new com.jd.bluedragon.distribution.product.domain.Product();
+                        product.setProductId(goods.getSku());
+                        product.setName(goods.getGoodName());
+                        product.setQuantity(goods.getGoodCount());
+                        product.setPrice(BigDecimalHelper.toBigDecimal(goods.getGoodPrice()));
+                        products.add(product);
+                    }
                 }
 
                 waybill.setProList(products);
@@ -601,7 +638,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 				}
 			}
 		}else{
-			this.logger.warn(String.format("没有获取到包裹称重信息，{code:{},msg:{}}", rest.getResultCode(),rest.getMessage()));
+			this.logger.warn(String.format("没有获取到包裹称重信息，{code:%s,msg:%s}", rest.getResultCode(),rest.getMessage()));
 		}
 		return res;
 	}
@@ -802,6 +839,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 	    		&& !BusinessUtil.isSignChar(waybill.getSendPay(), 167, '0')){
 	    	target.setjZDFlag(TextConstants.TEXT_TRANSPORT_KDDC);
 	    }
+        //根据waybillExt.productType的值取，给jZDFlag赋值
+        if(waybillExt != null){
+        	 waybillPrintService.dealDicTexts(waybillExt.getProductType(), Constants.DIC_CODE_PACKAGE_PRINT_PRODUCT, target);
+        }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);
