@@ -29,10 +29,4 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest);
-	/**
-	 * 生成包裹PDF文件接口
-	 * @param printRequest
-	 * @return
-	 */
-	JdResult<String> generatePdf(JdCommand<String> printRequest);
 }

@@ -47,10 +47,6 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     private TemplateFactory templateFactory;
 
     @Autowired
-    @Qualifier("printPdfHelper")
-    private IPrintPdfHelper printPdfHelper;
-
-    @Autowired
     private SysConfigService sysConfigService;
 
     /**
@@ -141,51 +137,6 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         return result;
     }
 
-    @Override
-    public JdResult<String> generatePdf(JdCommand<String> printRequest) {
-        logger.info("获取PDF列表参数：" + JsonHelper.toJson(printRequest));
-        JdResult<String> result = new JdResult<String>();
-        JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
-        logger.info("获取PDF列表之打印信息查询结果：" + JsonHelper.toJson(data));
-        if(data == null || !data.isSucceed()){
-            result.setCode(data.getCode());
-            result.setMessage(data.getMessage());
-            result.setMessageCode(data.getMessageCode());
-            return result;
-        }
-        if(data.getData() == null || data.getData().isEmpty()){
-            result.toError("查不到包裹信息!");
-            return result;
-        }
-
-        List<Map<String, String>> printData = convertPrintMap(data.getData());
-        String templateName = printData.get(0).get("templateName");
-        Integer templateVersion = 0;
-        String version = printData.get(0).get("templateVersion");
-        if(StringUtils.isNotEmpty(version)){
-            templateVersion = Integer.valueOf(version);
-        }
-        PackagePrintRequest request = JsonHelper.fromJson(printRequest.getData(), PackagePrintRequest.class);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try{
-            printPdfHelper.generatePdf(baos, templateName, templateVersion, request.getDpiX(), request.getDpiY(), printData);
-            result.setData(Base64.encodeBytes(baos.toByteArray()));
-            result.toSuccess();
-        }catch (Throwable e){
-            logger.error("打印PDF服务异常，参数：" + JsonHelper.toJson(printRequest), e);
-            result.toError("打印PDF服务异常:" + e.getMessage());
-        }finally {
-            if(baos != null){
-                try{
-                    baos.close();
-                }catch (Exception e){
-                    logger.error("pdfOutputStream close fail!", e);
-                }
-            }
-        }
-
-        return result;
-    }
 
     /**
      * 信息转换为字符串
@@ -206,8 +157,9 @@ public class PackagePrintServiceImpl implements PackagePrintService {
                 }
 
                 map.put("packageCode", printPackage.getPackageCode());
+                map.put("packageIndex", printPackage.getPackageIndex());
                 map.put("packageWeight", printPackage.getPackageWeight());
-                map.put("packSerial", printPackage.getPackageIndex());
+                map.put("packageSuffix", printPackage.getPackageSuffix());
                 if(printPackage.getWeight() != null ){
                     map.put("weight", printPackage.getWeight().toString());
                 }
