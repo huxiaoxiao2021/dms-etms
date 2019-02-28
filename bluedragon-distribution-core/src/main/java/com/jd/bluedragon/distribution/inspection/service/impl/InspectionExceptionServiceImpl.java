@@ -281,7 +281,6 @@ public class InspectionExceptionServiceImpl implements InspectionExceptionServic
 	 * @throws Exception
 	 */
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private void insertOrUpdateBatch(List<InspectionEC> list) throws Exception{
 		if( null==list || list.isEmpty() ) {
 	        return;

@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.carSchedule.domain.CarScheduleResponse;
 import com.jd.bluedragon.distribution.carSchedule.service.CarScheduleService;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,8 +18,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 车辆园区调度：提供园区车载信息的rest接口
@@ -55,13 +54,11 @@ public class CarScheduleResource {
             Integer localPackageNum = null;
             String platformPortJobType = "";
             Integer workType = null;
-            List<String> sendCodes = new ArrayList<String>();
             try{
                 if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
                     Integer siteNo = NumberUtils.toInt(siteCode);
                     routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
                     totalPackageNum = carScheduleService.packageNumByVehicleNoAndSiteCode(vehicleNumber,siteNo);
-//                    localPackageNum = carScheduleService.localPackageNumByVehicleNo(vehicleNumber,siteNo);
                     localPackageNum = totalPackageNum;
                     platformPortJobType = "2";//此接口返回的都是卸货的任务(默认)
                     workType = carScheduleService.isSameOrg(vehicleNumber,siteNo);
@@ -79,33 +76,9 @@ public class CarScheduleResource {
             result.setLocalPackageNum(localPackageNum);
             result.setPlatformPortJobType(platformPortJobType);
             result.setWorkType(workType);
-//            result.setSendDetails(sendDetails);
         }
         return result;
     }
-
-    /**
-     * 提供车辆的线路类型routeType
-     * @param vehicleNumber
-     * @param siteCode
-     * @return
-     */
-//    @POST
-//    @Path("/carSchedule/queryCarRouteType")
-//    public Integer queryCarRouteType(String vehicleNumber, String siteCode){
-//        Integer routeType = 0;
-//        if(null != vehicleNumber ){
-//            try{
-//                if(null != siteCode && !"".equals(siteCode) && NumberUtils.isNumber(siteCode)){
-//                    Integer siteNo = NumberUtils.toInt(siteCode);
-//                    routeType = carScheduleService.routeTypeByVehicleNoAndSiteCode(vehicleNumber,siteNo);
-//                }
-//            }catch (Exception e){
-//                this.logger.error("请求接口异常..",e);
-//            }
-//        }
-//        return routeType;
-//    }
 
     /**
      * 车辆进出管理，登记记录(cassandra)
@@ -115,18 +88,14 @@ public class CarScheduleResource {
     @POST
     @Path("/carSchedule/InAndOut")
     public Boolean InAndOut(CarScheduleRequest request){
-        String vehicleNumber = "";
-        String siteCode = "";
-        Integer key = -1;
-        if(request != null){
-            vehicleNumber = request.getVehicleNumber();
-            siteCode = request.getSiteCode();
-            key = request.getKey();
-        }
-        if(null == vehicleNumber || null == siteCode || null == request.getKey()){
-            this.logger.error("车辆进出管理确少车牌号、站点、关键字基本信息。");
+        if(null == request || StringUtils.isBlank(request.getVehicleNumber()) || StringUtils.isBlank(request.getSiteCode()) || null == request.getKey()){
+            logger.error("车辆进出管理确少车牌号、站点、关键字基本信息。");
             return Boolean.FALSE;
         }
+        String vehicleNumber = request.getVehicleNumber();
+        String siteCode = request.getSiteCode();
+        Integer key = request.getKey();
+
         Goddess domain = new Goddess();
         domain.setKey(vehicleNumber);
         String body = "";

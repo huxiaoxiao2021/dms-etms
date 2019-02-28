@@ -296,12 +296,14 @@ public class AreaDestController {
             }
         } catch (Exception e) {
             logger.error("导入方案配置关系失败", e);
-            if (e instanceof IOException) {
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
-            } else if (e instanceof DataFormatException) {
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
-            } else {
-                writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入方案配置关系失败，系统异常")));
+            if(pw != null){
+                if (e instanceof IOException) {
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(701, e.getMessage())));
+                } else if (e instanceof DataFormatException) {
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(702, e.getMessage())));
+                } else {
+                    writeAndClose(pw, JsonHelper.toJson(new JdResponse(703, "导入方案配置关系失败，系统异常")));
+                }
             }
         }
     }

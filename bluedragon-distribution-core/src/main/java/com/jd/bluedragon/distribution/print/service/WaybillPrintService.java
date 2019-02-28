@@ -17,10 +17,17 @@ public interface WaybillPrintService {
      */
     InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode,String waybillCode,Integer targetSiteCode);
     /**
-     * 处理打标信息
+     * 处理打标信息（SendPay、WaybillSign单个标位字典处理）
      * @param signStr 打标字段
      * @param target 目标对象
      * @param signConfigName 打标对应的字典表配置名称
      */
     void dealSignTexts(String signStr,BasePrintWaybill target,String signConfigName);
+    /**
+     * 处理打印业务-单个字典字段
+     * @param dicKey 取值key
+     * @param dicTypeCode 字典编码
+     * @param target 打印对象
+     */
+    void dealDicTexts(String dicKey,Integer dicTypeCode,BasePrintWaybill target);
 }

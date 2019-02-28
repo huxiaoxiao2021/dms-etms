@@ -67,6 +67,10 @@ public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 					this.logger
 							.error("batchAddSealBox-->批量保存封箱信息 复制封车对象异常：", e);
 				}
+				//一般不会为空
+				if(sealBox == null){
+					continue;
+				}
 				if (checkSealBox(sealBox)) {
 					try {
 						int tempResult = this.sealBoxService
@@ -132,11 +136,11 @@ public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 				try {
 					sealVehicle = this.toSealVehicle(sealVehicleDto);
 				} catch (Exception e) {
-					this.logger
-							.error(
-									"batchAddSealVehicle WSS服务-->批量增加封车信息 复制封车对象异常：",
-									e);
+					this.logger.error("batchAddSealVehicle WSS服务-->批量增加封车信息 复制封车对象异常：",e);
 				}
+				if(sealVehicle == null){
+				    continue;
+                }
 				if (checkSealVehicle(sealVehicle, true)) {
 					try {
 						int tempResult = this.sealVehicleService
@@ -208,11 +212,11 @@ public class SealVehicleBoxServiceImpl implements SealVehicleBoxService {
 				try {
 					sealVehicle = this.toSealVehicle(sealVehicleDto);
 				} catch (Exception e) {
-					this.logger
-							.error(
-									"batchUpdateSealVehicle WSS服务-->批量验证并保存解封车信息 复制封车对象异常：",
-									e);
+					this.logger.error("batchUpdateSealVehicle WSS服务-->批量验证并保存解封车信息 复制封车对象异常：",e);
 				}
+				if(sealVehicle == null){
+				    continue;
+                }
 				if (checkSealVehicle(sealVehicle, false)) {
 					try {
 						int tempResult = this.sealVehicleService

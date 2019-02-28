@@ -252,6 +252,10 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 					dmsOperateHint.getHintContent(), MediumStationOrderInfo.class);
 			//判断是否按运单补打
 			boolean isPrintByWaybill = waybillCode.equals(barCode);
+			//一单一件设置为按运单打印
+			if(waybill.getPackageNum() == 1){
+				isPrintByWaybill = true;
+			}
 			//按运单补打,则关闭提醒信息
 			boolean needCloseHintMsg = isPrintByWaybill;
 			boolean needSendMq = false;
@@ -261,7 +265,7 @@ public class PreSortingSecondServiceImpl implements PreSortingSecondService{
 				if(reprintRecords == null || !reprintRecords.contains(barCode)){
 					this.printRecordService.saveReprintRecord(barCode);
 					//判断是否已补打完所有包裹
-					if(reprintRecords.size()==(waybill.getPackageNum()-1)){
+					if(reprintRecords != null && reprintRecords.size()==(waybill.getPackageNum()-1)){
 						needCloseHintMsg = true;
 					}
 				}

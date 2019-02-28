@@ -7,7 +7,7 @@ public class SysConfigResponse extends JdResponse {
 	private static final long serialVersionUID = 1422606529312362690L;
 
 	public static final Integer CODE_OLD_PASSWORD_ERROR = 10001;
-	public static final String MESSAGE_OLD_PASSWORD_ERROR = "原密码错误.";
+	public static final String MESSAGE_OLD_PASS_WORD_ERROR = "原密码错误.";
 
 	public static final Integer CODE_NO_DATA = 10002;
 	public static final String MESSAGE_NO_DATA = "无数据.";

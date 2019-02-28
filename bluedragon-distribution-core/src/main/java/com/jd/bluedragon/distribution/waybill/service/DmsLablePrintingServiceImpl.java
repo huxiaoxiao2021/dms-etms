@@ -10,9 +10,7 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.fce.dos.service.contract.OrderMarkingService;
@@ -151,9 +149,9 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
                     labelPrinting.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     labelPrinting.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.warn("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                    log.warn("调用promise接口获取外单时效失败，返回结果：" + JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
+                log.debug("调用promise获取外单时效返回数据" + JsonHelper.toJson(orderMarkingForeignResponse));
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){
