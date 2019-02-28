@@ -108,7 +108,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -116,7 +115,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -236,10 +234,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("deliveryCancelSendMQ")
     private DefaultJMQProducer deliveryCancelSendMQ;
-
-    @Autowired
-    @Qualifier("recyclableBoxSendMQ")
-    private DefaultJMQProducer recyclableBoxSendMQ;
 
     @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
@@ -1521,35 +1515,39 @@ public class DeliveryServiceImpl implements DeliveryService {
         return response;
     }
 
-    /**
-     * 循环箱发MQ
-     * @param request
-     * @return
-     */
-    @Override
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
-        RecyclableBoxSend res=new RecyclableBoxSend();
-
-        try {
-            String businessId = "";
-            if(StringUtils.isNotBlank(request.getBatchCode())){
-                businessId = request.getBatchCode();
-            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
-                businessId = request.getWayBillNo();
-            }
-
-            request.setSourceSysCode("DMS");
-            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
-            res.setCode(JdResponse.CODE_OK);
-            res.setMessage(JdResponse.MESSAGE_OK);
-        } catch (Exception e) {
-            res.setCode(JdResponse.CODE_TIME_ERROR);
-            res.setMessage(e.getMessage());
-            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
-        }
-
-        return res;
-    }
+//    /**
+//     * 循环箱发MQ
+//     * @param request
+//     * @return
+//     */
+//    @Override
+//    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
+//        RecyclableBoxSend res=new RecyclableBoxSend();
+//
+//        //逆向回收的需要对比流水号内的青流箱和扫描的青流箱的差异
+//        if(StringUtils.isNotBlank(request.getBatchCode()) && request.getNodeType()
+//
+//
+//        try {
+//            String businessId = "";
+//            if(StringUtils.isNotBlank(request.getBatchCode())){
+//                businessId = request.getBatchCode();
+//            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
+//                businessId = request.getWayBillNo();
+//            }
+//
+//            request.setSourceSysCode("DMS");
+//            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
+//            res.setCode(JdResponse.CODE_OK);
+//            res.setMessage(JdResponse.MESSAGE_OK);
+//        } catch (Exception e) {
+//            res.setCode(JdResponse.CODE_TIME_ERROR);
+//            res.setMessage(e.getMessage());
+//            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
+//        }
+//
+//        return res;
+//    }
 
     /**
      * 生成取消发货数据处理

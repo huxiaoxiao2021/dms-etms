@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -125,6 +126,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
 
     /**
@@ -296,13 +300,10 @@ public class DeliveryResource {
         if (logger.isInfoEnabled()) {
             logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
         }
-        RecyclableBoxSend res = deliveryService.recyclableBoxSend(request);
+        RecyclableBoxSend res = cycleBoxService.recyclableBoxSend(request);
         if (logger.isInfoEnabled()) {
             logger.info("结束循环箱发MQ");
         }
-        /**
-         * com.jd.bluedragon.distribution.command;
-         */
         return res;
     }
 

@@ -4,10 +4,13 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
+import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -23,6 +26,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,17 +47,20 @@ public class CycleBoxServiceImpl implements CycleBoxService {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private DeliveryService deliveryService;
-
-    @Autowired
     private TMSBossQueryManager tmsBossQueryManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
 
+    @Autowired
+    @Qualifier("recyclableBoxSendMQ")
+    private DefaultJMQProducer recyclableBoxSendMQ;
+
     private static final String FIELD_NAME_CLEAR_BOX_NUM = "clearBoxNum";
 
     private static final Integer CYCLE_BOX_STATUS_SEND_OUT = 22;
+    private static final Integer CYCLE_BOX_STATUS_REVERSE_RECEIVE = 51;
+    private static final Integer CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION=52;
 
     /**
      * 根据快运发货的请求获取清流箱总数
@@ -183,7 +190,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                             logger.error("同步青流箱，根据操作人编码获取操作人erp异常.", e);
                         }
                     }
-                    deliveryService.recyclableBoxSend(request);
+                    recyclableBoxSend(request);
                 }
             }
         }catch (Exception e){
@@ -234,5 +241,74 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             return null;
         }
         return new ArrayList<String>(waybillCodeSet);
+    }
+
+    /**
+     * 循环箱发MQ
+     * @param request
+     * @return
+     */
+    @Override
+    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
+        List<String> cycleBoxCodeListInBatch = new ArrayList<String >();
+        List<String> cycleBoxCodeListScan = new ArrayList<String>();
+        //逆向回收的需要对比流水号内的青流箱和扫描的青流箱的差异
+        if(StringUtils.isNotBlank(request.getBatchCode()) && request.getNodeType().equals(CYCLE_BOX_STATUS_REVERSE_RECEIVE)){
+            //获取青流箱 箱号列表
+            cycleBoxCodeListInBatch = tmsBossQueryManager.getRecyclingBoxFaceInfoByBatchCode(request.getBatchCode());
+            cycleBoxCodeListScan = request.getUniqueCode();
+            if(cycleBoxCodeListInBatch != null){
+                for(String cycleBoxCode : cycleBoxCodeListScan){
+                    if(cycleBoxCodeListInBatch.contains(cycleBoxCode)){
+                        cycleBoxCodeListInBatch.remove(cycleBoxCode);
+                    }
+                }
+            }
+        }
+
+        RecyclableBoxSend res=new RecyclableBoxSend();
+
+        //现场扫描的清流箱号发【逆向回收】的mq
+        if(cycleBoxCodeListScan != null && cycleBoxCodeListScan.size() > 0) {
+            request.setUniqueCode(cycleBoxCodeListScan);
+            request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE);
+            res= pushCycleBoxStatusMQ(request);
+        }
+
+        //差异的青流箱号发【异常】的mq
+        if(cycleBoxCodeListInBatch != null && cycleBoxCodeListInBatch.size() > 0){
+            request.setUniqueCode(cycleBoxCodeListInBatch);
+            request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION);
+            res= pushCycleBoxStatusMQ(request);
+        }
+        return res;
+    }
+
+    /**
+     * 发送青流箱状态的MQ消息
+     * @param request
+     * @return
+     */
+    private RecyclableBoxSend pushCycleBoxStatusMQ(RecyclableBoxRequest request){
+        RecyclableBoxSend res=new RecyclableBoxSend();
+        try {
+            String businessId = "";
+            if(StringUtils.isNotBlank(request.getBatchCode())){
+                businessId = request.getBatchCode();
+            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
+                businessId = request.getWayBillNo();
+            }
+
+            request.setSourceSysCode("DMS");
+            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
+            res.setCode(JdResponse.CODE_OK);
+            res.setMessage(JdResponse.MESSAGE_OK);
+        } catch (Exception e) {
+            res.setCode(JdResponse.CODE_TIME_ERROR);
+            res.setMessage(e.getMessage());
+            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
+        }
+
+        return res;
     }
 }
