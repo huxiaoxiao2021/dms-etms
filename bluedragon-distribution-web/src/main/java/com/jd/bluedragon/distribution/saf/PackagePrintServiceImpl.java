@@ -95,7 +95,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         result.toSuccess();
         JdResult<Map<String, Object>> data = getPrintInfo(printRequest);
         logger.info("获取图片列表之打印信息查询结果：" + JsonHelper.toJson(data));
-        if(data == null || !data.isSucceed()){
+        if(!data.isSucceed()){
             result.setCode(data.getCode());
             result.setMessage(data.getMessage());
             result.setMessageCode(data.getMessageCode());

@@ -357,11 +357,13 @@ public class SiteServiceImpl implements SiteService {
     @Cache(key = "SiteServiceImpl.getCityBindDmsCode@arg0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public Integer getCityBindDmsCode(Integer cityId){
-        List<BaseDataDict> cityAndDmsList = baseMajorManager.getAllCityBindDms();
-        if(cityAndDmsList != null && cityAndDmsList.size() < 1){
-            for(BaseDataDict dataDict : cityAndDmsList){
-                if(dataDict.getTypeName().equals(cityId)){
-                    return dataDict.getTypeCode();
+        if (cityId != null && cityId > 0) {
+            List<BaseDataDict> cityAndDmsList = baseMajorManager.getAllCityBindDms();
+            if(cityAndDmsList != null && cityAndDmsList.size() < 1){
+                for(BaseDataDict dataDict : cityAndDmsList){
+                    if(dataDict.getTypeName().equals(cityId.toString())){
+                        return dataDict.getTypeCode();
+                    }
                 }
             }
         }
