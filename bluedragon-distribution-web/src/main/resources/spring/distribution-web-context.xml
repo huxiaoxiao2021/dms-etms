@@ -10,32 +10,6 @@
     http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
-	<bean id="propertyConfigurer"
-		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="ignoreUnresolvablePlaceholders" value="true" />
-		<property name="locations">
-			<list>
-				<value>classpath:authen.properties</value>
-				<value>classpath:configured/app.properties</value>
-				<value>classpath:configured/db.properties</value>
-				<value>classpath:configured/dcam.properties</value>
-				<value>classpath:configured/dms_ip_mapper.properties</value>
-				<value>classpath:configured/jsf.properties</value>
-				<value>classpath:configured/mq.properties</value>
-				<value>classpath:configured/order_service_config.properties</value>
-				<value>classpath:configured/popabnormal.properties</value>
-				<value>classpath:configured/snowflake.properties</value>
-				<value>classpath:configured/ucc.properties</value>
-			</list>
-		</property>
-		<property name="properties" ref="secApplicationProperties"/>
-	</bean>
-	<!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
-	<bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
-		<property name="ignoreResourceNotFound" value="true" />
-		<property name="secLocation" value="classpath:configured/important.properties"/>
-	</bean>
-
 	<context:component-scan base-package="com.jd.bluedragon.distribution.web" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
