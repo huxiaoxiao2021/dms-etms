@@ -28,7 +28,7 @@
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
-				<value>classpath:configured/ql-dms-print-engine.properties</value>
+				<value>classpath:configured/print.properties</value>
 			</list>
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>
