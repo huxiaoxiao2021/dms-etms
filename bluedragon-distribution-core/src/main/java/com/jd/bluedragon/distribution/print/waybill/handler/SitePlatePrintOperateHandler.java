@@ -25,7 +25,7 @@ public class SitePlatePrintOperateHandler implements Handler<WaybillPrintContext
 		InterceptResult<String> result = wayBillPrintRedundanceService.getWaybillPack(context);
 		if(result.isSucceed()){
 			result.setData(JsonHelper.toJson(context.getWaybill()));
-			if(context.getStatus()==InterceptResult.STATUS_WEAK_PASSED){
+			if(InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())){
 				result.setStatus(context.getStatus());
 				result.setMessage(context.getMessages().get(0));
 			}

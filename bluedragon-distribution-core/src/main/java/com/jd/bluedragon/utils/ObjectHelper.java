@@ -1,7 +1,9 @@
 package com.jd.bluedragon.utils;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -29,6 +31,26 @@ public class ObjectHelper {
             .concurrencyLevel(16)
             .initialCapacity(256)
             .build();
+    /**
+     * 对象字段列表缓存:类声明的所有字段(不含父类)
+     */
+    private static Cache<Class<?>, List<Field>> classDeclaredFieldsListCache
+            = CacheBuilder.newBuilder()
+            .expireAfterWrite(24, TimeUnit.HOURS)
+            .maximumSize(1024)
+            .concurrencyLevel(16)
+            .initialCapacity(256)
+            .build();
+    /**
+     * 对象字段列表缓存:类声明的所有字段(含父类)
+     */
+    private static Cache<Class<?>, List<Field>> classAllFieldsListCache
+            = CacheBuilder.newBuilder()
+            .expireAfterWrite(24, TimeUnit.HOURS)
+            .maximumSize(1024)
+            .concurrencyLevel(16)
+            .initialCapacity(256)
+            .build();    
     public static Boolean isEmpty(Boolean object) {
         if (object == null || !object) {
             return Boolean.TRUE;
@@ -107,6 +129,60 @@ public class ObjectHelper {
     	return fields;
     }
     /**
+     * 获取class对象的所有属性(不含父类)
+     * @param classType
+     * @return 以字段名为key的map
+     */
+    public static List<Field> getDeclaredFieldsList(Class<?> classType){
+    	List<Field> fields = classDeclaredFieldsListCache.getIfPresent(classType);
+    	/**
+    	 * 检查缓存是否存在，不存在时解析并放入缓存
+    	 */
+		if (fields==null) {
+			synchronized (classDeclaredFieldsListCache) {
+				fields = classDeclaredFieldsListCache.getIfPresent(classType);
+				if (fields==null){
+					fields = new ArrayList<Field>();
+					Field[] fieldsArray = classType.getDeclaredFields();
+					if(fieldsArray!=null){
+						for(Field f:fieldsArray){
+							fields.add(f);
+						}
+					}
+					classDeclaredFieldsListCache.put(classType,fields);
+				}
+			}
+		}
+    	return fields;
+    }
+    /**
+     * 获取class对象的所有属性(含父类)
+     * @param classType
+     * @return 以字段名为key的map
+     */
+    public static List<Field> getAllFieldsList(Class<?> classType){
+    	List<Field> fields = classAllFieldsListCache.getIfPresent(classType);
+    	/**
+    	 * 检查缓存是否存在，不存在时解析并放入缓存
+    	 */
+		if (fields==null) {
+			synchronized (classAllFieldsListCache) {
+				fields = classAllFieldsListCache.getIfPresent(classType);
+				if (fields==null){
+					fields = new ArrayList<Field>();
+					Class<?> superClass = classType.getSuperclass();
+					//递归获取父类的所有属性
+					if(superClass!=null&&!superClass.equals(Object.class)){
+						fields.addAll(getAllFieldsList(superClass));
+					}
+					fields.addAll(getDeclaredFieldsList(classType));
+					classAllFieldsListCache.put(classType, fields);
+				}
+			}
+		}
+    	return fields;
+    }    
+    /**
      * 比较2个对象
      * <p>1、同时为空返回0
      * <p>2、都不为空，返回o1.compareTo(o2)比较结果
@@ -162,6 +238,10 @@ public class ObjectHelper {
     		field.set(obj, fieldVal);
     	}
     }
+
+    public static <T,V> void setValue(T obj,String fieldName, V fieldVal)throws IllegalArgumentException, IllegalAccessException{
+		setValue(obj,getField(obj,fieldName),fieldVal);
+	}
     /**
      * 获取指定对象的属性值
      * @param obj 对象

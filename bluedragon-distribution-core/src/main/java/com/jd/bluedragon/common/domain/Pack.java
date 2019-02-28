@@ -18,7 +18,7 @@ public class Pack implements Serializable {
 	private Long packId;
 	
 	/**
-	 * 包裹序号
+	 * 包裹序号(第几个包裹)
 	 */
 	private Integer packSerial;
 	
@@ -43,6 +43,26 @@ public class Pack implements Serializable {
 	
 	/** 是否打印包裹 */
 	private int isPrintPack;
+
+	/**
+	 * 新包裹号
+	 */
+	private String packageCode;
+
+	/**
+	 * 包裹序号（1/1）
+	 */
+	public String packageIndex;
+
+	/**
+	 * 包裹重量（带单位）
+	 */
+	public String packageWeight;
+
+	/**
+	 * 包裹号后缀
+	 */
+	public String packageSuffix;
 
 	public Integer getPackSerial() {
 		return packSerial;
@@ -104,5 +124,37 @@ public class Pack implements Serializable {
 	 */
 	public void setpWeight(String pWeight) {
 		this.pWeight = pWeight;
+	}
+
+	public String getPackageCode() {
+		return packageCode;
+	}
+
+	public void setPackageCode(String packageCode) {
+		this.packageCode = packageCode;
+	}
+
+	public String getPackageIndex() {
+		return packageIndex;
+	}
+
+	public void setPackageIndex(String packageIndex) {
+		this.packageIndex = packageIndex;
+	}
+
+	public String getPackageWeight() {
+		return packageWeight;
+	}
+
+	public void setPackageWeight(String packageWeight) {
+		this.packageWeight = packageWeight;
+	}
+
+	public String getPackageSuffix() {
+		return packageSuffix;
+	}
+
+	public void setPackageSuffix(String packageSuffix) {
+		this.packageSuffix = packageSuffix;
 	}
 }

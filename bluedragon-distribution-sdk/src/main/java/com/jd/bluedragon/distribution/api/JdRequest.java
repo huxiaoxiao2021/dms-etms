@@ -18,7 +18,7 @@ public class JdRequest extends JdObject {
     /** 操作人所属站点编号 */
     private Integer siteCode;
     
-    /** 操作人所属站点编号 */
+    /** 操作人所属站点名称 */
     private String siteName;
     
     /** 分拣业务类型 '10' 正向 '20' 逆向 '30' 三方 '40' POP */

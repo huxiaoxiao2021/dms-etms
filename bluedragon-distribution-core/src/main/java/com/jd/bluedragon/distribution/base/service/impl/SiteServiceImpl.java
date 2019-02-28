@@ -23,6 +23,7 @@ import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.proxy.VtsQueryWSProxy;
 import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
+import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -353,4 +354,17 @@ public class SiteServiceImpl implements SiteService {
         return null;
     }
 
+    @Cache(key = "SiteServiceImpl.getCityBindDmsCode@arg0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    public Integer getCityBindDmsCode(Integer cityId){
+        List<BaseDataDict> cityAndDmsList = baseMajorManager.getAllCityBindDms();
+        if(cityAndDmsList != null && cityAndDmsList.size() < 1){
+            for(BaseDataDict dataDict : cityAndDmsList){
+                if(dataDict.getTypeName().equals(cityId)){
+                    return dataDict.getTypeCode();
+                }
+            }
+        }
+        return null;
+    }
 }

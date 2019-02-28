@@ -19,48 +19,48 @@ public class InterceptResult<T> extends JdResult<T>{
 	/**
 	 * 拦截状态-1-通过
 	 */
-	public static final int STATUS_PASSED = 1;
+	public static final Integer STATUS_PASSED = 1;
 	/**
 	 * 拦截状态-2-弱拦截状态，一般会产生提示信息
 	 */
-	public static final int STATUS_WEAK_PASSED = 2;
+	public static final Integer STATUS_WEAK_PASSED = 2;
 	/**
 	 * 拦截状态-3-强制拦截状态，不通过
 	 */
-	public static final int STATUS_NO_PASSED = 3;
+	public static final Integer STATUS_NO_PASSED = 3;
 	/**
 	 * 拦截状态-默认为1-通过
 	 */
-	private int status = STATUS_PASSED;
+	private Integer status = STATUS_PASSED;
 	/**
 	 * 是否通过
 	 * @return
 	 */
 	public boolean isPassed(){
-		return status <= STATUS_WEAK_PASSED;
+		return STATUS_WEAK_PASSED.equals(status) || STATUS_PASSED.equals(status);
 	}
 	/**
 	 * 是否通过
 	 * @return
 	 */
 	public boolean isWeakPassed(){
-		return status == STATUS_WEAK_PASSED;
+		return STATUS_WEAK_PASSED.equals(status);
 	}
 	
 	/**
 	 * @return the status
 	 */
-	public int getStatus() {
+	public Integer getStatus() {
 		return status;
 	}
 	/**
 	 * @param status the status to set
 	 */
-	public void setStatus(int status) {
+	public void setStatus(Integer status) {
 		this.status = status;
 	}
 	@Override
-	public void toSuccess(int messageCode, String message) {
+	public void toSuccess(Integer messageCode, String message) {
 		this.status = STATUS_PASSED;
 		super.toSuccess(messageCode, message);
 	}
@@ -68,17 +68,17 @@ public class InterceptResult<T> extends JdResult<T>{
 		this.status = STATUS_WEAK_PASSED;
 		super.toSuccess(message);
 	}
-	public void toWeakSuccess(int messageCode, String message) {
+	public void toWeakSuccess(Integer messageCode, String message) {
 		this.status = STATUS_WEAK_PASSED;
 		super.toSuccess(messageCode, message);
 	}
 	@Override
-	public void toFail(int messageCode, String message) {
+	public void toFail(Integer messageCode, String message) {
 		this.status = STATUS_NO_PASSED;
 		super.toFail(messageCode, message);
 	}
 	@Override
-	public void toError(int messageCode, String message) {
+	public void toError(Integer messageCode, String message) {
 		this.status = STATUS_NO_PASSED;
 		super.toError(messageCode, message);
 	}

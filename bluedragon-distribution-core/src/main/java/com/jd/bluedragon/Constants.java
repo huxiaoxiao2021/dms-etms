@@ -797,4 +797,8 @@ public class Constants {
      * 运单状态  妥投
      */
     public static final String WAYBILLTRACE_FINISHED = "150";
+
+    /** 系统编码 **/
+    public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
 }
