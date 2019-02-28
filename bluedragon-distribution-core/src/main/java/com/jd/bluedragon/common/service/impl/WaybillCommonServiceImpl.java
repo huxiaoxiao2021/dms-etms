@@ -1058,7 +1058,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     logger.info("运单号：" + waybillCode + "根据寄件人地址获取到的寄件城市为:" + consignerCityId);
                 }
                 if (consignerCityId != null && consignerCityId > 0) {
-                    dmsCode = getCityBindDmsCode(consignerCityId);
+                    dmsCode = siteService.getCityBindDmsCode(consignerCityId);
                     logger.info("运单号:" + waybillCode + "寄件城市对应的分拣中心为：" + dmsCode);
                 }
             }
@@ -1146,17 +1146,5 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(StringUtils.isNotBlank(specialRequirement)){
             printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
         }
-    }
-
-    private Integer getCityBindDmsCode(Integer cityId){
-        List<BaseDataDict> cityAndDmsList = baseMajorManager.getAllCityBindDms();
-        if(cityAndDmsList != null && cityAndDmsList.size() < 1){
-            for(BaseDataDict dataDict : cityAndDmsList){
-                if(dataDict.getTypeName().equals(cityId)){
-                    return dataDict.getTypeCode();
-                }
-            }
-        }
-        return null;
     }
 }
