@@ -168,4 +168,27 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	boolean isPerformanceWaybill(String waybillCode);
+
+	/**
+	 * 	加载面单中的特殊需求字段
+	 * @param printWaybill
+	 * @param waybillSign
+	 */
+	void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign);
+
+	/**
+	 * 	加载始发站点信息
+	 * @param printWaybill
+	 * @param bigWaybillDto
+	 */
+	void loadOriginalDmsInfo(BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto);
+
+	/**
+	 * B网面单获取路由
+	 * @param printWaybill
+	 * @param originalDmsCode
+	 * @param destinationDmsCode
+	 * @param waybillSign
+	 */
+	void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign);
 }

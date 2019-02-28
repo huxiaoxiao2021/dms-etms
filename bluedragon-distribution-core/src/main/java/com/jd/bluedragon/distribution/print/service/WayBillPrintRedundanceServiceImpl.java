@@ -231,7 +231,13 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             }
 
             //设置路由信息
-            loadWaybillRouter(context,labelPrinting);
+            String waybillSign = "";
+            if(context.getWaybill() != null && StringUtils.isNotBlank(context.getWaybill().getWaybillSign())){
+                waybillSign = context.getWaybill().getWaybillSign();
+            }
+            Integer originalDmsCode = labelPrinting.getOriginalDmsCode();
+            Integer destinationDmsCode = labelPrinting.getPurposefulDmsCode();
+            waybillCommonService.loadWaybillRouter(labelPrinting,originalDmsCode,destinationDmsCode,waybillSign);
 
             //设置模板名称
             labelPrinting.setTemplateName(templateSelectService.handle(context));
@@ -407,54 +413,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
             SystemLogUtil.log(siteChangeMqDto.getWaybillCode(), siteChangeMqDto.getOperatorId().toString(), waybillSiteChangeProducer.getTopic(),
                     siteChangeMqDto.getOperatorSiteId().longValue(), JsonHelper.toJsonUseGson(siteChangeMqDto), SystemLogContants.TYPE_SITE_CHANGE_MQ);
             logger.error("发送外单中小件预分拣站点变更mq消息失败："+JsonHelper.toJsonUseGson(siteChangeMqDto), e);
-        }
-    }
-
-    /**
-     * B网根据始发和目的获取路由信息
-     * @param context
-     * @param labelPrinting
-     */
-    private void loadWaybillRouter(WaybillPrintContext context,LabelPrintingResponse labelPrinting){
-        String waybillSign = "";
-        if(context.getWaybill() != null && StringUtils.isNotBlank(context.getWaybill().getWaybillSign())){
-            waybillSign = context.getWaybill().getWaybillSign();
-        }
-        //非B网的不用查路由
-        if(StringUtils.isBlank(waybillSign)&& !BusinessUtil.isB2b(waybillSign)){
-            return;
-        }
-
-        Integer originalDmsCode = labelPrinting.getOriginalDmsCode();
-        Integer destinationDmsCode = labelPrinting.getPurposefulDmsCode();
-
-        //调路由的接口获取路由节点
-        Date predictSendTime = new Date();
-        RouteProductEnum routeProduct = null;
-
-        /**
-         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
-         * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
-         * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
-         */
-        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
-            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
-                routeProduct = RouteProductEnum.TB1;
-            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
-                routeProduct = RouteProductEnum.TB2;
-            }
-        }
-
-        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
-        if(routerNameList != null && routerNameList.size() > 0){
-            for(int i=0;i<routerNameList.size();i++){
-                try {
-                    Method setRouterNode = labelPrinting.getClass().getMethod("setRouterNode" + (i + 1), String.class);
-                    setRouterNode.invoke(labelPrinting, routerNameList.get(i));
-                }catch (Exception e){
-                    logger.error("获取路由信息,设置路由节点失败.",e);
-                }
-            }
         }
     }
 }

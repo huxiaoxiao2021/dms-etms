@@ -66,17 +66,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     @Autowired
     private BaseMinorManager baseMinorManager;
 
-    @Autowired
-    private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private BasicSafInterfaceManager basicSafInterfaceManager;
-
-    @Autowired
-    private PreseparateWaybillManager preseparateWaybillManager;
-
-    @Autowired
-    private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
     /**
      * 奢侈品订单打标位起始值
      */
@@ -158,11 +147,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     private static final String UNIT_WEIGHT_KG = "kg";
 
-    private static final String SPECIAL_REQUIRMENT_SIGNBACK ="签单返还";
-    private static final String SPECIAL_REQUIRMENT_PACK="包装";
-    private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
-    private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
-
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
 		InterceptResult<String> interceptResult = context.getResult();
@@ -187,7 +171,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 //根据预分拣站点加载始发及目的站点信息
                 loadBasicData(context.getResponse());
                 //加载路由信息
-                loadWaybillRouter(context.getResponse());
+                waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getResponse().getWaybillSign());
             }else if(baseEntity != null && Constants.RESULT_SUCCESS != baseEntity.getResultCode()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, baseEntity.getMessage());
             }else{
@@ -397,11 +381,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                }
            }
 
-        //设置特殊要求
-        loadSpecialRequirement(commonWaybill);
-
         //加载始发站点信息
-        loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
+        waybillCommonService.loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
     }
     private final String concatPhone(String mobile,String phone){
@@ -532,132 +513,5 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             }
         }
         return result;
-    }
-
-    /**
-     * 加载始发分拣中心信息
-     *
-     */
-    private void loadOriginalDmsInfo(WaybillPrintResponse printWaybill,BigWaybillDto bigWaybillDto) {
-        Integer dmsCode = printWaybill.getOriginalDmsCode();
-        String waybillCode = printWaybill.getWaybillCode();
-        if (dmsCode == null || dmsCode <= 0) {
-            logger.warn("参数中无始发分拣中心编码，从外部系统获取.运单号:" + waybillCode);
-            com.jd.etms.waybill.domain.Waybill etmsWaybill = bigWaybillDto.getWaybill();
-            WaybillManageDomain waybillState = bigWaybillDto.getWaybillState();
-            WaybillPickup waybillPickup = bigWaybillDto.getWaybillPickup();
-
-            //判断有没有仓Id
-            if (etmsWaybill != null && etmsWaybill.getDistributeStoreId() != null && waybillState.getCky2() != null) {
-                dmsCode = basicSafInterfaceManager.getStoreBindDms("wms", waybillState.getCky2(), etmsWaybill.getDistributeStoreId());
-                logger.info("运单号:" + waybillCode + ".库房类型:wms+cky2:" + waybillState.getCky2() + "+库房号:" +
-                        etmsWaybill.getDistributeStoreId() + "对应的分拣中心:" + dmsCode);
-            }
-
-            //判断有没有揽收站点
-            if (dmsCode == null && waybillPickup != null && waybillPickup.getPickupSiteId() != null && waybillPickup.getPickupSiteId() > 0) {
-                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(waybillPickup.getPickupSiteId());
-                if (dto != null) {
-                    dmsCode = dto.getDmsId();
-                }
-                logger.info("运单号:" + waybillCode + ".揽收站点:" + waybillPickup.getPickupSiteId() + "对应的分拣中心:" + dmsCode);
-            }
-
-            //判断有没有寄件省
-            if (dmsCode == null) {
-                Integer consignerCityId = null;
-                if (waybillPickup != null && waybillPickup.getConsignerCityId() != null) {
-                    consignerCityId = waybillPickup.getConsignerCityId();
-                    logger.info("运单号：" + waybillCode + "在运单中获取的寄件城市为：" + consignerCityId);
-                } else if (etmsWaybill != null && StringUtils.isNotBlank(etmsWaybill.getConsignerAddress())) {
-                    //调预分拣接口
-                    AnalysisAddressResult addressResult = preseparateWaybillManager.analysisAddress(etmsWaybill.getConsignerAddress());
-                    if (addressResult != null) {
-                        consignerCityId = addressResult.getCityId();
-                    }
-                    logger.info("运单号：" + waybillCode + "根据寄件人地址获取到的寄件城市为:" + consignerCityId);
-                }
-                if (consignerCityId != null && consignerCityId > 0) {
-                    dmsCode = baseMajorManager.getCityBindDms(consignerCityId);
-                    logger.info("运单号:" + waybillCode + "寄件城市对应的分拣中心为：" + dmsCode);
-                }
-            }
-        }
-        logger.info("组装包裹标签始发分拣中心信息，运单号：" + waybillCode + "对应的始发分拣中心为:" + dmsCode);
-        printWaybill.setOriginalDmsCode(dmsCode);
-    }
-
-    /**
-     * B网根据始发和目的获取路由信息
-     * @param printWaybill
-     */
-    private void loadWaybillRouter(WaybillPrintResponse printWaybill){
-        //非B网的不用查路由
-        if(!BusinessUtil.isB2b(printWaybill.getWaybillSign())){
-            return;
-        }
-
-        Integer originalDmsCode = printWaybill.getOriginalDmsCode();
-        Integer destinationDmsCode = printWaybill.getPurposefulDmsCode();
-
-        //调路由的接口获取路由节点
-        Date predictSendTime = new Date();
-        RouteProductEnum routeProduct = null;
-
-        /**
-         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
-         * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
-         * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
-         */
-        String waybillSign = printWaybill.getWaybillSign();
-        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
-            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
-                routeProduct = RouteProductEnum.TB1;
-            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
-                routeProduct = RouteProductEnum.TB2;
-            }
-        }
-
-        List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
-        if(routerNameList != null && routerNameList.size() > 0){
-            for(int i=0;i<routerNameList.size();i++){
-                try {
-                    Method setRouterNode = printWaybill.getClass().getMethod("setRouterNode" + (i + 1), String.class);
-                    setRouterNode.invoke(printWaybill, routerNameList.get(i));
-                }catch (Exception e){
-                    logger.error("获取路由信息,设置路由节点失败.",e);
-                }
-            }
-        }
-    }
-
-    /**
-     * 加载特殊要求信息
-     * @param printWaybill
-     */
-    private void loadSpecialRequirement(WaybillPrintResponse printWaybill){
-        String waybillSign = printWaybill.getWaybillSign();
-        String specialRequirement = "";
-        if(StringUtils.isNotBlank(waybillSign)){
-            //签单返还
-            if(BusinessUtil.isSignChar(waybillSign,4,'1')){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
-            }
-            //包装服务
-            if(BusinessUtil.isSignChar(waybillSign,72,'1')){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PACK + ",";
-            }
-            //重货上楼
-            if(BusinessUtil.isSignChar(waybillSign,49,'1')){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS + ",";
-            }
-            //送货入仓
-            if(BusinessUtil.isSignChar(waybillSign,42,'1')){
-                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE + ",";
-            }
-        }
-        if(StringUtils.isNotBlank(specialRequirement)){
-            printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
-        }
     }
 }

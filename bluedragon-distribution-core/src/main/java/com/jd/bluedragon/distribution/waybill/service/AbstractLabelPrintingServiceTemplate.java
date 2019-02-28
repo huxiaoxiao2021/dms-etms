@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +14,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -266,6 +262,8 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	log.warn(LOG_PREFIX+" 没有获取运单数据(BaseEntity<BigWaybillDto>)"+request.getWaybillCode());
         	return null;
         }
+        context.setBigWaybillDto(bigWaybillDto);
+
         Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill==null){
             log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
