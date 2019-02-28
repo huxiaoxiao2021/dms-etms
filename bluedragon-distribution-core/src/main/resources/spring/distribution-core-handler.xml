@@ -11,7 +11,7 @@
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
-				<entry key="1003"  value-ref="waybillPrintCommandHandler"/>
+				<entry key="1003"  value-ref="waybillPrintJsfCommandHandler"/>
 			</map>
 		</property>
 	</bean>
@@ -31,6 +31,17 @@
 				<entry key="100106"  value-ref="basicPrint"/>
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
+			</map>
+		</property>
+	</bean>
+		<!-- 包裹标签打印-指令处理配置 -->
+	<bean id="waybillPrintJsfCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
+		<property name="jsonOperateHandlerMapping" ref="waybillPrintJsfOperateHandlerMapping"/>
+	</bean>
+	<!-- 包裹标签打印-打印逻辑映射关系配置 -->
+	<bean id="waybillPrintJsfOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100301"  value-ref="basicPrint"/>
 			</map>
 		</property>
