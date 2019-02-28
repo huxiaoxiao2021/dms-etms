@@ -80,7 +80,7 @@ public class SendDispatchDto implements Serializable {
     private String  sendPay;
 
     /** （目的地）车队7位编码 */
-    private String  motorcadeCode;
+    private String  receiveDmsSiteCode;
 
     /** 预分拣站点Code  */
     private Integer preSiteCode;
@@ -264,12 +264,12 @@ public class SendDispatchDto implements Serializable {
         this.sendPay = sendPay;
     }
 
-    public String getMotorcadeCode() {
-        return motorcadeCode;
+    public String getReceiveDmsSiteCode() {
+        return receiveDmsSiteCode;
     }
 
-    public void setMotorcadeCode(String motorcadeCode) {
-        this.motorcadeCode = motorcadeCode;
+    public void setReceiveDmsSiteCode(String receiveDmsSiteCode) {
+        this.receiveDmsSiteCode = receiveDmsSiteCode;
     }
 
     public Integer getPreSiteCode() {

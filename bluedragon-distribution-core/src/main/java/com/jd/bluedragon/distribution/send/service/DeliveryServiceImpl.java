@@ -2362,7 +2362,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             dto.setOrderTime(waybill.getOrderSubmitTime());
 
             dto.setSendPay(waybill.getSendPay());
-            dto.setMotorcadeCode(rbDto.getDmsSiteCode());
+            dto.setReceiveDmsSiteCode(rbDto.getDmsSiteCode());
             dto.setPreSiteCode(waybill.getOldSiteId());
 
             try {
