@@ -3201,11 +3201,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (businessType.equals(20)) {
             tDeliveryResponse = reverseComputer.compute(allList, false);
 
-            //增加 支持半退逻辑
+            //退仓时 增加 支持半退逻辑
             ThreeDeliveryResponse response = checkReversePartSend(tDeliveryResponse,allList);
-            if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
-                return response;
-            }
+                if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
+                    return response;
+                }
+
         } else {
             tDeliveryResponse = forwardComputer.compute(allList, false);
         }
@@ -4850,6 +4851,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     /**
      * 检查 批次中是否同时存在已集齐和未集齐（支持半退的）的包裹
+     *
+     * 只有退仓是才会去检测
      * @param tDeliveryResponse
      * @return
      */
@@ -4865,27 +4868,37 @@ public class DeliveryServiceImpl implements DeliveryService {
         Set<String> partWaybills = new HashSet<String>();
         Map<String,List<String>> waybills = new HashMap<String, List<String>>();
 
-        for(SendThreeDetail std :tDeliveryResponse){
-            partWaybills.add(WaybillUtil.getWaybillCode(std.getPackageBarcode()));
-        }
-
-        for(SendDetail sd :allList){
-            String waybillCode = WaybillUtil.getWaybillCode(sd.getPackageBarcode());
-            if(waybills.containsKey(waybillCode)){
-                waybills.get(waybillCode).add(sd.getPackageBarcode());
-            }else{
-                List<String> ps = new ArrayList<String>();
-                ps.add(sd.getPackageBarcode());
-                waybills.put(waybillCode,ps);
-            }
-        }
-
-
 
         List<String> needRemoveWaybill = new ArrayList<String>();
 
         if(tDeliveryResponse!=null && !tDeliveryResponse.isEmpty()){
             //存在未集齐发货记录
+
+            //只有退仓才会有提示
+            if(allList!=null && !allList.isEmpty()){
+                Integer reverseSiteCode = allList.get(0).getReceiveSiteCode();
+                BaseStaffSiteOrgDto site = baseMajorManager.getBaseSiteBySiteId(reverseSiteCode);
+                if(site==null || site.getSiteType()==null || !site.getSiteType().toString().equals(PropertiesHelper.newInstance().getValue("wms_type"))){
+                    return response;
+                }
+            }else{
+                return response;
+            }
+
+            for(SendThreeDetail std :tDeliveryResponse){
+                partWaybills.add(WaybillUtil.getWaybillCode(std.getPackageBarcode()));
+            }
+
+            for(SendDetail sd :allList){
+                String waybillCode = WaybillUtil.getWaybillCode(sd.getPackageBarcode());
+                if(waybills.containsKey(waybillCode)){
+                    waybills.get(waybillCode).add(sd.getPackageBarcode());
+                }else{
+                    List<String> ps = new ArrayList<String>();
+                    ps.add(sd.getPackageBarcode());
+                    waybills.put(waybillCode,ps);
+                }
+            }
 
             if(waybills.size()>partWaybills.size()){
                 //1 发货明细中是否存在其他已集齐的运单

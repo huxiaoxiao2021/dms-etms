@@ -280,7 +280,7 @@
 	</select>
 
 	<sql id="Base_Condition_Sql" >
-			and is_delete=0 and type = 1
+			and is_delete=0 and type = 1 and status != 2
 		<if test="createSiteCode != null">
 			and	create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		</if>

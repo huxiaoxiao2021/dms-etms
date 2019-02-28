@@ -117,4 +117,20 @@ public class ReverseTest {
         System.out.println(refuseReason.getTypeName());
 
     }
+
+    @Test
+    public void testReverseRecieve(){
+        Message m = new Message();
+        m.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest>\n" +
+                "  <sendCode>910-14178-20190223165014011</sendCode>\n" +
+                "  <orderId>JDVA00001221777</orderId>\n" +
+                "  <operateTime>2019-02-28 14:11:54</operateTime>\n" +
+                "  <userName>liuduo</userName>\n" +
+                "  <receiveType>5</receiveType>\n" +
+                "  <canReceive>1</canReceive>\n" +
+                "</ReceiveRequest>");
+        reverseReceiveConsumer.consume(m);
+
+    }
+
 }

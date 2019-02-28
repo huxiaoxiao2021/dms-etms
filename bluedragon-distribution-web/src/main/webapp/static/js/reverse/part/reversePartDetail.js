@@ -70,9 +70,9 @@ $(function() {
 		    });
 		    return params;
 		};
-		oTableInit.tableColums = [ {
-				checkbox : true
-			}, {
+		oTableInit.tableColums = [ /*{
+				checkbox : false
+			},*/ {
 				field : 'waybillCode',
 				title : '运单号'
 			}, {
@@ -107,11 +107,7 @@ $(function() {
 				field : 'createSiteCode',
 				title : '操作分拣中ID',
 				visible: false
-			} , {
-				field : 'reverseSiteCode',
-				title : '目的地ID',
-				visible: false
-			}];
+			} ];
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
 		};
