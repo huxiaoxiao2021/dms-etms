@@ -113,4 +113,9 @@ public interface BaseMajorManager {
 	 */
 	public Integer getPartnerSiteBySiteId(Integer sitecode);
 
+	/**
+	 * 获取基础资料维护的所有城市和分拣中心绑定关系的记录
+	 * @return
+	 */
+	public List<BaseDataDict> getAllCityBindDms();
 }

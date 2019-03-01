@@ -14,7 +14,15 @@ import java.io.Serializable;
 public class JdCommand<T> implements Serializable{
 	private static final long serialVersionUID = 1L;
 	/**
-     *  请求应用程序类型-40-青龙打印客户端
+	 * 系统编码标识 dms-分拣系统 wms-仓储
+	 */
+	private String systemCode;
+	/**
+	 * 系统访问密钥，每个系统标识对应一个密钥
+	 */
+	private String secretKey;
+	/**
+     *  请求应用程序类型-40-青龙打印客户端 50-jsf调用
      */
 	protected Integer programType;
     /**
@@ -38,6 +46,30 @@ public class JdCommand<T> implements Serializable{
 	 */
 	public Integer getProgramType() {
 		return programType;
+	}
+	/**
+	 * @return the systemCode
+	 */
+	public String getSystemCode() {
+		return systemCode;
+	}
+	/**
+	 * @param systemCode the systemCode to set
+	 */
+	public void setSystemCode(String systemCode) {
+		this.systemCode = systemCode;
+	}
+	/**
+	 * @return the secretKey
+	 */
+	public String getSecretKey() {
+		return secretKey;
+	}
+	/**
+	 * @param secretKey the secretKey to set
+	 */
+	public void setSecretKey(String secretKey) {
+		this.secretKey = secretKey;
 	}
 	/**
 	 * @param programType the programType to set

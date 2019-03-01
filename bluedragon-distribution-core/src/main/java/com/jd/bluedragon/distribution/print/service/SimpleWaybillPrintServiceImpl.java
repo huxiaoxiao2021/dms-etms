@@ -304,6 +304,7 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
         		}
         	}
         	commonWaybill.setRoad(roadCode);
+        	commonWaybill.setRoadCode(roadCode);
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
@@ -410,16 +411,21 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 printWaybill.setPrintAddress(tag.getPrintAddress());
             }
             printWaybill.setPrepareSiteName(tag.getPrintSiteName());
+            printWaybill.setPrintSiteName(tag.getPrintSiteName());
             printWaybill.setOriginalDmsCode(tag.getOriginalDmsId());
             printWaybill.setOriginalDmsName(tag.getOriginalDmsName());
             printWaybill.setPurposefulDmsCode(tag.getDestinationDmsId());
             printWaybill.setPurposefulDmsName(tag.getDestinationDmsName());
+            printWaybill.setDestinationDmsName(tag.getDestinationDmsName());
             //笼车号
             printWaybill.setOriginalTabletrolley(tag.getOriginalTabletrolleyCode());
+            printWaybill.setOriginalTabletrolleyCode(tag.getOriginalTabletrolleyCode());
             printWaybill.setPurposefulTableTrolley(tag.getDestinationTabletrolleyCode());
+            printWaybill.setDestinationTabletrolleyCode(tag.getDestinationTabletrolleyCode());
             //道口号
             printWaybill.setOriginalCrossCode(tag.getOriginalCrossCode());
             printWaybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
+            printWaybill.setDestinationCrossCode(tag.getDestinationCrossCode());
         }
     }
 

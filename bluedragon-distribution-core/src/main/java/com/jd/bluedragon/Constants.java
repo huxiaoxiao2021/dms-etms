@@ -786,10 +786,19 @@ public class Constants {
     /**
      * 全程跟踪状态  揽收完成
      */
-    public static final String WAYBILLTRACE_STATE ="-640";
+    public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
+
+    /**
+     * 全程跟踪状态  便民店、自寄柜揽收交接成功
+     */
+    public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
 
     /**
      * 运单状态  妥投
      */
     public static final String WAYBILLTRACE_FINISHED = "150";
+
+    /** 系统编码 **/
+    public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
 }
