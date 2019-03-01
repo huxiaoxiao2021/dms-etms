@@ -8,7 +8,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -56,6 +61,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -711,30 +717,60 @@ public class WaybillResource {
 
 	}
 
-	/**
-	 * 根据运单打标和预分拣站点判断是否需要校验黑名单
-	 *
-	 * @param waybill 运单信息
-	 * @return true-需要，false-不需要
-	 */
-	private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
-		if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
-			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
-			if (siteOrgDto != null) {
-				if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
-					if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
-						return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
-					} else {
-						// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
-						if (BusinessHelper.isWms(localScheduleSiteType)) {
-							return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
-						}
-					}
-				}
-			}
-		}
-		return null;
-	}
+    /**
+     * 根据运单打标和预分拣站点判断是否需要校验黑名单
+     *
+     * @param waybill 运单信息
+     * @return true-需要，false-不需要
+     */
+    private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
+        if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
+            BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+            if (siteOrgDto != null) {
+                Integer cky2 = null;
+                Integer storeId = null;
+                // 是否逆向换单运单号
+                if (WaybillUtil.isSwitchCode(waybill.getWaybillCode())) {
+                    WaybillManageDomain oldWaybillState = this.getOldWaybillStateByReturnWaybillCode(waybill.getWaybillCode());
+                    if (oldWaybillState != null) {
+                        cky2 = oldWaybillState.getCky2();
+                        storeId = oldWaybillState.getStoreId();
+                    }
+                } else {
+                    cky2 = waybill.getCky2();
+                    storeId = waybill.getStoreId();
+                }
+                if (this.doValidateBlackList(cky2, storeId)) {
+                    if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
+                        return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
+                    } else {
+                        // 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
+                        if (BusinessHelper.isWms(localScheduleSiteType)) {
+                            return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 通过返单运单号获取旧单的运单中waybillState对象
+     *
+     * @param waybillCode
+     * @return
+     */
+    private WaybillManageDomain getOldWaybillStateByReturnWaybillCode(String waybillCode) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldBaseWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if (oldBaseWaybill.getResultCode() == 1 && oldBaseWaybill.getData() != null) {
+            BaseEntity<BigWaybillDto> oldBaseEntity = waybillQueryManager.getDataByChoice(oldBaseWaybill.getData().getWaybillCode(), false, false, true, false);
+            if (oldBaseEntity.getResultCode() == 1 && oldBaseEntity.getData() != null && oldBaseEntity.getData().getWaybillState() != null) {
+                return oldBaseEntity.getData().getWaybillState();
+            }
+        }
+        return null;
+    }
 
 	/**
 	 * 调用运单接口进黑名单校验
