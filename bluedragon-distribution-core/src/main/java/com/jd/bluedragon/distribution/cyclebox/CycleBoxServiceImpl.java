@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
 import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -249,7 +248,7 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @return
      */
     @Override
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
+    public void recyclableBoxSend(RecyclableBoxRequest request) throws Exception{
         List<String> cycleBoxCodeListInBatch = new ArrayList<String >();
         List<String> cycleBoxCodeListScan = new ArrayList<String>();
         //逆向回收的需要对比流水号内的青流箱和扫描的青流箱的差异
@@ -266,22 +265,20 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             }
         }
 
-        RecyclableBoxSend res=new RecyclableBoxSend();
-
         //现场扫描的清流箱号发【逆向回收】的mq
         if(cycleBoxCodeListScan != null && cycleBoxCodeListScan.size() > 0) {
             request.setUniqueCode(cycleBoxCodeListScan);
             request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE);
-            res= pushCycleBoxStatusMQ(request);
+            pushCycleBoxStatusMQ(request);
         }
 
         //差异的青流箱号发【异常】的mq
         if(cycleBoxCodeListInBatch != null && cycleBoxCodeListInBatch.size() > 0){
             request.setUniqueCode(cycleBoxCodeListInBatch);
             request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION);
-            res= pushCycleBoxStatusMQ(request);
+            pushCycleBoxStatusMQ(request);
         }
-        return res;
+//        return res;
     }
 
     /**
@@ -289,26 +286,14 @@ public class CycleBoxServiceImpl implements CycleBoxService {
      * @param request
      * @return
      */
-    private RecyclableBoxSend pushCycleBoxStatusMQ(RecyclableBoxRequest request){
-        RecyclableBoxSend res=new RecyclableBoxSend();
-        try {
-            String businessId = "";
-            if(StringUtils.isNotBlank(request.getBatchCode())){
-                businessId = request.getBatchCode();
-            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
-                businessId = request.getWayBillNo();
-            }
-
-            request.setSourceSysCode("DMS");
-            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
-            res.setCode(JdResponse.CODE_OK);
-            res.setMessage(JdResponse.MESSAGE_OK);
-        } catch (Exception e) {
-            res.setCode(JdResponse.CODE_TIME_ERROR);
-            res.setMessage(e.getMessage());
-            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
+    private void pushCycleBoxStatusMQ(RecyclableBoxRequest request) throws Exception{
+        String businessId = "";
+        if (StringUtils.isNotBlank(request.getBatchCode())) {
+            businessId = request.getBatchCode();
+        } else if (StringUtils.isNotBlank(request.getWayBillNo())) {
+            businessId = request.getWayBillNo();
         }
-
-        return res;
+        request.setSourceSysCode("DMS");
+        recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
     }
 }

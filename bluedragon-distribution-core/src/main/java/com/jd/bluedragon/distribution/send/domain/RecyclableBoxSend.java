@@ -17,6 +17,11 @@ public class RecyclableBoxSend {
      */
     private String message;
 
+    public RecyclableBoxSend(Integer code,String message){
+        this.code = code;
+        this.message = message;
+    }
+
     public String getBoxCode() {
         return boxCode;
     }
