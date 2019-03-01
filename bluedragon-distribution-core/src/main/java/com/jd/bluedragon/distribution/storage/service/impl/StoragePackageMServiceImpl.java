@@ -266,7 +266,7 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 		updateWaybillStatus( putawayDTO, isWaybillCode, baseEntity.getData());
 
 		//更新暂存主表发货状态
-		updateStoragePackageMStatusForSend( putawayDTO, isWaybillCode, baseEntity.getData());
+		updateStoragePackageMStatusForSendOfParentOrderId(baseEntity.getData().getWaybill().getParentOrderId());
 
 		return true;
 	}
@@ -587,19 +587,17 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 
 	/**
 	 * 更新暂存主表发货状态
-	 * @param putawayDTO
-	 * @param isWaybillCode
-	 * @param bigWaybillDto
+	 * @param parentOrderId 履约单号
 	 */
-	private void updateStoragePackageMStatusForSend(PutawayDTO putawayDTO,boolean isWaybillCode,BigWaybillDto bigWaybillDto) {
+	public void updateStoragePackageMStatusForSendOfParentOrderId(String parentOrderId) {
 		//获取履约单下所有运单
-		List<String> childWaybillCodes = waybillQueryManager.getOrderParentChildList(bigWaybillDto.getWaybill().getParentOrderId());
+		List<String> childWaybillCodes = waybillQueryManager.getOrderParentChildList(parentOrderId);
 
 		//所有运单下的包裹是否已经全部上架 是 - 更新暂存状态
 
-		List<StoragePackageM> storagePackageMs =storagePackageMDao.queryByPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
+		List<StoragePackageM> storagePackageMs =storagePackageMDao.queryByPerformanceCode(parentOrderId);
 
-		if(storagePackageMs.size() == childWaybillCodes.size()){
+		if(storagePackageMs.size() > 0 && storagePackageMs.size() == childWaybillCodes.size()){
 			//上架记录里的运单和 运单接口返回的运单数对应上 并且暂存上架包裹数也对应上 才会去更新暂存状态
 			for(StoragePackageM storagePackageM : storagePackageMs){
 				if(!storagePackageM.getPackageSum().equals(storagePackageM.getPutawayPackageSum())){
@@ -608,9 +606,31 @@ public class StoragePackageMServiceImpl extends BaseService<StoragePackageM> imp
 			}
 
 			//更新暂存状态 按履约单维度更新
-			storagePackageMDao.updateStoragePackageMStatusForCanSendOfPerformanceCode(bigWaybillDto.getWaybill().getParentOrderId());
+			storagePackageMDao.updateStoragePackageMStatusForCanSendOfPerformanceCode(parentOrderId);
 		}
 
+	}
+
+	/**
+	 * 更新履约单下所有运单发货状态
+	 * @param waybillCode
+	 */
+	public void updateStoragePackageMStatusForSend(String waybillCode){
+
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true,true, true, true);
+		if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+			throw new StorageException("无运单信息");
+		}
+
+		if(baseEntity.getData().getPackageList() == null || baseEntity.getData().getPackageList().size() == 0){
+			throw new StorageException("无包裹信息");
+		}
+
+		if(!BusinessUtil.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+			throw new StorageException("非加履中心订单");
+		}
+
+		updateStoragePackageMStatusForSendOfParentOrderId(baseEntity.getData().getWaybill().getParentOrderId());
 	}
 
 
