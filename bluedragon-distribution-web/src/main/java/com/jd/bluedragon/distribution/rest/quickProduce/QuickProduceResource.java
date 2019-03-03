@@ -7,13 +7,8 @@ import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
 import com.jd.bluedragon.distribution.quickProduce.service.QuickProduceService;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.preseparate.saf.LabelPrintingWS;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.preseparate.util.LableType;
 import com.jd.preseparate.util.OriginalType;
-import com.jd.preseparate.vo.BaseResponseIncidental;
-import com.jd.preseparate.vo.lablePrinting.LabelPrintingRequest;
-import com.jd.preseparate.vo.lablePrinting.LabelPrintingResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -154,29 +149,24 @@ public class QuickProduceResource {
                 return;
             }
 
-            if (response != null) {
-                waybill.setCrossCode(String.valueOf(labelPrinting
-                        .getOriginalCrossCode()));
-                waybill.setTrolleyCode(String.valueOf(labelPrinting
-                        .getOriginalTabletrolley()));
-                waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
-                waybill.setTargetDmsName(String.valueOf(labelPrinting
-                        .getPurposefulDmsName()));
-                waybill.setTargetDmsDkh(String.valueOf(labelPrinting
-                        .getPurposefulCrossCode()));
-                waybill.setTargetDmsLch(String.valueOf(labelPrinting
-                        .getPurposefulTableTrolley()));
-                waybill.setAddress(labelPrinting.getOrderAddress());
-                waybill.setJsonData(response.getJsonData());
-                waybill.setRoad(labelPrinting.getRoad());
+            waybill.setCrossCode(String.valueOf(labelPrinting
+                    .getOriginalCrossCode()));
+            waybill.setTrolleyCode(String.valueOf(labelPrinting
+                    .getOriginalTabletrolley()));
+            waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
+            waybill.setTargetDmsName(String.valueOf(labelPrinting
+                    .getPurposefulDmsName()));
+            waybill.setTargetDmsDkh(String.valueOf(labelPrinting
+                    .getPurposefulCrossCode()));
+            waybill.setTargetDmsLch(String.valueOf(labelPrinting
+                    .getPurposefulTableTrolley()));
+            waybill.setAddress(labelPrinting.getOrderAddress());
+            waybill.setJsonData(response.getJsonData());
+            waybill.setRoad(labelPrinting.getRoad());
 
-                if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
-                    this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                            + "】 获取预分拣的包裹打印路区信息为空");
-                }
-            } else {
+            if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
                 this.logger.error("根据运单号【" + waybill.getWaybillCode()
-                        + "】 获取预分拣的包裹打印信息为空");
+                        + "】 获取预分拣的包裹打印路区信息为空");
             }
         } catch (Exception e) {
             this.logger.error("根据运单号【" + waybill.getWaybillCode()

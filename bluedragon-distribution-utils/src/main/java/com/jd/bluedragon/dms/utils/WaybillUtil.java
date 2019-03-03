@@ -245,4 +245,39 @@ public class WaybillUtil {
         }
         return list;
     }
+
+    /**
+     * 获取包裹序列号
+     */
+    public static String getPackageIndex(String packageCode) {
+        if (WaybillUtil.isPackageCode(packageCode)) {
+            int currentPackageNum = WaybillUtil.getCurrentPackageNum(packageCode);
+            int totalPackageNum = WaybillUtil.getPackNumByPackCode(packageCode);
+            return currentPackageNum + "/" + totalPackageNum;
+        }
+        return "0/0";
+    }
+
+    /**
+     * 截取包裹号后缀
+     * @param packageCode
+     * @return
+     */
+    public static String getPackageSuffix(String packageCode){
+        int index = -1;
+        if (WaybillUtil.isPackageCode(packageCode)) {
+            if (packageCode.indexOf("N") > 0 && packageCode.indexOf("S") > 0) {
+                index = packageCode.indexOf("N");
+            } else if (packageCode.indexOf("-") > 0 && (packageCode.split("-").length == 3 || packageCode.split("-").length == 4)) {
+                index = packageCode.indexOf("-");
+            }
+        }
+        if(index < 0){
+            return null;
+        } else{
+            return packageCode.substring(index);
+        }
+
+    }
+
 }

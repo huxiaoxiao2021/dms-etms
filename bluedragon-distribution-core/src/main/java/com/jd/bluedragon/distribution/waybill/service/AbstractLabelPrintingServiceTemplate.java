@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.waybill.service;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,12 +14,10 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -59,6 +56,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
+
+    /** 运单号突出显示的位数 **/
+    private static final int WAYBILL_CODE_HIGHLIGHT_NUMBER = 4;
     /**
      * 初始化基础资料对象
      */
@@ -98,6 +98,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
             //反调度设置路区为0
             labelPrinting.setRoad("0");
+            labelPrinting.setRoadCode("0");
         }
 
         if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(-1)){
@@ -133,6 +134,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         	labelPrinting.appendSpecialMark(LabelPrintingService.SPECIAL_MARK_LOCAL_SCHEDULE);
             //反调度设置路区为0
             labelPrinting.setRoad("0");
+            labelPrinting.setRoadCode("0");
         }
 
         if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(-1)){
@@ -171,6 +173,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             log.warn(LOG_PREFIX+" 无法获取包裹打印数据"+request.getWaybillCode());
             if(StringHelper.isEmpty(labelPrinting.getPrepareSiteName())){
                 labelPrinting.setPrepareSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
+                labelPrinting.setPrintSiteName(getBaseSite(labelPrinting.getPrepareSiteCode()));
             }
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_BASE,LabelPrintingResponse.MESSAGE_EMPTY_BASE+"(crossPackageTag打印数据)"
                     ,labelPrinting,JsonHelper.toJson(labelPrinting));
@@ -188,6 +191,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             labelPrinting.setPrepareSiteName(
                     StringHelper.isEmpty(crossPackageTag.getPrintSiteName())?this.getBaseSite(labelPrinting.getPrepareSiteCode()):crossPackageTag.getPrintSiteName()
             );
+            labelPrinting.setPrintSiteName(StringHelper.isEmpty(crossPackageTag.getPrintSiteName())?this.getBaseSite(labelPrinting.getPrepareSiteCode()):crossPackageTag.getPrintSiteName());
         }
 
         //起始分拣中心
@@ -195,12 +199,16 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         labelPrinting.setOriginalDmsName(crossPackageTag.getOriginalDmsName());
         labelPrinting.setPurposefulDmsCode(crossPackageTag.getDestinationDmsId());
         labelPrinting.setPurposefulDmsName(crossPackageTag.getDestinationDmsName());
+        labelPrinting.setDestinationDmsName(crossPackageTag.getDestinationDmsName());
         //笼车号
         labelPrinting.setOriginalTabletrolley(crossPackageTag.getOriginalTabletrolleyCode());
+        labelPrinting.setOriginalTabletrolleyCode(crossPackageTag.getOriginalTabletrolleyCode());
         labelPrinting.setPurposefulTableTrolley(crossPackageTag.getDestinationTabletrolleyCode());
+        labelPrinting.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         //道口号
         labelPrinting.setOriginalCrossCode(crossPackageTag.getOriginalCrossCode());
         labelPrinting.setPurposefulCrossCode(crossPackageTag.getDestinationCrossCode());
+        labelPrinting.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
 
         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(request.getWaybillCode());
         if(waybill!=null&&waybill.getWaybillSign()!=null){
@@ -209,12 +217,16 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
                 labelPrinting.setOriginalDmsName("");
                 labelPrinting.setPurposefulDmsCode(null);
                 labelPrinting.setPurposefulDmsName("");
+                labelPrinting.setDestinationDmsName("");
                 //笼车号
                 labelPrinting.setOriginalTabletrolley("");
+                labelPrinting.setOriginalTabletrolleyCode("");
                 labelPrinting.setPurposefulTableTrolley("");
+                labelPrinting.setDestinationTabletrolleyCode("");
                 //道口号
                 labelPrinting.setOriginalCrossCode("");
                 labelPrinting.setPurposefulCrossCode("");
+                labelPrinting.setDestinationCrossCode("");
             }
         }
 
@@ -255,7 +267,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             log.warn(LOG_PREFIX+" 没有获取运单数据(waybill)"+request.getWaybillCode());
             return null;
         }
-        if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED == context.getStatus()){//二次预分拣时重置目的站点和路区
+        if(context != null && context.getWaybill() != null && InterceptResult.STATUS_WEAK_PASSED.equals(context.getStatus())){//二次预分拣时重置目的站点和路区
             waybill.setOldSiteId(context.getWaybill().getSiteCode());
             waybill.setSiteName(context.getWaybill().getSiteName());
             waybill.setRoadCode(context.getWaybill().getRoad());
@@ -264,6 +276,12 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
 
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
+        //B网面单要求将运单号后四位突出显示
+        String waybillCode = request.getWaybillCode();
+        if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
+            labelPrinting.setWaybillCodeFirst(waybillCode.substring(0,waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
+            labelPrinting.setWaybillCodeLast(waybillCode.substring(waybillCode.length()-WAYBILL_CODE_HIGHLIGHT_NUMBER));
+        }
         //订单号
         labelPrinting.setOrderCode(waybill.getVendorId());
         //商家编码
@@ -278,22 +296,26 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         if (LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA.equals(labelPrinting.getPrepareSiteCode())) {
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_OVER_AREA);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
+            labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             log.warn(LOG_PREFIX+" 没有获取预分拣站点(-2超区),"+request.getWaybillCode());
             //未定位门店
         } else if(labelPrinting.getPrepareSiteCode()==null || (labelPrinting.getPrepareSiteCode()<=LabelPrintingService.PREPARE_SITE_CODE_NOTHING && labelPrinting.getPrepareSiteCode() > LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE)){
             labelPrinting.setPrepareSiteCode(LabelPrintingService.PREPARE_SITE_CODE_NOTHING);
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
+            labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_NOTHING);
             log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
         } else if(labelPrinting.getPrepareSiteCode() !=null && labelPrinting.getPrepareSiteCode().intValue() < LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             labelPrinting.setPrepareSiteCode(labelPrinting.getPrepareSiteCode());
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
+            labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());
         }
 
         //EMS全国直发
         if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(LabelPrintingService.PREPARE_SITE_CODE_EMS_DIRECT)){
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_EMS_DIRECT);
+            labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_EMS_DIRECT);
         }
 
         labelPrinting.setCustomerName(waybill.getReceiverName());
@@ -325,7 +347,9 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
 
         //路区
         labelPrinting.setRoad(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
-       // labelPrinting.setBusiOrderCode(waybill.getBusiOrderCode());
+        labelPrinting.setRoadCode(StringHelper.isEmpty(waybill.getRoadCode())?"0":waybill.getRoadCode());
+
+        // labelPrinting.setBusiOrderCode(waybill.getBusiOrderCode());
         waybillCommonService.setBasePrintInfoByWaybill(labelPrinting,waybill);
         return labelPrinting;
     }

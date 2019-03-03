@@ -141,7 +141,7 @@ public abstract class AbstractExcelDataResolver implements DataResolver{
 		Field ret = null; 
 		try {
 			Class<?> cls = t.getClass();
-			while(!"java.lang.Object".equals(cls.getName())){
+			while(!Object.class.equals(cls)){
 				Field[] fields = cls.getDeclaredFields();
 				for(Field field:fields){
 					if(field.getName().equals(fieldName)){
