@@ -36,17 +36,13 @@ public class GoddessDao {
     private PreparedStatement selectStatement;
 
 
-    private PreparedStatement getInsertStatement() {
+    private synchronized PreparedStatement getInsertStatement() {
         if (null == insertStatement) {
-            synchronized (this) {
-                if (null == insertStatement) {
-                    RegularStatement toPrepare = new SimpleStatement(
-                            "insert into systemlogwaybill ( code , uu_id  , body,time) values ( ?,?,?,?) USING TTL " + ttl
-                                    + ";");
-                    toPrepare.setConsistencyLevel(consistencyLevel);
-                    insertStatement = baseCassandraDao.getSession().prepare(toPrepare);
-                }
-            }
+            RegularStatement toPrepare = new SimpleStatement(
+                    "insert into systemlogwaybill ( code , uu_id  , body,time) values ( ?,?,?,?) USING TTL " + ttl
+                            + ";");
+            toPrepare.setConsistencyLevel(consistencyLevel);
+            insertStatement = baseCassandraDao.getSession().prepare(toPrepare);
         }
         return insertStatement;
     }
@@ -57,7 +53,13 @@ public class GoddessDao {
             List<BoundStatement> bstatementList = new ArrayList<BoundStatement>(1);
             Map<String, Object> values = new HashMap<String, Object>();
             long operateTime = new Date().getTime();
-            BoundStatement bStatement = getInsertStatement().bind(log.getKey(), UUIDs.timeBased().toString(),
+            PreparedStatement preparedStatement = null;
+            if(insertStatement != null){
+                preparedStatement = insertStatement;
+            }else {
+                preparedStatement = getInsertStatement();
+            }
+            BoundStatement bStatement = preparedStatement.bind(log.getKey(), UUIDs.timeBased().toString(),
                     JsonHelper.toJson(log), operateTime);
             bstatementList.add(bStatement);
             baseCassandraDao.batchInsert(bstatementList, values);
@@ -70,16 +72,12 @@ public class GoddessDao {
         }
     }
 
-    private PreparedStatement getSelectStatement() {
+    private synchronized PreparedStatement getSelectStatement() {
         if (null == selectStatement) {
-            synchronized (this) {
-                if (null == selectStatement) {
-                    RegularStatement toPrepare = new SimpleStatement(
-                            "select * from systemlogwaybill  where code = ? order by time desc");
-                    toPrepare.setConsistencyLevel(consistencyLevel);
-                    selectStatement = baseCassandraDao.getSession().prepare(toPrepare);
-                }
-            }
+            RegularStatement toPrepare = new SimpleStatement(
+                    "select * from systemlogwaybill  where code = ? order by time desc");
+            toPrepare.setConsistencyLevel(consistencyLevel);
+            selectStatement = baseCassandraDao.getSession().prepare(toPrepare);
         }
         return selectStatement;
     }
@@ -99,7 +97,11 @@ public class GoddessDao {
             BoundStatement bs = null;
             PagingState pagingState = null;
             ResultSet rs = null;
-            bs = getSelectStatement().bind(pager.getData());
+            if(selectStatement == null){
+                bs = getSelectStatement().bind(pager.getData());
+            }else{
+                bs = selectStatement.bind(pager.getData());
+            }
             rs = baseCassandraDao.preparedSelectBycode(bs);
             result.setTotalSize(rs.getAvailableWithoutFetching());
 

@@ -243,10 +243,10 @@ public class DmsWorkSendDetailConsumer extends MessageBaseConsumer {
                             basicQueryEntity.setIsnew(SendPrintConstants.TEXT_YES);
                     }
                 } else {
-                    logger.warn("打印交接清单-取件单基础信息调用失败，运单号：" + basicQueryEntity.getWaybill() + "，" + tPickupTask == null ? "返回的BaseEntity对象为null" : "返回的状态码为" + tPickupTask.getResultCode());
+                    logger.warn("打印交接清单-取件单基础信息调用失败，运单号：" + basicQueryEntity.getWaybill() + "，查询结果：" + JsonHelper.toJson(tPickupTask));
                 }
             } catch (Exception e) {
-                logger.error("打印交接清单-取件单基础信息调用发生异常" + basicQueryEntity.getWaybill());
+                logger.error("打印交接清单-取件单基础信息调用发生异常" + basicQueryEntity.getWaybill(), e);
             }
         }
     }

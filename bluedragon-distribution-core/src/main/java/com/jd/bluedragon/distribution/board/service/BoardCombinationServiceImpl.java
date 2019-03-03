@@ -347,6 +347,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 }
                 //确定转移,调用TC的板号转移接口
                 Response<String> boardMoveResponse = boardMove(request);
+                if(boardMoveResponse == null){
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "组板转移服务异常!");
+                    return JdResponse.CODE_FAIL;
+                }
 
                 if (boardMoveResponse.getCode() != 200) {
                     //重新组板失败
@@ -489,8 +493,13 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             Profiler.registerInfoEnd(info);
         }
 
+        if(tcResponse == null){
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "取消组板服务异常!");
+            return boardResponse;
+        }
+
         //调用TC接口返回值，更新下板号
-        if (tcResponse != null && StringHelper.isNotEmpty(tcResponse.getData())) {
+        if (StringHelper.isNotEmpty(tcResponse.getData())) {
             boardCode = tcResponse.getData();
             request.setBoardCode(boardCode);
         }

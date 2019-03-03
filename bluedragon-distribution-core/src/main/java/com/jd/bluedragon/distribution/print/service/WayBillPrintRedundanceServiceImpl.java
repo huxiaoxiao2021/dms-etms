@@ -81,6 +81,11 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;
     @Autowired
     private C2cInterceptHandler c2cInterceptHandler;
+
+    @Autowired
+    @Qualifier("templateSelectService")
+    private TemplateSelectService templateSelectService;
+
     /**
      * 2次预分拣变更提示信息
      */
@@ -111,12 +116,12 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 //调用分拣接口获得基础资料信息
                 context.setWaybill(waybill);
                 result = preSortingSecondService.preSortingAgain(context);//处理是否触发2次预分拣
+                // C2C运单打印面单校验揽收完成
+                InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
+                if(!c2cInterceptResult.isSucceed()){
+                    return c2cInterceptResult;
+                }
                 if(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT_TYPE.equals(context.getRequest().getOperateType())){
-                    // C2C运单打印面单校验揽收完成
-                    InterceptResult<String> c2cInterceptResult =c2cInterceptHandler.handle(context);
-                    if(!c2cInterceptResult.isSucceed()){
-                        return c2cInterceptResult;
-                    }
                 	InterceptResult<String> overRunInterceptResult =thirdOverRunInterceptHandler.handle(context);
                     if(!overRunInterceptResult.isSucceed()){
                     	return overRunInterceptResult;
@@ -217,6 +222,18 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 return result;
             }
 
+            //设置路由信息
+            String waybillSign = "";
+            if(context.getWaybill() != null && StringUtils.isNotBlank(context.getWaybill().getWaybillSign())){
+                waybillSign = context.getWaybill().getWaybillSign();
+            }
+            Integer originalDmsCode = labelPrinting.getOriginalDmsCode();
+            Integer destinationDmsCode = labelPrinting.getPurposefulDmsCode();
+            waybillCommonService.loadWaybillRouter(labelPrinting,originalDmsCode,destinationDmsCode,waybillSign);
+
+            //设置模板名称
+            labelPrinting.setTemplateName(templateSelectService.handle(context));
+
             if (response != null) {
                 waybill.setCrossCode(String.valueOf(labelPrinting.getOriginalCrossCode()));
                 waybill.setTrolleyCode(String.valueOf(labelPrinting.getOriginalTabletrolley()));
@@ -225,7 +242,7 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 waybill.setTargetDmsDkh(String.valueOf(labelPrinting.getPurposefulCrossCode()));
                 waybill.setTargetDmsLch(String.valueOf(labelPrinting.getPurposefulTableTrolley()));
                 waybill.setAddress(labelPrinting.getOrderAddress());
-                waybill.setJsonData(response.getJsonData());
+                waybill.setJsonData(JsonHelper.toJson(labelPrinting));
                 waybill.setRoad(labelPrinting.getRoad());
                 result.toSuccess();
                 if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){

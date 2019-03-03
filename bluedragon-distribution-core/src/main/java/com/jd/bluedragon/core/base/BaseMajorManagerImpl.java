@@ -417,8 +417,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Override
     @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getBaseStaffIgnoreIsResignByErp", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Cache(key = "baseMajorManagerImpl.getBaseStaffIgnoreIsResignByErp@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
-            redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
+    @Cache(key = "baseMajorManagerImpl.getBaseStaffIgnoreIsResignByErp@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     public BaseStaffSiteOrgDto getBaseStaffIgnoreIsResignByErp(String erpCode) {
         return basicPrimaryWS.getBaseStaffIgnoreIsResignByErp(erpCode);
     }
@@ -610,5 +610,27 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
 
         return result.getBelongCode();
+    }
+
+    @Cache(key = "baseMajorManagerImpl.allCityBindDms", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getAllCityBindDms", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<BaseDataDict> getAllCityBindDms(){
+        Integer parentId= 156;
+        Integer nodeLevelSecond = 2;
+        Integer nodeLevelThird = 3;
+        Integer typeGroup = 156;
+        List<BaseDataDict> cityAndDmsList = new ArrayList<BaseDataDict>();
+        List<BaseDataDict> baseDataDictList = basicPrimaryWS.getValidDataDict(parentId,nodeLevelSecond,typeGroup);
+        if(baseDataDictList != null){
+            cityAndDmsList.addAll(baseDataDictList);
+            for(BaseDataDict baseDateDict : baseDataDictList){
+                List<BaseDataDict> subList = basicPrimaryWS.getValidDataDict(baseDateDict.getTypeCode(),nodeLevelThird,typeGroup);
+                if (subList != null && subList.size()>0){
+                    cityAndDmsList.addAll(subList);
+                }
+            }
+        }
+        return cityAndDmsList;
     }
 }

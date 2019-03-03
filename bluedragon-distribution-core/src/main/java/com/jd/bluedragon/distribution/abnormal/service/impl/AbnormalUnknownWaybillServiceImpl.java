@@ -27,10 +27,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.domain.WaybillExt;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
@@ -95,6 +92,8 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
      */
     public JdResponse<String> queryAndReport(AbnormalUnknownWaybill request, LoginUser loginUser) {
         JdResponse<String> rest = new JdResponse<String>();
+        rest.setMessage("操作成功！");
+
         if (request.getWaybillCode() == null || StringUtils.isBlank(request.getWaybillCode())) {
             rest.toFail("运单号不能为空");
             return rest;
@@ -114,6 +113,11 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         StringBuilder newWaybillCodes = new StringBuilder();
         //去重运单号/包裹号
         Set<String> newWaybillCodesSet = new HashSet<String>();
+
+        //妥投的运单号字符串
+        StringBuilder deliveredWaybillCodes = new StringBuilder();
+        //妥投的运单号/包裹号
+        Set<String> deliveredWaybillCodesSet = new HashSet<String>();
         for(String waybillCodeInput : waybillcodes){
             if(WaybillUtil.isPackageCode(waybillCodeInput)){
                 waybillCodeInput = WaybillUtil.getWaybillCode(waybillCodeInput);
@@ -137,15 +141,41 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 waybillCode = WaybillUtil.getWaybillCode(waybillCode);
             }
             if (WaybillUtil.isWaybillCode(waybillCode)) {
-                BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+                BigWaybillDto bigWaybillDto = waybillService.getWaybillProductAndState(waybillCode);
+
                 if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
                     //暂存起来
                     bigWaybillDtoMap.put(waybillCode, bigWaybillDto);
-                    //如果要上报  必须有商家
-                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName()) && AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
+                    //上报必须有商家
+                    if (StringUtils.isEmpty(bigWaybillDto.getWaybill().getBusiName()) && AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
                         noTraderWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
                     } else {
                         waybillList.add(waybillCode);
+                    }
+
+                    //如果要上报
+                    if (AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
+                        //判断运单的妥投状态
+                        if (bigWaybillDto.getWaybillState() != null) {
+                            WaybillManageDomain waybillManageDomain = bigWaybillDto.getWaybillState();
+                            //判断运单是否妥投
+                            if (Constants.WAYBILL_DELIVERED_CODE.equals(waybillManageDomain.getWaybillState())) {
+                                deliveredWaybillCodesSet.add(waybillCode);
+                                if (deliveredWaybillCodesSet.size() == 1) {
+                                    deliveredWaybillCodes.append(waybillCode);
+                                }
+                                else if (deliveredWaybillCodesSet.size() < AbnormalUnknownWaybill.DELIVERED_WAYBILL_NOTICE_MAX_COUNT) {
+                                    deliveredWaybillCodes.append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
+                                    if (deliveredWaybillCodesSet.size() % 3 == 1) {
+                                        deliveredWaybillCodes.append("\n");
+                                    }
+                                    deliveredWaybillCodes.append(waybillCode);
+                                }
+                                else if (deliveredWaybillCodesSet.size() == AbnormalUnknownWaybill.DELIVERED_WAYBILL_NOTICE_MAX_COUNT) {
+                                    deliveredWaybillCodes.append("等");
+                                }
+                            }
+                        }
                     }
                 } else {
                     noExistsWaybills.append(waybillCode).append(AbnormalUnknownWaybill.SEPARATOR_APPEND);
@@ -210,23 +240,27 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
                 return rest;
             }
             for (String waybillCode : noDetails) {
-                getGoodDetails(bigWaybillDtoMap, hasDetailWaybillCodes, addList, userDto, areaNode, waybillCode, request);
+                getGoodDetails(bigWaybillDtoMap, hasDetailWaybillCodes, addList, userDto, areaNode, waybillCode, request, deliveredWaybillCodesSet);
             }
             if (addList.size() > 0) {
                 abnormalUnknownWaybillDao.batchInsert(addList);
             }
         }
+
         if (newWaybillCodesSet != null && newWaybillCodesSet.size() > 0) {
             rest.setData(newWaybillCodes.toString());
         } else {
             rest.setData(null);
         }
 
-
+        //如果存在妥投订单，需要提示已妥投，然后页面再进行跳转
+        if (deliveredWaybillCodes.length() > 0) {
+            rest.setMessage("以下运单号已妥投，只能查询不能上报：" + deliveredWaybillCodes.toString());
+        }
         return rest;
     }
 
-    private void getGoodDetails(Map<String, BigWaybillDto> bigWaybillDtoMap, List<String> hasDetailWaybillCodes, List<AbnormalUnknownWaybill> addList, BaseStaffSiteOrgDto userDto, AreaNode areaNode, String waybillCode, AbnormalUnknownWaybill request) {
+    private void getGoodDetails(Map<String, BigWaybillDto> bigWaybillDtoMap, List<String> hasDetailWaybillCodes, List<AbnormalUnknownWaybill> addList, BaseStaffSiteOrgDto userDto, AreaNode areaNode, String waybillCode, AbnormalUnknownWaybill request, Set<String> deliveredWaybillCodesSet) {
         //商品明细拼接使用
         StringBuilder waybillDetail = new StringBuilder();
         BigWaybillDto bigWaybillDto = bigWaybillDtoMap.get(waybillCode);
@@ -277,10 +311,15 @@ public class AbnormalUnknownWaybillServiceImpl extends BaseService<AbnormalUnkno
         logger.info(waybillCode + "三无托寄物核实，运单没查到");
         //第三步 发B商家请求
         //查询运单
-        if (AbnormalUnknownWaybill.REPORT_YES == request.getIsReport()) {
-            queryDetailForB(waybillCode, abnormalUnknownWaybill, AbnormalUnknownWaybill.ORDERNUMBER_1, bigWaybillDto.getWaybill());
-            addList.add(abnormalUnknownWaybill);//后面将插入表中
-            hasDetailWaybillCodes.add(waybillCode);//前台用
+        if (AbnormalUnknownWaybill.REPORT_YES.equals(request.getIsReport())) {
+            //是否是妥投订单
+            if (deliveredWaybillCodesSet.contains(waybillCode)) {
+                logger.info(waybillCode + "为妥投订单，无需上报！");
+            } else {
+                queryDetailForB(waybillCode, abnormalUnknownWaybill, AbnormalUnknownWaybill.ORDERNUMBER_1, bigWaybillDto.getWaybill());
+                addList.add(abnormalUnknownWaybill);//后面将插入表中
+                hasDetailWaybillCodes.add(waybillCode);//前台用
+            }
         }
 
 

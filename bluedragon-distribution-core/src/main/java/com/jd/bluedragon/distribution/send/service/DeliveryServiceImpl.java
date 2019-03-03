@@ -15,11 +15,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
-import com.jd.bluedragon.distribution.api.request.SortingRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -86,10 +82,7 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
@@ -115,6 +108,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -122,6 +116,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -1063,7 +1058,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public void saveOrUpdateBatch(List<SendDetail> sdList) {
         List<SendDetail>[] sendArray = splitList(sdList);
-        List<SendDetail> result = new ArrayList<SendDetail>();
+        List<String> result = new ArrayList<String>();
 
         List<SendDetail> updateList = new ArrayList<SendDetail>();
         //批量查询是否存在send_d
@@ -1536,7 +1531,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         RecyclableBoxSend res=new RecyclableBoxSend();
 
         try {
-            recyclableBoxSendMQ.send(null, JsonHelper.toJson(request));
+            String businessId = "";
+            if(StringUtils.isNotBlank(request.getBatchCode())){
+                businessId = request.getBatchCode();
+            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
+                businessId = request.getWayBillNo();
+            }
+
+            request.setSourceSysCode("DMS");
+            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
             res.setCode(JdResponse.CODE_OK);
             res.setMessage(JdResponse.MESSAGE_OK);
         } catch (Exception e) {
@@ -2064,11 +2067,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 this.dmsWorkSendDetailMQ.sendOnFailPersistent(sendMessage.getBusinessId(),sendMessage.getText());
                                 Waybill waybill = sendDetailWaybillMap.get(tSendDatail.getWaybillCode());
                                 //发货目的地是车队，且是非城配运单，要通知调度系统
-                                /*if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                                if(waybill != null && Constants.BASE_SITE_MOTORCADE == rbDto.getSiteType() && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
                                     Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(tSendDatail, waybill, rbDto.getSiteName(), dmsToVendor.getTopic(),Constants.SEND_DETAIL_SOUCRE_NORMAL);
                                     this.logger.info("非城配运单，发车队通知调度系统发送MQ["+sendDispatchMessage.getTopic()+"],业务ID["+sendDispatchMessage.getBusinessId()+"],消息主题: " + sendDispatchMessage.getText());
                                     dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(),sendDispatchMessage.getText());
-                                }*/
+                                }
                                 //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
                                 int updateCount = gantryExceptionService.getGantryExceptionCountForUpdate(tSendDatail.getBoxCode(), Long.valueOf(tSendDatail.getCreateSiteCode()));
                                 if (updateCount > 0) {
@@ -2783,6 +2786,53 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
+  /**
+   * 快运发货差异查询
+   *
+   * @param sendMList
+   * @param queryType
+   * @return
+   */
+  public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType) {
+    // 未扫描包裹
+    List<SendThreeDetail> notScaned = null;
+    List<SendThreeDetail> res = new ArrayList<SendThreeDetail>();
+    Integer businessType = sendMList.size() > 0 ? sendMList.get(0).getSendType() : 10;
+    List<SendDetail> hasScaned = new ArrayList<SendDetail>();
+    this.logger.info("快运发货差异查询");
+    getAllList(sendMList, hasScaned);
+    //查询未扫描或者查询所有
+    if (AbstructDiffrenceComputer.QUERY_NOSCANED.equals(queryType) || AbstructDiffrenceComputer.QUERY_ALL.equals(queryType)) {
+      if (businessType.equals(20)) {
+        notScaned = reverseComputer.compute(hasScaned, false);
+      } else {
+        notScaned = forwardComputer.compute(hasScaned, false);
+      }
+      if (null != notScaned) {
+          //循环删除已扫描数据只保留未扫数据
+          for (int index = 0; index < notScaned.size(); ++index) {
+          if (AbstructDiffrenceComputer.HAS_SCANED.equals(notScaned.get(index).getMark())) {
+            notScaned.remove(index--);
+          }
+        }
+
+        res.addAll(notScaned);
+      }
+    }
+      //查询已扫描或者查询所有
+    if (AbstructDiffrenceComputer.QUERY_HASSCANED.equals(queryType) || AbstructDiffrenceComputer.QUERY_ALL.equals(queryType)) {
+      for (SendDetail item : hasScaned) { // 遍历该箱的所有包裹
+        SendThreeDetail diff = new SendThreeDetail();
+        diff.setBoxCode(item.getBoxCode());
+        diff.setPackageBarcode(item.getPackageBarcode());
+        diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
+        diff.setIsWaybillFull(1);
+        res.add(diff);
+      }
+    }
+
+    return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, res);
+    }
 
     /**
      * 一车一单按箱发货路由检验
@@ -2830,7 +2880,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
 
-        if(StringHelper.isEmpty(routerStr)){
+        if(routerStr == null || StringHelper.isEmpty(routerStr)){
             return response;
         }
 
@@ -2960,11 +3010,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
             logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
             //快运发货非城配运单发往车队，判断是否可以C转B
-            /*if(!checkDmsToVendor(sendM)){
+            if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                 response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
                 return response;
-            }*/
+            }
             return response;
         }
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
@@ -3063,7 +3113,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             if(StringUtils.isNotEmpty(waybillCode) && WaybillUtil.isWaybillCode(waybillCode)){
                 com.jd.bluedragon.common.domain.Waybill waybill =  waybillCommonService.findByWaybillCode(waybillCode);
                 //运单为非城配类型，且 发货目的地为【车队】类型的
-                if(waybill != null && BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
+                if(waybill != null && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())){
                     InvokeResult<Boolean> result = dmsInterturnManager.dispatchToExpress(sendM.getCreateSiteCode(), waybill.getBusiId(), waybill.getWaybillSign());
                     if(JdResponse.CODE_OK == result.getCode() && result.getData() != null && result.getData().booleanValue() == false){
                         return false;
@@ -3863,6 +3913,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
         // 判断sendD数据是否存在，若不存在则视为站点发货至分拣，调用TMS获取箱子对应的装箱明细信息
         if (sendDatailist == null || sendDatailist.isEmpty()) {
+            if(sendDatailist == null){
+                sendDatailist = new ArrayList<SendDetail>();
+            }
             SendInfoDto sendInfoDto = new SendInfoDto();
             sendInfoDto.setBoxCode(boxCode);
             com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
@@ -4070,18 +4123,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest);
     }
 
-    /**
-     * 利用排序法计算差异
-     * 1：按运单号升序排序
-     */
-    public static abstract class AbstructDiffrenceComputer implements PackageDiffrence {
+  /** 利用排序法计算差异 1：按运单号升序排序 */
+  public static abstract class AbstructDiffrenceComputer implements PackageDiffrence {
 
-        @Autowired
-        private SendDatailDao sendDatailDao;
+    @Autowired private SendDatailDao sendDatailDao;
 
-        @Autowired
-        private WaybillCommonService waybillCommonService;
+    @Autowired private WaybillCommonService waybillCommonService;
 
+    @Override
+    public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
+      Collections.sort(
+          list,
+          new Comparator<SendDetail>() {
+            @Override
+            public int compare(SendDetail lhs, SendDetail rhs) {
+              return lhs.getPackageBarcode().compareToIgnoreCase(rhs.getPackageBarcode());
+            }
+          });
+      return computeUsePackage(list, isScheduleRequest);
+    }
         @Autowired
         private SiteService siteService;
 
@@ -4141,106 +4201,154 @@ public class DeliveryServiceImpl implements DeliveryService {
                             pacageSumShoudBe = waybill.getPackList().size();
                         }
                     }
-
-                    scanCount = 0;
-                }
-                ++scanCount;//扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
-                diffrenceList.add(diff);//每次循环均加入结果diffrenceList，如中间某单的包裹不齐，会在invoke中将不齐的单子加入diffrenceList 以便最终结算时 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
-            }
-            hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);//遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
-            if (hasDiff > 0) {//hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
-                List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
-                Integer createSiteCode = list.get(0).getCreateSiteCode();
-                Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
-                return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
-            } else {
-                return null;
-            }
+    /**
+     * 只保留不全订单的包裹，因为PDA操作界面太小，只应该看不全订单
+     *
+     * @param list
+     * @return
+     */
+    private final List<SendThreeDetail> computeUsePackage(
+        List<SendDetail> list, boolean isScheduleRequest) {
+      String lastWaybillCode = null;
+      int scanCount = 0;
+      int pacageSumShoudBe = 0;
+      int hasDiff = 0;
+      List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
+      for (SendDetail item : list) { // 遍历该箱的所有包裹
+        // 包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
+        if (isScheduleRequest && hasDiff > 0) {
+          break;
         }
-
-
-        /**
-         * 设置未发货包裹的箱号[便于现场判断哪个已分拣的箱子未发货]！！！！
-         * 1：已分拣包裹的箱号显示分拣箱号
-         * 2：未分拣包裹的箱号显示空
-         *
-         * @param createSiteCode  发货站点
-         * @param receiveSiteCode 收货站点
-         * @param list            差异列表      差异列表
-         * @return
-         */
-        private final List<SendThreeDetail> setSortingBoxCode(Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
-            if (null == list || list.isEmpty())
-                return list;
-            List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
-            for (SendThreeDetail item : list) {
-                if (item.getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
-                    targetList.add(item);
-                } else {
-                    targetList.addAll(getUnSendPackages(createSiteCode, receiveSiteCode, item.getPackageBarcode()));
-                }
+        SendThreeDetail diff = new SendThreeDetail();
+        diff.setBoxCode(item.getBoxCode());
+        diff.setPackageBarcode(item.getPackageBarcode());
+        diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
+        diff.setIsWaybillFull(1);
+        if (!item.getWaybillCode().equals(lastWaybillCode)) { // 初次验单 或 每验完一单货，下一单开始验时 进入分支
+          // 1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
+          // 2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
+          hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
+          lastWaybillCode = item.getWaybillCode(); // 获取当前要验证的运单号
+          pacageSumShoudBe =
+              WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
+          if (pacageSumShoudBe == 0) { // 特殊包裹号，包裹总数位是0时，从运单获取包裹总数
+            com.jd.bluedragon.common.domain.Waybill waybill =
+                waybillCommonService.findWaybillAndPack(lastWaybillCode);
+            if (waybill != null
+                && waybill.getPackList() != null
+                && waybill.getPackList().size() > 0) {
+              pacageSumShoudBe = waybill.getPackList().size();
             }
-            return targetList;
+          }
+
+          scanCount = 0;
         }
+        ++scanCount; // 扫描计数器：1.如包裹全齐 则等于包裹总数量 2.如中间出现不齐的单，则等于不齐的单中已扫描的包裹
+        diffrenceList.add(
+            diff); // 每次循环均加入结果diffrenceList，如中间某单的包裹不齐，会在invoke中将不齐的单子加入diffrenceList 以便最终结算时
+        // 获取该单的包裹（代码中该单无论缺几个，都返回该单的所有包裹）
+      }
+      hasDiff +=
+          invoke(pacageSumShoudBe, scanCount, diffrenceList); // 遍历完成后，对该箱最后一单的未集齐包裹做处理，如最后一单已齐返回 0
+      if (hasDiff > 0) { // hasDiff>0 则未集齐 需移除所有集齐的包裹 只保留未集齐的包裹 并封装list返回pda显示
+        List<SendThreeDetail> targetList = removeFullPackages(diffrenceList);
+        Integer createSiteCode = list.get(0).getCreateSiteCode();
+        Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
+        return setSortingBoxCode(createSiteCode, receiveSiteCode, targetList);
+      } else {
+        return null;
+      }
+    }
 
-        /**
-         * 获取未发货包裹【若已分拣，则箱号显示已分拣箱号，否中央电视台显示空箱号表示未分拣】
-         *
-         * @param createSiteCode  发货站点
-         * @param receiveSiteCode 接收站点
-         * @param packageCode     包裹号
-         * @return
-         */
-        private final List<SendThreeDetail> getUnSendPackages(Integer createSiteCode, Integer receiveSiteCode, String packageCode) {
-            SendDetail sendDatail = new SendDetail();
-            sendDatail.setPackageBarcode(packageCode);
-            sendDatail.setCreateSiteCode(createSiteCode);
-            sendDatail.setReceiveSiteCode(receiveSiteCode);
-            sendDatail.setIsCancel(0);
-            List<SendDetail> resultList = sendDatailDao.querySendDatailsBySelective(sendDatail);
-            List<SendThreeDetail> list = new ArrayList<SendThreeDetail>(1);
-            if (resultList != null && !resultList.isEmpty()) {
-                for (SendDetail rendDatail : resultList) {
-                    SendThreeDetail mSend = new SendThreeDetail();
-                    mSend.setPackageBarcode(packageCode);
-                    mSend.setBoxCode(rendDatail.getBoxCode());
-                    mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
-                    list.add(mSend);
-                }
-            } else {
-                SendThreeDetail mSend = new SendThreeDetail();
-                mSend.setPackageBarcode(packageCode);
-                mSend.setBoxCode("");
-                mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
-                list.add(mSend);
-            }
-            return list;
+    /**
+     * 设置未发货包裹的箱号[便于现场判断哪个已分拣的箱子未发货]！！！！ 1：已分拣包裹的箱号显示分拣箱号 2：未分拣包裹的箱号显示空
+     *
+     * @param createSiteCode 发货站点
+     * @param receiveSiteCode 收货站点
+     * @param list 差异列表 差异列表
+     * @return
+     */
+    private final List<SendThreeDetail> setSortingBoxCode(
+        Integer createSiteCode, Integer receiveSiteCode, List<SendThreeDetail> list) {
+      if (null == list || list.isEmpty()) return list;
+      List<SendThreeDetail> targetList = new ArrayList<SendThreeDetail>(list.size());
+      for (SendThreeDetail item : list) {
+        if (item.getMark().equals(AbstructDiffrenceComputer.HAS_SCANED)) {
+          targetList.add(item);
+        } else {
+          targetList.addAll(
+              getUnSendPackages(createSiteCode, receiveSiteCode, item.getPackageBarcode()));
         }
+      }
+      return targetList;
+    }
 
-        /**
-         * 从列表中去除已完全扫描[一单多件齐全]的包裹（按运单为单）
-         *
-         * @param list
-         * @return
-         */
-        private final List<SendThreeDetail> removeFullPackages(List<SendThreeDetail> list) {
-            if (null != list) {
-                for (int index = 0; index < list.size(); ++index) {/*去除全的包裹*/
-                    if (list.get(index).getIsWaybillFull() > 0) {
-                        list.remove(index--);
-                    }
-                }
-                return list;
-            } else {
-                return null;
-            }
+    /**
+     * 获取未发货包裹【若已分拣，则箱号显示已分拣箱号，否中央电视台显示空箱号表示未分拣】
+     *
+     * @param createSiteCode 发货站点
+     * @param receiveSiteCode 接收站点
+     * @param packageCode 包裹号
+     * @return
+     */
+    private final List<SendThreeDetail> getUnSendPackages(
+        Integer createSiteCode, Integer receiveSiteCode, String packageCode) {
+      SendDetail sendDatail = new SendDetail();
+      sendDatail.setPackageBarcode(packageCode);
+      sendDatail.setCreateSiteCode(createSiteCode);
+      sendDatail.setReceiveSiteCode(receiveSiteCode);
+      sendDatail.setIsCancel(0);
+      List<SendDetail> resultList = sendDatailDao.querySendDatailsBySelective(sendDatail);
+      List<SendThreeDetail> list = new ArrayList<SendThreeDetail>(1);
+      if (resultList != null && !resultList.isEmpty()) {
+        for (SendDetail rendDatail : resultList) {
+          SendThreeDetail mSend = new SendThreeDetail();
+          mSend.setPackageBarcode(packageCode);
+          mSend.setBoxCode(rendDatail.getBoxCode());
+          mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
+          list.add(mSend);
         }
+      } else {
+        SendThreeDetail mSend = new SendThreeDetail();
+        mSend.setPackageBarcode(packageCode);
+        mSend.setBoxCode("");
+        mSend.setMark(AbstructDiffrenceComputer.NO_SCANEd);
+        list.add(mSend);
+      }
+      return list;
+    }
 
-        public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
+    /**
+     * 从列表中去除已完全扫描[一单多件齐全]的包裹（按运单为单）
+     *
+     * @param list
+     * @return
+     */
+    private final List<SendThreeDetail> removeFullPackages(List<SendThreeDetail> list) {
+      if (null != list) {
+        for (int index = 0; index < list.size(); ++index) {
+          /*去除全的包裹*/
+          if (list.get(index).getIsWaybillFull() > 0) {
+            list.remove(index--);
+          }
+        }
+        return list;
+      } else {
+        return null;
+      }
+    }
 
-        public static final String HAS_SCANED = "已扫描";
+    public abstract int invoke(int counter, int scanCount, List<SendThreeDetail> diffrenceList);
 
-        public static final String NO_SCANEd = "未扫描";
+    public static final String HAS_SCANED = "已扫描";
+
+    public static final String NO_SCANEd = "未扫描";
+    /** 查询未扫描 */
+    public static final Integer QUERY_NOSCANED = 1;
+    /** 查询已扫描 */
+    public static final Integer QUERY_HASSCANED = 2;
+    /** 查询所有 */
+    public static final Integer QUERY_ALL = 3;
     }
 
     /**
@@ -4390,28 +4498,56 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult autoPackageSend(SendM domain, boolean isForceSend, UploadData uploadData) {
+    public SendResult autoPackageSend(SendM domain, UploadData uploadData) {
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
             }
 
-            /**
-             * modified at 2018/4/25
-             * 区分分拣机还是龙门架自动发货
-             * 分拣机：使用上传数据的boxSiteCode(分拣计划中维护的)作为分拣目的地，sendSiteCode作为发货目的地
-             * */
-            if (isForceSend) {
-                // 分拣机自动发货
-                return this.sortMachineAutoPackageSend(domain, uploadData);
-            } else {
-                // 龙门架自动发货
-                return this.scannerFrameAutoPackageSend(domain);
-            }
+            /*
+                不在区分分拣机自动发货和龙门架自动发货逻辑，
+                新的抽象方式为: 按原包发货  和  按箱号进行发货
+                原来逻辑:
+                    分拣机 = this.sortMachineAutoPackageSend(domain, uploadData)
+                    龙门架 = this.scannerFrameAutoPackageSend(domain)
+                @TIME 2019-01-22 18:30:06
+             */
+            return this.scannerFrameAutoPackageSend(domain, uploadData);
+
         } catch (Exception e) {
             logger.error("一车一单自动发货异常，sendM：" + JsonHelper.toJson(domain), e);
             return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
         }
+    }
+
+    /**
+     * 龙门架和分拣机共用自动发货逻辑
+     *
+     * @param domain
+     * @return
+     */
+    private SendResult scannerFrameAutoPackageSend(SendM domain, UploadData uploadData) {
+        // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (null != lastSendM) {
+            SendResult result = this.checkIsEffectiveDelivery(domain, lastSendM);
+            if (result != null) {
+                return result;
+            }
+            // 多次发货 若上次发货未封车或封车时间在一小时内则取消上次发货
+            this.autoMultiSendCancelLast(domain, lastSendM);
+        }
+
+        /* 如果是分拣机原包发货的话，需要补上验货任务 */
+        if (uploadData.getSource() != null && uploadData.getSource() == 2) {
+            if (WaybillUtil.isPackageCode(domain.getBoxCode())) {
+                pushInspection(domain,null);
+            }
+        }
+
+        // 发货
+        this.packageSend(domain);
+        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
     }
 
     /**
@@ -4482,9 +4618,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (StringUtils.isNotBlank(getSendedCode(domain))) {
             new SendResult(SendResult.CODE_SENDED, SendResult.MESSAGE_SENDED);
         } else {
-            //插入SEND_M
-//            this.sendMDao.insertSendM(domain);
-            //使用管理接口代替sendMDao
+            /*
+             *  插入SEND_M
+             *  this.sendMDao.insertSendM(domain);
+             *  使用管理接口代替sendMDao
+             */
             this.sendMManager.insertSendM(domain);
         }
 
@@ -4498,6 +4636,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             pushAutoSorting(domain, uploadData.getPackageCode());
             return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         } else {
+            /* 原包发货 */
             pushInspection(domain, null);
             pushSorting(domain);
         }

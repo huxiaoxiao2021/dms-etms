@@ -212,15 +212,19 @@ public class BoxResource {
         CrossBoxResult<String[]> routInfoRes=null;
         try {
             routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(),request.getTransportType());
-            this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
-            if (logger.isInfoEnabled()) {
-                this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(routInfoRes));
-            }
-            if (CrossBoxResult.SUCCESS==routInfoRes.getResultCode() && routInfoRes.getData()!=null && routInfoRes.getData().length==2) {
-                //没超过5个站点，用这个选择模板打印
-                response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
-                //超过5个站点，打印系统直接用他打印
-                response.setRouterText(routInfoRes.getData()[0].replace("--","-"));
+            if(routInfoRes != null){
+                this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
+                if (logger.isInfoEnabled()) {
+                    this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(routInfoRes));
+                }
+                if (CrossBoxResult.SUCCESS==routInfoRes.getResultCode() && routInfoRes.getData()!=null && routInfoRes.getData().length==2) {
+                    //没超过5个站点，用这个选择模板打印
+                    response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
+                    //超过5个站点，打印系统直接用他打印
+                    response.setRouterText(routInfoRes.getData()[0].replace("--","-"));
+                }
+            }else{
+                logger.warn("获得站点路由信息结果为空,参数信息：" + JsonHelper.toJson(request));
             }
         } catch (Exception e) {
             this.logger.error("获得站点路由信息失败： ", e);
@@ -471,7 +475,7 @@ public class BoxResource {
      */
     private Box toBoxWithRouter(BoxRequest request, CrossBoxResult<String[]> crossBoxResult){
         Box box=toBox(request);
-        if (CrossBoxResult.SUCCESS==crossBoxResult.getResultCode() && crossBoxResult.getData()!=null && crossBoxResult.getData().length==2){
+        if (crossBoxResult != null && CrossBoxResult.SUCCESS==crossBoxResult.getResultCode() && crossBoxResult.getData()!=null && crossBoxResult.getData().length==2){
             box.setRouterName(crossBoxResult.getData()[0]);
             box.setRouter(crossBoxResult.getData()[1]);
         }

@@ -78,6 +78,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_SEND_DELIVERY = 1300; // 发货
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
+    public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
 
     /**
      * 整板发货任务
@@ -185,6 +186,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 整板取消发货任务表
      */
     public static final String TABLE_NAME_BOARD_SEND_CANCEL = "task_board_send_cancel";
+
+    /**
+     * 同步青流箱状态
+     */
+    public static final String TABLE_NAME_CYCLE_BOX_STATUS = "task_cycle_box";
 
     /**xumei**/
     public static final String TABLE_NAME_CROSSBOX="task_crossbox";
@@ -560,6 +566,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_BOARD_SEND;
         }else if(Task.TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
             return Task.TABLE_NAME_BOARD_SEND_CANCEL;
+        }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
+            return Task.TABLE_NAME_CYCLE_BOX_STATUS;
         }
         
         return Task.TABLE_NAME_SORTING;
@@ -719,17 +727,24 @@ public class Task implements java.io.Serializable, TaskModeAware{
 		
 		//2.计算任务的灰度 FIXME:是否应从配置文件中得来
 		if(StringUtils.isEmpty(ownSign))
-			ownSign = BusinessHelper.getOwnSign();;
+			ownSign = BusinessHelper.getOwnSign();
 		
 		//3.计算任务的队列号
-		Integer queueId = getFingerprint() != null ? Math.abs(getFingerprint()
-				.hashCode()) % RedisTaskHelper.getQueueNum() : Math.abs(getBody()
-				.hashCode()) % RedisTaskHelper.getQueueNum();
-				
-		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(queueId);
+        int hashCode = 0;
+        if(getFingerprint() != null){
+            hashCode = getFingerprint().hashCode();
+        }else{
+            hashCode = getBody().hashCode();
+        }
+        if(Integer.MIN_VALUE == hashCode){
+            hashCode = Integer.MAX_VALUE;
+        }
+        int theQueueId = Math.abs(hashCode) % RedisTaskHelper.getQueueNum();
+
+		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(theQueueId);
 		
 		//4.设定QueueKeyInfo
-		result = new QueueKeyInfo(taskType, ownSign, queueId, queueKey.toString());
+		result = new QueueKeyInfo(taskType, ownSign, theQueueId, queueKey.toString());
 		
 		return result;
 	}
@@ -866,6 +881,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "BoardDeliveryTask";
         }else if(TASK_TYPE_BOARD_SEND_CANCEL.equals(type)){
             return "BoardDeliveryCancelTask";
+        }else if(TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
+            return "CycleBoxStatusTask";
         }
         //未根据类型获取到相应任务的，按表名处理 ，需要确保此表只有一个task在执行
         if(StringUtils.isNotBlank(tableName)){
@@ -900,10 +917,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
             logger.error("获取任务队列数异常 "+e.getMessage());
         }finally {
             Profiler.registerInfoEnd(info);
-            return queueSize;
         }
-
-
+        return queueSize;
     }
 
     public String allToString() {

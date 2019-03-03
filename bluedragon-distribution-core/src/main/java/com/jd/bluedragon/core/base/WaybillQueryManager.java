@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -10,7 +11,6 @@ import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
@@ -199,4 +199,22 @@ public interface WaybillQueryManager{
 	 * @return 订单号
 	 */
 	String getOrderCodeByWaybillCode(String waybillCode, boolean source);
+
+	/**
+	 * 根据运单号和属性获取运单扩展属性
+	 * @param waybillCodes
+	 * @param properties
+	 * @return
+	 */
+	List<WaybillExtPro> getWaybillExtByProperties(List<String> waybillCodes, List<String> properties);
+
+	/**
+	 * 根据配送中心ID和仓ID查询是否强制换单
+	 *
+	 * @param cky2 配送中心ID
+	 * @param storeId 仓ID
+	 * @return
+	 */
+	Boolean ifForceCheckByWarehouse(Integer cky2, Integer storeId);
+
 }

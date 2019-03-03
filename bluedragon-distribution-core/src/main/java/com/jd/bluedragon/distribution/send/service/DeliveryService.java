@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.api.request.DifferentialQueryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -63,7 +64,7 @@ public interface DeliveryService {
      * @param domain 发货对象
      * @return Map.Entiry<code,message> 改到SendResult
      */
-    SendResult autoPackageSend(SendM domain,boolean isForceSend,UploadData uploadData);
+    SendResult autoPackageSend(SendM domain, UploadData uploadData);
 
     /**
      * 推送发货状态数据至运单系统[写WORKER]
@@ -183,6 +184,9 @@ public interface DeliveryService {
 
 	/** 快运发货不全验证 */
 	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
+
+	/**快运发货差异查询*/
+	public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList,Integer queryType);
 
     /** 快运发货路由信息验证 */
     public DeliveryResponse checkRouterForKY(SendM sendm);

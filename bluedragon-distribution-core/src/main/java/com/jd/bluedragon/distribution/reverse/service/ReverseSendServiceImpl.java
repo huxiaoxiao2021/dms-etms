@@ -1,5 +1,41 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.fastjson.JSON;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -264,7 +300,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             try {
                 bDto = this.baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode());
             } catch (Exception e) {
-                e.printStackTrace();
+                logger.error("查询获取目的地信息失败，siteCode：" + sendM.getReceiveSiteCode(), e);
             }
             if (null != bDto) {
                 siteType = bDto.getSiteType();
@@ -294,7 +330,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 bl = this.sendReverseMessageToSpwms(sendM, baseOrgId, baseStoreId);
             } else {
                 StringBuilder sb = new StringBuilder().append(asm_type).append(",").append(wms_type).append(",").append(spwms_type).append(",");
-                this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteName:" + bDto.getSiteName());
+                this.logger.info("站点类型不在逆向处理范围(" + sb + ")内, 默认处理成功!siteCode:" + sendM.getReceiveSiteCode());
                 bl = true;
             }
             //直接以bl的值做返回值
@@ -892,7 +928,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setKeyword1(wallBillCode);
             sLogDetail.setKeyword2(sendM.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
@@ -985,7 +1025,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             sLogDetail.setKeyword1(wallBillCode);
             sLogDetail.setKeyword2(sendM.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result == null){
+                sLogDetail.setKeyword4(Long.valueOf(Constants.RESULT_ERROR));
+            }else{
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12004));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
@@ -1103,6 +1147,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     List<Product> products = waybill.getProList();
                     if (products == null || products.size() == 0) {
                         this.logger.warn(waybillCode + "||ReverseSendServiceImpl -- > sendReverseMessageToSpwms 获取商品明细为空");
+                        /**
+                         * products在查运单信息时默认给力空对象，这里避免上游逻辑更改，判断为null时赋一个空List，避免报空指针，此处更改不影响后续逻辑
+                         */
+                        if(products == null){
+                            products = new ArrayList<Product>();
+                        }
                     }
                     List<Spare> spares = this.getSpare(baseOrgId,Integer.parseInt(baseStoreId), sendDetail, products);
                     if(spares==null || spares.isEmpty()){

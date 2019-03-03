@@ -270,9 +270,11 @@ public class ExpressCollectionServiceImpl implements ExpressCollectionService {
 
     private List<String> getUnScanPackages(List<Pack> packList, List<String> scanPackageCodes) {
         List<String> unScanPackages = new ArrayList<String>();
-        for (Pack pack : packList) {
-            if (!scanPackageCodes.contains(pack.getPackCode())) {
-                unScanPackages.add(pack.getPackCode());
+        if (null != packList && !packList.isEmpty()) {
+            for (Pack pack : packList) {
+                if (!scanPackageCodes.contains(pack.getPackCode())) {
+                    unScanPackages.add(pack.getPackCode());
+                }
             }
         }
         return unScanPackages;

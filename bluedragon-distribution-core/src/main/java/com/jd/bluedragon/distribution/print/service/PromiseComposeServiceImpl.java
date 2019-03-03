@@ -8,10 +8,8 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -124,16 +122,16 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 orderMarkingRequest.setCountyId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//县
                 orderMarkingRequest.setTownId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//镇
                 orderMarkingRequest.setCurrentDate(new Date());//当前时间
-//                }
+
                 log.debug("调用promise获取外单时效传入参数" +JsonHelper.toJson(orderMarkingRequest));
                 OrderMarkingForeignResponse orderMarkingForeignResponse = orderMarkingService.orderMarkingServiceForForeign(orderMarkingRequest);
                 if (orderMarkingForeignResponse != null && orderMarkingForeignResponse.getResultCode() >= 1) {
                     waybill.setPromiseText(orderMarkingForeignResponse.getPromiseMsg());
                     waybill.setTimeCategory(orderMarkingForeignResponse.getSendpayDesc());
                 } else {
-                    log.warn("调用promise接口获取外单时效失败：" + orderMarkingForeignResponse == null ? "" : orderMarkingForeignResponse.toString());
+                    log.warn("调用promise接口获取外单时效失败：" + JsonHelper.toJson(orderMarkingForeignResponse));
                 }
-                log.debug("调用promise获取外单时效返回数据" + orderMarkingForeignResponse == null ? "" : JsonHelper.toJson(orderMarkingForeignResponse.toString()));
+                log.debug("调用promise获取外单时效返回数据"  + JsonHelper.toJson(orderMarkingForeignResponse));
 
                 //C2C面单预计送达时间从运单获取REQUIRE_TIME
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),29,'8')){

@@ -89,6 +89,15 @@
                         <constructor-arg name="methodName" value="doBoardDeliveryCancel"></constructor-arg>
                     </bean>
                 </entry>
+
+                <!-- 同步青流箱状态 -->
+                <entry key="${jmq.task.topic.cycleBoxStatus.dms}">
+                    <bean class="com.jd.bluedragon.core.jmq.asynBuffer.PostStoredBeanProxyTaskProcessor"
+                          autowire="byType">
+                        <constructor-arg name="target" ref="cycleBoxService"></constructor-arg>
+                        <constructor-arg name="methodName" value="pushCycleBoxStatus"></constructor-arg>
+                    </bean>
+                </entry>
             </map>
         </constructor-arg>
     </bean>

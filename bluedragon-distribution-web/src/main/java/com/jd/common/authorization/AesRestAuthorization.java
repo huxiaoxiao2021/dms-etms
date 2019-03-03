@@ -22,7 +22,10 @@ public class AesRestAuthorization implements RestAuthorization {
         if (StringHelper.isEmpty(key)||StringHelper.isEmpty(token)||StringHelper.isEmpty(requestTime)){
             return false;
         }
-        byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
+        byte[] sourceArr=encrypt(key,RestAuthorization.PASS_WORD_PREFIX);
+        if(sourceArr == null){
+            return false;
+        }
         String middleAuthorization=parseByte2HexStr(sourceArr);
         //byte[] targetArr=encrypt(middleAuthorization,requestTime);
         //String targetAuthorization=parseByte2HexStr(targetArr);
@@ -44,7 +47,10 @@ public class AesRestAuthorization implements RestAuthorization {
         if(StringHelper.isEmpty(key)){
             return null;
         }
-        byte[] sourceArr=encrypt(key,RestAuthorization.PASSWORD_PREFIX);
+        byte[] sourceArr=encrypt(key,RestAuthorization.PASS_WORD_PREFIX);
+        if(sourceArr == null){
+            return null;
+        }
         String middleAuthorization=parseByte2HexStr(sourceArr);
         return middleAuthorization;
     }

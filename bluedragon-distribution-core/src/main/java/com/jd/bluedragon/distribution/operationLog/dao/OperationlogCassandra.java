@@ -161,6 +161,10 @@ public class OperationlogCassandra {
 			if (type.equals("box")){
                 bs = getPreparedsbox().bind(code);
 			}
+			if(bs == null){
+				logger.warn("Cassandra操作日志查询，未知的参数类型：" + type);
+				return list;
+			}
 			bs.setFetchSize(pager.getPageSize());
 			PagingState pagingState = null;
 			ResultSet rs = null;

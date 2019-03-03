@@ -110,7 +110,8 @@ public interface WaybillCommonService {
     /**
      * 通过运单对象，设置基础打印信息
      * <p>设置商家id和name(busiId、busiName)
-     * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
+	 * <p>设置配送方式deliveryMethod
+	 * <p>以始发分拣中心获取始发城市code和名称(originalCityCode、originalCityName)
      * <p>设置寄件人、电话、手机号、地址信息(consigner、consignerTel、consignerMobile、consignerAddress)
      * <p>设置设置价格保护标识和显示值：(priceProtectFlag、priceProtectText)
      * <p>设置打标信息：签单返还、配送类型、运输产品(signBackText、distributTypeText、transportMode)
@@ -167,4 +168,27 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	boolean isPerformanceWaybill(String waybillCode);
+
+	/**
+	 * 	加载面单中的特殊需求字段
+	 * @param printWaybill
+	 * @param waybillSign
+	 */
+	void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign);
+
+	/**
+	 * 	加载始发站点信息
+	 * @param printWaybill
+	 * @param bigWaybillDto
+	 */
+	void loadOriginalDmsInfo(BasePrintWaybill printWaybill, BigWaybillDto bigWaybillDto);
+
+	/**
+	 * B网面单获取路由
+	 * @param printWaybill
+	 * @param originalDmsCode
+	 * @param destinationDmsCode
+	 * @param waybillSign
+	 */
+	void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign);
 }

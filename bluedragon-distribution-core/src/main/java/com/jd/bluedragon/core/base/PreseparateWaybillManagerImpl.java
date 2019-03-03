@@ -1,6 +1,10 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import com.jd.preseparate.vo.external.PreSeparateAddressInfo;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,5 +96,18 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 			Profiler.registerInfoEnd(monitor);
 		}
 		return result;
+	}
+
+	/**
+	 * 根据详细地址获取四级地址
+	 * @param address
+	 * @return
+	 */
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PreseparateWaybillManagerImpl.analysisAddress", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public AnalysisAddressResult analysisAddress(String address){
+		PreSeparateAddressInfo addressInfo = new PreSeparateAddressInfo();
+		addressInfo.setFullAddress(address);
+		addressInfo.setSysCode(Constants.SYSTEM_CODE_WEB);
+		return preseparateOrderService.analysisAddress(addressInfo);
 	}
 }

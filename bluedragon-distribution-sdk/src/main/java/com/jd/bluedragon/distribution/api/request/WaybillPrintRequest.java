@@ -33,7 +33,7 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Integer dmsSiteCode;
 	/**
-	 * 扫描条码
+	 * 包裹号/运单号
 	 */
 	private String barCode;
 	/**
@@ -43,7 +43,7 @@ public class WaybillPrintRequest extends JdRequest{
 	/**
 	 * 无纸化标识
 	 */
-	private Boolean nopaperFlg = false;
+	private Boolean nopaperFlg;
 	/**
 	 * 信任商家标识
 	 * */
@@ -65,6 +65,13 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 包裹称重信息
 	 */
 	private WeightOperFlow weightOperFlow;
+
+
+	/** 包裹标签模板名称 **/
+	private String templateName;
+
+	/** 包裹标签模板版本 **/
+	private Integer templateVersion;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -199,4 +206,21 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setWeightOperFlow(WeightOperFlow weightOperFlow) {
 		this.weightOperFlow = weightOperFlow;
 	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	public Integer getTemplateVersion() {
+		return templateVersion;
+	}
+
+	public void setTemplateVersion(Integer templateVersion) {
+		this.templateVersion = templateVersion;
+	}
+
 }

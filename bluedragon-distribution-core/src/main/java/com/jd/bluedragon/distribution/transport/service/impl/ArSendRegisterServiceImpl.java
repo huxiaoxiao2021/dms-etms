@@ -232,6 +232,9 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
         String[] sendCodeArray = null;
         if (StringUtils.isNotEmpty(sendCodeStr)) {
             sendCodeArray = sendCodeStr.split(separator);
+        }else{
+            //没有数据不用处理
+            return true;
         }
         return this.insert(arSendRegister, sendCodeArray);
     }
@@ -498,11 +501,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             for (ArPdaSendRegister pdaSendRegister : registerList) {
                 try {
                     ArSendRegister register = this.toDBDomain(pdaSendRegister);
-                    if (register != null) {
-                        this.insert(register, COMMA);
-                    } else {
-                        return false;
-                    }
+                    this.insert(register, COMMA);
                 } catch (Exception e) {
                     logger.error("[空铁发货登记]执行离线发货登记新增任务时发生异常", e);
                     return false;
