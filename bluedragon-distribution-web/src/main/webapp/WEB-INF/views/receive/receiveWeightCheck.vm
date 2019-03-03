@@ -10,7 +10,9 @@
     <script src="/static/js/receive/receiveWeightCheck.js"></script>
 </head>
 <body>
-<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
+<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+<div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
             <li class="active">揽收重量校验统计</li>
@@ -44,9 +46,9 @@
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="box-code-input">是否超标 ：</label>
                                     <div class="col-xs-6 ">
-                                        <select type="text" class="form-control" id="isExcess" name="isExcess">
-                                            <option value="2" selected >全部</option>
-                                            <option value="1">是</option>
+                                        <select type="text" class="form-control search-param" id="isExcess" name="isExcess">
+                                            <option value="2">全部</option>
+                                            <option value="1" selected>是</option>
                                             <option value="0">否</option>
                                         </select>
                                     </div>
@@ -88,6 +90,7 @@
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
             </button>
         </div>
+        <table id="dataTable"></table>
 </div>
 </body>
 </html>

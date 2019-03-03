@@ -8,7 +8,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -21,6 +26,7 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -30,6 +36,8 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
+import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
@@ -54,10 +62,12 @@ import com.jd.bluedragon.utils.LableType;
 import com.jd.bluedragon.utils.OriginalType;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
@@ -96,6 +106,11 @@ import java.util.Set;
 public class WaybillResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
+
+    /**
+     * 揽收完成状态
+     * */
+    private static final String RECEIVE_STATE = "-640";
 
     @Autowired
 	private WaybillCommonService waybillCommonService;
@@ -143,6 +158,15 @@ public class WaybillResource {
 	@Autowired
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
+
+    @Autowired
+    private BaseService baseService;
+
+    @Autowired
+    private WaybillTraceApi waybillTraceApi;
+
+    @Autowired
+    private ReceiveWeightCheckService receiveWeightCheckService;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -1842,37 +1866,49 @@ public class WaybillResource {
 		return result;
 	}
 
-	/**
-	 * 包裹称重 提示警告信息
-	 *
-	 *
-	 * @param packWeightVO
-	 *
-	 * @return
-	 */
-	@POST
-	@Path("/package/weight/warn/check")
-	public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
-		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-		try{
-			//上传信息
-			double upWeight = packWeightVO.getWeight();
-			double upLength = packWeightVO.getLength();
-			double upWidth = packWeightVO.getWidth();
-			double upHigh = packWeightVO.getHigh();
-			double upVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?upLength*upWidth*upHigh : packWeightVO.getVolume();
 
-			//揽收信息
-			double weight = 0;
-			double volume = 0;
-			InvokeResult<PackWeightVO> weightResult = findPackageWeight("1",packWeightVO.getCodeStr());
-
-			if(weightResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-				weight = weightResult.getData().getWeight();
-				volume = weightResult.getData().getVolume();
-			}
-
-
+    /**
+     * 包裹称重 提示警告信息
+     *
+     *
+     * @param packWeightVO
+     *
+     * @return
+     */
+    @POST
+    @Path("/package/weight/warn/check")
+    public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        //组装数据
+        ReceiveWeightCheckResult receiveWeightCheckResult = new ReceiveWeightCheckResult();
+        assemble(packWeightVO, receiveWeightCheckResult);
+        try{
+            //上传信息
+            double upLength = packWeightVO.getLength();
+            double upWidth = packWeightVO.getWidth();
+            double upHigh = packWeightVO.getHigh();
+            double upWeight = packWeightVO.getWeight();
+            double upVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?upLength*upWidth*upHigh : packWeightVO.getVolume();
+            receiveWeightCheckResult.setReviewLwh(upLength+"*"+upWidth+"*"+upHigh); //复核长宽高cm
+            receiveWeightCheckResult.setReviewWeight(upWeight); //分拣复重kg
+            receiveWeightCheckResult.setReviewVolume(upVolume); //复核体积cm³
+            //揽收信息
+            double length = 0;
+            double width = 0;
+            double high = 0;
+            double weight = 0;
+            double volume = 0;
+            InvokeResult<PackWeightVO> weightResult = findPackageWeight("1",packWeightVO.getCodeStr());
+            if(weightResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+                length = weightResult.getData().getLength();
+                width = weightResult.getData().getWidth();
+                high = weightResult.getData().getHigh();
+                weight = weightResult.getData().getWeight();
+                volume = weightResult.getData().getVolume();
+                receiveWeightCheckResult.setReceiveLwh(length+"*"+width+"*"+high); //揽收长宽高cm
+                receiveWeightCheckResult.setReceiveWeight(weight); //揽收重量kg
+                receiveWeightCheckResult.setReceiveVolume(volume); //揽收体积cm³
+            }
 			/*
 			* 对比项1	             对比项2	                      			对比标准
 			分拣称重重量kg	          揽收重量kg	    1. 本次分拣称重重量小于等于5kg，对比项1减对比项2，正负误差值小于等于0.3 kg为正常，大于0.3kg为异常，弹框提示语1。
@@ -1889,51 +1925,98 @@ public class WaybillResource {
 
 			*
 			* */
+            if(weight == 0){
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setData(false);
+                result.setMessage("揽收重量为0或空，无法进行校验");
+            }else{
+                if((upWeight <= 5 && Math.abs(upWeight-weight)> 0.3) || (upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5)
+                        || (upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1)
+                        || (upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02)){
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setData(false);
+                    result.setMessage("此次操作重量为"+upWeight+"kg,揽收重量为"+weight+"kg，"
+                            +"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : weight * 0.02)+"kg！");
+                    receiveWeightCheckResult.setWeightDiff(Math.abs(upWeight-weight)); //重量差异
+                    receiveWeightCheckResult.setIsExcess(1); //是否超标
+                    if(upWeight <= 5 && Math.abs(upWeight-weight)> 0.3){
+                        receiveWeightCheckResult.setDiffStandard("0.3"); //误差标准值
+                    }else if(upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5){
+                        receiveWeightCheckResult.setDiffStandard("0.5"); //误差标准值
+                    }else if(upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1){
+                        receiveWeightCheckResult.setDiffStandard("1"); //误差标准值
+                    }else if(upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02){
+                        receiveWeightCheckResult.setDiffStandard("2%"); //误差标准值
+                    }
+                }
+            }
+            if(volume == 0){
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setData(false);
+                result.setMessage("揽收体积为0或空，无法进行校验");
+            }else{
+                if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000> 0.3)
+                        || (upVolume/8000 > 5 && upVolume/8000 <= 20  && Math.abs(upVolume-volume)/8000 > 0.5)
+                        || (upVolume/8000 > 20 && upVolume/8000 <= 50  && Math.abs(upVolume-volume)/8000 > 1)
+                        || (upVolume/8000 > 50 && Math.abs(upVolume-volume)/8000 > volume*0.02/8000)){
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setData(false);
+                    String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", upVolume/8000)+"kg,揽收体积重量（体积除以8000）为"+String.format("%.6f", volume/8000)+"kg，"
 
-			if(weight == 0){
-				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-				result.setData(false);
-				result.setMessage("揽收重量为0或空，无法进行校验");
-			}else{
-				if((upWeight <= 5 && Math.abs(upWeight-weight)> 0.3) || (upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5)
-						|| (upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1)
-						|| (upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02)){
-					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-					result.setData(false);
-					result.setMessage("此次操作重量为"+upWeight+"kg,揽收重量为"+weight+"kg，"
-							+"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : weight * 0.02)+"kg！");
-				}
-			}
+                            +"经校验误差值"+Math.abs(upVolume-volume)/8000+"kg已超出规定"+ (upVolume/8000 <=5 ? "0.3":upVolume/8000<=20 ? "0.5":upVolume/8000<=50 ? "1" : volume/8000 * 0.02)+"kg！";
+                    if(!StringUtils.isBlank(result.getMessage())){
+                        message = result.getMessage()+"\r\n"+message;
+                    }
+                    result.setMessage(message);
+                    receiveWeightCheckResult.setIsExcess(1); //是否超标
+                    receiveWeightCheckResult.setVolumeWeightDiff(Math.abs(upVolume/8000-volume/8000)); //体积重量差异
+                }
+            }
+        }catch (Exception e){
+            logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+		receiveWeightCheckService.insert(receiveWeightCheckResult);
+        return result;
+    }
 
-			if(volume == 0){
-				result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-				result.setData(false);
-				result.setMessage("揽收体积为0或空，无法进行校验");
-			}else{
-				if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000> 0.3)
-						|| (upVolume/8000 > 5 && upVolume/8000 <= 20  && Math.abs(upVolume-volume)/8000 > 0.5)
-						|| (upVolume/8000 > 20 && upVolume/8000 <= 50  && Math.abs(upVolume-volume)/8000 > 1)
-						|| (upVolume/8000 > 50 && Math.abs(upVolume-volume)/8000 > volume*0.02/8000)){
-					result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-					result.setData(false);
-					String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", upVolume/8000)+"kg,揽收体积重量（体积除以8000）为"+String.format("%.6f", volume/8000)+"kg，"
+    /**
+     * 组装落库数据（揽收重量体积实体）
+     * @param packWeightVO
+     * @param receiveWeightCheckResult
+     */
+    private void assemble(PackWeightVO packWeightVO, ReceiveWeightCheckResult receiveWeightCheckResult) {
+        receiveWeightCheckResult.setReviewDate(new Date()); //复核日期
+        receiveWeightCheckResult.setPackageCode(packWeightVO.getCodeStr()); //包裹号
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()),
+                true, false, false, false);
+        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+            receiveWeightCheckResult.setBusiName(baseEntity.getData().getWaybill().getBusiName()); //商家名称
+        }
+        receiveWeightCheckResult.setReviewOrg(packWeightVO.getOrganizationName()); //复核区域
+        receiveWeightCheckResult.setReviewCreateSiteCode(packWeightVO.getOperatorSiteCode());
+        receiveWeightCheckResult.setReviewCreateSiteName(packWeightVO.getOperatorSiteName()); //复核分拣
+        receiveWeightCheckResult.setReviewErp(packWeightVO.getErpCode()); //复核人erp
+        BaseEntity<List<PackageStateDto>> entity = waybillTraceApi.getPkStateDtoByWCodeAndState(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()), RECEIVE_STATE);
+        if(entity != null && entity.getData() != null && entity.getData().size() > 0){
+            PackageStateDto packageStateDto = entity.getData().get(0);
+            //揽收站点
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(packageStateDto.getOperatorSiteId().toString());
+            if(baseStaffSiteOrgDto != null && StringUtils.isNotBlank(baseStaffSiteOrgDto.getOrgName())){
+                receiveWeightCheckResult.setReceiveOrg(baseStaffSiteOrgDto.getOrgName()); //揽收区域
+            }
+            receiveWeightCheckResult.setReceiveDepartment(packageStateDto.getOperatorSite()); //揽收营业部
+            //操作人id
+            BaseStaffSiteOrgDto siteBaseDto = baseService.getBaseStaffByStaffId(packageStateDto.getOperatorUserId());
+            if(siteBaseDto != null && StringUtils.isNotBlank(siteBaseDto.getErp())){
+                receiveWeightCheckResult.setReceiveErp(siteBaseDto.getErp()); //揽收人erp
+            }
+        }
+		receiveWeightCheckResult.setIsExcess(0); //是否超标
+    }
 
-							+"经校验误差值"+Math.abs(upVolume-volume)/8000+"kg已超出规定"+ (upVolume/8000 <=5 ? "0.3":upVolume/8000<=20 ? "0.5":upVolume/8000<=50 ? "1" : volume/8000 * 0.02)+"kg！";
-					if(!StringUtils.isBlank(result.getMessage())){
-						message = result.getMessage()+"\r\n"+message;
-					}
-					result.setMessage(message);
-				}
-			}
-		}catch (Exception e){
-			logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
-			result.setCode(InvokeResult.SERVER_ERROR_CODE);
-			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-		}
-		return result;
-	}
-
-	/**
+    /**
 	 * 判断运单是否存在是否妥投
 	 * @param barCode
 	 * @return
