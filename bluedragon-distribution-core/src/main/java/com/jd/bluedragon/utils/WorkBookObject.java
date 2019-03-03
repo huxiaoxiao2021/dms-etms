@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.popAbnormal.domain.PopAbnormal;
+import com.jd.bluedragon.distribution.popAbnormal.domain.PopReceiveAbnormal;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -125,7 +127,7 @@ public class WorkBookObject {
 						if (obj != null) {
 							if (obj instanceof Integer) {
 								// 增加类特殊属性处理：PopAbnormal
-								if ("PopAbnormal".equals(T.getSimpleName())) {
+								if (PopAbnormal.class.equals(T.getClass())) {
 									String thisCellValue = "";
 									if ("abnormalState".equals(tAttrs[i])) {
 										if ((Integer) obj == 1) {
@@ -143,7 +145,7 @@ public class WorkBookObject {
 										cell.setCellValue(thisCellValue);
 										continue;
 									}
-								} else if ("PopReceiveAbnormal".equals(T.getSimpleName())) {
+								} else if (PopReceiveAbnormal.class.equals(T.getClass())) {
 									String thisCellValue = "";
 									if ("abnormalStatus".equals(tAttrs[i])) {
 										if ((Integer) obj == 1) {

@@ -72,18 +72,20 @@ public class SignReturnServiceImpl implements SignReturnService {
             title = "签单返回合单打印交接单-" + nowdate + ".xls";
             //第一个sheet页签单返回交接单信息
             List<Object[]> dataList = new ArrayList<Object[]>();
-            Object[] objs = null;
-            for(SignReturnPrintM signReturnPrintM : list){
-                objs = new Object[headers.length];
-                objs[0] = signReturnPrintM.getNewWaybillCode();
-                objs[1] = signReturnPrintM.getBusiId();
-                objs[2] = signReturnPrintM.getBusiName();
-                objs[3] = signReturnPrintM.getReturnCycle();
-                objs[4] = DateHelper.formatDate(signReturnPrintM.getOperateTime());
-                objs[5] = signReturnPrintM.getCreateSiteName();
-                objs[6] = signReturnPrintM.getOperateUser();
-                objs[7] = signReturnPrintM.getMergeCount();
-                dataList.add(objs);
+            if(list != null){
+                Object[] objs = null;
+                for(SignReturnPrintM signReturnPrintM : list){
+                    objs = new Object[headers.length];
+                    objs[0] = signReturnPrintM.getNewWaybillCode();
+                    objs[1] = signReturnPrintM.getBusiId();
+                    objs[2] = signReturnPrintM.getBusiName();
+                    objs[3] = signReturnPrintM.getReturnCycle();
+                    objs[4] = DateHelper.formatDate(signReturnPrintM.getOperateTime());
+                    objs[5] = signReturnPrintM.getCreateSiteName();
+                    objs[6] = signReturnPrintM.getOperateUser();
+                    objs[7] = signReturnPrintM.getMergeCount();
+                    dataList.add(objs);
+                }
             }
             //第二个sheet页签单返回交接单运单明细
             List<Object[]> dataListDetail = new ArrayList<Object[]>();

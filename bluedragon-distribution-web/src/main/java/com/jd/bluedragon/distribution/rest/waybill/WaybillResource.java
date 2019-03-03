@@ -600,29 +600,24 @@ public class WaybillResource {
 				return;
 			}
 
-			if (response != null) {
-				waybill.setCrossCode(String.valueOf(labelPrinting
-						.getOriginalCrossCode()));
-				waybill.setTrolleyCode(String.valueOf(labelPrinting
-						.getOriginalTabletrolley()));
-				waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
-				waybill.setTargetDmsName(String.valueOf(labelPrinting
-						.getPurposefulDmsName()));
-				waybill.setTargetDmsDkh(String.valueOf(labelPrinting
-						.getPurposefulCrossCode()));
-				waybill.setTargetDmsLch(String.valueOf(labelPrinting
-						.getPurposefulTableTrolley()));
-				waybill.setAddress(labelPrinting.getOrderAddress());
-				waybill.setJsonData(response.getJsonData());
-				waybill.setRoad(labelPrinting.getRoad());
+			waybill.setCrossCode(String.valueOf(labelPrinting
+					.getOriginalCrossCode()));
+			waybill.setTrolleyCode(String.valueOf(labelPrinting
+					.getOriginalTabletrolley()));
+			waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
+			waybill.setTargetDmsName(String.valueOf(labelPrinting
+					.getPurposefulDmsName()));
+			waybill.setTargetDmsDkh(String.valueOf(labelPrinting
+					.getPurposefulCrossCode()));
+			waybill.setTargetDmsLch(String.valueOf(labelPrinting
+					.getPurposefulTableTrolley()));
+			waybill.setAddress(labelPrinting.getOrderAddress());
+			waybill.setJsonData(response.getJsonData());
+			waybill.setRoad(labelPrinting.getRoad());
 
-				if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
-					this.logger.error("根据运单号【" + waybill.getWaybillCode()
-							+ "】 获取预分拣的包裹打印路区信息为空");
-				}
-			} else {
+			if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
 				this.logger.error("根据运单号【" + waybill.getWaybillCode()
-						+ "】 获取预分拣的包裹打印信息为空");
+						+ "】 获取预分拣的包裹打印路区信息为空");
 			}
 		} catch (Exception e) {
 			this.logger.error("根据运单号【" + waybill.getWaybillCode()
@@ -837,9 +832,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/fbackwaybill/{fbackwaybillcode}")
-    public InvokeResult<Waybill> getFBackWaybill(
-            @PathParam("fbackwaybillcode") String fwaybillcode
-    ){
+    public InvokeResult<Waybill> getFBackWaybill(@PathParam("fbackwaybillcode") String fwaybillcode){
         this.logger.info("获取F返单商家信息"+fwaybillcode);
         InvokeResult<Waybill> result=new InvokeResult<Waybill>();
         Waybill waybill =null;
@@ -853,9 +846,7 @@ public class WaybillResource {
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
-        finally {
-            return result;
-        }
+		return result;
     }
 
     /**
@@ -980,7 +971,7 @@ public class WaybillResource {
 			jdResponse.setMessage(JdResponse.MESSAGE_OK);
 			jdResponse.setCode(JdResponse.CODE_OK);
 		}catch (Exception ex) {
-			logger.error(request.getSiteCode() + "站点标签打印" + request.getKeyword2(), ex);
+			logger.error("站点标签打印失败,参数:" + JsonHelper.toJson(request), ex);
 			return new TaskResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -1540,12 +1531,8 @@ public class WaybillResource {
 					+createSiteCode+" isTotal:"+isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 
@@ -1589,12 +1576,8 @@ public class WaybillResource {
 					+createSiteCode+" isTotal:"+isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 	/**
@@ -1626,12 +1609,8 @@ public class WaybillResource {
 			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 
@@ -1665,11 +1644,8 @@ public class WaybillResource {
 			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
+        return invokeResult;
 	}
 
 	/**
