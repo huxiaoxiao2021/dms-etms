@@ -1,5 +1,18 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -25,17 +38,6 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 @Service("siteService")
@@ -247,7 +249,7 @@ public class SiteServiceImpl implements SiteService {
     @Cache(key = "SiteServiceImpl.getBjDmsSiteCodes", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     @Override
     public Set<Integer> getBjDmsSiteCodes() {
-        Set<Integer> bjDmsSiteCodes = new TreeSet<Integer>();
+        Set<Integer> bjDmsSiteCodes = new HashSet<Integer>();
         List<SysConfig> bjDmsSiteConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_NAME_BJ_DMS_SITE_CODES);
         if (bjDmsSiteConfigs != null && !bjDmsSiteConfigs.isEmpty()) {
             String contents = bjDmsSiteConfigs.get(0).getConfigContent();
