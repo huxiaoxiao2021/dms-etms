@@ -4886,10 +4886,18 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
 
             for(SendThreeDetail std :tDeliveryResponse){
+                //此sendD是拼装的 箱子里其他拼装出来的未扫描数据中没有箱号字段
+                if(StringUtils.isBlank(std.getBoxCode()) || BusinessUtil.isBoxcode(std.getBoxCode())){
+                    continue;
+                }
                 partWaybills.add(WaybillUtil.getWaybillCode(std.getPackageBarcode()));
             }
 
             for(SendDetail sd :allList){
+                //跳过装箱数据
+                if(StringUtils.isNotBlank(sd.getBoxCode()) && BusinessUtil.isBoxcode(sd.getBoxCode())){
+                    continue;
+                }
                 String waybillCode = WaybillUtil.getWaybillCode(sd.getPackageBarcode());
                 if(waybills.containsKey(waybillCode)){
                     waybills.get(waybillCode).add(sd.getPackageBarcode());
