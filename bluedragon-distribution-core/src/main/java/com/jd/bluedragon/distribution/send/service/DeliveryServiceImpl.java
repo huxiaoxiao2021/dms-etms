@@ -4888,10 +4888,7 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             for(SendThreeDetail std :tDeliveryResponse){
                 //此sendD是拼装的 箱子里其他拼装出来的未扫描数据中没有箱号字段
-                if(BusinessUtil.isBoxcode(std.getBoxCode())){
-                    needRemoveBox.add(std.getBoxCode());
-                    continue;
-                }else if(StringUtils.isBlank(std.getBoxCode())){
+                if(StringUtils.isBlank(std.getBoxCode()) || BusinessUtil.isBoxcode(std.getBoxCode())){
                     continue;
                 }
                 partWaybills.add(WaybillUtil.getWaybillCode(std.getPackageBarcode()));
@@ -4900,6 +4897,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             for(SendDetail sd :allList){
                 //跳过装箱数据
                 if(StringUtils.isNotBlank(sd.getBoxCode()) && BusinessUtil.isBoxcode(sd.getBoxCode())){
+                    needRemoveBox.add(sd.getBoxCode());
                     continue;
                 }
                 String waybillCode = WaybillUtil.getWaybillCode(sd.getPackageBarcode());
@@ -4945,15 +4943,16 @@ public class DeliveryServiceImpl implements DeliveryService {
                     }
                 }
 
-                //如果存在箱子中有未集齐的数据 还要追加剔除箱子
-                if(!needRemoveBox.isEmpty()){
-                    needRemoveWaybill.addAll(needRemoveBox);
-                }
                 //如果全部未可半退的需要给出提示 该批次号对应运单均为半退至仓，确认发货？
-
                 if(needRemoveWaybill.isEmpty()){
-                    response.setCode(DeliveryResponse.CODE_Delivery_PART_SEND);
-                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_PART_SEND);
+                    //如果存在箱子数据 还要追加剔除箱子
+                    if(needRemoveBox.isEmpty()){
+                        response.setCode(DeliveryResponse.CODE_Delivery_PART_SEND);
+                        response.setMessage(DeliveryResponse.MESSAGE_Delivery_PART_SEND);
+                    }else{
+                        needRemoveWaybill.addAll(needRemoveBox);
+                    }
+
                 }
 
             }
