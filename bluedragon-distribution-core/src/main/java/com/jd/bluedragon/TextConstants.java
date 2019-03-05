@@ -87,7 +87,7 @@ public class TextConstants {
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
      * 此时，waybill_sign第80位等于2时，面单打标“特准运”
      */
-    public static final String B2B_TIMELY_TRANSPORT ="特准运";
+    public static final String B2B_TIMELY_TRANSPORT ="【特准运】";
     /**
      * 京准达快递到车
      */
