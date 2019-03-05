@@ -218,14 +218,15 @@ $(function() {
 					alert("请输入运单号");
 				}
                 var url = "/storage/storagePackageM/refreshSendStatus/"+waybillCode;
-                $.get(url,function(data){
+                $.post(url,function(data){
                 	if(data.data){
                         alert("同步成功!");
 					}else{
                         alert(data.message);
 					}
-
-                });
+                    $("#sendStatusModalWaybillCode").val("");
+                	$("#btn_query").click();
+                },"json");
 
                 return false;
             });
@@ -236,9 +237,11 @@ $(function() {
                 if(waybillCode == null || waybillCode == "") {
                 	alert("运单号必须输入");
 				}
+
+                $("#queryWaybillModalTbody").html("");
                 //查询履约单下运单信息
                 var url = "/storage/storagePackageM/queryWaybills/"+waybillCode;
-				$.get(url,function(data){
+				$.post(url,function(data){
 					if(data.code == 200){
 						if(data.data==null || data.data.length == 0){
 							alert("未获取到相应数据");
@@ -256,7 +259,7 @@ $(function() {
 						alert(data.message);
 					}
 
-				});
+				},"json");
 
                 return false;
             });
