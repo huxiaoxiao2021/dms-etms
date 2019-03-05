@@ -1,46 +1,11 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.annotation.Resource;
-
-import com.jd.bluedragon.distribution.reverse.domain.*;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.fastjson.JSON;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
+import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
@@ -51,6 +16,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
+import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSend;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
@@ -200,6 +166,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private InboundOrderService inboundOrderService;
+
+    @Autowired
+    @Qualifier("obcsManager")
+    private OBCSManager obcsManager;
 
     // 自营
     public static final Integer businessTypeONE = 10;
@@ -1104,6 +1074,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }else {
                     logger.error("分离逆向退备件库运单集合时出现异常数据" + sd.getWaybillCode() + "|" + sd.getSendCode());
                 }
+            }else if(waybill!=null && checkIsPureMatch(sd.getWaybillCode())){
+                //纯配外单一次换单(eclp订单)
+                eclpSendDetails.add(sd);
             }else{
                 nomarlSendDetails.add(sd);
             }
@@ -1114,7 +1087,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }
         sendDetails = nomarlSendDetails;//非维修外单集合        
         pushMCSMessageToSpwms(vySendDetails);//维修外单发送
-        pushECLPMessageToSpwms(eclpSendDetails);//ECLP
+//        pushECLPMessageToSpwms(eclpSendDetails);//ECLP
         //退备件库给ECLP发消息改成jsf接口的形式
         pushInboundOrderToSpwms(eclpSendDetails);
 
@@ -1387,6 +1360,29 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             reverseSpares.add(aReverseSpare);
         }
         return reverseSpares;
+    }
+
+    /**
+     * 判断纯配外单是否退备件库(一次换单)
+     * @param waybillCode
+     * @return
+     */
+    private boolean checkIsPureMatch(String waybillCode) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if(oldWaybill != null && oldWaybill.getData() != null &&
+                StringUtils.isNotEmpty(oldWaybill.getData().getWaybillSign()) &&
+                StringUtils.isNotEmpty(oldWaybill.getData().getWaybillCode())){
+            String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+            String waybillSign = oldWaybill.getData().getWaybillSign();
+            if(BusinessUtil.isPurematch(waybillSign)){
+                LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,oldWaybillCode);
+                if(claimInfoRespDTO != null && LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc()) &&
+                        claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private SendDetail paramSendDetail(SendM sendM) {
@@ -1804,7 +1800,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
                     continue;
                 }
-                OrderResponse response = inboundOrderService.createInboundOrder(inboundOrder);
+                OrderResponse orderResponse = inboundOrderService.createInboundOrder(inboundOrder);
+                if(orderResponse != null && orderResponse.getResCode() != 200){
+                    this.logger.error("ECLP退备件库失败,原因：" + orderResponse.getMessage());
+                }
                 doneWaybill.add(waybillCode);
             }
 

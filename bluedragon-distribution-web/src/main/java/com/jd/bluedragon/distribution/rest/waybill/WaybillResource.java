@@ -1972,40 +1972,9 @@ public class WaybillResource {
 	}
 
 	/**
-	 * 纯配外单换单校验
-	 * @param waybillCode
-	 * @return
-	 */
-	@GET
-	@Path("/waybill/CheckIsPureMatch/{waybillCode}")
-	public InvokeResult<Boolean> CheckIsPureMatch(@PathParam("waybillCode") String waybillCode) {
-		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-		result.setData(false);
-		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
-				true,false, false, false);
-		String waybillSign = null;
-		if(baseEntity != null && baseEntity.getData() != null &&
-				baseEntity.getData().getWaybill() !=null &&
-				StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
-			waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
-			//纯配外单且理赔完成且物权归京东-退备件库
-			if(BusinessUtil.isPurematch(waybillSign)){
-				TwiceExchangeCheckDto twiceExchangeCheckDto = new TwiceExchangeCheckDto();
-				LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
-				if(claimInfoRespDTO != null && LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(twiceExchangeCheckDto.getStatusOfLP()) &&
-						claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
-					result.setData(true);
-				}
-			}
-		}
-		return result;
-	}
-
-	/**
 	 * 判断仓配/纯配订单
-     * 0:非法运单号 1：纯配运单 2：仓配运单 3：既不是纯配也不是仓配 4：运单数据为空
+     * 0：运单号为空 1：纯配运单 2：仓配运单 3：既不是纯配也不是仓配
+	 * 4：运单数据为空 5.服务异常
 	 * @param waybillCode
 	 * @return
 	 */
@@ -2013,34 +1982,41 @@ public class WaybillResource {
 	@Path("/waybill/checkIsPureMatchOrWarehouse/{waybillCode}")
 	public InvokeResult<Integer> checkIsPureMatchOrWarehouse(@PathParam("waybillCode") String waybillCode){
 		InvokeResult<Integer> result = new InvokeResult<Integer>();
-		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-		result.setData(3);//既不是纯配也不是仓配
 		if(StringUtils.isBlank(waybillCode)){
-			result.setData(0);
 			this.logger.error("运单号不能为空!");
+			result.setData(0);
+			result.setMessage("运单号不能为空!");
 			return result;
 		}
-        BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
-		if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null &&
-                StringUtils.isNotBlank(bigWaybillDto.getWaybill().getBusiOrderCode()) &&
-                StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
-		    String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
-            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-            //纯配外单
-            if(BusinessUtil.isPurematch(waybillSign)){
-                result.setData(1);
-                return result;
-            }
-            //仓配订单
-            if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
-                result.setData(2);
-                return result;
-            }
-        }else{
-		    this.logger.error("通过运单号查询运单为空!");
-            result.setData(4);
-        }
+		try{
+			BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+			if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null &&
+					StringUtils.isNotBlank(bigWaybillDto.getWaybill().getBusiOrderCode()) &&
+					StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
+				String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
+				String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+				if(BusinessUtil.isPurematch(waybillSign)){
+					//纯配外单
+					result.setData(1);
+					return result;
+				}else if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
+					//仓配订单
+					result.setData(2);
+					return result;
+				}else{
+					result.setData(3);//既不是纯配也不是仓配
+				}
+			}else{
+				this.logger.error("通过运单号查询运单为空!");
+				result.setMessage("运单号："+waybillCode+"数据为空!");
+				result.setData(4);
+			}
+		}catch (Exception e){
+			this.logger.error("通过运单号："+waybillCode+"查询运单信息失败!");
+			result.setMessage("服务异常!");
+			result.setData(5);
+		}
         return result;
     }
 }

@@ -218,7 +218,6 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     goodsInfoItem.setGoodsNo(goods.getGoodId().toString());
                     goodsInfoItem.setGoodsName(goods.getGoodName());
                     goodsInfoItem.setNum(goods.getGoodCount());
-                    goodsInfoItem.setBatchNo(sendDetail.getSendCode());
                     list.add(goodsInfoItem);
                 }
             }else {
@@ -235,7 +234,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     eclpBusiOrderCode = oldWaybill1.getData().getBusiOrderCode();
                     BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV1);
                     //仓配和纯配二次换单一样
-                    if (oldWaybill2 != null && oldWaybill2.getData() != null && oldWaybill2.getData().getBusiOrderCode() != null) {
+                    if (oldWaybill2 != null && oldWaybill2.getData() != null && StringUtils.isNotEmpty(oldWaybill2.getData().getBusiOrderCode())) {
                         oldWaybillCodeV2 = oldWaybill2.getData().getWaybillCode();
                         LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV2);
                         if (claimInfoRespDTO != null) {
@@ -247,24 +246,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             return null;
                         }
                     }
-                    if (WaybillUtil.isPureMatchECLP(waybill.getWaybillSign(), oldWaybill1.getData().getBusiOrderCode())) {
-                        //纯配
-                        if (oldWaybillCodeV2 == null) {
-                            //一次换单
-                            LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1);
-                            if (claimInfoRespDTO != null) {
-                                inboundOrder.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney().toString());
-                                inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
-                                inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
-                            } else {
-                                logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常" + waybillCode + "|" + sendDetail.getSendCode());
-                                return null;
-                            }
-                        }
-                        //目的事业部ID (仓配无纯配有 结算主体有了就不需要了)
-                        //目的事业部编号 (仓配无纯配有)
-                        //目的事业部名称 (仓配无纯配有)
-                    }else if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
+                    if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
                         //仓配
                         List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
                         if (itemInfos != null && itemInfos.size() > 0) {
@@ -275,6 +257,20 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                         } else {
                             logger.error("获取原事业部信息为空!");
                         }
+                    }else if(oldWaybill2.getData() == null){
+                        //纯配一次换单
+                        LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1);
+                        if (claimInfoRespDTO != null) {
+                            inboundOrder.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney().toString());
+                            inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
+                            inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
+                        } else {
+                            logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常" + waybillCode + "|" + sendDetail.getSendCode());
+                            return null;
+                        }
+                        //目的事业部ID (仓配无纯配有 结算主体有了就不需要了)
+                        //目的事业部编号 (仓配无纯配有)
+                        //目的事业部名称 (仓配无纯配有)
                     }
                 }
             }else {

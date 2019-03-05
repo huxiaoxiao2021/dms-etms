@@ -410,6 +410,7 @@ public class Constants {
     public static final String PDA_USER_IP_WRONG_MSG = "ip在黑名单中"; //ip在黑名单中
     public static final String PDA_USER_EMPTY_MSG = "用户名或密码为空"; //用户名或密码为空
     public static final String PDA_USER_ABNORMAL_MSG = "登录异常"; //登录异常
+    public static final String PURE_MATCH_ERROR_MESSAGE = "该订单理赔未完成或物权不归京东!";//纯配逆向换单校验提示语
 
     public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
     public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）

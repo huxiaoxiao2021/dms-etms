@@ -4130,6 +4130,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired private WaybillCommonService waybillCommonService;
 
+    @Autowired private SiteService siteService;
+
     @Override
     public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
       Collections.sort(
@@ -4142,65 +4144,7 @@ public class DeliveryServiceImpl implements DeliveryService {
           });
       return computeUsePackage(list, isScheduleRequest);
     }
-        @Autowired
-        private SiteService siteService;
 
-        @Override
-        public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
-            Collections.sort(list, new Comparator<SendDetail>() {
-                @Override
-                public int compare(SendDetail lhs, SendDetail rhs) {
-                    return lhs.getPackageBarcode().compareToIgnoreCase(rhs.getPackageBarcode());
-                }
-            });
-            return computeUsePackage(list, isScheduleRequest);
-        }
-
-        /**
-         * 只保留不全订单的包裹，因为PDA操作界面太小，只应该看不全订单
-         *
-         * @param list
-         * @return
-         */
-        private final List<SendThreeDetail> computeUsePackage(List<SendDetail> list, boolean isScheduleRequest) {
-            String lastWaybillCode = null;
-            int scanCount = 0;
-            int pacageSumShoudBe = 0;
-            int hasDiff = 0;
-            ;
-            List<SendThreeDetail> diffrenceList = new ArrayList<SendThreeDetail>();
-            for (SendDetail item : list) {//遍历该箱的所有包裹
-                //包含派车单且发现包裹不齐，直接退出循环（派车单校验不要明细）
-                if(isScheduleRequest && hasDiff > 0){
-                    break;
-                }
-                //纯配外单支持缺量退备件库因此剔除
-                String waybillCode = item.getWaybillCode();
-                com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
-                if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
-                    BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
-                    Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
-                    if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
-                        break;
-                    }
-                }
-                SendThreeDetail diff = new SendThreeDetail();
-                diff.setBoxCode(item.getBoxCode());
-                diff.setPackageBarcode(item.getPackageBarcode());
-                diff.setMark(AbstructDiffrenceComputer.HAS_SCANED);
-                diff.setIsWaybillFull(1);
-                if (!item.getWaybillCode().equals(lastWaybillCode)) {//初次验单 或 每验完一单货，下一单开始验时 进入分支
-                    //1.上一单已集齐 则返回0， 并重新初始化 pacageSumShoudBe、scanCount
-                    //2.上一单未集齐 则返回未扫描的包裹（即缺失包裹数）循环结束后会根据此判断是否集齐包裹
-                    hasDiff += invoke(pacageSumShoudBe, scanCount, diffrenceList);
-                    lastWaybillCode = item.getWaybillCode();//获取当前要验证的运单号
-                    pacageSumShoudBe = WaybillUtil.getPackNumByPackCode(item.getPackageBarcode());//根据运单中一个包裹的包裹号 获取包裹数量
-                    if(pacageSumShoudBe == 0){ //特殊包裹号，包裹总数位是0时，从运单获取包裹总数
-                        com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findWaybillAndPack(lastWaybillCode);
-                        if(waybill!=null && waybill.getPackList()!=null && waybill.getPackList().size()>0){
-                            pacageSumShoudBe = waybill.getPackList().size();
-                        }
-                    }
     /**
      * 只保留不全订单的包裹，因为PDA操作界面太小，只应该看不全订单
      *
@@ -4219,6 +4163,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (isScheduleRequest && hasDiff > 0) {
           break;
         }
+          //纯配外单支持缺量退备件库因此剔除
+          String waybillCode = item.getWaybillCode();
+          com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
+          if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
+              BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
+              Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+              if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
+                  break;
+              }
+          }
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
