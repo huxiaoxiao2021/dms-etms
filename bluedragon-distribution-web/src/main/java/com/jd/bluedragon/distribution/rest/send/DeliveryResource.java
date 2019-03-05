@@ -298,7 +298,7 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/recyclableboxsend")
     public InvokeResult recyclableBoxSend(RecyclableBoxRequest request) {
-        InvokeResult<CycleBox> result = new InvokeResult<CycleBox>();
+        InvokeResult result = new InvokeResult();
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));

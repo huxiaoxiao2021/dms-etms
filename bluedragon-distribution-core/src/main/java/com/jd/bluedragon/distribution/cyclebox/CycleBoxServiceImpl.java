@@ -5,12 +5,10 @@ import com.jd.bluedragon.core.base.TMSBossQueryManager;
 import com.jd.bluedragon.core.base.CycleBoxExternalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -278,7 +276,6 @@ public class CycleBoxServiceImpl implements CycleBoxService {
             request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION);
             pushCycleBoxStatusMQ(request);
         }
-//        return res;
     }
 
     /**

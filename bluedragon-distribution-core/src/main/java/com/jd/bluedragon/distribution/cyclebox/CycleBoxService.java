@@ -41,5 +41,5 @@ public interface CycleBoxService {
      * @param request
      * @return
      */
-    RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request);
+    void recyclableBoxSend(RecyclableBoxRequest request) throws Exception;
 }
