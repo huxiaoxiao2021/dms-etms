@@ -805,7 +805,7 @@
 		<dependency>
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
-			<version>1.1.14-SNAPSHOT</version>
+			<version>1.1.15-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
