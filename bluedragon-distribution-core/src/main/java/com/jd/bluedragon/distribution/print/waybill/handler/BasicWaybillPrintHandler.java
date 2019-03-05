@@ -185,6 +185,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     		Integer dmsCode = context.getRequest().getDmsSiteCode();
     		WaybillPrintResponse commonWaybill = new WaybillPrintResponse();
             context.setResponse(commonWaybill);
+            context.setBasePrintWaybill(commonWaybill);
     		BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();

@@ -276,6 +276,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         BasicTraderInfoDTO dto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
 
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
+        context.setBasePrintWaybill(labelPrinting);
         //B网面单要求将运单号后四位突出显示
         String waybillCode = request.getWaybillCode();
         if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
