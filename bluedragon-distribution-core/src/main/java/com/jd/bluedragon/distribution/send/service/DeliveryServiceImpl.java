@@ -4869,7 +4869,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         Map<String,List<String>> waybills = new HashMap<String, List<String>>();
 
 
-        List<String> needRemoveWaybill = new ArrayList<String>();
+        Set<String> needRemoveWaybill = new HashSet<String>();
+        Set<String> needRemoveBox = new HashSet<String>();
 
         if(tDeliveryResponse!=null && !tDeliveryResponse.isEmpty()){
             //存在未集齐发货记录
@@ -4887,7 +4888,10 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             for(SendThreeDetail std :tDeliveryResponse){
                 //此sendD是拼装的 箱子里其他拼装出来的未扫描数据中没有箱号字段
-                if(StringUtils.isBlank(std.getBoxCode()) || BusinessUtil.isBoxcode(std.getBoxCode())){
+                if(BusinessUtil.isBoxcode(std.getBoxCode())){
+                    needRemoveBox.add(std.getBoxCode());
+                    continue;
+                }else if(StringUtils.isBlank(std.getBoxCode())){
                     continue;
                 }
                 partWaybills.add(WaybillUtil.getWaybillCode(std.getPackageBarcode()));
@@ -4940,6 +4944,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                         }
                     }
                 }
+
+                //如果存在箱子中有未集齐的数据 还要追加剔除箱子
+                if(!needRemoveBox.isEmpty()){
+                    needRemoveWaybill.addAll(needRemoveBox);
+                }
                 //如果全部未可半退的需要给出提示 该批次号对应运单均为半退至仓，确认发货？
 
                 if(needRemoveWaybill.isEmpty()){
@@ -4955,11 +4964,19 @@ public class DeliveryServiceImpl implements DeliveryService {
                 List<SendThreeDetail> needRemoveDestails = new ArrayList<SendThreeDetail>();
                 response.setData(needRemoveDestails);
                 for(String waybillCode : needRemoveWaybill){
-                    for (String packageCode : waybills.get(waybillCode)){
+                    if(waybills.get(waybillCode)==null){
+                        //此时为箱号
                         SendThreeDetail needRemoveDestail = new SendThreeDetail();
-                        needRemoveDestail.setPackageBarcode(packageCode);
+                        needRemoveDestail.setPackageBarcode(waybillCode);
                         needRemoveDestails.add(needRemoveDestail);
+                    }else{
+                        for (String packageCode : waybills.get(waybillCode)){
+                            SendThreeDetail needRemoveDestail = new SendThreeDetail();
+                            needRemoveDestail.setPackageBarcode(packageCode);
+                            needRemoveDestails.add(needRemoveDestail);
+                        }
                     }
+
                 }
             }
 
