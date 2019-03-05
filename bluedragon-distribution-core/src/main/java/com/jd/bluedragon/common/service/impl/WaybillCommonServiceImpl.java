@@ -1126,7 +1126,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String specialRequirement = "";
         if(StringUtils.isNotBlank(waybillSign)){
             //签单返还
-            if(BusinessUtil.isSignChar(waybillSign,4,'1')){
+            if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
             }
             //包装服务
