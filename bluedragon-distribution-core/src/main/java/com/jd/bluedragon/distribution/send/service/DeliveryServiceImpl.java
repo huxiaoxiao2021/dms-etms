@@ -4908,6 +4908,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                 }
             }
 
+            if(partWaybills.size()==0){
+                //无未集齐数据
+                return response;
+            }
+
             if(waybills.size()>partWaybills.size()){
                 //1 发货明细中是否存在其他已集齐的运单
                 //找出存在半退标的运单 提示剔除掉 剩下未集齐暂时忽略，通过下次提交发货时再去校验
