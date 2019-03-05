@@ -4,7 +4,6 @@ import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.WaybillCodeListRequest;
 import com.jd.bluedragon.distribution.cyclebox.domain.CycleBox;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.task.domain.Task;
 
 import java.util.List;
