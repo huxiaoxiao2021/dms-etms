@@ -736,12 +736,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
                 freightText = TextConstants.FREIGHT_SEND;
             }
-        	//货款字段金额等于0时，则货款位置显示为【0】
+        	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
         	if(NumberHelper.gt0(waybill.getCodMoney())){
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
         	}else{
-        		goodsPaymentText = "0";
+        		goodsPaymentText = "";
         	}
         }else{
             //C网运费和货款
