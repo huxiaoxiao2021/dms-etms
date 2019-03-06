@@ -30,9 +30,9 @@ public class BigWaybillPackageListCache {
     public final static int BIG_WAYBILL_PACKAGE_LIMIT = 1000;
 
     /**
-     * 对象缓存超时时间 - 180s
+     * 对象缓存超时时间 - 300s
      */
-    private static long EXPIRE_TIME_SECOND = 180;
+    private static long EXPIRE_TIME_SECOND = 300;
 
     /**
      * 最多缓存对象个数

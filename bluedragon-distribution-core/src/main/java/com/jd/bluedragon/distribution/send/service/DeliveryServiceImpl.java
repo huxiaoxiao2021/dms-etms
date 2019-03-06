@@ -39,7 +39,6 @@ import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -1984,16 +1983,18 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     public boolean updateWaybillStatus(List<SendDetail> sendDetails) {
         if (sendDetails != null && !sendDetails.isEmpty()) {
-            List<SendDetail> isStatus = new ArrayList<SendDetail>();
-            List<SendDetail> noStatus = new ArrayList<SendDetail>();
+            List<SendDetail> sendDetailList = new ArrayList<SendDetail>();
+            List<SendDetail> cancelSendList = new ArrayList<SendDetail>();
             List<WaybillStatus> waybillStatusList = new ArrayList<WaybillStatus>(sendDetails.size());
             List<Integer> sendTypeList = new ArrayList<Integer>(sendDetails.size());
-            List<Message> sendMessageList = new ArrayList<Message>(sendDetails.size());
+            List<Message> sendDetailMQList = new ArrayList<Message>(sendDetails.size());
 
             // 增加获取订单类型判断是否是LBP订单e
             for (SendDetail tSendDetail : sendDetails) {
                 tSendDetail.setStatus(1);
-                if (!tSendDetail.getIsCancel().equals(1)) {
+                if (tSendDetail.getIsCancel().equals(1)) {
+                    cancelSendList.add(tSendDetail);
+                } else {
                     BaseStaffSiteOrgDto createSiteDto = this.getBaseStaffSiteDto(tSendDetail.getCreateSiteCode());
                     BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(tSendDetail.getReceiveSiteCode());
                     if (receiveSiteDto != null && receiveSiteDto.getSiteType() != null && createSiteDto != null && createSiteDto.getSiteType() != null) {
@@ -2004,52 +2005,49 @@ public class DeliveryServiceImpl implements DeliveryService {
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
                                 addOperationLog(tSendDetail);
-
-                                if (businessTypeTWO.equals(tSendDetail.getSendType())) {
-                                    tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SEND);
-                                } else {
-                                    tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
-                                }
+                                this.buildOperateType(tWaybillStatus, tSendDetail.getSendType());
                                 waybillStatusList.add(tWaybillStatus);
                                 sendTypeList.add(tSendDetail.getSendType());
 
                                 //发送发货明细mq
                                 Message sendMessage = parseSendDetailToMessage(tSendDetail, dmsWorkSendDetailMQ.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
-                                sendMessageList.add(sendMessage);
+                                sendDetailMQList.add(sendMessage);
                                 this.logger.info("发送MQ[" + sendMessage.getTopic() + "],业务ID[" + sendMessage.getBusinessId() + "],消息主题: " + sendMessage.getText());
                             } else if (tSendDetail.getYn().equals(0) && tSendDetail.getIsCancel().equals(2)) {
                                 tSendDetail.setSendCode(null);
-                                if (businessTypeTWO.equals(tSendDetail.getSendType())) {
-                                    tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SORTING);
-                                } else {
-                                    tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
-                                }
+                                this.buildOperateType(tWaybillStatus, tSendDetail.getSendType());
                                 waybillStatusList.add(tWaybillStatus);
                                 sendTypeList.add(tSendDetail.getSendType());
                             }
                         }
                     }
-                    isStatus.add(tSendDetail);
-                } else {
-                    noStatus.add(tSendDetail);
+                    sendDetailList.add(tSendDetail);
                 }
             }
 
             // 批量发送发货明细MQ消息
-            this.dmsWorkSendDetailMQ.batchSendOnFailPersistent(sendMessageList);
+            this.dmsWorkSendDetailMQ.batchSendOnFailPersistent(sendDetailMQList);
 
             // 批量添加回传全程跟踪状态任务
             this.addWaybillStatusTask(waybillStatusList, sendTypeList);
 
-            if (!isStatus.isEmpty()) {
-                this.updateWaybillStatusByPackage(isStatus);
+            if (!sendDetailList.isEmpty()) {
+                this.updateWaybillStatusByPackage(sendDetailList);
             }
 
-            if (!noStatus.isEmpty()) {
-                this.updateSendStatusByPackage(noStatus);
+            if (!cancelSendList.isEmpty()) {
+                this.updateSendStatusByPackage(cancelSendList);
             }
         }
         return true;
+    }
+
+    private void buildOperateType(WaybillStatus waybillStatus, Integer sendType){
+        if (businessTypeTWO.equals(sendType)) {
+            waybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SORTING);
+        } else {
+            waybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
+        }
     }
 
     private WaybillStatus buildWaybillStatus(SendDetail tSendDetail, BaseStaffSiteOrgDto cbDto, BaseStaffSiteOrgDto rbDto) {

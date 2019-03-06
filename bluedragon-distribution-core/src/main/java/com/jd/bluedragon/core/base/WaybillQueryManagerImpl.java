@@ -77,29 +77,37 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         if (isQueryPackList == true) {
             wChoice.setQueryPackList(false);
             if (isQueryWaybillC == false) {
-                wChoice.setQueryPackList(true);
+                wChoice.setQueryWaybillC(true);
             }
         }
 
         BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
-        if (baseEntity.getResultCode() == 1 && isQueryPackList) {
-            if (baseEntity.getData().getWaybill().getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
-                try{
-                    baseEntity.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
-                } catch (Exception e) {
-                    logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
+        if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+            // 只有接口查询包裹信息并且waybill对象不为空时，进行缓存查询
+            if (isQueryPackList && baseEntity.getData().getWaybill() != null) {
+                // 当包裹数大于限制，进行缓存
+                if (baseEntity.getData().getWaybill().getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
+                    try {
+                        baseEntity.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
+                    } catch (Exception e) {
+                        logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
+                    }
+                    if (!isQueryWaybillC) {
+                        baseEntity.getData().setWaybill(null);
+                    }
+                    return baseEntity;
                 }
-            } else {
+            }
+            if (isQueryPackList) {
                 // 根据运单号获取包裹信息
                 BaseEntity<List<DeliveryPackageD>> packListBaseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
                 if (packListBaseEntity.getResultCode() == 1) {
                     baseEntity.getData().setPackageList(packListBaseEntity.getData());
                 }
+                if (!isQueryWaybillC) {
+                    baseEntity.getData().setWaybill(null);
+                }
             }
-        }
-
-        if (baseEntity.getResultCode() == 1 && isQueryPackList && !isQueryWaybillC) {
-            baseEntity.getData().setWaybill(null);
         }
         return baseEntity;
     }
