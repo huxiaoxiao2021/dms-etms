@@ -72,10 +72,10 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Override
     @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice wChoice) {
-        Boolean isQueryPackList = wChoice.getQueryPackList();
-        Boolean isQueryWaybillC = wChoice.getQueryWaybillC();
+        Boolean isQueryPackList = wChoice.getQueryPackList() == null ? false : wChoice.getQueryPackList();
+        Boolean isQueryWaybillC = wChoice.getQueryWaybillC() == null ? false : wChoice.getQueryWaybillC();
+        wChoice.setQueryPackList(false);
         if (isQueryPackList == true) {
-            wChoice.setQueryPackList(false);
             if (isQueryWaybillC == false) {
                 wChoice.setQueryWaybillC(true);
             }
