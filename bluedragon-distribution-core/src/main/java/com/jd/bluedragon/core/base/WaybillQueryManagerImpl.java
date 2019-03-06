@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
@@ -58,37 +59,49 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Autowired
     private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
 
-
     @Override
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
-                                                     WChoice wChoice) {
-        //增加一个开关，在支持两万个包裹，需要单独调用运单的分页接口过渡期使用
-        if (waybillPackageManager.isGetPackageByPageOpen()) {
-            Boolean isQueryPackList = wChoice.getQueryPackList();
-            if (null == isQueryPackList) {
-                isQueryPackList = false;
-            }
-            wChoice.setQueryPackList(false);
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+    public BaseEntity<BigWaybillDto> getDataByChoiceNoCache(String waybillCode, WChoice wChoice) {
+        return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
+    }
 
-            //如果需要获取包裹信息，则调用运单分页获取包裹信息的接口，做此修改是为了支持2w包裹的订单
-            if (isQueryPackList && null != baseEntity && null != baseEntity.getData()) {
-                BaseEntity<List<DeliveryPackageD>> packageDBaseEntity = waybillPackageManager.getPackageByWaybillCode(waybillCode);
-                if (null != packageDBaseEntity && null != packageDBaseEntity.getData() && packageDBaseEntity.getData().size() > 0) {
-                    baseEntity.getData().setPackageList(packageDBaseEntity.getData());
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice wChoice) {
+        Boolean isQueryPackList = wChoice.getQueryPackList();
+        Boolean isQueryWaybillC = wChoice.getQueryWaybillC();
+        if (isQueryPackList == true) {
+            wChoice.setQueryPackList(false);
+            if (isQueryWaybillC == false) {
+                wChoice.setQueryPackList(true);
+            }
+        }
+
+        BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
+        if (baseEntity.getResultCode() == 1 && isQueryPackList) {
+            if (baseEntity.getData().getWaybill().getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
+                try{
+                    baseEntity.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
+                } catch (Exception e) {
+                    logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
+                }
+            } else {
+                // 根据运单号获取包裹信息
+                BaseEntity<List<DeliveryPackageD>> packListBaseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
+                if (packListBaseEntity.getResultCode() == 1) {
+                    baseEntity.getData().setPackageList(packListBaseEntity.getData());
                 }
             }
-
-            return baseEntity;
-        } else {
-            return waybillQueryApi.getDataByChoice(waybillCode, wChoice);
         }
+
+        if (baseEntity.getResultCode() == 1 && isQueryPackList && !isQueryWaybillC) {
+            baseEntity.getData().setWaybill(null);
+        }
+        return baseEntity;
     }
 
     @Override

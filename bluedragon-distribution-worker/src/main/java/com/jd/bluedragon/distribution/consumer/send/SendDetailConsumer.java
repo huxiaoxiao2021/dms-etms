@@ -1,13 +1,12 @@
 package com.jd.bluedragon.distribution.consumer.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.inspection.domain.Inspection;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -24,6 +23,7 @@ import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,15 +50,15 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private InspectionService inspectionService;
-
-    @Qualifier("pop1MQ")
-    @Autowired
-    private DefaultJMQProducer pop1MQ;
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     @Qualifier("dmsToVendor")
     private DefaultJMQProducer dmsToVendor;
+
+    //added by hanjiaxing 2016.12.20
+    @Autowired
+    private GantryExceptionService gantryExceptionService;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -176,7 +175,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
-                this.sendInspection(sendDetail, waybillCode ,waybill.getWaybillType());
+                this.dmsToVendorMQ(sendDetail, waybill);
+                this.updateGantryExceptionStatus(sendDetail);
             } else {
                 logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
             }
@@ -199,63 +199,33 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
 
-    /**
-     * 如果没有正逆向验货记录补发验货回传
-     */
-    private void sendInspection(SendDetailMessage sendDetail, String waybillCode, Integer waybillType) {
-        // 如果是非LBP类型的订单直接返回
-        if (waybillType != null && Constants.POP_LBP.equals(waybillType)) {
-            if (!checkInspection(waybillCode, sendDetail.getPackageBarcode())) {
-                // TODO: 2019/3/1 时间暂时取操作时间，原逻辑取create_time，需要沟通确认
-                sendMQToPop(waybillCode, DateHelper.toDate(sendDetail.getOperateTime()));
-            }
-        }
-    }
-
-    /**
-     * 自营
-     */
-    public static final Integer BUSINESS_TYPE_ONE = 10;
-
-    /**
-     * 如果没有正逆向验货记录补发验货回传
-     */
-    private boolean checkInspection(String waybillCode, String packageBarCode) {
-        boolean flag;
-        Inspection inspection = new Inspection();
-        if (WaybillUtil.isWaybillCode(waybillCode)) {
-            inspection.setPackageBarcode(packageBarCode);
-            inspection.setInspectionType(BUSINESS_TYPE_ONE);
-            flag = inspectionService.haveInspection(inspection);
-        } else {
-            flag = true;
-        }
-        return flag;
-    }
-
-    private void sendMQToPop(String waybillCode, Date createTime) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");
-        sb.append("<OrderSendDetail xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
-        sb.append("<id>").append(waybillCode).append("</id>");
-        String date = DateHelper.formatDate(createTime, "yyyy-MM-dd HH:mm:ss");
-        sb.append("<receiveTime>").append(date).append("</receiveTime>");
-        sb.append("</OrderSendDetail>");
-        logger.info("snedMQpop----snedMQpop----" + sb.toString());
-        pop1MQ.sendOnFailPersistent(waybillCode, sb.toString());
-    }
-
-    private void dmsToVendorMQ(SendDetailMessage sendDetail, Waybill waybill){
+    private void dmsToVendorMQ(SendDetailMessage sendDetail, Waybill waybill) {
+        BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
         // 发货目的地是车队，且是非城配运单，要通知调度系统
-        if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(rbDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
-            Message sendDispatchMessage = parseSendDetailToMessageOfDispatch(sendDetail, waybill, rbDto.getSiteName(), dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
-            this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + sendDispatchMessage.getTopic() + "],业务ID[" + sendDispatchMessage.getBusinessId() + "],消息主题: " + sendDispatchMessage.getText());
-            dmsToVendor.sendOnFailPersistent(sendDispatchMessage.getBusinessId(), sendDispatchMessage.getText());
+        if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
+            Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto.getSiteName(), dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
+            this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + message.getTopic() + "],业务ID[" + message.getBusinessId() + "],消息主题: " + message.getText());
+            dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
         }
+    }
+
+    private BaseStaffSiteOrgDto getBaseStaffSiteDto(Integer siteCode) {
+        BaseStaffSiteOrgDto baseSiteDto = null;
+        try {
+            baseSiteDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
+        } catch (Exception e) {
+            this.logger.error("发货全程跟踪调用站点信息异常", e);
+        }
+
+        if (baseSiteDto == null) {
+            baseSiteDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(siteCode));
+        }
+        return baseSiteDto;
     }
 
     /**
      * 构建非城配运单发往车队通知调度系统MQ消息体
+     *
      * @param sendDetail
      * @param waybill
      * @param receiveSiteName
@@ -295,6 +265,18 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             message.setBusinessId(sendDetail.getPackageBarcode());
         }
         return message;
+    }
+
+    /**
+     * 更新发货状态
+     *
+     * @param sendDetail
+     */
+    private void updateGantryExceptionStatus(SendDetailMessage sendDetail) {
+        // TODO: 2019/3/1  此处逻辑需拆解出去 拆到消费sendDetail MQ里
+        //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
+        gantryExceptionService.updateSendStatus(sendDetail.getBoxCode(), Long.valueOf(sendDetail.getCreateSiteCode()));
+        this.logger.info("更新异常信息发货状态，箱号：" + sendDetail.getBoxCode());
     }
 
 }

@@ -148,8 +148,7 @@ public class DefaultJMQProducer {
                 task.setSequenceName(Task.getSequenceName(task.getTableName()));
                 task.setCreateSiteCode(Integer.valueOf(0));
             }
-            // TODO: 2019/3/1 需要重写addBatch方法 isTaskModeCheck 参数为true
-            taskService.addBatch(tasks);
+            taskService.addBatch(tasks, true);
         } catch (Throwable throwable) {
             logger.error("消息队列持久化", throwable);
         }
