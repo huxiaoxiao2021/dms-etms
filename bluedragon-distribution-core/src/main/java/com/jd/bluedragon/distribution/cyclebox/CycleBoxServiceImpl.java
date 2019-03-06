@@ -261,19 +261,22 @@ public class CycleBoxServiceImpl implements CycleBoxService {
                     }
                 }
             }
-        }
 
-        //现场扫描的清流箱号发【逆向回收】的mq
-        if(cycleBoxCodeListScan != null && cycleBoxCodeListScan.size() > 0) {
-            request.setUniqueCode(cycleBoxCodeListScan);
-            request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE);
-            pushCycleBoxStatusMQ(request);
-        }
+            //现场扫描的清流箱号发【逆向回收】的mq
+            if(cycleBoxCodeListScan != null && cycleBoxCodeListScan.size() > 0) {
+                request.setUniqueCode(cycleBoxCodeListScan);
+                request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE);
+                pushCycleBoxStatusMQ(request);
+            }
 
-        //差异的青流箱号发【异常】的mq
-        if(cycleBoxCodeListInBatch != null && cycleBoxCodeListInBatch.size() > 0){
-            request.setUniqueCode(cycleBoxCodeListInBatch);
-            request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION);
+            //差异的青流箱号发【异常】的mq
+            if(cycleBoxCodeListInBatch != null && cycleBoxCodeListInBatch.size() > 0){
+                request.setUniqueCode(cycleBoxCodeListInBatch);
+                request.setNodeType(CYCLE_BOX_STATUS_REVERSE_RECEIVE_EXCEPTION);
+                pushCycleBoxStatusMQ(request);
+            }
+        }else{
+            //其他发出的正常
             pushCycleBoxStatusMQ(request);
         }
     }
