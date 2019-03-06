@@ -1111,7 +1111,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
                 try {
-                    ObjectHelper.setValue(printWaybill,"setRouterNode" + (i + 1),routerNameList.get(i));
+                    ObjectHelper.setValue(printWaybill,"routerNode" + (i + 1),routerNameList.get(i));
                     logger.info("设置router" + (i+1) + "的值为:" + routerNameList.get(i));
                 }catch (Exception e){
                     logger.error("获取路由信息,设置路由节点失败.",e);
