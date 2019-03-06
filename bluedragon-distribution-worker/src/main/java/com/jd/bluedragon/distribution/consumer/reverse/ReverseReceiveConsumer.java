@@ -18,7 +18,14 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -31,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -107,7 +115,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
 					date = sdf.parse(jrequest.getReceiveTime());
 				}
-				if(reverseReceive.getReceiveType() == 7 ){ //处理报文 操作人字段
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 ){ //处理报文 操作人字段
 					date = sdf.parse(jrequest.getOperateTime());
 					reverseReceive.setOperatorName(jrequest.getOperaterName());
 					reverseReceive.setOrderId(jrequest.getWaybillCode());
@@ -187,12 +195,12 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null) {
+			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				if(reverseReceive.getReceiveType() == 7){
@@ -232,7 +240,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null ) {
+				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 ||reverseReceive.getReceiveType() == 8) && jrequest != null ) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 
@@ -247,7 +255,17 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					} else if (reverseReceive.getCanReceive() == 2) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
-						taskService.add(this.toTaskStatus(tWaybillStatus));
+						if(reverseReceive.getReceiveType() == 8){
+                            List<String> list = Collections.emptyList();
+                            list = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode());
+						    for(String packageCode : list){
+                                tWaybillStatus.setWaybillCode(packageCode);
+                                tWaybillStatus.setPackageCode(packageCode);
+                                taskService.add(this.toTaskStatus(tWaybillStatus));
+                            }
+                        }else {
+                            taskService.add(this.toTaskStatus(tWaybillStatus));
+                        }
 					}else {
 						return;
 					}
@@ -268,7 +286,17 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	}
 
-	private Task toTask(WaybillStatus tWaybillStatus) {
+    /**
+     * 获取所有已退包裹号（纯配）
+     * @param waybillCode
+     * @return
+     */
+    private List<String> getAllPackageCodeOfPureMatch(String waybillCode) {
+
+        return null;
+    }
+
+    private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_POP);
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
