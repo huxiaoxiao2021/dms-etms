@@ -278,15 +278,16 @@ public class CrossSortingImpl implements CrossSortingService {
 	@Deprecated
 	private List<BaseStaffSiteOrgDto> getAllDistributionCenter(){
 		CallerInfo info = Profiler.registerInfo("DMS.CrossSortingImpl.getAllDistributionCenter", false, true);
-		List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = baseMajorManager.getDmsSiteAll();
+		/*List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = baseMajorManager.getDmsSiteAll();
 		List<BaseStaffSiteOrgDto> dtos = new ArrayList<BaseStaffSiteOrgDto>();
 		for (BaseStaffSiteOrgDto dto : baseStaffSiteOrgDtos) {
 			if (64 == dto.getSiteType()){
 				dtos.add(dto);
 			}
-		}
-		Profiler.registerInfoEnd(info);
-		return dtos;
+		}*/
+        List<BaseStaffSiteOrgDto> baseSiteList = baseMajorManager.getBaseSiteByOrgIdSiteType(null, 64);
+        Profiler.registerInfoEnd(info);
+		return baseSiteList;
 	}
 
     /**
