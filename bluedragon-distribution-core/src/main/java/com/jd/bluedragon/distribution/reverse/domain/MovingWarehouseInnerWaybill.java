@@ -19,7 +19,7 @@ public class MovingWarehouseInnerWaybill implements Serializable{
     /**
      * 库房号
      */
-    private String wareHouseId;
+    private String warehouseId;
 
     /**
      * 箱号集合（移动仓内配单号集合）
@@ -42,12 +42,12 @@ public class MovingWarehouseInnerWaybill implements Serializable{
         this.deliveryCenterId = deliveryCenterId;
     }
 
-    public String getWareHouseId() {
-        return wareHouseId;
+    public String getWarehouseId() {
+        return warehouseId;
     }
 
-    public void setWareHouseId(String wareHouseId) {
-        this.wareHouseId = wareHouseId;
+    public void setWarehouseId(String warehouseId) {
+        this.warehouseId = warehouseId;
     }
 
     public List<String> getCaseNos() {

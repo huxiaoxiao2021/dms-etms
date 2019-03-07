@@ -836,7 +836,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param bDto
      * @return
      */
-    public boolean sendMoveWarehouseInnerWaybillToWMS(List<SendDetail> sendDetailList,BaseStaffSiteOrgDto bDto){
+    private boolean sendMoveWarehouseInnerWaybillToWMS(List<SendDetail> sendDetailList,BaseStaffSiteOrgDto bDto){
         //获取cky2、库房号信息
         Integer orgId = bDto.getOrgId();
         String dmdStoreId = bDto.getStoreCode();
@@ -856,18 +856,17 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         MovingWarehouseInnerWaybill waybill = new MovingWarehouseInnerWaybill();
         waybill.setBusiOrderCode(detail.getSendCode());
         waybill.setDeliveryCenterId(cky2);
-        waybill.setWareHouseId(storeId);
+        waybill.setWarehouseId(storeId);
         waybill.setCaseNos(waybillCodeList);
 
         //调DTC接口给WMS发报文
         String target = orgId + "," + cky2 + "," + storeId;
         com.jd.staig.receiver.rpc.Result result = null;
-        String outboundType = "";
+        String outboundType = "wms_receiving_transBoxFromDMSService_parcel";
         String messageValue = JSON.toJSONString(waybill);
         String source="DMS";
-        String outboundNo="";
         try {
-            result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, outboundNo);
+            result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, detail.getSendCode());
             logger.info("移动仓没配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
             if(result.getResultCode() != 1){
                 logger.error("移动仓没配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
@@ -876,12 +875,12 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             logger.error("移动仓没配单发货信息推送给WMS异常.推送报文" + messageValue, e);
             return false;
         } finally {
-            //写系统日志?写到es里？
+            //写系统日志
             SystemLog sLogDetail = new SystemLog();
             sLogDetail.setKeyword2(detail.getSendCode());
             sLogDetail.setKeyword3(target);
             sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
-            sLogDetail.setType(Long.valueOf(12005)); //?这个值是不是需要改一下
+            sLogDetail.setType(Long.valueOf(12005));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
         }

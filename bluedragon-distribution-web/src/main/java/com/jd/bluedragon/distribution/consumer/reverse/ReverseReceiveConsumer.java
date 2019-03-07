@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WorkTaskServiceManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -20,13 +18,9 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.erp.domain.OrderDeliverBody;
-import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,7 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
@@ -52,7 +49,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	@Autowired
     private SendDatailDao sendDatailDao;
-	
+
 	@Autowired
     private ReverseSpareDao sparedao;
 	
@@ -61,12 +58,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
     @Autowired
     private ReversePrintService reversePrintService;
-
-	@Autowired
-	WaybillService waybillService;
-
-	@Autowired
-	WorkTaskServiceManager workTaskServiceManager;
 
 	@Override
 	public void consume(Message message) {
@@ -124,44 +115,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			}
 		} catch (Exception e) {
 			this.logger.error("推送UMP发生异常.", e);
-		}
-
-		//如果是移动仓内配单，而且是退大库的，要调终端的接口
-		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
-		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(waybillCode)){
-			//
-			OrderDeliverWorkTask task = new OrderDeliverWorkTask();
-			task.setRefId(waybillCode);//运单号
-			task.setTaskType(7);//妥投任务，类型为7
-			task.setTaskExeCount(0);
-			task.setStatus(1);
-			task.setCreateSiteId();
-			task.setCreateTime(reverseReceive.getReceiveTime());
-			task.setUpdateTime(reverseReceive.getReceiveTime());
-			task.setRemark("移动仓内配单分拣操作妥投");//
-			task.setYn(1);
-			task.setOwnsign("BASE");
-
-			OrderDeliverBody body = new OrderDeliverBody();
-			body.setWaybillCode(reverseReceive.getWaybillCode());
-			//?这个操作员
-			body.setPayee(); //收款人
-			body.setCourierName(); //配送员名称
-			body.setPayWayId(2);//2表示在线支付
-			body.setPayWayName("在线支付");
-			body.setTimepaid(reverseReceive.getReceiveTime());//妥投时间
-			body.setSiteId();//操作站点
-			body.setOperatorUserId(); //操作人编号
-			body.setOperatorType();//操作类型
-			body.setRemark("移动仓内配单分拣操作妥投");
-			body.setAmount(0);//实收金额received_money
-			body.setPrice(0);//应收金额rec_money
-			body.setSource();//系统来源，待终端分配
-
-			task.setOrderDeliverBodys(Arrays.asList(body));
-
-			workTaskServiceManager.orderDeliverWorkTaskEntry(task);
-
 		}
 
 		//添加订单处理，判断是否是T单 2016-1-8

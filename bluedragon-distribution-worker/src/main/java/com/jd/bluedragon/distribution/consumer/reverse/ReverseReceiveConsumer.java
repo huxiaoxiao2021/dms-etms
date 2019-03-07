@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WorkTaskServiceManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -14,13 +15,19 @@ import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.domain.OrderDeliverBody;
 import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -32,10 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
@@ -56,12 +60,21 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
 	@Autowired
     private ReverseSpareDao sparedao;
+
+	@Autowired
+	private SendMDao sendMDao;
 	
 	@Autowired
     private BaseMajorManager baseMajorManager;
 	
     @Autowired
     private ReversePrintService reversePrintService;
+
+	@Autowired
+	WaybillService waybillService;
+
+	@Autowired
+	WorkTaskServiceManager workTaskServiceManager;
 
 	@Override
     @JProfiler(jKey = "reverseReceiveConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -139,10 +152,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 
 		//如果是移动仓内配单需要推送终端
-		String waybillCode = reverseReceive.getWaybillCode();
-		if(waybillService.isMovingWareHouseInnerWaybill(waybillCode)){
-			OrderDeliverWorkTask task = new OrderDeliverWorkTask();
-			task.
+		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
+		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(waybillCode)) {
+			movingWareHoseInnerWaybillFinish(reverseReceive);
 		}
 
 		//添加订单处理，判断是否是T单 2016-1-8
@@ -332,5 +344,64 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				.append(tWaybillStatus.getSendCode());
         task.setFingerprint(Md5Helper.encode(fingerprint.toString()));
 		return task;
+	}
+
+
+	/**
+	 * 移动仓内配单调终端的接口，操作妥投
+	 * @param reverseReceive
+	 */
+	private void movingWareHoseInnerWaybillFinish(ReverseReceive reverseReceive){
+		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
+		String sendCode = reverseReceive.getSendCode();
+		//通过批次号查send_m表获取操作站点和操作人信息
+		Integer siteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
+		Integer userCode = null;
+		String userName = "";
+		Date sendTime = reverseReceive.getReceiveTime();
+
+		SendM sendM = sendMDao.selectBySendCode(sendCode);
+		if (null != sendM) {
+			userCode = sendM.getCreateUserCode();
+			userName = sendM.getCreateUser();
+			sendTime = sendM.getCreateTime();
+		}
+
+		OrderDeliverBody body = new OrderDeliverBody();
+		body.setWaybillCode(waybillCode);
+		body.setPayee(userName); //收款人设置为分拣中心发货人
+		body.setCourierName(userName); //配送员名称设置为分拣中心发货人
+		body.setPayWayId(2);//2表示在线支付
+		body.setPayWayName("在线支付");
+		body.setTimepaid(sendTime);//妥投时间
+		body.setSiteId(siteCode);//操作站点设置为操作发货的分拣中心
+		body.setOperatorUserId(userCode); //操作人编号
+		body.setOperatorType();//操作类型
+		body.setRemark("移动仓内配单分拣操作妥投");
+		body.setAmount(0);//实收金额received_money
+		body.setPrice(0);//应收金额rec_money
+		body.setSource();//系统来源
+
+		OrderDeliverWorkTask task = new OrderDeliverWorkTask();
+		task.setRefId(waybillCode);//运单号
+		task.setTaskType(7);//妥投任务，类型为7
+		task.setTaskExeCount(0);
+		task.setStatus(1);
+		task.setCreateSiteId(siteCode);
+		task.setCreateTime(sendTime);
+		task.setUpdateTime(sendTime);
+		task.setRemark("移动仓内配单分拣操作妥投");//
+		task.setYn(1);
+		task.setOwnsign("BASE");
+		task.setOrderDeliverBodys(Arrays.asList(body));
+
+		try {
+			logger.info("移动仓内配单调用终端接口操作妥投." + JSON.toJSONString(task));
+			if(!workTaskServiceManager.orderDeliverWorkTaskEntry(task)){
+				logger.error("移动仓内配单调用终端接口操作妥投失败，返回值为false." + JSON.toJSONString(task));
+			}
+		}catch (Exception e){
+			logger.error("移动仓内配单调用终端接口操作妥投异常." + JSON.toJSONString(task),e);
+		}
 	}
 }
