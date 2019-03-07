@@ -4931,7 +4931,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
             }else if(waybills.size() == partWaybills.size()){
-
+                //全部都没有半退标志
+                boolean notExistPart = false;
                 //2 全部为半退 找出不支持半退的运单 提示剔除
                 for(String waybillCode : partWaybills){
                     BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,false,false,false);
@@ -4939,9 +4940,17 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if(!BusinessUtil.isPartReverse(baseEntity.getData().getWaybill().getWaybillSign())){
                             //未集齐包裹中存在 不支持半退运单 提示剔除掉
                             needRemoveWaybill.add(waybillCode);
+                        }else{
+                            //存在一个打标的则更更新标志
+                            notExistPart = !notExistPart?true:notExistPart;
                         }
                     }
                 }
+                //如果都没有半退则按原集齐提示
+                if(!notExistPart){
+                    return response;
+                }
+
 
                 //如果全部未可半退的需要给出提示 该批次号对应运单均为半退至仓，确认发货？
                 if(needRemoveWaybill.isEmpty()){
