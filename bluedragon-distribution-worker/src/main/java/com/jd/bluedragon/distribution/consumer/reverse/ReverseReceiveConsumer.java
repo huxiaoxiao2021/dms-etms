@@ -76,6 +76,19 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	@Autowired
 	WorkTaskServiceManager workTaskServiceManager;
 
+	/**
+	 * 移动仓内配单调终端接口参数
+	 */
+	private final Integer SOURCE_CODE_DMS_FINISHED = 14;  //分拣sourceCode
+	private final Integer WORK_TASK_PARAM_PAY_WAY_ID = 2; //支付方式Id
+	private final String WORK_TASK_PARAM_PAY_WAY_NAME = "在线支付";  //支付方式名称
+	private final Integer WORK_TASK_PARAM_OPERATE_TYPE = 1; //操作类型1表示一体机
+	private final Integer WORK_TASK_PARAM_AMOUNT = 0; //实收金额
+	private final Integer WORK_TASK_PARAM_PRICE = 0;  //应收金额
+	private final Integer WORK_TASK_PARAM_TASK_TYPE = 7;  //任务类型
+	private final String WORK_TASK_PARAM_REMARK = "移动仓内配单分拣操作妥投";
+
+
 	@Override
     @JProfiler(jKey = "reverseReceiveConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public void consume(Message message) {
@@ -371,26 +384,26 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		body.setWaybillCode(waybillCode);
 		body.setPayee(userName); //收款人设置为分拣中心发货人
 		body.setCourierName(userName); //配送员名称设置为分拣中心发货人
-		body.setPayWayId(2);//2表示在线支付
-		body.setPayWayName("在线支付");
+		body.setPayWayId(WORK_TASK_PARAM_PAY_WAY_ID);//2表示在线支付
+		body.setPayWayName(WORK_TASK_PARAM_PAY_WAY_NAME);
 		body.setTimepaid(sendTime);//妥投时间
 		body.setSiteId(siteCode);//操作站点设置为操作发货的分拣中心
 		body.setOperatorUserId(userCode); //操作人编号
-		body.setOperatorType();//操作类型
-		body.setRemark("移动仓内配单分拣操作妥投");
-		body.setAmount(0);//实收金额received_money
-		body.setPrice(0);//应收金额rec_money
-		body.setSource();//系统来源
+		body.setOperatorType(WORK_TASK_PARAM_OPERATE_TYPE);//操作类型
+		body.setRemark(WORK_TASK_PARAM_REMARK);
+		body.setAmount(WORK_TASK_PARAM_AMOUNT);//实收金额received_money
+		body.setPrice(WORK_TASK_PARAM_PRICE);//应收金额rec_money
+		body.setSource(SOURCE_CODE_DMS_FINISHED);//系统来源
 
 		OrderDeliverWorkTask task = new OrderDeliverWorkTask();
 		task.setRefId(waybillCode);//运单号
-		task.setTaskType(7);//妥投任务，类型为7
+		task.setTaskType(WORK_TASK_PARAM_TASK_TYPE);//妥投任务，类型为7
 		task.setTaskExeCount(0);
 		task.setStatus(1);
 		task.setCreateSiteId(siteCode);
 		task.setCreateTime(sendTime);
 		task.setUpdateTime(sendTime);
-		task.setRemark("移动仓内配单分拣操作妥投");//
+		task.setRemark(WORK_TASK_PARAM_REMARK);//
 		task.setYn(1);
 		task.setOwnsign("BASE");
 		task.setOrderDeliverBodys(Arrays.asList(body));
