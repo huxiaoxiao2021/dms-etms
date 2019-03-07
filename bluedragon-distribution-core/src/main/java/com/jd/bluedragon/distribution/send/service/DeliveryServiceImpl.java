@@ -4953,16 +4953,16 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 
                 //如果全部未可半退的需要给出提示 该批次号对应运单均为半退至仓，确认发货？
-                if(needRemoveWaybill.isEmpty()){
+                if(needRemoveWaybill.isEmpty() && needRemoveBox.isEmpty()){
+                    response.setCode(DeliveryResponse.CODE_Delivery_PART_SEND);
+                    response.setMessage(DeliveryResponse.MESSAGE_Delivery_PART_SEND);
+                }else{
                     //如果存在箱子数据 还要追加剔除箱子
-                    if(needRemoveBox.isEmpty()){
-                        response.setCode(DeliveryResponse.CODE_Delivery_PART_SEND);
-                        response.setMessage(DeliveryResponse.MESSAGE_Delivery_PART_SEND);
-                    }else{
+                    if(!needRemoveBox.isEmpty()){
                         needRemoveWaybill.addAll(needRemoveBox);
                     }
-
                 }
+
 
             }
 
