@@ -140,14 +140,6 @@ public interface BaseService {
 	BaseStaffSiteOrgDto[] queryDriverByOrgId(Integer orgid);
 
 	/**
-	 * 查询所有站点信息
-	 *
-	 * @return List<BaseStaffSiteOrgDto>
-	 */
-	@Deprecated
-	List<BaseStaffSiteOrgDto> getDmsSiteAll();
-
-	/**
 	 * 通过员工id查询分拣中心信息
 	 *
 	 * @param baseStaffId

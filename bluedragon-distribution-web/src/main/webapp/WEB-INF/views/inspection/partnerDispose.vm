@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpbase.css')">
     <link rel="stylesheet" type="text/css" href="#springUrl('/static/css/erpmanage.css')">
     <script type="text/javascript" src="#springUrl('/static/js/jquery-1.js')"></script>
-   <script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></SCRIPT>
+   	<script type="text/javascript" src="#springUrl('/static/js/DatePicker/WdatePicker.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/checkCommon.js')"></script>
 	<script type="text/javascript">

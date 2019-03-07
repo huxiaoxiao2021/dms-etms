@@ -153,8 +153,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseSiteByOrgIdSiteType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<BaseStaffSiteOrgDto> getBaseSiteByOrgIdSiteType(Integer orgId, Integer siteType) {
-//        return getBaseSiteByOrgIdSiteTypeAll(orgId, siteType);
-        return basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(orgId,siteType);
+        return getBaseSiteByOrgIdSiteTypeAll(orgId, siteType);
     }
 
     public BaseStaffSiteOrgDto getBaseStaffSiteOrgDtoFromStore(
