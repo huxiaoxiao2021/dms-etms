@@ -333,7 +333,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     .append("isPackList").append(true);
             logger.error(errorMsg, e);
         }
-        errorMessage.append("换单的新单"+waybillCode+"信息为空，请联系it人员处理!");
+        errorMessage.append("新单"+waybillCode+"的运单信息为空，请联系it人员处理!");
         return true;
     }
 
