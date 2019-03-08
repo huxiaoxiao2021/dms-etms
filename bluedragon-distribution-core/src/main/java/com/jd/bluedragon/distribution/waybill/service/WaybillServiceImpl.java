@@ -291,7 +291,7 @@ public class WaybillServiceImpl implements WaybillService {
 
     /**
      * 根据waybillSign获取运单类型
-     * waybillSign第15位==‘1’表示是移动仓内配单
+     * waybillSign第14位==‘5’表示是移动仓内配单
      * @param waybillCode
      * @return
      */
@@ -301,7 +301,7 @@ public class WaybillServiceImpl implements WaybillService {
                 dto.getWaybill() != null &&
                 StringUtils.isNotBlank(dto.getWaybill().getWaybillSign())){
             String waybillSign = dto.getWaybill().getWaybillSign();
-            if(BusinessUtil.isSignChar(waybillSign,15,'1')){
+            if(BusinessUtil.isSignChar(waybillSign,14,'5')){
                 return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER;
             }
         }
