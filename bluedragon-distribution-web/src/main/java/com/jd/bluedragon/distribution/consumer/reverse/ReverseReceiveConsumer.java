@@ -174,7 +174,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if (reverseReceive.getReceiveType() == 4) {
+			} else if (reverseReceive.getReceiveType() == 4 && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				reverseReceive.setOrderId(reverseReceive.getPackageCode());
@@ -208,7 +208,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if (reverseReceive.getReceiveType() == 4) {
+				} else if (reverseReceive.getReceiveType() == 4 && jrequest != null) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 				if (reverseReceive.getCanReceive() == 0){

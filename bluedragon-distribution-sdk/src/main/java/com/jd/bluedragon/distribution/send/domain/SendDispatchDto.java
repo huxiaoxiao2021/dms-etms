@@ -76,6 +76,18 @@ public class SendDispatchDto implements Serializable {
     /** 下单时间 */
     private Date orderTime;
 
+    /** 运单服务标示 */
+    private String  sendPay;
+
+    /** （目的地）车队7位编码 */
+    private String  receiveDmsSiteCode;
+
+    /** 预分拣站点Code  */
+    private Integer preSiteCode;
+
+    /** 预分拣站点名称 */
+    private String  preSiteName;
+
     public String getSendCode() {
         return sendCode;
     }
@@ -242,5 +254,37 @@ public class SendDispatchDto implements Serializable {
 
     public void setBusiId(Integer busiId) {
         this.busiId = busiId;
+    }
+
+    public String getSendPay() {
+        return sendPay;
+    }
+
+    public void setSendPay(String sendPay) {
+        this.sendPay = sendPay;
+    }
+
+    public String getReceiveDmsSiteCode() {
+        return receiveDmsSiteCode;
+    }
+
+    public void setReceiveDmsSiteCode(String receiveDmsSiteCode) {
+        this.receiveDmsSiteCode = receiveDmsSiteCode;
+    }
+
+    public Integer getPreSiteCode() {
+        return preSiteCode;
+    }
+
+    public void setPreSiteCode(Integer preSiteCode) {
+        this.preSiteCode = preSiteCode;
+    }
+
+    public String getPreSiteName() {
+        return preSiteName;
+    }
+
+    public void setPreSiteName(String preSiteName) {
+        this.preSiteName = preSiteName;
     }
 }

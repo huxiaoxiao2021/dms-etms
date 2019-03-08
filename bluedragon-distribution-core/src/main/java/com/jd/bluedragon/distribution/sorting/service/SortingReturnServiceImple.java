@@ -174,7 +174,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		}
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private Integer add(SortingReturn returns) {
 		return this.sortingReturnDao.add(SortingReturnDao.namespace, returns);
 	}
@@ -185,7 +184,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @param   returns
 	 * @return
 	 */
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private Integer update(SortingReturn returns) {
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
 	}
@@ -214,7 +212,6 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	}
 
 	/********************************************* 运单转换 ********************************************************/
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	private void sendModifyWaybillStatusNotify(List<SortingReturn> _datas) throws Exception {
 		/** 站点信息匹配的数据 */
 		ArrayList<SortingReturn> normalreturnsal = new ArrayList<SortingReturn>();

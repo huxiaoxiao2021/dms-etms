@@ -226,7 +226,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if (reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) {
+			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				if(reverseReceive.getReceiveType() == 7){
@@ -266,7 +266,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if (reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) {
+				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null ) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 

@@ -86,4 +86,11 @@ public interface SiteService {
 	 * @return
      */
 	String getSiteNameByCode(Integer siteCode);
+
+	/**
+	 * 获取城市绑定的分拣中心编码
+	 * @param cityId
+	 * @return
+	 */
+	Integer getCityBindDmsCode(Integer cityId);
 }

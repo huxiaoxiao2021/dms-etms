@@ -2,15 +2,22 @@ package com.jd.bluedragon.distribution.storage.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.exception.StorageException;
+import com.jd.bluedragon.distribution.storage.domain.FulfillmentOrderDto;
 import com.jd.bluedragon.distribution.storage.domain.PutawayDTO;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageMCondition;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +50,9 @@ public class StoragePackageMController {
 
 	@Autowired
 	private StoragePackageMService storagePackageMService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	/**
 	 * 返回主页面
@@ -138,7 +149,7 @@ public class StoragePackageMController {
 
 	/**
 	 * 强制发货  作废（防止二期会继续做，暂时先保留代码）
-	 * @param ids
+
 	 * @return
 	 */
 	@Deprecated
@@ -199,4 +210,68 @@ public class StoragePackageMController {
         }
         return rest;
     }
+
+
+	/**
+	 * 刷新状态
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	@RequestMapping(value = "/refreshSendStatus/{waybillCode}")
+	public @ResponseBody JdResponse<Boolean> refreshSendStatus(@PathVariable("waybillCode") String waybillCode) {
+		JdResponse<Boolean> rest = new JdResponse<Boolean>();
+		rest.setData(false);
+		try {
+			storagePackageMService.updateStoragePackageMStatusForSend(waybillCode);
+			rest.setData(true);
+		} catch (StorageException e) {
+			rest.setMessage(e.getMessage());
+		}catch (Exception e) {
+			logger.error("刷新履约单下运单发货状态失败！"+e.getMessage(),e);
+			rest.toError("刷新履约单下运单发货状态失败，服务异常！");
+		}
+		return rest;
+	}
+
+	/**
+	 * 获取履约单下所有运单数据
+	 * @param waybillCode 运单号
+	 * @return
+	 */
+	@RequestMapping(value = "/queryWaybills/{waybillCode}")
+	public @ResponseBody JdResponse<List<FulfillmentOrderDto>> queryWaybills(@PathVariable("waybillCode") String waybillCode) {
+		JdResponse<List<FulfillmentOrderDto>> result = new JdResponse<List<FulfillmentOrderDto>>();
+		List<FulfillmentOrderDto> fulfillmentOrderDtos = new ArrayList<>();
+		result.setData(fulfillmentOrderDtos);
+		try {
+
+			BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true,true, true,false);
+			if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+				result.setCode(JdResponse.CODE_ERROR);
+				result.setMessage("无运单信息");
+				return result;
+			}
+
+			if(!BusinessUtil.isPerformanceOrder(baseEntity.getData().getWaybill().getWaybillSign())){
+				result.setCode(JdResponse.CODE_ERROR);
+				result.setMessage("非加履中心订单");
+				return result;
+			}
+
+			String	parentOrderId = baseEntity.getData().getWaybill().getParentOrderId();
+
+			List<String> childWaybillCodes = waybillQueryManager.getOrderParentChildList(parentOrderId);
+			for(String childWaybillCode : childWaybillCodes){
+				FulfillmentOrderDto f = new FulfillmentOrderDto();
+				f.setDeliveryOrderId(childWaybillCode);
+				f.setFulfillmentOrderId(parentOrderId);
+				fulfillmentOrderDtos.add(f);
+			}
+
+		}catch (Exception e) {
+			logger.error("获取履约单下所有运单数据异常！"+e.getMessage(),e);
+			result.toError("获取履约单下所有运单数据异常，服务异常！");
+		}
+		return result;
+	}
 }

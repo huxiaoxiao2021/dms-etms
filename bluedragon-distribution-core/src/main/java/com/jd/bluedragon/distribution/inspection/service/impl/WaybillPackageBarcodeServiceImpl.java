@@ -229,7 +229,7 @@ public class WaybillPackageBarcodeServiceImpl implements WaybillPackageBarcodeSe
 	@Override
 	public Integer getPackageNumbersByWaybill(String waybillCode){
 		BaseEntity<BigWaybillDto> entity = wssByWaybillCode(waybillCode);
-		if(null==entity.getData().getWaybill() || null==entity.getData().getWaybill().getGoodNumber()){
+		if(null == entity || null==entity.getData() || null==entity.getData().getWaybill() || null==entity.getData().getWaybill().getGoodNumber()){
 			return -1;
 		}else{
 			return entity.getData().getWaybill().getGoodNumber();

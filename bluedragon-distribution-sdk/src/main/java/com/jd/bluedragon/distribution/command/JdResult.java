@@ -13,23 +13,23 @@ import java.io.Serializable;
 public class JdResult<T> implements Serializable{
 	private static final long serialVersionUID = 1L;
 	
-	public static final int CODE_SUC = 200;
+	public static final Integer CODE_SUC = 200;
 	public static final JdMessage MESSAGE_SUC = new JdMessage(CODE_SUC,"操作成功");
-	public static final int CODE_WARN = 300;
+	public static final Integer CODE_WARN = 300;
 	public static final JdMessage MESSAGE_WARN = new JdMessage(CODE_WARN,"操作警告");
-	public static final int CODE_FAIL = 400;
+	public static final Integer CODE_FAIL = 400;
 	public static final JdMessage MESSAGE_FAIL = new JdMessage(CODE_FAIL,"操作失败");
-	public static final int CODE_ERROR = 500;
+	public static final Integer CODE_ERROR = 500;
 	public static final JdMessage MESSAGE_ERROR = new JdMessage(CODE_ERROR,"操作异常");
 	
 	/**
 	 * 状态
 	 */
-	private int code;
+	private Integer code;
 	/**
 	 * 返回消息编码
 	 */
-	private int messageCode;
+	private Integer messageCode;
 	/**
 	 * 返回消息内容
 	 */
@@ -42,7 +42,7 @@ public class JdResult<T> implements Serializable{
 	public JdResult() {
 		super();
 	}
-	public JdResult(int code, int messageCode, String message) {
+	public JdResult(Integer code, Integer messageCode, String message) {
 		super();
 		this.code = code;
 		this.messageCode = messageCode;
@@ -53,14 +53,14 @@ public class JdResult<T> implements Serializable{
 	 * @return
 	 */
 	public boolean isSucceed(){
-		return this.code == CODE_SUC || this.code == CODE_WARN;
+		return CODE_SUC.equals(this.code) || CODE_WARN.equals(this.code);
 	}
 	/**
 	 * 判断是否成功
 	 * @return
 	 */
 	public boolean isWarn(){
-		return this.code == CODE_WARN;
+		return CODE_WARN.equals(this.code);
 	}
 	/**
 	 * 更改状态为成功
@@ -80,7 +80,7 @@ public class JdResult<T> implements Serializable{
 	 * @param messageCode
 	 * @param message
 	 */
-	public void toSuccess(int messageCode,String message){
+	public void toSuccess(Integer messageCode,String message){
 		this.code = CODE_SUC;
 		this.messageCode = messageCode;
 		this.message = message;
@@ -103,7 +103,7 @@ public class JdResult<T> implements Serializable{
 	 * @param messageCode
 	 * @param message
 	 */
-	public void toWarn(int messageCode,String message){
+	public void toWarn(Integer messageCode,String message){
 		this.code = CODE_WARN;
 		this.messageCode = messageCode;
 		this.message = message;
@@ -126,7 +126,7 @@ public class JdResult<T> implements Serializable{
 	 * @param messageCode
 	 * @param message
 	 */
-	public void toFail(int messageCode,String message){
+	public void toFail(Integer messageCode,String message){
 		this.code = CODE_FAIL;
 		this.messageCode = messageCode;
 		this.message = message;
@@ -149,7 +149,7 @@ public class JdResult<T> implements Serializable{
 	 * @param messageCode
 	 * @param message
 	 */
-	public void toError(int messageCode,String message){
+	public void toError(Integer messageCode,String message){
 		this.code = CODE_ERROR;
 		this.messageCode = messageCode;
 		this.message = message;
@@ -157,25 +157,25 @@ public class JdResult<T> implements Serializable{
 	/**
 	 * @return the code
 	 */
-	public int getCode() {
+	public Integer getCode() {
 		return code;
 	}
 	/**
 	 * @param code the code to set
 	 */
-	public void setCode(int code) {
+	public void setCode(Integer code) {
 		this.code = code;
 	}
 	/**
 	 * @return the messageCode
 	 */
-	public int getMessageCode() {
+	public Integer getMessageCode() {
 		return messageCode;
 	}
 	/**
 	 * @param messageCode the messageCode to set
 	 */
-	public void setMessageCode(int messageCode) {
+	public void setMessageCode(Integer messageCode) {
 		this.messageCode = messageCode;
 	}
 	/**

@@ -6,12 +6,10 @@ import com.jd.bluedragon.distribution.api.domain.YtWaybillSync;
 import com.jd.bluedragon.distribution.api.request.RemoteAccessRequest;
 import com.jd.bluedragon.distribution.api.response.RemoteAccessResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.uim.annotation.Authorization;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -20,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -67,10 +63,11 @@ public class RemoteAccessController {
                 response.setCode(RemoteAccessResponse.CODE_SERVICE_ERROR);
                 response.setMessage(RemoteAccessResponse.MESSAGE_SERVICE_ERROR);
                 response.setData(null);
+            }else{
+                response.setData(remoteResponse.getData());
+                response.setCode(RemoteAccessResponse.CODE_OK);
+                response.setMessage(RemoteAccessResponse.MESSAGE_OK);
             }
-            response.setData(remoteResponse.getData());
-            response.setCode(RemoteAccessResponse.CODE_OK);
-            response.setMessage(RemoteAccessResponse.MESSAGE_OK);
         } catch (Exception e) {
             logger.error("RemoteAccessController.doQueryWaybill-error", e);
             response.setCode(CommonDto.CODE_EXCEPTION);

@@ -8,7 +8,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -56,6 +61,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -576,29 +582,24 @@ public class WaybillResource {
 				return;
 			}
 
-			if (response != null) {
-				waybill.setCrossCode(String.valueOf(labelPrinting
-						.getOriginalCrossCode()));
-				waybill.setTrolleyCode(String.valueOf(labelPrinting
-						.getOriginalTabletrolley()));
-				waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
-				waybill.setTargetDmsName(String.valueOf(labelPrinting
-						.getPurposefulDmsName()));
-				waybill.setTargetDmsDkh(String.valueOf(labelPrinting
-						.getPurposefulCrossCode()));
-				waybill.setTargetDmsLch(String.valueOf(labelPrinting
-						.getPurposefulTableTrolley()));
-				waybill.setAddress(labelPrinting.getOrderAddress());
-				waybill.setJsonData(response.getJsonData());
-				waybill.setRoad(labelPrinting.getRoad());
+			waybill.setCrossCode(String.valueOf(labelPrinting
+					.getOriginalCrossCode()));
+			waybill.setTrolleyCode(String.valueOf(labelPrinting
+					.getOriginalTabletrolley()));
+			waybill.setTargetDmsCode(labelPrinting.getPurposefulDmsCode());
+			waybill.setTargetDmsName(String.valueOf(labelPrinting
+					.getPurposefulDmsName()));
+			waybill.setTargetDmsDkh(String.valueOf(labelPrinting
+					.getPurposefulCrossCode()));
+			waybill.setTargetDmsLch(String.valueOf(labelPrinting
+					.getPurposefulTableTrolley()));
+			waybill.setAddress(labelPrinting.getOrderAddress());
+			waybill.setJsonData(response.getJsonData());
+			waybill.setRoad(labelPrinting.getRoad());
 
-				if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
-					this.logger.error("根据运单号【" + waybill.getWaybillCode()
-							+ "】 获取预分拣的包裹打印路区信息为空");
-				}
-			} else {
+			if(labelPrinting.getRoad()==null|| labelPrinting.getRoad().isEmpty()){
 				this.logger.error("根据运单号【" + waybill.getWaybillCode()
-						+ "】 获取预分拣的包裹打印信息为空");
+						+ "】 获取预分拣的包裹打印路区信息为空");
 			}
 		} catch (Exception e) {
 			this.logger.error("根据运单号【" + waybill.getWaybillCode()
@@ -724,22 +725,50 @@ public class WaybillResource {
 	 */
 	private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
 		if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
-			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
-			if (siteOrgDto != null) {
-				if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
-					if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
-						return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
-					} else {
-						// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
-						if (BusinessHelper.isWms(localScheduleSiteType)) {
-							return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
-						}
+			Integer cky2 = null;
+			Integer storeId = null;
+			// 是否逆向换单运单号
+			if (WaybillUtil.isSwitchCode(waybill.getWaybillCode())) {
+				WaybillManageDomain oldWaybillState = this.getOldWaybillStateByReturnWaybillCode(waybill.getWaybillCode());
+				if (oldWaybillState != null) {
+					cky2 = oldWaybillState.getCky2();
+					storeId = oldWaybillState.getStoreId();
+				}
+			} else {
+				cky2 = waybill.getCky2();
+				storeId = waybill.getStoreId();
+			}
+			if (this.doValidateBlackList(cky2, storeId)) {
+				BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+				if (siteOrgDto != null && BusinessHelper.isWms(siteOrgDto.getSiteType())) {
+					return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
+				} else {
+					// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
+					if (BusinessHelper.isWms(localScheduleSiteType)) {
+						return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
 					}
 				}
 			}
 		}
 		return null;
 	}
+
+    /**
+     * 通过返单运单号获取旧单的运单中waybillState对象
+     *
+     * @param waybillCode
+     * @return
+     */
+    private WaybillManageDomain getOldWaybillStateByReturnWaybillCode(String waybillCode) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldBaseWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if (oldBaseWaybill.getResultCode() == 1 && oldBaseWaybill.getData() != null) {
+            BaseEntity<BigWaybillDto> oldBaseEntity = waybillQueryManager.getDataByChoice(oldBaseWaybill.getData().getWaybillCode(), false, false, true, false);
+            if (oldBaseEntity.getResultCode() == 1 && oldBaseEntity.getData() != null && oldBaseEntity.getData().getWaybillState() != null) {
+                return oldBaseEntity.getData().getWaybillState();
+            }
+        }
+        return null;
+    }
 
 	/**
 	 * 调用运单接口进黑名单校验
@@ -813,9 +842,7 @@ public class WaybillResource {
      */
     @GET
     @Path("/fbackwaybill/{fbackwaybillcode}")
-    public InvokeResult<Waybill> getFBackWaybill(
-            @PathParam("fbackwaybillcode") String fwaybillcode
-    ){
+    public InvokeResult<Waybill> getFBackWaybill(@PathParam("fbackwaybillcode") String fwaybillcode){
         this.logger.info("获取F返单商家信息"+fwaybillcode);
         InvokeResult<Waybill> result=new InvokeResult<Waybill>();
         Waybill waybill =null;
@@ -829,9 +856,7 @@ public class WaybillResource {
             result.setCode(JdResponse.CODE_SERVICE_ERROR);
             result.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
         }
-        finally {
-            return result;
-        }
+		return result;
     }
 
     /**
@@ -956,7 +981,7 @@ public class WaybillResource {
 			jdResponse.setMessage(JdResponse.MESSAGE_OK);
 			jdResponse.setCode(JdResponse.CODE_OK);
 		}catch (Exception ex) {
-			logger.error(request.getSiteCode() + "站点标签打印" + request.getKeyword2(), ex);
+			logger.error("站点标签打印失败,参数:" + JsonHelper.toJson(request), ex);
 			return new TaskResponse(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
@@ -1516,12 +1541,8 @@ public class WaybillResource {
 					+createSiteCode+" isTotal:"+isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 
@@ -1565,12 +1586,8 @@ public class WaybillResource {
 					+createSiteCode+" isTotal:"+isTotal,e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 	/**
@@ -1602,12 +1619,8 @@ public class WaybillResource {
 			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
-
+        return invokeResult;
 	}
 
 
@@ -1641,11 +1654,8 @@ public class WaybillResource {
 			logger.error("换单前获取信息接口入参："+JsonHelper.toJson(request),e);
 			invokeResult.setCode(InvokeResult.SERVER_ERROR_CODE);
 			invokeResult.setMessage("系统异常");
-		}finally {
-			return invokeResult;
 		}
-
-
+        return invokeResult;
 	}
 
 	/**

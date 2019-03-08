@@ -6,10 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +31,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -70,9 +67,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int insert(OfflineLogRequest request) {
-		if (!checkSortingData(request)) {
-			return 0;
-		}
 		int n = 0;
 		if (StringUtils.isEmpty(request.getPackageCode())) {// 按照运单进行分拣
 			String waybillCode = request.getWaybillCode();
@@ -127,9 +121,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public int insertSealBox(OfflineLogRequest request) {
-		if (!checkSealBoxData(request)) {
-			return 0;
-		}
 		int n = this.sealBoxService.addSealBox(toSealBox(request));
 		return n;
 	}
@@ -381,17 +372,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 	}
 
 	/**
-	 * 分拣数据检查
-	 *
-	 * @param request
-	 * @return
-	 */
-	private boolean checkSortingData(OfflineLogRequest request) {
-
-		return true;
-	}
-
-	/**
 	 * 超区退回数据检查
 	 *
 	 * @param request
@@ -405,17 +385,6 @@ public class OfflineSortingServiceImpl implements OfflineSortingService {
 			log.error("离线超区退回传入参数不正确：" + request);
 			return false;
 		}
-		return true;
-	}
-
-	/**
-	 * 封箱数据检查
-	 *
-	 * @param request
-	 * @return
-	 */
-	private boolean checkSealBoxData(OfflineLogRequest request) {
-
 		return true;
 	}
 
