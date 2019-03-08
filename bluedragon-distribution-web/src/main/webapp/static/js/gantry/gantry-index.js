@@ -16,7 +16,10 @@ function init() {
     })
 
     $("#gantry_add_sub").click(function () {
-        to_add_page();
+        jQuery.msg.confirm("该页面已经停止注册新的龙门架设备，新增龙门架设备请前往自动化系统。点击确定获取新的操作手册",function () {
+            window.open("https://cf.jd.com/pages/viewpage.action?pageId=146384841","_blank");
+        });
+        // to_add_page();
     });
 
     gantry_query_sub(1);
