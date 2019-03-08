@@ -17,6 +17,10 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 默认dpi-200
+	 */
+	private static Integer DPI_DEFAULT = 200;
+	/**
      *  应用程序类型-40-青龙打印客户端
      */
     private Integer programType;
@@ -72,6 +76,14 @@ public class WaybillPrintRequest extends JdRequest{
 
 	/** 包裹标签模板版本 **/
 	private Integer templateVersion;
+    /**
+     * 横向分辨率
+     */
+    private Integer dpiX = DPI_DEFAULT;
+    /**
+     * 纵向分辨率
+     */
+    private Integer dpiY = DPI_DEFAULT;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -221,6 +233,34 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setTemplateVersion(Integer templateVersion) {
 		this.templateVersion = templateVersion;
+	}
+
+	/**
+	 * @return the dpiX
+	 */
+	public Integer getDpiX() {
+		return dpiX;
+	}
+
+	/**
+	 * @param dpiX the dpiX to set
+	 */
+	public void setDpiX(Integer dpiX) {
+		this.dpiX = dpiX;
+	}
+
+	/**
+	 * @return the dpiY
+	 */
+	public Integer getDpiY() {
+		return dpiY;
+	}
+
+	/**
+	 * @param dpiY the dpiY to set
+	 */
+	public void setDpiY(Integer dpiY) {
+		this.dpiY = dpiY;
 	}
 
 }

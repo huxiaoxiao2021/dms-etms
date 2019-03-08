@@ -1,5 +1,14 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -25,22 +34,20 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * 面单打印冗余服务
@@ -201,8 +208,8 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 request.setPreSeparateCode(localSchedule);// 调度站点
             // 是否DMS调用
             request.setOriginalType(OriginalType.DMS.getValue());
-            //是否有纸化
-            if(nopaperFlg){
+            //是否有纸化,nopaperFlg可能为null，改成equals判断
+            if(Boolean.TRUE.equals(nopaperFlg)){
                 request.setLabelType(LableType.PAPERLESS.getLabelPaper());
             }else {
                 request.setLabelType(LableType.PAPER.getLabelPaper());
