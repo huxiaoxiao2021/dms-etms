@@ -1347,16 +1347,14 @@ public class BaseResource {
 			ll.add(response);
 			return ll;
 		}
-		// 过滤非分拣中心的数据
-		List<BaseStaffSiteOrgDto> dmsList = dmsFilter(baseSiteList);
-		if(null == dmsList || dmsList.size() == 0){
+		if(null == baseSiteList || baseSiteList.size() == 0){
 			logger.warn("获取所有的分拣中心为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
 			return ll;
 		}
-		for(BaseStaffSiteOrgDto sbs : dmsList){
+		for(BaseStaffSiteOrgDto sbs : baseSiteList){
 			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			br.setSiteCode(sbs.getSiteCode());
 			br.setSiteName(sbs.getSiteName());
@@ -1476,19 +1474,6 @@ public class BaseResource {
 		}
 
 		return result;
-	}
-
-	private List<BaseStaffSiteOrgDto> dmsFilter(List<BaseStaffSiteOrgDto> baseSiteList) {
-		List<BaseStaffSiteOrgDto> dmsList = new ArrayList<BaseStaffSiteOrgDto>(512);
-		if(null != baseSiteList && baseSiteList.size() > 0){
-			for(BaseStaffSiteOrgDto site : baseSiteList){
-				Integer type = site.getSiteType();
-				if(null != type && type == 64){
-					dmsList.add(site);
-				}
-			}
-		}
-		return dmsList;
 	}
 
     @GET
