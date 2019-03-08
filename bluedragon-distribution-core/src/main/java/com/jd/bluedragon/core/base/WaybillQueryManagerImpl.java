@@ -72,44 +72,81 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Override
     @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getDataByChoice", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice wChoice) {
-        Boolean isQueryPackList = wChoice.getQueryPackList() == null ? false : wChoice.getQueryPackList();
-        Boolean isQueryWaybillC = wChoice.getQueryWaybillC() == null ? false : wChoice.getQueryWaybillC();
-        wChoice.setQueryPackList(false);
-        if (isQueryPackList == true) {
-            if (isQueryWaybillC == false) {
-                wChoice.setQueryWaybillC(true);
-            }
-        }
+        Boolean isQueryPackList = wChoice.getQueryPackList();
+        Boolean isQueryWaybillC = wChoice.getQueryWaybillC();
+        this.updateWChoiceSetting(wChoice);
 
         BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoiceNoCache(waybillCode, wChoice);
         if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
             // 只有接口查询包裹信息并且waybill对象不为空时，进行缓存查询
-            if (isQueryPackList && baseEntity.getData().getWaybill() != null) {
-                // 当包裹数大于限制，进行缓存
-                if (baseEntity.getData().getWaybill().getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
+            if (isQueryPackList != null && isQueryPackList) {
+                // 是否需要从缓存获取包裹信息
+                if (this.isNeedGetFromCache(baseEntity.getData().getWaybill())) {
                     try {
                         baseEntity.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
+                        // 回滚wChoice查询配置及返回的数据信息
+                        this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
+                        return baseEntity;
                     } catch (Exception e) {
                         logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
                     }
-                    if (!isQueryWaybillC) {
-                        baseEntity.getData().setWaybill(null);
-                    }
-                    return baseEntity;
                 }
-            }
-            if (isQueryPackList) {
                 // 根据运单号获取包裹信息
                 BaseEntity<List<DeliveryPackageD>> packListBaseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
                 if (packListBaseEntity.getResultCode() == 1) {
                     baseEntity.getData().setPackageList(packListBaseEntity.getData());
                 }
-                if (!isQueryWaybillC) {
-                    baseEntity.getData().setWaybill(null);
-                }
             }
         }
+        // 回滚wChoice查询配置及返回的数据信息
+        this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
         return baseEntity;
+    }
+
+    /**
+     * 更新查询条件信息
+     *
+     * @param wChoice
+     */
+    private void updateWChoiceSetting(WChoice wChoice) {
+        if (wChoice.getQueryPackList() != null && wChoice.getQueryPackList()) {
+            if (wChoice.getQueryWaybillC() == null || wChoice.getQueryWaybillC() == false) {
+                wChoice.setQueryWaybillC(true);
+            }
+        }
+        wChoice.setQueryPackList(false);
+    }
+
+    /**
+     * 查询配置及数据回滚
+     *
+     * @param isQueryPackList
+     * @param isQueryWaybillC
+     * @param wChoice
+     * @param result
+     */
+    private void revertWChoiceSettingAndData(Boolean isQueryPackList, Boolean isQueryWaybillC, WChoice wChoice, BaseEntity<BigWaybillDto> result) {
+        // 改回原值
+        wChoice.setQueryPackList(isQueryPackList);
+        wChoice.setQueryWaybillC(isQueryWaybillC);
+        if (isQueryWaybillC == null || isQueryWaybillC == false) {
+            if (result.getData() != null) {
+                result.getData().setWaybill(null);
+            }
+        }
+    }
+
+    /**
+     * 判断是否需要从缓存中获取包裹数据信息
+     *
+     * @param waybill
+     * @return
+     */
+    private boolean isNeedGetFromCache(Waybill waybill) {
+        if (waybill != null && waybill.getGoodNumber() != null && waybill.getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -455,18 +492,18 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     /**
      * 根据运单号获取订单号
+     *
      * @param waybillCode
-     * @param  source
-     * source说明：
-     *1.如果waybillCode为正向运单，则直接返回订单号
-     *2.如果waybillCode为返单号，并且source为true时，返回原运单的订单号
-     *3.如果waybillCode为返单号，并且source为false时，返回为空
+     * @param source      source说明：
+     *                    1.如果waybillCode为正向运单，则直接返回订单号
+     *                    2.如果waybillCode为返单号，并且source为true时，返回原运单的订单号
+     *                    3.如果waybillCode为返单号，并且source为false时，返回为空
      * @return 订单号
      */
-    public String getOrderCodeByWaybillCode(String waybillCode, boolean source){
+    public String getOrderCodeByWaybillCode(String waybillCode, boolean source) {
         CallerInfo callerInfo = null;
         try {
-            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode",Constants.UMP_APP_NAME_DMSWEB);
+            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getOrderCodeByWaybillCode", Constants.UMP_APP_NAME_DMSWEB);
             BaseEntity<String> baseEntity = waybillQueryApi.getOrderCodeByWaybillCode(waybillCode, source);
             if (baseEntity.getResultCode() != 1) {
                 logger.error("根据运单号调用运单接口获取订单号失败.waybillCode:" + waybillCode + ",source:" + source +
@@ -474,9 +511,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 return null;
             }
             return baseEntity.getData();
-        }catch (Exception e){
+        } catch (Exception e) {
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号调用运单接口获取订单号异常.",e);
+            logger.error("根据运单号调用运单接口获取订单号异常.", e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
@@ -485,14 +522,15 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
 
     /**
      * 根据运单号和属性获取运单扩展属性
+     *
      * @param waybillCodes
-     * @param properties 运单的扩展属性
+     * @param properties   运单的扩展属性
      * @return
      */
-    public List<WaybillExtPro>  getWaybillExtByProperties(List<String> waybillCodes, List<String> properties){
+    public List<WaybillExtPro> getWaybillExtByProperties(List<String> waybillCodes, List<String> properties) {
         CallerInfo callerInfo = null;
         try {
-            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getWaybillExtByProperties",Constants.UMP_APP_NAME_DMSWEB);
+            callerInfo = ProfilerHelper.registerInfo("DMS.BASE.WaybillQueryManagerImpl.getWaybillExtByProperties", Constants.UMP_APP_NAME_DMSWEB);
             BaseEntity<List<WaybillExtPro>> baseEntity = waybillQueryApi.getWaybillExtByProperties(waybillCodes, properties);
             if (baseEntity.getResultCode() != 1) {
                 logger.error("根据运单号调用运单接口运单扩展信息失败.waybillCodes:" +
@@ -503,9 +541,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 return null;
             }
             return baseEntity.getData();
-        }catch (Exception e){
+        } catch (Exception e) {
             Profiler.functionError(callerInfo);
-            logger.error("根据运单号调用运单接口获取扩展信息异常.",e);
+            logger.error("根据运单号调用运单接口获取扩展信息异常.", e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);

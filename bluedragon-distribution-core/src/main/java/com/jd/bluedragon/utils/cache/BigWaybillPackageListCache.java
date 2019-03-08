@@ -37,7 +37,7 @@ public class BigWaybillPackageListCache {
     /**
      * 最多缓存对象个数
      */
-    private static int MAXIMUM_SIZE = 256;
+    private static int MAXIMUM_SIZE = 32;
 
     /**
      * 本地内存缓存，如果缓存不存在则直接
@@ -65,7 +65,7 @@ public class BigWaybillPackageListCache {
             });
 
     /**
-     * 根据
+     * 根据运单号从缓存中获取包裹信息
      *
      * @param waybillCode
      * @return

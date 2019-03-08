@@ -2005,7 +2005,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                             if (tSendDetail.getYn().equals(1) && tSendDetail.getIsCancel().equals(0)) {
                                 // 添加操作日志
                                 addOperationLog(tSendDetail);
-                                this.buildOperateType(tWaybillStatus, tSendDetail.getSendType());
+                                // 判断是正向发货还是逆向发货
+                                if (businessTypeTWO.equals(tSendDetail.getSendType())) {
+                                    tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SEND);
+                                } else {
+                                    tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SEND);
+                                }
                                 waybillStatusList.add(tWaybillStatus);
                                 sendTypeList.add(tSendDetail.getSendType());
 
@@ -2015,7 +2020,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                                 this.logger.info("发送MQ[" + sendMessage.getTopic() + "],业务ID[" + sendMessage.getBusinessId() + "],消息主题: " + sendMessage.getText());
                             } else if (tSendDetail.getYn().equals(0) && tSendDetail.getIsCancel().equals(2)) {
                                 tSendDetail.setSendCode(null);
-                                this.buildOperateType(tWaybillStatus, tSendDetail.getSendType());
+                                // 判断是正向分拣还是逆向分拣
+                                if (businessTypeTWO.equals(tSendDetail.getSendType())) {
+                                    tWaybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SORTING);
+                                } else {
+                                    tWaybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
+                                }
                                 waybillStatusList.add(tWaybillStatus);
                                 sendTypeList.add(tSendDetail.getSendType());
                             }
@@ -2040,14 +2050,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
         }
         return true;
-    }
-
-    private void buildOperateType(WaybillStatus waybillStatus, Integer sendType){
-        if (businessTypeTWO.equals(sendType)) {
-            waybillStatus.setOperateType(OPERATE_TYPE_REVERSE_SORTING);
-        } else {
-            waybillStatus.setOperateType(OPERATE_TYPE_FORWARD_SORTING);
-        }
     }
 
     private WaybillStatus buildWaybillStatus(SendDetail tSendDetail, BaseStaffSiteOrgDto cbDto, BaseStaffSiteOrgDto rbDto) {
