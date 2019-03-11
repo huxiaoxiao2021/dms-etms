@@ -37,16 +37,20 @@ public class BigWaybillPackageListCache {
     /**
      * 最多缓存对象个数
      */
-    private static int MAXIMUM_SIZE = 32;
+    private static int MAXIMUM_SIZE = 64;
 
     /**
      * 本地内存缓存，如果缓存不存在则直接
      */
     private static LoadingCache<String, List<DeliveryPackageD>> localCache = CacheBuilder.newBuilder()
-            .maximumSize(MAXIMUM_SIZE).expireAfterAccess(EXPIRE_TIME_SECOND, TimeUnit.SECONDS)
+            .expireAfterAccess(EXPIRE_TIME_SECOND, TimeUnit.SECONDS)
+            .maximumSize(MAXIMUM_SIZE)
+            .concurrencyLevel(10)
+            .softValues()
             .build(new CacheLoader<String, List<DeliveryPackageD>>() {
                 @Override
                 public List<DeliveryPackageD> load(String key) throws Exception {
+                    logger.info("大运单包裹缓存[" + key + "]，未命中或已过期，调用运单接口，缓存当前大小:" + localCache.size());
                     WaybillPackageManager waybillPackageManager = (WaybillPackageManager) SpringHelper.getBean("waybillPackageManager");
                     if (waybillPackageManager != null) {
                         // 根据运单号获取包裹信息
@@ -72,6 +76,7 @@ public class BigWaybillPackageListCache {
      * @throws ExecutionException
      */
     public static List<DeliveryPackageD> getPackageListFromCache(String waybillCode) throws ExecutionException {
+        logger.info("大运单包裹缓存[" + waybillCode + "]，取内存缓存，缓存当前大小:" + localCache.size());
         return localCache.get(waybillCode);
     }
 }
