@@ -23,15 +23,10 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 
     @Autowired
     SysConfigService sysConfigService;
-
-    /**B网专用面单 **/
-    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-m";
-    /** B网营业厅面单 **/
-    private static final String TEMPlATE_NAME_B2B_BUSINESS_HALL = "dms-b2b-new";
+    /** B网模板 **/
+    private static final String TEMPlATE_NAME_B2B_BUSINESS = "dms-b2b-new";
     /** B网冷链面单 **/
     private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
-    /** TC面单 **/
-    private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网专用面单 **/
     private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
     /** 一号店面单 **/
@@ -58,20 +53,14 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 if (BusinessUtil.isSignInChars(waybillSign, 40, '1', '2', '3')) {
                     //B网模板
                     if (!BusinessUtil.isSignChar(waybillSign, 54, '2')) {
-                        if (BusinessUtil.isSignChar(waybillSign, 62, '1')) {
-                            //B网营业厅面单
-                            templateName = TEMPlATE_NAME_B2B_BUSINESS_HALL;
-                        } else if (BusinessUtil.isSignChar(waybillSign, 62, '0')) {
-                            //B网专用面单
-                            templateName = TEMPlATE_NAME_B2B_MAIN;
-                        }
+                        templateName = TEMPlATE_NAME_B2B_BUSINESS;
                     } else {
                         //冷链模板
                         templateName = TEMPlATE_NAME_B2B_COLD;
                     }
                 } else if (BusinessUtil.isSignChar(waybillSign, 89, '1')) {
                     //TC模板
-                    templateName = TEMPlATE_NAME_TC;
+                    templateName = TEMPlATE_NAME_B2B_BUSINESS;
                 } else {
                     //C网面单
                     //一号店模板

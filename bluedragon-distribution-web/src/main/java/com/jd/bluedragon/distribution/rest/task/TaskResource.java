@@ -374,6 +374,24 @@ public class TaskResource {
         return result;
     }
 
+    public static void main(String [] args){
+        Date scannerTime = new Date(DateHelper.adjustTimestampToJava(9467029290000L));
+        String daysStr = "-30";
+        Integer days = -30;
+        if (StringHelper.isNotEmpty(daysStr)) {
+            try {
+                days = Integer.parseInt(daysStr);
+            }
+            catch (Exception e) {
+            }
+
+        }
+        //比调整后的时间还早，说明上传时间有问题
+        if (DateHelper.compareAdjustDate(scannerTime, days) < 0) {
+            System.out.println("小于");
+        }
+    }
+
     /**
      * 保存自动分拣机发货任务
      *
