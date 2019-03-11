@@ -84,6 +84,10 @@ public class WaybillPrintRequest extends JdRequest{
      * 纵向分辨率
      */
     private Integer dpiY = DPI_DEFAULT;
+    /**
+     * 纸张尺寸编码
+     */
+    private String paperSizeCode;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -261,6 +265,20 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	public void setDpiY(Integer dpiY) {
 		this.dpiY = dpiY;
+	}
+
+	/**
+	 * @return the paperSizeCode
+	 */
+	public String getPaperSizeCode() {
+		return paperSizeCode;
+	}
+
+	/**
+	 * @param paperSizeCode the paperSizeCode to set
+	 */
+	public void setPaperSizeCode(String paperSizeCode) {
+		this.paperSizeCode = paperSizeCode;
 	}
 
 }
