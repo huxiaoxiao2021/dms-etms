@@ -2056,7 +2056,6 @@ public class WaybillResource {
 					//体积转换为数值类型
 					Double againVolume = null;
 					if (againVolumeStr != null) {
-						againVolume = null;
 						try {
 							againVolume = Double.parseDouble(againVolumeStr);
 						} catch (Exception e) {
