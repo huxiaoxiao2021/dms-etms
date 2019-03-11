@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -58,6 +59,13 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Qualifier("waybillTraceBusinessQueryApi")
     @Autowired
     private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
+    /**
+     * 大包裹运单缓存开关
+     */
+    private final static String BIG_WAYBILL_PACKAGE_CACHE_SWITCH = PropertiesHelper.newInstance().getValue("big.waybill.package.cache.switch");
+
+    private static final String SWITCH_ON = "1";
 
     @Override
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
@@ -143,7 +151,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     private boolean isNeedGetFromCache(Waybill waybill) {
-        if (waybill != null && waybill.getGoodNumber() != null && waybill.getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
+        if (SWITCH_ON.equals(BIG_WAYBILL_PACKAGE_CACHE_SWITCH) && waybill != null && waybill.getGoodNumber() != null && waybill.getGoodNumber() > BigWaybillPackageListCache.BIG_WAYBILL_PACKAGE_LIMIT) {
             return true;
         }
         return false;

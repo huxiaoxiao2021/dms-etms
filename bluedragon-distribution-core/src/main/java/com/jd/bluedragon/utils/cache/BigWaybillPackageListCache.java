@@ -3,10 +3,13 @@ package com.jd.bluedragon.utils.cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -76,7 +79,10 @@ public class BigWaybillPackageListCache {
      * @throws ExecutionException
      */
     public static List<DeliveryPackageD> getPackageListFromCache(String waybillCode) throws ExecutionException {
+        CallerInfo info = Profiler.registerInfo("DMSWORKER.BigWaybillPackageListCache.getPackageListFromCache", Constants.UMP_APP_NAME_DMSWORKER, false, true);
         logger.info("大运单包裹缓存[" + waybillCode + "]，取内存缓存，缓存当前大小:" + localCache.size());
-        return localCache.get(waybillCode);
+        List<DeliveryPackageD> packageList = localCache.get(waybillCode);
+        Profiler.registerInfoEnd(info);
+        return packageList;
     }
 }
