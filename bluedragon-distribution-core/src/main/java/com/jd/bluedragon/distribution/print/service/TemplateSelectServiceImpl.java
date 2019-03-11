@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -51,22 +52,15 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 
     /** 10*5的小包裹标签 **/
     private static final String TEMPLATE_NAME_10_5 = "dms-haspaper15-m";
-	/** 纸张尺寸10*5 **/
-    private static final String PAPER_SIZE_CODE_1005 = "1005";
-	/** 纸张尺寸10*10 **/
-    private static final String PAPER_SIZE_CODE_1010 = "1010";
-
     @Override
     public String handle(WaybillPrintContext context) {
         String templateName = context.getRequest().getTemplateName();
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
-        Boolean noPaperFlag = context.getRequest().getNopaperFlg();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
         //只有无纸化标识为false，才返回小标签
-        if(Boolean.FALSE.equals(noPaperFlag) 
-        		||PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
+        if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (StringUtils.isBlank(templateName)) {
@@ -93,7 +87,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                     if (Constants.BUSINESS_ALIAS_YHD.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         templateName = TEMPlATE_NAME_C_BUSINESS;
                         //10*10模板
-                        if(PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_BUSINESS;
                         }
                     } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
@@ -103,7 +97,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
                         //10*10模板
-                        if(PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
                         	templateName = TEMPlATE_NAME_C1010_MAIN;
                         }
                     }

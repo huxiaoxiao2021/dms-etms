@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.C2cInterceptHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
@@ -182,7 +183,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     private InterceptResult<String> setBasicMessageByDistribution(WaybillPrintContext context) {
         Waybill waybill = context.getWaybill();
         Integer localSchedule = context.getRequest().getTargetSiteCode();
-        Boolean nopaperFlg = context.getRequest().getNopaperFlg();
         Integer startSiteType = context.getRequest().getStartSiteType();
         Integer startDmsCode = context.getRequest().getDmsSiteCode();
         InterceptResult<String> result = new InterceptResult<String>();
@@ -208,11 +208,11 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 request.setPreSeparateCode(localSchedule);// 调度站点
             // 是否DMS调用
             request.setOriginalType(OriginalType.DMS.getValue());
-            //是否有纸化,nopaperFlg可能为null，改成equals判断
-            if(Boolean.TRUE.equals(nopaperFlg)){
-                request.setLabelType(LableType.PAPERLESS.getLabelPaper());
-            }else {
+            //是否有纸化,改为通过paperSizeCode来判断
+            if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())){
                 request.setLabelType(LableType.PAPER.getLabelPaper());
+            }else {
+            	request.setLabelType(LableType.PAPERLESS.getLabelPaper());
             }
 
             BaseResponseIncidental<LabelPrintingResponse> response = labelPrinting.dmsPrint(request,context);
