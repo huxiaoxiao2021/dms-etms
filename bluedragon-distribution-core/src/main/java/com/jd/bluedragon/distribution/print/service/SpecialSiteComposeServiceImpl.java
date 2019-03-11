@@ -42,6 +42,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
         if (PREPARE_SITE_CODE_OVER_AREA.equals(waybill.getPrepareSiteCode())) {
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_OVER_AREA);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
+            waybill.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
             logger.warn(" 没有获取预分拣站点(-2超区),"+waybill.getWaybillCode());
             //未定位门店
         } else if(waybill.getPrepareSiteCode()==null
@@ -50,12 +51,14 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
                 ){
             waybill.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
+            waybill.setPrintSiteName(PREPARE_SITE_NAME_NOTHING);
             logger.warn(" 没有获取预分拣站点(未定位门店),"+waybill.getWaybillCode());
         } else if(waybill.getPrepareSiteCode() !=null
                 && waybill.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
             waybill.setPrepareSiteCode(waybill.getPrepareSiteCode());
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
+            waybill.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
             logger.warn(" 没有获取预分拣站点(细分超区)," + waybill.getPrepareSiteCode() + ","+waybill.getWaybillCode());
         }
 
@@ -63,6 +66,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
         if(waybill.getPrepareSiteCode()!=null
                 && waybill.getPrepareSiteCode().equals(PREPARE_SITE_CODE_EMS_DIRECT)){
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
+            waybill.setPrintSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
         }
 
 
@@ -70,6 +74,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(waybill.getPrepareSiteCode());
             if(null!=site){
                 waybill.setPrepareSiteName(site.getSiteName());
+                waybill.setPrintSiteName(site.getSiteName());
             }
         }
     }
