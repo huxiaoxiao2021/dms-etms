@@ -521,21 +521,6 @@ public class BaseServiceImpl implements BaseService {
 		}
 	}
 
-	@Deprecated
-	public List<BaseStaffSiteOrgDto> getDmsSiteAll() {
-		CallerInfo info = Profiler.registerInfo("DMS.BaseServiceImpl.getDmsSiteAll", false, true);
-		try {
-			List<BaseStaffSiteOrgDto> results = baseMajorManager.getDmsSiteAll();
-			return results;
-		} catch (Exception e) {
-			log.error("调用basicMajorServiceProxy.getDmsSiteAll()异常", e);
-			Profiler.functionError(info);
-			return null;
-		}finally{
-			Profiler.registerInfoEnd(info);
-		}
-	}
-
 	/**
 	 * 通过员工id查询分拣中心信息
 	 *
@@ -549,7 +534,8 @@ public class BaseServiceImpl implements BaseService {
 
 		List<BaseStaffSiteOrgDto> baseStaffSiteOrgList = new ArrayList<BaseStaffSiteOrgDto>();
 		if (null == baseStaffSiteOrgDto) {
-			baseStaffSiteOrgList = baseMajorManager.getDmsSiteAll();
+			//orgId=null标识所有分拣中心
+			baseStaffSiteOrgList = basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(null,64);
 		}
 
 		if (null != baseStaffSiteOrgDto) {
