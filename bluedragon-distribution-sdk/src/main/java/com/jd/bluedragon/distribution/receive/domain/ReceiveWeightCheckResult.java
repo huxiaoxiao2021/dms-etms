@@ -50,9 +50,9 @@ public class ReceiveWeightCheckResult extends DbEntity {
     /** 揽收体积cm */
     private Double receiveVolume;
     /** 重量差异 */
-    private Double weightDiff;
+    private String weightDiff;
     /** 体积重量差异 */
-    private Double volumeWeightDiff;
+    private String volumeWeightDiff;
     /** 误差标准值 */
     private String diffStandard;
     /** 是否超标 */
@@ -200,19 +200,19 @@ public class ReceiveWeightCheckResult extends DbEntity {
         this.receiveVolume = receiveVolume;
     }
 
-    public Double getWeightDiff() {
+    public String getWeightDiff() {
         return weightDiff;
     }
 
-    public void setWeightDiff(Double weightDiff) {
+    public void setWeightDiff(String weightDiff) {
         this.weightDiff = weightDiff;
     }
 
-    public Double getVolumeWeightDiff() {
+    public String getVolumeWeightDiff() {
         return volumeWeightDiff;
     }
 
-    public void setVolumeWeightDiff(Double volumeWeightDiff) {
+    public void setVolumeWeightDiff(String volumeWeightDiff) {
         this.volumeWeightDiff = volumeWeightDiff;
     }
 

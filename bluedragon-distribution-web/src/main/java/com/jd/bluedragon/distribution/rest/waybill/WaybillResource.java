@@ -92,6 +92,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -1855,7 +1856,6 @@ public class WaybillResource {
     @Path("/package/weight/warn/check")
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
-        //组装数据
         ReceiveWeightCheckResult receiveWeightCheckResult = new ReceiveWeightCheckResult();
         assemble(packWeightVO, receiveWeightCheckResult);
         try{
@@ -1865,9 +1865,9 @@ public class WaybillResource {
             double upHigh = packWeightVO.getHigh();
             double upWeight = packWeightVO.getWeight();
             double upVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?upLength*upWidth*upHigh : packWeightVO.getVolume();
-            receiveWeightCheckResult.setReviewLwh(upLength+"*"+upWidth+"*"+upHigh); //复核长宽高cm
-            receiveWeightCheckResult.setReviewWeight(upWeight); //分拣复重kg
-            receiveWeightCheckResult.setReviewVolume(upVolume); //复核体积cm³
+            receiveWeightCheckResult.setReviewLwh(upLength+"*"+upWidth+"*"+upHigh);
+            receiveWeightCheckResult.setReviewWeight(upWeight);
+            receiveWeightCheckResult.setReviewVolume(upVolume);
             //揽收信息
             double length = 0;
             double width = 0;
@@ -1881,9 +1881,9 @@ public class WaybillResource {
                 high = weightResult.getData().getHigh();
                 weight = weightResult.getData().getWeight();
                 volume = weightResult.getData().getVolume();
-                receiveWeightCheckResult.setReceiveLwh(length+"*"+width+"*"+high); //揽收长宽高cm
-                receiveWeightCheckResult.setReceiveWeight(weight); //揽收重量kg
-                receiveWeightCheckResult.setReceiveVolume(volume); //揽收体积cm³
+                receiveWeightCheckResult.setReceiveLwh(length+"*"+width+"*"+high);
+                receiveWeightCheckResult.setReceiveWeight(weight);
+                receiveWeightCheckResult.setReceiveVolume(volume);
             }
 			/*
 			* 对比项1	             对比项2	                      			对比标准
@@ -1905,6 +1905,7 @@ public class WaybillResource {
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setData(false);
                 result.setMessage("揽收重量为0或空，无法进行校验");
+				receiveWeightCheckResult.setIsExcess(1);
             }else{
                 if((upWeight <= 5 && Math.abs(upWeight-weight)> 0.3) || (upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5)
                         || (upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1)
@@ -1913,23 +1914,24 @@ public class WaybillResource {
                     result.setData(false);
                     result.setMessage("此次操作重量为"+upWeight+"kg,揽收重量为"+weight+"kg，"
                             +"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : weight * 0.02)+"kg！");
-                    receiveWeightCheckResult.setWeightDiff(Math.abs(upWeight-weight)); //重量差异
-                    receiveWeightCheckResult.setIsExcess(1); //是否超标
-                    if(upWeight <= 5 && Math.abs(upWeight-weight)> 0.3){
-                        receiveWeightCheckResult.setDiffStandard("0.3"); //误差标准值
-                    }else if(upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5){
-                        receiveWeightCheckResult.setDiffStandard("0.5"); //误差标准值
-                    }else if(upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1){
-                        receiveWeightCheckResult.setDiffStandard("1"); //误差标准值
-                    }else if(upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02){
-                        receiveWeightCheckResult.setDiffStandard("2%"); //误差标准值
-                    }
-                }
-            }
+                    receiveWeightCheckResult.setIsExcess(1);
+				}
+			}
+			receiveWeightCheckResult.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(upWeight - weight)));
+			if(upWeight <= 5){
+				receiveWeightCheckResult.setDiffStandard("0.3");
+			}else if(upWeight > 5 && upWeight <= 20){
+				receiveWeightCheckResult.setDiffStandard("0.5");
+			}else if(upWeight > 20 && upWeight <= 50){
+				receiveWeightCheckResult.setDiffStandard("1");
+			}else if(upWeight > 50){
+				receiveWeightCheckResult.setDiffStandard("2%");
+			}
             if(volume == 0){
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setData(false);
                 result.setMessage("揽收体积为0或空，无法进行校验");
+				receiveWeightCheckResult.setIsExcess(1);
             }else{
                 if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000> 0.3)
                         || (upVolume/8000 > 5 && upVolume/8000 <= 20  && Math.abs(upVolume-volume)/8000 > 0.5)
@@ -1944,10 +1946,10 @@ public class WaybillResource {
                         message = result.getMessage()+"\r\n"+message;
                     }
                     result.setMessage(message);
-                    receiveWeightCheckResult.setIsExcess(1); //是否超标
-                    receiveWeightCheckResult.setVolumeWeightDiff(Math.abs(upVolume/8000-volume/8000)); //体积重量差异
+                    receiveWeightCheckResult.setIsExcess(1);
                 }
             }
+			receiveWeightCheckResult.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(upVolume/8000-volume/8000)));
         }catch (Exception e){
             logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);

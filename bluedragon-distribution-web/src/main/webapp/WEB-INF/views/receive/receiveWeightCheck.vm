@@ -46,11 +46,12 @@
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="box-code-input">是否超标 ：</label>
                                     <div class="col-xs-6 ">
-                                        <select type="text" class="form-control search-param" id="isExcess" name="isExcess">
+                                        <select type="text" class="form-control" id="isExcessSelect" name="isExcessSelect">
                                             <option value="2">全部</option>
                                             <option value="1" selected>是</option>
                                             <option value="0">否</option>
                                         </select>
+                                        <input type="hidden" id="isExcess" class="form-control  search-param " name="isExcess">
                                     </div>
                                 </div>
                             </div>

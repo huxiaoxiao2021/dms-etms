@@ -20,8 +20,8 @@
 		<result column="receive_weight" property="receiveWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="receive_lwh" property="receiveLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_volume" property="receiveVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="weight_diff" property="weightDiff" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="volume_weight_diff" property="volumeWeightDiff" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="weight_diff" property="weightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="volume_weight_diff" property="volumeWeightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="diff_standard" property="diffStandard" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="is_excess" property="isExcess" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
@@ -36,16 +36,146 @@
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult">
-		INSERT INTO receive_weight (
-		review_date, package_code, busi_name, review_org,review_create_site_code,review_create_site_name,review_erp
-		review_weight,review_lwh,review_volume,receive_org,receive_department,receive_erp,receive_weight,
-		receive_lwh,receive_volume,weight_diff,volume_weight_diff,diff_standard,is_excess,is_delete)
-		VALUES (
-		#{reviewDate,jdbcType=TIMESTAMP}, #{packageCode,jdbcType=VARCHAR}, #{busiName,jdbcType=VARCHAR}, #{reviewOrg,jdbcType=VARCHAR},
-		#{reviewCreateSiteCode,jdbcType=BIGINT}, #{reviewCreateSiteName,jdbcType=VARCHAR}, #{reviewErp,jdbcType=VARCHAR}, #{reviewWeight,jdbcType=DOUBLE}, #{reviewLwh,jdbcType=VARCHAR},
-		#{reviewVolume,jdbcType=DOUBLE}, #{receiveOrg,jdbcType=VARCHAR}, #{receiveDepartment,jdbcType=VARCHAR}, #{receiveErp,jdbcType=VARCHAR},
-		#{receiveWeight,jdbcType=DOUBLE}, #{receiveLwh,jdbcType=VARCHAR}, #{receiveVolume,jdbcType=DOUBLE}, #{weightDiff,jdbcType=DOUBLE},
-		#{volumeWeightDiff,jdbcType=DOUBLE}, #{diffStandard,jdbcType=VARCHAR}, #{isExcess,jdbcType=TINYINT}, 1)
+		insert into receive_weight
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="reviewDate != null">
+				review_date,
+			</if>
+			<if test="packageCode != null">
+				package_code,
+			</if>
+			<if test="busiName != null">
+				busi_name,
+			</if>
+			<if test="reviewOrg != null">
+				review_org,
+			</if>
+			<if test="reviewCreateSiteCode != null">
+				review_create_site_code,
+			</if>
+			<if test="reviewCreateSiteName != null">
+				review_create_site_name,
+			</if>
+			<if test="reviewErp != null">
+				review_erp,
+			</if>
+			<if test="reviewWeight != null">
+				review_weight,
+			</if>
+			<if test="reviewLwh != null">
+				review_lwh,
+			</if>
+			<if test="reviewVolume != null">
+				review_volume,
+			</if>
+			<if test="receiveOrg != null">
+				receive_org,
+			</if>
+			<if test="receiveDepartment != null">
+				receive_department,
+			</if>
+			<if test="receiveErp != null">
+				receive_erp,
+			</if>
+			<if test="receiveWeight != null">
+				receive_weight,
+			</if>
+			<if test="receiveLwh != null">
+				receive_lwh,
+			</if>
+			<if test="receiveVolume != null">
+				receive_volume,
+			</if>
+			<if test="weightDiff != null">
+				weight_diff,
+			</if>
+			<if test="volumeWeightDiff != null">
+				volume_weight_diff,
+			</if>
+			<if test="diffStandard != null">
+				diff_standard,
+			</if>
+			<if test="isExcess != null">
+				is_excess,
+			</if>
+				is_delete,
+				ts
+		</trim>
+		)
+		values
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="reviewDate != null">
+				#{reviewDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="packageCode != null">
+				#{packageCode,jdbcType=VARCHAR},
+			</if>
+			<if test="busiName != null">
+				#{busiName,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewOrg != null">
+				#{reviewOrg,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewCreateSiteCode != null">
+				#{reviewCreateSiteCode,jdbcType=BIGINT},
+			</if>
+			<if test="reviewCreateSiteName != null">
+				#{reviewCreateSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewErp != null">
+				#{reviewErp,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewWeight != null">
+				#{reviewWeight,jdbcType=DOUBLE},
+			</if>
+			<if test="reviewLwh != null">
+				#{reviewLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewVolume != null">
+				#{reviewVolume,jdbcType=DOUBLE},
+			</if>
+			<if test="receiveOrg != null">
+				#{receiveOrg,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveDepartment != null">
+				#{receiveDepartment,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveErp != null">
+				#{receiveErp,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveWeight != null">
+				#{receiveWeight,jdbcType=DOUBLE},
+			</if>
+			<if test="receiveLwh != null">
+				#{receiveLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveVolume != null">
+				#{receiveVolume,jdbcType=DOUBLE},
+			</if>
+			<if test="weightDiff != null">
+				#{weightDiff,jdbcType=VARCHAR},
+			</if>
+			<if test="volumeWeightDiff != null">
+				#{volumeWeightDiff,jdbcType=VARCHAR},
+			</if>
+			<if test="diffStandard != null">
+				#{diffStandard,jdbcType=VARCHAR},
+			</if>
+			<if test="isExcess != null">
+				#{isExcess,jdbcType=TINYINT},
+			</if>
+				1,
+				now()
+		</trim>
+		)
 	</insert>
 
 	<sql id="Base_Condition_Sql" >

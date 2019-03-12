@@ -200,6 +200,7 @@ $(function () {
         });
     }
 
+    initSelect();
     initOrg();
     initDateQuery();
     tableInit().init();
@@ -213,6 +214,17 @@ function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
     $("#startTime").val(v+" 00:00:00");
     $("#endTime").val(v+" 23:59:59");
+}
+
+function initSelect() {
+    $("#query-form #isExcessSelect").on('change', function (e) {
+        var v = $("#query-form #isExcessSelect").val();
+        if (v == 0 || v == 1) {
+            $("#query-form #isExcess").val(v);
+        } else {
+            $("#query-form #isExcess").val(null);
+        }
+    });
 }
 
 var initLogin = true;
@@ -263,7 +275,6 @@ function findSite(selectId,siteListUrl,initIdSelectId){
         }
     });
 }
-
 
 // 初始化大区下拉框
 function initOrg() {
