@@ -208,16 +208,16 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
         JdResponse result = new JdResponse();
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
         //校验输入的运单号是否有运单信息
-        Boolean isExistOfOne = waybillQueryApi.queryExist(waybillCode);
+        Boolean isExistOfOne = waybillQueryManager.queryExist(waybillCode);
         if(!isExistOfOne){
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("运单号："+waybillCode+"的运单信息为空!");
+            result.setMessage("未查询到此运单"+waybillCode+"信息，请检查输入!");
             return result;
         }
-        Boolean isExistOfTwo = waybillQueryApi.queryExist(secondWaybillCode);
+        Boolean isExistOfTwo = waybillQueryManager.queryExist(secondWaybillCode);
         if(!isExistOfTwo){
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-            result.setMessage("运单号："+secondWaybillCode+"的运单信息为空!");
+            result.setMessage("未查询到此运单"+secondWaybillCode+"信息，请检查输入!");
             return result;
         }
         ResponseDTO<ReturnSignatureMessageDTO>  responseDto = null;
