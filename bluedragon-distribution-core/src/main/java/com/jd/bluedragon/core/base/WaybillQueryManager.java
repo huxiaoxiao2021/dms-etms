@@ -225,4 +225,11 @@ public interface WaybillQueryManager{
 	 */
 	Boolean ifForceCheckByWarehouse(Integer cky2, Integer storeId);
 
+	/**
+	 * 查询运单号是否存在
+	 * @param waybillCode
+	 * @return
+	 */
+	Boolean queryExist(String waybillCode);
+
 }
