@@ -2031,7 +2031,7 @@ public class WaybillResource {
 				isNeedCheck = true;
 			} else {
 				String waybillCode = oldWaybillCode;
-				if (WaybillUtil.isPackageCode(oldWaybillCode) || WaybillUtil.isWaybillCode(oldWaybillCode)){
+				if (WaybillUtil.isPackageCode(oldWaybillCode)){
 					waybillCode = WaybillUtil.getWaybillCode(oldWaybillCode);
 				}
 				//判断老单是否是自营订单并且有拒收状态，拒收状态160
