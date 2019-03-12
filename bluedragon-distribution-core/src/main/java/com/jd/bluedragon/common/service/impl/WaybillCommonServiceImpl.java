@@ -695,19 +695,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSenderCompany(waybill.getSenderCompany());
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessUtil.isSopOrExternal(waybill.getWaybillSign()));
-
         //设置已验视已安检
         //判断始发分拣中心是否属于北京
-        if(siteService.getBjDmsSiteCodes()
-                .contains(target.getOriginalDmsCode())){
+        boolean bjCheckFlg = siteService.getBjDmsSiteCodes()
+                .contains(target.getOriginalDmsCode());
+        target.setBjCheckFlg(bjCheckFlg);
+        if(bjCheckFlg){
             target.setExamineFlag(EXAMINE_FLAG_COMMEN_BJ);
         }else {
             target.setExamineFlag(EXAMINE_FLAG_COMMEN);
         }
         target.setSecurityCheck(SECURITY_CHECK);
 
-        target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
-        		.contains(target.getOriginalDmsCode()));
         //打印时间,取后台服务器时间
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
@@ -1127,7 +1126,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String specialRequirement = "";
         if(StringUtils.isNotBlank(waybillSign)){
             //签单返还
-            if(BusinessUtil.isSignChar(waybillSign,4,'1')){
+            if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
             }
             //包装服务

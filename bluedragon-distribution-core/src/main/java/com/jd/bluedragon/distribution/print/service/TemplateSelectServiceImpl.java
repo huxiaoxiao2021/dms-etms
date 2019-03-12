@@ -75,9 +75,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 } else {
                     //C网面单
                     //一号店模板
-                    if (Constants.BUSINESS_ALIAS_YHD.equals(context.getResponse().getDmsBusiAlias())) {
+                    if (Constants.BUSINESS_ALIAS_YHD.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         templateName = TEMPlATE_NAME_C_BUSINESS;
-                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getResponse().getDmsBusiAlias())) {
+                    } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
                     } else {
