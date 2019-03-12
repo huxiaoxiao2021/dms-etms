@@ -44,7 +44,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
             return result;
         }
         if((!WaybillUtil.isWaybillCode(condition.getBarCodeOfOne()) && !WaybillUtil.isPackageCode(condition.getBarCodeOfOne())) ||
-                (WaybillUtil.isWaybillCode(condition.getBarCodeOfTwo()) && WaybillUtil.isPackageCode(condition.getBarCodeOfTwo())) ){
+                (!WaybillUtil.isWaybillCode(condition.getBarCodeOfTwo()) && !WaybillUtil.isPackageCode(condition.getBarCodeOfTwo())) ){
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("输入的条码不符合规则!");
             return result;
@@ -52,7 +52,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
         String waybillCodeOfOne = WaybillUtil.getWaybillCode(condition.getBarCodeOfOne());
         String waybillCodeOfTwo = WaybillUtil.getWaybillCode(condition.getBarCodeOfTwo());
         if(!waybillCodeOfOne.equals(waybillCodeOfTwo)){
-            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setCode(600);
             result.setMessage("匹配失败，号码不一致！请检查面单是否贴错");
             return result;
         }

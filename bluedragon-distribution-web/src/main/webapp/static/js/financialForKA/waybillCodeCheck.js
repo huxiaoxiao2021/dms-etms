@@ -36,12 +36,41 @@ $(function() {
                 if (res && res.code !=200) {
                     //条码不同，提示音错误警告
                     playSound(sucessBeep);
+                    //输入框2失去焦点
+                    $('#barCodeOfTwo').blur();
                     //弹框提示
-                    var sss = confirm(res.message);
-                    if(sss){
-                        $('#barCodeOfOne').val("");
-                        $('#barCodeOfTwo').val("");
-                        $('#barCodeOfOne').focus();
+                    var aaa = "<font style='color: red;font-size: 25px'>"+res.message+"</font>";
+                    var sss = "<font style='font-size: 25px;'>"+res.message+"</font>";
+                    if(res.code == 600){
+                        layer.open({
+                            title: '提示',
+                            shadeClose: true,
+                            shade: 0.7,
+                            area: ['350px', '200px'],
+                            content: aaa,
+                            btn: ['确定'],
+                            yes: function(index){
+                                $('#barCodeOfOne').val("");
+                                $('#barCodeOfTwo').val("");
+                                $('#barCodeOfOne').focus();
+                                layer.close(index);
+                            },
+                        });
+                    }else {
+                        layer.open({
+                            title: '提示',
+                            shadeClose: true,
+                            shade: 0.7,
+                            area: ['350px', '200px'],
+                            content: sss,
+                            btn: ['确定'],
+                            yes: function(index){
+                                $('#barCodeOfOne').val("");
+                                $('#barCodeOfTwo').val("");
+                                $('#barCodeOfOne').focus();
+                                layer.close(index);
+                            },
+                        });
                     }
                 }else{
                     //条码相同提示语隐藏
