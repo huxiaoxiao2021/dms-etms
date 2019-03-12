@@ -571,4 +571,16 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         }
         return null;
     }
+
+    /**
+     * 查询运单号是否存在
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.queryExist",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @Override
+    public Boolean queryExist(String waybillCode){
+        return waybillQueryApi.queryExist(waybillCode);
+    }
 }
