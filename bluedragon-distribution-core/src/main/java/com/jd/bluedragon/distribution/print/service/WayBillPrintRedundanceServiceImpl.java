@@ -208,8 +208,9 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 request.setPreSeparateCode(localSchedule);// 调度站点
             // 是否DMS调用
             request.setOriginalType(OriginalType.DMS.getValue());
-            //是否有纸化,改为通过paperSizeCode来判断
-            if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())){
+            //是否有纸化,改为通过paperSizeCode来判断,兼容旧逻辑
+            if(Boolean.FALSE.equals(context.getRequest().getNopaperFlg())
+            		||DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())){
                 request.setLabelType(LableType.PAPER.getLabelPaper());
             }else {
             	request.setLabelType(LableType.PAPERLESS.getLabelPaper());

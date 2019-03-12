@@ -110,6 +110,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE)
         		.contains(context.getRequest().getDmsSiteCode())){
         	basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
+        }else{
+        	basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
         }
         //得到业务模板
         //根据key查config
