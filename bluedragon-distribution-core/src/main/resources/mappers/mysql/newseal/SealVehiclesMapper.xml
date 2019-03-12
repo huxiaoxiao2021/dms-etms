@@ -1,0 +1,425 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao">
+
+	<resultMap id="SealVehicles" type="com.jd.bluedragon.distribution.newseal.domain.SealVehicles" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_site_code" property="receiveSiteCode" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="receive_site_name" property="receiveSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pre_seal_uuid" property="preSealUuid" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="trans_work_item_code" property="transWorkItemCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_car_code" property="sealCarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="trans_book_code" property="transBookCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_data_code" property="sealDataCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="vehicle_number" property="vehicleNumber" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_codes" property="sealCodes" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="dseal_codes" property="dsealCodes" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_car_time" property="sendCarTime" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="seal_car_type" property="sealCarType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="source" property="source" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,create_site_code,create_site_name,receive_site_code,receive_site_name,pre_seal_uuid,
+		transport_code,trans_work_item_code,seal_car_code,trans_book_code,seal_data_code,
+		vehicle_number,seal_codes,dseal_codes,send_car_time,status,
+		seal_car_type,weight,volume,create_user_erp,create_user_name,
+		create_time,update_user_erp,update_user_name,update_time,source,
+		operate_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles">
+		insert into seal_vehicles
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteName != null">
+					create_site_name,
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code,
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name,
+				</if>
+				<if test="preSealUuid != null">
+					pre_seal_uuid,
+				</if>
+				<if test="transportCode != null">
+					transport_code,
+				</if>
+				<if test="transWorkItemCode != null">
+					trans_work_item_code,
+				</if>
+				<if test="sealCarCode != null">
+					seal_car_code,
+				</if>
+				<if test="transBookCode != null">
+					trans_book_code,
+				</if>
+				<if test="sealDataCode != null">
+					seal_data_code,
+				</if>
+				<if test="vehicleNumber != null">
+					vehicle_number,
+				</if>
+				<if test="sealCodes != null">
+					seal_codes,
+				</if>
+				<if test="dsealCodes != null">
+					dseal_codes,
+				</if>
+				<if test="sendCarTime != null">
+					send_car_time,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="sealCarType != null">
+					seal_car_type,
+				</if>
+				<if test="weight != null">
+					weight,
+				</if>
+				<if test="volume != null">
+					volume,
+				</if>
+				<if test="createUserErp != null">
+					create_user_erp,
+				</if>
+				<if test="createUserName != null">
+					create_user_name,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateUserErp != null">
+					update_user_erp,
+				</if>
+				<if test="updateUserName != null">
+					update_user_name,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="source != null">
+					source,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					#{receiveSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="receiveSiteName != null">
+					#{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="preSealUuid != null">
+					#{preSealUuid,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null">
+					#{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transWorkItemCode != null">
+					#{transWorkItemCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sealCarCode != null">
+					#{sealCarCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transBookCode != null">
+					#{transBookCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sealDataCode != null">
+					#{sealDataCode,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleNumber != null">
+					#{vehicleNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="sealCodes != null">
+					#{sealCodes,jdbcType=VARCHAR},
+				</if>
+				<if test="dsealCodes != null">
+					#{dsealCodes,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCarTime != null">
+					#{sendCarTime,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=TINYINT},
+				</if>
+				<if test="sealCarType != null">
+					#{sealCarType,jdbcType=TINYINT},
+				</if>
+				<if test="weight != null">
+					#{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null">
+					#{volume,jdbcType=DOUBLE},
+				</if>
+				<if test="createUserErp != null">
+					#{createUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUserErp != null">
+					#{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="source != null">
+					#{source,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into seal_vehicles
+			(
+				create_site_code,create_site_name,receive_site_code,receive_site_name,
+				pre_seal_uuid,transport_code,trans_work_item_code,seal_car_code,trans_book_code,
+				seal_data_code,vehicle_number,seal_codes,dseal_codes,send_car_time,
+				status,seal_car_type,weight,volume,create_user_erp,
+				create_user_name,create_time,update_user_erp,update_user_name,update_time,
+				source,operate_time,is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.createSiteCode,jdbcType=BIGINT},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.receiveSiteCode,jdbcType=BIGINT},
+					#{item.receiveSiteName,jdbcType=VARCHAR},
+					#{item.preSealUuid,jdbcType=VARCHAR},
+					#{item.transportCode,jdbcType=VARCHAR},
+					#{item.transWorkItemCode,jdbcType=VARCHAR},
+					#{item.sealCarCode,jdbcType=VARCHAR},
+					#{item.transBookCode,jdbcType=VARCHAR},
+					#{item.sealDataCode,jdbcType=VARCHAR},
+					#{item.vehicleNumber,jdbcType=VARCHAR},
+					#{item.sealCodes,jdbcType=VARCHAR},
+					#{item.dsealCodes,jdbcType=VARCHAR},
+					#{item.sendCarTime,jdbcType=VARCHAR},
+					#{item.status,jdbcType=TINYINT},
+					#{item.sealCarType,jdbcType=TINYINT},
+					#{item.weight,jdbcType=DOUBLE},
+					#{item.volume,jdbcType=DOUBLE},
+					#{item.createUserErp,jdbcType=VARCHAR},
+					#{item.createUserName,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateUserErp,jdbcType=VARCHAR},
+					#{item.updateUserName,jdbcType=VARCHAR},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.source,jdbcType=VARCHAR},
+					#{item.operateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles">
+		update seal_vehicles
+			<set>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code = #{receiveSiteCode,jdbcType=BIGINT},
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="preSealUuid != null">
+					pre_seal_uuid = #{preSealUuid,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null">
+					transport_code = #{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transWorkItemCode != null">
+					trans_work_item_code = #{transWorkItemCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sealCarCode != null">
+					seal_car_code = #{sealCarCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transBookCode != null">
+					trans_book_code = #{transBookCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sealDataCode != null">
+					seal_data_code = #{sealDataCode,jdbcType=VARCHAR},
+				</if>
+				<if test="vehicleNumber != null">
+					vehicle_number = #{vehicleNumber,jdbcType=VARCHAR},
+				</if>
+				<if test="sealCodes != null">
+					seal_codes = #{sealCodes,jdbcType=VARCHAR},
+				</if>
+				<if test="dsealCodes != null">
+					dseal_codes = #{dsealCodes,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCarTime != null">
+					send_car_time = #{sendCarTime,jdbcType=VARCHAR},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="sealCarType != null">
+					seal_car_type = #{sealCarType,jdbcType=TINYINT},
+				</if>
+				<if test="weight != null">
+					weight = #{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null">
+					volume = #{volume,jdbcType=DOUBLE},
+				</if>
+				<if test="createUserErp != null">
+					create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null">
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUserErp != null">
+					update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null">
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="source != null">
+					source = #{source,jdbcType=VARCHAR},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update seal_vehicles
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update seal_vehicles
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="SealVehicles">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  seal_vehicles 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles" resultMap="SealVehicles">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  seal_vehicles 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  seal_vehicles 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="SealVehicles">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  seal_vehicles 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
