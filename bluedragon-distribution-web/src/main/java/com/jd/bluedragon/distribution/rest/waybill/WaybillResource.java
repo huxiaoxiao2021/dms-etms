@@ -700,6 +700,13 @@ public class WaybillResource {
 				}
 			}
 
+            String waybillSign = waybill.getWaybillSign();
+			if(BusinessHelper.isSignatureReturnWaybill(waybillSign) && scheduleSiteOrgDto != null
+                    && !Integer.valueOf(Constants.BASE_SITE_SITE).equals(scheduleSiteOrgDto.getSiteType())){
+                logger.warn("此运单要求签单返回，只能分配至自营站点：" + waybillCodeOrPackage);
+                return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_SIGNRE_ERROR, JdResponse.MESSAGE_SITE_SIGNRE_ERROR);
+            }
+
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
 
