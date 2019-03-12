@@ -709,11 +709,6 @@ public class Constants {
     public static final Integer GANTRY_CHECK_DAYS= -30;
 
     /**
-     * 调用运单的分页接口一次获取的包裹数量
-     */
-    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
-
-    /**
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;

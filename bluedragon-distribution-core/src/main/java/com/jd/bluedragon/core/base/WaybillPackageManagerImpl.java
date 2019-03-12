@@ -34,15 +34,20 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     private SysConfigService sysConfigService;
 
     /**
+     * 调用运单的分页接口一次获取的包裹数量，分页大小定值1000，则获取数据为实时，其他则非实时
+     */
+    private static final Integer PACKAGE_NUM_ONCE_QUERY = 1000;
+
+    /**
      * 根据运单号获取包裹信息
      * @param waybillCode
      * @return
      */
+    @Override
     public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCode(String waybillCode) {
         //增加一个开关，支持两万个包裹，需要单独调用运单的分页接口过渡期使用
         if (isGetPackageByPageOpen()) {
             return getPackageByWaybillCode(waybillCode);
-
         } else {
             return waybillPackageApi.getPackListByWaybillCode(waybillCode);
         }
@@ -97,16 +102,17 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      */
     @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getPackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
     public BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode) {
         logger.info("调用运单接口getPackageByParam,分页获取包裹数据,运单号:" + waybillCode);
         BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();
         List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
         result.setData(packageList);
 
-        //组织请求参数，从第一页开始，每页5000行
+        //组织请求参数，从第一页开始，每页1000行
         Page<DeliveryPackageDto> pageParam = new Page<DeliveryPackageDto>();
         pageParam.setCurPage(1);
-        pageParam.setPageSize(Constants.PACKAGE_NUM_ONCE_QUERY);
+        pageParam.setPageSize(PACKAGE_NUM_ONCE_QUERY);
 
         //调用运单分页接口
         BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
@@ -129,7 +135,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
 
             logger.info("调用运单接口getPackageByParam,waybillCode:" + waybillCode + ",每次请求数:" +
-                    Constants.PACKAGE_NUM_ONCE_QUERY + ".返回包裹总数:" + baseEntity.getData().getTotalRow() +
+                    PACKAGE_NUM_ONCE_QUERY + ".返回包裹总数:" + baseEntity.getData().getTotalRow() +
                     ",总页数:" + baseEntity.getData().getTotalPage());
 
             //读取分页数
