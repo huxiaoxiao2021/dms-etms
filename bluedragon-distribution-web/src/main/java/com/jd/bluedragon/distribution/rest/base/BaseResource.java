@@ -114,6 +114,8 @@ public class BaseResource {
 	@Qualifier("basicPrimaryWSProxy")
 	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
+	@Autowired
+	private RouteComputeUtil routeComputeUtil;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -1499,6 +1501,35 @@ public class BaseResource {
         response.setStaffNo(dto.getStaffNo());
         return response;
     }
+
+
+	@GET
+	@Path("/bases/getWaybillRouter/{token}/{startNode}/{endNodeCode}/{operateTime}/{waybillSign}")
+	@GZIP
+	public CommonDto<RecommendRouteResp> getWaybillRouter(@PathParam("token")String token,
+														  @PathParam("startNode")String startNode,
+														  @PathParam("endNodeCode")String endNodeCode,
+														  @PathParam("operateTime")Long operateTime,
+														  @PathParam("waybillSign")String waybillSign){
+		//调路由的接口获取路由节点
+		Date predictSendTime = new Date(operateTime);
+		RouteProductEnum routeProduct = null;
+		/**
+		 * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+		 * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+		 * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+		 */
+		if(BusinessUtil.isSignChar(waybillSign,62,'1')){
+			if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+				routeProduct = RouteProductEnum.TB1;
+			}else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+				routeProduct = RouteProductEnum.TB2;
+			}
+		}
+		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
+		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(token, startNode, endNodeCode, predictSendTime, routeProduct);
+		return commonDto;
+	}
 }
 
 

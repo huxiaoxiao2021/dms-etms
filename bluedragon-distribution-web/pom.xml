@@ -319,7 +319,7 @@
         <dependency>
 			<groupId>com.jd.ql.dms.print</groupId>
 			<artifactId>label-print-engine</artifactId>
-			<version>1.1.2-SNAPSHOT</version>
+			<version>1.1.6-SNAPSHOT</version>
         </dependency>
 		<!-- 打印引擎    start-->
 

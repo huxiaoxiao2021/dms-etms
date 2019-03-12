@@ -93,4 +93,10 @@ public interface SiteService {
 	 * @return
 	 */
 	Integer getCityBindDmsCode(Integer cityId);
+	/**
+	 * 从系统配置表sysconfig，根据配置名称获取站点编码列表，站点编码以‘,’隔开
+	 * @param sysConfigName
+	 * @return
+	 */
+	Set<Integer> getSiteCodesFromSysConfig(String sysConfigName);
 }
