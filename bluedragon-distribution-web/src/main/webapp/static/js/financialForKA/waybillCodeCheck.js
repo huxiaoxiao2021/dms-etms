@@ -1,7 +1,7 @@
 $(function() {
 
     //成功提示音地址
-    var sucessBeep = "/static/music/success.wav";
+    var successBeep = "/static/music/success.wav";
     //失败提示音地址
     var failBeep= "/static/music/fail.wav";
 
@@ -35,7 +35,7 @@ $(function() {
             $.ajaxHelper.doPostAsync(url, JSON.stringify(params), function (res) {
                 if (res && res.code !=200) {
                     //条码不同，提示音错误警告
-                    playSound(sucessBeep);
+                    playSound(successBeep);
                     //输入框2失去焦点
                     $('#barCodeOfTwo').blur();
                     //弹框提示
