@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
@@ -589,6 +590,15 @@ public class BusinessUtil {
      */
     public static Boolean isPartReverse(String waybillSign){
         return isSignChar(waybillSign, 27, '5');
+    }
+
+    /**
+     * 判断是否是移动仓内配单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMovingWareHouseInnerWaybill(String waybillSign){
+        return isSignChar(waybillSign,14,'5');
     }
 
 }

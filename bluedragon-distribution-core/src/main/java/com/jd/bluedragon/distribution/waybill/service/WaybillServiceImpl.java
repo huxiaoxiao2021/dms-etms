@@ -301,7 +301,7 @@ public class WaybillServiceImpl implements WaybillService {
                 dto.getWaybill() != null &&
                 StringUtils.isNotBlank(dto.getWaybill().getWaybillSign())){
             String waybillSign = dto.getWaybill().getWaybillSign();
-            if(BusinessUtil.isSignChar(waybillSign,14,'5')){
+            if(BusinessUtil.isMovingWareHouseInnerWaybill(waybillSign)){
                 return WAYBILL_TYPE_MOVING_WAREHOUSE_INNER;
             }
         }

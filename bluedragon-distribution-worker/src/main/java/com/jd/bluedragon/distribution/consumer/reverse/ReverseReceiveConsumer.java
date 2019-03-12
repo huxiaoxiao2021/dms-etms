@@ -165,8 +165,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 
 		//如果是移动仓内配单需要推送终端
-		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
-		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(waybillCode)) {
+		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getPackageCode()))) {
 			movingWareHoseInnerWaybillFinish(reverseReceive);
 		}
 
