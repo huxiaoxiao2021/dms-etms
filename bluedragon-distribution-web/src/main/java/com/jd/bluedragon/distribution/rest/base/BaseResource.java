@@ -1,5 +1,28 @@
 package com.jd.bluedragon.distribution.rest.base;
 
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -26,7 +49,11 @@ import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.api.common.dto.CommonDto;
+import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
+import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
@@ -41,26 +68,6 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -114,6 +121,8 @@ public class BaseResource {
 	@Qualifier("basicPrimaryWSProxy")
 	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
+	@Autowired
+	private RouteComputeUtil routeComputeUtil;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -1499,6 +1508,35 @@ public class BaseResource {
         response.setStaffNo(dto.getStaffNo());
         return response;
     }
+
+
+	@GET
+	@Path("/bases/getWaybillRouter/{token}/{startNode}/{endNodeCode}/{operateTime}/{waybillSign}")
+	@GZIP
+	public CommonDto<RecommendRouteResp> getWaybillRouter(@PathParam("token")String token,
+														  @PathParam("startNode")String startNode,
+														  @PathParam("endNodeCode")String endNodeCode,
+														  @PathParam("operateTime")Long operateTime,
+														  @PathParam("waybillSign")String waybillSign){
+		//调路由的接口获取路由节点
+		Date predictSendTime = new Date(operateTime);
+		RouteProductEnum routeProduct = null;
+		/**
+		 * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+		 * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+		 * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+		 */
+		if(BusinessUtil.isSignChar(waybillSign,62,'1')){
+			if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+				routeProduct = RouteProductEnum.TB1;
+			}else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+				routeProduct = RouteProductEnum.TB2;
+			}
+		}
+		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
+		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(token, startNode, endNodeCode, predictSendTime, routeProduct);
+		return commonDto;
+	}
 }
 
 

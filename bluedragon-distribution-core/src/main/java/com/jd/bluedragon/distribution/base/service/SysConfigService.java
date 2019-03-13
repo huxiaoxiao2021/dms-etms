@@ -6,7 +6,11 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 
 public interface SysConfigService {
-	
+    /**
+     * 配置分拣中心站点列表-启用新统一包裹标签的print.dmsSiteCodes.useNewTemplate
+     */
+    public static final String SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE = "print.dmsSiteCodes.useNewTemplate";
+    
 	public List<SysConfig> getSwitchList();
 	public List<SysConfig> getList(SysConfig sysConfig);
 	public int del(Long pk);

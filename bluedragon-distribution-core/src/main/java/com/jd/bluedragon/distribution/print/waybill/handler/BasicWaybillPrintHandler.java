@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -17,6 +17,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -29,6 +31,8 @@ import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -339,6 +343,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageCode(item.getPackageBarcode());
                     pack.setWeight(item.getGoodWeight());
                     //设置包裹序号和包裹号后缀
+                    pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
                     pack.setPackageWeight(item.getGoodWeight() + UNIT_WEIGHT_KG);

@@ -736,12 +736,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
                 freightText = TextConstants.FREIGHT_SEND;
             }
-        	//货款字段金额等于0时，则货款位置显示为【0】
+        	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
         	if(NumberHelper.gt0(waybill.getCodMoney())){
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
         	}else{
-        		goodsPaymentText = "0";
+        		goodsPaymentText = "";
         	}
         }else{
             //C网运费和货款
@@ -1107,10 +1107,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        logger.info("获取到的城市名列表为:" + routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
                 try {
-                    ObjectHelper.setValue(printWaybill,"setRouterNode" + (i + 1),routerNameList.get(i));
+                    ObjectHelper.setValue(printWaybill,"routerNode" + (i + 1),routerNameList.get(i));
+                    logger.info("设置router" + (i+1) + "的值为:" + routerNameList.get(i));
                 }catch (Exception e){
                     logger.error("获取路由信息,设置路由节点失败.",e);
                 }

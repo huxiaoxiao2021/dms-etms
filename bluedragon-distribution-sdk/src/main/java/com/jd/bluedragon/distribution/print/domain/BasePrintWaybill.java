@@ -286,6 +286,14 @@ public class BasePrintWaybill implements Serializable {
 	private String waybillSignText ;
 
 	private String roadCode;
+	/**
+	 * 模板纸张大小编码
+	 */
+	private String templatePaperSizeCode;
+	/**
+	 * 使用新统一模板标识
+	 */
+	private Boolean useNewTemplate = Boolean.FALSE;
 
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
@@ -1072,5 +1080,33 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setRoadCode(String roadCode) {
 		this.roadCode = roadCode;
+	}
+
+	/**
+	 * @return the templatePaperSizeCode
+	 */
+	public String getTemplatePaperSizeCode() {
+		return templatePaperSizeCode;
+	}
+
+	/**
+	 * @param templatePaperSizeCode the templatePaperSizeCode to set
+	 */
+	public void setTemplatePaperSizeCode(String templatePaperSizeCode) {
+		this.templatePaperSizeCode = templatePaperSizeCode;
+	}
+
+	/**
+	 * @return the useNewTemplate
+	 */
+	public Boolean getUseNewTemplate() {
+		return useNewTemplate;
+	}
+
+	/**
+	 * @param useNewTemplate the useNewTemplate to set
+	 */
+	public void setUseNewTemplate(Boolean useNewTemplate) {
+		this.useNewTemplate = useNewTemplate;
 	}
 }
