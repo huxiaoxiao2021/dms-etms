@@ -789,6 +789,11 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
 
     /**
+     * 运单状态  拒收
+     */
+    public static final String WAYBILL_TRACE_STATE_REJECTED = "160";
+
+    /**
      * 运单状态  妥投
      */
     public static final String WAYBILLTRACE_FINISHED = "150";

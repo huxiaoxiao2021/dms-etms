@@ -52,6 +52,7 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         interceptResult.toSuccess();
         if ((WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
+                || WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType()))
                 && BusinessHelper.isC2c(context.getWaybill().getWaybillSign())) {
             //查询揽收完成（-640）全程跟踪结果
