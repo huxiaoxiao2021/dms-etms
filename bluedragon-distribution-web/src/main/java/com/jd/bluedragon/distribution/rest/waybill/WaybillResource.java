@@ -1903,9 +1903,7 @@ public class WaybillResource {
             double upHigh = packWeightVO.getHigh();
             double upWeight = packWeightVO.getWeight();
             double upVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?upLength*upWidth*upHigh : packWeightVO.getVolume();
-            receiveWeightCheckResult.setReviewLwh(upLength+"*"+upWidth+"*"+upHigh);
-            receiveWeightCheckResult.setReviewWeight(upWeight);
-            receiveWeightCheckResult.setReviewVolume(upVolume);
+			receiveWeightCheckResult.setReviewVolume(upVolume);
             //揽收信息
             double length = 0;
             double width = 0;
@@ -1956,14 +1954,15 @@ public class WaybillResource {
 				}
 			}
 			receiveWeightCheckResult.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(upWeight - weight)));
+            StringBuilder diffStandardOfWeight = new StringBuilder("");
 			if(upWeight <= 5){
-				receiveWeightCheckResult.setDiffStandard("0.3");
+				diffStandardOfWeight.append("重量:0.3");
 			}else if(upWeight > 5 && upWeight <= 20){
-				receiveWeightCheckResult.setDiffStandard("0.5");
+				diffStandardOfWeight.append("重量:0.5");
 			}else if(upWeight > 20 && upWeight <= 50){
-				receiveWeightCheckResult.setDiffStandard("1");
+				diffStandardOfWeight.append("重量:1");
 			}else if(upWeight > 50){
-				receiveWeightCheckResult.setDiffStandard("2%");
+				diffStandardOfWeight.append("重量:2%");
 			}
             if(volume == 0){
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
@@ -1987,7 +1986,17 @@ public class WaybillResource {
                     receiveWeightCheckResult.setIsExcess(1);
                 }
             }
-			receiveWeightCheckResult.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(upVolume/8000-volume/8000)));
+            if(upVolume/8000 <= 5){
+				diffStandardOfWeight.append("体积重量:0.3");
+			}else if(upVolume/8000 > 5 && upVolume/8000 <= 20){
+				diffStandardOfWeight.append("体积重量:0.5");
+			}else if(upVolume/8000 > 20 && upVolume/8000 <= 50){
+				diffStandardOfWeight.append("体积重量:1");
+			}else if(upVolume/8000 > 50){
+				diffStandardOfWeight.append("体积重量:2%");
+			}
+			receiveWeightCheckResult.setDiffStandard(diffStandardOfWeight.toString());
+			receiveWeightCheckResult.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(upVolume/8000 - volume/8000)));
         }catch (Exception e){
             logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
@@ -2003,33 +2012,35 @@ public class WaybillResource {
      * @param receiveWeightCheckResult
      */
     private void assemble(PackWeightVO packWeightVO, ReceiveWeightCheckResult receiveWeightCheckResult) {
-        receiveWeightCheckResult.setReviewDate(new Date()); //复核日期
-        receiveWeightCheckResult.setPackageCode(packWeightVO.getCodeStr()); //包裹号
+        receiveWeightCheckResult.setReviewDate(new Date());
+        receiveWeightCheckResult.setPackageCode(packWeightVO.getCodeStr());
+		receiveWeightCheckResult.setReviewLwh(packWeightVO.getLength()+"*"+packWeightVO.getWidth()+"*"+packWeightVO.getHigh());
+		receiveWeightCheckResult.setReviewWeight(packWeightVO.getWeight());
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()),
                 true, false, false, false);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
-            receiveWeightCheckResult.setBusiName(baseEntity.getData().getWaybill().getBusiName()); //商家名称
+            receiveWeightCheckResult.setBusiName(baseEntity.getData().getWaybill().getBusiName());
         }
-        receiveWeightCheckResult.setReviewOrg(packWeightVO.getOrganizationName()); //复核区域
+        receiveWeightCheckResult.setReviewOrg(packWeightVO.getOrganizationName());
         receiveWeightCheckResult.setReviewCreateSiteCode(packWeightVO.getOperatorSiteCode());
-        receiveWeightCheckResult.setReviewCreateSiteName(packWeightVO.getOperatorSiteName()); //复核分拣
-        receiveWeightCheckResult.setReviewErp(packWeightVO.getErpCode()); //复核人erp
+        receiveWeightCheckResult.setReviewCreateSiteName(packWeightVO.getOperatorSiteName());
+        receiveWeightCheckResult.setReviewErp(packWeightVO.getErpCode());
         BaseEntity<List<PackageStateDto>> entity = waybillTraceApi.getPkStateDtoByWCodeAndState(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()), RECEIVE_STATE);
         if(entity != null && entity.getData() != null && entity.getData().size() > 0){
             PackageStateDto packageStateDto = entity.getData().get(0);
             //揽收站点
             BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(packageStateDto.getOperatorSiteId().toString());
             if(baseStaffSiteOrgDto != null && StringUtils.isNotBlank(baseStaffSiteOrgDto.getOrgName())){
-                receiveWeightCheckResult.setReceiveOrg(baseStaffSiteOrgDto.getOrgName()); //揽收区域
+                receiveWeightCheckResult.setReceiveOrg(baseStaffSiteOrgDto.getOrgName());
             }
-            receiveWeightCheckResult.setReceiveDepartment(packageStateDto.getOperatorSite()); //揽收营业部
+            receiveWeightCheckResult.setReceiveDepartment(packageStateDto.getOperatorSite());
             //操作人id
             BaseStaffSiteOrgDto siteBaseDto = baseService.getBaseStaffByStaffId(packageStateDto.getOperatorUserId());
             if(siteBaseDto != null && StringUtils.isNotBlank(siteBaseDto.getErp())){
-                receiveWeightCheckResult.setReceiveErp(siteBaseDto.getErp()); //揽收人erp
+                receiveWeightCheckResult.setReceiveErp(siteBaseDto.getErp());
             }
         }
-		receiveWeightCheckResult.setIsExcess(0); //是否超标
+		receiveWeightCheckResult.setIsExcess(0);
     }
 
     /**
