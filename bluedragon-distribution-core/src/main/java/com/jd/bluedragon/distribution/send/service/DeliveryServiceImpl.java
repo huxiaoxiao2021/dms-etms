@@ -1752,7 +1752,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         status.setOperateTime(tSendM.getUpdateTime());
         status.setOperator(tSendM.getUpdaterUser());
         status.setOperatorId(tSendM.getUpdateUserCode());
-        status.setRemark("取消在批次'" +sendDetail.getSendCode()+ "'中的发货");
+        status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
 
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
