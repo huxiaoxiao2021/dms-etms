@@ -77,8 +77,8 @@
 
     <!-- DMS主库（拆分库）工厂类 -->
     <bean id="mainSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <!--<property name="dataSource" ref="dms_main" />-->
-        <property name="dataSource" ref="dms_rw_split" />
+        <property name="dataSource" ref="dms_main" />
+        <!--<property name="dataSource" ref="dms_rw_split" />-->
         <property name="configLocation" value="classpath:config/mysql/mybatis-config.xml" />
     </bean>
 

@@ -34,6 +34,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#keyword, 1_string,1024#));
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="box_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -50,6 +51,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#box_code, 1_string,1024#));
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="dms_out_weight_volume_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -66,6 +68,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code,1,1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="send_d_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -82,6 +85,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code, 1, 1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="send_m_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -98,6 +102,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code, 1, 1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="inspection_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -114,6 +119,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code, 1, 1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="cen_confirm_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -130,6 +136,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code, 1, 1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
     <bean id="sorting_bean" class="com.jd.jddl.interact.rule.TableRule">
@@ -146,6 +153,7 @@
                 return DmsJddlUtils.getDbPartitionIndex((#create_site_code, 1, 1024#).longValue());
             </value>
         </property>
+        <property name="allowFullTableScan" value="true"/>
     </bean>
 
 </beans>
