@@ -205,6 +205,64 @@ $(function() {
                     });
                 }
             });
+            $('#btn_send_status').click(function() {
+				$('#sendStatusModal').modal('show');
+			});
+            $('#btn_query_waybill').click(function() {
+                $('#queryWaybillModal').modal('show');
+            });
+            $('#sendStatusModalBtn').click(function() {
+                //同步发货状态按钮
+				var waybillCode = $("#sendStatusModalWaybillCode").val();
+				if(waybillCode == null ||waybillCode == ""){
+					alert("请输入运单号");
+				}
+                var url = "/storage/storagePackageM/refreshSendStatus/"+waybillCode;
+                $.post(url,function(data){
+                	if(data.data){
+                        alert("同步成功!");
+					}else{
+                        alert(data.message);
+					}
+                    $("#sendStatusModalWaybillCode").val("");
+                	$("#btn_query").click();
+                },"json");
+
+                return false;
+            });
+
+            $('#queryWaybillModalBtn').click(function() {
+                var waybillCode = $("#queryWaybillModalWaybillCode").val();
+
+                if(waybillCode == null || waybillCode == "") {
+                	alert("运单号必须输入");
+				}
+
+                $("#queryWaybillModalTbody").html("");
+                //查询履约单下运单信息
+                var url = "/storage/storagePackageM/queryWaybills/"+waybillCode;
+				$.post(url,function(data){
+					if(data.code == 200){
+						if(data.data==null || data.data.length == 0){
+							alert("未获取到相应数据");
+						}else{
+                            var tbodyHtml = "";
+                            for(var i = 0 ; i<data.data.length ; i++ ){
+                                var pojo = data.data[i];
+                                tbodyHtml += "<tr><td>"+pojo.fulfillmentOrderId+"</td>";
+                                tbodyHtml += "<td>"+pojo.deliveryOrderId+"</td></tr>";
+                            }
+                            $("#queryWaybillModalTbody").html(tbodyHtml);
+						}
+
+					}else{
+						alert(data.message);
+					}
+
+				},"json");
+
+                return false;
+            });
 
 
 			// 删

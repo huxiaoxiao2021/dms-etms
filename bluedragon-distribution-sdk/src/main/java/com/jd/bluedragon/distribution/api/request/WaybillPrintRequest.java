@@ -17,6 +17,10 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 默认dpi-200
+	 */
+	private static Integer DPI_DEFAULT = 200;
+	/**
      *  应用程序类型-40-青龙打印客户端
      */
     private Integer programType;
@@ -33,7 +37,7 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Integer dmsSiteCode;
 	/**
-	 * 扫描条码
+	 * 包裹号/运单号
 	 */
 	private String barCode;
 	/**
@@ -43,7 +47,7 @@ public class WaybillPrintRequest extends JdRequest{
 	/**
 	 * 无纸化标识
 	 */
-	private Boolean nopaperFlg = false;
+	private Boolean nopaperFlg;
 	/**
 	 * 信任商家标识
 	 * */
@@ -65,6 +69,25 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 包裹称重信息
 	 */
 	private WeightOperFlow weightOperFlow;
+
+
+	/** 包裹标签模板名称 **/
+	private String templateName;
+
+	/** 包裹标签模板版本 **/
+	private Integer templateVersion;
+    /**
+     * 横向分辨率
+     */
+    private Integer dpiX = DPI_DEFAULT;
+    /**
+     * 纵向分辨率
+     */
+    private Integer dpiY = DPI_DEFAULT;
+    /**
+     * 纸张尺寸编码
+     */
+    private String paperSizeCode;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -199,4 +222,63 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setWeightOperFlow(WeightOperFlow weightOperFlow) {
 		this.weightOperFlow = weightOperFlow;
 	}
+
+	public String getTemplateName() {
+		return templateName;
+	}
+
+	public void setTemplateName(String templateName) {
+		this.templateName = templateName;
+	}
+
+	public Integer getTemplateVersion() {
+		return templateVersion;
+	}
+
+	public void setTemplateVersion(Integer templateVersion) {
+		this.templateVersion = templateVersion;
+	}
+
+	/**
+	 * @return the dpiX
+	 */
+	public Integer getDpiX() {
+		return dpiX;
+	}
+
+	/**
+	 * @param dpiX the dpiX to set
+	 */
+	public void setDpiX(Integer dpiX) {
+		this.dpiX = dpiX;
+	}
+
+	/**
+	 * @return the dpiY
+	 */
+	public Integer getDpiY() {
+		return dpiY;
+	}
+
+	/**
+	 * @param dpiY the dpiY to set
+	 */
+	public void setDpiY(Integer dpiY) {
+		this.dpiY = dpiY;
+	}
+
+	/**
+	 * @return the paperSizeCode
+	 */
+	public String getPaperSizeCode() {
+		return paperSizeCode;
+	}
+
+	/**
+	 * @param paperSizeCode the paperSizeCode to set
+	 */
+	public void setPaperSizeCode(String paperSizeCode) {
+		this.paperSizeCode = paperSizeCode;
+	}
+
 }

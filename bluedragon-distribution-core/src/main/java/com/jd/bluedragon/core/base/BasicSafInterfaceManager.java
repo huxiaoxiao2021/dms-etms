@@ -18,4 +18,14 @@ public interface BasicSafInterfaceManager {
     public BaseResult<CrossDmsBox> getCrossDmsBoxByOriAndDes(Integer createSiteCode, Integer targetId);
 
     BaseResult<String> getCrossDmsBox(Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
+     * 根据库房信息获取绑定分拣中心Id
+     * @param storeType 库房类型 正常大库库房类型为： wms 备件库类型为：spwms
+     * @param cky2 配送中心
+     * @param storeId 库房ID
+     * @return
+     */
+    Integer getStoreBindDmsCode(String storeType,Integer cky2,Integer storeId);
+
 }

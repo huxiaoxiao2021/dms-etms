@@ -397,6 +397,15 @@ public class BusinessHelper {
     }
 
     /**
+     * 根据waybillSign判断是否签单返还运单
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSignatureReturnWaybill(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9');
+    }
+
+    /**
      * 划分理赔状态
      *
      * @param type

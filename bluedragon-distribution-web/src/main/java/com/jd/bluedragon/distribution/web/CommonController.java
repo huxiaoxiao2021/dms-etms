@@ -1,14 +1,12 @@
 package com.jd.bluedragon.distribution.web;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.google.common.reflect.TypeToken;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.common.util.DateFormatUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -18,10 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/common")

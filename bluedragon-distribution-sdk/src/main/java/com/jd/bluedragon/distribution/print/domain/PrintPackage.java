@@ -8,7 +8,9 @@ import java.io.Serializable;
  */
 public class PrintPackage implements Serializable {
 
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * 包裹号
      */
     private String packageCode;
@@ -24,9 +26,25 @@ public class PrintPackage implements Serializable {
     public Boolean isPrintPack;
 
     /**
-     * 包裹序号
+     * 包裹序号（1/1）
      */
-    public String packSerial;
+    public String packageIndex;
+
+    /**
+     * 包裹重量
+     */
+    public String packageWeight;
+
+    /**
+     * 包裹号后缀
+     */
+    public String packageSuffix;
+    
+    /**
+     * 包裹序号数字
+     */
+    public Integer packageIndexNum;
+
 
     public String getPackageCode() {
         return packageCode;
@@ -52,11 +70,49 @@ public class PrintPackage implements Serializable {
         this.isPrintPack = isPrintPack;
     }
 
-    public String getPackSerial() {
-        return packSerial;
+    public String getPackageWeight() {
+        return packageWeight;
     }
 
-    public void setPackSerial(String packSerial) {
-        this.packSerial = packSerial;
+    public void setPackageWeight(String packageWeight) {
+        this.packageWeight = packageWeight;
     }
+
+    public Boolean getPrintPack() {
+        return isPrintPack;
+    }
+
+    public void setPrintPack(Boolean printPack) {
+        isPrintPack = printPack;
+    }
+
+    public String getPackageIndex() {
+        return packageIndex;
+    }
+
+    public void setPackageIndex(String packageIndex) {
+        this.packageIndex = packageIndex;
+    }
+
+    public String getPackageSuffix() {
+        return packageSuffix;
+    }
+
+    public void setPackageSuffix(String packageSuffix) {
+        this.packageSuffix = packageSuffix;
+    }
+
+	/**
+	 * @return the packageIndexNum
+	 */
+	public Integer getPackageIndexNum() {
+		return packageIndexNum;
+	}
+
+	/**
+	 * @param packageIndexNum the packageIndexNum to set
+	 */
+	public void setPackageIndexNum(Integer packageIndexNum) {
+		this.packageIndexNum = packageIndexNum;
+	}
 }

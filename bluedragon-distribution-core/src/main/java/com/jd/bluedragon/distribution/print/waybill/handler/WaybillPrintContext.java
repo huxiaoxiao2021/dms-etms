@@ -6,9 +6,9 @@ import java.util.List;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
@@ -60,6 +60,11 @@ public class WaybillPrintContext implements Context{
 	private int status = InterceptResult.STATUS_PASSED;
 	
 	private	List<String> messages = new ArrayList<String>();
+
+	/**
+	 * 运单打印--基础类型
+	 */
+	private BasePrintWaybill basePrintWaybill;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -144,5 +149,13 @@ public class WaybillPrintContext implements Context{
 	 */
 	public void setResult(InterceptResult<String> result) {
 		this.result = result;
+	}
+
+	public BasePrintWaybill getBasePrintWaybill() {
+		return basePrintWaybill;
+	}
+
+	public void setBasePrintWaybill(BasePrintWaybill basePrintWaybill) {
+		this.basePrintWaybill = basePrintWaybill;
 	}
 }

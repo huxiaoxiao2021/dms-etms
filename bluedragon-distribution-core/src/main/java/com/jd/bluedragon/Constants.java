@@ -709,11 +709,6 @@ public class Constants {
     public static final Integer GANTRY_CHECK_DAYS= -30;
 
     /**
-     * 调用运单的分页接口一次获取的包裹数量
-     */
-    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
-
-    /**
      * 原包发货推迟时间5秒
      */
     public static final int DELIVERY_DELAY_TIME = 5000;
@@ -786,10 +781,24 @@ public class Constants {
     /**
      * 全程跟踪状态  揽收完成
      */
-    public static final String WAYBILLTRACE_STATE ="-640";
+    public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
+
+    /**
+     * 全程跟踪状态  便民店、自寄柜揽收交接成功
+     */
+    public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
+
+    /**
+     * 运单状态  拒收
+     */
+    public static final String WAYBILL_TRACE_STATE_REJECTED = "160";
 
     /**
      * 运单状态  妥投
      */
     public static final String WAYBILLTRACE_FINISHED = "150";
+
+    /** 系统编码 **/
+    public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
 }
