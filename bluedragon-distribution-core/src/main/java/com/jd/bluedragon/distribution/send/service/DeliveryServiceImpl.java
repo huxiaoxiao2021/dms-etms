@@ -338,9 +338,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     public SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
-        if (!isForceSend && !isCancelLastSend) {
+        if (!isForceSend) {
             // 发货验证
-            SendResult sendResult = this.beforeSendVerification(domain, true);
+            SendResult sendResult = this.beforeSendVerification(domain, true, isCancelLastSend);
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
                 return sendResult;
             }
@@ -365,9 +365,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendResult sendResult;
         if (!isForceSend) {
             // 发货验证
-            sendResult = this.beforeSendVerification(domain, false);
-            // 兼容旧接口 校验完成后将确认消息盒子置空
-            sendResult.setConfirmMsgBox(null);
+            sendResult = this.beforeSendVerification(domain, false, true);
             if (!SendResult.CODE_OK.equals(sendResult.getKey())) {
                 return sendResult;
             }
@@ -462,12 +460,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 发货校验
      *
      * @param domain
-     * @param isVerifyMultiSend 是否校验多次发货取消上次发货
+     * @param isUseMultiSendVerify  是否开启多次发货取消上次发货校验，否 - 走旧校验逻辑
+     * @param isSkipMultiSendVerify 是否跳过校验多次发货取消上次发货
      * @return
      */
-    private SendResult beforeSendVerification(SendM domain, boolean isVerifyMultiSend) {
+    private SendResult beforeSendVerification(SendM domain, boolean isUseMultiSendVerify, boolean isSkipMultiSendVerify) {
         SendResult result = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-        result.setConfirmMsgBox(new ArrayList<ConfirmMsgBox>());
 
         CallerInfo temp_info1 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info1", false, true);
         // 机构和操作人所属机构是否一致校验
@@ -481,10 +479,13 @@ public class DeliveryServiceImpl implements DeliveryService {
             return result;
         }
 
-        if (isVerifyMultiSend) {
-            // 多次发货取消上次发货校验
-            if (!multiSendVerification(domain, result)) {
-                return result;
+        // 判断是否使用多次发货取消上次发货
+        if (isUseMultiSendVerify) {
+            if (!isSkipMultiSendVerify) {
+                // 多次发货取消上次发货校验
+                if (!multiSendVerification(domain, result)) {
+                    return result;
+                }
             }
         } else {
             // 原有的发货校验
@@ -494,15 +495,15 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return result;
             }
         }
-
         Profiler.registerInfoEnd(temp_info1);
 
         // 根据发货的条码类型进行校验
         this.sendVerificationByBarCodeType(domain, result);
+
         //验证通过，补成第一个包裹号，如果后面发现这单是一单多件，再进行提示
-        if(!BusinessUtil.isBoxcode(domain.getBoxCode()) && !WaybillUtil.isPackageCode(domain.getBoxCode()) &&
-                WaybillUtil.isWaybillCode(domain.getBoxCode())){
-            logger.info("一车一单发货扫描运单["+domain.getBoxCode()+"]，校验通过，生成包裹号:" +
+        if (!BusinessUtil.isBoxcode(domain.getBoxCode()) && !WaybillUtil.isPackageCode(domain.getBoxCode()) &&
+                WaybillUtil.isWaybillCode(domain.getBoxCode())) {
+            logger.info("一车一单发货扫描运单[" + domain.getBoxCode() + "]，校验通过，生成包裹号:" +
                     BusinessHelper.getFirstPackageCodeByWaybillCode(domain.getBoxCode()));
             domain.setBoxCode(BusinessHelper.getFirstPackageCodeByWaybillCode(domain.getBoxCode()));
         }
@@ -535,7 +536,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                         result.setKey(SendResult.CODE_CONFIRM);
                         result.setValue("该包裹已发货，是否取消上次发货并重新发货？");
                         result.setReceiveSiteCode(domain.getReceiveSiteCode());
-                        result.getConfirmMsgBox().add(new ConfirmMsgBox(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND, "该包裹已发货，是否取消上次发货并重新发货？"));
+                        result.setInterceptCode(ConfirmMsgBox.CODE_CONFIRM_CANCEL_LAST_SEND);
                     }
                     return false;
                 }
@@ -562,7 +563,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             DeliveryResponse response = checkRouterForCBox(domain);
             if (DeliveryResponse.CODE_CROUTER_ERROR.equals(response.getCode())) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), null);
-                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
                 return false;
             }
         }
@@ -607,7 +607,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
 
             if (response.getCode() >= 39000) {
-                result.getConfirmMsgBox().add(new ConfirmMsgBox(response.getCode(), response.getMessage()));
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
             } else {
                 result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
