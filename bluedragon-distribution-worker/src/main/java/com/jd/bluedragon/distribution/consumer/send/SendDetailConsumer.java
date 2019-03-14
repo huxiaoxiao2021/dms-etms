@@ -12,7 +12,6 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.common.util.StringUtils;
@@ -31,6 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -203,7 +203,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
         // 发货目的地是车队，且是非城配运单，要通知调度系统
         if (waybill != null && Constants.BASE_SITE_MOTORCADE.equals(receiveSiteDto.getSiteType()) && !BusinessHelper.isDmsToVendor(waybill.getWaybillSign(), waybill.getSendPay())) {
-            Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto.getSiteName(), dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
+            Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto, dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
             this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + message.getTopic() + "],业务ID[" + message.getBusinessId() + "],消息主题: " + message.getText());
             dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
         }
@@ -225,15 +225,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     /**
      * 构建非城配运单发往车队通知调度系统MQ消息体
-     *
      * @param sendDetail
      * @param waybill
-     * @param receiveSiteName
+     * @param rbDto
      * @param topic
      * @param source
      * @return
      */
-    private Message parseSendDetailToMessageOfDispatch(SendDetailMessage sendDetail, Waybill waybill, String receiveSiteName, String topic, String source) {
+    private Message parseSendDetailToMessageOfDispatch(SendDetailMessage sendDetail, Waybill waybill, BaseStaffSiteOrgDto rbDto, String topic, String source) {
         Message message = new Message();
         SendDispatchDto dto = new SendDispatchDto();
         if (sendDetail != null) {
@@ -242,8 +241,16 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             dto.setWaybillCode(waybill.getWaybillCode());
             dto.setCreateSiteCode(sendDetail.getCreateSiteCode());
             dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
-            dto.setReceiveSiteName(receiveSiteName);
+            dto.setReceiveSiteName(rbDto.getSiteName());
+            dto.setOperateTime(new Date(sendDetail.getOperateTime()));
+            dto.setSendCode(sendDetail.getSendCode());
             dto.setWaybillSign(waybill.getWaybillSign());
+            dto.setSource(source);
+            dto.setCreateUserCode(sendDetail.getCreateUserCode());
+            dto.setCreateUser(sendDetail.getCreateUser());
+            dto.setBoxCode(sendDetail.getBoxCode());
+            dto.setBoardCode(sendDetail.getBoardCode());
+
             dto.setEndProvinceId(waybill.getProvinceId());
             dto.setEndCityId(waybill.getCityId());
             dto.setEndAddress(waybill.getReceiverAddress());
@@ -252,14 +259,19 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             dto.setPaymentType(waybill.getPayment());
             dto.setBusiId(waybill.getBusiId());
             dto.setOrderTime(waybill.getOrderSubmitTime());
-            dto.setOperateTime(DateHelper.toDate(sendDetail.getOperateTime()));
-            dto.setSendCode(sendDetail.getSendCode());
-            dto.setCreateUserCode(sendDetail.getCreateUserCode());
-            dto.setCreateUser(sendDetail.getCreateUser());
-            dto.setSource(source);
-            dto.setBoxCode(sendDetail.getBoxCode());
-            // TODO: 2019/3/1 需要在sendDetail消息体中添加板号信息
-            dto.setBoardCode(sendDetail.getBoardCode());
+
+            dto.setSendPay(waybill.getSendPay());
+            dto.setReceiveDmsSiteCode(rbDto.getDmsSiteCode());
+            dto.setPreSiteCode(waybill.getOldSiteId());
+
+            try {
+                BaseStaffSiteOrgDto preSiteDto = this.baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+                if(preSiteDto != null){
+                    dto.setPreSiteName(preSiteDto.getSiteName());
+                }
+            } catch (Exception e) {
+                logger.error("非城配运单，发车队通知调度系统构建MQ时查询预分拣站点信息异常，MQ不在发送预分拣站点名称：" + sendDetail.getPackageBarcode(), e);
+            }
             message.setTopic(topic);
             message.setText(JSON.toJSONString(dto));
             message.setBusinessId(sendDetail.getPackageBarcode());
