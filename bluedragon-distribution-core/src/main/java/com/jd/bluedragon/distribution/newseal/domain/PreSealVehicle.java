@@ -19,13 +19,13 @@ public class PreSealVehicle extends DbEntity {
 	private String preSealUuid;
 
 	 /** 始发站点Code */
-	private Long createSiteCode;
+	private Integer createSiteCode;
 
 	 /** 始发站点名称 */
 	private String createSiteName;
 
 	 /** 目的站点Code */
-	private Long receiveSiteCode;
+	private Integer receiveSiteCode;
 
 	 /** 目的站点名称 */
 	private String receiveSiteName;
@@ -83,7 +83,7 @@ public class PreSealVehicle extends DbEntity {
 	 * The set method for createSiteCode.
 	 * @param createSiteCode
 	 */
-	public void setCreateSiteCode(Long createSiteCode) {
+	public void setCreateSiteCode(Integer createSiteCode) {
 		this.createSiteCode = createSiteCode;
 	}
 
@@ -91,7 +91,7 @@ public class PreSealVehicle extends DbEntity {
 	 * The get method for createSiteCode.
 	 * @return this.createSiteCode
 	 */
-	public Long getCreateSiteCode() {
+	public Integer getCreateSiteCode() {
 		return this.createSiteCode;
 	}
 
@@ -115,7 +115,7 @@ public class PreSealVehicle extends DbEntity {
 	 * The set method for receiveSiteCode.
 	 * @param receiveSiteCode
 	 */
-	public void setReceiveSiteCode(Long receiveSiteCode) {
+	public void setReceiveSiteCode(Integer receiveSiteCode) {
 		this.receiveSiteCode = receiveSiteCode;
 	}
 
@@ -123,7 +123,7 @@ public class PreSealVehicle extends DbEntity {
 	 * The get method for receiveSiteCode.
 	 * @return this.receiveSiteCode
 	 */
-	public Long getReceiveSiteCode() {
+	public Integer getReceiveSiteCode() {
 		return this.receiveSiteCode;
 	}
 

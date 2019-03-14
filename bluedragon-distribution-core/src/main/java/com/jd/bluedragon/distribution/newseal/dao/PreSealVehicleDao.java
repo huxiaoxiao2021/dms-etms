@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.newseal.dao;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.List;
 /**
  *
  * @ClassName: PreSealVehicleDao
@@ -13,5 +14,23 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
 
+    /**
+     * 根据ids批量更新预封车数据状态
+     *
+     * @param ids
+     * @param updateUserErp
+     * @param updateUserName
+     * @param status
+     * @return
+     */
+    int updateStatusByIds(List<Long> ids, String updateUserErp, String updateUserName, Integer status);
+
+    /**
+     * 根据始发目的查询预封车数据
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode);
 
 }
