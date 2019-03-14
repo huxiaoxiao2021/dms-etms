@@ -21,10 +21,9 @@
 	<import resource="classpath:spring/distribution-core-redis.xml" />
 	<import resource="classpath:spring/distribution-core-jsf.xml" />
     <import resource="classpath:spring/distribution-core-cassandra.xml" />
-    <import resource="classpath:spring/distribution-core-jmq.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
-    <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>
+    <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
     <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
