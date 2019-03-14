@@ -16,6 +16,9 @@ public class ReceiveWeightCheckCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
 
+    /** 所属区域 */
+    private Long reviewOrgCode;
+
     /** 所属分拣中心 */
     private Long createSiteCode;
 
@@ -30,6 +33,14 @@ public class ReceiveWeightCheckCondition extends BasePagerCondition {
 
     private Date reviewStartTime;
     private Date reviewEndTime;
+
+    public Long getReviewOrgCode() {
+        return reviewOrgCode;
+    }
+
+    public void setReviewOrgCode(Long reviewOrgCode) {
+        this.reviewOrgCode = reviewOrgCode;
+    }
 
     public Long getCreateSiteCode() {
         return createSiteCode;

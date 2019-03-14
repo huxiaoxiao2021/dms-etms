@@ -68,7 +68,7 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         heads.add("重量差异");
         heads.add("体积重量差异");
         heads.add("误差标准值");
-        heads.add("是否超标");
+        heads.add("是否超标(1:超标)");
         resList.add(heads);
         condition.setLimit(-1);
         List<ReceiveWeightCheckResult> list = queryByCondition(condition);

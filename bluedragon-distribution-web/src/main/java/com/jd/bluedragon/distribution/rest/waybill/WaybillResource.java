@@ -2021,6 +2021,7 @@ public class WaybillResource {
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
             receiveWeightCheckResult.setBusiName(baseEntity.getData().getWaybill().getBusiName());
         }
+		receiveWeightCheckResult.setReviewOrgCode(packWeightVO.getOrganizationCode());
         receiveWeightCheckResult.setReviewOrg(packWeightVO.getOrganizationName());
         receiveWeightCheckResult.setReviewCreateSiteCode(packWeightVO.getOperatorSiteCode());
         receiveWeightCheckResult.setReviewCreateSiteName(packWeightVO.getOperatorSiteName());

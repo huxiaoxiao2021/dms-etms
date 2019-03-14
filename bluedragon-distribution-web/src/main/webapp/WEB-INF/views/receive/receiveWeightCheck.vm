@@ -30,6 +30,8 @@
                                         <select id="site-group-select" class="form-control " name="site-group-select"
                                                 value=""></select>
                                     </div>
+                                    <input type="hidden" id="reviewOrgCode" name="reviewOrgCode"
+                                           class="form-control search-param " >
                                 </div>
                             </div>
                             <div class="col-xs-4">

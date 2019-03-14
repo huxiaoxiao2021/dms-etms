@@ -7,6 +7,7 @@
 		<result column="review_date" property="reviewDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="busi_name" property="busiName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="review_org_code" property="reviewOrgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="review_org" property="reviewOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_create_site_code" property="reviewCreateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="review_create_site_name" property="reviewCreateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -29,7 +30,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,review_date,package_code,busi_name,review_org,review_create_site_code,review_create_site_name,review_erp,
+		id,review_date,package_code,busi_name,review_org_code,review_org,review_create_site_code,review_create_site_name,review_erp,
 		review_weight,review_lwh,review_volume,receive_org,receive_department,receive_erp,receive_weight,
 		receive_lwh,receive_volume,weight_diff,volume_weight_diff,diff_standard,is_excess,is_delete,
 		ts
@@ -50,6 +51,9 @@
 			</if>
 			<if test="busiName != null">
 				busi_name,
+			</if>
+			<if test="reviewOrgCode != null">
+				review_org_code,
 			</if>
 			<if test="reviewOrg != null">
 				review_org,
@@ -120,6 +124,9 @@
 			</if>
 			<if test="busiName != null">
 				#{busiName,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewOrgCode != null">
+				#{reviewOrgCode,jdbcType=BIGINT},
 			</if>
 			<if test="reviewOrg != null">
 				#{reviewOrg,jdbcType=VARCHAR},
@@ -192,6 +199,9 @@
 			<![CDATA[
 				and review_date <= #{reviewEndTime,jdbcType=TIMESTAMP}
 				]]>
+		</if>
+		<if test="reviewOrgCode != null">
+			and review_org_code = #{reviewOrgCode,jdbcType=BIGINT}
 		</if>
 		<if test="createSiteCode != null">
 			and review_create_site_code = #{createSiteCode,jdbcType=BIGINT}

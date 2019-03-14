@@ -25,6 +25,7 @@ public class ReceiveWeightCheckResult extends DbEntity {
     /** 商家名称 */
     private String busiName;
     /** 复核区域 */
+    private Integer reviewOrgCode;
     private String reviewOrg;
     /** 复核分拣 */
     private Integer reviewCreateSiteCode;
@@ -94,6 +95,14 @@ public class ReceiveWeightCheckResult extends DbEntity {
 
     public void setBusiName(String busiName) {
         this.busiName = busiName;
+    }
+
+    public Integer getReviewOrgCode() {
+        return reviewOrgCode;
+    }
+
+    public void setReviewOrgCode(Integer reviewOrgCode) {
+        this.reviewOrgCode = reviewOrgCode;
     }
 
     public String getReviewOrg() {

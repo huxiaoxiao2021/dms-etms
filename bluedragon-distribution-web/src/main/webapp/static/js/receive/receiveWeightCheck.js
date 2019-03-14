@@ -305,6 +305,7 @@ function initOrg() {
                 .on("change", function (e) {
                     $("#query-form #createSiteCode").val("");
                     var orgId = $("#site-group-select").val();
+                    $("#query-form #reviewOrgCode").val(orgId);
                     if (orgId) {
                         var siteListUrl = '/services/bases/dms/' + orgId;
                         findSite("#site-select", siteListUrl, "#query-form #createSiteCode");
