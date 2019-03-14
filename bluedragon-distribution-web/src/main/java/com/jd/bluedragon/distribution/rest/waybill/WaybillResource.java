@@ -2018,11 +2018,14 @@ public class WaybillResource {
 	public InvokeResult<Integer> waybillExchangeCheckWeightAndVolume(@PathParam("oldWaybillCode") String oldWaybillCode, @PathParam("newWaybillCode") String newWaybillCode ){
 		InvokeResult<Integer> result = new InvokeResult<>();
 		result.success();
+		//初始化不需要称重
+		result.setData(0);
 
 		if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newWaybillCode)) {
 			logger.error("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
 			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
 			result.setMessage("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
+			result.setData(-1);
 			return result;
 		}
 		try{
@@ -2055,10 +2058,18 @@ public class WaybillResource {
 				if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
 					//运单对象中的复重重量
 					Double againWeight = baseEntity.getData().getWaybill().getAgainWeight();
+
+					//运单中的商品重量
+					Double goodWeight = baseEntity.getData().getWaybill().getGoodWeight();
+
 					//运单对象中的复核体积
 					String againVolumeStr = baseEntity.getData().getWaybill().getSpareColumn2();
+
+					//运单中的商品体积
+					Double goodVolume = baseEntity.getData().getWaybill().getGoodVolume();
+
 					//如果无重量，或者重量小于等于0，需要进行称重
-					if (againWeight == null || againWeight.compareTo(0d) <= 0) {
+					if ((againWeight == null || againWeight.compareTo(0d) <= 0) && (goodWeight == null || goodWeight.compareTo(0d) <= 0)) {
 						isNeedWeight = true;
 					}
 					//体积转换为数值类型
@@ -2071,7 +2082,7 @@ public class WaybillResource {
 						}
 					}
 					//如果体积不存在，或者体积小于等于0，需要进行量方
-					if (againVolume == null || againVolume.compareTo(0d) <= 0) {
+					if ((againVolume == null || againVolume.compareTo(0d) <= 0) && (goodVolume == null || goodVolume.compareTo(0d) <= 0)) {
 						isNeedVolume = true;
 					}
 
@@ -2097,6 +2108,7 @@ public class WaybillResource {
 					logger.info("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
 					result.setCode(InvokeResult.RESULT_NULL_CODE);
 					result.setMessage("新单号:"+ newWaybillCode + "的运单信息为空，请联系IT人员处理");
+					result.setData(-1);
 					return result;
 				}
 			}
