@@ -187,11 +187,7 @@ $(function () {
             $.each(params, function (key, value) {
                 input = $("<input type='hidden' class='search-param'>");
                 input.attr({"name": key});
-                if (key == 'startTime' || key == 'endTime'){
-                    input.val(new Date(value));
-                }else{
-                    input.val(value);
-                }
+                input.val(value);
                 form.append(input);
             });
             form.appendTo(document.body);
