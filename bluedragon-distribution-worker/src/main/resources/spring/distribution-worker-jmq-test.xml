@@ -217,5 +217,10 @@
     <jmq:consumer id="jmq.arCreTransportBillTraceConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.air.railway.transport.trace}" listener="arCreTransportBillTraceConsumer"/>
     </jmq:consumer>
+
+    <!--履约单下发消息-->
+    <jmq:consumer id="jmq.performanceAddConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.waybill.order.add.flag}" listener="performanceAddConsumer"/>
+    </jmq:consumer>
 </beans>
 
