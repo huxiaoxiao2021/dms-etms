@@ -17,5 +17,8 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 @Repository("sealVehiclesDao")
 public class SealVehiclesDaoImpl extends BaseDao<SealVehicles> implements SealVehiclesDao {
 
-
+    @Override
+    public boolean updateBySealDataCode(SealVehicles sealVehicles) {
+        return sqlSession.update(this.nameSpace+".updateBySealDataCode", sealVehicles) == 1;
+    }
 }

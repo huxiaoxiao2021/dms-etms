@@ -13,5 +13,10 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface SealVehiclesDao extends Dao<SealVehicles> {
 
-
+    /**
+     * 根据封车业务数据更新封车信息
+     * @param sealVehicles
+     * @return
+     */
+    boolean updateBySealDataCode(SealVehicles sealVehicles);
 }

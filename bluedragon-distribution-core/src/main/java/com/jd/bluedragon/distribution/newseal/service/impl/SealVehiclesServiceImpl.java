@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
+import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  *
@@ -31,4 +35,13 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 		return this.sealVehiclesDao;
 	}
 
+	@Transactional
+	@Override
+	public boolean updateDeSealBySealDataCode(List<SealVehicles> sealVehiclesList) {
+		for (SealVehicles sealVehicles : sealVehiclesList){
+			sealVehicles.setStatus(SealVehicleEnum.DE_SEAL.getCode());
+			sealVehiclesDao.updateBySealDataCode(sealVehicles);
+		}
+		return true;
+	}
 }
