@@ -1,20 +1,24 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.alibaba.fastjson.JSON;
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
-import com.jd.bluedragon.distribution.api.domain.TemporaryPackageTemplate;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
+import com.jd.bluedragon.distribution.api.domain.TemporaryPackageTemplate;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.etms.framework.utils.cache.annotation.Cache;
 
 
 @Service("templateSelectService")
@@ -23,6 +27,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
 
     @Autowired
     SysConfigService sysConfigService;
+    
+    @Autowired
+    SiteService siteService;
 
     /**B网专用面单 **/
     private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-m";
@@ -32,26 +39,28 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
     private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
     /** TC面单 **/
     private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
-    /** C网专用面单 **/
+    /** C网统一面单-10*11 **/
     private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
-    /** 一号店面单 **/
-    private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business";
+    /** C网统一面单-10*10 **/
+    private static final String TEMPlATE_NAME_C1010_MAIN = "dms-unite1010-m";
+    /** 一号店面单 -10*11**/
+    private static final String TEMPlATE_NAME_C_BUSINESS = "dms-unite-business-m";
+    /** 一号店面单 10*10 **/
+    private static final String TEMPlATE_NAME_C1010_BUSINESS = "dms-unite1010-business-m";
     /** 招商银行面单**/
     private static final String TEMPlATE_NAME_C_CMBC = "dms-nopaperyhd-m";
 
     /** 10*5的小包裹标签 **/
     private static final String TEMPLATE_NAME_10_5 = "dms-haspaper15-m";
-
-
-
     @Override
     public String handle(WaybillPrintContext context) {
         String templateName = context.getRequest().getTemplateName();
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
-        Boolean noPaperFlag = context.getRequest().getNopaperFlg();
+        String paperSizeCode = context.getRequest().getPaperSizeCode();
+        BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
         //只有无纸化标识为false，才返回小标签
-        if(Boolean.FALSE.equals(noPaperFlag)){
+        if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (StringUtils.isBlank(templateName)) {
@@ -77,17 +86,33 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                     //一号店模板
                     if (Constants.BUSINESS_ALIAS_YHD.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         templateName = TEMPlATE_NAME_C_BUSINESS;
+                        //10*10模板
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
+                        	templateName = TEMPlATE_NAME_C1010_BUSINESS;
+                        }
                     } else if (Constants.BUSINESS_ALIAS_CMBC.equals(context.getBasePrintWaybill().getDmsBusiAlias())) {
                         //招商银行使用老模板
                         templateName = TEMPlATE_NAME_C_CMBC;
                     } else {
                         //C网统一模板
                         templateName = TEMPlATE_NAME_C_MAIN;
+                        //10*10模板
+                        if(DmsPaperSize.PAPER_SIZE_CODE_1010.equals(paperSizeCode)){
+                        	templateName = TEMPlATE_NAME_C1010_MAIN;
+                        }
                     }
                 }
             }
         }
-
+        //设置模板纸张大小编码
+        basePrintWaybill.setTemplatePaperSizeCode(paperSizeCode);
+        //设置启用新模板标识
+        if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE)
+        		.contains(context.getRequest().getDmsSiteCode())){
+        	basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
+        }else{
+        	basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
+        }
         //得到业务模板
         //根据key查config
         if (siteCode != null) {

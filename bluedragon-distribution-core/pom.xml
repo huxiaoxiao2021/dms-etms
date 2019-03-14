@@ -50,7 +50,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.18</version>
+            <version>5.1.24</version>
             <optional>false</optional>
         </dependency>
         <dependency>
@@ -124,7 +124,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.11-SNAPSHOT</version>
+			<version>1.2.13-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -805,7 +805,7 @@
 		<dependency>
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
-			<version>1.1.14-SNAPSHOT</version>
+			<version>1.1.18-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -857,6 +857,72 @@
 			<version>0.0.1-SNAPSHOT</version>
             <classifier>jdk16</classifier>
         </dependency>
+
+		<!--JDDL-->
+		<dependency>
+			<groupId>jddl-utils</groupId>
+			<artifactId>jddl-utils</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>jddl-client-all</artifactId>
+			<version>1.1.6-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>nv-websocket-client</artifactId>
+					<groupId>com.neovisionaries</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.coo.jdbcp</groupId>
+					<artifactId>jdbcp-pool</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.neovisionaries</groupId>
+			<artifactId>nv-websocket-client</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.configure</groupId>
+			<artifactId>configure-client</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.configure</groupId>
+			<artifactId>configure-utils</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.coo.jdbcp</groupId>
+			<artifactId>jdbcp-pool</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>2.4.4</version>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jd.tms.boss</groupId>

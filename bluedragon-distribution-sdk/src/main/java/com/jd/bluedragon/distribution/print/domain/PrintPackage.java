@@ -8,7 +8,9 @@ import java.io.Serializable;
  */
 public class PrintPackage implements Serializable {
 
-    /**
+	private static final long serialVersionUID = 1L;
+
+	/**
      * 包裹号
      */
     private String packageCode;
@@ -37,6 +39,11 @@ public class PrintPackage implements Serializable {
      * 包裹号后缀
      */
     public String packageSuffix;
+    
+    /**
+     * 包裹序号数字
+     */
+    public Integer packageIndexNum;
 
 
     public String getPackageCode() {
@@ -94,4 +101,18 @@ public class PrintPackage implements Serializable {
     public void setPackageSuffix(String packageSuffix) {
         this.packageSuffix = packageSuffix;
     }
+
+	/**
+	 * @return the packageIndexNum
+	 */
+	public Integer getPackageIndexNum() {
+		return packageIndexNum;
+	}
+
+	/**
+	 * @param packageIndexNum the packageIndexNum to set
+	 */
+	public void setPackageIndexNum(Integer packageIndexNum) {
+		this.packageIndexNum = packageIndexNum;
+	}
 }

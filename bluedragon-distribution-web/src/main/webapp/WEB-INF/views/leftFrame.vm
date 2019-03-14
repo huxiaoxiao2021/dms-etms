@@ -61,6 +61,7 @@
         <dd><a href="#springUrl('/storage/storagePackageM/toIndex')" target="mainFrame">暂存管理</a></dd>
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
+        <dd><a href="#springUrl('/waybillCodeCheckForKA/toIndex')" target="mainFrame">金融客户运单号对比校验</a></dd>
         <dd><a href="#springUrl('/signReturn/toIndex')" target="mainFrame">签单返回合单打印交接单</a></dd>
         <dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
         <dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>
