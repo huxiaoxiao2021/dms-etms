@@ -1945,11 +1945,11 @@ public class WaybillResource {
             }else{
                 if((upWeight <= 5 && Math.abs(upWeight-weight)> 0.3) || (upWeight > 5 && upWeight <= 20 && Math.abs(upWeight-weight)> 0.5)
                         || (upWeight > 20 && upWeight <= 50 && Math.abs(upWeight-weight)> 1)
-                        || (upWeight > 50 && Math.abs(upWeight-weight) > weight * 0.02)){
+                        || (upWeight > 50 && Math.abs(upWeight-weight) > upWeight * 0.02)){
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                     result.setData(false);
                     result.setMessage("此次操作重量为"+upWeight+"kg,揽收重量为"+weight+"kg，"
-                            +"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : weight * 0.02)+"kg！");
+                            +"经校验误差值"+Math.abs(upWeight-weight)+"kg已超出规定"+ (upWeight <=5 ? "0.3":upWeight<=20 ? "0.5":upWeight<=50 ? "1" : upWeight * 0.02)+"kg！");
                     receiveWeightCheckResult.setIsExcess(1);
 				}
 			}
@@ -1973,12 +1973,12 @@ public class WaybillResource {
                 if((upVolume/8000 <= 5 && Math.abs(upVolume-volume)/8000> 0.3)
                         || (upVolume/8000 > 5 && upVolume/8000 <= 20  && Math.abs(upVolume-volume)/8000 > 0.5)
                         || (upVolume/8000 > 20 && upVolume/8000 <= 50  && Math.abs(upVolume-volume)/8000 > 1)
-                        || (upVolume/8000 > 50 && Math.abs(upVolume-volume)/8000 > volume*0.02/8000)){
+                        || (upVolume/8000 > 50 && Math.abs(upVolume-volume)/8000 > upVolume*0.02/8000)){
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                     result.setData(false);
                     String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", upVolume/8000)+"kg,揽收体积重量（体积除以8000）为"+String.format("%.6f", volume/8000)+"kg，"
 
-                            +"经校验误差值"+Math.abs(upVolume-volume)/8000+"kg已超出规定"+ (upVolume/8000 <=5 ? "0.3":upVolume/8000<=20 ? "0.5":upVolume/8000<=50 ? "1" : volume/8000 * 0.02)+"kg！";
+                            +"经校验误差值"+Math.abs(upVolume-volume)/8000+"kg已超出规定"+ (upVolume/8000 <=5 ? "0.3":upVolume/8000<=20 ? "0.5":upVolume/8000<=50 ? "1" : upVolume/8000 * 0.02)+"kg！";
                     if(!StringUtils.isBlank(result.getMessage())){
                         message = result.getMessage()+"\r\n"+message;
                     }
