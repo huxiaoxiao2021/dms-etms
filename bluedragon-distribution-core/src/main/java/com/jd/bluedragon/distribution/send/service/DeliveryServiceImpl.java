@@ -3202,7 +3202,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             tDeliveryResponse = reverseComputer.compute(allList, false);
 
             //退仓时 增加 支持半退逻辑
-            if(sysConfigService.getConfigByName("reverse.part.not.check.switch")){
+            if(!sysConfigService.getConfigByName("reverse.part.not.check.switch")){
                 ThreeDeliveryResponse response = checkReversePartSend(tDeliveryResponse,allList);
                 if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
                     return response;
