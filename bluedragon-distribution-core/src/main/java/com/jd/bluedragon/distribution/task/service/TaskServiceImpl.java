@@ -16,7 +16,11 @@ import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.service.TBTaskQueueService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.framework.asynBuffer.producer.jmq.JmqTopicRouter;
 import com.jd.ump.annotation.JProEnum;
@@ -31,8 +35,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 @Service("taskService")
 public class TaskServiceImpl implements TaskService {
@@ -68,13 +78,27 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
     private TBTaskQueueService tbTaskQueueService;
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void addBatch(List<Task> tasks) {
-        for(Task task : tasks){
-            add(task,false);
-        }
-    }
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void addBatch(List<Task> tasks) {
+		this.addBatch(tasks, false);
+	}
+
+	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+	public void addBatch(List<Task> tasks, boolean ifCheckTaskMode) {
+		if (tasks != null && !tasks.isEmpty()) {
+			Task firstTask = tasks.get(0);
+			if (isDynamicProducerOn(firstTask)) {
+				dynamicProducer.send(tasks);
+				return;
+			}
+			for (Task task : tasks) {
+				doAddTask(task, false);
+			}
+		}
+	}
 
     /**
      * @param task
@@ -83,6 +107,7 @@ public class TaskServiceImpl implements TaskService {
      */
     @JProfiler(jKey= "DMSCORE.TaskService.add",mState = {JProEnum.TP})
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	@Override
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
         if (isDynamicProducerOn(task)) {

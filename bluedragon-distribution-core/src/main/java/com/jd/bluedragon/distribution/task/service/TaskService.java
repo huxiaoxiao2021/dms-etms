@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.task.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
+
+import java.util.List;
 
 
 public interface TaskService {
@@ -12,6 +12,8 @@ public interface TaskService {
     void initFingerPrint(Task task);
 
     void addBatch(List<Task> tasks);
+
+    void addBatch(List<Task> tasks, boolean ifCheckTaskMode);
 
     Integer add(Task task);
     

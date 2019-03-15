@@ -1,5 +1,14 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -15,6 +24,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.fastRefund.service.WaybillCancelClient;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.C2cInterceptHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
@@ -25,22 +35,20 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LableType;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.OriginalType;
+import com.jd.bluedragon.utils.SystemLogContants;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * 面单打印冗余服务
@@ -175,7 +183,6 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
     private InterceptResult<String> setBasicMessageByDistribution(WaybillPrintContext context) {
         Waybill waybill = context.getWaybill();
         Integer localSchedule = context.getRequest().getTargetSiteCode();
-        Boolean nopaperFlg = context.getRequest().getNopaperFlg();
         Integer startSiteType = context.getRequest().getStartSiteType();
         Integer startDmsCode = context.getRequest().getDmsSiteCode();
         InterceptResult<String> result = new InterceptResult<String>();
@@ -201,11 +208,12 @@ public class WayBillPrintRedundanceServiceImpl implements WayBillPrintRedundance
                 request.setPreSeparateCode(localSchedule);// 调度站点
             // 是否DMS调用
             request.setOriginalType(OriginalType.DMS.getValue());
-            //是否有纸化
-            if(nopaperFlg){
-                request.setLabelType(LableType.PAPERLESS.getLabelPaper());
-            }else {
+            //是否有纸化,改为通过paperSizeCode来判断,兼容旧逻辑
+            if(Boolean.FALSE.equals(context.getRequest().getNopaperFlg())
+            		||DmsPaperSize.PAPER_SIZE_CODE_1005.equals(context.getRequest().getPaperSizeCode())){
                 request.setLabelType(LableType.PAPER.getLabelPaper());
+            }else {
+            	request.setLabelType(LableType.PAPERLESS.getLabelPaper());
             }
 
             BaseResponseIncidental<LabelPrintingResponse> response = labelPrinting.dmsPrint(request,context);
