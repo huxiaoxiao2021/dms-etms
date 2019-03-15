@@ -213,6 +213,8 @@ function initDateQuery(){
 }
 
 function initSelect() {
+    var defualt = $("#query-form #isExcessSelect").val();
+    $("#query-form #isExcess").val(defualt);
     $("#query-form #isExcessSelect").on('change', function (e) {
         var v = $("#query-form #isExcessSelect").val();
         if (v == 0 || v == 1) {
