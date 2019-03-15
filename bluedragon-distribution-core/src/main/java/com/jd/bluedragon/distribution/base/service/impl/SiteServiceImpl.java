@@ -175,6 +175,7 @@ public class SiteServiceImpl implements SiteService {
                     domain.setSname(dto.getStartNodeName());
                     // 发车时间
                     domain.setSendTime(String.valueOf(dto.getSendCarTime()));
+                    domain.setSendTimeStr(dto.getSendCarTimeStr());
                     // 始发区域
                     domain.setSorgid(String.valueOf(dto.getStartOrgId()));
                     domain.setSorgName(dto.getStartOrgName());

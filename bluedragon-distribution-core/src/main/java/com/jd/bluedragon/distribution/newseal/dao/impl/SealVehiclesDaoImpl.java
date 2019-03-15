@@ -6,6 +6,9 @@ import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 
+import java.util.Date;
+import java.util.List;
+
 /**
  *
  * @ClassName: SealVehiclesDaoImpl
@@ -20,5 +23,14 @@ public class SealVehiclesDaoImpl extends BaseDao<SealVehicles> implements SealVe
     @Override
     public boolean updateBySealDataCode(SealVehicles sealVehicles) {
         return sqlSession.update(this.nameSpace+".updateBySealDataCode", sealVehicles) == 1;
+    }
+
+    @Override
+    public List<String> findUsedTransports(Integer createSiteCode, Date startDate) {
+        SealVehicles param = new SealVehicles();
+        param.setCreateSiteCode(createSiteCode);
+        param.setCreateTime(startDate);
+
+        return sqlSession.selectList(this.nameSpace+".findUsedTransports", param);
     }
 }

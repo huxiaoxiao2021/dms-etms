@@ -42,4 +42,12 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
         query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
         return sqlSession.selectList(this.nameSpace+".findByCreateAndReceive", query);
     }
+
+    @Override
+    public List<String> findUsedTransports(Integer createSiteCode, Date startDate) {
+        PreSealVehicle query = new PreSealVehicle();
+        query.setCreateSiteCode(createSiteCode);
+        query.setCreateTime(startDate);
+        return sqlSession.selectList(this.nameSpace+".findUsedTransports", query);
+    }
 }

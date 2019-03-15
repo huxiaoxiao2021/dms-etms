@@ -26,6 +26,10 @@
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
+    <resultMap id="transportCodeList" type="java.lang.String">
+
+    </resultMap>
+
 	<sql id="Base_Column_List" >
 		id,pre_seal_uuid,create_site_code,create_site_name,receive_site_code,receive_site_name,
 		transport_code,vehicle_number,seal_codes,send_car_time,status,
@@ -255,6 +259,16 @@
         pre_seal_vehicle
         where
         <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="findUsedTransports" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle" resultMap="transportCodeList">
+        select
+        transport_code
+        from
+        pre_seal_vehicle
+        where create_site_code = #{createSiteCode,jdbcType=BIGINT}
+        and create_time <![CDATA[ >= ]]> #{createTime,jdbcType=TIMESTAMP}
+        and is_delete=0
     </select>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">

@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,4 +46,15 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 		}
 		return true;
 	}
+
+    @Override
+    public List<String> findTodayUsedTransports(Integer createSiteCode) {
+        //获取当天零点时刻
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),0,0,0);
+
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return sealVehiclesDao.findUsedTransports(createSiteCode, calendar.getTime());
+    }
 }

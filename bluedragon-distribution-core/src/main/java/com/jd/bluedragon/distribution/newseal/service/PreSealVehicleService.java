@@ -64,4 +64,11 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      */
     List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
+     * 根据始发查询当天已使用预封车的运力编码
+     * @param createSiteCode
+     * @return
+     */
+    List<String> findTodayUsedTransports(Integer createSiteCode);
 }

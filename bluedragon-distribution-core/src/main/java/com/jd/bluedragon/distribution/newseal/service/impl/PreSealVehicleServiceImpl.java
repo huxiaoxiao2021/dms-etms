@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -85,5 +86,15 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 	@Override
 	public List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode) {
 		return preSealVehicleDao.findByCreateAndReceive(createSiteCode, receiveSiteCode);
+	}
+
+	@Override
+	public List<String> findTodayUsedTransports(Integer createSiteCode) {
+	    //获取当天零点时刻
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),0,0,0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+		return preSealVehicleDao.findUsedTransports(createSiteCode, calendar.getTime());
 	}
 }

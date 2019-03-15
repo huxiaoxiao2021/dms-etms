@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.newseal.dao;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
+import java.util.Date;
 import java.util.List;
 /**
  *
@@ -33,4 +34,11 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      */
     List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode);
 
+    /**
+     * 根据起始时间查询场地已使用预封车的运力编码
+     * @param createSiteCode
+     * @param startDate
+     * @return
+     */
+    List<String> findUsedTransports(Integer createSiteCode, Date startDate);
 }

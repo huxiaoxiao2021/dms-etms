@@ -4,9 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
+import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
@@ -43,6 +45,12 @@ public class PreSealVehicleResource {
 
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+
+    @Autowired
+    private SealVehiclesService sealVehiclesService;
+
+    @Autowired
+    private SiteService siteService;
 
     private static final String SYSTEM_CODE = "DMS";
 
