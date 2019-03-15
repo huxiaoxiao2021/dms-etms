@@ -123,8 +123,8 @@ public class ReverseTest {
         Message m = new Message();
         m.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?><ReceiveRequest>\n" +
                 "  <sendCode>910-14178-20190223165014011</sendCode>\n" +
-                "  <orderId>JDVA00001221777</orderId>\n" +
-                "  <operateTime>2019-02-28 14:11:54</operateTime>\n" +
+                "  <orderId>JDVA00001588597</orderId>\n" +
+                "  <operateTime>2019-03-15 14:11:54</operateTime>\n" +
                 "  <userName>liuduo</userName>\n" +
                 "  <receiveType>5</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +

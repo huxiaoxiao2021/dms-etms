@@ -260,7 +260,7 @@ $(function() {
 	};
 
     initOrg();
-
+    initDateQuery();
 	tableInit().init();
 	pageInit().init();
 });
@@ -277,7 +277,7 @@ function allSendPackSumClick(event,waybillCode,createSiteCode){
 
     var url = "/reverse/part/reversePartDetail/allSendPack/"+createSiteCode+"/"+waybillCode;
 
-	$.get(url,function(data){
+	$.post(url,function(data){
 
 		if(data.code != 200){
 			alert(data.message);
@@ -311,7 +311,7 @@ function noSendPackSumClick(event,waybillCode,createSiteCode){
 
     var url = "/reverse/part/reversePartDetail/noSendPack/"+createSiteCode+"/"+waybillCode;
 
-    $.get(url,function(data){
+    $.post(url,function(data){
 
         if(data.code != 200){
             alert(data.message);
@@ -438,4 +438,12 @@ function findSite(selectId,siteListUrl,initIdSelectId){
 
         }
     });
+
+}
+
+function initDateQuery(){
+    var v = $.dateHelper.formatDate(new Date());
+
+    $("#sendTimeGEStr").val(v+" 00:00:00");
+    $("#sendTimeLEStr").val(v+" 23:59:59");
 }

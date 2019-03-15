@@ -103,6 +103,12 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 
 		//数组中等于1的代表已经发货 。剩余则为未发货的
 		int[] packs = new int[baseEntity.getData().getPackageList().size()];
+		String endStr = "";
+		if(StringUtils.isNotBlank(baseEntity.getData().getPackageList().get(0).getPackageBarcode()) && baseEntity.getData().getPackageList().get(0).getPackageBarcode().split("-").length >=2 ){
+			String packCode = baseEntity.getData().getPackageList().get(0).getPackageBarcode();
+			endStr = packCode.substring(packCode.indexOf('-',packCode.indexOf('-')+1));
+
+		}
 
 		List<ReversePartDetail> allSendPack = queryAllSendPack(waybillCode,createSiteCode);
 		if(allSendPack!=null){
@@ -115,7 +121,7 @@ public class ReversePartDetailServiceImpl extends BaseService<ReversePartDetail>
 		int i = 1;
 		for(int pack : packs){
 			if(pack != 1){
-				noNoSendPacks.add("-"+i+"-");
+				noNoSendPacks.add(waybillCode+"-"+i+endStr);
 			}
 			i++;
 		}

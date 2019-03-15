@@ -151,7 +151,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 if(source.getCanReceive().equals(new Integer(1)) || source.getCanReceive().equals(new Integer(2))){
                     ReversePartDetail param = new ReversePartDetail();
                     param.setReceiveTime(source.getReceiveTime());
-                    param.setWaybillCode(source.getPackageCode());
+                    param.setWaybillCode(source.getOrderId());
                     param.setSendCode(source.getSendCode());
                     reversePartDetailService.updateReceiveTime(param);
                 }
