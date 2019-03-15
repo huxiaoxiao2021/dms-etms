@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,9 +36,18 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
     }
 
     @Override
-    public List<ReceiveWeightCheckResult> queryByCondition(ReceiveWeightCheckCondition condition) {
+    public PagerResult<ReceiveWeightCheckResult> queryByCondition(ReceiveWeightCheckCondition condition) {
+        PagerResult<ReceiveWeightCheckResult>  result = new PagerResult<ReceiveWeightCheckResult>();
+        List<ReceiveWeightCheckResult> list = receiveWeightCheckDao.queryByCondition(condition);
+        Integer num = queryNumByCondition(condition);
+        result.setRows(list);
+        result.setTotal(num);
+        return result;
+    }
 
-        return receiveWeightCheckDao.queryByCondition(condition);
+    @Override
+    public Integer queryNumByCondition(ReceiveWeightCheckCondition condition) {
+        return receiveWeightCheckDao.queryNumByCondition(condition);
     }
 
     /**
@@ -71,8 +81,9 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         heads.add("是否超标(1:超标)");
         resList.add(heads);
         condition.setLimit(-1);
-        List<ReceiveWeightCheckResult> list = queryByCondition(condition);
-        if(list != null && list.size() > 0){
+        PagerResult<ReceiveWeightCheckResult> result = queryByCondition(condition);
+        if(result != null && result.getRows() != null && result.getRows().size() > 0){
+            List<ReceiveWeightCheckResult> list = result.getRows();
             //表格信息
             for(ReceiveWeightCheckResult receiveWeightCheckResult : list){
                 List<Object> body = Lists.newArrayList();

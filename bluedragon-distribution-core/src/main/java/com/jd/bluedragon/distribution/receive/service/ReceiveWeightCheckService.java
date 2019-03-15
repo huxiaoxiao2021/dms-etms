@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.receive.service;
 
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;
 
@@ -21,7 +22,12 @@ public interface ReceiveWeightCheckService {
     /**
      * 按条件查询
      * */
-    public List<ReceiveWeightCheckResult> queryByCondition(ReceiveWeightCheckCondition condition);
+    public PagerResult<ReceiveWeightCheckResult> queryByCondition(ReceiveWeightCheckCondition condition);
+
+    /**
+     * 根据条件查询数据条数
+     * */
+    public Integer queryNumByCondition(ReceiveWeightCheckCondition condition);
 
     /**
      * 整理导出数据

@@ -66,10 +66,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<ReceiveWeightCheckResult> listData(@RequestBody ReceiveWeightCheckCondition condition){
 
-        PagerResult<ReceiveWeightCheckResult> result = new PagerResult<ReceiveWeightCheckResult>();
-        List<ReceiveWeightCheckResult> list = receiveWeightCheckService.queryByCondition(condition);
-        result.setRows(list);
-        result.setTotal(list.size());
+        PagerResult<ReceiveWeightCheckResult> result = receiveWeightCheckService.queryByCondition(condition);
         return result;
     }
 

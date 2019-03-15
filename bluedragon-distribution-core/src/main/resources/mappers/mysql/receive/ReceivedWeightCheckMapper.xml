@@ -225,4 +225,15 @@
 		</if>
 	</select>
 
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition"
+			resultType="Integer">
+		select
+		count(1) as num
+		from
+		receive_weight
+		where 1=1
+		<include refid="Query_Params_Condition_Sql"/>
+		<include refid="Base_Condition_Sql"/>
+	</select>
+
 </mapper>

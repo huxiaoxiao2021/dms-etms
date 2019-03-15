@@ -30,4 +30,10 @@ public class ReceiveWeightCheckDao extends BaseDao<ReceiveWeightCheckResult> {
         return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
     }
 
+    /**
+     * 根据条件查询数据条数
+     * */
+    public Integer queryNumByCondition(ReceiveWeightCheckCondition condition) {
+        return this.getSqlSession().selectOne(namespace + ".pageNum_queryByPagerCondition",condition);
+    }
 }
