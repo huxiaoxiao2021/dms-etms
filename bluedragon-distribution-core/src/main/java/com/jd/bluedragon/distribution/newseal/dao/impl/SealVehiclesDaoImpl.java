@@ -33,4 +33,9 @@ public class SealVehiclesDaoImpl extends BaseDao<SealVehicles> implements SealVe
 
         return sqlSession.selectList(this.nameSpace+".findUsedTransports", param);
     }
+
+    @Override
+    public List<String> findSealDataBySealDataCodes(List<String> sealDataCodes) {
+        return sqlSession.selectList(this.nameSpace+".findSealDataBySealDataCodes", sealDataCodes);
+    }
 }

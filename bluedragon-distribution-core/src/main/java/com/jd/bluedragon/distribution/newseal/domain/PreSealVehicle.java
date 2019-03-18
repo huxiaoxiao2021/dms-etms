@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.newseal.domain;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
 /**
@@ -62,6 +65,12 @@ public class PreSealVehicle extends DbEntity {
 
 	 /** 预封车实操时间 */
 	private Date operateTime;
+
+    /** 批次信息 */
+	private List<SealVehicles> sendCodes;
+
+    /** 车牌号List */
+    private List<String> vehicleNumbers;
 
 	/**
 	 * The set method for preSealUuid.
@@ -319,5 +328,25 @@ public class PreSealVehicle extends DbEntity {
 		return this.operateTime;
 	}
 
+    public List<SealVehicles> getSendCodes() {
+	    if(sendCodes == null){
+	        sendCodes = new ArrayList<>();
+        }
+        return sendCodes;
+    }
 
+    public void setSendCodes(List<SealVehicles> sendCodes) {
+        this.sendCodes = sendCodes;
+    }
+
+    public List<String> getVehicleNumbers() {
+        if(vehicleNumbers == null){
+            vehicleNumbers = new ArrayList<>();
+        }
+        return vehicleNumbers;
+    }
+
+    public void setVehicleNumbers(List<String> vehicleNumbers) {
+        this.vehicleNumbers = vehicleNumbers;
+    }
 }

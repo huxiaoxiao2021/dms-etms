@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Service("sendMService")
@@ -27,5 +28,10 @@ public class SendMServiceImpl implements SendMService{
         queryPara.setCreateSiteCode(createSiteCode);
         //查询箱子发货记录
         return sendMDao.selectBySendSiteCode(queryPara);
+    }
+
+    @Override
+    public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
+        return sendMDao.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
     }
 }

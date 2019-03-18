@@ -4,7 +4,9 @@ import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -64,6 +66,14 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      */
     List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
+     * 查询场地在startDate以内的预封车数据
+     *
+     * @param createSiteCode
+     * @return
+     */
+    Map<Integer, PreSealVehicle> queryBySiteCode(Integer createSiteCode);
 
     /**
      * 根据始发查询当天已使用预封车的运力编码

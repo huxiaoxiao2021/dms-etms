@@ -13,10 +13,7 @@ import com.jd.bluedragon.distribution.newseal.dao.PreSealVehicleDao;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -88,10 +85,36 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 		return preSealVehicleDao.findByCreateAndReceive(createSiteCode, receiveSiteCode);
 	}
 
-	@Override
+    @Override
+    public Map<Integer, PreSealVehicle> queryBySiteCode(Integer createSiteCode) {
+
+        PreSealVehicle query = new PreSealVehicle();
+        query.setCreateSiteCode(createSiteCode);
+        query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
+
+        List<PreSealVehicle> preSealVehicleList = preSealVehicleDao.queryByCondition(query);
+        Map<Integer, PreSealVehicle> preMap = null;
+        if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
+            preMap = new HashMap<>(preSealVehicleList.size());
+            //组装车牌信息
+            for(PreSealVehicle vo : preSealVehicleList){
+                //同一目的地，将车牌组装到车牌list中
+                if(preMap.containsKey(vo.getReceiveSiteCode())){
+                    preMap.get(vo.getReceiveSiteCode()).getVehicleNumbers().add(vo.getVehicleNumber());
+                }else{
+                    vo.getVehicleNumbers().add(vo.getVehicleNumber());
+                    preMap.put(vo.getReceiveSiteCode(), vo);
+                }
+            }
+        }
+        return preMap;
+    }
+
+    @Override
 	public List<String> findTodayUsedTransports(Integer createSiteCode) {
 	    //获取当天零点时刻
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
         calendar.set(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),0,0,0);
         calendar.set(Calendar.MILLISECOND, 0);
 

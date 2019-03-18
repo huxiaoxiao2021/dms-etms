@@ -44,6 +44,11 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
     }
 
     @Override
+    public List<PreSealVehicle> queryByCondition(PreSealVehicle preSealVehicle) {
+        return sqlSession.selectList(this.nameSpace+".queryByCondition", preSealVehicle);
+    }
+
+    @Override
     public List<String> findUsedTransports(Integer createSiteCode, Date startDate) {
         PreSealVehicle query = new PreSealVehicle();
         query.setCreateSiteCode(createSiteCode);

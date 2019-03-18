@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.newseal.domain;
 
 import java.util.Date;
+
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 /**
@@ -16,13 +17,13 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	private static final long serialVersionUID = 1L;
 
 	 /** 始发站点Code */
-	private Long createSiteCode;
+	private Integer createSiteCode;
 
 	 /** 始发站点名称 */
 	private String createSiteName;
 
 	 /** 目的站点Code */
-	private Long receiveSiteCode;
+	private Integer receiveSiteCode;
 
 	 /** 目的站点名称 */
 	private String receiveSiteName;
@@ -91,7 +92,7 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	 * The set method for createSiteCode.
 	 * @param createSiteCode
 	 */
-	public void setCreateSiteCode(Long createSiteCode) {
+	public void setCreateSiteCode(Integer createSiteCode) {
 		this.createSiteCode = createSiteCode;
 	}
 
@@ -99,7 +100,7 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	 * The get method for createSiteCode.
 	 * @return this.createSiteCode
 	 */
-	public Long getCreateSiteCode() {
+	public Integer getCreateSiteCode() {
 		return this.createSiteCode;
 	}
 
@@ -123,7 +124,7 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	 * The set method for receiveSiteCode.
 	 * @param receiveSiteCode
 	 */
-	public void setReceiveSiteCode(Long receiveSiteCode) {
+	public void setReceiveSiteCode(Integer receiveSiteCode) {
 		this.receiveSiteCode = receiveSiteCode;
 	}
 
@@ -131,7 +132,7 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	 * The get method for receiveSiteCode.
 	 * @return this.receiveSiteCode
 	 */
-	public Long getReceiveSiteCode() {
+	public Integer getReceiveSiteCode() {
 		return this.receiveSiteCode;
 	}
 
@@ -470,6 +471,5 @@ public class SealVehiclesCondition extends BasePagerCondition {
 	public Date getOperateTime() {
 		return this.operateTime;
 	}
-
 
 }

@@ -35,6 +35,13 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
     List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode);
 
     /**
+     * 根据条件查询数据信息
+     * @param preSealVehicle
+     * @return
+     */
+    List<PreSealVehicle> queryByCondition(PreSealVehicle preSealVehicle);
+
+    /**
      * 根据起始时间查询场地已使用预封车的运力编码
      * @param createSiteCode
      * @param startDate

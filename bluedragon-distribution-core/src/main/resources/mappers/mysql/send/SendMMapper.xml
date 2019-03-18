@@ -555,4 +555,17 @@
 		limit 1
 	</select>
 
+	<select id="findAllSendCodesWithStartTime" parameterType="SendM"  resultMap="SendM">
+		select
+        distinct send_code,receive_site_code
+		from  send_m
+		where yn=1
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        <if test="receiveSiteCode!=null">
+            and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+        </if>
+        AND operate_time <![CDATA[>=]]> #{operateTime,jdbcType=TIMESTAMP}
+
+    </select>
+
 </mapper>

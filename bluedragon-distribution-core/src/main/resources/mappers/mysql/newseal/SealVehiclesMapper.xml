@@ -34,7 +34,7 @@
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
 
-    <resultMap id="transportCodeList" type="java.lang.String">
+    <resultMap id="sealVehiclesList" type="java.lang.String">
 
     </resultMap>
 
@@ -417,7 +417,7 @@
 			and is_delete=0 
 	</sql>
 
-    <select id="findUsedTransports" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle" resultMap="transportCodeList">
+    <select id="findUsedTransports" parameterType="com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle" resultMap="sealVehiclesList">
         select
          transport_code
         from
@@ -425,6 +425,17 @@
         where create_site_code = #{createSiteCode,jdbcType=BIGINT}
         and create_time <![CDATA[ >= ]]> #{createTime,jdbcType=TIMESTAMP}
         and is_delete=0
+    </select>
+
+    <select id="findSealDataBySealDataCodes" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles" resultMap="sealVehiclesList">
+        select
+         seal_data_code
+        from
+        seal_vehicles
+        where seal_data_code in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
     </select>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">

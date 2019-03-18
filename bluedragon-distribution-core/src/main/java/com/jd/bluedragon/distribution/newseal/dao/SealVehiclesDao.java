@@ -29,4 +29,11 @@ public interface SealVehiclesDao extends Dao<SealVehicles> {
      * @return
      */
     List<String> findUsedTransports(Integer createSiteCode, Date startDate);
+
+    /**
+     * 根据封车的业务数据查询已封车的数据
+     * @param sealDataCodes
+     * @return
+     */
+    List<String> findSealDataBySealDataCodes(List<String> sealDataCodes);
 }

@@ -6,7 +6,10 @@ import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,9 +46,13 @@ public class PreSealVehicleController {
 	@Autowired
 	private SealVehiclesService sealVehiclesService;
 
+    @Autowired
+    private SendMService sendMService;
+
 	@Autowired
 	private SiteService siteService;
 
+    private static final Integer SQL_IN_EXPRESS_LIMIT = 999;
 	/**
 	 * 返回主页面
 	 * @return
@@ -114,7 +121,169 @@ public class PreSealVehicleController {
         }
 		return rest.getData();
 	}
+	/**
+	 * 根据条件查询预封车信息（包含对应未封车的批次信息）
+	 * @param condition
+	 * @return
+	 */
+	@RequestMapping(value = "/queryPreSeals")
+	public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
+        JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
+        if(condition.getCreateSiteCode() == null || condition.getHourRange() == null){
+            rest.setCode(JdResponse.CODE_FAIL);
+            rest.setMessage("参数错误，始发地和时间范围不能为空!");
+            return rest;
+        }
+        Integer createSiteCode = condition.getCreateSiteCode();
+        try{
+            Map<Integer, PreSealVehicle> preMap = preSealVehicleService.queryBySiteCode(createSiteCode);
+            logger.debug("查询预封车信息为：" + JsonHelper.toJson(preMap));
+            if(preMap == null || preMap.isEmpty()){
+                rest.setData(new ArrayList<PreSealVehicle>());
+            }else{
+                List<SealVehicles> unSealSendCodes = new ArrayList<>();
+                for(Integer receiveSiteCode : preMap.keySet()){
+                    List<SealVehicles> temp = getUnSealSendCodes(createSiteCode, receiveSiteCode, condition.getHourRange());
+                    if(temp != null && !temp.isEmpty()){
+                        unSealSendCodes.addAll(temp);
+                    }
+                }
+                if(unSealSendCodes == null || unSealSendCodes.isEmpty()){
+                    rest.setCode(JdResponse.CODE_FAIL);
+                    rest.setMessage("未查询到待封车批次，请确认时间范围和预封车数据信息是否准确!");
+                }else{
+                    rest.setData(buildPreSealVehicle(preMap, unSealSendCodes));
+                }
+            }
+        }catch (Exception e){
+            logger.error("查询预封车数据信息失败，查询条件：" + JsonHelper.toJson(condition), e);
+            rest.setCode(JdResponse.CODE_ERROR);
+            rest.setMessage("服务异常，查询预封车数据信息失败!");
+        }
+		return rest;
+	}
 
+    /**
+     * 组装未封车批次号到预封车集合中
+     * @param preMap
+     * @param unSealSendCodes
+     */
+	private List<PreSealVehicle> buildPreSealVehicle(Map<Integer, PreSealVehicle> preMap, List<SealVehicles> unSealSendCodes){
+
+        //组装批次信息
+        for(SealVehicles vo : unSealSendCodes){
+	        Integer key = vo.getReceiveSiteCode();
+	        if(preMap.containsKey(key)){
+                List<SealVehicles> temp = preMap.get(key).getSendCodes();
+                boolean exist = false;
+                for(SealVehicles seal : temp){
+                    if(seal.getSealDataCode().equals(vo.getSealDataCode())){
+                        exist = true;
+                        break;
+                    }
+                }
+                if(!exist){
+                    //该目的地只有一个车牌号时默认设置为改车牌号
+                    List<String> vehicleNumbers = preMap.get(key).getVehicleNumbers();
+                    if(vehicleNumbers.size() == 1){
+                        vo.setVehicleNumber(vehicleNumbers.get(0));
+                    }
+                    temp.add(vo);
+                }
+            }
+
+        }
+        List<PreSealVehicle> result = new ArrayList<>(preMap.size());
+        result.addAll(preMap.values());
+        return result;
+    }
+
+    /**
+     * 查询未封车批次信息
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param hourRange
+     * @return
+     */
+    private List<SealVehicles> getUnSealSendCodes(Integer createSiteCode, Integer receiveSiteCode, Integer hourRange){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.HOUR_OF_DAY, hourRange * -1);
+        Date startDate = calendar.getTime();
+
+        List<SealVehicles> allSendCodes = getAllSendCodes(createSiteCode, receiveSiteCode, startDate);
+        if(allSendCodes == null || allSendCodes.isEmpty()){
+            return allSendCodes;
+        }
+
+        Set<String> sendCodeSet = new HashSet<>(allSendCodes.size());
+        for(SealVehicles vo : allSendCodes){
+            sendCodeSet.add(vo.getSealDataCode());
+        }
+
+        List<String> sealedSendCodes = getSealedSendCodes(sendCodeSet);
+        if(sealedSendCodes == null || sealedSendCodes.isEmpty()){
+            return allSendCodes;
+        }
+
+        List<SealVehicles> result = new ArrayList<>();
+        for(SealVehicles vo : allSendCodes){
+            if(!sealedSendCodes.contains(vo.getSealDataCode())){
+                result.add(vo);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 查询已封车批次号
+     * @param sendCodeSet
+     * @return
+     */
+    private List<String> getSealedSendCodes(Set<String> sendCodeSet){
+        List<String> sendCodes = new ArrayList<>(sendCodeSet);
+        List<String> result = new ArrayList<>();
+        int total = sendCodes.size();
+        for(int index = 0; index < total; index += SQL_IN_EXPRESS_LIMIT){
+            List<String> temp;
+            int end = index + SQL_IN_EXPRESS_LIMIT;
+            if(end > total ){
+                temp = sendCodes.subList(index, total);
+            }else{
+                temp = sendCodes.subList(index, end);
+            }
+            if (temp != null && !temp.isEmpty()) {
+                List<String> sealedList = sealVehiclesService.findBySealDataCodes(temp);
+                if(sealedList != null && !sealedList.isEmpty()){
+                    result.addAll(sealedList);
+                }
+            }
+        }
+
+	    return result;
+    }
+
+    /**
+     * 查询全部的批次号
+     * @param createSiteCode
+     * @param startDate
+     * @return
+     */
+    private List<SealVehicles> getAllSendCodes(Integer createSiteCode, Integer receiveSiteCode, Date startDate){
+        List<SealVehicles> result = null;
+        List<SendM> sendMS = sendMService.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
+        if(sendMS != null && !sendMS.isEmpty()){
+            result = new ArrayList<>(sendMS.size());
+            for(SendM sendM : sendMS){
+                SealVehicles vehicles = new SealVehicles();
+                vehicles.setSealDataCode(sendM.getSendCode());
+                vehicles.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                result.add(vehicles);
+            }
+        }
+        return result;
+    }
 
 	/**
 	 * 查询当前场地未使用的运力编码

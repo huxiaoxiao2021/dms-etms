@@ -51,10 +51,15 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
     public List<String> findTodayUsedTransports(Integer createSiteCode) {
         //获取当天零点时刻
         Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.set(Calendar.MILLISECOND, 0);
         calendar.set(calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH),0,0,0);
 
-        calendar.set(Calendar.MILLISECOND, 0);
-
         return sealVehiclesDao.findUsedTransports(createSiteCode, calendar.getTime());
+    }
+
+    @Override
+    public List<String> findBySealDataCodes(List<String> sealDataCodes) {
+        return sealVehiclesDao.findSealDataBySealDataCodes(sealDataCodes);
     }
 }
