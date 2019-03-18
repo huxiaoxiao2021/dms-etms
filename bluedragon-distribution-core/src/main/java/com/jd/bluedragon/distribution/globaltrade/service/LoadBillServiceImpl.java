@@ -698,24 +698,20 @@ public class LoadBillServiceImpl implements LoadBillService {
      */
     public Map<Integer, List<Long>> splitLoadbillId(List<Long> id) {
         Integer limit = SQL_IN_EXPRESS_LIMIT;
-        Integer index = 0;
+        Integer total = id.size();
         Integer arrayIndex = 0;
-        List<Long> subList;
         Map<Integer, List<Long>> splitedLoadBillid = new HashMap<Integer, List<Long>>();
-        for (; ; ) {
-            try {
-                subList = id.subList(index, index + limit);
-                if (!subList.isEmpty()) {
-                    splitedLoadBillid.put(arrayIndex, subList);
-                }
-            } catch (IndexOutOfBoundsException ex) {
-                subList = id.subList(index, id.size());
-                if (!subList.isEmpty()) {
-                    splitedLoadBillid.put(arrayIndex, subList);
-                }
-                break;
+        for (int index = 0; index < total; index = index + limit) {
+            List<Long> subList;
+            int end = index + limit;
+            if(end > total){
+                subList = id.subList(index, total);
+            }else{
+                subList = id.subList(index, end);
             }
-            index = index + limit;
+            if (subList != null && !subList.isEmpty()) {
+                splitedLoadBillid.put(arrayIndex, subList);
+            }
             arrayIndex++;
         }
         return splitedLoadBillid;
@@ -730,24 +726,20 @@ public class LoadBillServiceImpl implements LoadBillService {
      */
     public Map<Integer, List<String>> splitLoadBillByWaybillCode(List<String> waybillCodes) {
         Integer limit = SQL_IN_EXPRESS_LIMIT;
-        Integer index = 0;
+        Integer total = waybillCodes.size();
         Integer arrayIndex = 0;
-        List<String> subList;
         Map<Integer, List<String>> splitedLoadBillid = new HashMap<Integer, List<String>>();
-        for (; ; ) {
-            try {
-                subList = waybillCodes.subList(index, index + limit);
-                if (!subList.isEmpty()) {
-                    splitedLoadBillid.put(arrayIndex, subList);
-                }
-            } catch (IndexOutOfBoundsException ex) {
-                subList = waybillCodes.subList(index, waybillCodes.size());
-                if (!subList.isEmpty()) {
-                    splitedLoadBillid.put(arrayIndex, subList);
-                }
-                break;
+        for (int index = 0; index < total; index = index + limit) {
+            List<String> subList;
+            int end = index + limit;
+            if(end > total){
+                subList = waybillCodes.subList(index, total);
+            }else{
+                subList = waybillCodes.subList(index, end);
             }
-            index = index + limit;
+            if (subList != null && !subList.isEmpty()) {
+                splitedLoadBillid.put(arrayIndex, subList);
+            }
             arrayIndex++;
         }
         return splitedLoadBillid;

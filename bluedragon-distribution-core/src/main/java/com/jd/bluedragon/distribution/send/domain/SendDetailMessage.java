@@ -56,6 +56,11 @@ public class SendDetailMessage implements Serializable {
      */
     private String source;
 
+    /**
+     * 组板板号
+     */
+    private String boardCode;
+
     public String getBoxCode() {
         return boxCode;
     }
@@ -126,5 +131,13 @@ public class SendDetailMessage implements Serializable {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }

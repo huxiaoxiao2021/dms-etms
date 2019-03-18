@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
@@ -112,18 +111,14 @@ public class SignReturnController extends DmsBaseController {
      * @return
      */
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
+    public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
 
-        this.logger.info("导出签单返回合单打印交接单");
+        logger.info("导出签单返回合单打印交接单");
         try{
             PagerResult<SignReturnPrintM> result = query(condition);
             signReturnService.toExport(result,response);
         }catch (Exception e){
-            this.logger.error("导出失败!");
-        }finally {
-            ModelAndView modelAndView = new ModelAndView();
-            modelAndView.addObject("errorMsg","导出失败!");
-            return modelAndView;
+            logger.error("导出失败!");
         }
     }
 

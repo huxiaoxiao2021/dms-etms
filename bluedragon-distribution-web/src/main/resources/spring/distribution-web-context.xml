@@ -10,8 +10,6 @@
     http://www.springframework.org/schema/context
 	http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd">
 
-	<aop:aspectj-autoproxy/>
-
 	<bean id="propertyConfigurer"
 		  class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="ignoreUnresolvablePlaceholders" value="true" />
@@ -28,6 +26,7 @@
 				<value>classpath:configured/popabnormal.properties</value>
 				<value>classpath:configured/snowflake.properties</value>
 				<value>classpath:configured/ucc.properties</value>
+				<value>classpath:configured/print.properties</value>
 			</list>
 		</property>
 		<property name="properties" ref="secApplicationProperties"/>
@@ -45,11 +44,12 @@
 	<context:component-scan base-package="com.jd.dms.logger"/>
 
 
-    <!-- 扩容Mysql主备配置表 -->
-    <import resource="classpath:spring/mysql/distribution-core-common.xml" />
-    <!-- <import resource="classpath:spring/mysql8/distribution-core-common.xml" /> -->
-    <!-- <import resource="classpath:spring/mysql16/distribution-core-common.xml" /> -->
-    
+    <!-- 引入不同环境下的特殊配置 -->
+    <import resource="classpath:spring/distribution-web-context-${profiles.env}.xml" />
+
+	<!-- 引入相关配置 -->
+	<import resource="classpath:spring/mysql/distribution-core-common.xml" />
+	<import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 	<import resource="classpath:spring/distribution-core-context.xml" />
 	<import resource="classpath:spring/distribution-web-mvc.xml" />
 	<import resource="classpath:spring/distribution-web-new-authen.xml" />
@@ -57,9 +57,11 @@
 	<import resource="classpath:spring/distribution-web-wss-service.xml" />
 	<import resource="classpath:spring/distribution-web-jsf-server.xml" />
 	<import resource="classpath:spring/distribution-web-jmq.xml" />
+	<import resource="classpath:spring/distribution-core-jmq-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
+	<import resource="classpath:ql-dms-print-engine.xml"/>
 
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->

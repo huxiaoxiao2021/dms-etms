@@ -148,12 +148,10 @@ public class MemoryController {
                 return new MemoryCacheDto(ip, "1.value is null");
             }
             List list = (ArrayList) response.getBody().getData();
-            LinkedHashMap<String, String> resultMap = null;
             if (list == null || list.size() < 1) {
                 return new MemoryCacheDto(ip, "2.value is null");
-            } else if (list.size() >= 1) {
-                resultMap = (LinkedHashMap<String, String>) list.get(0);
             }
+            LinkedHashMap<String, String> resultMap = (LinkedHashMap<String, String>) list.get(0);
             MemoryCacheDto<String> dto = new MemoryCacheDto<String>();
             for (Map.Entry<String, String> entry : resultMap.entrySet()) {
                 if (entry != null && "ip".equals(entry.getKey())) {

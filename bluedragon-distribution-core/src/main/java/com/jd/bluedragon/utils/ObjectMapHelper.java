@@ -82,7 +82,7 @@ public class ObjectMapHelper {
 			Class objClass = obj.getClass();
 			Method[] methods = objClass.getDeclaredMethods();
 			//只考虑直接父级 而且直接父级不是Object
-			if(objClass.getSuperclass() != null && !"java.lang.Object".equals(objClass.getSuperclass().getName())){
+			if(objClass.getSuperclass() != null && !Object.class.equals(objClass.getSuperclass())){
 				Method[] superMethodes = objClass.getSuperclass().getDeclaredMethods();
 				if(superMethodes != null && superMethodes.length > 0){
 					methods = (Method[]) ArrayUtils.addAll(methods, superMethodes);

@@ -2,11 +2,7 @@ package com.jd.bluedragon.distribution.web.sqlkit;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -82,7 +78,7 @@ public class SqlkitController {
 	@RequestMapping(value = "/executeSql", method = { RequestMethod.GET, RequestMethod.POST })
 	public String executeSql(Sqlkit sqlkit, @SuppressWarnings("rawtypes") Pager pager, Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-		Statement statement = null;
+        PreparedStatement pstmt = null;
 		ResultSet resultSet = null;
 		Connection connection = null;
 		int errorCount = 0;
@@ -95,22 +91,22 @@ public class SqlkitController {
 
 			connection = this.dataSource.getConnection();
 			
-			statement = connection.createStatement();
-			
-			statement.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
-			
 			if (sql.toLowerCase().startsWith("select")) {
 				pager = setPager(pager);
-				setTotalSize(pager, statement, sql);
-				String sqlExecute = sql + " limit " + pager.getStartIndex() + "," + pager.getPageSize();
-				resultSet = statement.executeQuery(sqlExecute);
+				setTotalSize(pager, connection, sql);
+				String sqlExecute = sql + " limit ?,?" ;
+                pstmt = connection.prepareStatement(sqlExecute);
+                pstmt.setQueryTimeout(StringHelper.isEmpty(SqlkitController.STATEMENT_TIME_OUT)?30:Integer.valueOf(SqlkitController.STATEMENT_TIME_OUT));
+                pstmt.setInt(1, pager.getStartIndex());
+                pstmt.setInt(2, pager.getPageSize());
+				resultSet = pstmt.executeQuery();
 				logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql[" + sql
 				        + "]");
 				ResultSetMetaData rsmd = resultSet.getMetaData();
 				int columnCount = rsmd.getColumnCount();// 获得列数
 				List<String> columnList = setColumnList(rsmd, columnCount);
 				List<Map<String, Object>> rowList = setRows(resultSet, rsmd, columnCount);
-				int rowCount = resultSet.getRow();
+				int rowCount = rowList.size();
 				logger.debug("结果条数=" + rowCount);
 				model.addAttribute("rowList", rowList);
 				model.addAttribute("columnList", columnList);
@@ -124,7 +120,8 @@ public class SqlkitController {
 			} else if (sql.toLowerCase().startsWith("update")
 			        || sql.toLowerCase().startsWith("insert")) {
 				if (SqlkitController.modifyUsers.contains(erpUser.getUserCode().toLowerCase())) {
-					int changeRows = statement.executeUpdate(sql);
+                    pstmt = connection.prepareStatement(sql);
+					int changeRows = pstmt.executeUpdate();
 //					connection.commit();
 					model.addAttribute("message", "影响行数" + changeRows);
 					logger.info("访问sqlkit/toView用户erp账号:[" + erpUser.getUserCode() + "]执行sql["
@@ -138,13 +135,14 @@ public class SqlkitController {
 				model.addAttribute("displayPageBar", false);
 			}
 			model.addAttribute("sqlkitDto", sqlkit);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			PrintStream ps = new PrintStream(baos);
 			e.printStackTrace(ps);
 			String msg = baos.toString();
 			model.addAttribute("error", msg);
 			errorCount++;
+			logger.error(e);
 		} finally {
 			try {
 				if (resultSet != null) {
@@ -153,15 +151,13 @@ public class SqlkitController {
 			} catch (SQLException se) {
 				this.logger.error("关闭文件流发生异常！", se);
 			}
-
-			try {
-				if (statement != null) {
-					statement.close();
-				}
-			} catch (SQLException se) {
-				this.logger.error("关闭文件流发生异常！", se);
-			}
-
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException se) {
+                this.logger.error("关闭PreparedStatement发生异常！", se);
+            }
 			try {
 				if (connection != null) {
 					connection.close();
@@ -180,11 +176,15 @@ public class SqlkitController {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private void setTotalSize(Pager pager, Statement statement, String sql) throws SQLException {
+	private void setTotalSize(Pager pager, Connection connection, String sql) throws SQLException {
 		ResultSet resultSet = null;
+        PreparedStatement pstmt = null;
 		try {
-			String sqlCount = "select count(1) from (" + sql + ") AS b";
-			resultSet = statement.executeQuery(sqlCount);
+            StringBuilder sqlBuilder = new StringBuilder("select count(1) from (");
+            sqlBuilder.append(sql);
+            sqlBuilder.append(") AS b");
+            pstmt = connection.prepareStatement(sqlBuilder.toString());
+			resultSet = pstmt.executeQuery();
 			resultSet.next();
 			pager.setTotalSize(resultSet.getInt(1));
 		} finally {
@@ -195,6 +195,13 @@ public class SqlkitController {
 			} catch (SQLException se) {
 				this.logger.error("关闭文件流发生异常！", se);
 			}
+            try {
+                if (pstmt != null) {
+                    pstmt.close();
+                }
+            } catch (SQLException se) {
+                this.logger.error("关闭PreparedStatement发生异常！", se);
+            }
 		}
 	}
 

@@ -12,7 +12,8 @@ public enum WaybillPrintOperateTypeEnum {
     PACKAGE_WEIGH_PRINT(100105, "包裹称重"),
     FIELD_PRINT(100106, "驻场打印"),
     BATCH_SORT_WEIGH_PRINT(100107, "批量分拣称重"),
-    FAST_TRANSPORT_PRINT(100108, "快运称重打印");
+    FAST_TRANSPORT_PRINT(100108, "快运称重打印"),
+    BATCH_PACKAGE_AGAIN_PRINT(100109, "批量包裹补打");
     private Integer type;//操作类型
     private String name;//操作名称
 
@@ -29,6 +30,7 @@ public enum WaybillPrintOperateTypeEnum {
     public static Integer FIELD_PRINT_TYPE = 100106;       //驻场打印操作类型
     public static Integer BATCH_SORT_WEIGH_PRINT_TYPE = 100107;//批量分拣称重操作类型
     public static Integer FAST_TRANSPORT_PRINT_TYPE= 100108;//快运称重打印操作类型
+    public static Integer BATCH_PACKAGE_AGAIN_PRINT_TYPE = 100109;//批量包裹补打操作类型
     public String getName() {
         return name;
     }

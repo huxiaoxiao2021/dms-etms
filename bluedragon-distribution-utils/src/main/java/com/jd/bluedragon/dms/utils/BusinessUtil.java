@@ -500,7 +500,14 @@ public class BusinessUtil {
     public static Boolean isTwiceExchageWaybillSpare(String waybillSign) {
         return isSignChar(waybillSign, 18, '5');
     }
-
+    /**
+     * 判断是否是外单京准达,waybill_sign  第31位等于6
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isSopJZD(String waybillSign) {
+        return isSignChar(waybillSign,31,'6');
+    }
 
     /**
      * 是否为三方-合作站点

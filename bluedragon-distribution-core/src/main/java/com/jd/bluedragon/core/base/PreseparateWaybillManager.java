@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.preseparate.vo.BaseResponseIncidental;
 import com.jd.preseparate.vo.MediumStationOrderInfo;
 import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.preseparate.vo.external.AnalysisAddressResult;
 
 /**
  * Created by wangtingwei on 2015/10/28.
@@ -24,4 +25,11 @@ public interface PreseparateWaybillManager {
 	 * @return
 	 */
 	JdResult<BaseResponseIncidental<MediumStationOrderInfo>> getMediumStation(OriginalOrderInfo originalOrderInfo);
+
+	/**
+	 * 根据详细地址获取四级地址
+	 * @param address
+	 * @return
+	 */
+	AnalysisAddressResult analysisAddress(String address);
 }

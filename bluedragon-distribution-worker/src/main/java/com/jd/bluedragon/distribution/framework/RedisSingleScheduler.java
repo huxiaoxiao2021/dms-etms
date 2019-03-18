@@ -113,7 +113,6 @@ public abstract class RedisSingleScheduler extends
 					result = executeSingleTask(task, ownSign);
 				} catch (Exception e) {
 					logger.error("Redis任务执行失败!"+e.getMessage(), e);
-					result = false;
 				}
 
 				//3. 根据任务处理结果进行数据落地，标明任务的执行状态(成功、失败)

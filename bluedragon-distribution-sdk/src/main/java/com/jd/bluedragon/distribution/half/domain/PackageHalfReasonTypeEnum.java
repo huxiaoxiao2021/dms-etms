@@ -73,11 +73,6 @@ public enum PackageHalfReasonTypeEnum {
         this.name = name;
     }
 
-    public boolean equals(String code) {
-        return this.getCode().equals(code);
-    }
-
-
     public String getCode() {
         return code;
     }

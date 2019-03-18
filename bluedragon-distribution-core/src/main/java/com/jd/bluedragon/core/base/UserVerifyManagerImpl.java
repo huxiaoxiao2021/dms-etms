@@ -130,7 +130,7 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_NO_EXIT_MSG);
             } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG)) {
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG);
-                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_PASSWORD_WRONG_MSG);
+                basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_PASS_WORD_WRONG_MSG);
             } else if (loginResult.getResultCode().equals(com.jd.bluedragon.Constants.PDA_USER_LOCKED)) {
                 basePdaUserDto.setErrorCode(com.jd.bluedragon.Constants.PDA_USER_LOCKED);
                 basePdaUserDto.setMessage(com.jd.bluedragon.Constants.PDA_USER_LOCKED_MSG);

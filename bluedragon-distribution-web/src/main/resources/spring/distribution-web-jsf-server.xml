@@ -57,6 +57,14 @@
                   interface="com.jd.bluedragon.distribution.internal.service.DmsInternalService"
                   alias="${dms.jsf.internal.alias}"/>
 
+    <!-- 分拣中心包裹标签打印jsf接口 -->
+    <bean id="packagePrintService" class="com.jd.bluedragon.distribution.saf.PackagePrintServiceImpl" />
+    <jsf:provider id="jsfPackagePrintService" server="dmsjsf" ref="packagePrintService"
+                  interface="com.jd.bluedragon.distribution.print.service.PackagePrintService"
+                  alias="${dms.jsf.print.alias}">
+                  <jsf:parameter key="token" value="${dms.jsf.print.token}"/>
+    </jsf:provider>
+
     <!-- 阿尔法打印插件自动升级JSF接口 -->
     <!-- 实现类 -->
     <bean id="jsfPrintDeviceServiceImpl" class="com.jd.bluedragon.distribution.saf.JsfPrintDeviceServiceImpl"/>

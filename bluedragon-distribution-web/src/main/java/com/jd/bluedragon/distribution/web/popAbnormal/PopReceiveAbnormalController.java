@@ -12,6 +12,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.utils.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +44,6 @@ import com.jd.bluedragon.distribution.rest.product.LossProductResource;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.JsonResult;
 import com.jd.bluedragon.external.service.SortCenterServiceManager;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectMapHelper;
-import com.jd.bluedragon.utils.WorkBookObject;
 import com.jd.pop.sortcenter.ws.VenderOperInfoResult;
 import com.jd.pop.sortcenter.ws.VenderOperateInfo;
 import com.jd.ql.basic.domain.BaseOrg;
@@ -236,34 +233,26 @@ public class PopReceiveAbnormalController {
 	@ResponseBody
 	public JsonResult getWaybillByOrderCode(
 			@RequestBody Map<String, String> paramMap) {
-		this.logger
-				.info("PopReceiveAbnormalController getWaybillByOrderCode --> 根据订单号获取运单信息");
+		logger.info("PopReceiveAbnormalController getWaybillByOrderCode --> 根据订单号获取运单信息");
 		String resultMsg = "";
 		String waybillCode = "";
 		// 验证传入参数
-		if (paramMap == null) {
-			this.logger
-					.info("PopReceiveAbnormalController getWaybillByOrderCode --> 传入参数为空!");
-			resultMsg = "传入参数为空!";
+		if (paramMap == null || StringUtils.isBlank(paramMap.get("waybillCode"))) {
+			logger.info("PopReceiveAbnormalController getWaybillByOrderCode --> 传入参数:" + JsonHelper.toJson(paramMap));
+            return new JsonResult(false, JdResponse.MESSAGE_PARAM_ERROR);
 		} else {
 			waybillCode = paramMap.get("waybillCode");
-			if (StringUtils.isBlank(waybillCode)) {
-				this.logger
-						.info("PopReceiveAbnormalController getWaybillByOrderCode --> 传入参数有误："
-								+ paramMap);
-				resultMsg = "传入参数有误！";
-			}
 		}
 		try {
 			// 验证POP订单是否正在申请中
 			PopReceiveAbnormal tempAbnormal = this.popReceiveAbnormalService
 					.findByMap(paramMap);
 			if (tempAbnormal != null) {
-				this.logger.info("根据订单号获取运单信息，" + paramMap + " 运单号正在处理中，返回");
+				logger.info("根据订单号获取运单信息，" + paramMap + " 运单号正在处理中，返回");
 				resultMsg = "此订单号 " + waybillCode + " 正在处理中，未处理完成！";
 			}
 			if (StringUtils.isNotBlank(resultMsg)) {
-				this.logger.info("根据订单号获取运单信息，" + resultMsg + " 返回");
+				logger.info("根据订单号获取运单信息，" + resultMsg + " 返回");
 				return new JsonResult(false, resultMsg);
 			}
 
