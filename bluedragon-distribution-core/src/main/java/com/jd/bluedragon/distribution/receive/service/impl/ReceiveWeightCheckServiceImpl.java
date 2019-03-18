@@ -29,10 +29,21 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
     @Autowired
     private ReceiveWeightCheckDao receiveWeightCheckDao;
 
+    /**
+     * 数据不存在就插入，存在就更新
+     * @param receiveWeightCheckResult
+     * @return
+     */
     @Override
     public int insert(ReceiveWeightCheckResult receiveWeightCheckResult) {
-
-        return receiveWeightCheckDao.insert(receiveWeightCheckResult);
+        ReceiveWeightCheckResult receiveWeightCheckResult1 = receiveWeightCheckDao.queryByPackageCode(receiveWeightCheckResult.getPackageCode());
+        if(receiveWeightCheckResult1 != null){
+            //更新
+            return receiveWeightCheckDao.updateByPackageCode(receiveWeightCheckResult);
+        }else{
+            //插入
+            return receiveWeightCheckDao.insert(receiveWeightCheckResult);
+        }
     }
 
     @Override

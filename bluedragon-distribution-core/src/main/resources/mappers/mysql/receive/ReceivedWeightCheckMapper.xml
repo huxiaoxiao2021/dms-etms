@@ -236,4 +236,89 @@
 		<include refid="Base_Condition_Sql"/>
 	</select>
 
+	<select id="queryByPackageCode" parameterType="String" resultMap="ReceiveWeightCheckResult">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		receive_weight
+		where 1=1
+		AND package_code = #{packageCode,jdbcType=VARCHAR}
+		<include refid="Base_Condition_Sql"/>1
+		limit 1
+	</select>
+
+	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult"  timeout="3">
+		UPDATE receive_weight
+		<set>
+			<if test="reviewDate != null">
+				review_date = #{reviewDate,jdbcType=TIMESTAMP},
+			</if>
+			<if test="packageCode != null">
+				package_code = #{packageCode,jdbcType=VARCHAR},
+			</if>
+			<if test="busiName != null">
+				busi_name = #{busiName,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewOrgCode != null">
+				review_org_code = #{reviewOrgCode,jdbcType=BIGINT},
+			</if>
+			<if test="reviewOrg != null">
+				review_org = #{reviewOrg,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewCreateSiteCode != null">
+				review_create_site_code = #{reviewCreateSiteCode,jdbcType=BIGINT},
+			</if>
+			<if test="reviewCreateSiteName != null">
+				review_create_site_name = #{reviewCreateSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewErp != null">
+				review_erp = #{reviewErp,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewWeight != null">
+				review_weight = #{reviewWeight,jdbcType=DOUBLE},
+			</if>
+			<if test="reviewLwh != null">
+				review_lwh = #{reviewLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="reviewVolume != null">
+				review_volume = #{reviewVolume,jdbcType=DOUBLE},
+			</if>
+			<if test="receiveOrg != null">
+				receive_org = #{receiveOrg,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveDepartment != null">
+				receive_department = #{receiveDepartment,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveErp != null">
+				receive_erp = #{receiveErp,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveWeight != null">
+				receive_weight = #{receiveWeight,jdbcType=DOUBLE},
+			</if>
+			<if test="receiveLwh != null">
+				receive_lwh = #{receiveLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveVolume != null">
+				receive_volume = #{receiveVolume,jdbcType=DOUBLE},
+			</if>
+			<if test="weightDiff != null">
+				weight_diff = #{weightDiff,jdbcType=VARCHAR},
+			</if>
+			<if test="volumeWeightDiff != null">
+				volume_weight_diff = #{volumeWeightDiff,jdbcType=VARCHAR},
+			</if>
+			<if test="diffStandard != null">
+				diff_standard = #{diffStandard,jdbcType=VARCHAR},
+			</if>
+			<if test="isExcess != null">
+				is_excess = #{isExcess,jdbcType=TINYINT},
+			</if>
+			ts = now()
+		</set>
+		where 1=1
+		AND package_code = #{packageCode,jdbcType=VARCHAR}
+		AND review_erp = #{reviewErp,jdbcType=VARCHAR}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
 </mapper>
