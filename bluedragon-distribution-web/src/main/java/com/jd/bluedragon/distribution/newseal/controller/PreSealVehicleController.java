@@ -65,6 +65,14 @@ public class PreSealVehicleController extends DmsBaseController{
 		return "/newseal/preSealVehicle";
 	}
 	/**
+	 * 跳转到未使用运力页面
+	 * @return
+	 */
+	@RequestMapping(value = "/unusedtransport")
+	public String unusedtransport() {
+		return "/newseal/unusedtransport";
+	}
+	/**
 	 * 根据id获取基本信息
 	 * @param id
 	 * @return
@@ -321,13 +329,17 @@ public class PreSealVehicleController extends DmsBaseController{
 
 	/**
 	 * 查询当前场地未使用的运力编码
-	 * @param createSiteCode
 	 * @return
 	 */
-	@RequestMapping(value = "/getRemainTransportCode/{createSiteCode}")
-	public @ResponseBody JdResponse<List<CapacityDomain>> getRemainTransportCode(@PathVariable("createSiteCode") Integer createSiteCode) {
+	@RequestMapping(value = "/getRemainTransportCode")
+	public @ResponseBody PagerResult<CapacityDomain> getRemainTransportCode() {
 		JdResponse<List<CapacityDomain>> rest = new JdResponse<List<CapacityDomain>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-
+        LoginUser user = getLoginUser();
+        if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
+            rest.setCode(JdResponse.CODE_ERROR);
+            rest.setMessage("登录已过期，请重新登录!");
+        }
+        Integer createSiteCode = user.getSiteCode();
 		try{
             rest.setData(getUnusedTransports(createSiteCode));
         }catch (Exception e){
@@ -335,8 +347,14 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询当前场地未使用的运力编码失败!");
         }
-
-		return rest;
+        PagerResult<CapacityDomain> result = new PagerResult<>();
+        result.setRows(rest.getData());
+        int total = 0;
+        if(rest.getData() != null){
+            total = rest.getData().size();
+        }
+        result.setTotal(total);
+        return result;
 	}
 
     /**
