@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Resource;
 
 import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -119,6 +121,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private ReversePartDetailService reversePartDetailService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -517,7 +522,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode,sendM)) {
+                if (!isSpecial(send, wallBillCode,sendM,orderpackMap.get(wallBillCode))) {
                 	newsend.setBusiOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
                 	ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
                 }
@@ -651,7 +656,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send,wayBillCode,sendM)) {
+                if (!isSpecial(send,wayBillCode,sendM,orderpackMap.get(wayBillCode))) {
                     send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
                     ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, 0, bDto, taskId,wayBillCode);
                 }
@@ -1006,7 +1011,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if (m.containsKey(a)) {
             //如果有重复包裹去重、
             if (!m.get(a).contains(b)) {
-                m.put(a, m.get(a) + "," + b);
+                m.put(a, m.get(a) + Constants.SEPARATOR_COMMA + b);
             }
         } else {
             m.put(a, b);
@@ -1504,7 +1509,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param send
      * @return <code>true</code> 如果是迷你仓、eclp订单
      */
-    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM) {
+    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM ,String sendPackages) {
 
         if (StringHelper.isNotEmpty(send.getWaybillSign())) {
             //迷你仓新需求，waybillsign第一位=8的 不推送库房， 因为不属于逆向 guoyongzhi
@@ -1558,6 +1563,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 			try {
 				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+				//存入半退明细
+                reversePartWmsOfEclp(wayBillCode,sendM,sendPackages);
+
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
@@ -1823,6 +1831,67 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }catch (Exception e){
             logger.error("退ECLP增加拒收原因处理时失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode,e);
         }
+
+    }
+
+
+    private void reversePartWmsOfEclp(String wayBillCode, SendM sendM ,String sendPackages){
+        //判断是否为半退
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode,true,false,false,true);
+        if(baseEntity== null || baseEntity.getData() ==  null || baseEntity.getData().getWaybill()== null ||baseEntity.getData().getPackageList() == null){
+            logger.error("插入半退明细时运单数据不完整");
+            return;
+        }
+        //不支持半退 直接返回
+        if(!BusinessUtil.isPartReverse(baseEntity.getData().getWaybill().getWaybillSign())){
+            return ;
+        }
+        if(StringUtils.isNotBlank(sendPackages) && sendPackages.split(Constants.SEPARATOR_COMMA).length < baseEntity.getData().getPackageList().size()){
+            //本次发货的包裹数 小于 总计包裹数 则为半退
+            //组装半退明细数据
+            List<ReversePartDetail> rpds = new ArrayList<ReversePartDetail>();
+
+            String createSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode()).getSiteName();
+
+            String receiveSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode()).getSiteName();
+
+            for(String sendPackNo : sendPackages.split(Constants.SEPARATOR_COMMA)){
+                ReversePartDetail rpd = new ReversePartDetail();
+                rpd.setWaybillCode(wayBillCode);
+                rpd.setPackNo(sendPackNo);
+                rpd.setSendCode(sendM.getSendCode());
+                rpd.setAllPackSum(baseEntity.getData().getPackageList().size());
+                rpd.setCreateSiteCode(sendM.getCreateSiteCode());
+                rpd.setCreateSiteName(createSiteName);
+                rpd.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                rpd.setReceiveSiteName(receiveSiteName);
+                rpd.setSendTime(sendM.getOperateTime());
+                rpd.setCreateUser(sendM.getCreateUser());
+                rpd.setType(1);
+                rpd.setStatus(1);
+                rpds.add(rpd);
+            }
+
+            //批量保存 半退操作明细
+            List<ReversePartDetail> bufferList = new ArrayList<ReversePartDetail>();
+            for(ReversePartDetail reversePartDetail :rpds){
+                bufferList.add(reversePartDetail);
+                if(bufferList.size()==100){
+                    if(reversePartDetailService.batchInsert(bufferList)){
+                        bufferList.clear();
+                    }
+                }
+            }
+            if(bufferList.size() > 0){
+                reversePartDetailService.batchInsert(bufferList);
+            }
+
+            logger.info("半退插入明细成功"+wayBillCode+" size"+rpds.size());
+
+        }
+
+
+
 
     }
 
