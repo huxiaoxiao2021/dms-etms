@@ -227,7 +227,18 @@ public class PreSealVehicleResource {
 
         preSealVehicle.setTransportCode(sealCarDto.getTransportCode());
         preSealVehicle.setVehicleNumber(sealCarDto.getVehicleNumber());
-        preSealVehicle.setSealCodes(sealCarDto.getSealCodes().toString());
+
+        List<String> sealCodes = sealCarDto.getSealCodes();
+        if(sealCodes != null && !sealCodes.isEmpty()){
+            StringBuilder sealCodeStr = new StringBuilder();
+            for(int i = 0; i < sealCodes.size(); i++){
+                sealCodeStr.append(sealCodes.get(i));
+                if(i < sealCodes.size() - 1){
+                    sealCodeStr.append(Constants.SEPARATOR_COMMA);
+                }
+            }
+            preSealVehicle.setSealCodes(sealCodeStr.toString());
+        }
         preSealVehicle.setSendCarTime(vtrd.getSendCarTimeStr());
         preSealVehicle.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
         if(isUpdate){

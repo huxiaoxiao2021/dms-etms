@@ -38,9 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
@@ -137,7 +135,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 //封车成功，发送封车mq消息
                 sealCarMQ(paramList);
                 addRedisCache(paramList);
-                saveSealData(paramList);
+                saveNXSealData(paramList);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
             }
@@ -525,10 +523,45 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      */
     private void saveSealData(List<SealCarDto> sealist){
         logger.info("保存封车业务数据：" + JsonHelper.toJson(sealist));
+        if(sealist == null || sealist.isEmpty()){
+            return;
+        }
         try {
             sealVehiclesService.batchAdd(convert2SealVehicles(sealist));
         }catch (Exception e){
             logger.error("保存封车业务数据异常，封车数据：" + JsonHelper.toJson(sealist), e);
+        }
+    }
+
+    /**
+     * 保存不存在的封车业务数据
+     * @param sealist
+     */
+    private void saveNXSealData(List<SealCarDto> sealist){
+        logger.info("保存不存在的封车业务数据：" + JsonHelper.toJson(sealist));
+        if(sealist == null || sealist.isEmpty()){
+            return;
+        }
+        try {
+            List<SealVehicles> sealVehiclesList = convert2SealVehicles(sealist);
+            Set<String> sendCodes = new HashSet<>(sealVehiclesList.size());
+            for(SealVehicles vo : sealVehiclesList){
+                sendCodes.add(vo.getSealDataCode());
+            }
+            List<String> sealed = sealVehiclesService.findBySealDataCodes(sendCodes);
+            if(sealed == null || sealed.isEmpty()){
+                sealVehiclesService.batchAdd(sealVehiclesList);
+            }else if(sealed.size() < sealVehiclesList.size()){
+                List<SealVehicles> reallyData = new ArrayList<>(sealVehiclesList.size() - sealed.size());
+                for(SealVehicles vo : sealVehiclesList){
+                    if(!sealed.contains(vo.getSealDataCode())){
+                        reallyData.add(vo);
+                    }
+                }
+                sealVehiclesService.batchAdd(reallyData);
+            }
+        }catch (Exception e){
+            logger.error("保存不存在的封车业务数据，封车数据：" + JsonHelper.toJson(sealist), e);
         }
     }
 
@@ -538,6 +571,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
      */
     private void saveDeSealData(List<SealCarDto> sealist){
         logger.info("保存解封车业务数据：" + JsonHelper.toJson(sealist));
+        if(sealist == null || sealist.isEmpty()){
+            return;
+        }
         try {
             sealVehiclesService.updateDeSealBySealDataCode(convert2SealVehicles(sealist));
         }catch (Exception e){

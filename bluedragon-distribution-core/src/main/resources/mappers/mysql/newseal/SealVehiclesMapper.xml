@@ -429,7 +429,7 @@
 
     <select id="findSealDataBySealDataCodes" parameterType="com.jd.bluedragon.distribution.newseal.domain.SealVehicles" resultMap="sealVehiclesList">
         select
-         seal_data_code
+         distinct seal_data_code
         from
         seal_vehicles
         where seal_data_code in

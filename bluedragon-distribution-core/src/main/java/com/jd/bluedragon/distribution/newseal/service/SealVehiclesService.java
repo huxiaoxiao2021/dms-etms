@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -31,8 +32,8 @@ public interface SealVehiclesService extends Service<SealVehicles> {
 
     /**
      * 根据封车的业务数据查询已封车的数据
-     * @param sealDataCodes
+     * @param sendCodeSet
      * @return
      */
-    List<String> findBySealDataCodes(List<String> sealDataCodes);
+    List<String> findBySealDataCodes(Set<String> sendCodeSet);
 }

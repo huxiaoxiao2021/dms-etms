@@ -81,4 +81,15 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @return
      */
     List<String> findTodayUsedTransports(Integer createSiteCode);
+
+    /**
+     * 执行批量封车
+     * @param preList
+     * @param updateUserErp
+     * @param updateUserName
+     * @param operateTime
+     * @return
+     * @throws Exception
+     */
+    boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime ) throws Exception;
 }

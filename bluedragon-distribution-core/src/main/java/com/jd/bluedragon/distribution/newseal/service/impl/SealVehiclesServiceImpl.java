@@ -13,9 +13,7 @@ import com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  *
@@ -31,6 +29,9 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 	@Autowired
 	@Qualifier("sealVehiclesDao")
 	private SealVehiclesDao sealVehiclesDao;
+
+
+    private static final Integer SQL_IN_EXPRESS_LIMIT = 999;
 
 	@Override
 	public Dao<SealVehicles> getDao() {
@@ -59,7 +60,26 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
     }
 
     @Override
-    public List<String> findBySealDataCodes(List<String> sealDataCodes) {
-        return sealVehiclesDao.findSealDataBySealDataCodes(sealDataCodes);
+    public List<String> findBySealDataCodes(Set<String> sendCodeSet) {
+        List<String> sendCodes = new ArrayList<>(sendCodeSet);
+        List<String> result = new ArrayList<>();
+        int total = sendCodes.size();
+        for(int index = 0; index < total; index += SQL_IN_EXPRESS_LIMIT){
+            List<String> temp;
+            int end = index + SQL_IN_EXPRESS_LIMIT;
+            if(end > total ){
+                temp = sendCodes.subList(index, total);
+            }else{
+                temp = sendCodes.subList(index, end);
+            }
+            if (temp != null && !temp.isEmpty()) {
+                List<String> sealedList = sealVehiclesDao.findSealDataBySealDataCodes(temp);
+                if(sealedList != null && !sealedList.isEmpty()){
+                    result.addAll(sealedList);
+                }
+            }
+        }
+
+        return result;
     }
 }
