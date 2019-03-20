@@ -2903,29 +2903,32 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
-        //批次号封车校验，已封车不能发货
+        //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
             return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
         }
+
+        //2.校验箱号或者包裹是否已发货
         response = deliveryCheckHasSend(sendM);
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
 
-        // FIXME: 2018/10/16 应该单独写一个校验接口，后续进行剥离
-        //B网包装耗材服务确认拦截
+        //3.B网包装耗材服务确认拦截
         if (! this.checkWaybillConsumable(sendM)) {
             return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
         }
 
+        //4.快运称重及运费拦截
         logger.info("快运发货运单重量及运费拦截开始");
-        //快运称重及运费拦截
         List<String> waybillCodes = getWaybillCodesBySendM(sendM);
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
         	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
         	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
         }
+
+        //5.快运发货非城配运单发往车队，判断是否可以C转B
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
@@ -2936,7 +2939,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
             logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
-            //快运发货非城配运单发往车队，判断是否可以C转B
             if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                 response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
@@ -2944,6 +2946,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             return response;
         }
+
+        //6.判断路由
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
         logger.info("根据包裹号或箱号获取目的分拣中心："+destinationSiteCode);
         if(destinationSiteCode == null){
@@ -2951,8 +2955,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             return response;
         }
-
-        //1.判断路由
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
             List<B2BRouter> routers = b2bRouterService.getB2BRouters(originalSiteCode, destinationSiteCode);
@@ -2976,6 +2978,111 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             logger.warn("B网路由拦截："+originalSiteCode+"->"+receiveSiteCode+"->"+destinationSiteCode+","+response.getMessage());
         }
+        return response;
+    }
+
+    /**
+     * 快运发货校验基础信息
+     * @param sendM
+     * @return
+     */
+    @Override
+    public SendResult checkBaseInfoForKY(SendM sendM) {
+        SendResult sendResult = new SendResult(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        //1.批次号封车校验，已封车不能发货
+        if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
+            return new SendResult(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+        }
+
+        //2.校验箱号或者包裹是否已发货
+        DeliveryResponse response = deliveryCheckHasSend(sendM);
+
+        //3.如果箱号或者包裹已发货
+        if (DeliveryResponse.CODE_Delivery_IS_SEND.equals(response.getCode())) {
+            // 多次发货取消上次发货校验
+            if (! this.multiSendVerification(sendM, sendResult)) {
+                return sendResult;
+            }
+        }
+
+        return sendResult;
+    }
+
+    /**
+     * 快运发货校验业务信息
+     * @param sendM
+     * @return
+     */
+    @Override
+    public DeliveryResponse checkBusinessInfoForKY(SendM sendM) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        //3.B网包装耗材服务确认拦截
+        if (! this.checkWaybillConsumable(sendM)) {
+            return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
+        }
+
+        //4.快运称重及运费拦截
+        logger.info("快运发货运单重量及运费拦截开始");
+        List<String> waybillCodes = getWaybillCodesBySendM(sendM);
+        InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
+        if(!interceptResult.isSucceed()){
+            logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
+            return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
+        }
+
+        //5.快运发货非城配运单发往车队，判断是否可以C转B
+        Integer receiveSiteCode = sendM.getReceiveSiteCode();
+        Integer originalSiteCode = sendM.getCreateSiteCode();
+        BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        if(receiveSite == null){
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("无法获取目的站点："+receiveSiteCode);
+            logger.warn("快运发货无法获取目的站点："+receiveSiteCode);
+            return response;
+        }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
+            logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
+            if(!checkDmsToVendor(sendM)){
+                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
+                return response;
+            }
+            return response;
+        }
+
+        //6.判断路由
+        Integer destinationSiteCode = getDestinationSiteCode(sendM);
+        logger.info("根据包裹号或箱号获取目的分拣中心："+destinationSiteCode);
+        if(destinationSiteCode == null){
+            response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+            response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
+            return response;
+        }
+        try {
+            logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
+            List<B2BRouter> routers = b2bRouterService.getB2BRouters(originalSiteCode, destinationSiteCode);
+            logger.info("B网路由查询结果："+JsonHelper.toJson(routers));
+            if(routers == null || routers.isEmpty()){
+                response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
+            }else{
+                List<B2BRouterNode> nodes = b2bRouterService.getNextCodes(originalSiteCode, destinationSiteCode, receiveSiteCode);
+                logger.info("B网路由下一节点查询结果："+JsonHelper.toJson(nodes));
+                if(nodes == null || nodes.isEmpty()){
+                    response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
+                    response.setMessage(DeliveryResponse.MESSAGE_ROUTER_ERROR);
+                }
+            }
+        }catch (Exception e){
+            logger.error("B网路由查询异常："+JsonHelper.toJson(sendM), e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        if(!JdResponse.CODE_OK.equals(response.getCode())){
+            logger.warn("B网路由拦截："+originalSiteCode+"->"+receiveSiteCode+"->"+destinationSiteCode+","+response.getMessage());
+        }
+
         return response;
     }
 

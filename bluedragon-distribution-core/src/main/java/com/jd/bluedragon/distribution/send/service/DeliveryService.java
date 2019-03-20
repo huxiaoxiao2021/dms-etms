@@ -191,6 +191,12 @@ public interface DeliveryService {
     /** 快运发货路由信息验证 */
     public DeliveryResponse checkRouterForKY(SendM sendm);
 
+	/** 快运发货基础信息验证 */
+	public SendResult checkBaseInfoForKY(SendM sendm);
+
+	/** 快运发货业务信息验证 */
+	public DeliveryResponse checkBusinessInfoForKY(SendM sendm);
+
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
 	
