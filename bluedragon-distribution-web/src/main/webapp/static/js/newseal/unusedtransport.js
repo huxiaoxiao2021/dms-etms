@@ -20,16 +20,15 @@ $(function() {
                 showColumns : true, // 是否显示所有的列
                 // sortable : true, // 是否启用排序
                 // sortOrder : "asc", // 排序方式
-//				search : true, // 是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+				search : true, // 是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+                // strictSearch : true,// 设置为 true启用 全匹配搜索，否则为模糊搜索
 //                 showRefresh : true, // 是否显示刷新按钮
+//				showPaginationSwitch : true, // 是否显示分页关闭按钮
+                // showToggle : false, // 是否显示详细视图和列表视图的切换按钮
 //                 minimumCountColumns : 2, // 最少允许的列数
                 clickToSelect : true, // 是否启用点击选中行
-                // showToggle : false, // 是否显示详细视图和列表视图的切换按钮
-//				showPaginationSwitch : true, // 是否显示分页关闭按钮
-//                 strictSearch : true,
                 // icons: {refresh: "glyphicon-repeat", toggle:
                 // "glyphicon-list-alt", columns: "glyphicon-list"},
-                // search:false,
                 // cardView: true, //是否显示详细视图
                 // detailView: true, //是否显示父子表
                 // showFooter:true,
