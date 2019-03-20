@@ -13,41 +13,36 @@ import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 public class PackagePrintRequest extends WaybillPrintRequest{
 	private static final long serialVersionUID = 1L;
 	/**
-	 * 默认dpi-200
+	 * 包裹号打印开始序号
 	 */
-	private static Integer DPI_DEFAULT = 200;
-    /**
-     * 横向分辨率
-     */
-    private Integer dpiX = DPI_DEFAULT;
-    /**
-     * 纵向分辨率
-     */
-    private Integer dpiY = DPI_DEFAULT;
-
+	private Integer packageStartIndex = 0;
 	/**
-	 * @return the dpiX
+	 * 包裹号打印结束序号
 	 */
-	public Integer getDpiX() {
-		return dpiX;
+	private Integer packageEndIndex = 0;
+	/**
+	 * @return the packageStartIndex
+	 */
+	public Integer getPackageStartIndex() {
+		return packageStartIndex;
 	}
 	/**
-	 * @param dpiX the dpiX to set
+	 * @param packageStartIndex the packageStartIndex to set
 	 */
-	public void setDpiX(Integer dpiX) {
-		this.dpiX = dpiX;
+	public void setPackageStartIndex(Integer packageStartIndex) {
+		this.packageStartIndex = packageStartIndex;
 	}
 	/**
-	 * @return the dpiY
+	 * @return the packageEndIndex
 	 */
-	public Integer getDpiY() {
-		return dpiY;
+	public Integer getPackageEndIndex() {
+		return packageEndIndex;
 	}
 	/**
-	 * @param dpiY the dpiY to set
+	 * @param packageEndIndex the packageEndIndex to set
 	 */
-	public void setDpiY(Integer dpiY) {
-		this.dpiY = dpiY;
+	public void setPackageEndIndex(Integer packageEndIndex) {
+		this.packageEndIndex = packageEndIndex;
 	}
-
+	
 }
