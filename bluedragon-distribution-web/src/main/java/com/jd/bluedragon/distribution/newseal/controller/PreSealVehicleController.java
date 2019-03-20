@@ -141,12 +141,18 @@ public class PreSealVehicleController extends DmsBaseController{
 	@RequestMapping(value = "/queryPreSeals")
 	public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        if(condition.getCreateSiteCode() == null || condition.getHourRange() == null){
+        if( condition.getHourRange() == null){
             rest.setCode(JdResponse.CODE_FAIL);
-            rest.setMessage("参数错误，始发地和时间范围不能为空!");
+            rest.setMessage("参数错误，时间范围不能为空!");
             return rest;
         }
-        Integer createSiteCode = condition.getCreateSiteCode();
+        LoginUser user = getLoginUser();
+        if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
+            rest.setCode(JdResponse.CODE_ERROR);
+            rest.setMessage("登录已过期，请重新登录!");
+            return rest;
+        }
+        Integer createSiteCode = user.getSiteCode();
         try{
             Map<Integer, PreSealVehicle> preMap = preSealVehicleService.queryBySiteCode(createSiteCode);
             logger.debug("查询预封车信息为：" + JsonHelper.toJson(preMap));
@@ -288,6 +294,7 @@ public class PreSealVehicleController extends DmsBaseController{
         if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("登录已过期，请重新登录!");
+            return rest;
         }
         String userErp = user.getUserErp();
         String usetName = user.getUserName();
@@ -332,12 +339,13 @@ public class PreSealVehicleController extends DmsBaseController{
 	 * @return
 	 */
 	@RequestMapping(value = "/getRemainTransportCode")
-	public @ResponseBody PagerResult<CapacityDomain> getRemainTransportCode() {
+	public @ResponseBody JdResponse<List<CapacityDomain>> getRemainTransportCode() {
 		JdResponse<List<CapacityDomain>> rest = new JdResponse<List<CapacityDomain>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         LoginUser user = getLoginUser();
         if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("登录已过期，请重新登录!");
+            return rest;
         }
         Integer createSiteCode = user.getSiteCode();
 		try{
@@ -347,14 +355,8 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询当前场地未使用的运力编码失败!");
         }
-        PagerResult<CapacityDomain> result = new PagerResult<>();
-        result.setRows(rest.getData());
-        int total = 0;
-        if(rest.getData() != null){
-            total = rest.getData().size();
-        }
-        result.setTotal(total);
-        return result;
+
+        return rest;
 	}
 
     /**
