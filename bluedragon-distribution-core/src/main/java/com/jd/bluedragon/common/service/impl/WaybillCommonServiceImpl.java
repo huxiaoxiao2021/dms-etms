@@ -695,19 +695,18 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         target.setSenderCompany(waybill.getSenderCompany());
         //根据waybillSign第一位判断是否SOP或纯外单（根据waybillSign第一位判断是否SOP或纯外单（标识为 2、3、6、K））
         target.setSopOrExternalFlg(BusinessUtil.isSopOrExternal(waybill.getWaybillSign()));
-
         //设置已验视已安检
         //判断始发分拣中心是否属于北京
-        if(siteService.getBjDmsSiteCodes()
-                .contains(target.getOriginalDmsCode())){
+        boolean bjCheckFlg = siteService.getBjDmsSiteCodes()
+                .contains(target.getOriginalDmsCode());
+        target.setBjCheckFlg(bjCheckFlg);
+        if(bjCheckFlg){
             target.setExamineFlag(EXAMINE_FLAG_COMMEN_BJ);
         }else {
             target.setExamineFlag(EXAMINE_FLAG_COMMEN);
         }
         target.setSecurityCheck(SECURITY_CHECK);
 
-        target.setBjCheckFlg(siteService.getBjDmsSiteCodes()
-        		.contains(target.getOriginalDmsCode()));
         //打印时间,取后台服务器时间
         String printTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
         target.setPrintTime(printTime);
@@ -737,12 +736,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
                 freightText = TextConstants.FREIGHT_SEND;
             }
-        	//货款字段金额等于0时，则货款位置显示为【0】
+        	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
         	if(NumberHelper.gt0(waybill.getCodMoney())){
         		goodsPaymentText = TextConstants.GOODS_PAYMENT_NEED_PAY;
         	}else{
-        		goodsPaymentText = "0";
+        		goodsPaymentText = "";
         	}
         }else{
             //C网运费和货款
@@ -867,6 +866,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十一位为3，打城际标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_INTERCITY);
+        }
+        //半退
+        if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_PART_REVERSE);
         }
         //waybill_sign标识位，第三十一位为5，一体化面单显示"微小件"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'5')){
@@ -1108,10 +1111,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
+        logger.info("获取到的城市名列表为:" + routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
                 try {
-                    ObjectHelper.setValue(printWaybill,"setRouterNode" + (i + 1),routerNameList.get(i));
+                    ObjectHelper.setValue(printWaybill,"routerNode" + (i + 1),routerNameList.get(i));
+                    logger.info("设置router" + (i+1) + "的值为:" + routerNameList.get(i));
                 }catch (Exception e){
                     logger.error("获取路由信息,设置路由节点失败.",e);
                 }
@@ -1127,7 +1132,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         String specialRequirement = "";
         if(StringUtils.isNotBlank(waybillSign)){
             //签单返还
-            if(BusinessUtil.isSignChar(waybillSign,4,'1')){
+            if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
             }
             //包装服务

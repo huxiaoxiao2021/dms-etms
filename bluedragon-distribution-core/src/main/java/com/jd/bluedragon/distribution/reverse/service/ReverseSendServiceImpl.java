@@ -1,5 +1,41 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import java.math.BigDecimal;
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.annotation.Resource;
+
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.fastjson.JSON;
+import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.Base64Utility;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -36,9 +72,6 @@ import com.jd.bluedragon.distribution.spare.domain.Spare;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -51,16 +84,11 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.LossProduct;
-import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 import com.jd.rd.unpack.jsf.distributionReceive.in.InOrderDto;
 import com.jd.rd.unpack.jsf.distributionReceive.in.OrderDetailDto;
 import com.jd.rd.unpack.jsf.distributionReceive.result.MessageResult;
@@ -68,30 +96,6 @@ import com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfSe
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.common.util.Base64Utility;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.math.BigDecimal;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service("reverseSendService")
 public class ReverseSendServiceImpl implements ReverseSendService {
@@ -133,6 +137,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private SendDatailDao sendDatailDao;
+
+    @Autowired
+    private ReversePartDetailService reversePartDetailService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -538,7 +545,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode,sendM)) {
+                if (!isSpecial(send, wallBillCode,sendM,orderpackMap.get(wallBillCode))) {
                 	newsend.setBusiOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
                 	ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
                 }
@@ -672,7 +679,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send,wayBillCode,sendM)) {
+                if (!isSpecial(send,wayBillCode,sendM,orderpackMap.get(wayBillCode))) {
                     send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
                     ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, 0, bDto, taskId,wayBillCode);
                 }
@@ -1027,7 +1034,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if (m.containsKey(a)) {
             //如果有重复包裹去重、
             if (!m.get(a).contains(b)) {
-                m.put(a, m.get(a) + "," + b);
+                m.put(a, m.get(a) + Constants.SEPARATOR_COMMA + b);
             }
         } else {
             m.put(a, b);
@@ -1553,7 +1560,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param send
      * @return <code>true</code> 如果是迷你仓、eclp订单
      */
-    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM) {
+    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM ,String sendPackages) {
 
         if (StringHelper.isNotEmpty(send.getWaybillSign())) {
             //迷你仓新需求，waybillsign第一位=8的 不推送库房， 因为不属于逆向 guoyongzhi
@@ -1607,6 +1614,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 			try {
 				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+				//存入半退明细
+                reversePartWmsOfEclp(wayBillCode,sendM,sendPackages);
+
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
@@ -1902,6 +1912,67 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }catch (Exception e){
             logger.error("退ECLP增加拒收原因处理时失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode,e);
         }
+
+    }
+
+
+    private void reversePartWmsOfEclp(String wayBillCode, SendM sendM ,String sendPackages){
+        //判断是否为半退
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode,true,false,false,true);
+        if(baseEntity== null || baseEntity.getData() ==  null || baseEntity.getData().getWaybill()== null ||baseEntity.getData().getPackageList() == null){
+            logger.error("插入半退明细时运单数据不完整");
+            return;
+        }
+        //不支持半退 直接返回
+        if(!BusinessUtil.isPartReverse(baseEntity.getData().getWaybill().getWaybillSign())){
+            return ;
+        }
+        if(StringUtils.isNotBlank(sendPackages) && sendPackages.split(Constants.SEPARATOR_COMMA).length < baseEntity.getData().getPackageList().size()){
+            //本次发货的包裹数 小于 总计包裹数 则为半退
+            //组装半退明细数据
+            List<ReversePartDetail> rpds = new ArrayList<ReversePartDetail>();
+
+            String createSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode()).getSiteName();
+
+            String receiveSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode()).getSiteName();
+
+            for(String sendPackNo : sendPackages.split(Constants.SEPARATOR_COMMA)){
+                ReversePartDetail rpd = new ReversePartDetail();
+                rpd.setWaybillCode(wayBillCode);
+                rpd.setPackNo(sendPackNo);
+                rpd.setSendCode(sendM.getSendCode());
+                rpd.setAllPackSum(baseEntity.getData().getPackageList().size());
+                rpd.setCreateSiteCode(sendM.getCreateSiteCode());
+                rpd.setCreateSiteName(createSiteName);
+                rpd.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                rpd.setReceiveSiteName(receiveSiteName);
+                rpd.setSendTime(sendM.getOperateTime());
+                rpd.setCreateUser(sendM.getCreateUser());
+                rpd.setType(1);
+                rpd.setStatus(1);
+                rpds.add(rpd);
+            }
+
+            //批量保存 半退操作明细
+            List<ReversePartDetail> bufferList = new ArrayList<ReversePartDetail>();
+            for(ReversePartDetail reversePartDetail :rpds){
+                bufferList.add(reversePartDetail);
+                if(bufferList.size()==100){
+                    if(reversePartDetailService.batchInsert(bufferList)){
+                        bufferList.clear();
+                    }
+                }
+            }
+            if(bufferList.size() > 0){
+                reversePartDetailService.batchInsert(bufferList);
+            }
+
+            logger.info("半退插入明细成功"+wayBillCode+" size"+rpds.size());
+
+        }
+
+
+
 
     }
 

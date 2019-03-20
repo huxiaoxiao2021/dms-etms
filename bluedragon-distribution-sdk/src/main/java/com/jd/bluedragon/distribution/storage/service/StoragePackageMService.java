@@ -71,4 +71,16 @@ public interface StoragePackageMService extends Service<StoragePackageM> {
     void updateStatusOnSend(String waybillCode,String packageCode);
 
     Boolean cancelPutaway( List<Long> ids);
+
+    /**
+     * 通过履约单号更新发货状态
+     * @param parentOrderId
+     */
+    void updateStoragePackageMStatusForSendOfParentOrderId(String parentOrderId);
+
+    /**
+     * 通过运单更新发货状态
+     * @param waybillCode
+     */
+    void updateStoragePackageMStatusForSend(String waybillCode);
 }

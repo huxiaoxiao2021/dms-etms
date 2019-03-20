@@ -8,7 +8,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.LDOPManager;
+import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
@@ -58,10 +63,10 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.etms.waybill.dto.WaybillSignDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
@@ -73,7 +78,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
-import org.jboss.util.Null;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -701,6 +705,14 @@ public class WaybillResource {
 				}
 			}
 
+			//暂时下线签单返回的校验 2019年3月12日20:59:26
+            /*String waybillSign = waybill.getWaybillSign();
+			if(BusinessHelper.isSignatureReturnWaybill(waybillSign) && scheduleSiteOrgDto != null
+                    && !Integer.valueOf(Constants.BASE_SITE_SITE).equals(scheduleSiteOrgDto.getSiteType())){
+                logger.warn("此运单要求签单返回，只能分配至自营站点：" + waybillCodeOrPackage);
+                return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_SIGNRE_ERROR, JdResponse.MESSAGE_SITE_SIGNRE_ERROR);
+            }*/
+
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
 
@@ -726,22 +738,50 @@ public class WaybillResource {
 	 */
 	private WaybillResponse validateWaybillBlackList(Waybill waybill, Integer localScheduleSiteType) throws Exception {
 		if (BusinessHelper.isReverseToStore(waybill.getWaybillSign())) {
-			BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
-			if (siteOrgDto != null) {
-				if (this.doValidateBlackList(waybill.getCky2(), waybill.getStoreId())) {
-					if (BusinessHelper.isWms(siteOrgDto.getSiteType())) {
-						return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
-					} else {
-						// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
-						if (BusinessHelper.isWms(localScheduleSiteType)) {
-							return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
-						}
+			Integer cky2 = null;
+			Integer storeId = null;
+			// 是否逆向换单运单号
+			if (WaybillUtil.isSwitchCode(waybill.getWaybillCode())) {
+				WaybillManageDomain oldWaybillState = this.getOldWaybillStateByReturnWaybillCode(waybill.getWaybillCode());
+				if (oldWaybillState != null) {
+					cky2 = oldWaybillState.getCky2();
+					storeId = oldWaybillState.getStoreId();
+				}
+			} else {
+				cky2 = waybill.getCky2();
+				storeId = waybill.getStoreId();
+			}
+			if (this.doValidateBlackList(cky2, storeId)) {
+				BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getSiteCode());
+				if (siteOrgDto != null && BusinessHelper.isWms(siteOrgDto.getSiteType())) {
+					return new WaybillResponse<Waybill>(JdResponse.CODE_STORE_BLACKLIST_ERROR, JdResponse.MESSAGE_STORE_BLACKLIST_ERROR);
+				} else {
+					// 操作现场预分拣新站点只能选择站点类型不能选仓，若选择仓则给出相应提示
+					if (BusinessHelper.isWms(localScheduleSiteType)) {
+						return new WaybillResponse<Waybill>(JdResponse.CODE_SITE_BLACKLIST_ERROR, JdResponse.MESSAGE_SITE_BLACKLIST_ERROR);
 					}
 				}
 			}
 		}
 		return null;
 	}
+
+    /**
+     * 通过返单运单号获取旧单的运单中waybillState对象
+     *
+     * @param waybillCode
+     * @return
+     */
+    private WaybillManageDomain getOldWaybillStateByReturnWaybillCode(String waybillCode) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldBaseWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if (oldBaseWaybill.getResultCode() == 1 && oldBaseWaybill.getData() != null) {
+            BaseEntity<BigWaybillDto> oldBaseEntity = waybillQueryManager.getDataByChoice(oldBaseWaybill.getData().getWaybillCode(), false, false, true, false);
+            if (oldBaseEntity.getResultCode() == 1 && oldBaseEntity.getData() != null && oldBaseEntity.getData().getWaybillState() != null) {
+                return oldBaseEntity.getData().getWaybillState();
+            }
+        }
+        return null;
+    }
 
 	/**
 	 * 调用运单接口进黑名单校验
@@ -1965,6 +2005,121 @@ public class WaybillResource {
 
 		}catch (Exception e){
 			logger.error("判断运单是否存在是否妥投异常，barCode"+barCode,e);
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+		}
+		return result;
+	}
+
+	/**
+	 * 判断换单新单运单是否存
+	 * @param oldWaybillCode 老运单号
+	 * @param newWaybillCode 新运单号
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/exchange/weightAndVolume/limit/{oldWaybillCode}/{newWaybillCode}")
+	public InvokeResult<Integer> waybillExchangeCheckWeightAndVolume(@PathParam("oldWaybillCode") String oldWaybillCode, @PathParam("newWaybillCode") String newWaybillCode ){
+		InvokeResult<Integer> result = new InvokeResult<>();
+		result.success();
+		//初始化不需要称重
+		result.setData(0);
+
+		if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newWaybillCode)) {
+			logger.error("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
+			result.setData(-1);
+			return result;
+		}
+		try{
+			boolean isNeedCheck = false;
+			//如果老单是取件单，则需要进行重量体积校验，如果不是需要判断老单是否是拒收状态的运单
+			if (WaybillUtil.isPickupCode(oldWaybillCode)) {
+				isNeedCheck = true;
+			} else {
+				String waybillCode = oldWaybillCode;
+				if (WaybillUtil.isPackageCode(oldWaybillCode)){
+					waybillCode = WaybillUtil.getWaybillCode(oldWaybillCode);
+				}
+				//判断老单是否是自营订单并且有拒收状态，拒收状态160
+				if (WaybillUtil.isJDWaybillCode(waybillCode) && waybillTraceManager.isWaybillRejected(waybillCode)) {
+					isNeedCheck = true;
+				}
+			}
+			//重量体积校验逻辑
+			if (isNeedCheck) {
+				//根据新单获取大运单对象
+				WChoice wChoice = new WChoice();
+				wChoice.setQueryWaybillC(true);
+				wChoice.setQueryWaybillE(true);
+				wChoice.setQueryWaybillM(true);
+				BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(newWaybillCode, wChoice);
+
+				boolean isNeedWeight = false;
+				boolean isNeedVolume = false;
+				//如果大运单对象存在，并且运单信息存在
+				if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
+					//运单对象中的复重重量
+					Double againWeight = baseEntity.getData().getWaybill().getAgainWeight();
+
+					//运单中的商品重量
+					Double goodWeight = baseEntity.getData().getWaybill().getGoodWeight();
+
+					//运单对象中的复核体积
+					String againVolumeStr = baseEntity.getData().getWaybill().getSpareColumn2();
+
+					//运单中的商品体积
+					Double goodVolume = baseEntity.getData().getWaybill().getGoodVolume();
+
+					//如果无重量，或者重量小于等于0，需要进行称重
+					if ((againWeight == null || againWeight.compareTo(0d) <= 0) && (goodWeight == null || goodWeight.compareTo(0d) <= 0)) {
+						isNeedWeight = true;
+					}
+					//体积转换为数值类型
+					Double againVolume = null;
+					if (againVolumeStr != null) {
+						try {
+							againVolume = Double.parseDouble(againVolumeStr);
+						} catch (Exception e) {
+							logger.error("体积数据转换异常，体积值为：" + againVolumeStr);
+						}
+					}
+					//如果体积不存在，或者体积小于等于0，需要进行量方
+					if ((againVolume == null || againVolume.compareTo(0d) <= 0) && (goodVolume == null || goodVolume.compareTo(0d) <= 0)) {
+						isNeedVolume = true;
+					}
+
+					//二进制
+					//00表示不需要称重，不需要量方，十进制为0
+					//01表示不需要称重，需要量方，十进制为1
+					//10表示需要称重，不需要量方，十进制为2
+					//11表示需要称重，需要量方，十进制为3
+					if (! isNeedWeight && ! isNeedVolume) {
+						result.setData(0);
+					}
+					else if (! isNeedWeight) {
+						result.setData(1);
+					}
+					else if (! isNeedVolume) {
+						result.setData(2);
+					}
+					else {
+						result.setData(3);
+					}
+
+				} else {
+					logger.info("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
+					result.setCode(InvokeResult.RESULT_NULL_CODE);
+					result.setMessage("新单号:"+ newWaybillCode + "的运单信息为空，请联系IT人员处理");
+					result.setData(-1);
+					return result;
+				}
+			}
+
+		}catch (Exception e){
+			logger.error("判断新单是否必须称重量方服务异常，老单号:" + newWaybillCode + ",新单号：" + newWaybillCode, e);
+			result.setData(-1);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 		}

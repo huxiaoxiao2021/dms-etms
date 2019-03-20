@@ -15,6 +15,7 @@
 
 	<mvc:default-servlet-handler />
     <aop:aspectj-autoproxy proxy-target-class="true"/>
+    <context:property-placeholder location="classpath:configured/*.properties"/>
 	
 	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
         <property name="suffix"><value>.jsp</value></property>

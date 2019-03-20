@@ -46,6 +46,7 @@
         <dd><a href="#springUrl('/abnormalDispose/abnormalDispose/toIndex')" target="mainFrame">分拣批次清零</a></dd>
         <dd><a href="#springUrl('/transport/tmsProxy/toIndex')" target="mainFrame">运输委托书打印</a></dd>
         <dd><a href="#springUrl('/goodsPrint/toIndex')" target="mainFrame">托寄物品名打印</a></dd>
+        <dd><a href="#springUrl('/reverse/part/reversePartDetail/toIndex')" target="mainFrame">半退明细查询</a></dd>
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
         <dd><a href="#springUrl('/coldchain/quarantinelicense/index')" target="mainFrame">冷链卡班检疫证票号管理</a></dd>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
@@ -61,6 +62,7 @@
         <dd><a href="#springUrl('/storage/storagePackageM/toIndex')" target="mainFrame">暂存管理</a></dd>
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
+        <dd><a href="#springUrl('/waybillCodeCheckForKA/toIndex')" target="mainFrame">金融客户运单号对比校验</a></dd>
         <dd><a href="#springUrl('/signReturn/toIndex')" target="mainFrame">签单返回合单打印交接单</a></dd>
         <dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>
         <dd><a href="/tips/repail_reverse" target="mainFrame">逆向物流重新推送数据</a></dd>
