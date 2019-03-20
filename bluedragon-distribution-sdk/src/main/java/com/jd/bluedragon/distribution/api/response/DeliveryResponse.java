@@ -79,13 +79,14 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_Delivery_SAVE = "此单请先暂存，运单集齐后发货";
 
     public static final Integer CODE_SCHEDULE_INCOMPLETE = 30007;
+    public static final Integer CODE_NEED_ADD_QUARANTINE_30008 = 30008;
     public static final String MESSAGE_SCHEDULE_PACKAGE_INCOMPLETE = "包裹不齐是否强制发货？";
     public static final String MESSAGE_SCHEDULE_WAYBILL_INCOMPLETE = "运单不齐是否强制发货？";
     public static final String MESSAGE_ROUTER_ERROR = "包裹/箱号对应路由下一网点与所选目的地不一致，是否继续操作?";
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
-
+    public static final String MESSAGE_NEED_ADD_QUARANTINE_30008="此运单有检疫证，若更换票号请录入";
     /**
      * 快运-拦截标识
      */
