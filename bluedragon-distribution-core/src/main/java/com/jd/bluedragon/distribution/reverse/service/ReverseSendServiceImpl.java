@@ -1069,26 +1069,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             if (WaybillUtil.isMCSCode(sd.getWaybillCode())) {
                 vySendDetails.add(sd);
             }else if(!WaybillUtil.isReverseSpareCode(sd.getWaybillCode()) ){
-            //分离ECLP订单  通过判断不是备件条码 并且 生产单号符合ECLP规则 二次换单标识18位为5
-            Waybill waybill = waybillCommonService.findByWaybillCode(sd.getWaybillCode());
-            if(waybill!=null && BusinessUtil.isTwiceExchageWaybillSpare(waybill.getWaybillSign())){
-                //二次换单后的新单生产单号字段被外单覆盖，需要从原单获取
-                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybillResp = waybillQueryManager.getWaybillByReturnWaybillCode(sd.getWaybillCode());
-                if(oldWaybillResp!= null && oldWaybillResp.getData()!=null
-                        && WaybillUtil.isECLPByBusiOrderCode(oldWaybillResp.getData().getBusiOrderCode())){
-                    //此时才认为是eclp订单
+                Waybill waybill = waybillCommonService.findByWaybillCode(sd.getWaybillCode());
+                if(waybill!=null && checkIsPureMatchOrWarehouse(sd.getWaybillCode())){
                     eclpSendDetails.add(sd);
-                }else {
-                    logger.error("分离逆向退备件库运单集合时出现异常数据" + sd.getWaybillCode() + "|" + sd.getSendCode());
+                }else{
+                    nomarlSendDetails.add(sd);
                 }
-            }else if(waybill!=null && checkIsPureMatch(sd.getWaybillCode())){
-                //纯配外单一次换单(eclp订单)
-                eclpSendDetails.add(sd);
-            }else{
-                nomarlSendDetails.add(sd);
-            }
-
-        } else {
+            } else {
                 nomarlSendDetails.add(sd);
             }
         }
@@ -1370,24 +1357,36 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     }
 
     /**
-     * 判断纯配外单是否退备件库(一次换单)
+     * 判断是否是退备件库外单(纯配/仓配)
      * @param waybillCode
      * @return
      */
-    private boolean checkIsPureMatch(String waybillCode) {
-        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
-        if(oldWaybill != null && oldWaybill.getData() != null &&
-                StringUtils.isNotEmpty(oldWaybill.getData().getWaybillSign()) &&
-                StringUtils.isNotEmpty(oldWaybill.getData().getWaybillCode())){
-            String oldWaybillCode = oldWaybill.getData().getWaybillCode();
-            String waybillSign = oldWaybill.getData().getWaybillSign();
-            if(BusinessUtil.isPurematch(waybillSign)){
-                LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,oldWaybillCode);
-                if(claimInfoRespDTO != null && LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc()) &&
-                        claimInfoRespDTO.getGoodOwner() == LocalClaimInfoRespDTO.GOOD_OWNER_JD){
+    private boolean checkIsPureMatchOrWarehouse(String waybillCode) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+        if(oldWaybill1 != null && oldWaybill1.getData() != null &&
+                StringUtils.isNotEmpty(oldWaybill1.getData().getWaybillSign()) &&
+                StringUtils.isNotEmpty(oldWaybill1.getData().getWaybillCode())){
+            if(WaybillUtil.isECLPByBusiOrderCode(oldWaybill1.getData().getBusiOrderCode())){
+                //仓配二次换单
+                return true;
+            }
+            String oldWaybillCode1 = oldWaybill1.getData().getWaybillCode();
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCode1);
+            if(oldWaybill2 != null && oldWaybill2.getData() != null &&
+                    StringUtils.isNotEmpty(oldWaybill2.getData().getWaybillCode())){
+                //纯配二次换单
+                String waybillSign = oldWaybill2.getData().getWaybillSign();
+                if(BusinessUtil.isPurematch(waybillSign)){
+                    return true;
+                }
+            }else if(oldWaybill2.getData() == null){
+                //纯配一次换单
+                String waybillSign = oldWaybill1.getData().getWaybillSign();
+                if(BusinessUtil.isPurematch(waybillSign)){
                     return true;
                 }
             }
+            return false;
         }
         return false;
     }
@@ -1814,7 +1813,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(orderResponse != null && orderResponse.getResCode() != 200){
                     this.logger.error("ECLP退备件库失败,原因：" + orderResponse.getMessage());
                 }
-                doneWaybill.add(waybillCode);
             }
 
         }catch (Exception e){

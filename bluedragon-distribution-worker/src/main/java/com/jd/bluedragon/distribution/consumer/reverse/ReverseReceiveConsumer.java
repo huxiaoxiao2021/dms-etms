@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.consumer.reverse;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -26,6 +28,11 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.SparsModel;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -38,11 +45,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
@@ -69,6 +78,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	
     @Autowired
     private ReversePrintService reversePrintService;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	@Override
     @JProfiler(jKey = "reverseReceiveConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -203,7 +215,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
-				if(reverseReceive.getReceiveType() == 7){
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8){
 					//ECLP退备件库时
 					reverseReceive.setOrderId(jrequest.getWaybillCode());
 				}else{
@@ -251,21 +263,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 						taskService.add(this.toTask(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 1) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-						taskService.add(this.toTaskStatus(tWaybillStatus));
+						sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
 					} else if (reverseReceive.getCanReceive() == 2) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
-						if(reverseReceive.getReceiveType() == 8){
-                            List<String> list = Collections.emptyList();
-                            list = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode());
-						    for(String packageCode : list){
-                                tWaybillStatus.setWaybillCode(packageCode);
-                                tWaybillStatus.setPackageCode(packageCode);
-                                taskService.add(this.toTaskStatus(tWaybillStatus));
-                            }
-                        }else {
-                            taskService.add(this.toTaskStatus(tWaybillStatus));
-                        }
+						sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
 					}else {
 						return;
 					}
@@ -291,14 +293,66 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	}
 
-    /**
-     * 获取所有已退包裹号（纯配）
-     * @param waybillCode
-     * @return
-     */
-    private List<String> getAllPackageCodeOfPureMatch(String waybillCode) {
+	/**
+	 * 整单收货/部分收货发全程跟踪
+	 * @param jrequest
+	 * @param type
+	 * @param tWaybillStatus
+	 */
+	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, Integer type, WaybillStatus tWaybillStatus) {
+		if(type == 8){
+			//纯配
+			Set<String> packageCodeSet = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList());
+			for(String packageCode : packageCodeSet){
+				tWaybillStatus.setWaybillCode(packageCode);
+				tWaybillStatus.setPackageCode(packageCode);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}
+		}else {
+			taskService.add(this.toTaskStatus(tWaybillStatus));
+		}
+	}
 
-        return null;
+
+	/**
+	 * 获取所有已退包裹号（纯配）
+	 * @param waybillCode
+	 * @param detailList
+	 * @return
+	 */
+	private Set<String> getAllPackageCodeOfPureMatch(String waybillCode,List<Eclp2BdReceiveDetail> detailList) {
+	    //存放已退包裹号
+		Set<String> packageCodeSet = new HashSet<>();
+		//存放备件条码:包裹号
+		Map<String,String> map = new HashMap<String,String>();
+		//已退备件条码集合
+		List<String> batchNoList = new ArrayList<String>();
+		for(Eclp2BdReceiveDetail detail : detailList){
+			batchNoList.add(detail.getBatchNo());
+		}
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(true);
+		wChoice.setQueryWaybillE(false);
+		wChoice.setQueryWaybillM(false);
+		wChoice.setQueryGoodList(true);
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);
+		if(baseEntity != null && baseEntity.getData() != null &&
+				baseEntity.getData().getGoodsList() != null && baseEntity.getData().getGoodsList().size() > 0){
+            List<Goods> goodsList = baseEntity.getData().getGoodsList();
+            for (Goods goods : goodsList){
+                List<SparsModel> spareList = goods.getSpareList();
+                for(SparsModel sparsModel : spareList){
+                    map.put(sparsModel.getSpareCode(),sparsModel.getPackBarcode());
+                }
+			}
+		}
+		//获取已退备件条码对应的包裹号
+        for(String batchNo : batchNoList){
+		    if(map.containsKey(batchNo)){
+                packageCodeSet.add(map.get(batchNo));
+            }
+        }
+        return packageCodeSet;
     }
 
     private Task toTask(WaybillStatus tWaybillStatus) {
