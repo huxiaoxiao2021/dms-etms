@@ -50,7 +50,13 @@ $(function() {
 		};
 
 		oTableInit.tableColums = [ {
-				checkbox : true
+                title: "序号",
+                formatter: function(value, row, index) {
+                    // 显示行号
+                    return index + 1;
+                },
+                align: 'center',
+                width: '50px'
 			}, {
 				field : 'tranCode',
 				title : '运力编码',
