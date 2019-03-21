@@ -90,8 +90,11 @@ public class DeliveryResponse extends JdResponse {
      */
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
 
-    public static final Integer CODE_NEED_ADD_QUARANTINE_40013 = 40013;
-    public static final String MESSAGE_NEED_ADD_QUARANTINE_40013="此运单有检疫证，若更换票号请录入";
+    /**
+     * 10000 -20000单纯提示
+     */
+    public static final Integer CODE_NEED_ADD_QUARANTINE_10001 = 10001;
+    public static final String MESSAGE_NEED_ADD_QUARANTINE_10001="此运单有检疫证，若更换票号请录入";
 
 
     /**
