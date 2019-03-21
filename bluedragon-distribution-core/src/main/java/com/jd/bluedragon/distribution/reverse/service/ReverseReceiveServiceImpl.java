@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.reverse.dao.ReverseReceiveDao;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceiveLoss;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -70,6 +72,8 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	@Autowired
 	private ReverseSpareService reverseSpareService;
 
+    @Autowired
+	private ReversePartDetailService reversePartDetailService;
 
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -141,6 +145,18 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
                 this.addOpetationLog(reverseReceiveVO, OperationLog.TYPE_REVERSE_RECEIVE,"update");
             } 
             source.setPackageCode(orignalPackageCode);
+
+            //ECLP回传收货消息时更新 半退仓储收货时间
+            if(source.getReceiveType()==5){
+                if(source.getCanReceive().equals(new Integer(1)) || source.getCanReceive().equals(new Integer(2))){
+                    ReversePartDetail param = new ReversePartDetail();
+                    param.setReceiveTime(source.getReceiveTime());
+                    param.setWaybillCode(source.getOrderId());
+                    param.setSendCode(source.getSendCode());
+                    reversePartDetailService.updateReceiveTime(param);
+                }
+            }
+
         }  else if(source.getReceiveType()==3) {
         	ReverseReceive reverseReceivePO = this.findByPackageCodeAndSendCode(source.getOrderId(),source.getSendCode(),source.getReceiveType());
             if (reverseReceivePO == null) {

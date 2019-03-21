@@ -52,6 +52,11 @@ public class TaskServiceImpl implements TaskService {
 	private static final String REDIS_SWITCH = "redis.switch";
 	private static final String REDIS_SWITCH_ON = "1";
 
+	/**
+	 * 批量提交 一次提交数量
+	 */
+	private final static int batchSize = 1000;
+
 	@Autowired
     private TaskDao taskDao;
     
@@ -91,7 +96,24 @@ public class TaskServiceImpl implements TaskService {
 		if (tasks != null && !tasks.isEmpty()) {
 			Task firstTask = tasks.get(0);
 			if (isDynamicProducerOn(firstTask)) {
-				dynamicProducer.send(tasks);
+				int size = tasks.size();
+				if (size > batchSize) {
+					int mod = size % batchSize;
+					int times = size / batchSize;
+					if (mod > 0) {
+						times++;
+					}
+					for (int i = 0; i < times; i++) {
+						int start = i * batchSize;
+						int end = start + batchSize;
+						if (end > size) {
+							end = size;
+						}
+						dynamicProducer.send(tasks.subList(start, end));
+					}
+				} else {
+					dynamicProducer.send(tasks);
+				}
 				return;
 			}
 			for (Task task : tasks) {

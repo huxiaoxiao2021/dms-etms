@@ -64,14 +64,14 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         //创建时间
         dmsOutWeightAndVolume.setCreateTime(new Date());
         //高 （厘米）
-        dmsOutWeightAndVolume.setHeight(uploadData.getHeight() == null ? null : new BigDecimal(String.valueOf(uploadData.getHeight())).doubleValue());
+        dmsOutWeightAndVolume.setHeight(uploadData.getHeight() == null ? 0d : new BigDecimal(String.valueOf(uploadData.getHeight())).doubleValue());
 
         //长（厘米） 这样转 防止float 转double 出现误差
-        dmsOutWeightAndVolume.setLength(uploadData.getLength() == null ? null : new BigDecimal(String.valueOf(uploadData.getLength())).doubleValue());
+        dmsOutWeightAndVolume.setLength(uploadData.getLength() == null ? 0d : new BigDecimal(String.valueOf(uploadData.getLength())).doubleValue());
         //重量（KG）这样转 防止float 转double 出现误差
-        dmsOutWeightAndVolume.setWeight(uploadData.getWeight() == null ? null : new BigDecimal(String.valueOf(uploadData.getWeight())).doubleValue());
+        dmsOutWeightAndVolume.setWeight(uploadData.getWeight() == null ? 0d : new BigDecimal(String.valueOf(uploadData.getWeight())).doubleValue());
         //宽（厘米）这样转 防止float 转double 出现误差
-        dmsOutWeightAndVolume.setWidth(uploadData.getWidth() == null ? null : new BigDecimal(String.valueOf(uploadData.getWidth())).doubleValue());
+        dmsOutWeightAndVolume.setWidth(uploadData.getWidth() == null ? 0d : new BigDecimal(String.valueOf(uploadData.getWidth())).doubleValue());
         //计算体积
         double volume = BigDecimalHelper.mul(dmsOutWeightAndVolume.getHeight(), dmsOutWeightAndVolume.getWidth());
         volume = BigDecimalHelper.mul(volume, dmsOutWeightAndVolume.getLength());
@@ -98,4 +98,5 @@ public class ScannerFrameDynamicVolumeConsume implements ScannerFrameConsume{
         dmsOutWeightAndVolume.setIsDelete(0);
         return dmsOutWeightAndVolume;
     }
+
 }
