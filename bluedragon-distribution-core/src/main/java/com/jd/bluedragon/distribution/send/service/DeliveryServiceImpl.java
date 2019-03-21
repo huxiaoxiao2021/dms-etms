@@ -6,10 +6,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.DmsInterturnManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
@@ -85,7 +82,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.sdk.modules.quarantine.ColdChainQuarantineJsfService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -107,7 +103,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -292,7 +287,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     private WaybillConsumableRecordService waybillConsumableRecordService;
 
     @Autowired
-    private ColdChainQuarantineJsfService coldChainQuarantineJsfService;
+    private ColdChainQuarantineManager coldChainQuarantineManager;
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
@@ -4831,7 +4826,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 快运发货判断是否需要提示录入检疫证票号
      * @param sendM 发货数据
-     * @return true:确认了包装，不拦截 false:拦截
+     * @return
      */
     private Boolean isWaybillNeedAddQuarantine(SendM sendM) {
         logger.info("查询是否需要录入检疫证票号...");
@@ -4842,13 +4837,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             return false;
         }
 
-        try {
-            //调jsf
-            com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult<Boolean> result = coldChainQuarantineJsfService.isWaybillNeedAddQuarantine(waybillCode,siteCode);
-            return result.getData();
-        } catch (Exception e) {
-            logger.error("查询是否需要录入检疫证票号失败，waybillCode：" + waybillCode +",siteCode:" + siteCode, e);
-        }
-        return false;
+        return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
     }
 }
