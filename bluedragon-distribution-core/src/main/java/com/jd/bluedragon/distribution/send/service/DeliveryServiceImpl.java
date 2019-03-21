@@ -2897,6 +2897,14 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        //获取提示语
+        List<String> tipMessageList = new ArrayList<String>();
+        response.setTipMessage(tipMessageList);
+        if(isWaybillNeedAddQuarantine(sendM)){
+            tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
+        }
+
         //批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
             return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
@@ -2971,12 +2979,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.warn("B网路由拦截："+originalSiteCode+"->"+receiveSiteCode+"->"+destinationSiteCode+","+response.getMessage());
         }
 
-        //验证是否需要录入检疫证
-        List<String> tipMessageList = new ArrayList<String>();
-        response.setTipMessage(tipMessageList);
-        if(isWaybillNeedAddQuarantine(sendM)){
-            tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
-        }
         return response;
     }
 
