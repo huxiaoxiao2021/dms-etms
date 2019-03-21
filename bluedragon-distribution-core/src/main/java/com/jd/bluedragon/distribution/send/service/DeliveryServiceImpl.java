@@ -2899,7 +2899,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
         //验证是否需要录入检疫证
         if(isWaybillNeedAddQuarantine(sendM)){
-            return new DeliveryResponse(DeliveryResponse.CODE_NEED_ADD_QUARANTINE_30008, DeliveryResponse.MESSAGE_NEED_ADD_QUARANTINE_30008);
+            return new DeliveryResponse(DeliveryResponse.CODE_NEED_ADD_QUARANTINE_40013, DeliveryResponse.MESSAGE_NEED_ADD_QUARANTINE_40013);
         }
 
         //批次号封车校验，已封车不能发货

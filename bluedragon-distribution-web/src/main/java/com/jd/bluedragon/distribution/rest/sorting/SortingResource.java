@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.ColdChainQuarantineManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
@@ -64,6 +66,9 @@ public class SortingResource {
 
 	@Autowired
 	private SendMDao sendMDao;
+
+	@Autowired
+	private ColdChainQuarantineManager coldChainQuarantineManager;
 
 	/**
 	 * 取消分拣
@@ -452,4 +457,28 @@ public class SortingResource {
         return res;
     }
 
+
+    @POST
+    @Path("/sorting/getTipInfo")
+    public InvokeResult<List<String>> getTipInfo(SortingRequest request) {
+        InvokeResult<List<String>> result = new InvokeResult<List<String>>();
+        List<String> tipInfoList = new ArrayList<String>();
+        result.setData(tipInfoList);
+
+        if(logger.isInfoEnabled()) {
+            this.logger.info("获取分拣提示语.参数" + JSON.toJSONString(request));
+        }
+
+        //1.检疫证票号录入提示语
+        String waybillCode = WaybillUtil.getWaybillCode(request.getPackageCode());
+        Integer siteCode = request.getSiteCode();
+
+        if (StringUtils.isNotBlank(waybillCode) && siteCode != null) {
+            if(coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode)){
+                tipInfoList.add("此运单有检疫证，若更换票号请录入");
+            }
+        }
+
+        return result;
+    }
 }
