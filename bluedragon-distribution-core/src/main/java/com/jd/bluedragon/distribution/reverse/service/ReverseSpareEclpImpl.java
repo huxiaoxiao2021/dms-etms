@@ -22,7 +22,9 @@ import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
 import com.jd.eclp.spare.ext.api.outbound.GoodsInfoItem;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.SparsModel;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -205,8 +207,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
         String eclpBusiOrderCode = null;
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,
-                true,false, false, false);
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(false);
+        wChoice.setQueryWaybillM(false);
+        wChoice.setQueryGoodList(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);
         if (baseEntity != null && baseEntity.getData() != null ) {
             if(baseEntity.getData().getGoodsList() != null &&  baseEntity.getData().getGoodsList().size() > 0){
                 //商品明细 √
@@ -217,7 +223,14 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
                     goodsInfoItem.setGoodsNo(goods.getGoodId().toString());
                     goodsInfoItem.setGoodsName(goods.getGoodName());
-                    goodsInfoItem.setNum(goods.getGoodCount());
+                    List<SparsModel> spareList = goods.getSpareList();
+                    if(spareList != null && spareList.size() > 0){
+                        for(SparsModel sparsModel : spareList){
+                            goodsInfoItem.setBatchNo(sparsModel.getSpareCode());//备件条码
+                            goodsInfoItem.setNum(1);
+                            goodsInfoItem.setMoney(sparsModel.getClaimAmount()==null?null:sparsModel.getClaimAmount().toString());//一个备件条码对应一个理赔金额
+                        }
+                    }
                     list.add(goodsInfoItem);
                 }
             }else {
@@ -226,7 +239,58 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             //结算主体 √
             //结算主体名称 √
             //理赔金额 √
-            if(baseEntity.getData().getWaybill() != null){
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {
+                oldWaybillCodeV1 = oldWaybill1.getData().getWaybillCode();
+                eclpBusiOrderCode = oldWaybill1.getData().getBusiOrderCode();
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV1);
+                if (oldWaybill2 != null && oldWaybill2.getData() != null && StringUtils.isNotEmpty(oldWaybill2.getData().getBusiOrderCode())) {
+                    oldWaybillCodeV2 = oldWaybill2.getData().getWaybillCode();
+                    LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV2);
+                    if (claimInfoRespDTO != null) {
+                        //纯配仓配二次换单
+                        inboundOrder.setCompensationMoney(claimInfoRespDTO.getPaymentRealMoney().toString());   //结算主体金额 todo
+                        inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体 todo
+                        inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称 todo
+                    } else {
+                        logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常");
+                        return null;
+                    }
+                    if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
+                        //仓配
+                        List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
+                        if (itemInfos != null && itemInfos.size() > 0) {
+                            //原事业部ID (仓配有纯配无)
+                            //原事业部编号 (仓配有纯配无)
+                            //原事业部名称 (仓配有纯配无)
+                            inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+                        } else {
+                            logger.error("获取原事业部信息为空!");
+                        }
+                    }else if(WaybillUtil.isPureMatchECLP(oldWaybill2.getData().getWaybillSign(),eclpBusiOrderCode)){
+                        //纯配
+                        inboundOrder.setCompensationMoney();   //运单金额，从运单接口获取 todo
+                    }
+                }else if(oldWaybill2.getData() == null) {
+                    //纯配一次换单
+                    LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1);
+                    if (claimInfoRespDTO != null) {
+                        inboundOrder.setCompensationMoney();   //运单金额 todo
+                        inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
+                        inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
+                    }else{
+                        logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常");
+                        return null;
+                    }
+                }else {
+                    logger.error("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                    return null;
+                }
+            }else {
+                logger.error("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                return null;
+            }
+            /*if(baseEntity.getData().getWaybill() != null){
                 com.jd.etms.waybill.domain.Waybill waybill = baseEntity.getData().getWaybill();
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
                 if (oldWaybill1 != null && oldWaybill1.getData() != null && oldWaybill1.getData().getBusiOrderCode() != null) {
@@ -275,7 +339,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 }
             }else {
                 this.logger.error("通过运单号" + waybillCode + "获取运单信息失败!");
-            }
+            }*/
             //出库机构号 （无）
             //出库配送中心 （无）
             //出库库房号（无）
