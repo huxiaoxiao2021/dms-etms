@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 
+import java.util.List;
+
 public class DeliveryResponse extends JdResponse {
     
     private static final long serialVersionUID = 6917841719620008189L;
@@ -91,10 +93,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
 
     /**
-     * 10000 -20000单纯提示
+     * 提示语
      */
-    public static final Integer CODE_NEED_ADD_QUARANTINE_10001 = 10001;
-    public static final String MESSAGE_NEED_ADD_QUARANTINE_10001="此运单有检疫证，若更换票号请录入";
+    public static final String TIP_MESSAGE_NEED_ADD_QUARANTINE="此运单有检疫证，若更换票号请录入";
 
 
     /**
@@ -104,11 +105,24 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    /**
+     * 单纯的提示语
+     */
+    private List<String> tipMessage;
+
     public DeliveryResponse() {
         super();
     }
     
     public DeliveryResponse(Integer code, String message) {
         super(code, message);
+    }
+
+    public List<String> getTipMessage() {
+        return tipMessage;
+    }
+
+    public void setTipMessage(List<String> tipMessage) {
+        this.tipMessage = tipMessage;
     }
 }
