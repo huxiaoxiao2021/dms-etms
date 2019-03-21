@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
-import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
@@ -254,7 +253,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             return deliveryService.sendDetailMQ(task);
         } else if (keyword1.equals("7")) {
             //组板任务处理
-            return deliveryService.doBoardDelivery(SendBizSourceEnum.BOARD_SEND, task);
+            return deliveryService.doBoardDelivery(task);
         } else {
             //没有找到对应的方法，提供报错信息
             this.logger.error("task id is " + task.getId()+"can not find process method");

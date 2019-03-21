@@ -67,7 +67,7 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
                 //一车一单下的组板发货
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(toSendM(request)));
-                deliveryService.doBoardDelivery(SendBizSourceEnum.OFFLINE_BOARD_SEND, task);
+                deliveryService.doBoardDelivery(task);
             } else {
                 //一车一单发货
                 if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(request.getTaskType())) {

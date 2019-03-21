@@ -4350,8 +4350,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
 	@Override
 	@JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.doBoardDelivery", mState = {JProEnum.TP, JProEnum.FunctionError})
-	public boolean doBoardDelivery(SendBizSourceEnum source, Task task) {
+	public boolean doBoardDelivery(Task task) {
         logger.info("组板发货逐单发货开始：" + JsonHelper.toJson(task));
+        SendBizSourceEnum source = this.getBoardDeliveryBizSource(task.getType());
         SendM domain = JsonHelper.fromJson(task.getBody(), SendM.class);
         String boardCode = domain.getBoardCode();
         Response<List<String>> tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
@@ -4374,6 +4375,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         redisManager.del(REDIS_PREFIX_BOARD_DELIVERY +domain.getBoardCode());
         return true;
 	}
+
+    /**
+     * 根据任务类型获取发货业务来源
+     *
+     * @param taskType
+     * @return
+     */
+    private SendBizSourceEnum getBoardDeliveryBizSource(Integer taskType) {
+        if (Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(taskType)) {
+            return SendBizSourceEnum.OFFLINE_BOARD_SEND;
+        } else if (Task.TASK_TYPE_BOARD_SEND.equals(taskType)) {
+            return SendBizSourceEnum.BOARD_SEND;
+        } else {
+            return SendBizSourceEnum.BOARD_SEND;
+        }
+    }
 
     /**
      * 按板取消发货任务

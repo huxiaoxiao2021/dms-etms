@@ -386,7 +386,7 @@ public interface DeliveryService {
      * @param task 任务实体
      * @return
      */
-    boolean doBoardDelivery(SendBizSourceEnum source, Task task);
+    boolean doBoardDelivery(Task task);
 
     /**
      * 按板取消发货任务
