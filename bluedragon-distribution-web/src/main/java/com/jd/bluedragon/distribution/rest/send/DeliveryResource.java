@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
@@ -39,6 +38,7 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -106,8 +106,11 @@ public class DeliveryResource {
 
     @Autowired
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
-    
-    private static final Integer KY_DELIVERY = 1; //快运发货标识
+
+    /**
+     * 快运发货标识
+     */
+    private static final Integer KY_DELIVERY = 1;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     
@@ -362,8 +365,22 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
+        DeliveryResponse tDeliveryResponse;
 
-        DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(toSendDatailList(request));
+        Integer opType = request.get(0).getOpType();
+        if (KY_DELIVERY.equals(opType)) {
+            /** 快运发货 */
+            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, toSendDatailList(request));
+        } else {
+            Integer businessType = request.get(0).getBusinessType();
+            if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                // 逆向发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDatailList(request));
+            } else {
+                // 正向老发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDatailList(request));
+            }
+        }
         this.logger.info("结束写入发货信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
@@ -1113,8 +1130,8 @@ public class DeliveryResource {
             for(SendM sendM : sendMListInit){
                 /**根据条件获取SendM*/
                 List<SendM> sendMList = deliveryService.queryCountByBox(sendM);
-                if(sendMList.isEmpty()){
-                    deliveryService.packageSortSend(sendM);
+                if (sendMList.isEmpty()) {
+                    deliveryService.packageSend(SendBizSourceEnum.OPEN_PLATFORM_SEND, sendM);
                 }
             }
 

@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -84,7 +85,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if(oldSendMList != null &&oldSendMList.size() > 0){
             for(SendM oldSendM : oldSendMList){
                 domain.setBoxCode(oldSendM.getBoxCode());
-                deliveryService.packageSend(domain);
+                deliveryService.packageSend(SendBizSourceEnum.BATCH_NEW_PACKAGE_SEND, domain);
             }
             return true;
         }

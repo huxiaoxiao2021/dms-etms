@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.offline.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
 import com.jd.bluedragon.distribution.offline.service.OfflineService;
@@ -11,8 +10,8 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -32,6 +31,7 @@ import java.util.Date;
  */
 @Service("offlineAcarAbillDeliveryService")
 public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
+
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
@@ -41,18 +41,18 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private BoxService boxService;
-
-    @Autowired
-    private WaybillService waybillService;
-
-    @Autowired
     private OfflineLogService offlineLogService;
 
+    /**
+     * 操作日志service
+     */
     @Autowired
-    private OperationLogService operationLogService;    //操作日志service
+    private OperationLogService operationLogService;
 
-    public static final String OFFLINE_DELIVERY_REMARK = "一车一单离线发货";    //一车一单离线发货操作备注
+    /**
+     * 一车一单离线发货操作备注
+     */
+    public static final String OFFLINE_DELIVERY_REMARK = "一车一单离线发货";
 
     @Override
     public int parseToTask(OfflineLogRequest request) {
@@ -61,14 +61,20 @@ public class OfflineAcarAbillDeliveryServiceImpl implements OfflineService {
             return Constants.RESULT_FAIL;
         }
 
-        if(checkReceiveSiteCode(request)){
+        if (checkReceiveSiteCode(request)) {
             this.logger.info("一车一单离线发货 --> 开始写入发货信息");
-            if(BusinessUtil.isBoardCode(request.getBoxCode())) {//一车一单下的组板发货
+            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+                //一车一单下的组板发货
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(toSendM(request)));
-                deliveryService.doBoardDelivery(task);
-            }else{//一车一单发货
-                deliveryService.offlinePackageSend(toSendM(request));
+                deliveryService.doBoardDelivery(SendBizSourceEnum.OFFLINE_BOARD_SEND, task);
+            } else {
+                //一车一单发货
+                if (Task.TASK_TYPE_AR_RECEIVE_AND_SEND.equals(request.getTaskType())) {
+                    deliveryService.offlinePackageSend(SendBizSourceEnum.OFFLINE_AR_NEW_SEND, toSendM(request));
+                } else {
+                    deliveryService.offlinePackageSend(SendBizSourceEnum.OFFLINE_NEW_SEND, toSendM(request));
+                }
             }
 
             offlineLogService.addOfflineLog(requestToOffline(request, Constants.RESULT_SUCCESS));
