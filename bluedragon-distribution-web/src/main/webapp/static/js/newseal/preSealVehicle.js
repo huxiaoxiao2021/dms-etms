@@ -47,6 +47,9 @@ $(function() {
 				// search:false,
 				// cardView: true, //是否显示详细视图
 				detailView: true, //是否显示父子表
+                rowStyle : function(row,index){
+                    return {css:{"background-color":"#61add3"}}
+                },
 				// showFooter:true,
 				// paginationVAlign:'center',
 				// singleSelect:true,
@@ -58,9 +61,58 @@ $(function() {
                         return [];
                     }
                 },
-				columns : oTableInit.tableColums
+                //注册加载子表的事件。注意下这里的三个参数！
+                onExpandRow: function (index, row, $detail) {
+                    oTableInit.InitSubTable(index, row, $detail);
+                },
+                onPostBody :function (index, row, $detail) {
+                    // oTableInit.InitSubTable(index, row, $detail);
+                    $("#dataTable").bootstrapTable('expandAllRows');
+                },
+                onPostHeader:function (index, row, $detail) {
+                    // oTableInit.InitSubTable(index, row, $detail);
+                    $("#dataTable").bootstrapTable('expandAllRows');
+                },
+                columns : oTableInit.tableColums
 			});
 		};
+        //初始化子表格(无线循环)
+        oTableInit.InitSubTable = function (index, row, $detail) {
+            var cur_table = $detail.html('<table style="table-layout: fixed;"></table>').find('table');
+            $(cur_table).bootstrapTable({
+                data : row.sendCodes, // 请求后台的URL（*）
+                uniqueId : "ID", // 每一行的唯一标识，一般为主键列
+                pagination : false, // 是否显示分页（*）
+                cache : false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                striped : true, // 是否显示行间隔色
+                showRefresh : false, // 是否显示刷新按钮
+                clickToSelect : false, // 是否启用点击选中行
+                theadClasses : "thead-light",
+                classes:"table table-borderless table-striped",
+                detailView: false, //是否显示父子表
+                columns: [{
+                    checkbox : true,
+                    width: '3%',
+                    align: 'center',
+                    formatter : subStateFormatter
+                }, {
+                    field: 'receiveSiteCode',
+                    title: '目的地',
+                    align : "center",
+                    visible:false
+                }, {
+                    field: 'sealDataCode',
+                    align : "center",
+                    title: '批次号'
+                }, {
+                    field: 'vehicleNumber',
+                    align : "center",
+                    title: '车牌号',
+                    width: '47%'
+                }]
+            });
+        };
+
 		oTableInit.getSearchParams = function(params) {
 			var temp = oTableInit.getSearchCondition();
 			if(!temp){
@@ -91,8 +143,7 @@ $(function() {
 		};
         oTableInit.tableColums = [{
             checkbox : true,
-            checked:true,
-            width: '50px',
+            width: '3%',
             formatter : stateFormatter
         },{
             title: "序号",
@@ -101,7 +152,7 @@ $(function() {
                 return index + 1;
             },
             align: 'center',
-            width: '50px'
+            width: '3%'
         }, {
             field : 'id',
             title : 'ID',
@@ -154,18 +205,26 @@ $(function() {
             }
         }, {
             field : 'sealCodes',
+            width: '44%',
             title : '封签号'
         } ];
         function stateFormatter(value, row, index) {
             if (row.sendCodes.length > 0) {
+                // oTableInit.bootstrapTable('expandRow', index);
                 return {
-                    checked: true//设置选中
+                    checked: true  //设置选中
                 };
             } else {
                 return {
-                    checked: false//设置选中
+                    checked: false,//设置选中
+                    disabled :true
                 };
             }
+        };
+        function subStateFormatter(value, row, index) {
+            return {
+                checked: true  //设置选中
+            };
         };
 		oTableInit.refresh = function() {
 			$('#dataTable').bootstrapTable('refresh');
