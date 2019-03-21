@@ -285,5 +285,8 @@
         <!-- 半退明细 -->
         <mapper resource="mappers/mysql/reverse/part/ReversePartDetailMapper.xml"/>
 
+        <!-- 揽收重量校验 -->
+        <mapper resource="mappers/mysql/receive/ReceivedWeightCheckMapper.xml"/>
+
     </mappers>
 </configuration>
