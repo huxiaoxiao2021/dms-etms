@@ -166,6 +166,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 		//如果是移动仓内配单需要推送终端
 		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getPackageCode()))) {
+			logger.info("wms回传移动仓内配单需要调终端接口操作妥投,reverseReceive:"+JSON.toJSONString(reverseReceive));
 			movingWareHoseInnerWaybillFinish(reverseReceive);
 		}
 

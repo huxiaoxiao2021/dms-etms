@@ -843,9 +843,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         String storeId = cky2AndStoreId[2];
 
         //获取批次内所有运单号
-        List<String> waybillCodeList = new ArrayList<String>();
+        Set<String> waybillCodeSet = new HashSet<String>();
         for(SendDetail sendDetail : sendDetailList){
-            waybillCodeList.add(sendDetail.getWaybillCode());
+            waybillCodeSet.add(sendDetail.getWaybillCode());
         }
         SendDetail detail = sendDetailList.get(0);
 
@@ -854,7 +854,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         waybill.setBusiOrderCode(detail.getSendCode());
         waybill.setDeliveryCenterId(cky2);
         waybill.setWarehouseId(storeId);
-        waybill.setCaseNos(waybillCodeList);
+        waybill.setCaseNos(new ArrayList<String>(waybillCodeSet));
 
         //调DTC接口给WMS发报文
         String target = orgId + "," + cky2 + "," + storeId;
