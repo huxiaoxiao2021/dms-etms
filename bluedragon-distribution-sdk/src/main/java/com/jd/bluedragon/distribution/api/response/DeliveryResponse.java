@@ -108,7 +108,7 @@ public class DeliveryResponse extends JdResponse {
     /**
      * 单纯的提示语
      */
-    private List<String> tipMessage;
+    private List<String> tipMessages;
 
     public DeliveryResponse() {
         super();
@@ -118,11 +118,11 @@ public class DeliveryResponse extends JdResponse {
         super(code, message);
     }
 
-    public List<String> getTipMessage() {
-        return tipMessage;
+    public List<String> getTipMessages() {
+        return tipMessages;
     }
 
-    public void setTipMessage(List<String> tipMessage) {
-        this.tipMessage = tipMessage;
+    public void setTipMessages(List<String> tipMessages) {
+        this.tipMessages = tipMessages;
     }
 }
