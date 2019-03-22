@@ -365,7 +365,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	 * @param reverseReceive
 	 */
 	private void movingWareHoseInnerWaybillFinish(ReverseReceive reverseReceive){
-		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getWaybillCode());
+		String waybillCode = WaybillUtil.getWaybillCode(reverseReceive.getOrderId());
+		if(StringUtils.isBlank(waybillCode)){
+			logger.error("移动仓内配单调终端接口操作妥投，接收到的wms回传报文无法获取运单号.reverseReceive: "+JSON.toJSONString(reverseReceive));
+			return;
+		}
 		String sendCode = reverseReceive.getSendCode();
 		//通过批次号查send_m表获取操作站点和操作人信息
 		Integer siteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode);
