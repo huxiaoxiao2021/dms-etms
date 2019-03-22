@@ -19,7 +19,7 @@ $(function() {
 	var tableInit = function() {
 		var oTableInit = new Object();
 		oTableInit.init = function() {
-			$('#dataTable').bootstrapTable({
+			$('#dataTable').bootstrapTable('destroy').bootstrapTable({
 				url : queryUrl, // 请求后台的URL（*）
 				method : 'post', // 请求方式（*）
 				toolbar : '#toolbar', // 工具按钮用哪个容器
@@ -73,14 +73,18 @@ $(function() {
                     $("#dataTable").bootstrapTable('expandAllRows');
                 },
                 columns : oTableInit.tableColums
-			});
+			}).on('check.bs.table', function (e, row){
+                $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
+            }).on('uncheck.bs.table', function (e, row){
+                $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
+            });
 		};
         //初始化子表格
         oTableInit.InitSubTable = function (index, row, $detail) {
             var cur_table = $detail.html('<table style="table-layout: fixed;"></table>').find('table');
             var vehicleNumbers = row.vehicleNumbers;
             $(cur_table).attr("id", row.receiveSiteCode);
-            $(cur_table).bootstrapTable({
+            $(cur_table).bootstrapTable('destroy').bootstrapTable({
                 data : row.sendCodes, // 请求后台的URL（*）
                 uniqueId : "ID", // 每一行的唯一标识，一般为主键列
                 pagination : false, // 是否显示分页（*）
@@ -88,6 +92,7 @@ $(function() {
                 striped : true, // 是否显示行间隔色
                 showRefresh : false, // 是否显示刷新按钮
                 clickToSelect : false, // 是否启用点击选中行
+                // checkboxHeader:false,
                 theadClasses : "thead-light",
                 classes:"table table-borderless table-striped",
                 detailView: false, //是否显示父子表
@@ -165,10 +170,17 @@ $(function() {
 		    });
 		    return params;
 		};
+
         oTableInit.tableColums = [{
             checkbox : true,
             width: '50px',
-            formatter : stateFormatter
+            formatter : stateFormatter/*,
+            events: {'check .bs-checkbox': function (row, $element) {
+                $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
+            },'uncheck .bs-checkbox': function (row, $element) {
+                $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
+            }
+            }*/
         },{
             title: "序号",
             formatter: function(value, row, index) {
@@ -256,6 +268,7 @@ $(function() {
 
 		return oTableInit;
 	};
+
 	var pageInit = function() {
 		var oInit = new Object();
 		oInit.init = function() {
