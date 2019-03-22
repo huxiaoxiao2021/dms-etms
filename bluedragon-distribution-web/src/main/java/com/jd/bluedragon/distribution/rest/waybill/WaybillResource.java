@@ -2105,7 +2105,7 @@ public class WaybillResource {
 					}
 
 					if (isNeedWeight || isNeedVolume) {
-						logger.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！");
+						logger.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！result：" + result.getData());
 					}
 				} else {
 					logger.error("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
