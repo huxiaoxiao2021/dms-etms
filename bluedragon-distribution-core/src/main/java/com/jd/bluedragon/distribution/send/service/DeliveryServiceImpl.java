@@ -2140,7 +2140,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             SendTaskBody body = JsonHelper.fromJson(task.getBody(), SendTaskBody.class);
             logger.info("发货状态BODY" + JsonHelper.toJson(body));
             // 按照批次号
-            if ("1".equals(body.getHandleCategory())) {
+            if (Integer.valueOf(1).equals(body.getHandleCategory())) {
                 tSendM = this.sendMDao.selectBySiteAndSendCodeBYtime(body.getCreateSiteCode(), body.getSendCode());
             } else { // 按照箱号
                 tSendM = new ArrayList<SendM>(1);
