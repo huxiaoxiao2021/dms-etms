@@ -24,7 +24,19 @@
                         <div class="col-xs-4">
                             <div class="form-group" style="margin-left: 30px;">
                                 <label class="control-label" for="hourRange">时间范围 ：</label>
-                                <select id="hourRange" name="hourRange" class="form-control search-param "></select>
+                                <label class="radio-inline form-control search-param ">
+                                    <input type="radio" name="hourRange" id="hourRange" value="12" checked> 12小时
+                                </label>
+                                <label class="radio-inline form-control search-param ">
+                                    <input type="radio" name="hourRange" id="hourRange" value="24"> 24小时
+                                </label>
+                                <label class="radio-inline form-control search-param ">
+                                    <input type="radio" name="hourRange" id="hourRange" value="48"> 48小时
+                                </label>
+                                <label class="radio-inline form-control search-param ">
+                                    <input type="radio" name="hourRange" id="hourRange" value="72"> 72小时
+                                </label>
+##                                <select id="hourRange" name="hourRange" class="form-control search-param "></select>
                             </div>
                         </div>
                     </div>

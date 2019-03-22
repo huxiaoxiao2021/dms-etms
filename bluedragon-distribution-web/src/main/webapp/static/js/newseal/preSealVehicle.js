@@ -4,7 +4,7 @@ $(function() {
 
     var preData = new Map();
 
-    $.combobox.createNew('hourRange',{
+    /*$.combobox.createNew('hourRange',{
         width: '150',
         placeholder:'查询时间范围',
         allowClear:true,
@@ -14,7 +14,7 @@ $(function() {
             {id:'48',text:'48小时'},
             {id:'72',text:'72小时'}
         ]
-    });
+    });*/
 
 	var tableInit = function() {
 		var oTableInit = new Object();
@@ -178,7 +178,9 @@ $(function() {
 		 * @param _selector 选择器（默认为'.search-param'）
 		 */
 		oTableInit.getSearchCondition = function(_selector) {
-		    var params = {};
+            var hourRange = $('input:radio:checked').val();
+            return {"hourRange" : hourRange};
+            /*var params = {};
 		    if (!_selector) {
 		        _selector = ".search-param";
 		    }
@@ -189,7 +191,7 @@ $(function() {
 		        	params[_k] = _v;
 		        }
 		    });
-		    return params;
+		    return params;*/
 		};
 
         oTableInit.tableColums = [{
