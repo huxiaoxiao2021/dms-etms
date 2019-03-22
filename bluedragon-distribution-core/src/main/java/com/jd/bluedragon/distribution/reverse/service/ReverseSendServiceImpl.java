@@ -863,11 +863,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         String messageValue = JSON.toJSONString(waybill);
         String source="DMS";
         try {
-            logger.debug("移动仓内配单发货信息推送给WMS.参数：target:" + target+
+            logger.info("移动仓内配单发货信息推送给WMS.参数：target:" + target+
                     ",outboundType:" + outboundType + ",messageValue:" + messageValue +
                     ",source:"+ source + "outboundNo:" + detail.getSendCode() );
             result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, detail.getSendCode());
-            logger.debug("移动仓内配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
+            logger.info("移动仓内配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
             if(result.getResultCode() != 1){
                 logger.error("移动仓内配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
             }
