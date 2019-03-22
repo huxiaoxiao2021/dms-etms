@@ -73,11 +73,28 @@ $(function() {
                     $("#dataTable").bootstrapTable('expandAllRows');
                 },
                 columns : oTableInit.tableColums
-			})/*.on('check.bs.table', function (e, row){
-                $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
+			}).on('check.bs.table', function (e, row){
+			    if(row.id != null){
+                    $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
+                }
             }).on('uncheck.bs.table', function (e, row){
-                $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
-            })*/;
+                if(row.id != null){
+                    $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
+                }
+            }).on('check-all.bs.table', function (e, rows){
+                for(var i = 0; i < rows.length; i++){
+                    if(rows[i].id != null){
+                        $("#" + rows[i].receiveSiteCode).bootstrapTable("checkAll");
+                    }
+                }
+
+            }).on('uncheck-all.bs.table', function (e, rows){
+                for(var i = 0; i < rows.length; i++){
+                    if(rows[i].id != null){
+                        $("#" + rows[i].receiveSiteCode).bootstrapTable("uncheckAll");
+                    }
+                }
+            });
 		};
         //初始化子表格
         oTableInit.InitSubTable = function (index, row, $detail) {
@@ -92,7 +109,7 @@ $(function() {
                 striped : true, // 是否显示行间隔色
                 showRefresh : false, // 是否显示刷新按钮
                 clickToSelect : false, // 是否启用点击选中行
-                // checkboxHeader:false,
+                checkboxHeader:false,
                 theadClasses : "thead-light",
                 classes:"table table-borderless table-striped",
                 detailView: false, //是否显示父子表
@@ -116,10 +133,14 @@ $(function() {
                     title: '车牌号',
                     width: '50%',
                     formatter: function(value, row, index) {
-                        if(vehicleNumbers.length > 1){
+                        if(vehicleNumbers.length > 1 ){
                             var headOption = "<option value =''>请选择车辆</option>";
                             $.each(vehicleNumbers,function(i,obj){
-                                headOption = headOption + "<option value='"+obj+"'>"+obj+"</option>";
+                                if(row["vehicleNumber"] != null && row["vehicleNumber"] == obj){
+                                    headOption = headOption + "<option selected value='"+obj+"'>"+obj+"</option>";
+                                }else{
+                                    headOption = headOption + "<option value='"+obj+"'>"+obj+"</option>";
+                                }
                             });
                             var option = '<select class="form-control vehicleNumberSelect" id='+row.sealDataCode+' name="vehicleNumberSelect" style="width:200px;text-align: center;margin:auto">'+
                                 headOption + '</select>';
@@ -290,8 +311,8 @@ $(function() {
                     var isOk = true;
                     var subPre = [];
                     var subParams = $("#" + id).bootstrapTable('getAllSelections');
-                    for ( var j = 0; j <params.length; j++){
-                        var vehicleNumber = subParams[j].vehicleNumber;
+                    for ( var j = 0; j <subParams.length; j++){
+                        var vehicleNumber = subParams[j]["vehicleNumber"];
                         if(vehicleNumber == null || vehicleNumber == undefined || vehicleNumber == ''){
                             isOk = false;
                             break;
@@ -314,16 +335,16 @@ $(function() {
                     console.log(JSON.stringify(postData));
                     $.ajaxHelper.doPostSync(batchSealUrl,JSON.stringify(postData),function(data){
                         if(data.code == 200){
-                            data = data.data;
-                            if(data != null && !data.empty()){
-                                $("#dataTable").bootstrapTable('load', data);
-                            }else{
-                                alert('操作成功');
-                                tableInit().refresh();
+                            alert('操作成功');
+                            tableInit().refresh();
+                        }else if(data.code == 600){
+                            var faileddata = data.data;
+                            if(faileddata != null && faileddata.length > 0){
+                                saveData(faileddata);
+                                $("#dataTable").bootstrapTable('load', faileddata);
                             }
-                            return data;
+                            alert(data.message);
                         }else{
-                            data = [];
                             alert(data.message);
                             return [];
                         }
