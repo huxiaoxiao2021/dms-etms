@@ -2,6 +2,8 @@ $(function() {
 	var batchSealUrl = '/newseal/preSealVehicle/batchSeal';
     var queryUrl = '/newseal/preSealVehicle/queryPreSeals';
 
+    var preData = new Map();
+
     $.combobox.createNew('hourRange',{
         width: '150',
         placeholder:'查询时间范围',
@@ -10,7 +12,7 @@ $(function() {
             {id:'12',text:'12小时'},
             {id:'24',text:'24小时'},
             {id:'48',text:'48小时'},
-            {id:'72',text:'72小时'},
+            {id:'72',text:'72小时'}
         ]
     });
 
@@ -55,6 +57,7 @@ $(function() {
 				// singleSelect:true,
                 responseHandler: function(data){
                     if(data.code == 200){
+                        saveData(data.data);
                         return data.data;
                     }else{
                         alert(data.message);
@@ -69,16 +72,14 @@ $(function() {
                     // oTableInit.InitSubTable(index, row, $detail);
                     $("#dataTable").bootstrapTable('expandAllRows');
                 },
-                onPostHeader:function (index, row, $detail) {
-                    // oTableInit.InitSubTable(index, row, $detail);
-                    $("#dataTable").bootstrapTable('expandAllRows');
-                },
                 columns : oTableInit.tableColums
 			});
 		};
-        //初始化子表格(无线循环)
+        //初始化子表格
         oTableInit.InitSubTable = function (index, row, $detail) {
             var cur_table = $detail.html('<table style="table-layout: fixed;"></table>').find('table');
+            var vehicleNumbers = row.vehicleNumbers;
+            $(cur_table).attr("id", row.receiveSiteCode);
             $(cur_table).bootstrapTable({
                 data : row.sendCodes, // 请求后台的URL（*）
                 uniqueId : "ID", // 每一行的唯一标识，一般为主键列
@@ -92,7 +93,7 @@ $(function() {
                 detailView: false, //是否显示父子表
                 columns: [{
                     checkbox : true,
-                    width: '3%',
+                    width: '50px',
                     align: 'center',
                     formatter : subStateFormatter
                 }, {
@@ -108,7 +109,30 @@ $(function() {
                     field: 'vehicleNumber',
                     align : "center",
                     title: '车牌号',
-                    width: '47%'
+                    width: '50%',
+                    formatter: function(value, row, index) {
+                        if(vehicleNumbers.length > 1){
+                            var headOption = "<option value =''>请选择车辆</option>";
+                            $.each(vehicleNumbers,function(i,obj){
+                                headOption = headOption + "<option value='"+obj+"'>"+obj+"</option>";
+                            });
+                            var option = '<select class="form-control vehicleNumberSelect" id='+row.sealDataCode+' name="vehicleNumberSelect" style="width:200px;text-align: center;margin:auto">'+
+                                headOption + '</select>';
+                            return option;
+                        }else{
+                            return value;
+                        }
+                },
+                events: {'change .vehicleNumberSelect': function (e, value, row, index) {
+                    var valueSelected = $(this).children('option:selected').val();
+                        $('#table').bootstrapTable('updateCell', {
+                            index: index,
+                            field: 'vehicleNumber',
+                            value: valueSelected
+                        });
+                    row.vehicleNumber = valueSelected;
+                    }
+                }
                 }]
             });
         };
@@ -143,7 +167,7 @@ $(function() {
 		};
         oTableInit.tableColums = [{
             checkbox : true,
-            width: '3%',
+            width: '50px',
             formatter : stateFormatter
         },{
             title: "序号",
@@ -152,7 +176,7 @@ $(function() {
                 return index + 1;
             },
             align: 'center',
-            width: '3%'
+            width: '50px'
         }, {
             field : 'id',
             title : 'ID',
@@ -205,7 +229,7 @@ $(function() {
             }
         }, {
             field : 'sealCodes',
-            width: '44%',
+            width: '50%',
             title : '封签号'
         } ];
         function stateFormatter(value, row, index) {
@@ -242,29 +266,70 @@ $(function() {
 		    $('#btn_query').click(function() {
 		    	tableInit().refresh();
 			});
-
 			$('#btn_submit').click(function() {
-				var params = {};
-				$('.edit-param').each(function () {
-			    	var _k = this.id;
-			        var _v = $(this).val();
-			        if(_k && _v){
-			        	params[_k]=_v;
-			        }
-			    });
-				$.ajaxHelper.doPostSync(saveUrl,JSON.stringify(params),function(res){
-			    	if(res&&res.succeed){
-			    		alert('操作成功');
-			    		tableInit().refresh();
-			    	}else{
-			    		alert('操作异常');
-			    	}
-			    });
+			    var failedList = [];
+			    var postData = [];
+				var params = $("#dataTable").bootstrapTable('getAllSelections');
+                for ( var i = 0; i <params.length; i++){
+                    console.log(params[i]);
+                    var id  = params[i].receiveSiteCode;
+                    var pre = preData.get(id);
+                    var isOk = true;
+                    var subPre = [];
+                    var subParams = $("#" + id).bootstrapTable('getAllSelections');
+                    for ( var j = 0; j <params.length; j++){
+                        var vehicleNumber = subParams[j].vehicleNumber;
+                        if(vehicleNumber == null || vehicleNumber == undefined || vehicleNumber == ''){
+                            isOk = false;
+                            break;
+                        }else{
+                            subPre.push({"vehicleNumber":vehicleNumber, "sealDataCode":subParams[j].sealDataCode, "receiveSiteCode":subParams[j].receiveSiteCode});
+                        }
+                    }
+                    if(isOk){
+                        pre.sendCodes = subPre;
+                        postData.push(pre);
+                    }else{
+                        failedList.push(params[i].receiveSiteName);
+                    }
+
+                    console.log(subParams);
+                }
+                if(failedList.length > 0){
+                    alert('以下目的地存在未选择车牌号的批次:' + failedList.toString() );
+                }else{
+                    console.log(JSON.stringify(postData));
+                    $.ajaxHelper.doPostSync(batchSealUrl,JSON.stringify(postData),function(data){
+                        if(data.code == 200){
+                            data = data.data;
+                            if(data != null && !data.empty()){
+                                $("#dataTable").bootstrapTable('load', data);
+                            }else{
+                                alert('操作成功');
+                                tableInit().refresh();
+                            }
+                            return data;
+                        }else{
+                            data = [];
+                            alert(data.message);
+                            return [];
+                        }
+                    });
+                }
 			});
 
 		};
 		return oInit;
 	};
+
+	var saveData = function(sdata) {
+        var data = JSON.parse(JSON.stringify(sdata));
+	    if(data != null && data.length > 0){
+            for (var i = 0; i < data.length; i++){
+                preData.set(data[i].receiveSiteCode, data[i]);
+            }
+        }
+    }
 
 	tableInit().init();
 	pageInit().init();
