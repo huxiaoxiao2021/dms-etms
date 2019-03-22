@@ -73,11 +73,11 @@ $(function() {
                     $("#dataTable").bootstrapTable('expandAllRows');
                 },
                 columns : oTableInit.tableColums
-			}).on('check.bs.table', function (e, row){
+			})/*.on('check.bs.table', function (e, row){
                 $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
             }).on('uncheck.bs.table', function (e, row){
                 $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
-            });
+            })*/;
 		};
         //初始化子表格
         oTableInit.InitSubTable = function (index, row, $detail) {
