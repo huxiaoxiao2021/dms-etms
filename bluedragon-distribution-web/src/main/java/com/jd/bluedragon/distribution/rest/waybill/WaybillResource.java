@@ -2196,8 +2196,11 @@ public class WaybillResource {
 						result.setData(3);
 					}
 
+					if (isNeedWeight || isNeedVolume) {
+						logger.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！result：" + result.getData());
+					}
 				} else {
-					logger.info("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
+					logger.error("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
 					result.setCode(InvokeResult.RESULT_NULL_CODE);
 					result.setMessage("新单号:"+ newWaybillCode + "的运单信息为空，请联系IT人员处理");
 					result.setData(-1);
