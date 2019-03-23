@@ -33,10 +33,12 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -117,6 +119,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     @Qualifier("obcsManager")
     private OBCSManager obcsManager;
+    @Autowired
+    private WaybillQueryApi waybillQueryApi;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -413,7 +417,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.获取运单信息判断是否拒收或妥投
-        BigWaybillDto waybillDto = waybillService.getWaybillState(wayBillCode);
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillM(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(wayBillCode, wChoice);
+        BigWaybillDto waybillDto = null;
+        if(baseEntity != null && baseEntity.getData() != null){
+            waybillDto = baseEntity.getData();
+        }
         if(waybillDto == null || waybillDto.getWaybill() == null){
             result.setData(false);
             result.setMessage("运单接口调用返回结果为空");
