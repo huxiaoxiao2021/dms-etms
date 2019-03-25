@@ -376,12 +376,14 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		Integer userCode = null;
 		String userName = "";
 		Date sendTime = reverseReceive.getReceiveTime();
+		if(sendTime == null){
+			sendTime = new Date();
+		}
 
 		SendM sendM = sendMDao.selectBySendCode(sendCode);
 		if (null != sendM) {
 			userCode = sendM.getCreateUserCode();
 			userName = sendM.getCreateUser();
-			sendTime = sendM.getCreateTime();
 		}
 
 		OrderDeliverBody body = new OrderDeliverBody();
