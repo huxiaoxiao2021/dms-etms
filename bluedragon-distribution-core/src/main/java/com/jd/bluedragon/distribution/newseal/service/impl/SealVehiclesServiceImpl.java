@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.dao.SealVehiclesDao;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
@@ -38,7 +39,7 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 		return this.sealVehiclesDao;
 	}
 
-	@Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
 	public boolean updateDeSealBySealDataCode(List<SealVehicles> sealVehiclesList) {
 		for (SealVehicles sealVehicles : sealVehiclesList){

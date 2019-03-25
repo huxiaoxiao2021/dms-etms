@@ -55,14 +55,14 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Autowired
     private TaskService taskService;
 
-    @Transactional
-	@Override
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
 	public boolean insert(PreSealVehicle preSealVehicle) {
 		return preSealVehicleDao.insert(preSealVehicle);
 	}
 
-    @Transactional
-	@Override
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Override
 	public boolean cancelPreSealBeforeInsert(PreSealVehicle preSealVehicle) {
 		List<PreSealVehicle> exists = findByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode());
 		if(exists != null && !exists.isEmpty()){
@@ -80,7 +80,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         return preSealVehicleDao.update(preSealVehicle);
     }
 
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
 	public boolean updateStatusById(Long id, String updateUserErp, String updateUserName, SealVehicleEnum status) {
 		PreSealVehicle preSealVehicle = new PreSealVehicle();
@@ -94,7 +94,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 		return preSealVehicleDao.update(preSealVehicle);
 	}
 
-    @Transactional
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
 	public int updateStatusByIds(List<Long> ids, String updateUserErp, String updateUserName, SealVehicleEnum status) {
 		return preSealVehicleDao.updateStatusByIds(ids, updateUserErp, updateUserName, status.getCode());
@@ -141,7 +141,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 		return preSealVehicleDao.findUsedTransports(createSiteCode, calendar.getTime());
 	}
 
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
 	    List<Long> ids = new ArrayList<>(preList.size());
