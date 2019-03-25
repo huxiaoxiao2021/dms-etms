@@ -84,7 +84,7 @@ public class PreSealVehicleResource {
 
             /** 查询运力信息 */
             VtsTransportResourceDto vtrd = getTransport(sealCarDto.getTransportCode(), preSealResponse);
-            if(!NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())){
+            if(vtrd == null || !NewSealVehicleResponse.CODE_OK.equals(preSealResponse.getCode())){
                 return preSealResponse;
             }
 

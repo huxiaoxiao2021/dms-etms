@@ -72,66 +72,6 @@ public class PreSealVehicleController extends DmsBaseController{
 	public String unusedtransport() {
 		return "/newseal/unusedtransport";
 	}
-	/**
-	 * 根据id获取基本信息
-	 * @param id
-	 * @return
-	 */
-	@RequestMapping(value = "/detail/{id}")
-	public @ResponseBody JdResponse<PreSealVehicle> detail(@PathVariable("id") Long id) {
-		JdResponse<PreSealVehicle> rest = new JdResponse<PreSealVehicle>();
-		rest.setData(preSealVehicleService.findById(id));
-		return rest;
-	}
-	/**
-	 * 保存数据
-	 * @param preSealVehicle
-	 * @return
-	 */
-	@RequestMapping(value = "/save")
-	public @ResponseBody JdResponse<Boolean> save(@RequestBody PreSealVehicle preSealVehicle) {
-		JdResponse<Boolean> rest = new JdResponse<Boolean>();
-		try {
-			rest.setData(preSealVehicleService.saveOrUpdate(preSealVehicle));
-	    } catch (Exception e) {
-			logger.error("fail to save！"+e.getMessage(),e);
-			rest.toError("保存失败，服务异常！");
-		}
-		return rest;
-	}
-	/**
-	 * 根据id删除多条数据
-	 * @param ids
-	 * @return
-	 */
-	@RequestMapping(value = "/deleteByIds")
-	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
-		JdResponse<Integer> rest = new JdResponse<Integer>();
-		try {
-			rest.setData(preSealVehicleService.deleteByIds(ids));
-		} catch (Exception e) {
-			logger.error("fail to delete！"+e.getMessage(),e);
-			rest.toError("删除失败，服务异常！");
-		}
-		return rest;
-	}
-	/**
-	 * 根据条件分页查询数据信息
-	 * @param preSealVehicleCondition
-	 * @return
-	 */
-	@RequestMapping(value = "/listData")
-	public @ResponseBody PagerResult<PreSealVehicle> listData(@RequestBody PreSealVehicleCondition preSealVehicleCondition) {
-        JdResponse<PagerResult<PreSealVehicle>> rest = new JdResponse<PagerResult<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);;
-        try{
-            rest.setData(preSealVehicleService.queryByPagerCondition(preSealVehicleCondition));
-        }catch (Exception e){
-            logger.error("查询预封车数据信息失败，查询条件：" + JsonHelper.toJson(preSealVehicleCondition), e);
-            rest.setCode(JdResponse.CODE_ERROR);
-            rest.setMessage("服务异常，查询预封车数据信息失败!");
-        }
-		return rest.getData();
-	}
 
 	/**
 	 * 根据条件查询预封车信息（包含对应未封车的批次信息）
