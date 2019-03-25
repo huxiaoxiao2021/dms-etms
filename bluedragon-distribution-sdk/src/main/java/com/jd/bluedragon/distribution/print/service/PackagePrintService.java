@@ -6,7 +6,6 @@ import java.util.Map;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
-import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 
 /**
  * 

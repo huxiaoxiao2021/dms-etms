@@ -12,10 +12,10 @@ public abstract class AbstractJsonCommandHandler<T,R> implements Handler<JdComma
 	private JsonOperateHandlerMapping<T,JdResult<String>> jsonOperateHandlerMapping;
 	/**
 	 * 将jsonData转换为处理逻辑需要的对象
-	 * @param jsonData
+	 * @param target 请求对象
 	 * @return
 	 */
-	public abstract T fromJson(String jsonData);
+	public abstract T fromJson(JdCommand<String> target);
 	
 	@Override
 	public JdResult<String> handle(JdCommand<String> target) {
@@ -24,7 +24,7 @@ public abstract class AbstractJsonCommandHandler<T,R> implements Handler<JdComma
 		if(handler == null){
 			return JdResults.REST_FAIL_SERVER_NOT_FIND;
 		}
-		T target0 = fromJson(target.getData());
+		T target0 = fromJson(target);
 		//返回参数错误信息
 		if(target0 == null){
 			return JdResults.REST_FAIL_PARAM_ERROR;

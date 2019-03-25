@@ -1,9 +1,20 @@
 package com.jd.bluedragon.distribution.saf;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.codec.Base64;
+import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdCommand;
@@ -15,21 +26,11 @@ import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
-import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
-import com.jd.ql.dms.print.engine.toolkit.PrintPdfResponse;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.text.MessageFormat;
-import java.util.*;
 
 /**
  * B网营业厅打印JSF接口
@@ -52,12 +53,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     /**
      * 打印JSF接口token校验开关
      */
-    private static final String PRINT_SWITCH = "print.switch";
+    private static final String PRINT_SWITCH = "dms.jsf.packagePrint.verifyConfig.switch";
 
     /**
      * 打印JSF接口系统来源前缀
      */
-    private static final String PRINT_PREFIX = "PRINT_SOURCE_";
+    private static final String PRINT_PREFIX = "dms.jsf.packagePrint.verifyConfig.";
 
     private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
 
@@ -66,8 +67,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         logger.info("查询包裹信息参数：" + JsonHelper.toJson(printRequest));
         JdResult<Map<String, Object>> result = new JdResult<Map<String, Object>>();
         result.toSuccess();
-        if(!checkToken(printRequest.getSystemCode(), printRequest.getSecretKey())){
-            result.toFail("系统访问密钥校验失败，请维护并使用正确的秘钥！");
+        if(printRequest == null){
+            result.toFail("传入的参数不能为空！");
+            return result;
+        }
+        if(!this.checkVerify(printRequest)){
+            result.toFail("权限验证失败！请检查传入参数systemCode、secretKey、businessType、operateType的值！");
             return result;
         }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
@@ -187,27 +192,47 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             }
         }
     }
-
     /**
-     * 校验秘钥
-     * @param source
-     * @param secretKey
+     * 权限验证
+     * @param printRequest
      * @return
      */
-    private boolean checkToken(String source, String secretKey){
-
-        SysConfig printSwitch = sysConfigService.findConfigContentByConfigName(PRINT_SWITCH);
-        //未开启时不校验
-        if(printSwitch != null && Constants.STRING_FLG_TRUE.equals(printSwitch.getConfigContent())){
-            //校验source和secretKey是否一致
-            SysConfig content = sysConfigService.findConfigContentByConfigName(PRINT_PREFIX + source.toUpperCase());
-            if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
-                return true;
+    private boolean checkVerify(JdCommand<String> printRequest){
+    	//是否开启验证
+    	if(sysConfigService.getConfigByName(PRINT_SWITCH)){
+    		if(StringHelper.isEmpty(printRequest.getSystemCode())
+    				||StringHelper.isEmpty(printRequest.getSecretKey())
+    				||printRequest.getBusinessType() == null
+    				||printRequest.getOperateType() == null){
+    			return false;
+    		}
+            //验证密钥和操作码
+    		String configKey = PRINT_PREFIX + printRequest.getSystemCode();
+            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(configKey);
+            if(sysConfig != null && StringHelper.isNotEmpty(sysConfig.getConfigContent())){
+            	JsfVerifyConfig jsfVerifyConfig = JsonHelper.fromJson(sysConfig.getConfigContent(), JsfVerifyConfig.class);
+                if(jsfVerifyConfig != null){
+                	if(!printRequest.getSecretKey().equals(jsfVerifyConfig.getSecretKey())){
+                		logger.warn(printRequest.getSystemCode() + "密钥验证失败！");
+                		return false;
+                	}
+                	//是否允许所有访问
+                	if(Boolean.TRUE.equals(jsfVerifyConfig.getAllowAll())){
+                		return true;
+                	}else{
+                		return jsfVerifyConfig.getBusinessTypes() != null 
+                				&& jsfVerifyConfig.getBusinessTypes().contains(printRequest.getBusinessType())
+                				&& jsfVerifyConfig.getOperateTypes() != null 
+                				&& jsfVerifyConfig.getOperateTypes().contains(printRequest.getOperateType());
+                	}
+                }else{
+                	logger.warn("jsf未获取到权限配置信息！key="+configKey);
+                }
+            	return false;
             }else{
                 return false;
             }
-        }
-        return true;
+    	}
+    	return true;
     }
-
 }

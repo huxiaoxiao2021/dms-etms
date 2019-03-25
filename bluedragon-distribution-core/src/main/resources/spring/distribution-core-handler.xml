@@ -44,6 +44,7 @@
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100301"  value-ref="basicPrint"/>
+				<entry key="100302"  value-ref="eclpPackagePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -81,6 +82,23 @@
 			</list>
 		</property>
 	</bean>
+	<!-- 包裹标签打印-通用打印逻辑处理 -->
+	<bean id="eclpPackagePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="eclpInterceptHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>	
 	<!-- 包裹标签打印-站点平台打印 -->
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler"/>
 	<bean id="thirdOverRunInterceptHandler" class="com.jd.bluedragon.distribution.print.waybill.handler.ThirdOverRunInterceptHandler">
