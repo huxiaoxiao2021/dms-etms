@@ -153,51 +153,67 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/newpackagesend")
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
-        SendM domain = new SendM();
-        domain.setReceiveSiteCode(request.getReceiveSiteCode());
-        domain.setSendCode(request.getSendCode());
-        domain.setCreateSiteCode(request.getSiteCode());
 
-        String turnoverBoxCode = request.getTurnoverBoxCode();
-        if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
-            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
-        }else{
-            domain.setTurnoverBoxCode(turnoverBoxCode);
-        }
-        domain.setCreateUser(request.getUserName());
-        domain.setCreateUserCode(request.getUserCode());
-        domain.setSendType(request.getBusinessType());
-        domain.setTransporttype(request.getTransporttype());
-        domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+                // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
-                result.setData(deliveryService.boardSend(domain,request.getIsForceSend()));
-            }else{//一车一单发货
+                result.setData(deliveryService.boardSend(domain, request.getIsForceSend()));
+            } else {
+                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
+                // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                if (request.getIsCancelLastSend() == null){
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                if (request.getIsCancelLastSend() == null) {
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
                 } else {
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
                 }
             }
         } catch (Exception ex) {
             result.error(ex);
             logger.error("一车一单发货", ex);
         }
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(result));
         }
         return result;
+    }
+
+    /**
+     * 请求拼装SendM发货对象
+     *
+     * @param request
+     * @return
+     */
+    private SendM toSendMDomain(PackageSendRequest request) {
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setCreateSiteCode(request.getSiteCode());
+
+        String turnoverBoxCode = request.getTurnoverBoxCode();
+        if (StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30) {
+            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
+        } else {
+            domain.setTurnoverBoxCode(turnoverBoxCode);
+        }
+        domain.setCreateUser(request.getUserName());
+        domain.setCreateUserCode(request.getUserCode());
+        domain.setSendType(request.getBusinessType());
+        domain.setTransporttype(request.getTransporttype());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        return domain;
     }
 
     @GET

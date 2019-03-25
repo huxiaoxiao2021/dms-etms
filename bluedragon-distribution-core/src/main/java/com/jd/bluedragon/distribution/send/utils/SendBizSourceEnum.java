@@ -8,24 +8,26 @@ package com.jd.bluedragon.distribution.send.utils;
  */
 public enum SendBizSourceEnum {
     /**
-     * 老发货
+     * 旧发货
+     * 包括：1-旧发货功能、2-批量旧发货功能
      */
-    OLD_PACKAGE_SEND(1, "老发货"),
+    OLD_PACKAGE_SEND(1, "旧发货"),
 
     /**
      * 新发货（一车一单发货）
+     * 包括：1-一车一单发货、2-批量一车一单发货、3-无人分拣发货
      */
     NEW_PACKAGE_SEND(2, "一车一单发货"),
 
     /**
-     * 老发货批量
+     * 批量旧发货(无单独接口)
      */
-    BATCH_OLD_PACKAGE_SEND(3, "批量老发货"),
+    BATCH_OLD_PACKAGE_SEND(3, "批量旧发货"),
 
     /**
-     * 新发货（一车一单发货）批量
+     * 批量新发货（批量一车一单发货）
      */
-    BATCH_NEW_PACKAGE_SEND(4, "批量一车一单"),
+    BATCH_NEW_PACKAGE_SEND(4, "批量新发货"),
 
     /**
      * 离线老发货
@@ -58,39 +60,49 @@ public enum SendBizSourceEnum {
     REVERSE_SEND(10, "逆向发货"),
 
     /**
+     * 整批转发发货
+     */
+    BATCH_FORWARD_SEND(11, "整批转发发货"),
+
+    /**
      * 龙门架发货
      */
-    SCANNER_FRAME_SEND(11, "龙门架发货"),
+    SCANNER_FRAME_SEND(12, "龙门架发货"),
 
     /**
      * 分拣机发货
      */
-    SORT_MACHINE_SEND(12, "分拣机发货"),
+    SORT_MACHINE_SEND(13, "分拣机发货"),
 
     /**
      * 无人分拣发货
      */
-    UNMANNED_SORT_SEND(13, "无人分拣发货"),
+    UNMANNED_SORT_SEND(14, "无人分拣发货"),
 
     /**
      * 空铁离线一车一单发货
      */
-    OFFLINE_AR_NEW_SEND(14, "空铁离线一车一单发货"),
+    OFFLINE_AR_NEW_SEND(15, "空铁离线一车一单发货"),
+
+    /**
+     * 安卓版本PDA发货
+     */
+    ANDROID_PDA_SEND(16, "安卓PDA发货"),
 
     /**
      * 开放平台发货
      */
-    OPEN_PLATFORM_SEND(15, "开放平台发货"),
+    OPEN_PLATFORM_SEND(17, "开放平台发货"),
 
     /**
      * 冷链发货
      */
-    COLD_CHAIN_SEND(16, "冷链发货"),
+    COLD_CHAIN_SEND(18, "冷链发货"),
 
     /**
      * 极速版本PDA发货
      */
-    EXTREME_SPEED_SEND(17, "极速版本PDA发货");
+    EXTREME_SPEED_SEND(19, "极速版本PDA发货");
 
     /**
      * 编码
@@ -121,4 +133,14 @@ public enum SendBizSourceEnum {
         this.name = name;
     }
 
+    public static SendBizSourceEnum getEnum(Integer code) {
+        if (code != null) {
+            for (SendBizSourceEnum bizSource : SendBizSourceEnum.values()) {
+                if (bizSource.getCode().equals(code)) {
+                    return bizSource;
+                }
+            }
+        }
+        return null;
+    }
 }

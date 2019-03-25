@@ -85,7 +85,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if(oldSendMList != null &&oldSendMList.size() > 0){
             for(SendM oldSendM : oldSendMList){
                 domain.setBoxCode(oldSendM.getBoxCode());
-                deliveryService.packageSend(SendBizSourceEnum.BATCH_NEW_PACKAGE_SEND, domain);
+                deliveryService.packageSend(SendBizSourceEnum.BATCH_FORWARD_SEND, domain);
             }
             return true;
         }

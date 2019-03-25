@@ -21,19 +21,23 @@ public interface DeliveryService {
     /**
      * 有校验且有多次发货取消上次发货逻辑的一车一单发货
      *
-     * @param domain 发货对象
-     * @return Map.Entiry<code , message> 改到SendResult
+     * @param bizSource        业务来源
+     * @param domain
+     * @param isForceSend      是否强制发货
+     * @param isCancelLastSend 是否取消上次发货
+     * @return Map.Entiry<code                                                               ,                                                               message> 改到SendResult
      */
-    SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend);
+    SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend);
 
     /**
-     * 有校验的一车一单发货
+     * 有校验的一车一单发货(无取消上次发货业务逻辑)
      *
+     * @param bizSource   业务来源
      * @param domain
-     * @param isForceSend
+     * @param isForceSend 是否强制发货
      * @return
      */
-    SendResult packageSend(SendM domain, boolean isForceSend);
+    SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend);
 
     /**
      * 一车一单发货数据落库，写相关的异步任务

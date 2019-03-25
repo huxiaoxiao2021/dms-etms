@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,8 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService {
 
     @Override
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
+        // 安卓PDA发货
+        request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         return deliveryResource.newPackageSend(request);
     }
 

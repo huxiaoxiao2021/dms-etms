@@ -344,7 +344,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public SendResult packageSend(SendM domain, boolean isForceSend, boolean isCancelLastSend) {
+    public SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend) {
         logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
         if (!isForceSend) {
@@ -357,7 +357,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (isCancelLastSend) {
             this.doCancelLastSend(domain);
         }
-        return this.doPackageSend(domain);
+        return this.doPackageSend(bizSource, domain);
     }
 
     /**
@@ -368,7 +368,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return
      */
     @Override
-    public SendResult packageSend(SendM domain, boolean isForceSend){
+    public SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend){
         logger.info("[一车一单发货]packageSend-箱号/包裹号:" + domain.getBoxCode() + ",批次号：" + domain.getSendCode() + ",操作站点：" + domain.getCreateSiteCode() + ",是否强制操作：" + isForceSend);
         // 若第一次校验不通过，需要点击选择确认框后，二次调用时跳过校验
         SendResult sendResult;
@@ -379,7 +379,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return sendResult;
             }
         }
-        sendResult = this.doPackageSend(domain);
+        sendResult = this.doPackageSend(bizSource, domain);
         return sendResult;
     }
 
@@ -403,14 +403,17 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param domain
      * @return
      */
-    private SendResult doPackageSend(SendM domain) {
+    private SendResult doPackageSend(SendBizSourceEnum bizSource, SendM domain) {
         SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
         // 自动取消组板
         this.autoBoardCombinationCancel(domain);
 
         CallerInfo temp_info3 = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.packageSend.temp_info3", false, true);
+        if (bizSource == null){
+            bizSource = SendBizSourceEnum.NEW_PACKAGE_SEND;
+        }
         // 一车一单发货逻辑
-        this.packageSend(SendBizSourceEnum.NEW_PACKAGE_SEND, domain);
+        this.packageSend(bizSource, domain);
         Profiler.registerInfoEnd(temp_info3);
 
         //获取发货提示语
@@ -4352,12 +4355,13 @@ public class DeliveryServiceImpl implements DeliveryService {
 	@JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.doBoardDelivery", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public boolean doBoardDelivery(Task task) {
         logger.info("组板发货逐单发货开始：" + JsonHelper.toJson(task));
-        SendBizSourceEnum source = this.getBoardDeliveryBizSource(task.getType());
         SendM domain = JsonHelper.fromJson(task.getBody(), SendM.class);
         String boardCode = domain.getBoardCode();
         Response<List<String>> tcResponse = boardCombinationService.getBoxesByBoardCode(boardCode);
         logger.info("组板发货逐单发货查询板号明细：" + JsonHelper.toJson(tcResponse));
         if(tcResponse.getData() != null && !tcResponse.getData().isEmpty()){
+            // 根据任务类型获取发货业务来源
+            SendBizSourceEnum source = this.getBoardDeliveryBizSource(task.getType());
             for(String boxCode : tcResponse.getData()){
                 domain.setSendMId(null);
                 domain.setBoxCode(boxCode);
