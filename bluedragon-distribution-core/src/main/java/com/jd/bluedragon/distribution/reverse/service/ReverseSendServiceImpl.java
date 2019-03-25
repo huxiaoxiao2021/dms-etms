@@ -1805,6 +1805,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     continue;
                 }
                 InboundOrder inboundOrder =  reverseSpareEclp.createInboundOrder(waybillCode,sendDetail);
+                this.logger.info(JsonHelper.toJson(inboundOrder));
                 if(inboundOrder==null){
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
                     continue;
