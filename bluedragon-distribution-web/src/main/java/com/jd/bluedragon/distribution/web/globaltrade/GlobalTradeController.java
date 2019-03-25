@@ -241,6 +241,7 @@ public class GlobalTradeController {
         return cdto;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GLOBALTRADE_R)
     @RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request, Model model) {

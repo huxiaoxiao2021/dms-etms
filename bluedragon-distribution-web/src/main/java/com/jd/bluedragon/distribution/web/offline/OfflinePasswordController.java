@@ -45,31 +45,42 @@ public class OfflinePasswordController {
 		}
 		return "offlinePwd/list";
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/addMail")
 	public String addMail(){
 		
 		return "offlinePwd/addMail";
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/save")
 	public String save(SysConfig sysConfig,Model model){
 		sysConfig.setConfigType(-100);
-		if(sysConfig.getConfigId()==null)
-		this.baseService.insertSysConfig(sysConfig);
-		else
-			this.baseService.updateSysConfig(sysConfig);
+		if(sysConfig.getConfigId()==null){
+			baseService.insertSysConfig(sysConfig);
+		}else{
+			baseService.updateSysConfig(sysConfig);
+		}
 		return list(model);
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/deleteMail")
 	public String deleteMail(Long id,Model model){
 		this.sysConfigService.del(id);
 		return list(model);
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/updateMail")
 	public String updateMail(Model model,Long id){
 		SysConfig sysConfig =this.baseService.getSysConfig(id);
 		model.addAttribute("sysConfig", sysConfig);
 		return "offlinePwd/addMail";
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/sendOfflinePwdMail")
 	@ResponseBody
 	public String sendOfflinePwdMail(Integer type){
@@ -102,10 +113,14 @@ public class OfflinePasswordController {
 		SendMailUtil.sendSimpleEmail(subject, content.toString(), address);
 		return null;
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/sendDeliverPwdMail")
 	public String sendDeliverPwdMail(){
 		return null;
 	}
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@RequestMapping(value = "/generatePassword")
 	public String generatePassword(Integer type,Model model){
 		SysConfig querySysConfig = new SysConfig();
@@ -123,8 +138,8 @@ public class OfflinePasswordController {
 		this.baseService.updateSysConfig(sysConfig);
 		return list(model);
 	}
-	
-	
+
+	@Authorization("bluedragon_offlinePwd_list")
 	@ResponseBody
 	@RequestMapping(value = "/checkMail")
 	public int checkMail(String email,Long configId){

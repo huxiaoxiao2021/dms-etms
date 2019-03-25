@@ -67,6 +67,7 @@ public class RmaHandOverController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public RmaHandoverResponse<Pager<List<RmaHandoverWaybill>>> query(RmaHandoverQueryRequest rmaHandoverQueryRequest, Pager page) {
@@ -148,6 +149,7 @@ public class RmaHandOverController {
      * @param waybillCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping("/receiverAddressQuery")
     @ResponseBody
     public RmaHandoverResponse<String> getReceiverAddressQuery(@RequestBody String waybillCode) {
@@ -191,6 +193,7 @@ public class RmaHandOverController {
      * @param idList
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/printWaybillRma")
     @ResponseBody
     public RmaHandoverResponse<String> printWaybillRma(String idList, HttpServletResponse response) {
@@ -225,6 +228,7 @@ public class RmaHandOverController {
         return rmaResponse;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
     @RequestMapping(value = "/toExport")
     @ResponseBody
     public void toExport(String idList, HttpServletResponse response) {

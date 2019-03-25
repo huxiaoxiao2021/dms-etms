@@ -67,6 +67,7 @@ public class TmsProxyController extends DmsBaseController{
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_TMSPROXY_R)
     @RequestMapping(value = "/listData")
     @POST
     public @ResponseBody

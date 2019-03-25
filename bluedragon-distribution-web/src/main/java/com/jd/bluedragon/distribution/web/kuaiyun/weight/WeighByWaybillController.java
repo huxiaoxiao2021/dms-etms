@@ -291,6 +291,7 @@ public class WeighByWaybillController {
         return true;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     public @ResponseBody JdResponse uploadExcel(@RequestParam("importExcelFile") MultipartFile file) {
         logger.debug("uploadExcelFile begin...");
@@ -460,6 +461,7 @@ public class WeighByWaybillController {
         return true;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(String json, Model model) {
         try {

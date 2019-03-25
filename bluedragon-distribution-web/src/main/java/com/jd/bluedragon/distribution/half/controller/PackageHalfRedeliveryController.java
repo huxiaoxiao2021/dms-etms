@@ -1,18 +1,13 @@
 package com.jd.bluedragon.distribution.half.controller;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.half.domain.*;
 import com.jd.bluedragon.distribution.half.service.PackageHalfApproveService;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.jmq.common.message.Message;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -62,6 +57,7 @@ public class PackageHalfRedeliveryController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<PackageHalfRedelivery> detail(@PathVariable("id") Long id) {
 		JdResponse<PackageHalfRedelivery> rest = new JdResponse<PackageHalfRedelivery>();
@@ -73,6 +69,7 @@ public class PackageHalfRedeliveryController {
 	 * @param packageHalfRedelivery
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfRedelivery packageHalfRedelivery) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -89,6 +86,7 @@ public class PackageHalfRedeliveryController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -105,6 +103,7 @@ public class PackageHalfRedeliveryController {
 	 * @param packageHalfRedeliveryCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALFREDELIVERY_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackageHalfRedelivery> listData(@RequestBody PackageHalfRedeliveryCondition packageHalfRedeliveryCondition) {
 

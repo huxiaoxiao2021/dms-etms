@@ -55,6 +55,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 	 * @param packingConsumableInfo
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackingConsumableInfo packingConsumableInfo) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -74,6 +75,7 @@ public class PackingConsumableInfoController extends DmsBaseController {
 	 * @param packingConsumableInfoCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackingConsumableInfo> listData(@RequestBody PackingConsumableInfoCondition packingConsumableInfoCondition) {
 		JdResponse<PagerResult<PackingConsumableInfo>> rest = new JdResponse<PagerResult<PackingConsumableInfo>>();
@@ -81,16 +83,19 @@ public class PackingConsumableInfoController extends DmsBaseController {
 		return rest.getData();
 	}
 
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping("/getModifyPage")
 	public String getModifyPage() {
 		return "consumable/packingConsumableInfoModify";
 	}
 
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping("/getAddPage")
 	public String getAddPage() {
 		return "consumable/packingConsumableInfoAdd";
 	}
 
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKINGCONSUMABLEINFO_R)
 	@RequestMapping("/getAllPackingType")
 	@ResponseBody
 	public JdResponse getAllPackingType() {
