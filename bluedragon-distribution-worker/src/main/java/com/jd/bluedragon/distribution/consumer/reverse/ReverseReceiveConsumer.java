@@ -304,7 +304,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			//纯配
 			Set<String> packageCodeSet = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList());
 			for(String packageCode : packageCodeSet){
-				tWaybillStatus.setWaybillCode(packageCode);
+//				tWaybillStatus.setWaybillCode(packageCode);
 				tWaybillStatus.setPackageCode(packageCode);
 				taskService.add(this.toTaskStatus(tWaybillStatus));
 			}
@@ -327,6 +327,8 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		Map<String,String> map = new HashMap<String,String>();
 		//已退备件条码集合
 		List<String> batchNoList = new ArrayList<String>();
+		//记录所有已退包裹号
+		StringBuilder sb = new StringBuilder();
 		for(Eclp2BdReceiveDetail detail : detailList){
 			batchNoList.add(detail.getBatchNo());
 		}
@@ -350,8 +352,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
         for(String batchNo : batchNoList){
 		    if(map.containsKey(batchNo)){
                 packageCodeSet.add(map.get(batchNo));
+				sb.append(map.get(batchNo)).append(" // ");
             }
         }
+        this.logger.info("纯配已退包裹号："+sb);
         return packageCodeSet;
     }
 
