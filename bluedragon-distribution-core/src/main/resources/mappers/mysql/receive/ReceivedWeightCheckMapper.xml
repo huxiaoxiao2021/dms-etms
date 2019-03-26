@@ -6,21 +6,21 @@
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="review_date" property="reviewDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="busi_name" property="busiName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="merchant_name" property="busiName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_org_code" property="reviewOrgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
-		<result column="review_org" property="reviewOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="review_org_name" property="reviewOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_create_site_code" property="reviewCreateSiteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="review_create_site_name" property="reviewCreateSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_erp" property="reviewErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_weight" property="reviewWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="review_lwh" property="reviewLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_volume" property="reviewVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="receive_org" property="receiveOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_department" property="receiveDepartment" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_erp" property="receiveErp" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_weight" property="receiveWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="receive_lwh" property="receiveLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="receive_volume" property="receiveVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="collect_org_name" property="receiveOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_department" property="receiveDepartment" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_erp" property="receiveErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_weight" property="receiveWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="collect_lwh" property="receiveLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_volume" property="receiveVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="weight_diff" property="weightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume_weight_diff" property="volumeWeightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="diff_standard" property="diffStandard" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -30,14 +30,14 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,review_date,package_code,busi_name,review_org_code,review_org,review_create_site_code,review_create_site_name,review_erp,
-		review_weight,review_lwh,review_volume,receive_org,receive_department,receive_erp,receive_weight,
-		receive_lwh,receive_volume,weight_diff,volume_weight_diff,diff_standard,is_excess,is_delete,
+		id,review_date,package_code,merchant_name,review_org_code,review_org_name,review_create_site_code,review_create_site_name,review_erp,
+		review_weight,review_lwh,review_volume,collect_org_name,collect_department,collect_erp,collect_weight,
+		collect_lwh,collect_volume,weight_diff,volume_weight_diff,diff_standard,is_excess,is_delete,
 		ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult">
-		insert into receive_weight
+		insert into review_collect_weight
 		(
 		<trim suffixOverrides=",">
 			<if test="id != null">
@@ -50,13 +50,13 @@
 				package_code,
 			</if>
 			<if test="busiName != null">
-				busi_name,
+				merchant_name,
 			</if>
 			<if test="reviewOrgCode != null">
 				review_org_code,
 			</if>
 			<if test="reviewOrg != null">
-				review_org,
+				review_org_name,
 			</if>
 			<if test="reviewCreateSiteCode != null">
 				review_create_site_code,
@@ -77,22 +77,22 @@
 				review_volume,
 			</if>
 			<if test="receiveOrg != null">
-				receive_org,
+				collect_org_name,
 			</if>
 			<if test="receiveDepartment != null">
-				receive_department,
+				collect_department,
 			</if>
 			<if test="receiveErp != null">
-				receive_erp,
+				collect_erp,
 			</if>
 			<if test="receiveWeight != null">
-				receive_weight,
+				collect_weight,
 			</if>
 			<if test="receiveLwh != null">
-				receive_lwh,
+				collect_lwh,
 			</if>
 			<if test="receiveVolume != null">
-				receive_volume,
+				collect_volume,
 			</if>
 			<if test="weightDiff != null">
 				weight_diff,
@@ -179,14 +179,14 @@
 			<if test="isExcess != null">
 				#{isExcess,jdbcType=TINYINT},
 			</if>
-				1,
+				0,
 				now()
 		</trim>
 		)
 	</insert>
 
 	<sql id="Base_Condition_Sql" >
-			and is_delete=1
+			and is_delete=0
 	</sql>
 
 	<sql id="Query_Params_Condition_Sql">
@@ -215,7 +215,7 @@
 		select 
 		 <include refid="Base_Column_List"/>
 		from
-			receive_weight
+			review_collect_weight
 		where 1=1
 		<include refid="Query_Params_Condition_Sql"/>
 
@@ -230,7 +230,7 @@
 		select
 		count(1) as num
 		from
-		receive_weight
+			review_collect_weight
 		where 1=1
 		<include refid="Query_Params_Condition_Sql"/>
 		<include refid="Base_Condition_Sql"/>
@@ -240,15 +240,15 @@
 		select
 		<include refid="Base_Column_List"/>
 		from
-		receive_weight
+			review_collect_weight
 		where 1=1
 		AND package_code = #{packageCode,jdbcType=VARCHAR}
-		<include refid="Base_Condition_Sql"/>1
+		<include refid="Base_Condition_Sql"/>
 		limit 1
 	</select>
 
 	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult"  timeout="3">
-		UPDATE receive_weight
+		UPDATE review_collect_weight
 		<set>
 			<if test="reviewDate != null">
 				review_date = #{reviewDate,jdbcType=TIMESTAMP},
@@ -257,13 +257,13 @@
 				package_code = #{packageCode,jdbcType=VARCHAR},
 			</if>
 			<if test="busiName != null">
-				busi_name = #{busiName,jdbcType=VARCHAR},
+				merchant_name = #{busiName,jdbcType=VARCHAR},
 			</if>
 			<if test="reviewOrgCode != null">
 				review_org_code = #{reviewOrgCode,jdbcType=BIGINT},
 			</if>
 			<if test="reviewOrg != null">
-				review_org = #{reviewOrg,jdbcType=VARCHAR},
+				review_org_name = #{reviewOrg,jdbcType=VARCHAR},
 			</if>
 			<if test="reviewCreateSiteCode != null">
 				review_create_site_code = #{reviewCreateSiteCode,jdbcType=BIGINT},
@@ -284,22 +284,22 @@
 				review_volume = #{reviewVolume,jdbcType=DOUBLE},
 			</if>
 			<if test="receiveOrg != null">
-				receive_org = #{receiveOrg,jdbcType=VARCHAR},
+				collect_org_name = #{receiveOrg,jdbcType=VARCHAR},
 			</if>
 			<if test="receiveDepartment != null">
-				receive_department = #{receiveDepartment,jdbcType=VARCHAR},
+				collect_department = #{receiveDepartment,jdbcType=VARCHAR},
 			</if>
 			<if test="receiveErp != null">
-				receive_erp = #{receiveErp,jdbcType=VARCHAR},
+				collect_erp = #{receiveErp,jdbcType=VARCHAR},
 			</if>
 			<if test="receiveWeight != null">
-				receive_weight = #{receiveWeight,jdbcType=DOUBLE},
+				collect_weight = #{receiveWeight,jdbcType=DOUBLE},
 			</if>
 			<if test="receiveLwh != null">
-				receive_lwh = #{receiveLwh,jdbcType=VARCHAR},
+				collect_lwh = #{receiveLwh,jdbcType=VARCHAR},
 			</if>
 			<if test="receiveVolume != null">
-				receive_volume = #{receiveVolume,jdbcType=DOUBLE},
+				collect_volume = #{receiveVolume,jdbcType=DOUBLE},
 			</if>
 			<if test="weightDiff != null">
 				weight_diff = #{weightDiff,jdbcType=VARCHAR},

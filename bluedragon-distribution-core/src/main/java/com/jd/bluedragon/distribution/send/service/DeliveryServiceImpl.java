@@ -1605,9 +1605,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDetail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
+                    SendM dSendM = this.getLastSendDate(sendMList);
                     SendDetail queryDetail = new SendDetail();
-                    queryDetail.setBoxCode(tSendM.getBoxCode());
-                    queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    queryDetail.setBoxCode(dSendM.getBoxCode());
+                    queryDetail.setCreateSiteCode(dSendM.getCreateSiteCode());
+                    queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
@@ -1755,7 +1757,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         status.setOperateTime(tSendM.getUpdateTime());
         status.setOperator(tSendM.getUpdaterUser());
         status.setOperatorId(tSendM.getUpdateUserCode());
-        status.setRemark("取消发货");
+        status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
 
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
@@ -1861,12 +1863,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendDetail mSendDetail = new SendDetail();
         mSendDetail.setBoxCode(tSendM.getBoxCode());
         mSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
-//        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
         mSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
         List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
         Collections.sort(tlist);
         //更新m表和d表
-        reverseDeliveryService.updateIsCancelByBox(tSendM, tlist);
+        reverseDeliveryService.updateIsCancelByBox(tSendM);
         //写入运单回传状态
         reverseDeliveryService.updateIsCancelToWaybillByBox(tSendM, tlist);
         return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
@@ -1919,30 +1921,17 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param tlist 发货相关数据
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean cancelSendDatailByBox(List<SendDetail> tlist) {
-        if (tlist != null && !tlist.isEmpty()) {
-            List<SendDetail>[] splitListResultAl = splitList(tlist);
-            for (List<SendDetail> splitListResult : splitListResultAl) {
-                List<String> packCodes = new ArrayList<String>();
-                SendDetail tSendDatail = new SendDetail();
-                tSendDatail.setBoxCode(splitListResult.get(0).getBoxCode());
-                tSendDatail.setReceiveSiteCode(splitListResult.get(0)
-                        .getReceiveSiteCode());
-                tSendDatail.setCreateSiteCode(splitListResult.get(0)
-                        .getCreateSiteCode());
-                for (SendDetail oneSendDetail : splitListResult) {
-                    packCodes.add(oneSendDetail.getPackageBarcode());
-                }
-                String packCodein = StringHelper.join(packCodes, ",", "(", ")",
-                        "'");
-                tSendDatail.setSendCode(packCodein);
-                try {
-                    sendDatailDao.cancelSendDatail(tSendDatail);
-                } catch (Exception e) {
-                    this.logger.error("取消发货cancelSendDatailByBox,参数"
-                            + JsonHelper.toJson(tSendDatail), e);
-                }
-            }
+    public boolean cancelSendDatailByBox(SendM sendM) {
+        SendDetail tSendDatail = new SendDetail();
+        tSendDatail.setBoxCode(sendM.getBoxCode());
+        tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+        tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+
+        try {
+            sendDatailDao.cancelSendDatail(tSendDatail);
+        } catch (Exception e) {
+            this.logger.error("取消发货cancelSendDatailByBox,参数"
+                    + JsonHelper.toJson(tSendDatail), e);
         }
         return true;
     }
