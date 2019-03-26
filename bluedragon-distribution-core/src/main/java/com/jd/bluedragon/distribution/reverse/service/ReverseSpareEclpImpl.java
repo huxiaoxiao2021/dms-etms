@@ -179,7 +179,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         inboundOrder.setWaybillNo(waybillCode);
         inboundOrder.setOperatorName(sendDetail.getCreateUser());
         inboundOrder.setOperateTime(sendDetail.getOperateTime());
-        inboundOrder.setSource(InboundSourceEnum.SPARE);
+        inboundOrder.setSource(InboundSourceEnum.CHUN_PEI);
         inboundOrder.setOrderType(InboundOrderTypeEnum.PURCHASE);
         Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendDetail.getSendCode());
         BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
@@ -214,17 +214,17 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 List<Goods> goodsList = baseEntity.getData().getGoodsList();
                 for (Goods goods : goodsList) {
                     GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
-                    goodsInfoItem.setGoodsNo(goods.getGoodId().toString());
                     goodsInfoItem.setGoodsName(goods.getGoodName());
                     List<SparsModel> spareList = goods.getSpareList();
                     if (spareList != null && spareList.size() > 0) {
                         for (SparsModel sparsModel : spareList) {
+                            goodsInfoItem.setGoodsNo(sparsModel.getSku());
                             goodsInfoItem.setBatchNo(sparsModel.getSpareCode());//备件条码
                             goodsInfoItem.setNum(1);
                             goodsInfoItem.setMoney(sparsModel.getClaimAmount() == null ? null : sparsModel.getClaimAmount().toString());//一个备件条码对应一个理赔金额
+                            list.add(goodsInfoItem);
                         }
                     }
-                    list.add(goodsInfoItem);
                 }
             } else {
                 this.logger.error("通过运单号" + waybillCode + "获取运单商品明细失败!");
@@ -258,6 +258,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     //仓配
                     inboundOrder.setSaleOrderNo(eclpBusiOrderCode);
                     inboundOrder.setCompensationMoney(compensationMoney);
+                    inboundOrder.setSource(InboundSourceEnum.BD);
                     List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
                     if (itemInfos != null && itemInfos.size() > 0) {
                         //原事业部ID (仓配有纯配无)
