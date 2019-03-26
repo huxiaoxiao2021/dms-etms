@@ -67,7 +67,13 @@ public class DeliveryResponse extends JdResponse {
     
     public static final Integer CODE_Delivery_THREE_SORTING = 30003;
     public static final String MESSAGE_Delivery_THREE_SORTING = "有不全运单，请处理后再发货";
-    
+
+    public static final Integer CODE_Delivery_PART_SEND = 31001;
+    public static final String MESSAGE_Delivery_PART_SEND = "该批次号对应运单均为半退至仓，确认发货";
+
+    public static final Integer CODE_Delivery_PART_SEND_ERROR = 31002;
+    public static final String MESSAGE_Delivery_PART_SEND_ERROR  = "有不全运单，请处理后再发货";
+
     public static final Integer CODE_Delivery_LACK_ORDER = 30004;
     public static final String MESSAGE_Delivery_LACK_ORDER = "该箱有跨箱订单，不能取消发货";
     
