@@ -213,11 +213,11 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             if (baseEntity.getData().getGoodsList() != null && baseEntity.getData().getGoodsList().size() > 0) {
                 List<Goods> goodsList = baseEntity.getData().getGoodsList();
                 for (Goods goods : goodsList) {
-                    GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
-                    goodsInfoItem.setGoodsName(goods.getGoodName());
                     List<SparsModel> spareList = goods.getSpareList();
                     if (spareList != null && spareList.size() > 0) {
                         for (SparsModel sparsModel : spareList) {
+                            GoodsInfoItem goodsInfoItem = new GoodsInfoItem();
+                            goodsInfoItem.setGoodsName(goods.getGoodName());
                             goodsInfoItem.setGoodsNo(sparsModel.getSku());
                             goodsInfoItem.setBatchNo(sparsModel.getSpareCode());//备件条码
                             goodsInfoItem.setNum(1);
