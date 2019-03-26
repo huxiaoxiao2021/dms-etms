@@ -30,7 +30,7 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_Delivery_NO_MESAGE = 40003;
     public static final String MESSAGE_Delivery_NO_MESAGE = "无该箱号发货的记录";
     public static final String MESSAGE_Delivery_IS_MESAGE = "发货处理中请稍后再试";
-    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的记录";
+    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的发货记录";
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
     

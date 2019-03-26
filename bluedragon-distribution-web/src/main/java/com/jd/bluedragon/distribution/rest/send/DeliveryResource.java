@@ -42,10 +42,7 @@ import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -287,6 +284,31 @@ public class DeliveryResource {
         } else {
             return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
+        }
+    }
+
+    @POST
+    @Path("/delivery/cancel/last")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1004)
+    public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
+        logger.info("取消最近的一次发货JSON" + JsonHelper.toJsonUseGson(request));
+
+        //参数校验
+        if (StringHelper.isEmpty(request.getBoxCode()) == null || request.getSiteCode() == null || StringHelper.isEmpty(request.getOperateTime())) {
+            return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+        }
+
+        ThreeDeliveryResponse tDeliveryResponse = null;
+        try {
+            tDeliveryResponse = deliveryService.cancelLastSend(toSendM(request));
+        } catch (Exception e) {
+            this.logger.error("写入取消最近的一次发货信息失败", e);
+        }
+
+        if (tDeliveryResponse != null) {
+            return tDeliveryResponse;
+        } else {
+            return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
     }
 
@@ -752,6 +774,8 @@ public class DeliveryResource {
         sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
         sendM.setSendCode(request.getSendCode());
+        Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
+        sendM.setOperateTime(operateTime);
         if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
             sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         }

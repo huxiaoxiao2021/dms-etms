@@ -368,4 +368,11 @@ public interface DeliveryService {
 	 * @return
 	 */
 	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
+
+	/**
+	 * 执行取消上次发货逻辑
+	 *
+	 * @param domain
+	 */
+	public ThreeDeliveryResponse cancelLastSend(SendM domain);
 }

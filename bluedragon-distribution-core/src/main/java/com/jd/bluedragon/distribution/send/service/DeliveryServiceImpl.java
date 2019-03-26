@@ -393,6 +393,30 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 取消最近一次发货记录
+     *
+     * @param domain
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend.cancelLastSend", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public ThreeDeliveryResponse cancelLastSend(SendM domain) {
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (lastSendM != null) {
+            //如果不是包裹号，需指定取消发货的目的地
+            if (!BusinessHelper.isBoxcode(lastSendM.getBoxCode())) {
+                domain.setReceiveSiteCode(lastSendM.getReceiveSiteCode());
+            }
+            //替换掉发货类型
+            domain.setSendType(lastSendM.getSendType());
+            //更新时间比当前操作时间早10秒
+            domain.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
+            return this.dellCancelDeliveryMessage(domain, true);
+        } else {
+            return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+        }
+    }
+
+    /**
      * 执行一车一单发货所有业务逻辑
      *
      * @param domain
