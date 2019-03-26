@@ -6,10 +6,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.DmsInterturnManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
@@ -288,6 +285,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private ColdChainQuarantineManager coldChainQuarantineManager;
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
@@ -2897,11 +2897,23 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        //获取提示语
+        List<String> tipMessageList = new ArrayList<String>();
+        response.setTipMessages(tipMessageList);
+        if(isWaybillNeedAddQuarantine(sendM)){
+            tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
+        }
+
         //批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
-            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
+            response.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            return response;
         }
         response = deliveryCheckHasSend(sendM);
+        response.setTipMessages(tipMessageList);
+
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
@@ -2909,7 +2921,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         // FIXME: 2018/10/16 应该单独写一个校验接口，后续进行剥离
         //B网包装耗材服务确认拦截
         if (! this.checkWaybillConsumable(sendM)) {
-            return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
+            response.setCode(DeliveryResponse.CODE_29120);
+            response.setMessage(DeliveryResponse.MESSAGE_29120);
+            return response;
         }
 
         logger.info("快运发货运单重量及运费拦截开始");
@@ -2918,7 +2932,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
         	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
-        	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
+            response.setCode(DeliveryResponse.CODE_INTERCEPT_FOR_B2B);
+            response.setMessage(interceptResult.getMessage());
+            return response;
         }
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
@@ -2970,6 +2986,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             logger.warn("B网路由拦截："+originalSiteCode+"->"+receiveSiteCode+"->"+destinationSiteCode+","+response.getMessage());
         }
+
         return response;
     }
 
@@ -4816,5 +4833,22 @@ public class DeliveryServiceImpl implements DeliveryService {
             logger.error("查询运单是否已经确认耗材失败，运单号：" + sendM.getBoxCode(), e);
         }
         return true;
+    }
+
+    /**
+     * 快运发货判断是否需要提示录入检疫证票号
+     * @param sendM 发货数据
+     * @return
+     */
+    private Boolean isWaybillNeedAddQuarantine(SendM sendM) {
+        logger.info("查询是否需要录入检疫证票号...");
+        String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
+        Integer siteCode = sendM.getCreateSiteCode();
+
+        if (StringUtils.isBlank(waybillCode) || siteCode == null) {
+            return false;
+        }
+
+        return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
     }
 }

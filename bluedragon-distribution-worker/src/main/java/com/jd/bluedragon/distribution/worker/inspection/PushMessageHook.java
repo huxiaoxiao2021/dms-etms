@@ -10,6 +10,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Date;
+
 /**
  * 推送验货MQ消息
  * Created by wangtingwei on 2017/1/17.
@@ -28,6 +30,11 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
             InspectionMQBody inspectionMQBody = new InspectionMQBody();
             inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
             inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+            inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
+            inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
+            inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
+            inspectionMQBody.setSource("DMS-INSPECTION");
+
             inspectionNotifyService.send(inspectionMQBody);/*此处MQ推送时，失败将添加任务，以确保MQ发送成功*/
         }
         return 0;
