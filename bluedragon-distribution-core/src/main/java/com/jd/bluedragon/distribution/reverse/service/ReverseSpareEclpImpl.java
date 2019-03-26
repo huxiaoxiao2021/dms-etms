@@ -250,6 +250,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     compensationMoney = claimInfoRespDTO.getPaymentRealMoney()==null?null:claimInfoRespDTO.getPaymentRealMoney().toString();   //仓配运单理赔金额
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称
+                    inboundOrder.setTargetDeptNo(claimInfoRespDTO.getDivisionNumber());//目的事业部编码
                 } else {
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
                 }
@@ -288,6 +289,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 if (claimInfoRespDTO != null) {
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
+                    inboundOrder.setTargetDeptNo(claimInfoRespDTO.getDivisionNumber());
                 }else{
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
                 }
