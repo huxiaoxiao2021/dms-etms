@@ -257,6 +257,11 @@
         <!--已修改主题-->
     </bean>
 
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
+    </bean>
+
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
     <!--uat-->
     <bean id="weighByWaybillProducer" parent="uatDmsWebDefaultJMQProducer">

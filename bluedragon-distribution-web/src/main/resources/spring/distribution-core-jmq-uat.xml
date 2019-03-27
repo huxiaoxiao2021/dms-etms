@@ -18,7 +18,10 @@
 
     <!--dmsWorker生产者配置-->
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
-
+    <bean id="dmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="workerProducer"/>
+    </bean>
     <!--UAT环境特殊配置！！！ uatDmsweb生产者配置-->
     <jmq:producer id="uatDmsWebProducer" transport="jmq.uatDmsWeb.transport" retryTimes="3" />
     <bean id="uatDmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -195,6 +198,11 @@
         <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
     </bean>
 
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
