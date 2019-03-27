@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.newseal.controller;
 
 import java.util.*;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
@@ -13,12 +14,12 @@ import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -27,7 +28,6 @@ import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 /**
  *
@@ -60,6 +60,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	 * 返回主页面
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/newseal/preSealVehicle";
@@ -68,6 +69,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	 * 跳转到未使用运力页面
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/unusedtransport")
 	public String unusedtransport() {
 		return "/newseal/unusedtransport";
@@ -78,6 +80,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	 * @param condition
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/queryPreSeals")
 	public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
@@ -220,6 +223,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @param data
      * @return
      */
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
     @RequestMapping(value = "/batchSeal")
     public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
@@ -278,6 +282,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	 * 查询当前场地未使用的运力编码
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/getRemainTransportCode")
 	public @ResponseBody JdResponse<List<CapacityDomain>> getRemainTransportCode() {
 		JdResponse<List<CapacityDomain>> rest = new JdResponse<List<CapacityDomain>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);

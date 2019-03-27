@@ -581,6 +581,7 @@ public class Constants {
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
+    public static final String DMS_WEB_PRE_SEALVEHICLE_R ="DMS_WEB_PRE_SEALVEHICLE_R"; //预封车权限码
     /********************************************* UIM权限资源码相关end ***********************************************/
 
     /******************************************** 封车类型相关start *****************************************/
