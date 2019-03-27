@@ -118,7 +118,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		// 插收货确认表并发送全程跟踪
 		if (isBoxingType) {
 			// 大件商品-单条处理
-			cenConfirmList = saveCenConfirmAndSendTrack(taskContext,true);
+			saveCenConfirmAndSendTrack(taskContext,true);
 		} else {
 			// 非大件商品-批量处理
 			cenConfirmList = batchSaveCenConfirmAndSendTrack(taskContext);
@@ -216,6 +216,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * @param cenConfirmList
 	 */
 	protected void pushReceiveInfo(List<CenConfirm> cenConfirmList){
+		if(cenConfirmList == null || cenConfirmList.size() < 1){
+			return ;
+		}
 		for (CenConfirm cenConfirm:cenConfirmList) {
 			InspectionMQBody body = new InspectionMQBody();
 			body.setWaybillCode(cenConfirm.getWaybillCode());
