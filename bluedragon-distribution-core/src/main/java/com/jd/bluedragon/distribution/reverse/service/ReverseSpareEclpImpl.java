@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrderTypeEnum;
@@ -202,6 +203,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         wChoice.setQueryWaybillExtend(true);
         wChoice.setQueryGoodList(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
+        //获取已退包裹号
+
         if (baseEntity != null && baseEntity.getData() != null ) {
             if (baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getWaybillExt() != null &&
                     baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount() != null) {
@@ -248,6 +251,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 String compensationMoney = null;
                 if (claimInfoRespDTO != null) {
                     //纯配仓配二次换单
+                    this.logger.info("仓配333");
                     compensationMoney = claimInfoRespDTO.getPaymentRealMoney()==null?null:claimInfoRespDTO.getPaymentRealMoney().toString();   //仓配运单理赔金额
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称
@@ -255,14 +259,17 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 } else {
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
                 }
+                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                 if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
                     //仓配
+                    this.logger.info("仓配444");
                     inboundOrder.setSaleOrderNo(eclpBusiOrderCode);
                     inboundOrder.setCompensationMoney(compensationMoney);
                     inboundOrder.setSource(InboundSourceEnum.BD);
                     List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
                     if (itemInfos != null && itemInfos.size() > 0) {
                         //原事业部ID (仓配有纯配无)
+                        this.logger.info("仓配555");
                         inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                         //仓配商品信息
                         for(ItemInfo itemInfo : itemInfos){
