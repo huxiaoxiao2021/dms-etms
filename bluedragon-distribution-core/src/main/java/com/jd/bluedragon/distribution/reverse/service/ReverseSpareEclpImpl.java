@@ -232,7 +232,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         }else {
             this.logger.error("通过运单号" + waybillCode + "获取运单信息失败!");
         }
-
+        this.logger.info("仓配111");
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
         String eclpBusiOrderCode = null;
@@ -243,6 +243,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV1);
             if (oldWaybill2 != null && oldWaybill2.getData() != null) {
                 oldWaybillCodeV2 = oldWaybill2.getData().getWaybillCode();
+                this.logger.info("仓配222");
                 LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV2);
                 String compensationMoney = null;
                 if (claimInfoRespDTO != null) {

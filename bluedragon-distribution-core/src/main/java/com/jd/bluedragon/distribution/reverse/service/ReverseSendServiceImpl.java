@@ -1818,6 +1818,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         }catch (Exception e){
             logger.error("ECLP退备件库异常",e);
+            e.printStackTrace();
         }
     }
 
