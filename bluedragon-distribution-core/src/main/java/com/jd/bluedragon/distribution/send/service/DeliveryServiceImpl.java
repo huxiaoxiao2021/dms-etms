@@ -408,8 +408,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             //替换掉发货类型
             domain.setSendType(lastSendM.getSendType());
-            //更新时间比当前操作时间早10秒
-            domain.setUpdateTime(DateHelper.add(domain.getOperateTime(), Calendar.SECOND, -10));
+            //更新时间为操作时间
+            domain.setUpdateTime(domain.getOperateTime());
             return this.dellCancelDeliveryMessage(domain, true);
         } else {
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
