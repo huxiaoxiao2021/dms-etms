@@ -206,9 +206,6 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         wChoice.setQueryWaybillExtend(true);
         wChoice.setQueryGoodList(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
-        //获取已退包裹号
-        List<String> packageCodeList = sendDetailDao.queryPackageCode(sendDetail);
-        this.logger.info("已退包裹号有："+packageCodeList.size());
         if (baseEntity != null && baseEntity.getData() != null ) {
             if (baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getWaybillExt() != null &&
                     baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount() != null) {
@@ -219,7 +216,16 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             //纯配商品信息
             if (baseEntity.getData().getGoodsList() != null && baseEntity.getData().getGoodsList().size() > 0) {
                 List<Goods> goodsList = baseEntity.getData().getGoodsList();
-                for (Goods goods : goodsList) {
+                //获取已退包裹号
+                List<String> packageCodeList = sendDetailDao.queryPackageCode(sendDetail);
+                //已退包裹的商品集合
+                List<Goods> goodsListOfSend = new ArrayList<>();
+                for(Goods goods : goodsList){
+                    if(packageCodeList.contains(goods.getPackBarcode())){
+                        goodsListOfSend.add(goods);
+                    }
+                }
+                for (Goods goods : goodsListOfSend) {
                     List<SparsModel> spareList = goods.getSpareList();
                     if (spareList != null && spareList.size() > 0) {
                         for (SparsModel sparsModel : spareList) {
@@ -279,15 +285,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             goodsInfoItem.setGoodsName(itemInfo.getGoodsName());
                             if(itemInfo.getDeptRealOutQty() == null){
                                 //使用实际发货数量
-                                this.logger.info("仓配666");
-
                                 goodsInfoItem.setNum(itemInfo.getRealOutstoreQty()==null?0:itemInfo.getRealOutstoreQty());
-
-                                this.logger.info("仓配777");
                             }else{
                                 //使用事业部实际发货的数量
-                                this.logger.info("仓配888");
-
                                 goodsInfoItem.setNum(itemInfo.getDeptRealOutQty()==null?0:itemInfo.getDeptRealOutQty());
                             }
                             list.add(goodsInfoItem);
