@@ -26,6 +26,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service("cenConfirmService")
@@ -75,6 +76,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         InspectionMQBody inspectionMQBody=new InspectionMQBody();
         inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
         inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+		inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
+		inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
+		inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
         try {
             /**
              * fix wtw 任务监控
