@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
+import com.jd.bluedragon.distribution.residentPrint.service.ResidentService;
 import com.jd.etms.waybill.domain.PackageState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +28,9 @@ public class ResidentResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
+    private ResidentService residentService;
+
+    @Autowired
     private WaybillTraceManager waybillTraceManager;
 
     /**
@@ -35,13 +39,16 @@ public class ResidentResource {
      * @return
      */
     @GET
-    @Path("/resident/isSendBySite/{waybillCode}")
-    public InvokeResult<String> isSendBySite(@PathParam("waybillCode") String waybillCode){
+    @Path("/resident/isSendBySite/{boxCode}/{waybillCode}")
+    public InvokeResult<String> isSendBySite(@PathParam("boxCode") String boxCode,@PathParam("waybillCode") String waybillCode){
         InvokeResult<String> result = new InvokeResult<String>();
         try{
-            List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE);
-            if(list != null && list.size() > 0){
-                result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
+            Boolean isExist = residentService.isExist(waybillCode,boxCode);
+            if(isExist){
+                List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE);
+                if(list != null && list.size() > 0){
+                    result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
+                }
             }
         }catch (Exception e){
             this.logger.error("通过运单号" + waybillCode + "查询运单全程跟踪失败！");
