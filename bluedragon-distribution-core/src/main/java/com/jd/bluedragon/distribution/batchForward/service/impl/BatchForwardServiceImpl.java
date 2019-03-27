@@ -59,6 +59,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         return result;
     }
 
+    // TODO: 2019/3/27 此处若发货批次量较大，在操作整批转发时，存在潜在风险
     @Override
     public boolean dealBatchForwardTask(Task task) {
         this.logger.info("批次转发开始：" + JsonHelper.toJson(task));
