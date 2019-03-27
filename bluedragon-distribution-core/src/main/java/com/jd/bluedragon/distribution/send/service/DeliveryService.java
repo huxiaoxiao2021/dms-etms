@@ -189,7 +189,7 @@ public interface DeliveryService {
 	public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList,Integer queryType);
 
     /** 快运发货路由信息验证 */
-    public DeliveryResponse checkRouterForKY(SendM sendm);
+    public DeliveryResponse checkRouterForKY(SendM sendm, Integer flag);
 
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);

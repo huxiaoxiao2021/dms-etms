@@ -2912,9 +2912,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 快运发货校验路由信息
      * @param sendM
+     * @flag 新老版本标识，0是老版本调用，1是新版本调用接口
      * @return
      */
-    public DeliveryResponse checkRouterForKY(SendM sendM){
+    public DeliveryResponse checkRouterForKY(SendM sendM, Integer flag){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
         //获取提示语
@@ -2932,11 +2933,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         //2.校验箱号或者包裹是否已发货
-        //如果未配置或配置为0，走老逻校验是否发货，1走新逻辑判断措辞发货是否取消上次发货
-        if (! sysConfigService.getConfigByName("b.check.send.cancel.last.send.switch")) {
-            response = deliveryCheckHasSend(sendM);
-        } else {
+        SysConfigContent sysConfigContent = sysConfigService.getSysConfigJsonContent("b.check.send.cancel.last.send.switch");
+        //判断条件：
+        // （1）接口标识为调用的新接口
+        // （2）开关存在并开启状态，或当前始发分拣中心存在于列表里
+        // 同时满足1和2走新逻辑，否则都走老逻辑
+        if (Constants.DELIVERY_ROUTER_VERIFICATION_NEW.equals(flag) && sysConfigContent != null && (sysConfigContent.getMasterSwitch() || sysConfigContent.getSiteCodes().contains(sendM.getCreateSiteCode()))) {
             response = checkCancelLastSend(sendM);
+        }
+        else {
+            response = deliveryCheckHasSend(sendM);
         }
 
         response.setTipMessages(tipMessageList);

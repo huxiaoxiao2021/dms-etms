@@ -488,7 +488,49 @@ public class DeliveryResource {
                     }
                     request.setBoxCode(waybillCodeList.get(0));
                 }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/delivery/router/verification/new")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)
+    public DeliveryResponse checkThreeDeliveryNew(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+
+            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
+            if(isWaybillCode(request.getBoxCode())){
+                DeliveryResponse response = isValidWaybillCode(request);
+                if(!JdResponse.CODE_OK.equals(response.getCode())){
+                    return response;
+                }
+            }
+
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                // 因为B冷链转运中心需要支持扫描运单号发货，
+                // 如果扫的是运单号，则生成第一个包裹号，用于校验
+                if (isWaybillCode(request.getBoxCode())) {
+                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
+                    if(waybillCodeList == null || waybillCodeList.size() < 1){
+                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
+                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
+                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
+                        return response;
+                    }
+                    request.setBoxCode(waybillCodeList.get(0));
+                }
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
             }
             return response;
         } catch (Exception ex) {
