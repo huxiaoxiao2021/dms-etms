@@ -13,11 +13,30 @@
     <jmq:producer id="dmsWebProducer" transport="jmq.dmsWeb.transport" retryTimes="3" />
     <bean id="dmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
-        <property name="jmqProducer" ref="dmsWebProducer"/>
+        <property name="jmqProducer" ref="dmsWebProducerSplit"/>
     </bean>
 
     <!--dmsWorker生产者配置-->
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+    <bean id="dmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="workerProducerSplit"/>
+    </bean>
+
+    <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer， 适配JMQ分离组件-->
+    <bean id="jmqProducerSpilt" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmqProducer">
+        <property name="uat" value="false"/>
+    </bean>
+
+    <!--dmsweb生产者配置，适配JMQ分离组件-->
+    <bean id="dmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="dmsWebProducer">
+        <property name="uat" value="false"/>
+    </bean>
+
+    <!--dmsWorker生产者配置，适配JMQ分离组件-->
+    <bean id="workerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="workerProducer">
+        <property name="uat" value="false"/>
+    </bean>
 
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>

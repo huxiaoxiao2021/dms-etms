@@ -935,6 +935,12 @@
             <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
+		<!--JMQ-Split组件  -->
+		<dependency>
+			<groupId>com.jd.jspliter</groupId>
+			<artifactId>jspliter-jmq</artifactId>
+			<version>1.0.2</version>
+		</dependency>
     </dependencies>
 
 	<build>
