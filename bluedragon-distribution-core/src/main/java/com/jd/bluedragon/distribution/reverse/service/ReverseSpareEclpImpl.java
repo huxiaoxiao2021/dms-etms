@@ -278,16 +278,20 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             if(itemInfo.getDeptRealOutQty() == null){
                                 //使用实际发货数量
                                 this.logger.info("仓配666");
-                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
+
                                 goodsInfoItem.setNum(itemInfo.getRealOutstoreQty());
+
                                 this.logger.info("仓配777");
-                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                             }else{
                                 //使用事业部实际发货的数量
                                 this.logger.info("仓配888");
-                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
+
                                 goodsInfoItem.setNum(itemInfo.getDeptRealOutQty());
-                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+
+                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                             }
                             list.add(goodsInfoItem);
                         }
