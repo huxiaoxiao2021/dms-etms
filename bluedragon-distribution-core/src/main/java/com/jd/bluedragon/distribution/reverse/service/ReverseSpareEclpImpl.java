@@ -12,10 +12,10 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDetail;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrderTypeEnum;
@@ -68,6 +68,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     @Autowired
     private SysConfigService sysConfigService;
+
+    @Autowired
+    private SendDatailDao sendDetailDao;
 
     @Override
     public BdInboundECLPDto makeEclpMessage(String waybillCode, SendDetail sendDetail) {
@@ -204,7 +207,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         wChoice.setQueryGoodList(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
         //获取已退包裹号
-
+        List<String> packageCodeList = sendDetailDao.queryPackageCode(sendDetail);
+        this.logger.info("已退包裹号有："+packageCodeList.size());
         if (baseEntity != null && baseEntity.getData() != null ) {
             if (baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getWaybillExt() != null &&
                     baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount() != null) {
@@ -264,9 +268,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     List<ItemInfo> itemInfos = eclpItemManager.getltemBySoNo(eclpBusiOrderCode);
                     if (itemInfos != null && itemInfos.size() > 0) {
                         //原事业部ID (仓配有纯配无)
-                        this.logger.info("仓配555");
                         inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
-                        this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                         //仓配商品信息
                         for(ItemInfo itemInfo : itemInfos){
                             if(StringUtils.isBlank(itemInfo.getGoodsNo())){
@@ -278,20 +280,15 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             if(itemInfo.getDeptRealOutQty() == null){
                                 //使用实际发货数量
                                 this.logger.info("仓配666");
-                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
 
-                                goodsInfoItem.setNum(itemInfo.getRealOutstoreQty());
+                                goodsInfoItem.setNum(itemInfo.getRealOutstoreQty()==null?0:itemInfo.getRealOutstoreQty());
 
                                 this.logger.info("仓配777");
-                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                             }else{
                                 //使用事业部实际发货的数量
                                 this.logger.info("仓配888");
-                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
 
-                                goodsInfoItem.setNum(itemInfo.getDeptRealOutQty());
-
-                                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
+                                goodsInfoItem.setNum(itemInfo.getDeptRealOutQty()==null?0:itemInfo.getDeptRealOutQty());
                             }
                             list.add(goodsInfoItem);
                         }
