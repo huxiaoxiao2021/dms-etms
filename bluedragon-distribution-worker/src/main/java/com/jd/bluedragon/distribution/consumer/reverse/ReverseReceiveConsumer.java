@@ -330,6 +330,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		//记录所有已退包裹号
 		StringBuilder sb = new StringBuilder();
 		for(Eclp2BdReceiveDetail detail : detailList){
+			if(detail.getQuantity() == 0){
+				continue;
+			}
 			batchNoList.add(detail.getBatchNo());
 		}
 		WChoice wChoice = new WChoice();

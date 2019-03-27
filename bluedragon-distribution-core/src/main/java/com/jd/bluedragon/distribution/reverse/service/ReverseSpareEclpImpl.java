@@ -235,7 +235,6 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         }else {
             this.logger.error("通过运单号" + waybillCode + "获取运单信息失败!");
         }
-        this.logger.info("仓配111");
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
         String eclpBusiOrderCode = null;
@@ -246,12 +245,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
             BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCodeV1);
             if (oldWaybill2 != null && oldWaybill2.getData() != null) {
                 oldWaybillCodeV2 = oldWaybill2.getData().getWaybillCode();
-                this.logger.info("仓配222");
                 LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV2);
                 String compensationMoney = null;
                 if (claimInfoRespDTO != null) {
                     //纯配仓配二次换单
-                    this.logger.info("仓配333");
                     compensationMoney = claimInfoRespDTO.getPaymentRealMoney()==null?null:claimInfoRespDTO.getPaymentRealMoney().toString();   //仓配运单理赔金额
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称
@@ -259,10 +256,8 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 } else {
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
                 }
-                this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                 if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
                     //仓配
-                    this.logger.info("仓配444");
                     inboundOrder.setSaleOrderNo(eclpBusiOrderCode);
                     inboundOrder.setCompensationMoney(compensationMoney);
                     inboundOrder.setSource(InboundSourceEnum.BD);
@@ -271,6 +266,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                         //原事业部ID (仓配有纯配无)
                         this.logger.info("仓配555");
                         inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
+                        this.logger.info("仓配:"+ JsonHelper.toJson(inboundOrder));
                         //仓配商品信息
                         for(ItemInfo itemInfo : itemInfos){
                             if(StringUtils.isBlank(itemInfo.getGoodsNo())){
@@ -281,10 +277,17 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             goodsInfoItem.setGoodsName(itemInfo.getGoodsName());
                             if(itemInfo.getDeptRealOutQty() == null){
                                 //使用实际发货数量
+                                this.logger.info("仓配666");
+                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                                 goodsInfoItem.setNum(itemInfo.getRealOutstoreQty());
+                                this.logger.info("仓配777");
+                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                             }else{
                                 //使用事业部实际发货的数量
+                                this.logger.info("仓配888");
+                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                                 goodsInfoItem.setNum(itemInfo.getDeptRealOutQty());
+                                inboundOrder.setOriginDeptId(itemInfos.get(0).getDeptId());
                             }
                             list.add(goodsInfoItem);
                         }
