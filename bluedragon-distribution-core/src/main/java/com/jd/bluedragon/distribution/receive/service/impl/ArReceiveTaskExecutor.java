@@ -124,7 +124,6 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 	 * 
 	 * @param cenConfirm
 	 */
-	@Override
 	protected void sendTrack(TaskContext<ArReceive> taskContext,CenConfirm cenConfirm) {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());

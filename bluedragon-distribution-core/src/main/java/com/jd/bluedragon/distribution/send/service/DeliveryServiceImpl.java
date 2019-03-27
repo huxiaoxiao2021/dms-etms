@@ -6,10 +6,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.DmsInterturnManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
@@ -289,6 +286,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private WaybillConsumableRecordService waybillConsumableRecordService;
+
+    @Autowired
+    private ColdChainQuarantineManager coldChainQuarantineManager;
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
@@ -1629,9 +1629,11 @@ public class DeliveryServiceImpl implements DeliveryService {
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDetail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
+                    SendM dSendM = this.getLastSendDate(sendMList);
                     SendDetail queryDetail = new SendDetail();
-                    queryDetail.setBoxCode(tSendM.getBoxCode());
-                    queryDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    queryDetail.setBoxCode(dSendM.getBoxCode());
+                    queryDetail.setCreateSiteCode(dSendM.getCreateSiteCode());
+                    queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
@@ -1779,7 +1781,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         status.setOperateTime(tSendM.getUpdateTime());
         status.setOperator(tSendM.getUpdaterUser());
         status.setOperatorId(tSendM.getUpdateUserCode());
-        status.setRemark("取消发货");
+        status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
 
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
@@ -1885,12 +1887,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         SendDetail mSendDetail = new SendDetail();
         mSendDetail.setBoxCode(tSendM.getBoxCode());
         mSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
-//        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+        mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
         mSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_Y);
         List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
         Collections.sort(tlist);
         //更新m表和d表
-        reverseDeliveryService.updateIsCancelByBox(tSendM, tlist);
+        reverseDeliveryService.updateIsCancelByBox(tSendM);
         //写入运单回传状态
         reverseDeliveryService.updateIsCancelToWaybillByBox(tSendM, tlist);
         return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
@@ -1943,30 +1945,17 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param tlist 发货相关数据
      */
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public boolean cancelSendDatailByBox(List<SendDetail> tlist) {
-        if (tlist != null && !tlist.isEmpty()) {
-            List<SendDetail>[] splitListResultAl = splitList(tlist);
-            for (List<SendDetail> splitListResult : splitListResultAl) {
-                List<String> packCodes = new ArrayList<String>();
-                SendDetail tSendDatail = new SendDetail();
-                tSendDatail.setBoxCode(splitListResult.get(0).getBoxCode());
-                tSendDatail.setReceiveSiteCode(splitListResult.get(0)
-                        .getReceiveSiteCode());
-                tSendDatail.setCreateSiteCode(splitListResult.get(0)
-                        .getCreateSiteCode());
-                for (SendDetail oneSendDetail : splitListResult) {
-                    packCodes.add(oneSendDetail.getPackageBarcode());
-                }
-                String packCodein = StringHelper.join(packCodes, ",", "(", ")",
-                        "'");
-                tSendDatail.setSendCode(packCodein);
-                try {
-                    sendDatailDao.cancelSendDatail(tSendDatail);
-                } catch (Exception e) {
-                    this.logger.error("取消发货cancelSendDatailByBox,参数"
-                            + JsonHelper.toJson(tSendDatail), e);
-                }
-            }
+    public boolean cancelSendDatailByBox(SendM sendM) {
+        SendDetail tSendDatail = new SendDetail();
+        tSendDatail.setBoxCode(sendM.getBoxCode());
+        tSendDatail.setCreateSiteCode(sendM.getCreateSiteCode());
+        tSendDatail.setReceiveSiteCode(sendM.getReceiveSiteCode());
+
+        try {
+            sendDatailDao.cancelSendDatail(tSendDatail);
+        } catch (Exception e) {
+            this.logger.error("取消发货cancelSendDatailByBox,参数"
+                    + JsonHelper.toJson(tSendDatail), e);
         }
         return true;
     }
@@ -2927,9 +2916,19 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     public DeliveryResponse checkRouterForKY(SendM sendM){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        //获取提示语
+        List<String> tipMessageList = new ArrayList<String>();
+        response.setTipMessages(tipMessageList);
+        if(isWaybillNeedAddQuarantine(sendM)){
+            tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
+        }
+
         //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
-            return new DeliveryResponse(DeliveryResponse.CODE_SEND_CODE_ERROR, DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
+            response.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
+            return response;
         }
 
         //2.校验箱号或者包裹是否已发货
@@ -2940,13 +2939,17 @@ public class DeliveryServiceImpl implements DeliveryService {
             response = checkCancelLastSend(sendM);
         }
 
+        response.setTipMessages(tipMessageList);
+
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
 
         //3.B网包装耗材服务确认拦截
         if (! this.checkWaybillConsumable(sendM)) {
-            return new DeliveryResponse(DeliveryResponse.CODE_29120, DeliveryResponse.MESSAGE_29120);
+            response.setCode(DeliveryResponse.CODE_29120);
+            response.setMessage(DeliveryResponse.MESSAGE_29120);
+            return response;
         }
 
         //4.快运称重及运费拦截
@@ -2955,7 +2958,9 @@ public class DeliveryServiceImpl implements DeliveryService {
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
         	logger.warn("快运发货运单重量及运费拦截："+interceptResult.getMessage());
-        	return new DeliveryResponse(DeliveryResponse.CODE_INTERCEPT_FOR_B2B, interceptResult.getMessage());
+            response.setCode(DeliveryResponse.CODE_INTERCEPT_FOR_B2B);
+            response.setMessage(interceptResult.getMessage());
+            return response;
         }
 
         //5.快运发货非城配运单发往车队，判断是否可以C转B
@@ -3008,6 +3013,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             logger.warn("B网路由拦截："+originalSiteCode+"->"+receiveSiteCode+"->"+destinationSiteCode+","+response.getMessage());
         }
+
         return response;
     }
 
@@ -5049,4 +5055,21 @@ public class DeliveryServiceImpl implements DeliveryService {
         return response;
     }
 
+
+    /**
+     * 快运发货判断是否需要提示录入检疫证票号
+     * @param sendM 发货数据
+     * @return
+     */
+    private Boolean isWaybillNeedAddQuarantine(SendM sendM) {
+        logger.info("查询是否需要录入检疫证票号...");
+        String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
+        Integer siteCode = sendM.getCreateSiteCode();
+
+        if (StringUtils.isBlank(waybillCode) || siteCode == null) {
+            return false;
+        }
+
+        return coldChainQuarantineManager.isWaybillNeedAddQuarantine(waybillCode,siteCode);
+    }
 }
