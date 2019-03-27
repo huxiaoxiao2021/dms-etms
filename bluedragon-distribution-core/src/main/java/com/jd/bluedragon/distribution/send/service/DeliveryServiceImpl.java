@@ -66,6 +66,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -288,6 +289,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
+
+    @Autowired
+    private WaybillService waybillService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -3781,11 +3785,25 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (null == box || null == box.getCreateSiteCode() || null == box.getReceiveSiteCode()) {
             return false;
         }
-        return (!domain.getCreateSiteCode().equals(box.getCreateSiteCode()))
-                || (domain.getCreateSiteCode().equals(box.getCreateSiteCode())
-                && !domain.getReceiveSiteCode().equals(box.getReceiveSiteCode())
-                && sendReceiveSiteType.equals("64")
-        );
+
+        if(!domain.getCreateSiteCode().equals(box.getCreateSiteCode())){
+            return true;
+        }else if(domain.getCreateSiteCode().equals(box.getCreateSiteCode())
+                && !domain.getReceiveSiteCode().equals(box.getReceiveSiteCode())){
+            if(sendReceiveSiteType.equals("64")){
+                return true;
+            }
+            //如果是移动仓内配单的需要单独处理，目的地是仓但是要正常走中转逻辑
+            //从箱中取出一单--调运单接口取waybillSign判断是否是移动仓内配单
+            List<String> waybillCodeList = getWaybillCodesByBoxCodeAndFetchNum(domain.getBoxCode(),1);
+            if(waybillCodeList != null && waybillCodeList.size() > 0){
+                String waybillCode= waybillCodeList.get(0);
+                if(waybillService.isMovingWareHouseInnerWaybill(waybillCode)){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     @Override

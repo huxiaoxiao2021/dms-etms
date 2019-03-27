@@ -165,7 +165,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 
 		//如果是移动仓内配单需要推送终端
-		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getPackageCode()))) {
+		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getOrderId()))) {
 			logger.info("wms回传移动仓内配单需要调终端接口操作妥投,reverseReceive:"+JSON.toJSONString(reverseReceive));
 			movingWareHoseInnerWaybillFinish(reverseReceive);
 		}
@@ -381,10 +381,13 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		SendM sendM = sendMDao.selectBySendCode(sendCode);
-		if (null != sendM) {
-			userCode = sendM.getCreateUserCode();
-			userName = sendM.getCreateUser();
+		if(sendM == null){
+			logger.error("移动仓内配单调终端接口操作妥投,根据批次号查sendM数据为空.sendCode:" + sendCode);
+			return ;
+
 		}
+		userCode = sendM.getCreateUserCode();
+		userName = sendM.getCreateUser();
 
 		OrderDeliverBody body = new OrderDeliverBody();
 		body.setWaybillCode(waybillCode);
