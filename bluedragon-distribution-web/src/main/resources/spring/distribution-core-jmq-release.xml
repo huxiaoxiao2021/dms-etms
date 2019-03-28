@@ -211,6 +211,11 @@
         <!--已修改主题-->
     </bean>
 
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
+    </bean>
+
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
     <bean id="reassignWaybillMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.reassign.waybill}"/>

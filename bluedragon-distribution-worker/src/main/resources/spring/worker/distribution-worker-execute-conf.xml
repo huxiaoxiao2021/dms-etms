@@ -28,13 +28,13 @@
 
 
 
-	<bean id="waybillStatusTask"
-		  class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
-		  init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource"/>
-		<property name="taskType" value="WaybillStatusTaskN"/>
-		<property name="managerFactory" ref="managerFactory"/>
-		<property name="ownSign" value="${ownSign}"/>
+	<!-- 离线 -->
+	<bean id="offlineCoreTask" class="com.jd.bluedragon.distribution.framework.BaseDBSingleScheduler"
+		  parent = "baseDBSingleScheduler">
+		<property name="taskType" value="OfflineCoreTask"/>
+		<property name="dmsTaskExecutor" ref="offlineCoreTaskExecutor"/>
+		<property name="type" value="1800"/>
+		<property name="desc" value="离线任务"/>
 	</bean>
 
 	<!--<bean id="qualityControlTask" class="com.jd.bluedragon.distribution.worker.QualityControl.QualityControlTask"
