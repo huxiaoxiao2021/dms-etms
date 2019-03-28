@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 
+import java.util.List;
+
 public class DeliveryResponse extends JdResponse {
     
     private static final long serialVersionUID = 6917841719620008189L;
@@ -91,11 +93,16 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
-
     /**
      * 快运-拦截标识
      */
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
+
+    /**
+     * 提示语
+     */
+    public static final String TIP_MESSAGE_NEED_ADD_QUARANTINE="此运单有检疫证，若更换票号请录入";
+
 
     /**
      * B网包装耗材服务确认标识，与Ver提示保持一致
@@ -104,11 +111,24 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    /**
+     * 单纯的提示语
+     */
+    private List<String> tipMessages;
+
     public DeliveryResponse() {
         super();
     }
     
     public DeliveryResponse(Integer code, String message) {
         super(code, message);
+    }
+
+    public List<String> getTipMessages() {
+        return tipMessages;
+    }
+
+    public void setTipMessages(List<String> tipMessages) {
+        this.tipMessages = tipMessages;
     }
 }
