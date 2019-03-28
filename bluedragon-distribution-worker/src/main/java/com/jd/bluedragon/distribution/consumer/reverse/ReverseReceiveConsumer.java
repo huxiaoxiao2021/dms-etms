@@ -305,17 +305,21 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, Integer type, WaybillStatus tWaybillStatus) {
 		//已收包裹
 		Set<String> packageCodeSetOfReceive = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),1);
-		for(String packageCode : packageCodeSetOfReceive){
-			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-			tWaybillStatus.setPackageCode(packageCode);
-			taskService.add(this.toTaskStatus(tWaybillStatus));
+		if(packageCodeSetOfReceive.size() > 0){
+			for(String packageCode : packageCodeSetOfReceive){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				tWaybillStatus.setPackageCode(packageCode);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}
 		}
 		//拒收包裹
 		Set<String> packageCodeSetOfReject = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),0);
-		for(String packageCode : packageCodeSetOfReject){
-			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
-			tWaybillStatus.setPackageCode(packageCode);
-			taskService.add(this.toTaskStatus(tWaybillStatus));
+		if(packageCodeSetOfReject.size() > 0){
+			for(String packageCode : packageCodeSetOfReject){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+				tWaybillStatus.setPackageCode(packageCode);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}
 		}
 	}
 
