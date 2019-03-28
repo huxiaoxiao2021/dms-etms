@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDetail;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.reverse.domain.BdInboundECLPDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -329,5 +331,54 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         } catch (Throwable ex) {
             return false;
         }
+    }
+
+    /**
+     * 判断纯配外单是否可逆向换单（理赔完成且物权归京东）
+     * @param result
+     */
+    public boolean checkIsPureMatch(String waybillCode,String waybillSign,InvokeResult<Boolean> result){
+
+        result.setData(true);
+        if(StringUtils.isBlank(waybillCode)){
+            return true;
+        }
+        try{
+            //根据单号获取原单 如果未获取到则认为就是原单
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if (oldWaybill1 != null && oldWaybill1.getData() != null ) {
+                waybillCode = oldWaybill1.getData().getWaybillCode();
+                waybillSign = oldWaybill1.getData().getWaybillSign();
+            }
+
+            if(StringUtils.isBlank(waybillSign)){
+                //外部未传入waybillSign 自己再去调用一次
+                BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
+                if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybill() != null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
+                    waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
+                }else {
+                    return true;
+                }
+            }
+
+            //纯配外单且理赔完成且物权归京东-退备件库
+            if(BusinessUtil.isPurematch(waybillSign)){
+                LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
+                if(claimInfoRespDTO != null){
+                    if(!LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc())){
+                        result.setData(false);
+                        result.setMessage("纯配外单未理赔完成，不能操作逆向换单!");
+                    }else if(!LocalClaimInfoRespDTO.GOOD_OWNER_JD.equals(claimInfoRespDTO.getGoodOwner())){
+                        result.setData(false);
+                        result.setMessage("纯配外单物权不属于京东，不能操作逆向换单!");
+                    }
+                }
+            }
+
+        }catch (Exception e){
+            logger.error("判断纯配外单是否可逆向换单（理赔完成且物权归京东）异常"+waybillCode+"|"+waybillSign,e);
+        }
+
+        return result.getData();
     }
 }

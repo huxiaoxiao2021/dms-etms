@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -46,6 +47,16 @@ import java.util.List;
 @Service("ldopManager")
 public class LDOPManagerImpl implements LDOPManager {
 
+    ////退货方式 0 - 按照商家配置 1 - 退库房 2 - 退寄件人 3 - 退备件库 4 - 物流损退备件库 5 - 退指定地址
+    public static final int RETURN_TYPE_0 = 0;
+    public static final int RETURN_TYPE_1 = 1;
+    public static final int RETURN_TYPE_2 = 2;
+    public static final int RETURN_TYPE_3 = 3;
+    public static final int RETURN_TYPE_4 = 4;
+    public static final int RETURN_TYPE_5 = 5;
+
+
+
     @Autowired
     private WaybillReverseApi waybillReverseApi;
 
@@ -57,6 +68,9 @@ public class LDOPManagerImpl implements LDOPManager {
 
     @Autowired
     private OrderInfoServiceJsf orderInfoServiceJsf ;
+
+    @Autowired
+    private ReverseSpareEclp reverseSpareEclp;
 
     /*用于记录操作日志*/
     @Autowired
@@ -148,7 +162,7 @@ public class LDOPManagerImpl implements LDOPManager {
         waybillReverseDTO.setOrgId(orgId);
         waybillReverseDTO.setSortCenterId(createSiteCode);
         waybillReverseDTO.setOperateTime(operateTime);
-        waybillReverseDTO.setReturnType(0);//默认
+        waybillReverseDTO.setReturnType(RETURN_TYPE_0);//默认
         if(!new Integer(0).equals(packageCount)){
             waybillReverseDTO.setPackageCount(packageCount);
         }
@@ -236,14 +250,17 @@ public class LDOPManagerImpl implements LDOPManager {
         waybillReverseDTO.setOrgId(exchangeWaybillDto.getOrgId());
         waybillReverseDTO.setSortCenterId(exchangeWaybillDto.getCreateSiteCode());
         waybillReverseDTO.setOperateTime(DateHelper.parseDateTime(exchangeWaybillDto.getOperateTime()));
-        waybillReverseDTO.setReturnType(0);//默认
+        waybillReverseDTO.setReturnType(RETURN_TYPE_0);//默认
         if(exchangeWaybillDto.getReturnType()!=null){
             waybillReverseDTO.setReturnType(exchangeWaybillDto.getReturnType());
         }
         if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
             waybillReverseDTO.setPackageCount(exchangeWaybillDto.getPackageCount());
         }
-
+        if(reverseSpareEclp.checkIsPureMatch(exchangeWaybillDto.getWaybillCode(),null,new InvokeResult<Boolean>())){
+            //是仓配  理赔状态满足  一定退备件库
+            waybillReverseDTO.setReturnType(RETURN_TYPE_4);
+        }
         //自定义地址
         if(StringUtils.isNotBlank(exchangeWaybillDto.getAddress())){
             WaybillAddress waybillAddress = new WaybillAddress();

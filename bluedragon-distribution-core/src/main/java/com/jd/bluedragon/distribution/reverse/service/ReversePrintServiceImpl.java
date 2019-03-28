@@ -115,6 +115,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private PopPrintService popPrintService;
+    @Autowired
+    private ReverseSpareEclp reverseSpareEclp;
 
     @Autowired
     @Qualifier("obcsManager")
@@ -439,7 +441,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         //2.2拒收运单，可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
-            CheckIsPureMatch(waybillDto.getWaybill(),result);
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
             return result;
         }
         //3.查询运单是否操作异常处理
@@ -449,32 +451,11 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             result.setData(false);
             result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
         }
-        CheckIsPureMatch(waybillDto.getWaybill(),result);
+        reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         return result;
     }
 
-    /**
-     * 判断纯配外单是否可逆向换单（理赔完成且物权归京东）
-     * @param waybill
-     * @param result
-     */
-    private void CheckIsPureMatch(com.jd.etms.waybill.domain.Waybill waybill,InvokeResult result){
-        String waybillCode = waybill.getWaybillCode();
-        String waybillSign = waybill.getWaybillSign();
-        //纯配外单且理赔完成且物权归京东-退备件库
-        if(BusinessUtil.isPurematch(waybillSign)){
-            LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
-            if(claimInfoRespDTO != null){
-                if(!LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc())){
-                    result.setData(false);
-                    result.setMessage("纯配外单未理赔完成，不能操作逆向换单!");
-                }else if(claimInfoRespDTO.getGoodOwner() != LocalClaimInfoRespDTO.GOOD_OWNER_JD){
-                    result.setData(false);
-                    result.setMessage("纯配外单物权不属于京东，不能操作逆向换单!");
-                }
-            }
-        }
-    }
+
 
     private String createMqBody(String orderId) {
         StringBuffer sb = new StringBuffer();
