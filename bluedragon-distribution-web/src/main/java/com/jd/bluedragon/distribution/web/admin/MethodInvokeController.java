@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,11 +29,13 @@ public class MethodInvokeController implements ApplicationContextAware{
     private ApplicationContext context;
     private static final String ENCP_KEY = PropertiesHelper.newInstance().getValue("encpKey");
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_METHOD_INVOKE_R)
     @RequestMapping(value = "/index",method = RequestMethod.GET)
     public String index() {
         return "/tools/online/method_invoke";
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_METHOD_INVOKE_R)
     @RequestMapping(value = "/method/list",method = RequestMethod.POST)
     @ResponseBody
     public Map<String,List<String>> getMethodList(String beanName) {
@@ -53,6 +57,7 @@ public class MethodInvokeController implements ApplicationContextAware{
         return paramTypes;
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_METHOD_INVOKE_R)
     @RequestMapping(value = "/method/invoke",method = RequestMethod.POST, produces="application/json;charset=UTF-8")
     @ResponseBody
     public String invokeMethod(String beanName, String beanMethod, String beanPara, String encpKey) {

@@ -62,6 +62,7 @@ public class SysconfigController {
                 .getValue(SysconfigController.MODIFY_USERS).split(Constants.SEPARATOR_COMMA));
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public String querySysconfig(SysConfig sysConfig, Pager<SysConfig> pager, Model model) {
         logger.debug("基础设置查询");
@@ -109,6 +110,7 @@ public class SysconfigController {
         return "sysconfig/sysconfig_list";
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/getSwitchList", method = RequestMethod.GET)
     public String getSwitchList(Model model) {
         List<SysConfig> dataList = this.sysConfigService.getSwitchList();
@@ -121,6 +123,7 @@ public class SysconfigController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/syncRedis", method = RequestMethod.GET)
     public String syncRedis(Model model, Long id) {
         SysConfig sysConfig = this.baseService.getSysConfig(id);
@@ -128,6 +131,7 @@ public class SysconfigController {
         return getSwitchList(model);
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/open", method = RequestMethod.GET)
     public String open(Model model, Long id) {
         SysConfig sysConfig = new SysConfig();
@@ -141,6 +145,7 @@ public class SysconfigController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/close", method = RequestMethod.GET)
     public String close(Model model, Long id) {
         SysConfig sysConfig = new SysConfig();
@@ -154,17 +159,20 @@ public class SysconfigController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/toAdd")
     public String toAdd() {
         return "sysconfig/add";
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/addSwitch")
     public String addSwitch(SysConfig sysConfig, Model model) {
         baseService.insertSysConfig(sysConfig);
         return getSwitchList(model);
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public String add(SysConfig sysConfig, Pager pager, Model model) {
         try {
@@ -176,6 +184,7 @@ public class SysconfigController {
         return querySysconfig(null, null, model);
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/findConfigContentByConfigName/{configName}", method = RequestMethod.GET)
     @ResponseBody
     public SysConfigContentResponse findConfigContentByConfigName(@PathVariable String configName) {
@@ -194,13 +203,14 @@ public class SysconfigController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/goAddPage", method = RequestMethod.GET)
     public String goAddPage() {
         logger.debug("跳转到增加规则页面");
         return "sysconfig/sysconfig_add";
     }
 
-
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/edit", method = RequestMethod.GET)
     public String edit(SysConfig sysConfig, Pager pager, Model model) {
         SysConfig sysconfig = baseService.getSysConfig(sysConfig.getConfigId());
@@ -210,6 +220,7 @@ public class SysconfigController {
         return "sysconfig/sysconfig_edit";
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     public String update(SysConfig sysConfig, Pager pager, Model model) {
         try {

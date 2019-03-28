@@ -581,6 +581,23 @@ public class Constants {
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
+
+    /********************************************* 研发UIM权限资源码相关start ***********************************************/
+    public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
+    public static final String DMS_WEB_DEVELOP_TASK_R ="DMS_WEB_DEVELOP_TASK_R"; //分拣任务监控
+    public static final String DMS_WEB_DEVELOP_DBTASK_R ="DMS_WEB_DEVELOP_DBTASK_R"; //分拣数据库任务查询
+    public static final String DMS_WEB_DEVELOP_METHOD_INVOKE_R ="DMS_WEB_DEVELOP_METHOD_INVOKE_R"; //线上方法验证
+    public static final String DMS_WEB_DEVELOP_SQLKIT_R ="DMS_WEB_DEVELOP_SQLKIT_R"; //分拣SQLKit
+    public static final String DMS_WEB_DEVELOP_SYSCONFIG_R ="DMS_WEB_DEVELOP_SYSCONFIG_R"; //分拣规则管理
+    public static final String DMS_WEB_DEVELOP_TOOLS_SUMMARY_R ="DMS_WEB_DEVELOP_TOOLS_SUMMARY_R"; //分拣工具管理
+    public static final String DMS_WEB_DEVELOP_SYSTEMLOG_R ="DMS_WEB_DEVELOP_SYSTEMLOG_R"; //分拣操作日志
+    public static final String DMS_WEB_DEVELOP_MEMORY_CACHE_R ="DMS_WEB_DEVELOP_MEMORY_CACHE_R"; //分拣内存缓存查询
+    public static final String DMS_WEB_DEVELOP_WORKER_SETTING_R ="DMS_WEB_DEVELOP_WORKER_SETTING_R"; //分拣任务配置
+    public static final String DMS_WEB_DEVELOP_OPERATE_R ="DMS_WEB_DEVELOP_OPERATE_R"; //分拣实操查询
+    public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
+
+    /********************************************* 研发UIM权限资源码相关end ***********************************************/
+
     /********************************************* UIM权限资源码相关end ***********************************************/
 
     /******************************************** 封车类型相关start *****************************************/
