@@ -103,7 +103,7 @@
 
     <!-- 运单系统接口 开始 -->
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="5000" serialization="hessian" retries="${jsf.retries}" check="false">
     </jsf:consumer>
 
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
@@ -382,5 +382,16 @@
     <!-- 物资系统-根据运单号获取青流箱明细 jiangbing17-->
     <jsf:consumer id="cycleBoxExternalService" interface="com.jd.ham.cb.service.CycleBoxExternalService"
                   protocol="jsf" alias="${jsf.waybill.ham.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 分拣中心 dms-business系统-判断运单在当前操作单位是否需要录入检疫证票号-->
+    <jsf:consumer id="coldChainQuarantineJsfService" interface="com.jd.bluedragon.sdk.modules.quarantine.ColdChainQuarantineJsfService"
+                  alias="${jsf.dms.business.alias}" timeout="1000" retries="${jsf.retries}">
+
+    </jsf:consumer>
+
+    <!-- 终端系统-移动仓内配调妥投接口 -->
+    <jsf:consumer id="workTaskService" interface="com.jd.ql.erp.jsf.WorkTaskService"
+                  protocol="jsf" alias="${jsf.workTask.alias}" timeout="5000" check="false" retries="0">
     </jsf:consumer>
 </beans>

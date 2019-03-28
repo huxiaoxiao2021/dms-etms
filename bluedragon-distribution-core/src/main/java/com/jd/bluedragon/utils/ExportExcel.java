@@ -62,12 +62,25 @@ public class ExportExcel {
         	}
         	workbook.write(response.getOutputStream());
     	}else if(type.contains(EXPORT_TYPE_CSV)){
-    		CsvExportUtil.setResponseParam(response, fileName);
-    		  File  tmpFile = File.createTempFile("so-export-template", ".csv");
-    		  CsvExportUtil.createCSVFile(tmpFile, properties,titles, list);
-    		  FileInputStream fis = new FileInputStream(tmpFile);
-              CsvExportUtil.writeResponse(fis, response.getOutputStream());
-    	}else{ //
+            FileInputStream fis = null;
+            try{
+                CsvExportUtil.setResponseParam(response, fileName);
+                File  tmpFile = File.createTempFile("so-export-template", ".csv");
+                CsvExportUtil.createCSVFile(tmpFile, properties,titles, list);
+                fis = new FileInputStream(tmpFile);
+                CsvExportUtil.writeResponse(fis, response.getOutputStream());
+            }catch (Exception e){
+                log.error("导出CSV文件失败：" + e.getMessage(), e);
+            }finally {
+                try{
+                    if(fis != null){
+                        fis.close();
+                    }
+                }catch (Exception e1){
+                    log.error("生成CSV时输入流关闭失败:" + e1.getMessage(), e1);
+                }
+            }
+        }else{ //
     		//excel导出
     		setResponseParam(response, fileName);
     		HSSFWorkbook workbook = null;

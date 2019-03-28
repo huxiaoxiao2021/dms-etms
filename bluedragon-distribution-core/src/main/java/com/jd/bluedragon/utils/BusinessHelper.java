@@ -224,7 +224,7 @@ public class BusinessHelper {
     }
 
     /**
-     * 运单为非城配类型，sendpay 第146位不等于1，表示为自营非城配 || waybill_sign 第36位不等于1，表示为外单非城配
+     * 运单为城配类型，sendpay 第146位等于1，表示为自营城配 || waybill_sign 第36位等于1，表示为外单城配
      * @param waybillSign
      * @param sendPay
      * @return
@@ -232,12 +232,12 @@ public class BusinessHelper {
     public static boolean isDmsToVendor(String waybillSign,String sendPay) {
         boolean waybillSignFlag = false;
         boolean sendPayFlag = false;
-        //waybill_sign 第36位不等于1，表示为外单非城配,waybillSignFlag置为true
-        if(StringHelper.isNotEmpty(waybillSign) && !BusinessUtil.isSignChar(waybillSign, 36, '1')){
+        //waybill_sign 第36位等于1，表示为外单城配,waybillSignFlag置为true
+        if(StringHelper.isNotEmpty(waybillSign) && BusinessUtil.isSignChar(waybillSign, 36, '1')){
             waybillSignFlag = true;
         }
-        //sendPay 第146位不等于1，表示为自营非城配
-        if(StringHelper.isNotEmpty(sendPay) && !BusinessUtil.isSignChar(sendPay, 146, '1')){
+        //sendPay 第146位等于1，表示为自营城配
+        if(StringHelper.isNotEmpty(sendPay) && BusinessUtil.isSignChar(sendPay, 146, '1')){
             sendPayFlag = true;
         }
         return waybillSignFlag || sendPayFlag;
@@ -382,18 +382,26 @@ public class BusinessHelper {
     }
 
     /**
-     * traderSign的第29位：【1. 京配超区不转3PL】 或 【2. 京配超区只允许转指定3PL】
+     * traderSign的第29位：【1. 京配超区不转3PL】
      * 不允许转三方配送
      *
      * @param traderSign
      * @return
      */
     public static boolean canThreePLSchedule(String traderSign) {
-        if (StringUtils.isNotEmpty(traderSign) &&
-                (BusinessUtil.isSignChar(traderSign, 29, '1') || BusinessUtil.isSignChar(traderSign, 29, '2'))) {
+        if (StringUtils.isNotEmpty(traderSign) && (BusinessUtil.isSignChar(traderSign, 29, '1'))) {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
+    }
+
+    /**
+     * 根据waybillSign判断是否签单返还运单
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSignatureReturnWaybill(String waybillSign){
+        return BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9');
     }
 
     /**
@@ -461,6 +469,38 @@ public class BusinessHelper {
             return false;
         }
         return siteType.equals(new Integer(6420));
+    }
+
+    /**
+     * 是否为逆向回仓
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isReverseToStore(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        if (BusinessUtil.isSignChar(waybillSign, 88, '1')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static final String WMS_SITE_TYPE = PropertiesHelper.newInstance().getValue("wms_type");
+
+    /**
+     * 判断站点类型是否为仓
+     *
+     * @param siteType
+     * @return
+     */
+    public static boolean isWms(Integer siteType) {
+        if (siteType == null) {
+            return false;
+        }
+        return siteType.equals(new Integer(WMS_SITE_TYPE));
     }
 
 }

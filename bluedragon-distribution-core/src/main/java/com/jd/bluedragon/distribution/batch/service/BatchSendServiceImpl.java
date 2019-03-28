@@ -109,7 +109,7 @@ public class BatchSendServiceImpl implements BatchSendService {
         }
         BatchSend batchSend=this.readFromCache(batchInfo.getBatchCode(),siteCode);
         if(null==batchSend){
-            synchronized (this.getClass()){
+            synchronized (BatchSendServiceImpl.class){
                 batchSend=this.readFromCache(batchInfo.getBatchCode(),siteCode);
                 if(null==batchSend){
                     this.generate(batchInfo,siteCode);

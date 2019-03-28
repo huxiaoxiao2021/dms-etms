@@ -22,6 +22,36 @@ public class PackWeightVO extends WaybillWeightVO{
 
     private Double high;
 
+    private String erpCode;
+
+    private Integer organizationCode;
+
+    private String organizationName;
+
+    public String getErpCode() {
+        return erpCode;
+    }
+
+    public void setErpCode(String erpCode) {
+        this.erpCode = erpCode;
+    }
+
+    public Integer getOrganizationCode() {
+        return organizationCode;
+    }
+
+    public void setOrganizationCode(Integer organizationCode) {
+        this.organizationCode = organizationCode;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
+
     public Double getLength() {
         return length;
     }

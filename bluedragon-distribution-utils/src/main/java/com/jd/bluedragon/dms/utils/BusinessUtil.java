@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
@@ -500,7 +501,14 @@ public class BusinessUtil {
     public static Boolean isTwiceExchageWaybillSpare(String waybillSign) {
         return isSignChar(waybillSign, 18, '5');
     }
-
+    /**
+     * 判断是否是外单京准达,waybill_sign  第31位等于6
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isSopJZD(String waybillSign) {
+        return isSignChar(waybillSign,31,'6');
+    }
 
     /**
      * 是否为三方-合作站点
@@ -574,4 +582,23 @@ public class BusinessUtil {
         }
         return Boolean.FALSE;
     }
+
+    /**
+     * 支持半退标
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isPartReverse(String waybillSign){
+        return isSignChar(waybillSign, 27, '5');
+    }
+
+    /**
+     * 判断是否是移动仓内配单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMovingWareHouseInnerWaybill(String waybillSign){
+        return isSignChar(waybillSign,14,'5');
+    }
+
 }

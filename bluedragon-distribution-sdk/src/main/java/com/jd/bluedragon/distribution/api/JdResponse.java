@@ -55,6 +55,15 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SITE_OFFLINE_ERROR = 20006;
     public static final String MESSAGE_SITE_OFFLINE_ERROR = "不能预分拣到已经线下运营的站点!";
 
+    public static final Integer CODE_STORE_BLACKLIST_ERROR = 20007;
+    public static final String MESSAGE_STORE_BLACKLIST_ERROR = "此运单禁止更改逆向目的仓，必须按照出库原仓退回!";
+
+    public static final Integer CODE_SITE_BLACKLIST_ERROR = 20008;
+    public static final String MESSAGE_SITE_BLACKLIST_ERROR = "此运单必须按照出库原仓退回，请先操作逆向换单打印!";
+
+    public static final Integer CODE_SITE_SIGNRE_ERROR = 20009;
+    public static final String MESSAGE_SITE_SIGNRE_ERROR = "此运单要求签单返回，只能分配至自营站点!";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

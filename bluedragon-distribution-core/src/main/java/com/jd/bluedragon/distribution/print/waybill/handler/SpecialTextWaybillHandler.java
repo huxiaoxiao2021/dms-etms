@@ -80,18 +80,21 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         //EMS全国直发
         if(PREPARE_SITE_CODE_EMS_DIRECT.equals(prepareSiteCode)){
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
+        	printInfo.setPrintSiteName(PREPARE_SITE_NAME_EMS_DIRECT);
         } else if(printInfo.getPrepareSiteCode()==null
                 || (printInfo.getPrepareSiteCode()<=PREPARE_SITE_CODE_NOTHING
                     && printInfo.getPrepareSiteCode() > PREPARE_SITE_CODE_OVER_LINE)){
         	// 空或者-100~0  超区
         	printInfo.setPrepareSiteCode(PREPARE_SITE_CODE_NOTHING);
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_NOTHING);
+        	printInfo.setPrintSiteName(PREPARE_SITE_NAME_NOTHING);
             logger.warn(" 没有获取预分拣站点(未定位门店),"+printInfo.getWaybillCode());
             // -2或者<-100 超区
         }else if(PREPARE_SITE_CODE_OVER_AREA.equals(printInfo.getPrepareSiteCode())
                 || printInfo.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE.intValue()){
         	printInfo.setPrepareSiteCode(printInfo.getPrepareSiteCode());
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
+        	printInfo.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
             logger.warn(" 没有获取预分拣站点(细分超区)," + printInfo.getPrepareSiteCode() + ","+printInfo.getWaybillCode());
         }
         //设置预分拣站点名称
@@ -99,6 +102,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
             BaseStaffSiteOrgDto site= baseService.getSiteBySiteID(prepareSiteCode);
             if(null!=site){
                 printInfo.setPrepareSiteName(site.getSiteName());
+                printInfo.setPrintSiteName(site.getSiteName());
             }
         }
 
@@ -106,6 +110,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
         if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo.getBackupSiteId() != null && printInfo.getBackupSiteId() > 0){
             printInfo.setPrepareSiteCode(printInfo.getBackupSiteId());
             printInfo.setPrepareSiteName(printInfo.getBackupSiteName());
+            printInfo.setPrintSiteName(printInfo.getBackupSiteName());
         }
 
         /** 调用外单接口获取始发站点、目的站点和路由信息 **/
@@ -121,12 +126,16 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                 printInfo.setOriginalDmsName("");
                 printInfo.setOriginalCrossCode("");
                 printInfo.setOriginalTabletrolley("");
+                printInfo.setOriginalTabletrolleyCode("");
 
                 //设置目的站点及目的路由，并将笼车号设为空字符串
                 printInfo.setPurposefulDmsCode(null);
                 printInfo.setPurposefulDmsName("");
+                printInfo.setDestinationDmsName("");
                 printInfo.setPurposefulCrossCode("");
+                printInfo.setDestinationCrossCode("");
                 printInfo.setPurposefulTableTrolley("");
+                printInfo.setDestinationTabletrolleyCode("");
 
 //                设置模板
                 printInfo.setTemplateName("dms-vonebody-s1");
@@ -143,7 +152,9 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                     //设置目的站点及目的路由，并将笼车号设为空字符串
                     printInfo.setPurposefulDmsCode(print.getEndCenterSiteId());
                     printInfo.setPurposefulDmsName(print.getEndCenterSiteName());
+                    printInfo.setDestinationDmsName(print.getEndCenterSiteName());
                     printInfo.setPurposefulCrossCode(print.getEndCenterSiteRouteCode());
+                    printInfo.setDestinationCrossCode(print.getEndCenterSiteRouteCode());
                 }
             }
         }

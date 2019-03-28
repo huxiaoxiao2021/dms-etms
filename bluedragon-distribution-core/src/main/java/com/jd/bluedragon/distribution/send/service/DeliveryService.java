@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.api.request.DifferentialQueryRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -184,8 +185,11 @@ public interface DeliveryService {
 	/** 快运发货不全验证 */
 	public ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
 
+	/**快运发货差异查询*/
+	public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList,Integer queryType);
+
     /** 快运发货路由信息验证 */
-    public DeliveryResponse checkRouterForKY(SendM sendm);
+    public DeliveryResponse checkRouterForKY(SendM sendm, Integer flag);
 
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
@@ -246,7 +250,7 @@ public interface DeliveryService {
 	 * 取消发货d表批量
 	 * @return
 	 */
-	public boolean cancelSendDatailByBox(List<SendDetail> tlist);
+	public boolean cancelSendDatailByBox(SendM tSendM);
 	/**
 	 * 取消发货d表包裹
 	 * @return
@@ -364,4 +368,18 @@ public interface DeliveryService {
 	 * @return
 	 */
 	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
+
+	/**
+	 * 执行取消上次发货逻辑
+	 *
+	 * @param domain
+	 */
+	public ThreeDeliveryResponse cancelLastSend(SendM domain);
+
+	/**
+	 * 根据箱号查询箱号的运单号
+	 * @param boxCode
+	 * @return
+	 */
+	List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum);
 }

@@ -399,7 +399,7 @@ public class Constants {
     public static final String PDA_USER_GETINFO_FAILUE_MSG = "获取基础资料数据失败"; //获取基础资料数据失败
     public static final String PDA_USER_JSF_FAILUE_MSG = "调取基础账号账号信息失败"; //获取基础账号JSF数据失败
     public static final String PDA_USER_NO_EXIT_MSG = "用户不存在"; //用户不存在
-    public static final String PDA_USER_PASSWORD_WRONG_MSG = "密码错误"; //密码错误
+    public static final String PDA_USER_PASS_WORD_WRONG_MSG = "密码错误"; //密码错误
     public static final String PDA_USER_LOCKED_MSG = "密码错误超过十次pin被锁"; //密码错误超过十次pin被锁
     public static final String PDA_USER_BUSY_MSG = "系统繁忙"; //系统繁忙
     public static final String PDA_USER_NO_VERIFY_MSG = "账号尚未审核通过"; //账号尚未审核通过
@@ -645,7 +645,14 @@ public class Constants {
      * 字典名称-SendPay打标配置标识
      */
     public static final String DIC_NAME_SEND_PAY_CONFIG = "SendPay";
-
+    /**
+     * 字典名称-包裹标签打印字典配置标识
+     */
+    public static final String DIC_NAME_PACKAGE_PRINT_DIC_CONFIG = "PackagePrintDic";  
+    /**
+     * 字典名称-包裹标签打印字典-Product
+     */
+    public static final Integer DIC_CODE_PACKAGE_PRINT_PRODUCT = 1010201;
     /**
      * 发货明细MQ source类型  ar代表空铁  dms默认正常
      */
@@ -700,11 +707,6 @@ public class Constants {
      * 龙门架校验调整天数
      */
     public static final Integer GANTRY_CHECK_DAYS= -30;
-
-    /**
-     * 调用运单的分页接口一次获取的包裹数量
-     */
-    public static final Integer PACKAGE_NUM_ONCE_QUERY = 5000;
 
     /**
      * 原包发货推迟时间5秒
@@ -779,5 +781,30 @@ public class Constants {
     /**
      * 全程跟踪状态  揽收完成
      */
-    public static final String WAYBILLTRACE_STATE ="-640";
+    public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
+
+    /**
+     * 全程跟踪状态  便民店、自寄柜揽收交接成功
+     */
+    public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
+
+    /**
+     * 运单状态  拒收
+     */
+    public static final String WAYBILL_TRACE_STATE_REJECTED = "160";
+
+    /**
+     * 运单状态  妥投
+     */
+    public static final String WAYBILLTRACE_FINISHED = "150";
+
+    /** 系统编码 **/
+    public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
+    /** 快运发货路由校验旧接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_OLD = 0;
+
+    /** 快运发货路由校验新接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
+
 }

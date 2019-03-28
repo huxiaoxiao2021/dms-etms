@@ -211,26 +211,44 @@
 		</dependency>
 		<!--京东安全禁止jsp直接访问-结束-->
 	</dependencies>
-	
+	<profiles>
+		<!--测试环境  -->
+		<profile>
+			<id>test</id>
+			<properties>
+				<profiles.env>test</profiles.env>
+			</properties>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+		</profile>
+		<!--正式环境  -->
+		<profile>
+			<id>release</id>
+			<properties>
+				<profiles.env>release</profiles.env>
+			</properties>
+		</profile>
+		<!--uat环境  -->
+		<profile>
+			<id>uat</id>
+			<properties>
+				<profiles.env>uat</profiles.env>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<finalName>bluedragon-distribution-worker</finalName>
+		<resources>
+			<!-- maven占位符替换 -->
+			<resource>
+				<directory>src/main/resources</directory>
+				<!-- 表示资源文件中的占位符是否需要被替换，true为需要替换 -->
+				<filtering>true</filtering>
+			</resource>
+		</resources>
 	    <plugins>
-	      <plugin>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.codehaus.plexus</groupId>
-                        <artifactId>plexus-compiler-javac</artifactId>
-                        <version>1.8</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
 			<plugin>
 		        <groupId>org.apache.maven.plugins</groupId>
 		        <artifactId>maven-surefire-plugin</artifactId>

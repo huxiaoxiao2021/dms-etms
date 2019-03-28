@@ -56,9 +56,14 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     @Override
     public Boolean sendDtc(SortSchemeRequest request,String url,Integer siteCode) {
         boolean bool = false;
-        if (!"625130".equals(siteCode)){
+        if (!Integer.valueOf(625130).equals(siteCode)){
             logger.error("非北京亚一的分拣中心不能进行分拣计划同步" + siteCode);
             return true;
+        }
+        BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        if(bDto == null){
+            logger.warn("分拣计划同步失败，站点不存在：" + siteCode);
+            return false;
         }
         SortSchemeResponse<SortScheme> sortScheme = sortSchemeService.findById2(request,url + sortSchemeUrl);//获取激活的方案的主表
         SortSchemeDetailRequest sortSchemeDetailRequest = new SortSchemeDetailRequest();
@@ -66,13 +71,6 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
         SortSchemeDetailResponse<java.util.List<SortSchemeDetail>> sortSchemeDetail = sortSchemeDetailService.findBySchemeId2(sortSchemeDetailRequest,url + sortSchemeDetailUrl);//获取激活的方案的明细表
         SortScheme sortSchemeData = sortScheme.getData();//分拣方案主表数据
         List<SortSchemeDetail> sortSchemeDetailDatas = sortSchemeDetail.getData();//分拣方案明细表数据
-
-        BaseStaffSiteOrgDto bDto = null;
-        try {
-            bDto = this.baseMajorManager.getBaseSiteBySiteId(siteCode);
-        } catch (Exception e) {
-            logger.error("获取分拣中心信息失败，ID为" + siteCode);
-        }
 
         /** 发送MQ到DTC系统 **/
         List<String> jsonMQs = new ArrayList<String>();
@@ -100,13 +98,11 @@ public class SortSchemeSyncServiceImpl implements SortSchemeSyncService{
     @Override
     public boolean sync(String url,String siteCode) {
         boolean bool = false;
-        BaseStaffSiteOrgDto bDto = null;
-        try{
-            bDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(siteCode));
-        }catch (Exception e){
-            logger.error("获取站点的基础资料信息失败："+ siteCode);
+        BaseStaffSiteOrgDto bDto = baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(siteCode));
+        if(bDto == null){
+            logger.warn("分拣计划同步失败，站点不存在：" + siteCode);
+            return false;
         }
-
         //通过siteCode得到分拣中心本地的激活的分拣方案
         SortSchemeRequest request =  new SortSchemeRequest();
         request.setSiteNo(siteCode);

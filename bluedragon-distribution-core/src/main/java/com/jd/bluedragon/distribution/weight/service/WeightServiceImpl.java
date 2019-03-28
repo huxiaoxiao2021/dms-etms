@@ -109,7 +109,7 @@ public class WeightServiceImpl implements WeightService {
 
             if (map != null && map.containsKey("code") && WeightResponse.WEIGHT_TRACK_OK == Integer.parseInt(map.get("code").toString())) {
                 this.logger.info("向运单系统回传包裹称重信息：\n" + taskBody);
-                this.logger.info("向运单系统回传包裹称重信息成功：" + (null != map ? JsonHelper.toJson(map) : " result null"));
+                this.logger.info("向运单系统回传包裹称重信息成功：" + JsonHelper.toJson(map));
                 return true;
             } else {
                 this.logger.info("向运单系统回传包裹称重信息：\n" + taskBody);

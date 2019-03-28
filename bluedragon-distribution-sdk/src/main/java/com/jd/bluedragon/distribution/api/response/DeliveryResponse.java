@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.api.response;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 
+import java.util.List;
+
 public class DeliveryResponse extends JdResponse {
     
     private static final long serialVersionUID = 6917841719620008189L;
@@ -24,10 +26,13 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CITY_BILL_CHECK = 39002;
     public static final String MESSAGE_CITY_BILL_CHECK = "，是否强制发货？";
 
+    public static final Integer CODE_CONFIRM_CANCEL_LAST_SEND = 39003;
+    public static final String MESSAGE_CONFIRM_CANCEL_LAST_SEND = "该箱号/包裹已发货，是否取消上次发货并操作本次发货？";
+
     public static final Integer CODE_Delivery_NO_MESAGE = 40003;
     public static final String MESSAGE_Delivery_NO_MESAGE = "无该箱号发货的记录";
     public static final String MESSAGE_Delivery_IS_MESAGE = "发货处理中请稍后再试";
-    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的记录";
+    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的发货记录";
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
     
@@ -65,7 +70,13 @@ public class DeliveryResponse extends JdResponse {
     
     public static final Integer CODE_Delivery_THREE_SORTING = 30003;
     public static final String MESSAGE_Delivery_THREE_SORTING = "有不全运单，请处理后再发货";
-    
+
+    public static final Integer CODE_Delivery_PART_SEND = 31001;
+    public static final String MESSAGE_Delivery_PART_SEND = "该批次号对应运单均为半退至仓，确认发货";
+
+    public static final Integer CODE_Delivery_PART_SEND_ERROR = 31002;
+    public static final String MESSAGE_Delivery_PART_SEND_ERROR  = "有不全运单，请处理后再发货";
+
     public static final Integer CODE_Delivery_LACK_ORDER = 30004;
     public static final String MESSAGE_Delivery_LACK_ORDER = "该箱有跨箱订单，不能取消发货";
     
@@ -85,11 +96,16 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_ROUTER_MISS_ERROR = "未查询到包裹/箱号配置的路由信息，是否继续操作？";
     public static final String MESSAGE_ROUTER_SITE_ERROR = "无法获取此包裹对应路由的末级分拣中心，是否继续操作？";
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
-
     /**
      * 快运-拦截标识
      */
     public static final Integer CODE_INTERCEPT_FOR_B2B = 40007;
+
+    /**
+     * 提示语
+     */
+    public static final String TIP_MESSAGE_NEED_ADD_QUARANTINE="此运单有检疫证，若更换票号请录入";
+
 
     /**
      * B网包装耗材服务确认标识，与Ver提示保持一致
@@ -98,11 +114,34 @@ public class DeliveryResponse extends JdResponse {
 
     public static final String MESSAGE_29120 = "请先在电脑上确认此运单包装服务是否完成!";
 
+    /**
+     * 单纯的提示语
+     */
+    private List<String> tipMessages;
+
+    private Integer waybillType;
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
     public DeliveryResponse() {
         super();
     }
     
     public DeliveryResponse(Integer code, String message) {
         super(code, message);
+    }
+
+    public List<String> getTipMessages() {
+        return tipMessages;
+    }
+
+    public void setTipMessages(List<String> tipMessages) {
+        this.tipMessages = tipMessages;
     }
 }

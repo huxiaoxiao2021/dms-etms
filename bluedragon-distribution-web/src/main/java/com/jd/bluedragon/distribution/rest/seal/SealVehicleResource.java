@@ -112,8 +112,8 @@ public class SealVehicleResource {
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())
 					|| StringUtils.isBlank(request.getSendCode())) {
-				this.logger.error("SealVehicleResource add --> 传入参数非法");
-				sealVehicleResponse =  new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+				logger.error("SealVehicleResource add --> 传入参数非法");
+				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
 			this.logger.info("SealVehicleResource add --> sealCode is ["
 					+ request.getSealCode() + "] vehicleCode is["
@@ -207,7 +207,7 @@ public class SealVehicleResource {
 					|| request.getUserCode() == null
 					|| StringUtils.isBlank(request.getUserName())) {
 				this.logger.error("SealVehicleResource add --> 传入参数非法");
-				sealVehicleResponse =  new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+				return new SealVehicleResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 			}
 			this.logger.info("SealVehicleResource add --> sealCode is ["
 					+ request.getSealCodes() + "] vehicleCode is["

@@ -112,6 +112,13 @@
         <button id="btn_query" type="button" class="btn btn-default">
         	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
         </button>
+        <button id="btn_send_status" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>&nbsp;同步发货状态
+        </button>
+        <button id="btn_query_waybill" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询履约单下运单
+        </button>
+
         #*<button id="btn_force_send" type="button" class="btn btn-default">
             <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;强制发货
         </button>*#
@@ -151,6 +158,78 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" id="sendStatusModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">同步运单可发货状态</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="sendStatusModalWaybillCode">运单号</label>
+                        <input type="text" class="form-control" id="sendStatusModalWaybillCode" >
+                    </div>
+
+                    <button id="sendStatusModalBtn" class="btn btn-default">同步</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<div class="modal fade" id="queryWaybillModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">查询履约单下所有运单</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-inline">
+                    <div class="form-group">
+                        <label for="queryWaybillModalWaybillCode">运单号</label>
+                        <input type="text" class="form-control" id="queryWaybillModalWaybillCode" >
+                    </div>
+                    #*<div class="form-group">
+                        <label for="queryWaybillModalWaybillCode">履约单</label>
+                        <input type="text" class="form-control" id="queryWaybillModalParentOrderId" >
+                    </div>*#
+                    <button id="queryWaybillModalBtn" class="btn btn-default">查询</button>
+                </form>
+                <div class="row" style="margin-top: 10px">
+                    <div class="col-xs-10 col-xs-offset-1">
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>履约单号</th>
+                                <th>运单号</th>
+                            </tr>
+                            </thead>
+                            <tbody id = "queryWaybillModalTbody">
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+
             </div>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->

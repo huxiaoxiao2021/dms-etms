@@ -96,10 +96,15 @@ public class PackageResource {
         }
 
         //2.所有补打的包裹,发送全程跟踪,用于在青龙全程跟踪显示
-        redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
-        taskService.add(this.toPackReprintTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
-        jdResponse.setCode(JdResponse.CODE_OK);
-        logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+        if(bDto != null){
+            redisManager.setex(RE_PRINT_PREFIX+barCode, 3600, barCode);//1小时
+            taskService.add(this.toPackReprintTask(barCode, bDto.getSiteCode(), bDto.getSiteName(), operatorId, operateName));
+            jdResponse.setCode(JdResponse.CODE_OK);
+            logger.info("触发包裹补打的全程跟踪成功,"+"包裹号"+barCode+",操作人"+operateName);
+        }else{
+            jdResponse.setCode(400);
+            jdResponse.setMessage("参数错误，不能触发包裹补打的全程跟踪!不存在的siteId："+siteId);
+        }
 
         return jdResponse;
     }

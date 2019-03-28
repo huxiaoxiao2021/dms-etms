@@ -7,20 +7,25 @@ import com.jd.bluedragon.distribution.cross.domain.CrossSorting;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 @Service("crossSortingService")
@@ -50,6 +55,10 @@ public class CrossSortingImpl implements CrossSortingService {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	@Qualifier("basicPrimaryWSProxy")
+	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
 	@Override
 	public Integer findCountCrossSorting(Map<String, Object> params) {
@@ -278,15 +287,14 @@ public class CrossSortingImpl implements CrossSortingService {
 	@Deprecated
 	private List<BaseStaffSiteOrgDto> getAllDistributionCenter(){
 		CallerInfo info = Profiler.registerInfo("DMS.CrossSortingImpl.getAllDistributionCenter", false, true);
-		List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = baseMajorManager.getDmsSiteAll();
-		List<BaseStaffSiteOrgDto> dtos = new ArrayList<BaseStaffSiteOrgDto>();
-		for (BaseStaffSiteOrgDto dto : baseStaffSiteOrgDtos) {
-			if (64 == dto.getSiteType()){
-				dtos.add(dto);
-			}
+		List<BaseStaffSiteOrgDto> baseStaffSiteOrgDtos = new ArrayList<BaseStaffSiteOrgDto>();
+		try{
+			baseStaffSiteOrgDtos = basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(null,64);
+		}catch (Exception e){
+			this.logger.error("获取所有分拣中心失败!");
 		}
 		Profiler.registerInfoEnd(info);
-		return dtos;
+		return baseStaffSiteOrgDtos;
 	}
 
     /**

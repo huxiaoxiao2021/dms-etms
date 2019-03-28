@@ -49,7 +49,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	@Autowired
     private SendDatailDao sendDatailDao;
-	
+
 	@Autowired
     private ReverseSpareDao sparedao;
 	
@@ -116,7 +116,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		} catch (Exception e) {
 			this.logger.error("推送UMP发生异常.", e);
 		}
-		
+
 		//添加订单处理，判断是否是T单 2016-1-8
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
@@ -167,13 +167,14 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			this.reverseRejectService.reject(reverseReject);
 		}
 
+
 		//添加全称跟踪
 		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if (reverseReceive.getReceiveType() == 4) {
+			} else if (reverseReceive.getReceiveType() == 4 && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
 				reverseReceive.setOrderId(reverseReceive.getPackageCode());
@@ -207,7 +208,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if (reverseReceive.getReceiveType() == 4) {
+				} else if (reverseReceive.getReceiveType() == 4 && jrequest != null) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 				if (reverseReceive.getCanReceive() == 0){

@@ -11,7 +11,6 @@ import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 public interface WaybillQueryManager{
 	
 	/**
@@ -33,9 +32,17 @@ public interface WaybillQueryManager{
 	 * 运单反调度状态
 	 */
 	public static final String WAYBILL_STATUS_REDISPATCH = "140";
-	
 
-	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
+	/**
+	 * 根据运单号获取运单数据，无大包裹运单数据缓存和包裹信息分页查询(慎用)
+	 *
+	 * @param waybillCode
+	 * @param wChoice
+	 * @return
+	 */
+	BaseEntity<BigWaybillDto> getDataByChoiceNoCache(String waybillCode, WChoice wChoice);
+
+	BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, WChoice  wChoice);
 
 	/**
 	 * 
@@ -46,7 +53,7 @@ public interface WaybillQueryManager{
 	 * @param isPackList 是否查询运单下的包裹列表
 	 * @return
 	 */
-	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, Boolean isWaybillC,
+	BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode, Boolean isWaybillC,
 			Boolean isWaybillE, Boolean isWaybillM, Boolean isPackList);
 
 
@@ -62,7 +69,7 @@ public interface WaybillQueryManager{
 	 * @param isServiceBillPay 是否查询运单服务费信息
 	 * @return
 	 */
-	public abstract BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
+	BaseEntity<BigWaybillDto> getDataByChoice(String waybillCode,
 			Boolean isWaybillC, Boolean isWaybillE, Boolean isWaybillM,
 			Boolean isGoodList, Boolean isPackList, Boolean isPickupTask,
 			Boolean isServiceBillPay);
@@ -98,7 +105,7 @@ public interface WaybillQueryManager{
 	 * @param operateTime 操作时间
 	 * @return 发送成功与否
 	 */
-	public abstract boolean sendOrderTrace(String businessKey, int msgType,
+	boolean sendOrderTrace(String businessKey, int msgType,
 			String title, String content, String operatorName, Date operateTime);
 
 	/**
@@ -106,7 +113,7 @@ public interface WaybillQueryManager{
 	 * @param bdTraceDto
 	 * @return
 	 */
-	public abstract boolean sendBdTrace(BdTraceDto bdTraceDto);
+	boolean sendBdTrace(BdTraceDto bdTraceDto);
 
 	/**
 	 * 根据扫描单号获得换单前单号,主要用于逆向
@@ -208,4 +215,21 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	List<WaybillExtPro> getWaybillExtByProperties(List<String> waybillCodes, List<String> properties);
+
+	/**
+	 * 根据配送中心ID和仓ID查询是否强制换单
+	 *
+	 * @param cky2 配送中心ID
+	 * @param storeId 仓ID
+	 * @return
+	 */
+	Boolean ifForceCheckByWarehouse(Integer cky2, Integer storeId);
+
+	/**
+	 * 查询运单号是否存在
+	 * @param waybillCode
+	 * @return
+	 */
+	Boolean queryExist(String waybillCode);
+
 }

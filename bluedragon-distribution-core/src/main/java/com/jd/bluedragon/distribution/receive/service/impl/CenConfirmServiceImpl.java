@@ -25,9 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service("cenConfirmService")
@@ -77,6 +76,9 @@ public class CenConfirmServiceImpl implements CenConfirmService {
         InspectionMQBody inspectionMQBody=new InspectionMQBody();
         inspectionMQBody.setWaybillCode(null!=cenConfirm.getWaybillCode()?cenConfirm.getWaybillCode(): SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
         inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+		inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
+		inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());
+		inspectionMQBody.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
         try {
             /**
              * fix wtw 任务监控
@@ -342,7 +344,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 			BaseStaffSiteOrgDto bDto, BaseStaffSiteOrgDto rDto) {
 		WaybillStatus tWaybillStatus = createBasicWaybillStatus(cenConfirm,
 				bDto, rDto);
-		tWaybillStatus=setOperateType(cenConfirm, tWaybillStatus);
+		setOperateType(cenConfirm, tWaybillStatus);
 		// 设置POP包裹号为运单号
 		if (Constants.BUSSINESS_TYPE_POP == cenConfirm.getType() || Constants.BUSSINESS_TYPE_SITE == cenConfirm.getType()|| Constants.BUSSINESS_TYPE_InFactory == cenConfirm.getType()) {
 			if (StringUtils.isBlank(tWaybillStatus.getPackageCode()) || "-1".equals(tWaybillStatus.getPackageCode())) {

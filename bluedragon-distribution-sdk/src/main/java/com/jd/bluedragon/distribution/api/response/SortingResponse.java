@@ -59,6 +59,13 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29122 = 29122;
     public static final String MESSAGE_29122 = "此单获取运单状态异常!";
 
+    public static final Integer CODE_31121 = 31121;
+    public static final String MESSAGE_31121 = "此单仓储已收货，是否继续退货";
+
+    public static final Integer CODE_31122 = 31122;
+    public static final String MESSAGE_31122 = "此单已报丢报损，是否继续退货";
+
+
     /** 箱号 */
     private String boxCode;
 

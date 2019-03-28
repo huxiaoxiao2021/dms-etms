@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.2.44</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.46</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.18</version>
+            <version>5.1.24</version>
             <optional>false</optional>
         </dependency>
         <dependency>
@@ -124,12 +124,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.8-SNAPSHOT</version>
+			<version>1.2.15-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.0.7-SNAPSHOT</version>
+			<version>1.0.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -137,7 +137,7 @@
 			<artifactId>bluedragon-distribution-proxy</artifactId>
 			<version>1.0.0</version>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-saf</artifactId>
@@ -161,7 +161,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.scannotation</groupId>
 			<artifactId>scannotation</artifactId>
@@ -396,7 +396,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.10-SNAPSHOT</version>
+			<version>1.2.18-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -412,7 +412,7 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.3.51-SNAPSHOT</version>
+			<version>5.3.66-SNAPSHOT</version>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
@@ -420,13 +420,13 @@
 			<artifactId>jsf</artifactId>
 			<version>1.6.5-HOTFIX-T3</version>
 		</dependency>
-		
-		<dependency>	
+
+		<dependency>
 		<groupId>com.jd.jq</groupId>
 	    <artifactId>JQJavaClient</artifactId>
 	    <version>0.0.9</version>
 	    </dependency>
-		
+
 		<dependency>
             <groupId>com.jd.msg.sender.client</groupId>
             <artifactId>msg-sender-client-service</artifactId>
@@ -460,7 +460,7 @@
             <artifactId>profiler</artifactId>
             <version>4.1.0</version>
         </dependency>
-        
+
 		<dependency>
                <groupId>com.jd.ump</groupId>
                <artifactId>jannotation</artifactId>
@@ -483,7 +483,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
-    	
+
 		<dependency>
 			<groupId>com.jd.etms</groupId>
             <artifactId>tbschedule-redis</artifactId>
@@ -499,13 +499,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
     	<dependency>
         	<groupId>com.jd.packExchange</groupId>
 			<artifactId>wms-packExchange-domain</artifactId>
        		<version>0.0.1-SNAPSHOT</version>
         </dependency>
-	
+
 		<dependency>
 			<groupId>com.jd.bk.common</groupId>
 			<artifactId>jd-bk-common-ws</artifactId>
@@ -517,7 +517,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
             <groupId>com.jd.etms.framework</groupId>
             <artifactId>framework-utils</artifactId>
@@ -605,8 +605,8 @@
             <artifactId>receiver-rpc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        
-      	<dependency> 
+
+      	<dependency>
 	        <groupId>com.jd.etms.vts</groupId>
 			<artifactId>etms-vts-client</artifactId>
 			<version>1.1-SNAPSHOT</version>
@@ -624,7 +624,7 @@
             <artifactId>cassandra-driver-core</artifactId>
             <version>2.1.7.1</version>
         </dependency>
-        
+
         <!-- slave write replication lib. -->
 	  	<dependency>
 	      	<groupId>com.jd.ql.framework.migration</groupId>
@@ -637,14 +637,14 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-	    
+
 	    <!-- global id generator service lib. -->
 	  	<dependency>
 	      	<groupId>com.jd.ql.framework.ddf</groupId>
 	      	<artifactId>ddf</artifactId>
 	      	<version>2.0-SNAPSHOT</version>
 	    </dependency>
-	    
+
 	    <dependency>
 	    	<groupId>com.jd.ql.framework.idgenerator</groupId>
 	    	<artifactId>idgenerator</artifactId>
@@ -656,7 +656,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        
+
         <!-- dian zi zheng shu  -->
         <dependency>
 			<groupId>com.jd.ssa</groupId>
@@ -687,7 +687,7 @@
             </exclusions>
 
         </dependency> -->
-        
+
          <dependency>
         	<groupId>com.jd.ql.framework.AsynBuffer</groupId>
         	<artifactId>AsynBuffer</artifactId>
@@ -704,10 +704,10 @@
                  <exclusion>
 					<groupId>com.jd.jmq</groupId>
 					<artifactId>jmq-client-ump</artifactId>
-                 </exclusion>                 
+                 </exclusion>
              </exclusions>
         </dependency>
-        
+
         <dependency>
         	<groupId>com.jd.ql.framework.dcam</groupId>
         	<artifactId>dcam-client-spring</artifactId>
@@ -720,10 +720,10 @@
             </exclusions>
         </dependency>
 
-        
+
         <dependency>
 			<groupId>com.jd.common</groupId>
-			<artifactId>sso-uim-spring</artifactId> 
+			<artifactId>sso-uim-spring</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
@@ -732,7 +732,7 @@
                 </exclusion>
             </exclusions>
 		</dependency>
-        
+
 
 		<!--增加订单中间件接口 使用jsf-->
 		<dependency>
@@ -780,7 +780,7 @@
 			<version>1.0.1</version>
 		</dependency>
 
-		<!-- 发送邮件 -->	
+		<!-- 发送邮件 -->
 		<dependency>
 		    <groupId>org.apache.commons</groupId>
 		    <artifactId>commons-email</artifactId>
@@ -805,7 +805,7 @@
 		<dependency>
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
-			<version>1.1.5-SNAPSHOT</version>
+			<version>1.1.18-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -858,35 +858,93 @@
             <classifier>jdk16</classifier>
         </dependency>
 
+		<!--JDDL-->
+		<dependency>
+			<groupId>jddl-utils</groupId>
+			<artifactId>jddl-utils</artifactId>
+			<version>1.1.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>jddl-client-all</artifactId>
+			<version>1.1.6-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>nv-websocket-client</artifactId>
+					<groupId>com.neovisionaries</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.coo.jdbcp</groupId>
+					<artifactId>jdbcp-pool</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.neovisionaries</groupId>
+			<artifactId>nv-websocket-client</artifactId>
+			<version>2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.configure</groupId>
+			<artifactId>configure-client</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.configure</groupId>
+			<artifactId>configure-utils</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.coo.jdbcp</groupId>
+			<artifactId>jdbcp-pool</artifactId>
+			<version>1.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>4.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.groovy</groupId>
+			<artifactId>groovy-all</artifactId>
+			<version>2.4.4</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jd.tms.boss</groupId>
 			<artifactId>tms-boss-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+        <dependency>
+            <groupId>com.jd.bluedragon</groupId>
+            <artifactId>business-sdk</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
+        </dependency>
 
-
-	</dependencies>
+		<!--JMQ-Split组件  -->
+		<dependency>
+			<groupId>com.jd.jspliter</groupId>
+			<artifactId>jspliter-jmq</artifactId>
+			<version>1.0.3</version>
+		</dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.2</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<encoding>UTF-8</encoding>
-
-
-				</configuration>
-				<dependencies>
-					<dependency>
-						<groupId>org.codehaus.plexus</groupId>
-						<artifactId>plexus-compiler-javac</artifactId>
-						<version>1.8</version>
-					</dependency>
-				</dependencies>
-			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>

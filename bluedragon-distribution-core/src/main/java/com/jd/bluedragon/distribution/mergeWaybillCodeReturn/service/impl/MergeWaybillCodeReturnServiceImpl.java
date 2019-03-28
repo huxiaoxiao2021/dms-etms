@@ -151,7 +151,6 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
      * @param mergeWaybillCodeReturnRequest
      * @param newWaybillCode
      */
-    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     private void insert(MergeWaybillCodeReturnRequest mergeWaybillCodeReturnRequest, String newWaybillCode) {
         SignReturnPrintM signReturnPrintM = new SignReturnPrintM();
         List<MergedWaybill> mergedWaybillList = new ArrayList<MergedWaybill>();
@@ -208,6 +207,19 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
     public JdResponse checkIsMerge(String waybillCode, String secondWaybillCode) {
         JdResponse result = new JdResponse();
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        //校验输入的运单号是否有运单信息
+        Boolean isExistOfOne = waybillQueryManager.queryExist(waybillCode);
+        if(!isExistOfOne){
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未查询到此运单"+waybillCode+"信息，请检查输入!");
+            return result;
+        }
+        Boolean isExistOfTwo = waybillQueryManager.queryExist(secondWaybillCode);
+        if(!isExistOfTwo){
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("未查询到此运单"+secondWaybillCode+"信息，请检查输入!");
+            return result;
+        }
         ResponseDTO<ReturnSignatureMessageDTO>  responseDto = null;
         ResponseDTO<ReturnSignatureMessageDTO>  secondResponseDto = null;
         if(waybillCode.equals(secondWaybillCode)){
@@ -228,8 +240,13 @@ public class MergeWaybillCodeReturnServiceImpl implements MergeWaybillCodeReturn
                 result.setCode(InvokeResult.RESULT_MULTI_ERROR);
             }
         }else{
-            result.setCode(secondResponseDto.getStatusCode());
-            result.setMessage(secondResponseDto.getStatusMessage());
+            if(secondResponseDto != null){
+                result.setCode(secondResponseDto.getStatusCode());
+                result.setMessage(secondResponseDto.getStatusMessage());
+            }else{
+                result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            }
         }
         return result;
     }
