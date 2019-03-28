@@ -375,4 +375,11 @@ public interface DeliveryService {
 	 * @param domain
 	 */
 	public ThreeDeliveryResponse cancelLastSend(SendM domain);
+
+	/**
+	 * 根据箱号查询箱号的运单号
+	 * @param boxCode
+	 * @return
+	 */
+	List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum);
 }

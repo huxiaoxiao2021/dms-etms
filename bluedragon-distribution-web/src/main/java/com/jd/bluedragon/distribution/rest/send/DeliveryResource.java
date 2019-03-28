@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
@@ -707,6 +706,21 @@ public class DeliveryResource {
             DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
+                //设置运单类型
+                String waybillCodeToJudgeType = null;
+                if(WaybillUtil.isPackageCode(boxCode)){
+                    waybillCodeToJudgeType = WaybillUtil.getWaybillCode(boxCode);
+                }else if(BusinessUtil.isBoxcode(boxCode)){
+                    //从箱子中取出一单
+                    List<String> waybillCodeList = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(boxCode,1);
+                    if(waybillCodeList != null && waybillCodeList.size() > 0){
+                        waybillCodeToJudgeType = waybillCodeList.get(0);
+                    }
+                }
+                //获取运单类型
+                Integer waybillType = waybillService.getWaybillTypeByWaybillSign(waybillCodeToJudgeType);
+                tDeliveryResponse.setWaybillType(waybillType);
+
                 if(JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())){
 
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
@@ -734,8 +748,8 @@ public class DeliveryResource {
                         } catch (Exception e) {
                             this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
                         }
-
                     }
+
                     return tDeliveryResponse;
                     //adder end
                 }else{

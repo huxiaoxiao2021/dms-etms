@@ -80,6 +80,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -295,6 +296,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ReversePartDetailService reversePartDetailService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     //自营
     public static final Integer businessTypeONE = 10;
@@ -700,7 +704,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param boxCode
      * @return
      */
-    private List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum){
+    public List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum){
         Box box = this.boxService.findBoxByCode(boxCode);
         if(box != null) {
             return sendDatailReadDao.getWaybillCodesByBoxCodeAndFetchNum(boxCode, box.getCreateSiteCode(),fetchNum);

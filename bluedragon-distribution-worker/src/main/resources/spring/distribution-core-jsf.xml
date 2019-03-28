@@ -389,4 +389,9 @@
                   alias="${jsf.dms.business.alias}" timeout="1000" retries="${jsf.retries}">
 
     </jsf:consumer>
+
+    <!-- 终端系统-移动仓内配调妥投接口 -->
+    <jsf:consumer id="workTaskService" interface="com.jd.ql.erp.jsf.WorkTaskService"
+                  protocol="jsf" alias="${jsf.workTask.alias}" timeout="5000" check="false" retries="0">
+    </jsf:consumer>
 </beans>

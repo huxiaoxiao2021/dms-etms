@@ -119,6 +119,16 @@ public class DeliveryResponse extends JdResponse {
      */
     private List<String> tipMessages;
 
+    private Integer waybillType;
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
     public DeliveryResponse() {
         super();
     }
