@@ -29,6 +29,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+import com.jd.staig.receiver.rpc.Result;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -863,7 +864,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         //调DTC接口给WMS发报文
         String target = orgId + "," + cky2 + "," + storeId;
-        com.jd.staig.receiver.rpc.Result result = null;
+        com.jd.staig.receiver.rpc.Result result = new Result();
         String outboundType = "wms_receiving_transBoxFromDMSService_parcel";
         String messageValue = JSON.toJSONString(waybill);
         String source="DMS";
@@ -872,6 +873,10 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     ",outboundType:" + outboundType + ",messageValue:" + messageValue +
                     ",source:"+ source + "outboundNo:" + detail.getSendCode() );
             result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, detail.getSendCode());
+            if(result == null){
+                logger.error("移动仓内配单发货信息推送给WMS失败.返回值为空");
+                return false;
+            }
             logger.info("移动仓内配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
             if(result.getResultCode() != 1){
                 logger.error("移动仓内配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
