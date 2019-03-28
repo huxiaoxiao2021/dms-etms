@@ -1,8 +1,13 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
+import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,10 +39,6 @@ import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.TaskContext;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
@@ -92,6 +93,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
 	@Autowired
 	protected DepartureLogDao departureLogDao;
+
+	@Autowired
+	private InspectionNotifyService inspectionNotifyService;
 	
 	/**
 	 * 收货
@@ -101,6 +105,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	@JProfiler(jKey = "DMSWEB.ReceiveTaskExecutor.execute", mState = { JProEnum.TP })
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean execute(TaskContext<T> taskContext, String ownSign) {
+		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录
 		saveReceive(taskContext);
 		// 必须有封车号，才更新封车表
@@ -116,10 +121,12 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			saveCenConfirmAndSendTrack(taskContext,true);
 		} else {
 			// 非大件商品-批量处理
-			batchSaveCenConfirmAndSendTrack(taskContext);
+			cenConfirmList = batchSaveCenConfirmAndSendTrack(taskContext);
 		}
-		// 推送mq消息
+		// 推送mq消息--周转箱
 		pushTurnoverBoxInfo(taskContext);
+
+		pushReceiveInfo(cenConfirmList);
 		return true;
 	}
 
@@ -150,7 +157,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param cenConfirm
 	 */
-	protected void sendTrack(TaskContext<T> taskContext,CenConfirm cenConfirm) {
+	protected void sendTrack(CenConfirm cenConfirm) {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());
 		if (bDto == null) {
@@ -201,6 +208,27 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 					JsonHelper.toJson(turnoverBoxInfo));
 		} catch (Exception e) {
 			log.error("分拣中心收货推送MQ[周转箱]信息失败：" + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * 发送验货MQ
+	 * @param cenConfirmList
+	 */
+	protected void pushReceiveInfo(List<CenConfirm> cenConfirmList){
+		if(cenConfirmList == null || cenConfirmList.size() < 1){
+			return ;
+		}
+		for (CenConfirm cenConfirm:cenConfirmList) {
+			InspectionMQBody body = new InspectionMQBody();
+			body.setWaybillCode(cenConfirm.getWaybillCode());
+			body.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
+			body.setCreateUserCode(cenConfirm.getInspectionUserCode());
+			body.setCreateUserName(cenConfirm.getInspectionUser());
+			body.setOperateTime(null != cenConfirm.getInspectionTime() ?cenConfirm.getInspectionTime() : new Date());
+			body.setSource("DMS-RECEIVE");
+
+			inspectionNotifyService.send(body);
 		}
 	}
 
@@ -306,15 +334,17 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param taskContext
 	 */
-	public void saveCenConfirmAndSendTrack(TaskContext<T> taskContext,boolean saveOrUpdateCenConfirmFlg) {
+	public List<CenConfirm> saveCenConfirmAndSendTrack(TaskContext<T> taskContext,boolean saveOrUpdateCenConfirmFlg) {
 		T receive = taskContext.getBody();
 		addOperationLog(receive);// 记录日志
+		List<CenConfirm> cenConfirmList = new ArrayList<>();
 		CenConfirm cenConfirm = cenConfirmService
 				.createCenConfirmByReceive(receive);
+		cenConfirmList.add(cenConfirm);
 		if(saveOrUpdateCenConfirmFlg){
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 		}
-		sendTrack(taskContext,cenConfirm);
+		sendTrack(cenConfirm);
 
 		// 取件单推送mq
 		if (WaybillUtil.isSurfaceCode(receive.getBoxCode())) {
@@ -332,6 +362,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 						.getPickupCode());
 			}
 		}
+		return cenConfirmList;
 	}
 
 	/**
@@ -339,8 +370,9 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param taskContext
 	 */
-	public void batchSaveCenConfirmAndSendTrack(TaskContext<T> taskContext) {
+	public List<CenConfirm> batchSaveCenConfirmAndSendTrack(TaskContext<T> taskContext) {
 		T receive = taskContext.getBody();
+		List<CenConfirm> cenConfirmList = new ArrayList<>();
 		//非箱号按包裹号处理单条
 		if(!BusinessHelper.isBoxcode(receive.getBoxCode())){
 			saveCenConfirmAndSendTrack(taskContext, false);
@@ -352,13 +384,15 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 					+ receive.getBoxCode()
 					+ "]获取包裹信息[deliveryService.getSendByBox(boxCode)]返回null或空,[收货]不能回传全程跟踪");
 		} else {
-			CenConfirm cenConfirm = paseCenConfirm(taskContext);
 			for (SendDetail sendDetail : sendDetails) {
+				CenConfirm cenConfirm = paseCenConfirm(taskContext);
 				receive.setPackageBarcode(sendDetail.getPackageBarcode());
 				addOperationLog(receive);// 记录日志
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
-				sendTrack(taskContext,cenConfirm);
+				sendTrack(cenConfirm);
+
+				cenConfirmList.add(cenConfirm);
 
 				// 取件单推送mq
 				if (WaybillUtil.isSurfaceCode(sendDetail.getPackageBarcode())) {
@@ -367,5 +401,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				}
 			}
 		}
+
+		return cenConfirmList;
 	}
 }

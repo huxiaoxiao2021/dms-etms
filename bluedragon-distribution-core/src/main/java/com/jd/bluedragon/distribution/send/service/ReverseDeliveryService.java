@@ -28,7 +28,7 @@ public interface ReverseDeliveryService {
 	 * 更新m表和d表
 	 * @return
 	 */
-	public void updateIsCancelByBox(SendM tSendM, List<SendDetail> tlist);
+	public void updateIsCancelByBox(SendM tSendM);
 	/**
 	 * 更新m表和d表
 	 * @return

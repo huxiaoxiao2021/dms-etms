@@ -308,14 +308,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     }
 
     /**
-     *  通过运单号获得取件单的创建时间是否超过15天
+     *  判断取件单换单后的新单的创建时间是否超过15天
      *
      * */
-    private Boolean isExceed(String oldWaybillCode,StringBuilder errorMessage) {
+    private Boolean isExceed(String waybillCode,StringBuilder errorMessage) {
 
         BaseEntity<BigWaybillDto> result = null;
         try {
-            result = waybillQueryManager.getDataByChoice(oldWaybillCode,
+            result = waybillQueryManager.getDataByChoice(waybillCode,
                     true, true, true, true, true, false, false);
             if(result != null && result.getData() != null && result.getData().getWaybill() != null &&
                     result.getData().getWaybill().getFirstTime() != null)
@@ -323,17 +323,17 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                 Date diffDate = DateHelper.addDate(new Date(),-PICKUP_DIFFER_DAYS);
                 return result.getData().getWaybill().getFirstTime().before(diffDate);
             }
-            this.logger.warn("通过运单号" + oldWaybillCode + "调用getDataByChoice数据为空");
+            this.logger.warn("通过运单号" + waybillCode + "查询运单数据为空");
         } catch (Exception e) {
             StringBuilder errorMsg = new StringBuilder(
                     "中心服务调用运单getDataByChoice出错").append("waybillCode=")
-                    .append(oldWaybillCode).append("isWaybillC")
+                    .append(waybillCode).append("isWaybillC")
                     .append(true).append("isWaybillE").append(true)
                     .append("isWaybillM").append(true)
                     .append("isPackList").append(true);
             logger.error(errorMsg, e);
         }
-        errorMessage.append("根据运单号" + oldWaybillCode + "获得运单信息失败");
+        errorMessage.append("新单"+waybillCode+"的运单信息为空，请联系it人员处理!");
         return true;
     }
 

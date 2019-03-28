@@ -24,4 +24,11 @@ public interface WaybillTraceManager {
      * @return true表示已经妥投，false表示还没有妥投
      */
     boolean isWaybillFinished(String waybillCode);
+
+    /**
+     * 判断运单是否被拒收
+     * @param waybillCode 运单号
+     * @return true表示被拒收，false表示还没有拒收
+     */
+    boolean isWaybillRejected(String waybillCode);
 }

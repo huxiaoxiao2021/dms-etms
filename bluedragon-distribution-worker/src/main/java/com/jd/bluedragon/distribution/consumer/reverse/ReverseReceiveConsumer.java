@@ -285,6 +285,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					}else {
 						return;
 					}
+				}else if(reverseReceive.getReceiveType()==5 && reverseReceive.getCanReceive() == 2){
+		        	//ECLP退仓半退的逻辑
+					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+					tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
+					taskService.add(this.toTaskStatus(tWaybillStatus));
 				}else{
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);

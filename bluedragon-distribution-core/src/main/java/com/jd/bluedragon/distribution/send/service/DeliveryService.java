@@ -250,7 +250,7 @@ public interface DeliveryService {
 	 * 取消发货d表批量
 	 * @return
 	 */
-	public boolean cancelSendDatailByBox(List<SendDetail> tlist);
+	public boolean cancelSendDatailByBox(SendM tSendM);
 	/**
 	 * 取消发货d表包裹
 	 * @return

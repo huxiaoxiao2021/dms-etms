@@ -4,6 +4,7 @@ import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -47,7 +49,11 @@ import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.api.common.dto.CommonDto;
+import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
 import com.jd.etms.framework.utils.cache.monitor.CacheMonitor;
+import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.vehicle.manager.domain.Vehicle;
 import com.jd.etms.vts.dto.CarrierInfo;
 import com.jd.etms.vts.dto.CarrierParamDto;
@@ -61,6 +67,7 @@ import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 
 @Component
 @Path(Constants.REST_URL)
@@ -110,76 +117,12 @@ public class BaseResource {
 	@Autowired
 	private WaybillQueryManager waybillQueryManager;
 
-	@GET
-	//Path("/bases/allsite/")
-	@GZIP
-	@Deprecated
-	public List<BaseResponse> getDmsSiteAll() {
-		this.logger.info("查询所有站点信息");
-		List<BaseResponse> ll = new ArrayList<BaseResponse>();
-		List<BaseStaffSiteOrgDto> results = null;
-		try {
-			results = baseService.getDmsSiteAll();
-		} catch (Exception e) {
-			logger.error("查询所有站点信息失败", e);
-			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
-			        JdResponse.MESSAGE_SERVICE_ERROR);
-			ll.add(response);
-			return ll;
-		}
+	@Autowired
+	@Qualifier("basicPrimaryWSProxy")
+	private BasicPrimaryWSProxy basicPrimaryWSProxy;
 
-		if (results == null || results.size() == 0) {
-			logger.info("查询所有站点信息，没有查询到");
-			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_ALLSITE_EMPTY);
-			ll.add(response);
-			return ll;
-		}
-
-		for (BaseStaffSiteOrgDto dto : results) {
-			BaseResponse response = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-			// 机构ID
-			response.setOrgId(dto.getOrgId());
-
-			// 机构名称
-			if (null == dto.getOrgName()) {
-				response.setOrgName("");
-			} else {
-				response.setOrgName(dto.getOrgName());
-			}
-
-			// 站点ID
-			response.setSiteId(dto.getSiteCode());
-
-			// 站点名称
-			if (null == dto.getSiteName()) {
-				response.setSiteName("");
-			} else {
-				response.setSiteName(dto.getSiteName());
-			}
-
-			// 站点类型
-			response.setSiteType(dto.getSiteType());
-
-			// 对应dmscode的code,旧系统中的数据(int)
-			if (null == dto.getSiteCode()) {
-				response.setSiteCode(0);
-			} else {
-				response.setSiteCode(dto.getSiteCode());
-			}
-
-			// DMSCODE
-			// 等基础服务增加
-			if (null == dto.getDmsSiteCode()) {
-				response.setDmsCode("");
-			} else {
-				response.setDmsCode(dto.getDmsSiteCode());
-			}
-			ll.add(response);
-		}
-
-		return ll;
-	}
+	@Autowired
+	private RouteComputeUtil routeComputeUtil;
 
 	@GET
 	@Path("/bases/driver/{driverCode}")
@@ -735,36 +678,6 @@ public class BaseResource {
 		return ll;
 	}
 
-	@GET
-	//Path("/newbases/allsite/")
-	@GZIP
-	@Deprecated
-	public List<BaseResponse> getDmsSiteAll_New() {
-		this.logger.info("查询所有站点信息");
-		List<BaseResponse> ll = new ArrayList<BaseResponse>();
-		List<BaseStaffSiteOrgDto> results = null;
-		try {
-			results = baseService.getDmsSiteAll();
-		} catch (Exception e) {
-			logger.error("查询所有站点信息失败", e);
-			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
-			        JdResponse.MESSAGE_SERVICE_ERROR);
-			ll.add(response);
-			return ll;
-		}
-
-		if (results == null || results.size() == 0) {
-			logger.info("查询所有站点信息，没有查询到");
-			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
-			        JdResponse.MESSAGE_ALLSITE_EMPTY);
-			ll.add(response);
-			return ll;
-		}
-
-		dealSites(results, ll, true);
-
-		return ll;
-	}
 
 	/**
 	 * /newbases/allsite/和/newbases/sites/{orgId}两个接口用来将站点的信息进行处理的
@@ -1435,7 +1348,7 @@ public class BaseResource {
 		List<BaseResponse> ll = new ArrayList<BaseResponse>();
 		List<BaseStaffSiteOrgDto> baseSiteList = new ArrayList<BaseStaffSiteOrgDto>();
 		try{
-			baseSiteList = baseMajorManager.getBaseSiteAll();
+			baseSiteList = basicPrimaryWSProxy.getBaseSiteByOrgIdSiteType(null,64);
 		}catch(Exception e){
 			logger.error("获取所有的分拣中心失败", e);
 			BaseResponse response = new BaseResponse(JdResponse.CODE_SERVICE_ERROR,
@@ -1443,16 +1356,14 @@ public class BaseResource {
 			ll.add(response);
 			return ll;
 		}
-		// 过滤非分拣中心的数据
-		List<BaseStaffSiteOrgDto> dmsList = dmsFilter(baseSiteList);
-		if(null == dmsList || dmsList.size() == 0){
+		if(null == baseSiteList || baseSiteList.size() == 0){
 			logger.warn("获取所有的分拣中心为空");
 			BaseResponse response = new BaseResponse(JdResponse.CODE_NOT_FOUND,
 			        JdResponse.MESSAGE_SITES_EMPTY);
 			ll.add(response);
 			return ll;
 		}
-		for(BaseStaffSiteOrgDto sbs : dmsList){
+		for(BaseStaffSiteOrgDto sbs : baseSiteList){
 			BaseResponse br = new BaseResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 			br.setSiteCode(sbs.getSiteCode());
 			br.setSiteName(sbs.getSiteName());
@@ -1574,19 +1485,6 @@ public class BaseResource {
 		return result;
 	}
 
-	private List<BaseStaffSiteOrgDto> dmsFilter(List<BaseStaffSiteOrgDto> baseSiteList) {
-		List<BaseStaffSiteOrgDto> dmsList = new ArrayList<BaseStaffSiteOrgDto>(512);
-		if(null != baseSiteList && baseSiteList.size() > 0){
-			for(BaseStaffSiteOrgDto site : baseSiteList){
-				Integer type = site.getSiteType();
-				if(null != type && type == 64){
-					dmsList.add(site);
-				}
-			}
-		}
-		return dmsList;
-	}
-
     @GET
     @GZIP
     @Path("/bases/getStaffByStaffId/{staffId}")
@@ -1610,6 +1508,35 @@ public class BaseResource {
         response.setStaffNo(dto.getStaffNo());
         return response;
     }
+
+
+	@GET
+	@Path("/bases/getWaybillRouter/{token}/{startNode}/{endNodeCode}/{operateTime}/{waybillSign}")
+	@GZIP
+	public CommonDto<RecommendRouteResp> getWaybillRouter(@PathParam("token")String token,
+														  @PathParam("startNode")String startNode,
+														  @PathParam("endNodeCode")String endNodeCode,
+														  @PathParam("operateTime")Long operateTime,
+														  @PathParam("waybillSign")String waybillSign){
+		//调路由的接口获取路由节点
+		Date predictSendTime = new Date(operateTime);
+		RouteProductEnum routeProduct = null;
+		/**
+		 * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
+		 * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
+		 * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
+		 */
+		if(BusinessUtil.isSignChar(waybillSign,62,'1')){
+			if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+				routeProduct = RouteProductEnum.TB1;
+			}else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+				routeProduct = RouteProductEnum.TB2;
+			}
+		}
+		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
+		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(token, startNode, endNodeCode, predictSendTime, routeProduct);
+		return commonDto;
+	}
 }
 
 
