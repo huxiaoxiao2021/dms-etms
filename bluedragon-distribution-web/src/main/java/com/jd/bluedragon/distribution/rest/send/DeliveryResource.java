@@ -42,10 +42,7 @@ import com.jd.bluedragon.distribution.send.service.SendQueryService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -291,6 +288,31 @@ public class DeliveryResource {
     }
 
     @POST
+    @Path("/delivery/cancel/last")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1004)
+    public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
+        logger.info("取消最近的一次发货JSON" + JsonHelper.toJsonUseGson(request));
+
+        //参数校验
+        if (StringHelper.isEmpty(request.getBoxCode()) == null || request.getSiteCode() == null || StringHelper.isEmpty(request.getOperateTime())) {
+            return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+        }
+
+        ThreeDeliveryResponse tDeliveryResponse = null;
+        try {
+            tDeliveryResponse = deliveryService.cancelLastSend(toSendM(request));
+        } catch (Exception e) {
+            this.logger.error("写入取消最近的一次发货信息失败", e);
+        }
+
+        if (tDeliveryResponse != null) {
+            return tDeliveryResponse;
+        } else {
+            return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR, null);
+        }
+    }
+
+    @POST
     @Path("/delivery/recyclableboxsend")
     public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request) {
         if (logger.isInfoEnabled()) {
@@ -466,7 +488,49 @@ public class DeliveryResource {
                     }
                     request.setBoxCode(waybillCodeList.get(0));
                 }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/delivery/router/verification/new")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)
+    public DeliveryResponse checkThreeDeliveryNew(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+
+            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
+            if(isWaybillCode(request.getBoxCode())){
+                DeliveryResponse response = isValidWaybillCode(request);
+                if(!JdResponse.CODE_OK.equals(response.getCode())){
+                    return response;
+                }
+            }
+
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                // 因为B冷链转运中心需要支持扫描运单号发货，
+                // 如果扫的是运单号，则生成第一个包裹号，用于校验
+                if (isWaybillCode(request.getBoxCode())) {
+                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
+                    if(waybillCodeList == null || waybillCodeList.size() < 1){
+                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
+                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
+                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
+                        return response;
+                    }
+                    request.setBoxCode(waybillCodeList.get(0));
+                }
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
             }
             return response;
         } catch (Exception ex) {
@@ -752,6 +816,8 @@ public class DeliveryResource {
         sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
         sendM.setSendCode(request.getSendCode());
+        Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
+        sendM.setOperateTime(operateTime);
         if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
             sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         }
