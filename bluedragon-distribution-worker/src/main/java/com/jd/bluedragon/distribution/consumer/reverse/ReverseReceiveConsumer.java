@@ -256,21 +256,24 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 
-				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8){
-					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货
+				if(reverseReceive.getReceiveType() == 7){
+					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货(仓配)
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 						taskService.add(this.toTask(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 1) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-						sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
 					} else if (reverseReceive.getCanReceive() == 2) {
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 						tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
-						sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
+						taskService.add(this.toTaskStatus(tWaybillStatus));
 					}else {
 						return;
 					}
+				}else if(reverseReceive.getReceiveType() == 8){
+					//仓配发包裹维度的全程跟踪
+					sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
 				}else if(reverseReceive.getReceiveType()==5 && reverseReceive.getCanReceive() == 2){
 		        	//ECLP退仓半退的逻辑
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
@@ -300,40 +303,50 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	 * @param tWaybillStatus
 	 */
 	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, Integer type, WaybillStatus tWaybillStatus) {
-		if(type == 8){
-			//纯配
-			Set<String> packageCodeSet = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList());
-			for(String packageCode : packageCodeSet){
-//				tWaybillStatus.setWaybillCode(packageCode);
-				tWaybillStatus.setPackageCode(packageCode);
-				taskService.add(this.toTaskStatus(tWaybillStatus));
-			}
-		}else {
+		//已收包裹
+		Set<String> packageCodeSetOfReceive = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),1);
+		for(String packageCode : packageCodeSetOfReceive){
+			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+			tWaybillStatus.setPackageCode(packageCode);
+			taskService.add(this.toTaskStatus(tWaybillStatus));
+		}
+		//拒收包裹
+		Set<String> packageCodeSetOfReject = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),0);
+		for(String packageCode : packageCodeSetOfReject){
+			tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+			tWaybillStatus.setPackageCode(packageCode);
 			taskService.add(this.toTaskStatus(tWaybillStatus));
 		}
 	}
 
 
 	/**
-	 * 获取所有已退包裹号（纯配）
+	 * 获取所有拒收和已退包裹号（纯配）
 	 * @param waybillCode
 	 * @param detailList
+	 * @param type 1：收货 0：拒收
 	 * @return
 	 */
-	private Set<String> getAllPackageCodeOfPureMatch(String waybillCode,List<Eclp2BdReceiveDetail> detailList) {
+	private Set<String> getAllPackageCodeOfPureMatch(String waybillCode,List<Eclp2BdReceiveDetail> detailList,Integer type) {
 	    //存放已退包裹号
-		Set<String> packageCodeSet = new HashSet<>();
+		Set<String> packageCodeSetOfReceive = new HashSet<>();
+		//存放拒收包裹号
+		Set<String> packageCodeSetOfReject = new HashSet<>();
 		//存放备件条码:包裹号
 		Map<String,String> map = new HashMap<String,String>();
 		//已退备件条码集合
-		List<String> batchNoList = new ArrayList<String>();
+		List<String> batchNoListOfReceive = new ArrayList<String>();
+		//拒收备件条码集合
+		List<String> batchNoListOfReject = new ArrayList<String>();
 		//记录所有已退包裹号
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sbOfReceive = new StringBuilder();
+		StringBuilder sbOfReJeject = new StringBuilder();
 		for(Eclp2BdReceiveDetail detail : detailList){
 			if(detail.getQuantity() == 0){
+				batchNoListOfReject.add(detail.getBatchNo());
 				continue;
 			}
-			batchNoList.add(detail.getBatchNo());
+			batchNoListOfReceive.add(detail.getBatchNo());
 		}
 		WChoice wChoice = new WChoice();
 		wChoice.setQueryWaybillC(true);
@@ -352,14 +365,26 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 			}
 		}
 		//获取已退备件条码对应的包裹号
-        for(String batchNo : batchNoList){
+        for(String batchNo : batchNoListOfReceive){
 		    if(map.containsKey(batchNo)){
-                packageCodeSet.add(map.get(batchNo));
-				sb.append(map.get(batchNo)).append(" // ");
+				packageCodeSetOfReceive.add(map.get(batchNo));
+				sbOfReceive.append(map.get(batchNo)).append(" // ");
             }
         }
-        this.logger.info("纯配已退包裹号："+sb);
-        return packageCodeSet;
+        //获取拒收备件条码对应的包裹号
+		for(String batchNo : batchNoListOfReject){
+			if(map.containsKey(batchNo)){
+				packageCodeSetOfReject.add(map.get(batchNo));
+				sbOfReJeject.append(map.get(batchNo)).append(" // ");
+			}
+		}
+        this.logger.info("纯配已退包裹号："+sbOfReceive);
+        this.logger.info("纯配拒收包裹号："+sbOfReJeject);
+        if(type == 1){
+			return packageCodeSetOfReceive;
+		}else {
+			return packageCodeSetOfReject;
+		}
     }
 
     private Task toTask(WaybillStatus tWaybillStatus) {
