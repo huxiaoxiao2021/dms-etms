@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.reverse;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -17,10 +18,14 @@ import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseRejectService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -36,6 +41,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.erp.domain.OrderDeliverBody;
+import com.jd.ql.erp.domain.OrderDeliverWorkTask;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -85,7 +92,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	private WaybillQueryManager waybillQueryManager;
 
 	@Autowired
-	WaybillService waybillService;
+    WaybillService waybillService;
 
 	@Autowired
 	WorkTaskServiceManager workTaskServiceManager;
@@ -327,7 +334,6 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	/**
 	 * 整单收货/部分收货发全程跟踪
 	 * @param jrequest
-	 * @param type
 	 * @param tWaybillStatus
 	 */
 	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, WaybillStatus tWaybillStatus) {
