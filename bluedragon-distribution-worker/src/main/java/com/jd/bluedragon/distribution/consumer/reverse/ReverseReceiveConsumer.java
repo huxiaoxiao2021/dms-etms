@@ -292,7 +292,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				}
 
 				if(reverseReceive.getReceiveType() == 7){
-					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货(仓配)
+					//ECLP退备件库时 0 代表驳回  1代表收货 2 代表部分收货
 					if (reverseReceive.getCanReceive() == 0){
 						tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 						taskService.add(this.toTask(tWaybillStatus));
@@ -332,7 +332,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	}
 
 	/**
-	 * 整单收货/部分收货发全程跟踪
+	 * 发包裹维度的发全程跟踪
 	 * @param jrequest
 	 * @param tWaybillStatus
 	 */

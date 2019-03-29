@@ -212,22 +212,6 @@ public class WaybillUtil {
     }
 
     /**
-     * 判断是否是纯配ECLP订单
-     * @param waybillSign
-     * @param busiOrderCode
-     * @return
-     */
-    public static Boolean isPureMatchECLP(String waybillSign,String busiOrderCode){
-        if (StringUtils.isEmpty(busiOrderCode) || StringUtils.isEmpty(waybillSign)) {
-            return Boolean.FALSE;
-        }
-        if(BusinessUtil.isPurematch(waybillSign) && !isECLPByBusiOrderCode(busiOrderCode)){
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
-    }
-
-    /**
      * 根据包裹号 生成所有的包裹号
      */
     public static List<String> generateAllPackageCodes(String packcode) {
