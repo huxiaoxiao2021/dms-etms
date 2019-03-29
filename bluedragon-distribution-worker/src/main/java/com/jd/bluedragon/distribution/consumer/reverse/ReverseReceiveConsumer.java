@@ -273,7 +273,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					}
 				}else if(reverseReceive.getReceiveType() == 8){
 					//仓配发包裹维度的全程跟踪
-					sendTraceAndUpdateWaybillStatue(jrequest, reverseReceive.getReceiveType(), tWaybillStatus);
+					sendTraceAndUpdateWaybillStatue(jrequest,tWaybillStatus);
 				}else if(reverseReceive.getReceiveType()==5 && reverseReceive.getCanReceive() == 2){
 		        	//ECLP退仓半退的逻辑
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
@@ -302,94 +302,80 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 	 * @param type
 	 * @param tWaybillStatus
 	 */
-	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, Integer type, WaybillStatus tWaybillStatus) {
-		//已收包裹
-		Set<String> packageCodeSetOfReceive = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),1);
-		if(packageCodeSetOfReceive.size() > 0){
-			for(String packageCode : packageCodeSetOfReceive){
-				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
-				tWaybillStatus.setPackageCode(packageCode);
-				taskService.add(this.toTaskStatus(tWaybillStatus));
-			}
-		}
-		//拒收包裹
-		Set<String> packageCodeSetOfReject = getAllPackageCodeOfPureMatch(jrequest.getWaybillCode(),jrequest.getDetailList(),0);
-		if(packageCodeSetOfReject.size() > 0){
-			for(String packageCode : packageCodeSetOfReject){
-				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
-				tWaybillStatus.setPackageCode(packageCode);
-				taskService.add(this.toTaskStatus(tWaybillStatus));
-			}
-		}
-	}
+	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, WaybillStatus tWaybillStatus) {
 
+		//存放   备件条码:包裹号
+		Map<String,String> sparePackCodeMap = new HashMap<String,String>();
+		//回传包裹数据   0拒收 1全收 2半收 -1表示此次没回传
+		Map<String,Integer> packageReceiveMap = new HashMap<>();
+		//
+		String waybillCode = jrequest.getWaybillCode();
 
-	/**
-	 * 获取所有拒收和已退包裹号（纯配）
-	 * @param waybillCode
-	 * @param detailList
-	 * @param type 1：收货 0：拒收
-	 * @return
-	 */
-	private Set<String> getAllPackageCodeOfPureMatch(String waybillCode,List<Eclp2BdReceiveDetail> detailList,Integer type) {
-	    //存放已退包裹号
-		Set<String> packageCodeSetOfReceive = new HashSet<>();
-		//存放拒收包裹号
-		Set<String> packageCodeSetOfReject = new HashSet<>();
-		//存放备件条码:包裹号
-		Map<String,String> map = new HashMap<String,String>();
-		//已退备件条码集合
-		List<String> batchNoListOfReceive = new ArrayList<String>();
-		//拒收备件条码集合
-		List<String> batchNoListOfReject = new ArrayList<String>();
-		//记录所有已退包裹号
-		StringBuilder sbOfReceive = new StringBuilder();
-		StringBuilder sbOfReJeject = new StringBuilder();
-		for(Eclp2BdReceiveDetail detail : detailList){
-			if(detail.getQuantity() == 0){
-				batchNoListOfReject.add(detail.getBatchNo());
-				continue;
-			}
-			batchNoListOfReceive.add(detail.getBatchNo());
-		}
 		WChoice wChoice = new WChoice();
 		wChoice.setQueryWaybillC(true);
 		wChoice.setQueryWaybillE(false);
 		wChoice.setQueryWaybillM(false);
 		wChoice.setQueryGoodList(true);
+		wChoice.setQueryPackList(true);
 		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);
 		if(baseEntity != null && baseEntity.getData() != null &&
 				baseEntity.getData().getGoodsList() != null && baseEntity.getData().getGoodsList().size() > 0){
-            List<Goods> goodsList = baseEntity.getData().getGoodsList();
-            for (Goods goods : goodsList){
-                List<SparsModel> spareList = goods.getSpareList();
-                for(SparsModel sparsModel : spareList){
-                    map.put(sparsModel.getSpareCode(),sparsModel.getPackBarcode());
-                }
+			List<Goods> goodsList = baseEntity.getData().getGoodsList();
+			for (Goods goods : goodsList){
+				List<SparsModel> spareList = goods.getSpareList();
+				for(SparsModel sparsModel : spareList){
+					sparePackCodeMap.put(sparsModel.getSpareCode(),sparsModel.getPackBarcode());
+				}
 			}
 		}
-		//获取已退备件条码对应的包裹号
-        for(String batchNo : batchNoListOfReceive){
-		    if(map.containsKey(batchNo)){
-				packageCodeSetOfReceive.add(map.get(batchNo));
-				sbOfReceive.append(map.get(batchNo)).append(" // ");
-            }
-        }
-        //获取拒收备件条码对应的包裹号
-		for(String batchNo : batchNoListOfReject){
-			if(map.containsKey(batchNo)){
-				packageCodeSetOfReject.add(map.get(batchNo));
-				sbOfReJeject.append(map.get(batchNo)).append(" // ");
+
+		for(String key : sparePackCodeMap.keySet()){
+			packageReceiveMap.put(sparePackCodeMap.get(key),Integer.valueOf(-1));
+		}
+
+		for(Eclp2BdReceiveDetail eclp2BdReceiveDetail : jrequest.getDetailList()) {
+
+			String spareCode = eclp2BdReceiveDetail.getBatchNo();
+			String _packNo = sparePackCodeMap.get(spareCode);
+			Integer quantity = eclp2BdReceiveDetail.getQuantity(); //只有 0 1  0没收 1收了
+			//只有是半收的时候才需要去判断
+			if (jrequest.getCanReceive().equals(Integer.valueOf(2))) {
+				if (packageReceiveMap.get(_packNo).equals(Integer.valueOf(-1))) {
+					packageReceiveMap.put(_packNo, quantity);
+				} else {
+					if (!packageReceiveMap.get(_packNo).equals(Integer.valueOf(2)) && !packageReceiveMap.get(_packNo).equals(quantity)) {
+						packageReceiveMap.put(_packNo, Integer.valueOf(2));
+					}
+				}
+			} else {
+				// 收货  和 拒收 直接给
+				packageReceiveMap.put(_packNo, jrequest.getCanReceive());
 			}
 		}
-        this.logger.info("纯配已退包裹号："+sbOfReceive);
-        this.logger.info("纯配拒收包裹号："+sbOfReJeject);
-        if(type == 1){
-			return packageCodeSetOfReceive;
-		}else {
-			return packageCodeSetOfReject;
+
+
+		for(String key : packageReceiveMap.keySet()){
+
+			tWaybillStatus.setPackageCode(key);
+			if(packageReceiveMap.get(key).equals(Integer.valueOf(0))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+				taskService.add(this.toTask(tWaybillStatus));
+			}else if(packageReceiveMap.get(key).equals(Integer.valueOf(1))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}else if(packageReceiveMap.get(key).equals(Integer.valueOf(2))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}
 		}
-    }
+
+
+
+
+	}
+
+
 
     private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();
