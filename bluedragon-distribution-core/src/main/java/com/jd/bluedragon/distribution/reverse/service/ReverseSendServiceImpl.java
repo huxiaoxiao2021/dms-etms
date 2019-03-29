@@ -906,7 +906,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             SystemLog sLogDetail = new SystemLog();
             sLogDetail.setKeyword2(detail.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result != null){
+            	sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12005));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);
