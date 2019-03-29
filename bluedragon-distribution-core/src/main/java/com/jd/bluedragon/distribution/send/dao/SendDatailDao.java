@@ -363,11 +363,15 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     /**
-     * 查询已退包裹号
+     * 根据批次号查询已退包裹号（逆向）
      * @param sendDetail
      * @return
      */
     public List<String> queryPackageCode(SendDetail sendDetail){
-        return this.getSqlSession().selectList(namespace +".queryPackageCode",sendDetail);
+        if(sendDetail.getCreateSiteCode() != null && sendDetail.getSendCode() != null){
+            return this.getSqlSession().selectList(namespace +".queryPackageCode",sendDetail);
+        }else{
+             return new ArrayList<>();
+        }
     }
 }

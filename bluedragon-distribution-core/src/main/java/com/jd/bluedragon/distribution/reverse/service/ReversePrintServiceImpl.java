@@ -118,11 +118,6 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     @Autowired
     private ReverseSpareEclp reverseSpareEclp;
 
-    @Autowired
-    @Qualifier("obcsManager")
-    private OBCSManager obcsManager;
-    @Autowired
-    private WaybillQueryApi waybillQueryApi;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -422,7 +417,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillM(true);
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryApi.getDataByChoice(wayBillCode, wChoice);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
         BigWaybillDto waybillDto = null;
         if(baseEntity != null && baseEntity.getData() != null){
             waybillDto = baseEntity.getData();
