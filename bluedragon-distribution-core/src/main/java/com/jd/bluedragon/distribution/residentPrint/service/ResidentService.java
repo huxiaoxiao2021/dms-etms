@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.residentPrint.service;
 
+import java.util.List;
+
 /**
  * @ClassName: ResidentService
  * @Description: 驻场打印接口
@@ -10,10 +12,9 @@ public interface ResidentService {
 
 
     /**
-     * 判断运单是否存在箱号中
+     * 获得箱号中所有运单号
      * @param boxCode
-     * @param waybillCode
      * @return
      */
-    Boolean isExist(String boxCode, String waybillCode);
+    List<String> getAllWaybillCodeByBoxCode(String boxCode);
 }

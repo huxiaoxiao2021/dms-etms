@@ -6,9 +6,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @ClassName: ResidentServiceImpl
@@ -23,26 +22,22 @@ public class ResidentServiceImpl implements ResidentService {
     private SendDatailDao sendDatailDao;
 
     /**
-     * 判断运单是否存在箱号中
+     * 获得箱号中所有运单号
      * @param boxCode
-     * @param waybillCode
      * @return
      */
     @Override
-    public Boolean isExist(String boxCode, String waybillCode) {
+    public List<String> getAllWaybillCodeByBoxCode(String boxCode) {
         //存放箱号中的运单号
-        Set<String> waybillCodeSet = new HashSet<>();
+        List<String> waybillCodes = new ArrayList<>();
         SendDetail sendDetail = new SendDetail();
         sendDetail.setBoxCode(boxCode);
         List<SendDetail> sendDetails = sendDatailDao.querySendDatailsByBoxCode(sendDetail);
         if(sendDetails != null && sendDetails.size() > 0){
             for(SendDetail send : sendDetails){
-                waybillCodeSet.add(send.getWaybillCode());
+                waybillCodes.add(send.getWaybillCode());
             }
         }
-        if(waybillCodeSet.contains(waybillCode)){
-            return true;
-        }
-        return false;
+        return waybillCodes;
     }
 }

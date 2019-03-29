@@ -35,23 +35,25 @@ public class ResidentResource {
 
     /**
      * 查询运单号是否操作站点发货
-     * @param waybillCode
+     * @param boxCode
      * @return
      */
     @GET
-    @Path("/resident/isSendBySite/{boxCode}/{waybillCode}")
-    public InvokeResult<String> isSendBySite(@PathParam("boxCode") String boxCode,@PathParam("waybillCode") String waybillCode){
+    @Path("/resident/isSendBySite/{boxCode}")
+    public InvokeResult<String> isSendBySite(@PathParam("boxCode") String boxCode){
         InvokeResult<String> result = new InvokeResult<String>();
+        String waybillCode = null;
         try{
-            Boolean isExist = residentService.isExist(waybillCode,boxCode);
-            if(isExist){
+            List<String> waybillCodes = residentService.getAllWaybillCodeByBoxCode(boxCode);
+            if(waybillCodes != null && waybillCodes.size() >0){
+                waybillCode = waybillCodes.get(0);
                 List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE);
                 if(list != null && list.size() > 0){
                     result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
                 }
             }
         }catch (Exception e){
-            this.logger.error("通过运单号" + waybillCode + "查询运单全程跟踪失败！");
+            this.logger.error("通过运单号"+waybillCode+"查询运单全程跟踪失败！");
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
