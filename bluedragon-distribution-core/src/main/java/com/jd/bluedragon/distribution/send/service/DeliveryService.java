@@ -189,7 +189,7 @@ public interface DeliveryService {
 	public ThreeDeliveryResponse differentialQuery(List<SendM> sendMList,Integer queryType);
 
     /** 快运发货路由信息验证 */
-    public DeliveryResponse checkRouterForKY(SendM sendm);
+    public DeliveryResponse checkRouterForKY(SendM sendm, Integer flag);
 
 	/** 三方接口*/
 	public List<SendDetail> findDeliveryPackageBySite(SendDetail sendDetail);
@@ -250,7 +250,7 @@ public interface DeliveryService {
 	 * 取消发货d表批量
 	 * @return
 	 */
-	public boolean cancelSendDatailByBox(List<SendDetail> tlist);
+	public boolean cancelSendDatailByBox(SendM tSendM);
 	/**
 	 * 取消发货d表包裹
 	 * @return
@@ -368,4 +368,18 @@ public interface DeliveryService {
 	 * @return
 	 */
 	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
+
+	/**
+	 * 执行取消上次发货逻辑
+	 *
+	 * @param domain
+	 */
+	public ThreeDeliveryResponse cancelLastSend(SendM domain);
+
+	/**
+	 * 根据箱号查询箱号的运单号
+	 * @param boxCode
+	 * @return
+	 */
+	List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum);
 }

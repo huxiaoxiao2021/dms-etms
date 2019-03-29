@@ -17,9 +17,9 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private static final long serialVersionUID = 1L;
 	/**
-	 * 默认dpi-200
+	 * 默认dpi-203
 	 */
-	private static Integer DPI_DEFAULT = 200;
+	private static Integer DPI_DEFAULT = 203;
 	/**
      *  应用程序类型-40-青龙打印客户端
      */

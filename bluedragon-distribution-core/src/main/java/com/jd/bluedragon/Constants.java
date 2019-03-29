@@ -806,4 +806,10 @@ public class Constants {
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
 
+    /** 快运发货路由校验旧接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_OLD = 0;
+
+    /** 快运发货路由校验新接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
+
 }

@@ -473,4 +473,13 @@
     <bean id="groupBoxDao" class="com.jd.bluedragon.distribution.box.dao.GroupBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <bean id="reversePartDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.reverse.part.dao.impl.ReversePartDetailDaoImpl"/>
+
+    <!-- 揽收重量校验统计 -->
+    <bean id="receiveWeightCheckDao" class="com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>
