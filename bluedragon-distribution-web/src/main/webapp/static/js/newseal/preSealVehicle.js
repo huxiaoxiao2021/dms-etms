@@ -323,8 +323,10 @@ $(function() {
                         }
                     }
                     if(isOk){
-                        pre.sendCodes = subPre;
-                        postData.push(pre);
+                        if(subPre.length > 0){
+                            pre.sendCodes = subPre;
+                            postData.push(pre);
+                        }
                     }else{
                         failedList.push(params[i].receiveSiteName);
                     }

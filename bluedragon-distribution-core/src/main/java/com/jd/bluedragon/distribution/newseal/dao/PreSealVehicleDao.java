@@ -25,6 +25,16 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
      * @return
      */
     int updateStatusByIds(List<Long> ids, String updateUserErp, String updateUserName, Integer status);
+    /**
+     * 根据运力编码批量更新预封车数据状态
+     *
+     * @param transportCodes
+     * @param updateUserErp
+     * @param updateUserName
+     * @param status
+     * @return
+     */
+    int updateStatusByTransportCodes(List<String> transportCodes, String updateUserErp, String updateUserName, Integer status);
 
     /**
      * 根据始发目的查询预封车数据

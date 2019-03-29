@@ -35,6 +35,17 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
     }
 
     @Override
+    public int updateStatusByTransportCodes(List<String> transportCodes, String updateUserErp, String updateUserName, Integer status) {
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("list", transportCodes);
+        parameter.put("updateUserErp", updateUserErp);
+        parameter.put("updateUserName", updateUserName);
+        parameter.put("status", status);
+        parameter.put("updateTime", new Date());
+        return sqlSession.update(this.nameSpace+".updateStatusByTransportCodes", parameter);
+    }
+
+    @Override
     public List<PreSealVehicle> findByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode) {
         PreSealVehicle query = new PreSealVehicle();
         query.setCreateSiteCode(createSiteCode);

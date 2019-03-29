@@ -14,6 +14,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -144,16 +145,20 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
-	    List<Long> ids = new ArrayList<>(preList.size());
+        List<PreSealVehicle> data = new ArrayList<>(preList.size());
+        List<String> transportCodes = new ArrayList<>(preList.size());
 	    for(PreSealVehicle pre : preList){
-            ids.add(pre.getId());
+	        if(pre.getSendCodes() != null && pre.getSendCodes().size() > 0){
+                transportCodes.add(pre.getTransportCode());
+                data.add(pre);
+            }
         }
-        preSealVehicleDao.updateStatusByIds(ids, updateUserErp, updateUserName, SealVehicleEnum.SEAL.getCode());
-        List<SealVehicles> sealVehiclesList = convert2SealVehicles(preList, updateUserErp, updateUserName, operateTime);
+        preSealVehicleDao.updateStatusByTransportCodes(transportCodes, updateUserErp, updateUserName, SealVehicleEnum.SEAL.getCode());
+        List<SealVehicles> sealVehiclesList = convert2SealVehicles(data, updateUserErp, updateUserName, operateTime);
         sealVehiclesService.batchAdd(sealVehiclesList);
         addRedisCache(sealVehiclesList);
         try{
-            addSealTask(preList, updateUserCode, updateUserName,operateTime);
+            addSealTask(data, updateUserCode, updateUserName,operateTime);
         }catch (Exception e){
             clearRedisCache(sealVehiclesList);
             throw e;
@@ -170,6 +175,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         List<SealVehicles> sealVehiclesList = new ArrayList<>();
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
+            if(sendCodes == null || sendCodes.isEmpty()){
+                continue;
+            }
             for(SealVehicles sealVehicles : sendCodes){
                 sealVehicles.setPreSealUuid(pre.getPreSealUuid());
                 sealVehicles.setCreateSiteCode(pre.getCreateSiteCode());
@@ -204,11 +212,13 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             return;
         }
         for (SealVehicles dto : sealVehiclesList) {
-            try {
-                redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode());
-                logger.info("已封车批次号清除缓存成功:" + dto.getSealDataCode());
-            } catch (Throwable e) {
-                logger.warn("已封车批次号清除缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+            if(StringUtils.isNotEmpty(dto.getSealDataCode())){
+                try {
+                    redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode());
+                    logger.info("已封车批次号清除缓存成功:" + dto.getSealDataCode());
+                } catch (Throwable e) {
+                    logger.warn("已封车批次号清除缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                }
             }
         }
     }
@@ -223,11 +233,13 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             return;
         }
         for (SealVehicles dto : sealVehiclesList) {
-            try {
-                redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
-                logger.info("已封车批次号存入缓存成功:" + dto.getSealDataCode());
-            } catch (Throwable e) {
-                logger.warn("已封车批次号存入缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+            if(StringUtils.isNotEmpty(dto.getSealDataCode())) {
+                try {
+                    redisManager.setex(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + dto.getSealDataCode(), Constants.TIME_SECONDS_ONE_WEEK, String.valueOf(dto.getOperateTime().getTime()));
+                    logger.info("已封车批次号存入缓存成功:" + dto.getSealDataCode());
+                } catch (Throwable e) {
+                    logger.warn("已封车批次号存入缓存失败:" + dto.getSealDataCode() + ";异常：" + e.getMessage());
+                }
             }
         }
     }
@@ -241,16 +253,17 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         Integer siteCode = preList.get(0).getCreateSiteCode();
         List<SealTaskBody> bodyList = new ArrayList<>(preList.size());
         for(PreSealVehicle pre : preList){
-            SealTaskBody body = new SealTaskBody();
-            body.setTaskType(Task.TASK_TYPE_SEAL_OFFLINE);
-            body.setSiteCode(pre.getCreateSiteCode());
-            body.setReceiveSiteCode(pre.getCreateSiteCode());
-            body.setSiteName(pre.getCreateSiteName());
-            body.setSealBoxCode(pre.getTransportCode());
-            body.setShieldsCarCode(pre.getSealCodes());
-            body.setCarCode(pre.getVehicleNumber());
             List<SealVehicles> sendCodes = pre.getSendCodes();
             if(sendCodes != null && !sendCodes.isEmpty()){
+                SealTaskBody body = new SealTaskBody();
+                body.setTaskType(Task.TASK_TYPE_SEAL_OFFLINE);
+                body.setSiteCode(pre.getCreateSiteCode());
+                body.setReceiveSiteCode(pre.getCreateSiteCode());
+                body.setSiteName(pre.getCreateSiteName());
+                body.setSealBoxCode(pre.getTransportCode());
+                body.setShieldsCarCode(pre.getSealCodes());
+                body.setCarCode(pre.getVehicleNumber());
+
                 StringBuilder sendCodeStr = new StringBuilder();
                 for(int i = 0; i < sendCodes.size(); i++){
                     sendCodeStr.append(sendCodes.get(i).getSealDataCode());
@@ -259,11 +272,11 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                     }
                 }
                 body.setBatchCode(sendCodeStr.toString());
+                body.setUserCode(updateUserCode);
+                body.setUserName(updateUserName);
+                body.setOperateTime(DateHelper.formatDate(operateTime, Constants.DATE_TIME_MS_FORMAT));
+                bodyList.add(body);
             }
-            body.setUserCode(updateUserCode);
-            body.setUserName(updateUserName);
-            body.setOperateTime(DateHelper.formatDate(operateTime, Constants.DATE_TIME_MS_FORMAT));
-            bodyList.add(body);
         }
         Task task = new Task();
         task.setBody(JsonHelper.toJson(bodyList));
