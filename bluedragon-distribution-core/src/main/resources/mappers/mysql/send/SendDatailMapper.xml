@@ -872,7 +872,7 @@
 
 	<select id="queryPackageCode"  parameterType="SendDetail" resultType="String">
 		select package_barcode from send_d where waybill_code = #{waybillCode,jdbcType=VARCHAR}
-		and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		and send_code = #{sendCode,jdbcType=VARCHAR}
 		and yn = 1
 		and is_cancel = 0

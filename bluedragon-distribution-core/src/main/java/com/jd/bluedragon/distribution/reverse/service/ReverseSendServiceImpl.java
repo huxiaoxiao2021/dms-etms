@@ -1451,7 +1451,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 if(BusinessUtil.isPurematch(waybillSign)){
                     return true;
                 }
-            }else if(oldWaybill2.getData() == null){
+            }else if(oldWaybill2 == null || oldWaybill2.getData() == null){
                 //纯配一次换单
                 String waybillSign = oldWaybill1.getData().getWaybillSign();
                 if(BusinessUtil.isPurematch(waybillSign)){

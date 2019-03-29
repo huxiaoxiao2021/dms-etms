@@ -209,8 +209,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
         wChoice.setQueryGoodList(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);//根据新单号获取运单信息
         if (baseEntity != null && baseEntity.getData() != null ) {
-            if (baseEntity.getData().getWaybill() != null && baseEntity.getData().getWaybill().getWaybillExt() != null &&
-                    baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount() != null) {
+            if (baseEntity.getData().getWaybill() != null
+                    && baseEntity.getData().getWaybill().getWaybillExt() != null
+                    && baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount() != null) {
                 BigDecimal paymentAmount = baseEntity.getData().getWaybill().getWaybillExt().getPaymentAmount();
                 //纯配运单理赔总金额
                 inboundOrder.setCompensationMoney(paymentAmount.toString());
@@ -298,7 +299,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                         logger.error("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
                     }
                 }
-            }else if(oldWaybill2.getData() == null) {
+            }else if(oldWaybill2 == null || oldWaybill2.getData() == null) {
                 //纯配一次换单
                 LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1, oldWaybillCodeV1);
                 if (claimInfoRespDTO != null) {

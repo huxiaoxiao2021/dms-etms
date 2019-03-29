@@ -64,6 +64,12 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
+	/** 0拒收 1全收 2半收 -1表示此次没回传 */
+    private static final Integer TYPE_RECEIVE_DEFAULT = -1;
+    private static final Integer TYPE_RECEIVE_0 = 0;
+    private static final Integer TYPE_RECEIVE_1 = 1;
+    private static final Integer TYPE_RECEIVE_2 = 2;
+
 	@Autowired
 	private ReverseRejectService reverseRejectService;
 
@@ -364,21 +370,21 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		for(String key : sparePackCodeMap.keySet()){
-			packageReceiveMap.put(sparePackCodeMap.get(key),Integer.valueOf(-1));
+			packageReceiveMap.put(sparePackCodeMap.get(key),TYPE_RECEIVE_DEFAULT);
 		}
 
 		for(Eclp2BdReceiveDetail eclp2BdReceiveDetail : jrequest.getDetailList()) {
 
 			String spareCode = eclp2BdReceiveDetail.getBatchNo();
 			String _packNo = sparePackCodeMap.get(spareCode);
-			Integer quantity = eclp2BdReceiveDetail.getQuantity(); //只有 0 1  0没收 1收了
+			Integer quantity = eclp2BdReceiveDetail.getQuantity()==null?0:eclp2BdReceiveDetail.getQuantity(); //只有 0 1  0没收 1收了
 			//只有是半收的时候才需要去判断
-			if (jrequest.getCanReceive().equals(Integer.valueOf(2))) {
-				if (packageReceiveMap.get(_packNo).equals(Integer.valueOf(-1))) {
+			if (TYPE_RECEIVE_2.equals(jrequest.getCanReceive())) {
+				if (TYPE_RECEIVE_DEFAULT.equals(packageReceiveMap.get(_packNo))) {
 					packageReceiveMap.put(_packNo, quantity);
 				} else {
-					if (!packageReceiveMap.get(_packNo).equals(Integer.valueOf(2)) && !packageReceiveMap.get(_packNo).equals(quantity)) {
-						packageReceiveMap.put(_packNo, Integer.valueOf(2));
+					if (!TYPE_RECEIVE_2.equals(packageReceiveMap.get(_packNo)) && !quantity.equals(packageReceiveMap.get(_packNo))) {
+						packageReceiveMap.put(_packNo, TYPE_RECEIVE_2);
 					}
 				}
 			} else {
@@ -391,13 +397,13 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		for(String key : packageReceiveMap.keySet()){
 
 			tWaybillStatus.setPackageCode(key);
-			if(packageReceiveMap.get(key).equals(Integer.valueOf(0))){
+			if(TYPE_RECEIVE_0.equals(packageReceiveMap.get(key))){
 				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
 				taskService.add(this.toTask(tWaybillStatus));
-			}else if(packageReceiveMap.get(key).equals(Integer.valueOf(1))){
+			}else if(TYPE_RECEIVE_1.equals(packageReceiveMap.get(key))){
 				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 				taskService.add(this.toTaskStatus(tWaybillStatus));
-			}else if(packageReceiveMap.get(key).equals(Integer.valueOf(2))){
+			}else if(TYPE_RECEIVE_2.equals(packageReceiveMap.get(key))){
 				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
 				tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
 				taskService.add(this.toTaskStatus(tWaybillStatus));
