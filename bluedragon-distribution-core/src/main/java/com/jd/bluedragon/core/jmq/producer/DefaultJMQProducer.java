@@ -25,7 +25,7 @@ public class DefaultJMQProducer {
     private static final Log logger = LogFactory.getLog(DefaultJMQProducer.class);
 
     @Autowired
-    @Qualifier("jmqProducer")
+    @Qualifier("jmqProducerSpilt")
     private com.jd.jmq.client.producer.MessageProducer jmqProducer;
 
     @Autowired
