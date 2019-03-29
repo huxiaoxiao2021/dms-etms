@@ -35,7 +35,8 @@ public class Constants {
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
-    
+    public static final String SEPARATOR_COLON = ":";
+
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
     public static final String PUNCTUATION_OPEN_BRACKET_SMALL = "(";

@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.newseal.domain;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
+import org.apache.commons.lang.StringUtils;
 
 /**
  *
@@ -72,6 +72,11 @@ public class PreSealVehicle extends DbEntity {
     /** 车牌号List */
     private List<String> vehicleNumbers;
 
+	/** 车牌号:封签号; */
+	private String sealCodeStr;
+
+    /** 车牌号:封签号Map */
+    private Map<String, String> vehicleSealCodeMap;
 	/**
 	 * The set method for preSealUuid.
 	 * @param preSealUuid
@@ -348,5 +353,36 @@ public class PreSealVehicle extends DbEntity {
 
     public void setVehicleNumbers(List<String> vehicleNumbers) {
         this.vehicleNumbers = vehicleNumbers;
+    }
+
+    public String getSealCodeStr() {
+        return sealCodeStr;
+    }
+
+    public void setSealCodeStr(String sealCodeStr) {
+        this.sealCodeStr = sealCodeStr;
+    }
+
+    public void appendSealCodeStr(String sealCodeStr) {
+        if(StringUtils.isEmpty(getSealCodeStr())){
+            setSealCodeStr(sealCodeStr);
+        }else {
+            setSealCodeStr(getSealCodeStr() + Constants.SEPARATOR_SEMICOLON + sealCodeStr);
+        }
+    }
+
+    public Map<String, String> getVehicleSealCodeMap() {
+        return vehicleSealCodeMap;
+    }
+
+    public void setVehicleSealCodeMap(Map<String, String> vehicleSealCodeMap) {
+        this.vehicleSealCodeMap = vehicleSealCodeMap;
+    }
+
+    public void putVehicleSealCode(String vehicleNumber, String sealCodes) {
+        if(this.vehicleSealCodeMap == null){
+            this.vehicleSealCodeMap = new HashMap<>();
+        }
+        this.vehicleSealCodeMap.put(vehicleNumber, sealCodes);
     }
 }

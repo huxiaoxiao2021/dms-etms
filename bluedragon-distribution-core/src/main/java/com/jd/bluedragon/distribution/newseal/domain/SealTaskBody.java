@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.newseal.domain;
 
+import com.jd.bluedragon.Constants;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.Serializable;
 
 /**
@@ -59,6 +62,18 @@ public class SealTaskBody implements Serializable{
 
     public void setBatchCode(String batchCode) {
         this.batchCode = batchCode;
+    }
+
+    /**
+     * 多个批次号逗号分隔，追加
+     * @param batchCode
+     */
+    public void appendBatchCode(String batchCode) {
+        if(StringUtils.isEmpty(getBatchCode())){
+            setBatchCode(batchCode);
+        }else {
+            setBatchCode(getBatchCode() + Constants.SEPARATOR_COMMA + batchCode);
+        }
     }
 
     public String getOperateTime() {

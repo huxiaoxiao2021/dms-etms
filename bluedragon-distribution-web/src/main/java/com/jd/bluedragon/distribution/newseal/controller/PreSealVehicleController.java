@@ -97,7 +97,8 @@ public class PreSealVehicleController extends DmsBaseController{
         }
         Integer createSiteCode = user.getSiteCode();
         try{
-            Map<Integer, PreSealVehicle> preMap = preSealVehicleService.queryBySiteCode(createSiteCode);
+            List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryBySiteCode(createSiteCode);
+            Map<Integer, PreSealVehicle> preMap = convertMap(preSealVehicleList);
             logger.debug("查询预封车信息为：" + JsonHelper.toJson(preMap));
             if(preMap == null || preMap.isEmpty()){
                 rest.setData(new ArrayList<PreSealVehicle>());
@@ -125,6 +126,34 @@ public class PreSealVehicleController extends DmsBaseController{
 	}
 
     /**
+     * 预封车数据list转Map
+     * @param preSealVehicleList
+     * @return
+     */
+	private Map<Integer, PreSealVehicle> convertMap(List<PreSealVehicle> preSealVehicleList){
+        Map<Integer, PreSealVehicle> preMap = null;
+        if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
+            preMap = new HashMap<>(preSealVehicleList.size());
+            //组装车牌信息
+            for(PreSealVehicle vo : preSealVehicleList){
+                //同一目的地，将车牌组装到车牌list中
+                if(preMap.containsKey(vo.getReceiveSiteCode())){
+                    PreSealVehicle temp = preMap.get(vo.getReceiveSiteCode());
+                    temp.getVehicleNumbers().add(vo.getVehicleNumber());
+                    temp.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
+                    temp.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                }else{
+                    vo.getVehicleNumbers().add(vo.getVehicleNumber());
+                    vo.appendSealCodeStr("车辆-" + vo.getVehicleNumber() + Constants.SEPARATOR_COLON + "封签-" + vo.getSealCodes());
+                    vo.putVehicleSealCode(vo.getVehicleNumber(), vo.getSealCodes());
+                    preMap.put(vo.getReceiveSiteCode(), vo);
+                }
+            }
+        }
+        return preMap;
+    }
+
+    /**
      * 组装未封车批次号到预封车集合中
      * @param preMap
      * @param unSealSendCodes
@@ -135,7 +164,8 @@ public class PreSealVehicleController extends DmsBaseController{
         for(SealVehicles vo : unSealSendCodes){
 	        Integer key = vo.getReceiveSiteCode();
 	        if(preMap.containsKey(key)){
-                List<SealVehicles> temp = preMap.get(key).getSendCodes();
+                PreSealVehicle pre = preMap.get(key);
+                List<SealVehicles> temp = pre.getSendCodes();
                 boolean exist = false;
                 for(SealVehicles seal : temp){
                     if(seal.getSealDataCode().equals(vo.getSealDataCode())){
@@ -145,9 +175,10 @@ public class PreSealVehicleController extends DmsBaseController{
                 }
                 if(!exist){
                     //该目的地只有一个车牌号时默认设置为改车牌号
-                    List<String> vehicleNumbers = preMap.get(key).getVehicleNumbers();
+                    List<String> vehicleNumbers = pre.getVehicleNumbers();
                     if(vehicleNumbers.size() == 1){
                         vo.setVehicleNumber(vehicleNumbers.get(0));
+                        vo.setSealCodes(pre.getVehicleSealCodeMap().get(vo.getVehicleNumber()));
                     }
                     temp.add(vo);
                 }
@@ -227,7 +258,7 @@ public class PreSealVehicleController extends DmsBaseController{
     @RequestMapping(value = "/batchSeal")
     public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
-        logger.debug("一键封车请求参数：" + JsonHelper.toJson(data));
+        logger.info("一键封车请求参数：" + JsonHelper.toJson(data));
         if(data == null || data.isEmpty()){
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("请选择封车数据!");

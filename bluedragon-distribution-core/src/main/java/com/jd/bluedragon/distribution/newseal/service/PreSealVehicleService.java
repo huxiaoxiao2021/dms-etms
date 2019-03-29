@@ -73,7 +73,7 @@ public interface PreSealVehicleService extends Service<PreSealVehicle> {
      * @param createSiteCode
      * @return
      */
-    Map<Integer, PreSealVehicle> queryBySiteCode(Integer createSiteCode);
+    List<PreSealVehicle> queryBySiteCode(Integer createSiteCode);
 
     /**
      * 根据始发查询当天已使用预封车的运力编码

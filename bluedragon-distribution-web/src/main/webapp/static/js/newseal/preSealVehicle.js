@@ -100,6 +100,7 @@ $(function() {
         oTableInit.InitSubTable = function (index, row, $detail) {
             var cur_table = $detail.html('<table style="table-layout: fixed;"></table>').find('table');
             var vehicleNumbers = row.vehicleNumbers;
+            var vehicleSealCodeMap = row.vehicleSealCodeMap;
             $(cur_table).attr("id", row.receiveSiteCode);
             $(cur_table).bootstrapTable('destroy').bootstrapTable({
                 data : row.sendCodes, // 请求后台的URL（*）
@@ -157,6 +158,7 @@ $(function() {
                             value: valueSelected
                         });
                     row.vehicleNumber = valueSelected;
+                    row.sealCodes = vehicleSealCodeMap[row.vehicleNumber]
                     }
                 }
                 }]
@@ -263,7 +265,7 @@ $(function() {
                 return value.substring(value.length-5);
             }
         }, {
-            field : 'sealCodes',
+            field : 'sealCodeStr',
             width: '50%',
             title : '封签号'
         } ];
@@ -319,7 +321,8 @@ $(function() {
                             isOk = false;
                             break;
                         }else{
-                            subPre.push({"vehicleNumber":vehicleNumber, "sealDataCode":subParams[j].sealDataCode, "receiveSiteCode":subParams[j].receiveSiteCode});
+                            subPre.push({"vehicleNumber":vehicleNumber, "sealDataCode":subParams[j].sealDataCode,
+                                "receiveSiteCode":subParams[j].receiveSiteCode, "sealCodes":subParams[j].sealCodes});
                         }
                     }
                     if(isOk){

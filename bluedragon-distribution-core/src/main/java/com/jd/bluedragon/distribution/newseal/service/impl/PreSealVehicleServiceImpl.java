@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -107,28 +108,15 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 	}
 
     @Override
-    public Map<Integer, PreSealVehicle> queryBySiteCode(Integer createSiteCode) {
+    public List<PreSealVehicle> queryBySiteCode(Integer createSiteCode) {
 
         PreSealVehicle query = new PreSealVehicle();
         query.setCreateSiteCode(createSiteCode);
         query.setStatus(SealVehicleEnum.PRE_SEAL.getCode());
 
         List<PreSealVehicle> preSealVehicleList = preSealVehicleDao.queryByCondition(query);
-        Map<Integer, PreSealVehicle> preMap = null;
-        if(preSealVehicleList != null && !preSealVehicleList.isEmpty()){
-            preMap = new HashMap<>(preSealVehicleList.size());
-            //组装车牌信息
-            for(PreSealVehicle vo : preSealVehicleList){
-                //同一目的地，将车牌组装到车牌list中
-                if(preMap.containsKey(vo.getReceiveSiteCode())){
-                    preMap.get(vo.getReceiveSiteCode()).getVehicleNumbers().add(vo.getVehicleNumber());
-                }else{
-                    vo.getVehicleNumbers().add(vo.getVehicleNumber());
-                    preMap.put(vo.getReceiveSiteCode(), vo);
-                }
-            }
-        }
-        return preMap;
+
+        return preSealVehicleList;
     }
 
     @Override
@@ -185,8 +173,8 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 sealVehicles.setReceiveSiteCode(pre.getReceiveSiteCode());
                 sealVehicles.setReceiveSiteName(pre.getReceiveSiteName());
                 sealVehicles.setTransportCode(pre.getTransportCode());
-                sealVehicles.setVehicleNumber(pre.getVehicleNumber());
-                sealVehicles.setSealCodes(pre.getSealCodes());
+//                sealVehicles.setVehicleNumber(pre.getVehicleNumber());
+//                sealVehicles.setSealCodes(pre.getSealCodes());
                 sealVehicles.setSendCarTime(pre.getSendCarTime());
                 sealVehicles.setStatus(SealVehicleEnum.SEAL.getCode());
                 sealVehicles.setCreateUserErp(updateUserErp);
@@ -252,31 +240,33 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     private void addSealTask(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserName, Date operateTime){
         Integer siteCode = preList.get(0).getCreateSiteCode();
         List<SealTaskBody> bodyList = new ArrayList<>(preList.size());
+
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
-            if(sendCodes != null && !sendCodes.isEmpty()){
+            if(sendCodes == null && sendCodes.isEmpty()){
+                continue;
+            }
+            Map<String, SealTaskBody> carMap = new HashMap<>();
+            for(String vehicleNumber : pre.getVehicleNumbers()){
                 SealTaskBody body = new SealTaskBody();
                 body.setTaskType(Task.TASK_TYPE_SEAL_OFFLINE);
                 body.setSiteCode(pre.getCreateSiteCode());
                 body.setReceiveSiteCode(pre.getCreateSiteCode());
                 body.setSiteName(pre.getCreateSiteName());
                 body.setSealBoxCode(pre.getTransportCode());
-                body.setShieldsCarCode(pre.getSealCodes());
-                body.setCarCode(pre.getVehicleNumber());
-
-                StringBuilder sendCodeStr = new StringBuilder();
-                for(int i = 0; i < sendCodes.size(); i++){
-                    sendCodeStr.append(sendCodes.get(i).getSealDataCode());
-                    if(i < sendCodes.size() - 1){
-                        sendCodeStr.append(Constants.SEPARATOR_COMMA);
-                    }
-                }
-                body.setBatchCode(sendCodeStr.toString());
                 body.setUserCode(updateUserCode);
                 body.setUserName(updateUserName);
                 body.setOperateTime(DateHelper.formatDate(operateTime, Constants.DATE_TIME_MS_FORMAT));
-                bodyList.add(body);
+                body.setCarCode(vehicleNumber);
+                carMap.put(vehicleNumber, body);
             }
+            for(int i = 0; i < sendCodes.size(); i++){
+                SealVehicles vo = sendCodes.get(i);
+                SealTaskBody body = carMap.get(vo.getVehicleNumber());
+                body.setShieldsCarCode(vo.getSealCodes());
+                body.appendBatchCode(vo.getSealDataCode());
+            }
+            bodyList.addAll(carMap.values());
         }
         Task task = new Task();
         task.setBody(JsonHelper.toJson(bodyList));
@@ -287,7 +277,6 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         task.setKeyword1(siteCode.toString());
         task.setCreateSiteCode(siteCode);
         task.setReceiveSiteCode(siteCode);
-//        task.setFingerprint();
         taskService.add(task, true);
     }
 }
