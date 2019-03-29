@@ -267,7 +267,10 @@ $(function() {
         }, {
             field : 'sealCodeStr',
             width: '50%',
-            title : '封签号'
+            title : '封签号',
+            cellStyle:{
+                css:{"background-color":"#61add3","overflow":"hidden","white-space":"nowrap","text-overflow":"ellipsis"}
+            }
         } ];
         function stateFormatter(value, row, index) {
             if (row.sendCodes.length > 0) {

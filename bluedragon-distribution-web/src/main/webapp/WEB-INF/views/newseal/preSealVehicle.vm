@@ -58,7 +58,7 @@
             <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;未用运力查询
         </button>
     </div>
-    <table id="dataTable"></table>
+    <table id="dataTable" style="table-layout:fixed;"></table>
 </div>
 </body>
 </html>
