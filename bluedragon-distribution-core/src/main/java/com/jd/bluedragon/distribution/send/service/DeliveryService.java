@@ -131,13 +131,6 @@ public interface DeliveryService {
      */
     public DeliveryResponse dellDeliveryMessage(List<SendM> sendMList);
 
-	/**
-	 * 循环箱发MQ
-	 * @param request
-	 * @return
-	 */
-	public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request);
-
 
 	/**
      * 电子标签批量发货处理
