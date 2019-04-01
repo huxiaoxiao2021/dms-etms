@@ -183,7 +183,7 @@ public class PreSealVehicleResource {
         VtsTransportResourceDto vtrd = null;
         try {
             CommonDto<VtsTransportResourceDto> transDto = newsealVehicleService.getTransportResourceByTransCode(transportCode);
-            logger.info("预封车查询运力信息：" + JsonHelper.toJson(transDto));
+            logger.debug("预封车查询运力信息：" + JsonHelper.toJson(transDto));
             if (transDto == null) {    //JSF接口返回空
                 response.setCode(JdResponse.CODE_SERVICE_ERROR);
                 response.setMessage("查询运力信息结果为空:" + transportCode);
@@ -238,6 +238,8 @@ public class PreSealVehicleResource {
                 }
             }
             preSealVehicle.setSealCodes(sealCodeStr.toString());
+        }else {
+            preSealVehicle.setSealCodes("");
         }
         preSealVehicle.setSendCarTime(vtrd.getSendCarTimeStr());
         preSealVehicle.setStatus(SealVehicleEnum.PRE_SEAL.getCode());

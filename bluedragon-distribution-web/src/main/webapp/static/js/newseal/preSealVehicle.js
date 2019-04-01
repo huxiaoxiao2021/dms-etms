@@ -3,7 +3,24 @@ $(function() {
     var queryUrl = '/newseal/preSealVehicle/queryPreSeals';
 
     var preData = new Map();
-
+    /*blockUI*/
+    var lockPage = function () {
+        $.blockUI({
+            message: "<span class='pl20 icon-loading'>加载中-请您稍候</span>",
+            css: {
+                border: 'none',
+                padding: '15px',
+                backgroundColor: '#fff',
+                '-webkit-border-radius': '10px',
+                '-moz-border-radius': '10px',
+                opacity: .5,
+                color: '#000'
+            }
+        });
+    };
+    var unLockPage = function () {
+        $.unblockUI();
+    };
     /*$.combobox.createNew('hourRange',{
         width: '150',
         placeholder:'查询时间范围',
@@ -60,6 +77,7 @@ $(function() {
                         saveData(data.data);
                         return data.data;
                     }else{
+                        preData = new Map();
                         alert(data.message);
                         return [];
                     }
@@ -182,18 +200,6 @@ $(function() {
 		oTableInit.getSearchCondition = function(_selector) {
             var hourRange = $('input:radio:checked').val();
             return {"hourRange" : hourRange};
-            /*var params = {};
-		    if (!_selector) {
-		        _selector = ".search-param";
-		    }
-		    $(_selector).each(function () {
-		    	var _k = this.id;
-		        var _v = $(this).val();
-		        if(_k && (_v != null && _v != '')){
-		        	params[_k] = _v;
-		        }
-		    });
-		    return params;*/
 		};
 
         oTableInit.tableColums = [{
@@ -305,9 +311,13 @@ $(function() {
 			});
 
 		    $('#btn_query').click(function() {
+                // lockPage();
 		    	tableInit().refresh();
+		    	// unLockPage();
 			});
 			$('#btn_submit').click(function() {
+			    lockPage();
+                // $('#btn_submit').disabled = true;
 			    var failedList = [];
 			    var postData = [];
 				var params = $("#dataTable").bootstrapTable('getAllSelections');
@@ -345,7 +355,7 @@ $(function() {
                     console.log(JSON.stringify(postData));
                     $.ajaxHelper.doPostSync(batchSealUrl,JSON.stringify(postData),function(data){
                         if(data.code == 200){
-                            alert('操作成功');
+                            Jd.alert('操作成功');
                             tableInit().refresh();
                         }else if(data.code == 600){
                             var faileddata = data.data;
@@ -353,20 +363,23 @@ $(function() {
                                 saveData(faileddata);
                                 $("#dataTable").bootstrapTable('load', faileddata);
                             }
-                            alert(data.message);
+                            Jd.alert(data.message);
                         }else{
-                            alert(data.message);
+                            Jd.alert(data.message);
                             return [];
                         }
                     });
                 }
-			});
+                // $('#btn_submit').disabled = false;
+                unLockPage();
+            });
 
 		};
 		return oInit;
 	};
 
 	var saveData = function(sdata) {
+        preData = new Map();
         var data = JSON.parse(JSON.stringify(sdata));
 	    if(data != null && data.length > 0){
             for (var i = 0; i < data.length; i++){

@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -19,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +56,10 @@ public class PreSealVehicleController extends DmsBaseController{
 
 	@Autowired
 	private SiteService siteService;
+
+    @Autowired
+    @Qualifier("newSealVehicleService")
+    private NewSealVehicleService newSealVehicleService;
 
     private static final Integer SEAL_LIMIT = 5;
 	/**
@@ -240,6 +246,9 @@ public class PreSealVehicleController extends DmsBaseController{
         if(sendMS != null && !sendMS.isEmpty()){
             result = new ArrayList<>(sendMS.size());
             for(SendM sendM : sendMS){
+                if(newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())){
+                    continue;
+                }
                 SealVehicles vehicles = new SealVehicles();
                 vehicles.setSealDataCode(sendM.getSendCode());
                 vehicles.setReceiveSiteCode(sendM.getReceiveSiteCode());
@@ -266,6 +275,12 @@ public class PreSealVehicleController extends DmsBaseController{
         }
 
         LoginUser user = getLoginUser();
+        user = null;
+        try{
+            Thread.sleep(1000);
+        }catch (Exception e){
+
+        }
         if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("登录已过期，请重新登录!");

@@ -6,12 +6,12 @@ import com.jd.bluedragon.distribution.newseal.domain.SealTaskBody;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
@@ -56,6 +56,10 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    @Qualifier("newSealVehicleService")
+    private NewSealVehicleService newSealVehicleService;
 
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
@@ -144,9 +148,9 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
         preSealVehicleDao.updateStatusByTransportCodes(transportCodes, updateUserErp, updateUserName, SealVehicleEnum.SEAL.getCode());
         List<SealVehicles> sealVehiclesList = convert2SealVehicles(data, updateUserErp, updateUserName, operateTime);
         sealVehiclesService.batchAdd(sealVehiclesList);
-        addRedisCache(sealVehiclesList);
         try{
             addSealTask(data, updateUserCode, updateUserName,operateTime);
+            addRedisCache(sealVehiclesList);
         }catch (Exception e){
             clearRedisCache(sealVehiclesList);
             throw e;
@@ -195,7 +199,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
      *
      * @param sealVehiclesList
      */
-    private void addRedisCache(List<SealVehicles> sealVehiclesList) {
+    private void clearRedisCache(List<SealVehicles> sealVehiclesList) {
         if (sealVehiclesList == null || sealVehiclesList.size() == 0) {
             return;
         }
@@ -216,7 +220,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
      *
      * @param sealVehiclesList
      */
-    private void clearRedisCache(List<SealVehicles> sealVehiclesList) {
+    private void addRedisCache(List<SealVehicles> sealVehiclesList) {
         if (sealVehiclesList == null || sealVehiclesList.size() == 0) {
             return;
         }
@@ -262,6 +266,11 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
             }
             for(int i = 0; i < sendCodes.size(); i++){
                 SealVehicles vo = sendCodes.get(i);
+                //未封车的批次才需要提交封车任务
+                if(newSealVehicleService.checkSendCodeIsSealed(vo.getSealDataCode())){
+                    logger.warn("一键封车批次号已封车：" + vo.getSealDataCode());
+                    continue;
+                }
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());
