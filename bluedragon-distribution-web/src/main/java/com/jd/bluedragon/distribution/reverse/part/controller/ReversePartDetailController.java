@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
-import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
-import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -51,6 +49,7 @@ public class ReversePartDetailController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
 

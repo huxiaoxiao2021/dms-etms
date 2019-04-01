@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.financialForKA.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.financialForKA.WaybillCodeCheckCondition;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,6 +26,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
      * 返回主页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(){
         return "/financialForKA/waybillCodeCheck";

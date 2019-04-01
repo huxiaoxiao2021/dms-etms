@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.receive.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +46,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
      * 返回主页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
