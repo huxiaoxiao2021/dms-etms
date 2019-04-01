@@ -275,12 +275,6 @@ public class PreSealVehicleController extends DmsBaseController{
         }
 
         LoginUser user = getLoginUser();
-        user = null;
-        try{
-            Thread.sleep(1000);
-        }catch (Exception e){
-
-        }
         if(user == null || StringUtils.isEmpty(user.getUserErp()) || StringUtils.isEmpty(user.getUserName())){
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("登录已过期，请重新登录!");

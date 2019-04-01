@@ -3,8 +3,10 @@ $(function() {
     var queryUrl = '/newseal/preSealVehicle/queryPreSeals';
 
     var preData = new Map();
+
+    var isDoing = false;
     /*blockUI*/
-    var lockPage = function () {
+ /*   var lockPage = function () {
         $.blockUI({
             message: "<span class='pl20 icon-loading'>加载中-请您稍候</span>",
             css: {
@@ -20,7 +22,7 @@ $(function() {
     };
     var unLockPage = function () {
         $.unblockUI();
-    };
+    };*/
     /*$.combobox.createNew('hourRange',{
         width: '150',
         placeholder:'查询时间范围',
@@ -316,7 +318,11 @@ $(function() {
 		    	// unLockPage();
 			});
 			$('#btn_submit').click(function() {
-			    lockPage();
+                // if(isDoing){
+                //     return;
+                // }
+                // isDoing = true;
+                // lockPage();
                 // $('#btn_submit').disabled = true;
 			    var failedList = [];
 			    var postData = [];
@@ -371,7 +377,8 @@ $(function() {
                     });
                 }
                 // $('#btn_submit').disabled = false;
-                unLockPage();
+                // isDoing = false;
+                // unLockPage();
             });
 
 		};
