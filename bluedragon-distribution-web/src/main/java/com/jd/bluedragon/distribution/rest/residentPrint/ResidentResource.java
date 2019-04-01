@@ -4,7 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
-import com.jd.bluedragon.distribution.residentPrint.service.ResidentService;
+import com.jd.etms.erp.service.dto.SendInfoDto;
+import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.domain.PackageState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -28,10 +29,10 @@ public class ResidentResource {
     private final Log logger = LogFactory.getLog(this.getClass());
 
     @Autowired
-    private ResidentService residentService;
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
-    private WaybillTraceManager waybillTraceManager;
+    private SupportServiceInterface supportProxy;
 
     /**
      * 查询运单号是否操作站点发货
@@ -44,9 +45,18 @@ public class ResidentResource {
         InvokeResult<String> result = new InvokeResult<String>();
         String waybillCode = null;
         try{
-            List<String> waybillCodes = residentService.getAllWaybillCodeByBoxCode(boxCode);
-            if(waybillCodes != null && waybillCodes.size() >0){
-                waybillCode = waybillCodes.get(0);
+            //获取箱号中其中的一个运单号（终端）
+            SendInfoDto sendInfoDto = new SendInfoDto();
+            sendInfoDto.setBoxCode(boxCode);
+            com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
+            if(baseEntity != null && baseEntity.getResultCode() > 0) {
+                List<SendInfoDto> data = baseEntity.getData();
+                if(data != null && data.size() > 0){
+                    waybillCode = data.get(0).getWaybillCode();
+                }
+            }
+            //根据运单号判断是否操作发货
+            if(waybillCode != null){
                 List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE);
                 if(list != null && list.size() > 0){
                     result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
