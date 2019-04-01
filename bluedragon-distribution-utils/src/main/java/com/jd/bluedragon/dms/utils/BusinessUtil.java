@@ -1,7 +1,6 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang.StringUtils;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
@@ -594,13 +593,14 @@ public class BusinessUtil {
 
 
     /**
-     * 纯配外单判断 【waybillSign第53位为0或2】
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
      * */
     public static Boolean isPurematch(String waybillSign){
         if(waybillSign == null){
             return Boolean.FALSE;
         }
-        if(isSignInChars(waybillSign,53,'0','2')){
+        if(isSignChar(waybillSign,53,'2')
+                && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

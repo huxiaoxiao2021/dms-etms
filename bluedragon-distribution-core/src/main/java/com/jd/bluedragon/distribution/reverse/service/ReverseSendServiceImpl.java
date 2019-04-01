@@ -1142,7 +1142,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 vySendDetails.add(sd);
             }else if(!WaybillUtil.isReverseSpareCode(sd.getWaybillCode()) ){
                 Waybill waybill = waybillCommonService.findByWaybillCode(sd.getWaybillCode());
-                if(waybill!=null && checkIsPureMatchOrWarehouse(sd.getWaybillCode())){
+                if(waybill!=null && checkIsPureMatchOrWarehouse(waybill)){
                     eclpSendDetails.add(sd);
                 }else{
                     nomarlSendDetails.add(sd);
@@ -1430,15 +1430,16 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     /**
      * 判断是否是退备件库外单(纯配/仓配)
-     * @param waybillCode
+     * @param waybill
      * @return
      */
-    private boolean checkIsPureMatchOrWarehouse(String waybillCode) {
-        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+    private boolean checkIsPureMatchOrWarehouse(Waybill waybill) {
+        BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode());
         if(oldWaybill1 != null && oldWaybill1.getData() != null &&
                 StringUtils.isNotEmpty(oldWaybill1.getData().getWaybillSign()) &&
                 StringUtils.isNotEmpty(oldWaybill1.getData().getWaybillCode())){
-            if(WaybillUtil.isECLPByBusiOrderCode(oldWaybill1.getData().getBusiOrderCode())){
+            if(WaybillUtil.isECLPByBusiOrderCode(oldWaybill1.getData().getBusiOrderCode())
+                    && BusinessUtil.isTwiceExchageWaybillSpare(waybill.getWaybillSign())){
                 //仓配二次换单
                 return true;
             }
