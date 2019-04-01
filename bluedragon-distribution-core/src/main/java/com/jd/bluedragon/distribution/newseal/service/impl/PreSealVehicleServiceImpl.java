@@ -239,11 +239,11 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
      */
     private void addSealTask(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserName, Date operateTime){
         Integer siteCode = preList.get(0).getCreateSiteCode();
-        List<SealTaskBody> bodyList = new ArrayList<>(preList.size());
+        Map<String, SealTaskBody> bodyMap = new HashMap<>();
 
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
-            if(sendCodes == null && sendCodes.isEmpty()){
+            if(sendCodes == null || sendCodes.isEmpty()){
                 continue;
             }
             Map<String, SealTaskBody> carMap = new HashMap<>();
@@ -265,11 +265,13 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());
+                if(!bodyMap.containsKey(vo.getVehicleNumber())){
+                    bodyMap.put(vo.getVehicleNumber(), body);
+                }
             }
-            bodyList.addAll(carMap.values());
         }
         Task task = new Task();
-        task.setBody(JsonHelper.toJson(bodyList));
+        task.setBody(JsonHelper.toJson(bodyMap.values()));
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setType(Task.TASK_TYPE_OFFLINE);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_OFFLINE));
