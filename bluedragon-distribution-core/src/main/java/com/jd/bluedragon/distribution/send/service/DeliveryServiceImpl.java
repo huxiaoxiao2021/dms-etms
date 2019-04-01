@@ -397,6 +397,30 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     /**
+     * 取消最近一次发货记录
+     *
+     * @param domain
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSend.cancelLastSend", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public ThreeDeliveryResponse cancelLastSend(SendM domain) {
+        SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
+        if (lastSendM != null) {
+            //如果不是包裹号，需指定取消发货的目的地
+            if (!BusinessHelper.isBoxcode(lastSendM.getBoxCode())) {
+                domain.setReceiveSiteCode(lastSendM.getReceiveSiteCode());
+            }
+            //替换掉发货类型
+            domain.setSendType(lastSendM.getSendType());
+            //更新时间为操作时间
+            domain.setUpdateTime(domain.getOperateTime());
+            return this.dellCancelDeliveryMessage(domain, true);
+        } else {
+            return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
+        }
+    }
+
+    /**
      * 执行一车一单发货所有业务逻辑
      *
      * @param domain
@@ -2892,9 +2916,10 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 快运发货校验路由信息
      * @param sendM
+     * @flag 新老版本标识，0是老版本调用，1是新版本调用接口
      * @return
      */
-    public DeliveryResponse checkRouterForKY(SendM sendM){
+    public DeliveryResponse checkRouterForKY(SendM sendM, Integer flag){
         DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
 
         //获取提示语
@@ -2904,29 +2929,41 @@ public class DeliveryServiceImpl implements DeliveryService {
             tipMessageList.add(DeliveryResponse.TIP_MESSAGE_NEED_ADD_QUARANTINE);
         }
 
-        //批次号封车校验，已封车不能发货
+        //1.批次号封车校验，已封车不能发货
         if (StringUtils.isNotEmpty(sendM.getSendCode()) && newSealVehicleService.checkSendCodeIsSealed(sendM.getSendCode())) {
             response.setCode(DeliveryResponse.CODE_SEND_CODE_ERROR);
             response.setMessage(DeliveryResponse.MESSAGE_SEND_CODE_ERROR);
             return response;
         }
-        response = deliveryCheckHasSend(sendM);
+
+        //2.校验箱号或者包裹是否已发货
+        SysConfigContent sysConfigContent = sysConfigService.getSysConfigJsonContent("b.check.send.cancel.last.send.switch");
+        //判断条件：
+        // （1）接口标识为调用的新接口
+        // （2）开关存在并开启状态，或当前始发分拣中心存在于列表里
+        // 同时满足1和2走新逻辑，否则都走老逻辑
+        if (Constants.DELIVERY_ROUTER_VERIFICATION_NEW.equals(flag) && sysConfigContent != null && (sysConfigContent.getMasterSwitch() || sysConfigContent.getSiteCodes().contains(sendM.getCreateSiteCode()))) {
+            response = checkCancelLastSend(sendM);
+        }
+        else {
+            response = deliveryCheckHasSend(sendM);
+        }
+
         response.setTipMessages(tipMessageList);
 
         if(!JdResponse.CODE_OK.equals(response.getCode())){
             return response;
         }
 
-        // FIXME: 2018/10/16 应该单独写一个校验接口，后续进行剥离
-        //B网包装耗材服务确认拦截
+        //3.B网包装耗材服务确认拦截
         if (! this.checkWaybillConsumable(sendM)) {
             response.setCode(DeliveryResponse.CODE_29120);
             response.setMessage(DeliveryResponse.MESSAGE_29120);
             return response;
         }
 
+        //4.快运称重及运费拦截
         logger.info("快运发货运单重量及运费拦截开始");
-        //快运称重及运费拦截
         List<String> waybillCodes = getWaybillCodesBySendM(sendM);
         InterceptResult<String> interceptResult = this.interceptWaybillForB2b(waybillCodes);
         if(!interceptResult.isSucceed()){
@@ -2935,6 +2972,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(interceptResult.getMessage());
             return response;
         }
+
+        //5.快运发货非城配运单发往车队，判断是否可以C转B
         Integer receiveSiteCode = sendM.getReceiveSiteCode();
         Integer originalSiteCode = sendM.getCreateSiteCode();
         BaseStaffSiteOrgDto receiveSite = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
@@ -2945,7 +2984,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             return response;
         }else if(!Integer.valueOf(Constants.DMS_SITE_TYPE).equals(receiveSite.getSiteType())){//发货至分拣中心才校验
             logger.warn("快运发货目的站点非分拣中心，不校验B2B路由："+receiveSiteCode);
-            //快运发货非城配运单发往车队，判断是否可以C转B
             if(!checkDmsToVendor(sendM)){
                 response.setCode(DeliveryResponse.CODE_SCHEDULE_INCOMPLETE);
                 response.setMessage(DeliveryResponse.MESSAGE_DMS_TO_VENDOR_ERROR);
@@ -2953,6 +2991,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             }
             return response;
         }
+
+        //6.判断路由
         Integer destinationSiteCode = getDestinationSiteCode(sendM);
         logger.info("根据包裹号或箱号获取目的分拣中心："+destinationSiteCode);
         if(destinationSiteCode == null){
@@ -2960,8 +3000,6 @@ public class DeliveryServiceImpl implements DeliveryService {
             response.setMessage(DeliveryResponse.MESSAGE_ROUTER_MISS_ERROR);
             return response;
         }
-
-        //1.判断路由
         try {
             logger.info("B网路由查询条件："+JsonHelper.toJson(sendM));
             List<B2BRouter> routers = b2bRouterService.getB2BRouters(originalSiteCode, destinationSiteCode);
@@ -2987,6 +3025,42 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return response;
+    }
+
+    /**
+     * 校验多次发货是否取消上次发货
+     * @param sendM 发货实体
+     */
+    public DeliveryResponse checkCancelLastSend(SendM sendM) {
+
+        DeliveryResponse deliveryResponse = new DeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+
+        String boxCode = sendM.getBoxCode();
+        Integer createSiteCode = sendM.getCreateSiteCode();
+        Integer receiveSiteCode = sendM.getReceiveSiteCode();
+        Date operateTime = sendM.getOperateTime();
+
+        // 根据箱号/包裹号、始发站点、目的站点获取最后一次的发货记录
+        SendM lastSendM = this.getRecentSendMByParam(boxCode, createSiteCode, null, operateTime);
+        if (lastSendM != null) {
+            String lastSendCode = lastSendM.getSendCode();
+            if (StringUtils.isNotEmpty(lastSendCode)) {
+                //封车一小时判断
+                if (! this.sendSealTimeIsOverOneHour(lastSendCode, operateTime)) {
+                    if (receiveSiteCode.equals(lastSendM.getReceiveSiteCode())) {
+                        //当前发货目的地 与 最后一次发货目的地相同，提示已发货
+                        deliveryResponse.setCode(DeliveryResponse.CODE_Delivery_IS_SEND);
+                        deliveryResponse.setMessage(DeliveryResponse.MESSAGE_Delivery_IS_SEND);
+                    } else {
+                        //如果不相同，提示一个确认框
+                        deliveryResponse.setCode(DeliveryResponse.CODE_CONFIRM_CANCEL_LAST_SEND);
+                        deliveryResponse.setMessage(DeliveryResponse.MESSAGE_CONFIRM_CANCEL_LAST_SEND);
+                    }
+                }
+            }
+        }
+
+        return deliveryResponse;
     }
 
     /**
