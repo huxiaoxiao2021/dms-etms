@@ -247,10 +247,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     private DefaultJMQProducer deliveryCancelSendMQ;
 
     @Autowired
-    @Qualifier("recyclableBoxSendMQ")
-    private DefaultJMQProducer recyclableBoxSendMQ;
-
-    @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
     private DefaultJMQProducer dmsWorkSendDetailMQ;
 
@@ -1555,35 +1551,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return response;
     }
 
-    /**
-     * 循环箱发MQ
-     * @param request
-     * @return
-     */
-    @Override
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
-        RecyclableBoxSend res=new RecyclableBoxSend();
 
-        try {
-            String businessId = "";
-            if(StringUtils.isNotBlank(request.getBatchCode())){
-                businessId = request.getBatchCode();
-            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
-                businessId = request.getWayBillNo();
-            }
-
-            request.setSourceSysCode("DMS");
-            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
-            res.setCode(JdResponse.CODE_OK);
-            res.setMessage(JdResponse.MESSAGE_OK);
-        } catch (Exception e) {
-            res.setCode(JdResponse.CODE_TIME_ERROR);
-            res.setMessage(e.getMessage());
-            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
-        }
-
-        return res;
-    }
 
     /**
      * 生成取消发货数据处理

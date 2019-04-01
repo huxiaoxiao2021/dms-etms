@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -28,7 +29,6 @@ import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeSe
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDifference;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -121,6 +121,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
 
     /**
@@ -313,18 +316,19 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/recyclableboxsend")
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request) {
-        if (logger.isInfoEnabled()) {
-            logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
-        }
-        RecyclableBoxSend res = deliveryService.recyclableBoxSend(request);
-        if (logger.isInfoEnabled()) {
+    public InvokeResult recyclableBoxSend(RecyclableBoxRequest request) {
+        InvokeResult result = new InvokeResult();
+        try {
+            if (logger.isInfoEnabled()) {
+                logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
+            }
+            cycleBoxService.recyclableBoxSend(request);
             logger.info("结束循环箱发MQ");
+        }catch (Exception e){
+            logger.error("循环箱发送MQ异常.",e);
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        /**
-         * com.jd.bluedragon.distribution.command;
-         */
-        return res;
+        return result;
     }
 
     /**
