@@ -37,6 +37,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
     private static final String TEMPlATE_NAME_B2B_BUSINESS_HALL = "dms-b2b-new";
     /** B网冷链面单 **/
     private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
+    /** TC面单 **/
+    private static final String TEMPlATE_NAME_TC = "dms-b2b-m";
     /** C网统一面单-10*11 **/
     private static final String TEMPlATE_NAME_C_MAIN = "dms-unite-m";
     /** C网统一面单-10*10 **/
@@ -65,14 +67,20 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                 if (BusinessUtil.isSignInChars(waybillSign, 40, '1', '2', '3')) {
                     //B网模板
                     if (!BusinessUtil.isSignChar(waybillSign, 54, '2')) {
-                        templateName = TEMPlATE_NAME_B2B_BUSINESS;
+                        if (BusinessUtil.isSignChar(waybillSign, 62, '1')) {
+                            //B网营业厅面单
+                            templateName = TEMPlATE_NAME_B2B_BUSINESS_HALL;
+                        } else if (BusinessUtil.isSignChar(waybillSign, 62, '0')) {
+                            //B网专用面单
+                            templateName = TEMPlATE_NAME_B2B_MAIN;
+                        }
                     } else {
                         //冷链模板
                         templateName = TEMPlATE_NAME_B2B_COLD;
                     }
                 } else if (BusinessUtil.isSignChar(waybillSign, 89, '1')) {
                     //TC模板
-                    templateName = TEMPlATE_NAME_B2B_BUSINESS;
+                    templateName = TEMPlATE_NAME_TC;
                 } else {
                     //C网面单
                     //一号店模板
