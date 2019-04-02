@@ -23,7 +23,7 @@ public interface DeliveryService {
      * @param domain
      * @param isForceSend      是否强制发货
      * @param isCancelLastSend 是否取消上次发货
-     * @return Map.Entiry<code                                                               ,                                                               message> 改到SendResult
+     * @return Map.Entiry<code                                                                                                                               ,                                                                                                                               message> 改到SendResult
      */
     SendResult packageSend(SendBizSourceEnum bizSource, SendM domain, boolean isForceSend, boolean isCancelLastSend);
 
@@ -72,7 +72,7 @@ public interface DeliveryService {
      * 龙门架自动发货原包发货，去掉原有的分拣发货拦截验证
      *
      * @param domain 发货对象
-     * @return Map.Entiry<code , message> 改到SendResult
+     * @return Map.Entiry<code   ,   message> 改到SendResult
      */
     SendResult autoPackageSend(SendM domain, UploadData uploadData);
 
@@ -144,7 +144,7 @@ public interface DeliveryService {
     /**
      * 生成发货数据处理
      *
-     * @param source 发货源
+     * @param source    发货源
      * @param sendMList 发货相关数据
      * @return
      */
@@ -350,9 +350,8 @@ public interface DeliveryService {
     /**
      * 一单多件包裹不全验证
      *
-     * @param boxCode
-     * @param createSiteCode
-     * @param receiveSiteCode
+     * @param sendCode
+     * @param sendType
      * @return
      */
     List<SendDetail> queryBySendCodeAndSendType(String sendCode, Integer sendType);
@@ -407,19 +406,20 @@ public interface DeliveryService {
      * @param waybillCode 运单号
      * @return
      */
-	DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
+    DeliveryResponse dealJpWaybill(Integer siteCode, String waybillCode);
 
-	/**
-	 * 执行取消上次发货逻辑
-	 *
-	 * @param domain
-	 */
-	ThreeDeliveryResponse cancelLastSend(SendM domain);
+    /**
+     * 执行取消上次发货逻辑
+     *
+     * @param domain
+     */
+    ThreeDeliveryResponse cancelLastSend(SendM domain);
 
-	/**
-	 * 根据箱号查询箱号的运单号
-	 * @param boxCode
-	 * @return
-	 */
-	List<String>  getWaybillCodesByBoxCodeAndFetchNum(String boxCode,Integer fetchNum);
+    /**
+     * 根据箱号查询箱号的运单号
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getWaybillCodesByBoxCodeAndFetchNum(String boxCode, Integer fetchNum);
 }
