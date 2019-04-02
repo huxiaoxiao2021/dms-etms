@@ -26,6 +26,7 @@
 		<result column="spare_reason"  property="spareReason" />
 		<result column="is_loss" property="isLoss"/>
 		<result column="feature_type" property="featureType"/>
+		<result column="biz_source" property="bizSource"/>
 	</resultMap>
 	
 	<resultMap id="SendDetailList" type="java.lang.String" />
@@ -195,11 +196,32 @@
 			AND send_type = 20
 			AND yn=1 
 	</update>
-   
-  <sql id="Base_Column_List">
-    send_d_id, send_code, box_code, package_barcode, package_num, waybill_code,pickup_code, send_type,create_site_code, 
-    receive_site_code, create_time,operate_time, create_user, create_user_code, sendd_status,is_cancel, weight, update_time, yn,spare_reason,is_loss,feature_type
-  </sql>
+
+	<sql id="Base_Column_List">
+   	send_d_id,
+	send_code,
+	box_code,
+	package_barcode,
+	package_num,
+	waybill_code,
+	pickup_code,
+	send_type,
+	create_site_code,
+	receive_site_code,
+	create_time,
+	operate_time,
+	create_user,
+	create_user_code,
+	sendd_status,
+	is_cancel,
+	weight,
+	update_time,
+	yn,
+	spare_reason,
+	is_loss,
+	feature_type,
+	biz_source
+   </sql>
   
 	<select id="querySendDatailsByBoxCode" parameterType="SendDetail"
 		resultMap="SendDetail">
@@ -358,8 +380,11 @@
 			</if>
 			excute_count = (excute_count + 1) 
 			<if test="status == 0">
-				, excute_time = timestampadd(minute, 15, excute_time) 
-			</if>			
+				, excute_time = timestampadd(minute, 15, excute_time)
+			</if>
+			<if test="bizSource != null">
+				, biz_source = #{bizSource,jdbcType=TINYINT}
+			</if>
 		</set>
 		where package_barcode = #{packageBarcode,jdbcType=VARCHAR} 
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
@@ -395,7 +420,10 @@
 			excute_count = (excute_count + 1) 
 			<if test="status == 0">
 				, excute_time = excute_time = timestampadd(minute, 15, excute_time) 
-			</if>			
+			</if>
+			<if test="bizSource != null">
+				, biz_source = #{bizSource,jdbcType=TINYINT}
+			</if>
 		</set>
 		where package_barcode = #{packageBarcode,jdbcType=VARCHAR} 
 		and create_site_code = #{createSiteCode,jdbcType=INTEGER}

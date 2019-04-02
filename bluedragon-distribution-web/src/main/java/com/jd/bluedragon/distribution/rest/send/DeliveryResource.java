@@ -38,6 +38,7 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -102,8 +103,11 @@ public class DeliveryResource {
 
     @Autowired
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
-    
-    private static final Integer KY_DELIVERY = 1; //快运发货标识
+
+    /**
+     * 快运发货标识
+     */
+    private static final Integer KY_DELIVERY = 1;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     
@@ -149,51 +153,67 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/newpackagesend")
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
-        SendM domain = new SendM();
-        domain.setReceiveSiteCode(request.getReceiveSiteCode());
-        domain.setSendCode(request.getSendCode());
-        domain.setCreateSiteCode(request.getSiteCode());
 
-        String turnoverBoxCode = request.getTurnoverBoxCode();
-        if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
-            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
-        }else{
-            domain.setTurnoverBoxCode(turnoverBoxCode);
-        }
-        domain.setCreateUser(request.getUserName());
-        domain.setCreateUserCode(request.getUserCode());
-        domain.setSendType(request.getBusinessType());
-        domain.setTransporttype(request.getTransporttype());
-        domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+                // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
-                result.setData(deliveryService.boardSend(domain,request.getIsForceSend()));
-            }else{//一车一单发货
+                result.setData(deliveryService.boardSend(domain, request.getIsForceSend()));
+            } else {
+                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
+                // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                if (request.getIsCancelLastSend() == null){
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                if (request.getIsCancelLastSend() == null) {
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
                 } else {
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
                 }
             }
         } catch (Exception ex) {
             result.error(ex);
             logger.error("一车一单发货", ex);
         }
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(result));
         }
         return result;
+    }
+
+    /**
+     * 请求拼装SendM发货对象
+     *
+     * @param request
+     * @return
+     */
+    private SendM toSendMDomain(PackageSendRequest request) {
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setCreateSiteCode(request.getSiteCode());
+
+        String turnoverBoxCode = request.getTurnoverBoxCode();
+        if (StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30) {
+            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
+        } else {
+            domain.setTurnoverBoxCode(turnoverBoxCode);
+        }
+        domain.setCreateUser(request.getUserName());
+        domain.setCreateUserCode(request.getUserCode());
+        domain.setSendType(request.getBusinessType());
+        domain.setTransporttype(request.getTransporttype());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        return domain;
     }
 
     @GET
@@ -387,8 +407,22 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
+        DeliveryResponse tDeliveryResponse;
 
-        DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(toSendDatailList(request));
+        Integer opType = request.get(0).getOpType();
+        if (KY_DELIVERY.equals(opType)) {
+            /** 快运发货 */
+            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, toSendDatailList(request));
+        } else {
+            Integer businessType = request.get(0).getBusinessType();
+            if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                // 逆向发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDatailList(request));
+            } else {
+                // 正向老发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDatailList(request));
+            }
+        }
         this.logger.info("结束写入发货信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
@@ -1197,8 +1231,8 @@ public class DeliveryResource {
             for(SendM sendM : sendMListInit){
                 /**根据条件获取SendM*/
                 List<SendM> sendMList = deliveryService.queryCountByBox(sendM);
-                if(sendMList.isEmpty()){
-                    deliveryService.packageSortSend(sendM);
+                if (sendMList.isEmpty()) {
+                    deliveryService.packageSend(SendBizSourceEnum.OPEN_PLATFORM_SEND, sendM);
                 }
             }
 

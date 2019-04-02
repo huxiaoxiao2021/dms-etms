@@ -1,61 +1,84 @@
 package com.jd.bluedragon.distribution.send.domain;
 
-import java.util.Date;
-
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import java.util.Date;
 
-public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
+public class SendDetail implements java.io.Serializable, Comparable<SendDetail> {
+
+    private static final long serialVersionUID = 2292780849533744283L;
 
     /**
-	 * 
-	 */
-	private static final long serialVersionUID = 2292780849533744283L;
-
-	/** 全局唯一ID */
+     * 全局唯一ID
+     */
     private Long sendDId;
 
-    /** 发货交接单号 */
+    /**
+     * 发货交接单号
+     */
     private String sendCode;
 
-    /** 箱号 */
+    /**
+     * 箱号
+     */
     private String boxCode;
 
-    /** 包裹号 */
+    /**
+     * 包裹号
+     */
     private String packageBarcode;
-    
-    /** 包裹数量 */
+
+    /**
+     * 包裹数量
+     */
     private Integer packageNum;
 
-    /** 运单号 */
+    /**
+     * 运单号
+     */
     private String waybillCode;
 
-    /** 运单号 */
+    /**
+     * 运单号
+     */
     private String pickupCode;
 
-    /** 发货交接单类型(10 退货 20 转站 30 第三方) */
+    /**
+     * 发货交接单类型(10 退货 20 转站 30 第三方)
+     */
     private Integer sendType;
 
-    /** 操作单位编码 */
+    /**
+     * 操作单位编码
+     */
     private Integer createSiteCode;
 
-    /** 操作单位编码 */
+    /**
+     * 操作单位编码
+     */
     private Integer receiveSiteCode;
 
-    /** 操作时间 */
+    /**
+     * 操作时间
+     */
     private Date operateTime;
-    
-    /** 创建时间 */
+
+    /**
+     * 创建时间
+     */
     private Date createTime;
 
-    /** 操作人 */
+    /**
+     * 操作人
+     */
     private String createUser;
 
-    /** 操作人编码 */
+    /**
+     * 操作人编码
+     */
     private Integer createUserCode;
 
     /**
@@ -63,24 +86,36 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
      */
     private Integer status;
 
-    /** 是否取消状态 */
+    /**
+     * 是否取消状态
+     */
     private Integer isCancel;
 
-    /** 重量 */
+    /**
+     * 重量
+     */
     private Double weight;
 
-    /** 最后修改时间 */
+    /**
+     * 最后修改时间
+     */
     private Date updateTime;
-    
-    /** 执行次数 */
+
+    /**
+     * 执行次数
+     */
     private Integer excuteCount;
 
-    /** 执行时间 */
+    /**
+     * 执行时间
+     */
     private Date excuteTime;
 
-    /** 是否删除 '0' 删除 '1' 使用 */
+    /**
+     * 是否删除 '0' 删除 '1' 使用
+     */
     private Integer yn;
-    
+
     /**
      * 备件库退货原因
      */
@@ -89,20 +124,33 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
      * 备件库入库单号
      */
     private String spareTranCode;
-    
-    /** 逆向物流接入报损系统 0正常分拣 1  报丢分拣*/
+
+    /**
+     * 逆向物流接入报损系统 0正常分拣 1  报丢分拣
+     */
     private Integer isLoss;
 
-    /**逆向标识字段 1：报损 2：三方七折退备件库，以后取代isLoss*/
+    /**
+     * 逆向标识字段 1：报损 2：三方七折退备件库，以后取代isLoss
+     */
     private Integer featureType;
-    
-    /**亚一返仓标识 b1 c1*/
+
+    /**
+     * 亚一返仓标识 b1 c1
+     */
     private Integer whReverse;
 
     private String source;
 
-    /** 组板板号 */
+    /**
+     * 组板板号
+     */
     private String boardCode;
+
+    /**
+     * 发货业务来源
+     */
+    private Integer bizSource;
 
     public String getSource() {
         return source;
@@ -113,18 +161,18 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     }
 
     public String getSpareTranCode() {
-		return spareTranCode;
-	}
+        return spareTranCode;
+    }
 
-	public void setSpareTranCode(String spareTranCode) {
-		this.spareTranCode = spareTranCode;
-	}
+    public void setSpareTranCode(String spareTranCode) {
+        this.spareTranCode = spareTranCode;
+    }
 
-	public SendDetail() {
-		super();
-	}
+    public SendDetail() {
+        super();
+    }
 
-	public Long getSendDId() {
+    public Long getSendDId() {
         return this.sendDId;
     }
 
@@ -155,16 +203,16 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     public void setPackageBarcode(String packageBarcode) {
         this.packageBarcode = packageBarcode;
     }
-    
+
     public Integer getPackageNum() {
-		return packageNum;
-	}
+        return packageNum;
+    }
 
-	public void setPackageNum(Integer packageNum) {
-		this.packageNum = packageNum;
-	}
+    public void setPackageNum(Integer packageNum) {
+        this.packageNum = packageNum;
+    }
 
-	public String getWaybillCode() {
+    public String getWaybillCode() {
         return this.waybillCode;
     }
 
@@ -253,60 +301,19 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     }
 
     public Date getOperateTime() {
-		return this.operateTime == null ? null : (Date) this.operateTime.clone();
-	}
+        return this.operateTime == null ? null : (Date) this.operateTime.clone();
+    }
 
-	public void setOperateTime(Date operateTime) {
-		this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
-	}
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime == null ? null : (Date) operateTime.clone();
+    }
 
-	public Date getCreateTime() {
-		return this.createTime == null ? null : (Date) this.createTime.clone();
-	}
+    public Date getCreateTime() {
+        return this.createTime == null ? null : (Date) this.createTime.clone();
+    }
 
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime == null ? null : (Date) createTime.clone();
-	}
-
-	public static SendDetail toSendDatail(Sorting sorting) {
-        SendDetail sendDetail = new SendDetail();
-
-        String aBoxCode = sorting.getBoxCode();
-        String aPackageCode = sorting.getPackageCode();
-
-        sendDetail.setCreateSiteCode(sorting.getCreateSiteCode());
-        sendDetail.setReceiveSiteCode(sorting.getReceiveSiteCode());
-        sendDetail.setCreateUser(sorting.getCreateUser());
-        sendDetail.setCreateUserCode(sorting.getCreateUserCode());
-        sendDetail.setCreateUserCode(sorting.getCreateUserCode());
-        sendDetail.setIsCancel(sorting.getIsCancel());
-        sendDetail.setSendType(sorting.getType());
-        sendDetail.setCreateTime(new Date());
-        sendDetail.setOperateTime(sorting.getOperateTime());
-        sendDetail.setUpdateTime(sorting.getUpdateTime());
-        sendDetail.setBoxCode(StringHelper.isNotEmpty(aBoxCode) ? aBoxCode : aPackageCode);
-        sendDetail.setIsLoss(sorting.getIsLoss());
-        sendDetail.setFeatureType(sorting.getFeatureType());
-        sendDetail.setWhReverse(sorting.getWhReverse());
-
-        if (WaybillUtil.isReverseSpare(sorting.getType(), aPackageCode)) {
-        	sendDetail.setSpareReason(sorting.getSpareReason());
-        	sendDetail.setWaybillCode(sorting.getWaybillCode());
-        	sendDetail.setPackageBarcode(aPackageCode);
-        } else {
-	        if (!WaybillUtil.isSurfaceCode(aPackageCode)) {
-	            sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
-	        }
-	
-	        if (WaybillUtil.isPackageCode(aPackageCode)) {
-	            sendDetail.setPackageBarcode(aPackageCode);
-	        }
-	
-	        if (WaybillUtil.isWaybillCode(aPackageCode)) {
-	            sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
-	        }
-        }
-        return sendDetail;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime == null ? null : (Date) createTime.clone();
     }
 
     public String getPickupCode() {
@@ -316,7 +323,7 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     public void setPickupCode(String pickupCode) {
         this.pickupCode = pickupCode;
     }
-    
+
 
     public Integer getExcuteCount() {
         return excuteCount;
@@ -331,40 +338,40 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
     }
 
     public void setExcuteTime(Date excuteTime) {
-    	this.excuteTime = excuteTime == null ? null : (Date) excuteTime.clone();
+        this.excuteTime = excuteTime == null ? null : (Date) excuteTime.clone();
     }
 
     public String getSpareReason() {
-		return spareReason;
-	}
+        return spareReason;
+    }
 
-	public void setSpareReason(String spareReason) {
-		this.spareReason = spareReason;
-	}
-	
-	public Integer getIsLoss() {
-		return isLoss;
-	}
+    public void setSpareReason(String spareReason) {
+        this.spareReason = spareReason;
+    }
 
-	public void setIsLoss(Integer isLoss) {
-		this.isLoss = isLoss;
-	}
-	
-	public Integer getFeatureType() {
-		return featureType;
-	}
+    public Integer getIsLoss() {
+        return isLoss;
+    }
 
-	public void setFeatureType(Integer featureType) {
-		this.featureType = featureType;
-	}
-	
-	public Integer getWhReverse() {
-		return whReverse;
-	}
+    public void setIsLoss(Integer isLoss) {
+        this.isLoss = isLoss;
+    }
 
-	public void setWhReverse(Integer whReverse) {
-		this.whReverse = whReverse;
-	}
+    public Integer getFeatureType() {
+        return featureType;
+    }
+
+    public void setFeatureType(Integer featureType) {
+        this.featureType = featureType;
+    }
+
+    public Integer getWhReverse() {
+        return whReverse;
+    }
+
+    public void setWhReverse(Integer whReverse) {
+        this.whReverse = whReverse;
+    }
 
     public String getBoardCode() {
         return boardCode;
@@ -372,6 +379,14 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 
     @Override
@@ -413,7 +428,7 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
             if (other.waybillCode != null) {
                 return false;
             }
-            if (other.waybillCode == null && other.packageBarcode!=null) {
+            if (other.waybillCode == null && other.packageBarcode != null) {
                 return false;
             }
         } else if (!this.waybillCode.equals(other.waybillCode)) {
@@ -421,130 +436,184 @@ public class SendDetail implements java.io.Serializable,Comparable<SendDetail>{
         }
         return true;
     }
-    
+
     @Override
-    public int compareTo(SendDetail sendDetail){
-    	if( null == sendDetail || StringUtils.isBlank(sendDetail.getPackageBarcode()) || StringUtils.isBlank(this.getPackageBarcode()) ){
-    		return 0;
-    	}else {
-    		return this.getPackageBarcode().compareTo(sendDetail.getPackageBarcode());
-    	}
+    public int compareTo(SendDetail sendDetail) {
+        if (null == sendDetail || StringUtils.isBlank(sendDetail.getPackageBarcode()) || StringUtils.isBlank(this.getPackageBarcode())) {
+            return 0;
+        } else {
+            return this.getPackageBarcode().compareTo(sendDetail.getPackageBarcode());
+        }
     }
-    
-    
-    public static class Builder{
-    	/*Required parameters*/
-	    /*包裹号*/
-	    private String packageBarcode;
-	    
-	    /*操作单位Code*/
-	    private Integer createSiteCode;
-	    
-	    /*Optional parameters*/
-	    /*收货单位Code*/
-	    private Integer receiveSiteCode;
-	    
-	    /*箱号*/
-	    private String boxCode;
-	    
-	    /** 发货交接单类型(10 正向 2逆向 30 第三方) */
-	    private Integer sendType;
-	    
-	    /*更新时间*/
-	    private Date updateTime;
-	    
-	    /** 操作人 */
-	    private String createUser;
 
-	    /** 操作人编码 */
-	    private Integer createUserCode;
-	    
-	    /** 运单号 */
-	    private String waybillCode;
+    public static SendDetail toSendDatail(Sorting sorting) {
+        SendDetail sendDetail = new SendDetail();
 
-	    /** 操作时间 */
-	    private Date operateTime;
-	    
-	    /** 创建时间 */
-	    private Date createTime;
-	    
-	    /** 是否取消状态 */
-	    private Integer isCancel;
-	    
-	    public Builder(String packageBarcode, Integer createSiteCode) {
-			super();
-			this.packageBarcode = packageBarcode;
-			this.createSiteCode = createSiteCode;
-		}
-	    
-	    public Builder receiveSiteCode(Integer val){
-	    	receiveSiteCode = val;
-	    	return this;
-	    }
-	    
-	    public Builder boxCode(String val){
-	    	boxCode = val;
-	    	return this;
-	    }
-	    
-	    public Builder updateTime( Date val ){
-	    	updateTime = val!=null?(Date)val.clone():null;
-	    	return this;
-	    }
-	    
-	    public Builder sendType( Integer val) {
-	    	sendType = val;
-	    	return this;
-	    }
-	    
-	    public Builder createUser( String val){
-	    	createUser = val;
-	    	return this;
-	    }
-	    
-	    public Builder createUserCode( Integer val ){
-	    	createUserCode = val;
-	    	return this;
-	    }
-	    
-	    public Builder waybillCode( String val ){
-	    	waybillCode = val;
-	    	return this;
-	    }
-	    
-	    public Builder createTime( Date val ){
-	    	createTime = val!=null?(Date)val.clone():null;
-	    	return this;
-	    }
-	    
-	    public Builder operateTime( Date val ){
-	    	operateTime = val!=null?(Date)val.clone():null;
-	    	return this;
-	    }
-	    
-	    public Builder isCancel( Integer val ){
-	    	isCancel = val;
-	    	return this;
-	    }
-	    
-	    public SendDetail build(){
-	    	return new SendDetail(this);
-	    }
+        String aBoxCode = sorting.getBoxCode();
+        String aPackageCode = sorting.getPackageCode();
+
+        sendDetail.setCreateSiteCode(sorting.getCreateSiteCode());
+        sendDetail.setReceiveSiteCode(sorting.getReceiveSiteCode());
+        sendDetail.setCreateUser(sorting.getCreateUser());
+        sendDetail.setCreateUserCode(sorting.getCreateUserCode());
+        sendDetail.setCreateUserCode(sorting.getCreateUserCode());
+        sendDetail.setIsCancel(sorting.getIsCancel());
+        sendDetail.setSendType(sorting.getType());
+        sendDetail.setCreateTime(new Date());
+        sendDetail.setOperateTime(sorting.getOperateTime());
+        sendDetail.setUpdateTime(sorting.getUpdateTime());
+        sendDetail.setBoxCode(StringHelper.isNotEmpty(aBoxCode) ? aBoxCode : aPackageCode);
+        sendDetail.setIsLoss(sorting.getIsLoss());
+        sendDetail.setFeatureType(sorting.getFeatureType());
+        sendDetail.setWhReverse(sorting.getWhReverse());
+
+        if (WaybillUtil.isReverseSpare(sorting.getType(), aPackageCode)) {
+            sendDetail.setSpareReason(sorting.getSpareReason());
+            sendDetail.setWaybillCode(sorting.getWaybillCode());
+            sendDetail.setPackageBarcode(aPackageCode);
+        } else {
+            if (!WaybillUtil.isSurfaceCode(aPackageCode)) {
+                sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
+            }
+
+            if (WaybillUtil.isPackageCode(aPackageCode)) {
+                sendDetail.setPackageBarcode(aPackageCode);
+            }
+
+            if (WaybillUtil.isWaybillCode(aPackageCode)) {
+                sendDetail.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
+            }
+        }
+        return sendDetail;
     }
-    
+
+    public static class Builder {
+        /*Required parameters*/
+        /*包裹号*/
+        private String packageBarcode;
+
+        /*操作单位Code*/
+        private Integer createSiteCode;
+
+        /*Optional parameters*/
+        /*收货单位Code*/
+        private Integer receiveSiteCode;
+
+        /*箱号*/
+        private String boxCode;
+
+        /**
+         * 发货交接单类型(10 正向 2逆向 30 第三方)
+         */
+        private Integer sendType;
+
+        /*更新时间*/
+        private Date updateTime;
+
+        /**
+         * 操作人
+         */
+        private String createUser;
+
+        /**
+         * 操作人编码
+         */
+        private Integer createUserCode;
+
+        /**
+         * 运单号
+         */
+        private String waybillCode;
+
+        /**
+         * 操作时间
+         */
+        private Date operateTime;
+
+        /**
+         * 创建时间
+         */
+        private Date createTime;
+
+        /**
+         * 是否取消状态
+         */
+        private Integer isCancel;
+
+        public Builder(String packageBarcode, Integer createSiteCode) {
+            super();
+            this.packageBarcode = packageBarcode;
+            this.createSiteCode = createSiteCode;
+        }
+
+        public Builder receiveSiteCode(Integer val) {
+            receiveSiteCode = val;
+            return this;
+        }
+
+        public Builder boxCode(String val) {
+            boxCode = val;
+            return this;
+        }
+
+        public Builder updateTime(Date val) {
+            updateTime = val != null ? (Date) val.clone() : null;
+            return this;
+        }
+
+        public Builder sendType(Integer val) {
+            sendType = val;
+            return this;
+        }
+
+        public Builder createUser(String val) {
+            createUser = val;
+            return this;
+        }
+
+        public Builder createUserCode(Integer val) {
+            createUserCode = val;
+            return this;
+        }
+
+        public Builder waybillCode(String val) {
+            waybillCode = val;
+            return this;
+        }
+
+        public Builder createTime(Date val) {
+            createTime = val != null ? (Date) val.clone() : null;
+            return this;
+        }
+
+        public Builder operateTime(Date val) {
+            operateTime = val != null ? (Date) val.clone() : null;
+            return this;
+        }
+
+        public Builder isCancel(Integer val) {
+            isCancel = val;
+            return this;
+        }
+
+        public SendDetail build() {
+            return new SendDetail(this);
+        }
+    }
+
     public SendDetail(Builder builder) {
-    	this.packageBarcode = builder.packageBarcode;
-		this.createSiteCode = builder.createSiteCode;
-		this.boxCode = builder.boxCode;
-		this.receiveSiteCode = builder.receiveSiteCode;
-		this.updateTime = builder.updateTime;
-		this.sendType = builder.sendType;
-		this.createUser = builder.createUser;
-		this.createUserCode = builder.createUserCode;
-		this.waybillCode = builder.waybillCode;
-		this.createTime = builder.createTime;
-		this.isCancel = builder.isCancel;
-		this.operateTime = builder.operateTime;
+        this.packageBarcode = builder.packageBarcode;
+        this.createSiteCode = builder.createSiteCode;
+        this.boxCode = builder.boxCode;
+        this.receiveSiteCode = builder.receiveSiteCode;
+        this.updateTime = builder.updateTime;
+        this.sendType = builder.sendType;
+        this.createUser = builder.createUser;
+        this.createUserCode = builder.createUserCode;
+        this.waybillCode = builder.waybillCode;
+        this.createTime = builder.createTime;
+        this.isCancel = builder.isCancel;
+        this.operateTime = builder.operateTime;
     }
 
 }
