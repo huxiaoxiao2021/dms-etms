@@ -537,6 +537,7 @@ public class Constants {
     public static final int OPERATE_TYPE_AR_RECEIVE = 1810;
 
     /********************************************* UIM权限资源码相关start *********************************************/
+    public static final String DMS_WEB_PERMISSION_CONTROL_R="DMS-WEB-PERMISSION-CONTROL-R"; //权限跳转
     public static final String DMS_WEB_PTORDER_DIFF_R="DMS-WEB-PTORDER-DIFF-R"; //平台差异处理
     public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询

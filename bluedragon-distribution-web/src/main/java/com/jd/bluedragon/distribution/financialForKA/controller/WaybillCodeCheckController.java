@@ -37,6 +37,7 @@ public class WaybillCodeCheckController extends DmsBaseController {
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_WAYBILLCODECHECK_R)
     @RequestMapping("/check")
     @ResponseBody
     public InvokeResult waybillCodeCheck(@RequestBody WaybillCodeCheckCondition condition){

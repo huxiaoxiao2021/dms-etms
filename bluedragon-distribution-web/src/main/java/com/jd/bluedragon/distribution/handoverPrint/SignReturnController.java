@@ -59,6 +59,7 @@ public class SignReturnController extends DmsBaseController {
      * 查询
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/query")
     public @ResponseBody PagerResult<SignReturnPrintM> query(@RequestBody SignReturnCondition condition){
 
@@ -93,6 +94,7 @@ public class SignReturnController extends DmsBaseController {
      * 查询明细
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<MergedWaybill> listData(@RequestBody SignReturnCondition condition){
 
@@ -113,6 +115,7 @@ public class SignReturnController extends DmsBaseController {
      * 导出
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
 
@@ -129,6 +132,7 @@ public class SignReturnController extends DmsBaseController {
      * 跳转打印页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toPrint")
     public String toPrint(SignReturnCondition condition,Model model){
 
@@ -140,6 +144,7 @@ public class SignReturnController extends DmsBaseController {
     /**
      * 打印明细
      * */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @ResponseBody
     @RequestMapping(value = "/printInfo")
     public String printInfo(@QueryParam("newWaybillCode")String newWaybillCode,

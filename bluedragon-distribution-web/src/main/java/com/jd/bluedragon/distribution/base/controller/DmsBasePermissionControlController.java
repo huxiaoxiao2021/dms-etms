@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.base.controller;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ public class DmsBasePermissionControlController extends DmsBaseController {
 
     private static final Log logger = LogFactory.getLog(DmsBasePermissionControlController.class);
 
+    @Authorization(Constants.DMS_WEB_PERMISSION_CONTROL_R)
     @RequestMapping("/toIndex/{code}")
     public String permissionControl(@PathVariable("code") String code, Model model){
 

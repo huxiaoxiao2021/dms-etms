@@ -65,6 +65,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
         return "/receive/receiveWeightCheck";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<ReceiveWeightCheckResult> listData(@RequestBody ReceiveWeightCheckCondition condition){
@@ -77,6 +78,7 @@ public class ReceiveWeightCheckController extends DmsBaseController {
      * 导出
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(ReceiveWeightCheckCondition condition, Model model) {
 
