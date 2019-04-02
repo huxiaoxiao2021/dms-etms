@@ -6,7 +6,6 @@ import java.util.List;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;

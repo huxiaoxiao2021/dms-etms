@@ -42,7 +42,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 @Service("siteService")
 public class SiteServiceImpl implements SiteService {
-    private static final int SITE_PAGE_SIZE = 1000;
     /**
      * 批次号正则
      */
@@ -250,16 +249,7 @@ public class SiteServiceImpl implements SiteService {
     @Cache(key = "SiteServiceImpl.getBjDmsSiteCodes", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     @Override
     public Set<Integer> getBjDmsSiteCodes() {
-        Set<Integer> bjDmsSiteCodes = new HashSet<Integer>();
-        List<SysConfig> bjDmsSiteConfigs = sysConfigService.getListByConfigName(Constants.SYS_CONFIG_NAME_BJ_DMS_SITE_CODES);
-        if (bjDmsSiteConfigs != null && !bjDmsSiteConfigs.isEmpty()) {
-            String contents = bjDmsSiteConfigs.get(0).getConfigContent();
-            Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
-            for (String site : sites) {
-                bjDmsSiteCodes.add(Integer.valueOf(site));
-            }
-        }
-        return bjDmsSiteCodes;
+        return this.getSiteCodesFromSysConfig(Constants.SYS_CONFIG_NAME_BJ_DMS_SITE_CODES);
     }
 
     /**
@@ -371,5 +361,26 @@ public class SiteServiceImpl implements SiteService {
             }
         }
         return null;
+    }
+	/**
+	 * 从系统配置表sysconfig，根据配置名称获取站点编码列表，站点编码以‘,’隔开
+	 * @param sysConfigName
+	 * @return
+	 */
+    @Cache(key = "SiteServiceImpl.getSiteCodesFromSysConfig@arg0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    @Override
+    public Set<Integer> getSiteCodesFromSysConfig(String sysConfigName) {
+        Set<Integer> bjDmsSiteCodes = new HashSet<Integer>();
+        if(StringHelper.isNotEmpty(sysConfigName)){
+            List<SysConfig> bjDmsSiteConfigs = sysConfigService.getListByConfigName(sysConfigName);
+            if (bjDmsSiteConfigs != null && !bjDmsSiteConfigs.isEmpty()) {
+                String contents = bjDmsSiteConfigs.get(0).getConfigContent();
+                Set<String> sites = StringHelper.splitToSet(contents, Constants.SEPARATOR_COMMA);
+                for (String site : sites) {
+                    bjDmsSiteCodes.add(Integer.valueOf(site));
+                }
+            }
+        }
+        return bjDmsSiteCodes;
     }
 }

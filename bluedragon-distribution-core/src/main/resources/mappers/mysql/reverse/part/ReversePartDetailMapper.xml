@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.reverse.part.dao.ReversePartDetailDao">
+
+	<resultMap id="ReversePartDetail" type="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="all_pack_sum" property="allPackSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="receive_site_code" property="receiveSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="receive_site_name" property="receiveSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="type" property="type" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="pack_no" property="packNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_code" property="sendCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_time" property="sendTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="receive_time" property="receiveTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,all_pack_sum,waybill_code,create_site_code,
+		create_site_name,receive_site_code,receive_site_name,type,status,pack_no,send_code,
+		send_time,receive_time,create_user,create_time,update_user,
+		update_time,is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail">
+		insert into reverse_part_detail
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="allPackSum != null">
+					all_pack_sum,
+				</if>
+
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteName != null">
+					create_site_name,
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code,
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name,
+				</if>
+				<if test="type != null">
+					type,
+				</if>
+				<if test="status != null">
+					status,
+				</if>
+				<if test="packNo != null">
+					pack_no,
+				</if>
+				<if test="sendCode != null">
+					send_code,
+				</if>
+				<if test="sendTime != null">
+					send_time,
+				</if>
+				<if test="receiveTime != null">
+					receive_time,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="allPackSum != null">
+					#{allPackSum,jdbcType=INTEGER},
+				</if>
+
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					#{receiveSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="receiveSiteName != null">
+					#{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="type != null">
+					#{type,jdbcType=INTEGER},
+				</if>
+				<if test="status != null">
+					#{status,jdbcType=INTEGER},
+				</if>
+				<if test="packNo != null">
+					#{packNo,jdbcType=VARCHAR},
+				</if>
+				<if test="sendCode != null">
+					#{sendCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sendTime != null">
+					#{sendTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="receiveTime != null">
+					#{receiveTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into reverse_part_detail
+			(
+				send_code,pack_no,all_pack_sum,waybill_code,
+				create_site_code,create_site_name,receive_site_code,receive_site_name,type,
+				status,send_time,create_user,create_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.sendCode,jdbcType=VARCHAR},
+					#{item.packNo,jdbcType=VARCHAR},
+					#{item.allPackSum,jdbcType=INTEGER},
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.createSiteCode,jdbcType=INTEGER},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.receiveSiteCode,jdbcType=INTEGER},
+					#{item.receiveSiteName,jdbcType=VARCHAR},
+					#{item.type,jdbcType=INTEGER},
+					#{item.status,jdbcType=INTEGER},
+					#{item.sendTime,jdbcType=TIMESTAMP},
+					#{item.createUser,jdbcType=VARCHAR},
+					now(),
+					0,
+					now()
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail">
+		update reverse_part_detail
+			<set>
+				<if test="allPackSum != null">
+					all_pack_sum = #{allPackSum,jdbcType=INTEGER},
+				</if>
+
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="receiveSiteCode != null">
+					receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="receiveSiteName != null">
+					receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="type != null">
+					type = #{type,jdbcType=INTEGER},
+				</if>
+				<if test="status != null">
+					status = #{status,jdbcType=INTEGER},
+				</if>
+				<if test="sendTime != null">
+					send_time = #{sendTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="receiveTime != null">
+					receive_time = #{receiveTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update reverse_part_detail
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update reverse_part_detail
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="ReversePartDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  reverse_part_detail 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail" resultMap="ReversePartDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  reverse_part_detail 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 and type = 1 and status != 2
+		<if test="createSiteCode != null">
+			and	create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		</if>
+		<if test="waybillCode != null">
+			and	waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		</if>
+		<if test="sendCode != null">
+			and	send_code = #{sendCode,jdbcType=VARCHAR}
+		</if>
+		<if test="sendTimeGE != null and sendTimeLE !=null">
+			and send_time BETWEEN #{sendTimeGE} and #{sendTimeLE}
+		</if>
+		<if test="sendTimeGE != null and sendTimeLE ==null">
+			and  <![CDATA[   send_time >= #{sendTimeGE}  ]]>
+		</if>
+		<if test="sendTimeGE == null and sendTimeLE !=null">
+			and  <![CDATA[   send_time <= #{sendTimeLE}  ]]>
+		</if>
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+
+		select count(1) as num from(
+		select
+		count(1)
+		from
+		reverse_part_detail
+		where 1=1
+		<include refid="Base_Condition_Sql"/>GROUP BY waybill_code,CREATE_SITE_CODE
+		) t
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ReversePartDetail">
+		select waybill_code,CREATE_SITE_CODE,CREATE_SITE_NAME,count(waybill_code) AS allSendPackSum
+
+		,all_pack_sum - count(waybill_code) AS noSendPackSum ,all_pack_sum,min(send_time) as send_time,min(receive_time) as receive_time
+
+		from reverse_part_detail
+
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+		GROUP BY waybill_code,CREATE_SITE_CODE
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="queryByParam" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="ReversePartDetail">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		reverse_part_detail
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+
+	</select>
+
+
+	<select id="queryByParamCount" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select
+		count(1)
+		from
+		reverse_part_detail
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+
+	</select>
+
+	<update id="updateReceiveTime" parameterType="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail" >
+
+		update reverse_part_detail set receive_time = #{receiveTime},status = 3
+		where waybill_code = #{waybillCode} and SEND_CODE = #{sendCode}
+
+	</update>
+
+	<update id="updateForCancelSend" parameterType="com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail">
+
+		update reverse_part_detail set status = 2 where pack_no = #{packNo} and RECEIVE_SITE_CODE = #{receiveSiteCode} and status = 1
+
+	</update>
+</mapper>

@@ -786,9 +786,19 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
 
     /**
+     * 全程跟踪状态 站点发货
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
+
+    /**
      * 全程跟踪状态  便民店、自寄柜揽收交接成功
      */
     public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
+
+    /**
+     * 运单状态  拒收
+     */
+    public static final String WAYBILL_TRACE_STATE_REJECTED = "160";
 
     /**
      * 运单状态  妥投
@@ -797,5 +807,11 @@ public class Constants {
 
     /** 系统编码 **/
     public static final String SYSTEM_CODE_WEB="DMS_WEB";
+
+    /** 快运发货路由校验旧接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_OLD = 0;
+
+    /** 快运发货路由校验新接口标识 **/
+    public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
 
 }

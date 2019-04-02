@@ -17,7 +17,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Resource;
 
 import com.jd.bluedragon.distribution.reverse.domain.*;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -26,6 +29,7 @@ import com.jd.etms.waybill.domain.Goods;
 import com.jd.fastjson.JSON;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+import com.jd.staig.receiver.rpc.Result;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
@@ -121,6 +125,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private SendDatailDao sendDatailDao;
 
     @Autowired
+    private ReversePartDetailService reversePartDetailService;
+
+    @Autowired
     private BaseMajorManager baseMajorManager;
 
     @Autowired
@@ -145,6 +152,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
+
+    @Autowired
+    private WaybillService waybillService;
 
     @Resource
     @Qualifier("workerProducer")
@@ -517,7 +527,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send, wallBillCode,sendM)) {
+                if (!isSpecial(send, wallBillCode,sendM,orderpackMap.get(wallBillCode))) {
                 	newsend.setBusiOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
                 	ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, 0, bDto, orderpackMap);
                 }
@@ -611,117 +621,124 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
             int allsendListSize = allsendList != null ? allsendList.size() : 0;
             this.logger.info("获得发货明细数量:" + allsendListSize);
-
-            int index = 0;
-            for (SendDetail tSendDetail : allsendList) {
-                this.logger.info("发货明细" + (index++) + ":" + tSendDetail.toString());
-                if (tSendDetail.getSendType() == 20
-                        && null != tSendDetail.getIsLoss()
-                        && tSendDetail.getIsLoss() == 1) {
-                    addMapWms(orderpackMapLoss, tSendDetail.getWaybillCode(),
-                            tSendDetail.getPackageBarcode());
-                } else {
-                    addMapWms(orderpackMap, tSendDetail.getWaybillCode(),
-                            tSendDetail.getPackageBarcode());
+            /*** 如果该批次是否是移动仓内配的批次调DTC给wms发一新的消息 ***/
+            if(allsendList != null && allsendList.size() > 0 &&
+                    waybillService.isMovingWareHouseInnerWaybill(allsendList.get(0).getWaybillCode())) {
+                logger.info("移动仓内配单批次发消息给wms，批次号:" +sendM.getSendCode());
+                return sendMoveWarehouseInnerWaybillToWMS(allsendList, bDto);
+            }else {
+                int index = 0;
+                for (SendDetail tSendDetail : allsendList) {
+                    this.logger.info("发货明细" + (index++) + ":" + tSendDetail.toString());
+                    if (tSendDetail.getSendType() == 20
+                            && null != tSendDetail.getIsLoss()
+                            && tSendDetail.getIsLoss() == 1) {
+                        addMapWms(orderpackMapLoss, tSendDetail.getWaybillCode(),
+                                tSendDetail.getPackageBarcode());
+                    } else {
+                        addMapWms(orderpackMap, tSendDetail.getWaybillCode(),
+                                tSendDetail.getPackageBarcode());
+                    }
                 }
-            }
-            this.logger.info("orderpackMapLoss数量:" + orderpackMapLoss.size());
-            this.logger.info("orderpackMap数量:" + orderpackMap.size());
+                this.logger.info("orderpackMapLoss数量:" + orderpackMapLoss.size());
+                this.logger.info("orderpackMap数量:" + orderpackMap.size());
 
-            //记录一个针对任务的日志到日志表中
-            SystemLog sLogAll = new SystemLog();
-            sLogAll.setKeyword2(sendM.getSendCode());
-            sLogAll.setKeyword3(bDto.getSiteType().toString());
-            sLogAll.setKeyword4(Long.valueOf(0));
-            sLogAll.setType(Long.valueOf(12004));
-            sLogAll.setContent("获得发货明细数量:" + allsendListSize + ",orderpackMapLoss数量:" + orderpackMapLoss.size() + ",orderpackMap数量:" + orderpackMap.size());
-            SystemLogUtil.log(sLogAll);
+                //记录一个针对任务的日志到日志表中
+                SystemLog sLogAll = new SystemLog();
+                sLogAll.setKeyword2(sendM.getSendCode());
+                sLogAll.setKeyword3(bDto.getSiteType().toString());
+                sLogAll.setKeyword4(Long.valueOf(0));
+                sLogAll.setType(Long.valueOf(12004));
+                sLogAll.setContent("获得发货明细数量:" + allsendListSize + ",orderpackMapLoss数量:" + orderpackMapLoss.size() + ",orderpackMap数量:" + orderpackMap.size());
+                SystemLogUtil.log(sLogAll);
 
-            Iterator<Entry<String, String>> iter = orderpackMap.entrySet()
-                    .iterator();
-            boolean ifSendSuccess = true;
-            while (iter.hasNext()) {
-                Map.Entry entry = (Map.Entry) iter.next();
-                String wayBillCode = (String) entry.getKey();
+                Iterator<Entry<String, String>> iter = orderpackMap.entrySet()
+                        .iterator();
+                boolean ifSendSuccess = true;
+                while (iter.hasNext()) {
+                    Map.Entry entry = (Map.Entry) iter.next();
+                    String wayBillCode = (String) entry.getKey();
 
-                ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode).getNewWaybillCode());
-                if(send==null){
-                    continue;
-                }
+                    ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode).getNewWaybillCode());
+                    if (send == null) {
+                        continue;
+                    }
 
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
-                if (!isSpecial(send,wayBillCode,sendM)) {
+                if (!isSpecial(send,wayBillCode,sendM,orderpackMap.get(wayBillCode))) {
                     send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
                     ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, 0, bDto, taskId,wayBillCode);
                 }
             }
 
-            // 报丢订单发货
-            Iterator iterator = orderpackMapLoss.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry entry = (Map.Entry) iterator.next();
-                String wayBillCode = (String) entry.getKey();
-                String orderId = operCodeMap.get(wayBillCode).getOrderId();
-                // 报损总数
-                int lossCount = 0;
-                try {
-                    lossCount = this.lossServiceManager
-                            .getLossProductCountOrderId(orderId);
-                } catch (Exception e1) {
-                    this.logger.error("调用报损订单接口失败, 订单号为" + orderId);
-                    throw new Exception("调用报损订单接口失败, 订单号为" + orderId);
-                }
+                // 报丢订单发货
+                Iterator iterator = orderpackMapLoss.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    Map.Entry entry = (Map.Entry) iterator.next();
+                    String wayBillCode = (String) entry.getKey();
+                    String orderId = operCodeMap.get(wayBillCode).getOrderId();
+                    // 报损总数
+                    int lossCount = 0;
+                    try {
+                        lossCount = this.lossServiceManager
+                                .getLossProductCountOrderId(orderId);
+                    } catch (Exception e1) {
+                        this.logger.error("调用报损订单接口失败, 订单号为" + orderId);
+                        throw new Exception("调用报损订单接口失败, 订单号为" + orderId);
+                    }
 
-                ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode).getNewWaybillCode());
-                if(send==null){
-                    continue;
-                }
+                    ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode).getNewWaybillCode());
+                    if (send == null) {
+                        continue;
+                    }
 
-                if (lossCount != 0) {
-                    // 运单系统拿出的商品明细
-                    List<com.jd.bluedragon.distribution.reverse.domain.Product> sendProducts = null;
-                    sendProducts = send.getProList();
-                    List<com.jd.bluedragon.distribution.reverse.domain.Product> sendLossProducts = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
+                    if (lossCount != 0) {
+                        // 运单系统拿出的商品明细
+                        List<com.jd.bluedragon.distribution.reverse.domain.Product> sendProducts = null;
+                        sendProducts = send.getProList();
+                        List<com.jd.bluedragon.distribution.reverse.domain.Product> sendLossProducts = new ArrayList<com.jd.bluedragon.distribution.reverse.domain.Product>();
 
-                    // 报损系统拿出的报损明细
-                    List<LossProduct> lossProducts = this.lossServiceManager.getLossProductByOrderId(orderId);
+                        // 报损系统拿出的报损明细
+                        List<LossProduct> lossProducts = this.lossServiceManager.getLossProductByOrderId(orderId);
 
-                    int loss_Count = 0;
-                    if (sendProducts != null && !sendProducts.isEmpty()) {
-                        for (com.jd.bluedragon.distribution.reverse.domain.Product sendProduct : sendProducts) {
-                            for (LossProduct lossProduct : lossProducts) {
-                                if (lossProduct.getLossCount() == 0 || sendProduct.getProductNum() == 0)
-                                    continue;//说明已经计算完了，或者不符合计算条件，理论上无<0数据
+                        int loss_Count = 0;
+                        if (sendProducts != null && !sendProducts.isEmpty()) {
+                            for (com.jd.bluedragon.distribution.reverse.domain.Product sendProduct : sendProducts) {
+                                for (LossProduct lossProduct : lossProducts) {
+                                    if (lossProduct.getLossCount() == 0 || sendProduct.getProductNum() == 0)
+                                        continue;//说明已经计算完了，或者不符合计算条件，理论上无<0数据
 
-                                if (lossProduct.getSku().equals(sendProduct.getProductId()) &&
-                                        (lossProduct.getPrice().compareTo(new BigDecimal(sendProduct.getProductPrice())) == 0)) {
-                                    if (null == sendProduct.getProductLoss() || "".equals(sendProduct.getProductLoss())) {
-                                        loss_Count = 0;
-                                    } else {
-                                        loss_Count = Integer.parseInt(sendProduct.getProductLoss());
-                                    }
+                                    if (lossProduct.getSku().equals(sendProduct.getProductId()) &&
+                                            (lossProduct.getPrice().compareTo(new BigDecimal(sendProduct.getProductPrice())) == 0)) {
+                                        if (null == sendProduct.getProductLoss() || "".equals(sendProduct.getProductLoss())) {
+                                            loss_Count = 0;
+                                        } else {
+                                            loss_Count = Integer.parseInt(sendProduct.getProductLoss());
+                                        }
 
-                                    if (sendProduct.getProductNum() - lossProduct.getLossCount() < 0) {//说明产品全部报丢,产品num清0.报损产品项减去产品num
-                                        lossProduct.setLossCount(lossProduct.getLossCount() - sendProduct.getProductNum());
-                                        sendProduct.setProductLoss(String.valueOf(loss_Count + sendProduct.getProductNum()));
-                                        sendProduct.setProductNum(0);
-                                    } else {//说明部分报丢
-                                        sendProduct.setProductLoss(String.valueOf(loss_Count + lossProduct.getLossCount()));
-                                        sendProduct.setProductNum(sendProduct.getProductNum() - lossProduct.getLossCount());
-                                        lossProduct.setLossCount(0);
+                                        if (sendProduct.getProductNum() - lossProduct.getLossCount() < 0) {//说明产品全部报丢,产品num清0.报损产品项减去产品num
+                                            lossProduct.setLossCount(lossProduct.getLossCount() - sendProduct.getProductNum());
+                                            sendProduct.setProductLoss(String.valueOf(loss_Count + sendProduct.getProductNum()));
+                                            sendProduct.setProductNum(0);
+                                        } else {//说明部分报丢
+                                            sendProduct.setProductLoss(String.valueOf(loss_Count + lossProduct.getLossCount()));
+                                            sendProduct.setProductNum(sendProduct.getProductNum() - lossProduct.getLossCount());
+                                            lossProduct.setLossCount(0);
+                                        }
                                     }
                                 }
+                                sendLossProducts.add(sendProduct);
                             }
-                            sendLossProducts.add(sendProduct);
                         }
+                        send.setProList(sendLossProducts);
                     }
-                    send.setProList(sendLossProducts);
+                    send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
+                    ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, lossCount, bDto, taskId, wayBillCode);
                 }
-                send.setBusiOrderCode(operCodeMap.get(wayBillCode).getNewWaybillCode());
-                ifSendSuccess &= sendWMSByType(send, wayBillCode, sendM, entry, lossCount, bDto, taskId,wayBillCode);
+
+                return ifSendSuccess;
             }
-            return ifSendSuccess;
         } catch (Exception e) {
             this.logger.error(sendM.getSendCode() + "wms发货库房失败", e);
             return false;
@@ -815,6 +832,76 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
         return send;
     }
+
+    /**
+     * 移动仓内配单发货消息推送到WMS
+     * @param sendDetailList
+     * @param bDto
+     * @return
+     */
+    private boolean sendMoveWarehouseInnerWaybillToWMS(List<SendDetail> sendDetailList,BaseStaffSiteOrgDto bDto){
+        //获取cky2、库房号信息
+        Integer orgId = bDto.getOrgId();
+        String dmdStoreId = bDto.getStoreCode();
+
+        String[] cky2AndStoreId = dmdStoreId.split("-");
+        String cky2 = cky2AndStoreId[1];
+        String storeId = cky2AndStoreId[2];
+
+        //获取批次内所有运单号
+        Set<String> waybillCodeSet = new HashSet<String>();
+        for(SendDetail sendDetail : sendDetailList){
+            waybillCodeSet.add(sendDetail.getWaybillCode());
+        }
+        SendDetail detail = sendDetailList.get(0);
+
+        //组装传给WMS的报文
+        MovingWarehouseInnerWaybill waybill = new MovingWarehouseInnerWaybill();
+        waybill.setBusiOrderCode(detail.getSendCode());
+        waybill.setDeliveryCenterId(cky2);
+        waybill.setWarehouseId(storeId);
+        waybill.setCaseNos(new ArrayList<String>(waybillCodeSet));
+
+        //调DTC接口给WMS发报文
+        String target = orgId + "," + cky2 + "," + storeId;
+        com.jd.staig.receiver.rpc.Result result = new Result();
+        String outboundType = "wms_receiving_transBoxFromDMSService_parcel";
+        String messageValue = JSON.toJSONString(waybill);
+        String source="DMS";
+        try {
+            logger.info("移动仓内配单发货信息推送给WMS.参数：target:" + target+
+                    ",outboundType:" + outboundType + ",messageValue:" + messageValue +
+                    ",source:"+ source + "outboundNo:" + detail.getSendCode() );
+            result = this.dtcDataReceiverManager.downStreamHandle(target,outboundType, messageValue, source, detail.getSendCode());
+            if(result == null){
+                logger.error("移动仓内配单发货信息推送给WMS失败.返回值为空");
+                return false;
+            }
+            logger.info("移动仓内配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
+            if(result.getResultCode() != 1){
+                logger.error("移动仓内配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
+                return false;
+            }
+        } catch (Exception e) {
+            logger.error("移动仓内配单发货信息推送给WMS异常.推送报文" + messageValue, e);
+            return false;
+        } finally {
+            //写系统日志
+            SystemLog sLogDetail = new SystemLog();
+            sLogDetail.setKeyword2(detail.getSendCode());
+            sLogDetail.setKeyword3(target);
+            if(result!= null) {
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
+            sLogDetail.setType(Long.valueOf(12005));
+            sLogDetail.setContent(messageValue);
+            SystemLogUtil.log(sLogDetail);
+        }
+
+        return true;
+    }
+
+
 
     @SuppressWarnings("rawtypes")
     public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
@@ -1006,7 +1093,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         if (m.containsKey(a)) {
             //如果有重复包裹去重、
             if (!m.get(a).contains(b)) {
-                m.put(a, m.get(a) + "," + b);
+                m.put(a, m.get(a) + Constants.SEPARATOR_COMMA + b);
             }
         } else {
             m.put(a, b);
@@ -1504,7 +1591,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      * @param send
      * @return <code>true</code> 如果是迷你仓、eclp订单
      */
-    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM) {
+    private Boolean isSpecial(ReverseSendWms send,String wayBillCode, SendM sendM ,String sendPackages) {
 
         if (StringHelper.isNotEmpty(send.getWaybillSign())) {
             //迷你仓新需求，waybillsign第一位=8的 不推送库房， 因为不属于逆向 guoyongzhi
@@ -1558,6 +1645,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 			try {
 				bdDmsReverseSendEclp.send(wayBillCode, jsonStr);
+				//存入半退明细
+                reversePartWmsOfEclp(wayBillCode,sendM,sendPackages);
+
 				sLogDetail.setKeyword4(Long.valueOf(1));// 表示发送成功
 			} catch (Exception e) {
 				logger.error("推送ECLP MQ 发生异常.", e);
@@ -1823,6 +1913,67 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }catch (Exception e){
             logger.error("退ECLP增加拒收原因处理时失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode,e);
         }
+
+    }
+
+
+    private void reversePartWmsOfEclp(String wayBillCode, SendM sendM ,String sendPackages){
+        //判断是否为半退
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode,true,false,false,true);
+        if(baseEntity== null || baseEntity.getData() ==  null || baseEntity.getData().getWaybill()== null ||baseEntity.getData().getPackageList() == null){
+            logger.error("插入半退明细时运单数据不完整");
+            return;
+        }
+        //不支持半退 直接返回
+        if(!BusinessUtil.isPartReverse(baseEntity.getData().getWaybill().getWaybillSign())){
+            return ;
+        }
+        if(StringUtils.isNotBlank(sendPackages) && sendPackages.split(Constants.SEPARATOR_COMMA).length < baseEntity.getData().getPackageList().size()){
+            //本次发货的包裹数 小于 总计包裹数 则为半退
+            //组装半退明细数据
+            List<ReversePartDetail> rpds = new ArrayList<ReversePartDetail>();
+
+            String createSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getCreateSiteCode()).getSiteName();
+
+            String receiveSiteName = baseMajorManager.getBaseSiteBySiteId(sendM.getReceiveSiteCode()).getSiteName();
+
+            for(String sendPackNo : sendPackages.split(Constants.SEPARATOR_COMMA)){
+                ReversePartDetail rpd = new ReversePartDetail();
+                rpd.setWaybillCode(wayBillCode);
+                rpd.setPackNo(sendPackNo);
+                rpd.setSendCode(sendM.getSendCode());
+                rpd.setAllPackSum(baseEntity.getData().getPackageList().size());
+                rpd.setCreateSiteCode(sendM.getCreateSiteCode());
+                rpd.setCreateSiteName(createSiteName);
+                rpd.setReceiveSiteCode(sendM.getReceiveSiteCode());
+                rpd.setReceiveSiteName(receiveSiteName);
+                rpd.setSendTime(sendM.getOperateTime());
+                rpd.setCreateUser(sendM.getCreateUser());
+                rpd.setType(1);
+                rpd.setStatus(1);
+                rpds.add(rpd);
+            }
+
+            //批量保存 半退操作明细
+            List<ReversePartDetail> bufferList = new ArrayList<ReversePartDetail>();
+            for(ReversePartDetail reversePartDetail :rpds){
+                bufferList.add(reversePartDetail);
+                if(bufferList.size()==100){
+                    if(reversePartDetailService.batchInsert(bufferList)){
+                        bufferList.clear();
+                    }
+                }
+            }
+            if(bufferList.size() > 0){
+                reversePartDetailService.batchInsert(bufferList);
+            }
+
+            logger.info("半退插入明细成功"+wayBillCode+" size"+rpds.size());
+
+        }
+
+
+
 
     }
 

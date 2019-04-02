@@ -13,13 +13,13 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.ScannerFrameBatchSendResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.response.WhBcrsQueryResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeSe
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendDifference;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -39,13 +38,11 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendQueryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -106,8 +103,11 @@ public class DeliveryResource {
 
     @Autowired
     private ScannerFrameBatchSendService scannerFrameBatchSendService;
-    
-    private static final Integer KY_DELIVERY = 1; //快运发货标识
+
+    /**
+     * 快运发货标识
+     */
+    private static final Integer KY_DELIVERY = 1;
 
     private final Log logger = LogFactory.getLog(this.getClass());
     
@@ -125,6 +125,9 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
+
+    @Autowired
+    private CycleBoxService cycleBoxService;
 
 
     /**
@@ -150,51 +153,67 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/newpackagesend")
     @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1001)
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
-        SendM domain = new SendM();
-        domain.setReceiveSiteCode(request.getReceiveSiteCode());
-        domain.setSendCode(request.getSendCode());
-        domain.setCreateSiteCode(request.getSiteCode());
 
-        String turnoverBoxCode = request.getTurnoverBoxCode();
-        if(StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30){
-            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
-        }else{
-            domain.setTurnoverBoxCode(turnoverBoxCode);
-        }
-        domain.setCreateUser(request.getUserName());
-        domain.setCreateUserCode(request.getUserCode());
-        domain.setSendType(request.getBusinessType());
-        domain.setTransporttype(request.getTransporttype());
-        domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
-            if(BusinessUtil.isBoardCode(request.getBoxCode())){//一车一单下的组板发货
+            if (BusinessUtil.isBoardCode(request.getBoxCode())) {
+                // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 logger.warn("组板发货newpackagesend：" + JsonHelper.toJson(request));
-                result.setData(deliveryService.boardSend(domain,request.getIsForceSend()));
-            }else{//一车一单发货
+                result.setData(deliveryService.boardSend(domain, request.getIsForceSend()));
+            } else {
+                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
+                // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
-                if (request.getIsCancelLastSend() == null){
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend()));
+                if (request.getIsCancelLastSend() == null) {
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
                 } else {
-                    result.setData(deliveryService.packageSend(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
                 }
             }
         } catch (Exception ex) {
             result.error(ex);
             logger.error("一车一单发货", ex);
         }
-        if(logger.isInfoEnabled()){
+        if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(result));
         }
         return result;
+    }
+
+    /**
+     * 请求拼装SendM发货对象
+     *
+     * @param request
+     * @return
+     */
+    private SendM toSendMDomain(PackageSendRequest request) {
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setCreateSiteCode(request.getSiteCode());
+
+        String turnoverBoxCode = request.getTurnoverBoxCode();
+        if (StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30) {
+            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
+        } else {
+            domain.setTurnoverBoxCode(turnoverBoxCode);
+        }
+        domain.setCreateUser(request.getUserName());
+        domain.setCreateUserCode(request.getUserCode());
+        domain.setSendType(request.getBusinessType());
+        domain.setTransporttype(request.getTransporttype());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        return domain;
     }
 
     @GET
@@ -291,19 +310,45 @@ public class DeliveryResource {
     }
 
     @POST
+    @Path("/delivery/cancel/last")
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1004)
+    public ThreeDeliveryResponse cancelLastDeliveryInfo(DeliveryRequest request) {
+        logger.info("取消最近的一次发货JSON" + JsonHelper.toJsonUseGson(request));
+
+        //参数校验
+        if (StringHelper.isEmpty(request.getBoxCode()) == null || request.getSiteCode() == null || StringHelper.isEmpty(request.getOperateTime())) {
+            return new ThreeDeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR, null);
+        }
+
+        ThreeDeliveryResponse tDeliveryResponse = null;
+        try {
+            tDeliveryResponse = deliveryService.cancelLastSend(toSendM(request));
+        } catch (Exception e) {
+            this.logger.error("写入取消最近的一次发货信息失败", e);
+        }
+
+        if (tDeliveryResponse != null) {
+            return tDeliveryResponse;
+        } else {
+            return new ThreeDeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR, null);
+        }
+    }
+
+    @POST
     @Path("/delivery/recyclableboxsend")
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request) {
-        if (logger.isInfoEnabled()) {
-            logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
-        }
-        RecyclableBoxSend res = deliveryService.recyclableBoxSend(request);
-        if (logger.isInfoEnabled()) {
+    public InvokeResult recyclableBoxSend(RecyclableBoxRequest request) {
+        InvokeResult result = new InvokeResult();
+        try {
+            if (logger.isInfoEnabled()) {
+                logger.info("循环箱MQ-JSON：" + JsonHelper.toJsonUseGson(request));
+            }
+            cycleBoxService.recyclableBoxSend(request);
             logger.info("结束循环箱发MQ");
+        }catch (Exception e){
+            logger.error("循环箱发送MQ异常.",e);
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        /**
-         * com.jd.bluedragon.distribution.command;
-         */
-        return res;
+        return result;
     }
 
     /**
@@ -362,8 +407,22 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR,
                     JdResponse.MESSAGE_PARAM_ERROR);
         }
+        DeliveryResponse tDeliveryResponse;
 
-        DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(toSendDatailList(request));
+        Integer opType = request.get(0).getOpType();
+        if (KY_DELIVERY.equals(opType)) {
+            /** 快运发货 */
+            tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.RAPID_TRANSPORT_SEND, toSendDatailList(request));
+        } else {
+            Integer businessType = request.get(0).getBusinessType();
+            if (businessType != null && Constants.BUSSINESS_TYPE_REVERSE == businessType) {
+                // 逆向发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.REVERSE_SEND, toSendDatailList(request));
+            } else {
+                // 正向老发货
+                tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.OLD_PACKAGE_SEND, toSendDatailList(request));
+            }
+        }
         this.logger.info("结束写入发货信息");
         if (tDeliveryResponse != null) {
             return tDeliveryResponse;
@@ -466,7 +525,49 @@ public class DeliveryResource {
                     }
                     request.setBoxCode(waybillCodeList.get(0));
                 }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request));
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
+            }
+            return response;
+        } catch (Exception ex) {
+            logger.error("快运发货路由验证出错：", ex);
+            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+    }
+
+    @POST
+    @Path("/delivery/router/verification/new")
+    @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)
+    public DeliveryResponse checkThreeDeliveryNew(DeliveryRequest request) {
+        try {
+            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
+                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
+                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+            }
+
+            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
+            if(isWaybillCode(request.getBoxCode())){
+                DeliveryResponse response = isValidWaybillCode(request);
+                if(!JdResponse.CODE_OK.equals(response.getCode())){
+                    return response;
+                }
+            }
+
+            Integer opType = request.getOpType();
+            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
+                // 因为B冷链转运中心需要支持扫描运单号发货，
+                // 如果扫的是运单号，则生成第一个包裹号，用于校验
+                if (isWaybillCode(request.getBoxCode())) {
+                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
+                    if(waybillCodeList == null || waybillCodeList.size() < 1){
+                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
+                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
+                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
+                        return response;
+                    }
+                    request.setBoxCode(waybillCodeList.get(0));
+                }
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
             }
             return response;
         } catch (Exception ex) {
@@ -643,6 +744,21 @@ public class DeliveryResource {
             DeliveryResponse tDeliveryResponse = deliveryService.findSendMByBoxCode(tSendM, isTransferSend);
             this.logger.info("结束验证箱号信息");
             if (tDeliveryResponse != null) {
+                //设置运单类型
+                String waybillCodeToJudgeType = null;
+                if(WaybillUtil.isPackageCode(boxCode)){
+                    waybillCodeToJudgeType = WaybillUtil.getWaybillCode(boxCode);
+                }else if(BusinessUtil.isBoxcode(boxCode)){
+                    //从箱子中取出一单
+                    List<String> waybillCodeList = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(boxCode,1);
+                    if(waybillCodeList != null && waybillCodeList.size() > 0){
+                        waybillCodeToJudgeType = waybillCodeList.get(0);
+                    }
+                }
+                //获取运单类型
+                Integer waybillType = waybillService.getWaybillTypeByWaybillSign(waybillCodeToJudgeType);
+                tDeliveryResponse.setWaybillType(waybillType);
+
                 if(JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())){
 
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
@@ -670,8 +786,8 @@ public class DeliveryResource {
                         } catch (Exception e) {
                             this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
                         }
-
                     }
+
                     return tDeliveryResponse;
                     //adder end
                 }else{
@@ -752,6 +868,8 @@ public class DeliveryResource {
         sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
         sendM.setSendCode(request.getSendCode());
+        Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
+        sendM.setOperateTime(operateTime);
         if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
             sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         }
@@ -1113,8 +1231,8 @@ public class DeliveryResource {
             for(SendM sendM : sendMListInit){
                 /**根据条件获取SendM*/
                 List<SendM> sendMList = deliveryService.queryCountByBox(sendM);
-                if(sendMList.isEmpty()){
-                    deliveryService.packageSortSend(sendM);
+                if (sendMList.isEmpty()) {
+                    deliveryService.packageSend(SendBizSourceEnum.OPEN_PLATFORM_SEND, sendM);
                 }
             }
 

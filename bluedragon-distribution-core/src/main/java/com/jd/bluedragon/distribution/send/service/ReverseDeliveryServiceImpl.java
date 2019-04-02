@@ -159,8 +159,8 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void updateIsCancelByBox(SendM tSendM, List<SendDetail> tlist) {
-		deliveryService.cancelSendDatailByBox(tlist);
+	public void updateIsCancelByBox(SendM tSendM) {
+		deliveryService.cancelSendDatailByBox(tSendM);
 		deliveryService.cancelSendM(tSendM);
 	}
 

@@ -39,7 +39,7 @@ public interface ComposeService {
     String SPECIAL_MARK_INTERCITY = "城际";
     String SPECIAL_MARK_HELP_DELIVERY="代";
     String SPECIAL_MARK_TRANSFER="传";
-
+    String SPECIAL_MARK_PART_REVERSE = "半退";
     /**
      * 全球售合包订单标识
      * 当sendpay第108位为1或2或3且senpay第124位为4时，
