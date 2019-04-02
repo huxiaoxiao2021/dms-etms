@@ -896,6 +896,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             logger.info("移动仓内配单发货信息推送给WMS.推送结果为：" + JSON.toJSONString(result));
             if(result.getResultCode() != 1){
                 logger.error("移动仓内配单发货信息推送给WMS失败.推送结果为:" +JSON.toJSONString(result) + ";推送报文" + messageValue);
+                return false;
             }
         } catch (Exception e) {
             logger.error("移动仓内配单发货信息推送给WMS异常.推送报文" + messageValue, e);
@@ -905,7 +906,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             SystemLog sLogDetail = new SystemLog();
             sLogDetail.setKeyword2(detail.getSendCode());
             sLogDetail.setKeyword3(target);
-            sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            if(result!= null) {
+                sLogDetail.setKeyword4(Long.valueOf(result.getResultCode()));
+            }
             sLogDetail.setType(Long.valueOf(12005));
             sLogDetail.setContent(messageValue);
             SystemLogUtil.log(sLogDetail);

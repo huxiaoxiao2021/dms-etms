@@ -14,7 +14,6 @@ import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
-import com.jd.bluedragon.distribution.api.request.RecyclableBoxRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -57,7 +56,6 @@ import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.DeliveryCancelSendMQBody;
 import com.jd.bluedragon.distribution.send.domain.OrderInfo;
 import com.jd.bluedragon.distribution.send.domain.PackInfo;
-import com.jd.bluedragon.distribution.send.domain.RecyclableBoxSend;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -245,10 +243,6 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Autowired
     @Qualifier("deliveryCancelSendMQ")
     private DefaultJMQProducer deliveryCancelSendMQ;
-
-    @Autowired
-    @Qualifier("recyclableBoxSendMQ")
-    private DefaultJMQProducer recyclableBoxSendMQ;
 
     @Autowired
     @Qualifier("dmsWorkSendDetailMQ")
@@ -1555,35 +1549,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         return response;
     }
 
-    /**
-     * 循环箱发MQ
-     * @param request
-     * @return
-     */
-    @Override
-    public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request){
-        RecyclableBoxSend res=new RecyclableBoxSend();
 
-        try {
-            String businessId = "";
-            if(StringUtils.isNotBlank(request.getBatchCode())){
-                businessId = request.getBatchCode();
-            }else if(StringUtils.isNotBlank(request.getWayBillNo())){
-                businessId = request.getWayBillNo();
-            }
-
-            request.setSourceSysCode("DMS");
-            recyclableBoxSendMQ.send(businessId, JsonHelper.toJson(request));
-            res.setCode(JdResponse.CODE_OK);
-            res.setMessage(JdResponse.MESSAGE_OK);
-        } catch (Exception e) {
-            res.setCode(JdResponse.CODE_TIME_ERROR);
-            res.setMessage(e.getMessage());
-            logger.error("[PDA循环箱]发送MQ消息时发生异常", e);
-        }
-
-        return res;
-    }
 
     /**
      * 生成取消发货数据处理
