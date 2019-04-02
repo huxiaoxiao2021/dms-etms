@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.rest.residentPrint;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.etms.erp.service.dto.SendInfoDto;
-import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.waybill.domain.PackageState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +32,7 @@ public class ResidentResource {
     private WaybillTraceManager waybillTraceManager;
 
     @Autowired
-    private SupportServiceInterface supportProxy;
+    private TerminalManager terminalManager;
 
     /**
      * 查询运单号是否操作站点发货
@@ -46,9 +46,7 @@ public class ResidentResource {
         String waybillCode = null;
         try{
             //获取箱号中其中的一个运单号（终端）
-            SendInfoDto sendInfoDto = new SendInfoDto();
-            sendInfoDto.setBoxCode(boxCode);
-            com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
+            com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = terminalManager.getSendDetails(boxCode);
             if(baseEntity != null && baseEntity.getResultCode() > 0) {
                 List<SendInfoDto> data = baseEntity.getData();
                 if(data != null && data.size() > 0){
