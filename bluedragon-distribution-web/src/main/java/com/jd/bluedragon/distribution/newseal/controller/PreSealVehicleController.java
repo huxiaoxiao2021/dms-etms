@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -88,7 +90,8 @@ public class PreSealVehicleController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/queryPreSeals")
-	public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.queryPreSeals", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if( condition.getHourRange() == null){
             rest.setCode(JdResponse.CODE_FAIL);
@@ -265,6 +268,7 @@ public class PreSealVehicleController extends DmsBaseController{
      */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
     @RequestMapping(value = "/batchSeal")
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         logger.info("一键封车请求参数：" + JsonHelper.toJson(data));
@@ -324,6 +328,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/getRemainTransportCode")
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.getRemainTransportCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
 	public @ResponseBody JdResponse<List<CapacityDomain>> getRemainTransportCode() {
 		JdResponse<List<CapacityDomain>> rest = new JdResponse<List<CapacityDomain>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         LoginUser user = getLoginUser();

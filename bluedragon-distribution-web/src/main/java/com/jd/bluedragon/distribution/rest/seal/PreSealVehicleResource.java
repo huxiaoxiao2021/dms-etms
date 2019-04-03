@@ -16,6 +16,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,7 +63,8 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/preSeal")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1013)
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.preSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
     public NewSealVehicleResponse<Boolean> preSeal(NewSealVehicleRequest request) {
         logger.info("预封车请求参数：" + JsonHelper.toJson(request));
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);
@@ -137,7 +140,8 @@ public class PreSealVehicleResource {
      */
     @POST
     @Path("/new/updatePreSeal")
-    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1013)
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleResource.updatePreSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1010)
     public NewSealVehicleResponse<Boolean> updatePreSeal(NewSealVehicleRequest request) {
         logger.info("更新预封车请求参数：" + JsonHelper.toJson(request));
         NewSealVehicleResponse<Boolean> preSealResponse = new NewSealVehicleResponse(NewSealVehicleResponse.CODE_OK, NewSealVehicleResponse.MESSAGE_OK);

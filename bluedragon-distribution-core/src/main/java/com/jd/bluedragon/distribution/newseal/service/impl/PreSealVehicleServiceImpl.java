@@ -15,6 +15,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -124,6 +126,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleServiceImpl.findTodayUsedTransports", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
 	public List<String> findTodayUsedTransports(Integer createSiteCode) {
 	    //获取当天零点时刻
         Calendar calendar = Calendar.getInstance();
@@ -136,6 +139,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleServiceImpl.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public boolean batchSeal(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserErp, String updateUserName, Date operateTime) throws Exception{
         List<PreSealVehicle> data = new ArrayList<>(preList.size());
         List<String> transportCodes = new ArrayList<>(preList.size());

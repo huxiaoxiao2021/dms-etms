@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.newseal.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,7 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
+    @JProfiler(jKey = "DMSWEB.SealVehiclesServiceImpl.updateDeSealBySealDataCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
 	public boolean updateDeSealBySealDataCode(List<SealVehicles> sealVehiclesList) {
 		for (SealVehicles sealVehicles : sealVehiclesList){
 			sealVehicles.setStatus(SealVehicleEnum.DE_SEAL.getCode());
@@ -50,6 +54,7 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 	}
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SealVehiclesServiceImpl.findTodayUsedTransports", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public List<String> findTodayUsedTransports(Integer createSiteCode) {
         //获取当天零点时刻
         Calendar calendar = Calendar.getInstance();
@@ -61,6 +66,7 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SealVehiclesServiceImpl.findBySealDataCodes", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public List<String> findBySealDataCodes(Set<String> sendCodeSet) {
         List<String> sendCodes = new ArrayList<>(sendCodeSet);
         List<String> result = new ArrayList<>();

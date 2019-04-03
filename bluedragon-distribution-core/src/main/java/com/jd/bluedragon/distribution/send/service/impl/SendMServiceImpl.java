@@ -1,13 +1,15 @@
 package com.jd.bluedragon.distribution.send.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -31,6 +33,7 @@ public class SendMServiceImpl implements SendMService{
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SendMServiceImpl.findAllSendCodesWithStartTime", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
         return sendMDao.findAllSendCodesWithStartTime(createSiteCode, receiveSiteCode, startDate);
     }
