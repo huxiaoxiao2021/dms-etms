@@ -784,6 +784,11 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
 
     /**
+     * 全程跟踪状态 站点发货
+     * */
+    public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
+
+    /**
      * 全程跟踪状态  便民店、自寄柜揽收交接成功
      */
     public static final String WAYBILL_TRACE_STATE_BMZT_COLLECT_HANDOVER_COMPLETE ="-1300";
