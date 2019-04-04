@@ -7,6 +7,7 @@ import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
 
 /**
  * @author tangchunqing
@@ -279,5 +280,20 @@ public class WaybillUtil {
         }
 
     }
+
+    /**
+     * 根据包裹号得到 滑道号
+     * 85179219739-1-1-91 返回91，85358175547N1S1H2 返回2。
+     * @param packageCode 包裹号
+     * @return 没有滑道号返回 null
+     */
+    public static String getCrossCodeOnPackageCode(String packageCode){
+        Matcher matcher = DmsConstants.PACKAGE_CODE_CROSSCODE_REGEX.matcher(packageCode);
+        if(matcher.matches()){
+            return matcher.group(6);
+        }
+        return null;
+    }
+
 
 }

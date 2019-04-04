@@ -37,6 +37,12 @@ public interface WaybillPackageManager {
     BaseEntity<List<DeliveryPackageD>> getPackageByWaybillCode(String waybillCode);
 
     /**
+     * 根据运单号 查询单个包裹编码
+     * @param waybillCode 运单号
+     */
+    String getOnePackageByWaybillCode(String waybillCode);
+
+    /**
      * 包裹称重和体积测量数据上传
      * 来源 PackOpeController
      *

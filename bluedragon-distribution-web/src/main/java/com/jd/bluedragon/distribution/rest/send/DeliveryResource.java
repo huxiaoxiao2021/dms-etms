@@ -42,7 +42,11 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -478,6 +482,11 @@ public class DeliveryResource {
                         JdResponse.MESSAGE_PARAM_ERROR, null);
             }
             Integer opType = request.get(0).getOpType();
+            String boxCode = request.get(0).getBoxCode();
+            //包裹号才校验
+            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){
+                return new ThreeDeliveryResponse(JdResponse.CODE_CROSS_CODE_ERROR,JdResponse.MESSAGE_CROSS_CODE_ERROR, null);
+            }
             ThreeDeliveryResponse response = null;
             if(KY_DELIVERY.equals(opType)){//快运发货
                 response =  deliveryService.checkThreePackageForKY(toSendDatailList(request));
@@ -901,6 +910,21 @@ public class DeliveryResource {
             }
         }
         return sendMList;
+    }
+
+    /**
+     * 校验滑道号
+     * @return true 滑道号正确，false 不正确
+     */
+    private boolean checkPackageCrossCodeSucc(List<DeliveryRequest> request){
+        for(DeliveryRequest item : request){
+            String waybillCode = WaybillUtil.getWaybillCode(item.getBoxCode());
+            String packageCode = item.getBoxCode();
+            if(!deliveryService.checkCrossCode(waybillCode,packageCode)){
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
     }
 
     /**

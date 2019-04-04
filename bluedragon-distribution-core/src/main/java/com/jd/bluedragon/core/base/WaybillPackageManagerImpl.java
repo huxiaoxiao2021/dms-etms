@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -12,6 +13,8 @@ import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
@@ -151,6 +155,44 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         }
 
         return result;
+    }
+
+    /**
+     * 根据运单号 查询单个包裹编码
+     * @param waybillCode 运单号
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getOnePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public String getOnePackageByWaybillCode(String waybillCode) {
+        int limit = 1;
+        int curPage = 1;
+        BaseEntity<Page<DeliveryPackageDto>> baseEntity = getPageBaseEntityByWaybillCode(waybillCode, limit, curPage);
+        if (null == baseEntity) {
+            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回失败waybillCode[%s]",waybillCode));
+            return null;
+        }
+        if(EnumBusiCode.BUSI_SUCCESS.getCode() != baseEntity.getResultCode()){
+            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回失败waybillCode[%s]code[%s]message[%s]",
+                    waybillCode,baseEntity.getResultCode(),baseEntity.getMessage()));
+            return null;
+        }
+        if(baseEntity.getData() == null || CollectionUtils.isEmpty(baseEntity.getData().getResult())){
+            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回结果为空waybillCode[%s]",waybillCode));
+            return null;
+        }
+        return baseEntity.getData().getResult().get(0).getPackageBarcode();
+    }
+
+    private BaseEntity<Page<DeliveryPackageDto>> getPageBaseEntityByWaybillCode(String waybillCode, int limit, int curPage) {
+        if(StringUtils.isBlank(waybillCode)){
+            return null;
+        }
+        Page<DeliveryPackageDto> pageParam = new Page<>();
+        pageParam.setPageSize(limit);
+        pageParam.setCurPage(curPage);
+        //调用运单分页接口
+        return waybillPackageApi.getPackageByParam(waybillCode, pageParam);
     }
 
     /**
