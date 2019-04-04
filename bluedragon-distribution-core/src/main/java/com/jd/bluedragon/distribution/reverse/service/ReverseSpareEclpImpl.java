@@ -335,7 +335,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
     }
 
     /**
-     * 判断纯配外单是否可逆向换单（理赔完成且物权归京东）
+     * 判断纯配外单是否可逆向换单（理赔中不允许换单）
      * @param result
      */
     public boolean checkIsPureMatch(String waybillCode,String waybillSign,InvokeResult<Boolean> result){
@@ -361,18 +361,12 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     return true;
                 }
             }
-
-            //纯配外单且理赔完成且物权归京东-退备件库
+            //纯配外单（理赔中不允许换单）
             if(BusinessUtil.isPurematch(waybillSign)){
                 LocalClaimInfoRespDTO claimInfoRespDTO =  obcsManager.getClaimListByClueInfo(1,waybillCode);
-                if(claimInfoRespDTO != null){
-                    if(!LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc())){
-                        result.setData(false);
-                        result.setMessage("纯配外单未理赔完成，不能操作逆向换单!");
-                    }else if(!LocalClaimInfoRespDTO.GOOD_OWNER_JD.equals(claimInfoRespDTO.getGoodOwner())){
-                        result.setData(false);
-                        result.setMessage("纯配外单物权不属于京东，不能操作逆向换单!");
-                    }
+                if(claimInfoRespDTO != null && LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(claimInfoRespDTO.getStatusDesc())){
+                    result.setData(false);
+                    result.setMessage("纯配外单未理赔完成，不能操作逆向换单!");
                 }
             }
 

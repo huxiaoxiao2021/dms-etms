@@ -2243,33 +2243,61 @@ public class WaybillResource {
 			return result;
 		}
 		try{
-			BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
-			if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null &&
-					StringUtils.isNotBlank(bigWaybillDto.getWaybill().getBusiOrderCode()) &&
-					StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
-				String busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
-				String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
-				if(BusinessUtil.isPurematch(waybillSign)){
-					//纯配外单
-					result.setData(1);
-					return result;
-				}else if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
-					//仓配订单
-					result.setData(2);
-					return result;
-				}else{
-					result.setData(3);//既不是纯配也不是仓配
-				}
-			}else{
-				this.logger.error("通过运单号查询运单为空!");
-				result.setMessage("运单号："+waybillCode+"数据为空!");
-				result.setData(4);
-			}
+            String oldWaybillCode1 = "";
+            String oldWaybillCode2 = "";
+            String busiOrderCode = "";
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if(oldWaybill1 != null && oldWaybill1.getData() != null){
+                oldWaybillCode1 = oldWaybill1.getData().getWaybillCode();
+                busiOrderCode = oldWaybill1.getData().getBusiOrderCode();
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCode1);
+                if(oldWaybill2 != null && oldWaybill2.getData() != null){
+                    //二次换单
+                    oldWaybillCode2 = oldWaybill2.getData().getWaybillCode();
+                    isPurematchOrWarehouse(result, oldWaybillCode2,busiOrderCode);
+                }else if(oldWaybill2 != null && oldWaybill2.getData() == null){
+                    //一次换单
+                    isPurematchOrWarehouse(result, oldWaybillCode1,busiOrderCode);
+                }
+            }else if(oldWaybill1 != null && oldWaybill1.getData() == null){
+                //原单
+                isPurematchOrWarehouse(result, waybillCode,busiOrderCode);
+            }
 		}catch (Exception e){
 			this.logger.error("通过运单号："+waybillCode+"查询运单信息失败!");
 			result.setMessage("服务异常!");
 			result.setData(5);
 		}
         return result;
+    }
+
+
+    /**
+     * 仓配纯配判断
+     * @param result
+     * @param waybillCode
+     * @param busiOrderCode
+     */
+    private void isPurematchOrWarehouse(InvokeResult<Integer> result, String waybillCode,String busiOrderCode) {
+        BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+        if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null
+                && StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
+            if(StringUtils.isEmpty(busiOrderCode)){
+                busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
+            }
+            if(BusinessUtil.isPurematch(bigWaybillDto.getWaybill().getWaybillSign())){
+                //纯配外单
+                result.setData(1);
+            }else if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
+                //仓配订单
+                result.setData(2);
+            }else{
+                result.setData(3);//既不是纯配也不是仓配
+            }
+        }else{
+            this.logger.error("通过运单号查询运单为空!");
+            result.setMessage("运单号："+waybillCode+"数据为空!");
+            result.setData(4);
+        }
     }
 }
