@@ -158,44 +158,6 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     }
 
     /**
-     * 根据运单号 查询单个包裹编码
-     * @param waybillCode 运单号
-     */
-    @Override
-    @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.getOnePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    public String getOnePackageByWaybillCode(String waybillCode) {
-        int limit = 1;
-        int curPage = 1;
-        BaseEntity<Page<DeliveryPackageDto>> baseEntity = getPageBaseEntityByWaybillCode(waybillCode, limit, curPage);
-        if (null == baseEntity) {
-            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回失败waybillCode[%s]",waybillCode));
-            return null;
-        }
-        if(EnumBusiCode.BUSI_SUCCESS.getCode() != baseEntity.getResultCode()){
-            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回失败waybillCode[%s]code[%s]message[%s]",
-                    waybillCode,baseEntity.getResultCode(),baseEntity.getMessage()));
-            return null;
-        }
-        if(baseEntity.getData() == null || CollectionUtils.isEmpty(baseEntity.getData().getResult())){
-            logger.info(String.format("getOnePackageByWaybillCode查询运单接口返回结果为空waybillCode[%s]",waybillCode));
-            return null;
-        }
-        return baseEntity.getData().getResult().get(0).getPackageBarcode();
-    }
-
-    private BaseEntity<Page<DeliveryPackageDto>> getPageBaseEntityByWaybillCode(String waybillCode, int limit, int curPage) {
-        if(StringUtils.isBlank(waybillCode)){
-            return null;
-        }
-        Page<DeliveryPackageDto> pageParam = new Page<>();
-        pageParam.setPageSize(limit);
-        pageParam.setCurPage(curPage);
-        //调用运单分页接口
-        return waybillPackageApi.getPackageByParam(waybillCode, pageParam);
-    }
-
-    /**
      * 将调用运单分页接口返回的dto转换成DeliveryPackageD
      *
      * @param dtoList

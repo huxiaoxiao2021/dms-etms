@@ -204,14 +204,6 @@ public interface DeliveryService {
     ThreeDeliveryResponse checkThreePackageForKY(List<SendM> sendMList);
 
     /**
-     * 校验滑道号
-     * @param waybillCode 运单号
-     * @param packageCode 包裹号
-     * @return true 滑道号正确，false 滑道号不正确
-     */
-    public boolean checkCrossCode(String waybillCode,String packageCode);
-
-    /**
      * 快运发货差异查询
      */
     ThreeDeliveryResponse differentialQuery(List<SendM> sendMList, Integer queryType);

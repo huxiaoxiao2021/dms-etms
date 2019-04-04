@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -132,6 +133,9 @@ public class DeliveryResource {
 
     @Autowired
     private CycleBoxService cycleBoxService;
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
 
     /**
@@ -484,7 +488,7 @@ public class DeliveryResource {
             Integer opType = request.get(0).getOpType();
             String boxCode = request.get(0).getBoxCode();
             //包裹号才校验
-            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){
+            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){//todo code 重用 强制拦截 找毕老师 确认一个强制确认的code
                 return new ThreeDeliveryResponse(JdResponse.CODE_CROSS_CODE_ERROR,JdResponse.MESSAGE_CROSS_CODE_ERROR, null);
             }
             ThreeDeliveryResponse response = null;
@@ -917,14 +921,8 @@ public class DeliveryResource {
      * @return true 滑道号正确，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(List<DeliveryRequest> request){
-        for(DeliveryRequest item : request){
-            String waybillCode = WaybillUtil.getWaybillCode(item.getBoxCode());
-            String packageCode = item.getBoxCode();
-            if(!deliveryService.checkCrossCode(waybillCode,packageCode)){
-                return Boolean.FALSE;
-            }
-        }
-        return Boolean.TRUE;
+        String packageCode = request.get(0).getBoxCode();
+        return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
     }
 
     /**

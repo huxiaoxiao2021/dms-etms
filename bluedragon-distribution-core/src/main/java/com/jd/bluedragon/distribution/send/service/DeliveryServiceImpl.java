@@ -2616,24 +2616,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-    @Override
-    public boolean checkCrossCode(String waybillCode, String packageCode) {
-        String waybillPackageCode = waybillPackageManager.getOnePackageByWaybillCode(waybillCode);
-        if(StringUtils.isBlank(waybillPackageCode)){
-            logger.info(String.format("运单返回包裹数据为空waybillCode[%s]packageCode[%s]",
-                    waybillCode,packageCode));
-            return Boolean.FALSE;
-        }
-        String currentCrossCode = WaybillUtil.getCrossCodeOnPackageCode(packageCode);
-        String waybillCrossCode = WaybillUtil.getCrossCodeOnPackageCode(waybillPackageCode);
-        if(!Objects.equals(currentCrossCode,waybillCrossCode)){
-            logger.info(String.format("滑道号不正确waybillCode[%s]packageCode[%s]currentCrossCode[%s]waybillPackageCode[%s]waybillCrossCode[%s]",
-                    waybillCode,packageCode,currentCrossCode,waybillPackageCode,waybillCrossCode));
-            return Boolean.FALSE;
-        }
-        return Boolean.TRUE;
-    }
-
     /**
    * 快运发货差异查询
    *
