@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.GenerateColdChainSendCodeRequest;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -15,15 +18,26 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
 import javax.annotation.Resource;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -33,259 +47,289 @@ import java.util.List;
 
 @Controller
 @Path(Constants.REST_URL)
-@Consumes({ MediaType.APPLICATION_JSON })
-@Produces({ MediaType.APPLICATION_JSON })
+@Consumes({MediaType.APPLICATION_JSON})
+@Produces({MediaType.APPLICATION_JSON})
 public class SendCodeResource {
-	private final Log logger = LogFactory.getLog(SendCodeResource.class);
-	private static final String IS_AIR_TRANSPORT_CARRIER = "Y";
-	private static final Integer TRANSPORT_TYPE_AIR = 1; // 航空
+    private final Log logger = LogFactory.getLog(SendCodeResource.class);
+    private static final String IS_AIR_TRANSPORT_CARRIER = "Y";
+    private static final Integer TRANSPORT_TYPE_AIR = 1; // 航空
 
-	public static final Integer CODE_SEND_CODE_IS_AIR_TRANSPORT = 30001;
-	public static final String MESSAGE_SEND_CODE_IS_AIR_TRANSPORT = "航空批次与承运人类型不一致，确定发车?";
+    public static final Integer CODE_SEND_CODE_IS_AIR_TRANSPORT = 30001;
+    public static final String MESSAGE_SEND_CODE_IS_AIR_TRANSPORT = "航空批次与承运人类型不一致，确定发车?";
 
-	public static final Integer CODE_CARRIER_IS_AIR_TRANSPORT = 30002;
-	public static final String MESSAGE_CARRIER_IS_AIR_TRANSPORT = "批次与航空承运人类型不一致，确定发车?";
+    public static final Integer CODE_CARRIER_IS_AIR_TRANSPORT = 30002;
+    public static final String MESSAGE_CARRIER_IS_AIR_TRANSPORT = "批次与航空承运人类型不一致，确定发车?";
 
-	public static final Integer CODE_CARRIER_NOT_FOUND = 409;
-	public static final String MESSAGE_CARRIER_NOT_FOUND = "承运人不存在.";
-	
-	private static final String TASK_REVERSE_SEND_BUSINESS = "30";
-	private static final String TASK_REVERSE_SEND_NODIFY = "3";
+    public static final Integer CODE_CARRIER_NOT_FOUND = 409;
+    public static final String MESSAGE_CARRIER_NOT_FOUND = "承运人不存在.";
 
-	private static final Integer CODE_CREATE_SEND_CODE_ERROR = 601;
-	private static final String MESSAGE_CODE_CREATE_SEND_CODE_ERROR = "创建批次号失败！";
+    private static final String TASK_REVERSE_SEND_BUSINESS = "30";
+    private static final String TASK_REVERSE_SEND_NODIFY = "3";
 
-	@Autowired
-	private SiteService siteService;
+    private static final Integer CODE_CREATE_SEND_CODE_ERROR = 601;
+    private static final String MESSAGE_CODE_CREATE_SEND_CODE_ERROR = "创建批次号失败！";
 
-	@Autowired
-	private DeliveryService deliveryService;
+    @Autowired
+    private SiteService siteService;
 
-	@Autowired
-	private DepartureResource departureResource;
-	
-	@Autowired
-	private TaskService taskService;
-	
-	@Autowired
+    @Autowired
+    private DeliveryService deliveryService;
+
+    @Autowired
+    private DepartureResource departureResource;
+
+    @Autowired
+    private TaskService taskService;
+
+    @Autowired
     ReverseDeliveryService reverseDelivery;
 
-	@Resource(name = "transbillMService")
-	private TransbillMService transbillMService;
+    @Autowired
+    ColdChainSendService coldChainSendService;
 
-	@GET
-	@Path("/trans/{waybillCode}")
-	public TransbillM checkSendCodeStatus(@PathParam("waybillCode") String waybillCode) {
-		return transbillMService.getByWaybillCode(waybillCode);
+    @Resource(name = "transbillMService")
+    private TransbillMService transbillMService;
 
-	}
+    @GET
+    @Path("/trans/{waybillCode}")
+    public TransbillM checkSendCodeStatus(@PathParam("waybillCode") String waybillCode) {
+        return transbillMService.getByWaybillCode(waybillCode);
 
-	@GET
-	@Path("/departure/check")
-	public JdResponse isAirTransportBatch(@QueryParam("siteCode") Integer siteCode,
-			@QueryParam("carrierSiteCode") Integer carrierSiteCode, @QueryParam("sendCode") String sendCode) {
-		if (siteCode == null || carrierSiteCode == null || Strings.isNullOrEmpty(sendCode)) {
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-		}
+    }
 
-		BaseStaffSiteOrgDto carrierSite = this.siteService.getSite(carrierSiteCode);
-		if (carrierSite == null) {
-			return new JdResponse(CODE_CARRIER_NOT_FOUND, MESSAGE_CARRIER_NOT_FOUND);
-		}
+    @GET
+    @Path("/departure/check")
+    public JdResponse isAirTransportBatch(@QueryParam("siteCode") Integer siteCode,
+                                          @QueryParam("carrierSiteCode") Integer carrierSiteCode, @QueryParam("sendCode") String sendCode) {
+        if (siteCode == null || carrierSiteCode == null || Strings.isNullOrEmpty(sendCode)) {
+            return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
+        }
 
-		if (!isAirTransportCarrier(carrierSite) && isAirTransportBatch(sendCode)) {
-			return new JdResponse(CODE_SEND_CODE_IS_AIR_TRANSPORT, MESSAGE_SEND_CODE_IS_AIR_TRANSPORT);
-		} else if (isAirTransportCarrier(carrierSite) && !isAirTransportBatch(sendCode)) {
-			return new JdResponse(CODE_CARRIER_IS_AIR_TRANSPORT, MESSAGE_CARRIER_IS_AIR_TRANSPORT);
-		}
+        BaseStaffSiteOrgDto carrierSite = this.siteService.getSite(carrierSiteCode);
+        if (carrierSite == null) {
+            return new JdResponse(CODE_CARRIER_NOT_FOUND, MESSAGE_CARRIER_NOT_FOUND);
+        }
 
-		return this.departureResource.checkSendStatus(siteCode, sendCode);
-	}
+        if (!isAirTransportCarrier(carrierSite) && isAirTransportBatch(sendCode)) {
+            return new JdResponse(CODE_SEND_CODE_IS_AIR_TRANSPORT, MESSAGE_SEND_CODE_IS_AIR_TRANSPORT);
+        } else if (isAirTransportCarrier(carrierSite) && !isAirTransportBatch(sendCode)) {
+            return new JdResponse(CODE_CARRIER_IS_AIR_TRANSPORT, MESSAGE_CARRIER_IS_AIR_TRANSPORT);
+        }
 
-	private Boolean isAirTransportCarrier(BaseStaffSiteOrgDto carrierSite) {
-		return !Strings.isNullOrEmpty(carrierSite.getAirTransport())
-				&& IS_AIR_TRANSPORT_CARRIER.equals(carrierSite.getAirTransport());
-	}
+        return this.departureResource.checkSendStatus(siteCode, sendCode);
+    }
 
-	private Boolean isAirTransportBatch(String sendCode) {
-		Boolean isAirTransportBatch = Boolean.FALSE;
+    private Boolean isAirTransportCarrier(BaseStaffSiteOrgDto carrierSite) {
+        return !Strings.isNullOrEmpty(carrierSite.getAirTransport())
+                && IS_AIR_TRANSPORT_CARRIER.equals(carrierSite.getAirTransport());
+    }
 
-		List<SendM> sends = this.deliveryService.queryCountByBox(newSend(sendCode));
-		for (SendM send : sends) {
-			if (send.getTransporttype() == null) {
-				break;
-			}
+    private Boolean isAirTransportBatch(String sendCode) {
+        Boolean isAirTransportBatch = Boolean.FALSE;
 
-			if (TRANSPORT_TYPE_AIR.equals(send.getTransporttype())) {
-				isAirTransportBatch = Boolean.TRUE;
-			} else {
-				isAirTransportBatch = Boolean.FALSE;
-			}
+        List<SendM> sends = this.deliveryService.queryCountByBox(newSend(sendCode));
+        for (SendM send : sends) {
+            if (send.getTransporttype() == null) {
+                break;
+            }
 
-			break;
-		}
+            if (TRANSPORT_TYPE_AIR.equals(send.getTransporttype())) {
+                isAirTransportBatch = Boolean.TRUE;
+            } else {
+                isAirTransportBatch = Boolean.FALSE;
+            }
 
-		return isAirTransportBatch;
-	}
+            break;
+        }
 
-	private SendM newSend(String sendCode) {
-		SendM send = new SendM();
-		send.setSendCode(sendCode);
-		return send;
-	}
-	
-	@GET
-	@Path("/send/repair/sendcode")
-	public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
-		if (StringHelper.isEmpty(sendCode)) {
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
-					JdResponse.MESSAGE_PARAM_ERROR);
-		}
+        return isAirTransportBatch;
+    }
 
-		Task task = this.taskService.findWaybillSendTask(sendCode.trim());
-		if (task != null) {
-			task.setType(Task.TASK_TYPE_SEND_DELIVERY);
-			task.setStatus(Task.TASK_STATUS_UNHANDLED);
-			task.setExecuteCount(Task.INITIAL_COUNT);
-			task.setExecuteTime(new Date());
-			this.taskService.updateBySelective(task);
-		} else {
-			this.getCreateSiteCodeBysendCode(sendCode);
+    private SendM newSend(String sendCode) {
+        SendM send = new SendM();
+        send.setSendCode(sendCode);
+        return send;
+    }
 
-			task = new Task();
-			task.setKeyword1(SendCodeResource.TASK_REVERSE_SEND_NODIFY);
-			task.setKeyword2(SendCodeResource.TASK_REVERSE_SEND_BUSINESS);
-			task.setCreateSiteCode(this.getCreateSiteCodeBysendCode(sendCode));
-			task.setReceiveSiteCode(this.getReceiveSiteCodeBysendCode(sendCode));
-			task.setBoxCode(sendCode);
-			task.setBody(sendCode);
-			task.setExecuteCount(Task.INITIAL_COUNT);
-			task.setExecuteTime(new Date());
-			task.setFingerprint(this.getFingerprint(sendCode));
-			task.setType(Task.TASK_TYPE_SEND_DELIVERY);
-			task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
-			task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
-			task.setOwnSign(BusinessHelper.getOwnSign());
+    @GET
+    @Path("/send/repair/sendcode")
+    public JdResponse repairSendCode(@QueryParam("sendCode") String sendCode) {
+        if (StringHelper.isEmpty(sendCode)) {
+            return new JdResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
 
-			this.taskService.add(task);
-		}
+        Task task = this.taskService.findWaybillSendTask(sendCode.trim());
+        if (task != null) {
+            task.setType(Task.TASK_TYPE_SEND_DELIVERY);
+            task.setStatus(Task.TASK_STATUS_UNHANDLED);
+            task.setExecuteCount(Task.INITIAL_COUNT);
+            task.setExecuteTime(new Date());
+            this.taskService.updateBySelective(task);
+        } else {
+            this.getCreateSiteCodeBysendCode(sendCode);
 
-		return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+            task = new Task();
+            task.setKeyword1(SendCodeResource.TASK_REVERSE_SEND_NODIFY);
+            task.setKeyword2(SendCodeResource.TASK_REVERSE_SEND_BUSINESS);
+            task.setCreateSiteCode(this.getCreateSiteCodeBysendCode(sendCode));
+            task.setReceiveSiteCode(this.getReceiveSiteCodeBysendCode(sendCode));
+            task.setBoxCode(sendCode);
+            task.setBody(sendCode);
+            task.setExecuteCount(Task.INITIAL_COUNT);
+            task.setExecuteTime(new Date());
+            task.setFingerprint(this.getFingerprint(sendCode));
+            task.setType(Task.TASK_TYPE_SEND_DELIVERY);
+            task.setTableName(Task.getTableName(Task.TASK_TYPE_SEND_DELIVERY));
+            task.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_SEND));
+            task.setOwnSign(BusinessHelper.getOwnSign());
 
-	}
-	
-	@GET
-	@Path("/send/repair/waybillCode")
-	public JdResponse repairWaybillCode(@QueryParam("waybillCode") String waybillCode) {
-		if (StringHelper.isEmpty(waybillCode)) {
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
-					JdResponse.MESSAGE_PARAM_ERROR);
-		}
-		String[] waybills = waybillCode.split("&");
-if(waybills==null){
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
-					JdResponse.MESSAGE_PARAM_ERROR);}
-		if(waybills.length>20)
-			return new JdResponse(JdResponse.CODE_PARAM_ERROR,
-					JdResponse.MESSAGE_PARAM_ERROR);
-		List<String> request = new ArrayList<String>();
-		for(String code :waybills){
-			request.add(code);
-		}
-		String message = reverseDelivery.toEmsServer(request);
-		if(StringHelper.isEmpty(message))
-			return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-		else
-			return new JdResponse(JdResponse.CODE_OK, message);
-	}
+            this.taskService.add(task);
+        }
 
-	private Integer getCreateSiteCodeBysendCode(String sendCode) {
-		String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
+        return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
 
-		if (sendCodeArray == null || sendCodeArray[0] == null) {
-			return 0;
-		}
+    }
 
-		return new Integer(sendCodeArray[0]);
-	}
-	
-	private Integer getReceiveSiteCodeBysendCode(String sendCode) {
-		String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
+    @GET
+    @Path("/send/repair/waybillCode")
+    public JdResponse repairWaybillCode(@QueryParam("waybillCode") String waybillCode) {
+        if (StringHelper.isEmpty(waybillCode)) {
+            return new JdResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
+        String[] waybills = waybillCode.split("&");
+        if (waybills == null) {
+            return new JdResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
+        if (waybills.length > 20) {
+            return new JdResponse(JdResponse.CODE_PARAM_ERROR,
+                    JdResponse.MESSAGE_PARAM_ERROR);
+        }
 
-		if (sendCodeArray == null || sendCodeArray[1] == null) {
-			return 0;
-		}
+        List<String> request = new ArrayList<String>();
+        for (String code : waybills) {
+            request.add(code);
+        }
+        String message = reverseDelivery.toEmsServer(request);
+        if (StringHelper.isEmpty(message)) {
+            return new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        } else {
+            return new JdResponse(JdResponse.CODE_OK, message);
+        }
+    }
 
-		return new Integer(sendCodeArray[1]);
-	}
-	
-	private String getFingerprint(String sendCode) {
-		return Md5Helper.encode(sendCode + Constants.SEPARATOR_HYPHEN + SendCodeResource.TASK_REVERSE_SEND_NODIFY);
-	}
+    private Integer getCreateSiteCodeBysendCode(String sendCode) {
+        String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
 
-	@POST
-	@Path("/sendCode/generate")
-	public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
-		GenerateSendCodeResponse response = new GenerateSendCodeResponse();
-		try{
-			String sendCode = SerialRuleUtil.generateSendCode(
-					request.getCreateSiteCode(),
-					request.getReceiveSiteCode(),
-					request.getTime()
-			);
-			response.setCode(200);
-			response.setSendCode(sendCode);
-		}catch (Exception e){
-			response.setCode(CODE_CREATE_SEND_CODE_ERROR);
-			response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-			logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
-		}
-		return response;
-	}
+        if (sendCodeArray == null || sendCodeArray[0] == null) {
+            return 0;
+        }
 
-	@POST
-	@Path("/sendCode/batchGenerate")
-	public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
-		BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
-		/** 校验参数*/
-		if(!batchGenerateCheckParam(request, response)){
-			return response;
-		}
-		try{
-			List<String> sendCodes = new ArrayList<String>(request.getQuantity());
-			for(int i = 0; i < request.getQuantity(); i++){
-				String sendCode = SerialRuleUtil.generateSendCode(
-						request.getCreateSiteCode(),
-						request.getReceiveSiteCode(),
-						//防止生成的批次号重复
-						DateHelper.add(new Date(), Calendar.MILLISECOND, i*10)
-				);
-				sendCodes.add(sendCode);
-			}
-			response.setCode(200);
-			response.setSendCodes(sendCodes);
-		}catch (Exception e){
-			response.setCode(CODE_CREATE_SEND_CODE_ERROR);
-			response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-			logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
-		}
-		return response;
-	}
+        return new Integer(sendCodeArray[0]);
+    }
 
-	private boolean batchGenerateCheckParam(GenerateSendCodeRequest request, BatchGenerateSendCodeReponse response){
-		//校验参数
-		if(request.getQuantity() == null || request.getQuantity() <= 0){
-			response.setCode(JdResponse.CODE_PARAM_ERROR);
-			response.setMessage("生成数量Quantity非法！");
-			logger.warn(MessageFormat.format("生成数量Quantity:{0}非法！",request.getQuantity()));
-			return false;
-		}
-		if(request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0){
-			response.setCode(JdResponse.CODE_PARAM_ERROR);
-			response.setMessage("分拣中心编号非法！");
-			logger.warn("分拣中心编号非法！");
-			return false;
-		}
-		return true;
-	}
+    private Integer getReceiveSiteCodeBysendCode(String sendCode) {
+        String[] sendCodeArray = sendCode.split(Constants.SEPARATOR_HYPHEN);
+
+        if (sendCodeArray == null || sendCodeArray[1] == null) {
+            return 0;
+        }
+
+        return new Integer(sendCodeArray[1]);
+    }
+
+    private String getFingerprint(String sendCode) {
+        return Md5Helper.encode(sendCode + Constants.SEPARATOR_HYPHEN + SendCodeResource.TASK_REVERSE_SEND_NODIFY);
+    }
+
+    @POST
+    @Path("/sendCode/generate")
+    public GenerateSendCodeResponse generateSendCode(GenerateSendCodeRequest request) {
+        GenerateSendCodeResponse response = new GenerateSendCodeResponse();
+        try {
+            String sendCode = SerialRuleUtil.generateSendCode(
+                    request.getCreateSiteCode(),
+                    request.getReceiveSiteCode(),
+                    request.getTime()
+            );
+            response.setCode(200);
+            response.setSendCode(sendCode);
+        } catch (Exception e) {
+            response.setCode(CODE_CREATE_SEND_CODE_ERROR);
+            response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
+            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/sendCode/coldChain/generate")
+    public GenerateSendCodeResponse generateSendCode(GenerateColdChainSendCodeRequest request) {
+        GenerateSendCodeResponse response = new GenerateSendCodeResponse();
+        try {
+            String transPlanCode = request.getTransPlanCode();
+            ColdChainSend coldChainSend = coldChainSendService.getByTransCode(transPlanCode);
+            String sendCode;
+            if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
+                sendCode = coldChainSend.getSendCode();
+            } else {
+                sendCode = SerialRuleUtil.generateSendCode(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getTime());
+            }
+            response.setCode(200);
+            response.setSendCode(sendCode);
+        } catch (Exception e) {
+            response.setCode(CODE_CREATE_SEND_CODE_ERROR);
+            response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
+            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+        }
+        return response;
+    }
+
+    @POST
+    @Path("/sendCode/batchGenerate")
+    public BatchGenerateSendCodeReponse batchGenerate(GenerateSendCodeRequest request) {
+        BatchGenerateSendCodeReponse response = new BatchGenerateSendCodeReponse();
+        /** 校验参数*/
+        if (!batchGenerateCheckParam(request, response)) {
+            return response;
+        }
+        try {
+            List<String> sendCodes = new ArrayList<String>(request.getQuantity());
+            for (int i = 0; i < request.getQuantity(); i++) {
+                String sendCode = SerialRuleUtil.generateSendCode(
+                        request.getCreateSiteCode(),
+                        request.getReceiveSiteCode(),
+                        //防止生成的批次号重复
+                        DateHelper.add(new Date(), Calendar.MILLISECOND, i * 10)
+                );
+                sendCodes.add(sendCode);
+            }
+            response.setCode(200);
+            response.setSendCodes(sendCodes);
+        } catch (Exception e) {
+            response.setCode(CODE_CREATE_SEND_CODE_ERROR);
+            response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
+            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
+        }
+        return response;
+    }
+
+    private boolean batchGenerateCheckParam(GenerateSendCodeRequest request, BatchGenerateSendCodeReponse response) {
+        //校验参数
+        if (request.getQuantity() == null || request.getQuantity() <= 0) {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("生成数量Quantity非法！");
+            logger.warn(MessageFormat.format("生成数量Quantity:{0}非法！", request.getQuantity()));
+            return false;
+        }
+        if (request.getCreateSiteCode() == 0 || request.getReceiveSiteCode() == 0) {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage("分拣中心编号非法！");
+            logger.warn("分拣中心编号非法！");
+            return false;
+        }
+        return true;
+    }
 }

@@ -61,6 +61,11 @@ public class SendDetailMessage implements Serializable {
      */
     private String boardCode;
 
+    /**
+     * 业务来源
+     */
+    private Integer bizSource;
+
     public String getBoxCode() {
         return boxCode;
     }
@@ -139,5 +144,13 @@ public class SendDetailMessage implements Serializable {
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
