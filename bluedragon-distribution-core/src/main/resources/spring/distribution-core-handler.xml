@@ -12,6 +12,7 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
 				<entry key="1003"  value-ref="waybillPrintJsfCommandHandler"/>
+				<entry key="1005"  value-ref="siteMasterWorkspaceWaybillPrintCommandHandler"/>
 			</map>
 		</property>
 	</bean>
@@ -47,6 +48,21 @@
 			</map>
 		</property>
 	</bean>
+	<!-- 站长工作台打印-指令处理配置 -->
+	<bean id="siteMasterWorkspaceWaybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
+		<property name="jsonOperateHandlerMapping" ref="siteMasterWorkspaceWaybillPrintOperateHandlerMapping"/>
+	</bean>
+	<!-- 站长工作台打印-打印逻辑映射关系配置 -->
+	<bean id="siteMasterWorkspaceWaybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
+		<property name="handlerMap">
+			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
+				<entry key="100501"  value-ref="packageReprint"/>
+				<entry key="100502"  value-ref="packageReverseChangePrint"/>
+				<entry key="100503"  value-ref="basicPrint"/>
+			</map>
+		</property>
+	</bean>
+
 	<!-- 包裹标签打印-通用打印逻辑处理 -->
 	<bean id="basicPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
@@ -59,6 +75,8 @@
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="pickThisPackageHandler"/>
+				<ref bean="printCheckInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
@@ -87,4 +105,41 @@
 		<property name="diffWeight" value="${beans.thirdOverRunInterceptHandler.diffWeight}"/>
 		<property name="diffVolume" value="${beans.thirdOverRunInterceptHandler.diffVolume}"/>
 	</bean>
+	<!-- 包裹标签补打-站长工作台 -->
+	<bean id="packageReprint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="pickThisPackageHandler"/>
+				<ref bean="printCheckInterceptHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>
+	<!-- 换单打印-站长工作台 -->
+	<bean id="packageReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="halfPackageWeightInterceptHandler"/>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="pickThisPackageHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>
+
 </beans>

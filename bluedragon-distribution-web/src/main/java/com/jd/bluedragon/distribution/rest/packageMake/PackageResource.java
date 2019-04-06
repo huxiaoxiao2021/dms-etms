@@ -2,20 +2,25 @@ package com.jd.bluedragon.distribution.rest.packageMake;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -31,7 +36,7 @@ import java.util.Date;
 @Produces({MediaType.APPLICATION_JSON})
 public class PackageResource {
 
-    private final Log logger= LogFactory.getLog(PackageResource.class);
+    private final Logger logger= LoggerFactory.getLogger(PackageResource.class);
 
     @Autowired
     private TaskService taskService;
@@ -41,6 +46,16 @@ public class PackageResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private OperationLogService operationLogService;
+
+    @Autowired
+    @Qualifier("dmsModifyOrderInfoMQ")
+    private DefaultJMQProducer dmsModifyOrderInfoMQ;
+
+    @Autowired
+    private WaybillResource waybillResource;
 
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
@@ -124,6 +139,78 @@ public class PackageResource {
         }
 
         return jdResponse;
+    }
+
+    /**
+     * 1. /services/OperationLogResource/add 记录操作日志
+     * 2. /services/packageMake/packageRePrint 记录全程跟踪
+     * 2. /services/waybill/sendModifyWaybillMQ 客户改址拦截成功
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/package/ReprintAfter")
+    public JdResponse packReprintAfter(ClientOperateRequest request) {
+        JdResponse response = new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        String barCode = request.getBarCode();
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        if (StringHelper.isEmpty(barCode) || StringHelper.isEmpty(waybillCode)) {
+            response.setCode(JdResponse.CODE_PARAM_ERROR);
+            response.setMessage(JdResponse.MESSAGE_PACKAGE_ERROR);
+            return response;
+        }
+
+        /* 1.记录打印操作日志 */
+        try {
+            OperationLog operationLog = new OperationLog();
+            operationLog.setWaybillCode(waybillCode);
+            operationLog.setPackageCode(barCode);
+            operationLog.setCreateSiteCode(request.getCreateSiteCode());
+            operationLog.setCreateSiteName(request.getCreateSiteName());
+            operationLog.setCreateUserCode(request.getOperateUserCode());
+            operationLog.setCreateUser(request.getOperateUserName());
+            operationLog.setCreateTime(DateHelper.parseDateTime(request.getOperateTime()));
+            operationLogService.add(operationLog);
+        } catch (Exception e) {
+            logger.error("PackageResource.packReprintAfter-->记录包裹打印日志异常,请求参数为{}", JsonHelper.toJson(request),e);
+        }
+
+        try {
+            /* 2.发送全程跟踪 */
+            this.packageRePrint(barCode,request.getWaybillSign(),request.getCreateSiteCode()
+                    ,String.valueOf(request.getOperateUserCode()));
+
+            /* 3.客户改址拦截MQ */
+            String waybillSign = request.getWaybillSign();
+            if (StringHelper.isEmpty(request.getWaybillSign()) && waybillSign.length() > 8 &&
+                    (BusinessUtil.isSignChar(waybillSign,8,'1' ) || BusinessUtil.isSignChar(waybillSign,8,'2' )
+                            || BusinessUtil.isSignChar(waybillSign,8,'3' ))) {
+                char sign = waybillSign.charAt(7);
+
+                ModifyOrderInfo modifyOrderInfo = new ModifyOrderInfo();
+                modifyOrderInfo.setOrderId(waybillCode);
+                modifyOrderInfo.setDmsId(request.getCreateSiteCode());
+                modifyOrderInfo.setDmsName(request.getCreateSiteName());
+                Integer resultCode = null;
+                if (sign == '1') {
+                    resultCode = 5;
+                } else if (sign == '2'){
+                    resultCode = 6;
+                } else if (sign == '3') {
+                    resultCode = 7;
+                }
+                modifyOrderInfo.setResultCode(resultCode);
+                modifyOrderInfo.setOperateTime(request.getOperateTime());
+                String json = JsonHelper.toJson(modifyOrderInfo);
+                dmsModifyOrderInfoMQ.send(modifyOrderInfo.getOrderId(),json);
+                logger.debug("PackageResource.packReprintAfter-->客户改址MQ发送成功{}",json);
+            }
+        } catch (Exception e) {
+            logger.error("PackageResource.packReprintAfter-->包裹补打全程跟踪、客户改址拦截MQ发送失败：{}", JsonHelper.toJson(request),e);
+            response.setCode(JdResponse.CODE_SERVICE_ERROR);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+        return response;
     }
 
     private Task toAddressModTask(String barCode, String operateName){

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.receive.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -33,4 +34,12 @@ public interface ReceiveWeightCheckService {
      * 整理导出数据
      * */
     public List<List<Object>> getExportData(ReceiveWeightCheckCondition condition);
+
+    /**
+     * 判断换单新单运单是否存
+     * @param oldWaybillCode 老运单号
+     * @param newWaybillCode 新运单号
+     * @return
+     */
+    public InvokeResult<Integer> waybillExchangeCheckWeightAndVolume( String oldWaybillCode, String newWaybillCode);
 }

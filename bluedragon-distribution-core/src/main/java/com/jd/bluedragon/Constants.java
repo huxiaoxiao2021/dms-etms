@@ -812,4 +812,10 @@ public class Constants {
     /** 快运发货路由校验新接口标识 **/
     public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
 
+    public static final double CONFIRM_WEIGHT_25 = 25.00;
+
+    public static final double CONFIRM_WEIGHT_100 = 100.00;
+
+    public static final double ILLEGAL_WEIGHT_1000 = 1000.00;
+
 }

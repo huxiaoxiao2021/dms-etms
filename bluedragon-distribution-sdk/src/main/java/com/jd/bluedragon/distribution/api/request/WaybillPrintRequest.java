@@ -62,7 +62,7 @@ public class WaybillPrintRequest extends JdRequest{
      * */
     private Integer startSiteType;
     /**
-     * 是否获取称重信息（temp）
+     * 是否获取称重信息（temp）0不称重 1称重
      */
     private Integer packOpeFlowFlg;
 	/**
