@@ -186,10 +186,12 @@ public class ReversePrintResource {
 
         /* 1.保存离线称重信息 */
         try {
-            TaskResponse taskResponse = taskResource.add(convert2TaskRequest(request));
-            if (null == taskResponse || !TaskResponse.CODE_OK.equals(taskResponse.getCode())) {
-                result.setCode(InvokeResult.SERVER_ERROR_CODE);
-                result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【称重数据保存失败】");
+            if (null != request.getPackOpeFlowFlg() && Constants.INTEGER_FLG_TRUE.equals(request.getPackOpeFlowFlg())) {
+                TaskResponse taskResponse = taskResource.add(convert2TaskRequest(request));
+                if (null == taskResponse || !TaskResponse.CODE_OK.equals(taskResponse.getCode())) {
+                    result.setCode(InvokeResult.SERVER_ERROR_CODE);
+                    result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【称重数据保存失败】");
+                }
             }
         } catch (Exception e) {
             logger.error("ReversePrintResource.reversePrintAfter-->保存离线打印任务失败{}",JsonHelper.toJson(request),e);
