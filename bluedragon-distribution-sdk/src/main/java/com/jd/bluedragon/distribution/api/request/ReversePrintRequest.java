@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdObject;
-
-import java.security.Timestamp;
-import java.util.Date;
+import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 
 /**
  * 逆向换单打印对象
@@ -37,6 +35,10 @@ public class ReversePrintRequest extends JdObject {
     private String staffRealName;
 
     /**
+     * 员工ERP
+     */
+    private String staffErpCode;
+    /**
      * 操作人站点ID
      */
     private int siteCode;
@@ -55,6 +57,41 @@ public class ReversePrintRequest extends JdObject {
      * 分拣中心id
      * */
     private Integer dmsDisCode;
+
+    /**
+     * pop商家ID
+     */
+    private Integer popSupId;
+
+    /**
+     * pop商家名称
+     */
+    private String popSupName;
+
+    /**
+     * B商家ID
+     */
+    private Integer busiId;
+
+    /**
+     * B商家名称
+     */
+    private String busiName;
+
+    /**
+     * 运单类型
+     */
+    private Integer waybillType;
+
+    /**
+     * 称重量方信息
+     */
+    private WeightOperFlow weightOperFlow;
+
+    /**
+     * 是否获取称重信息（temp）0不称重 1称重
+     */
+    private Integer packOpeFlowFlg;
 
     public String getOldCode() {
         return oldCode;
@@ -78,6 +115,14 @@ public class ReversePrintRequest extends JdObject {
 
     public void setStaffId(int staffId) {
         this.staffId = staffId;
+    }
+
+    public String getStaffErpCode() {
+        return staffErpCode;
+    }
+
+    public void setStaffErpCode(String staffErpCode) {
+        this.staffErpCode = staffErpCode;
     }
 
     public String getStaffRealName() {
@@ -128,15 +173,81 @@ public class ReversePrintRequest extends JdObject {
         this.newPackageCode = newPackageCode;
     }
 
+    public Integer getPopSupId() {
+        return popSupId;
+    }
+
+    public void setPopSupId(Integer popSupId) {
+        this.popSupId = popSupId;
+    }
+
+    public String getPopSupName() {
+        return popSupName;
+    }
+
+    public void setPopSupName(String popSupName) {
+        this.popSupName = popSupName;
+    }
+
+    public Integer getBusiId() {
+        return busiId;
+    }
+
+    public void setBusiId(Integer busiId) {
+        this.busiId = busiId;
+    }
+
+    public String getBusiName() {
+        return busiName;
+    }
+
+    public void setBusiName(String busiName) {
+        this.busiName = busiName;
+    }
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
+    public WeightOperFlow getWeightOperFlow() {
+        return weightOperFlow;
+    }
+
+    public void setWeightOperFlow(WeightOperFlow weightOperFlow) {
+        this.weightOperFlow = weightOperFlow;
+    }
+
+    public Integer getPackOpeFlowFlg() {
+        return packOpeFlowFlg;
+    }
+
+    public void setPackOpeFlowFlg(Integer packOpeFlowFlg) {
+        this.packOpeFlowFlg = packOpeFlowFlg;
+    }
+
     @Override
     public String toString() {
-        StringBuilder stringBuilder=new StringBuilder();
-        stringBuilder.append("oldCode:");
-        stringBuilder.append(this.oldCode);
-        stringBuilder.append(";newCode:");
-        stringBuilder.append(this.newCode);
-        stringBuilder.append(";newPackageCode:");
-        stringBuilder.append(this.newPackageCode);
-        return stringBuilder.toString();
+        return "ReversePrintRequest{" +
+                "oldCode='" + oldCode + '\'' +
+                ", newCode='" + newCode + '\'' +
+                ", newPackageCode='" + newPackageCode + '\'' +
+                ", staffId=" + staffId +
+                ", staffRealName='" + staffRealName + '\'' +
+                ", staffErpCode='" + staffErpCode + '\'' +
+                ", siteCode=" + siteCode +
+                ", siteName='" + siteName + '\'' +
+                ", operateUnixTime=" + operateUnixTime +
+                ", dmsDisCode=" + dmsDisCode +
+                ", popSupId=" + popSupId +
+                ", popSupName='" + popSupName + '\'' +
+                ", busiId=" + busiId +
+                ", busiName='" + busiName + '\'' +
+                ", weightOperFlow=" + weightOperFlow +
+                ", packOpeFlowFlg=" + packOpeFlowFlg +
+                "} " + super.toString();
     }
 }
