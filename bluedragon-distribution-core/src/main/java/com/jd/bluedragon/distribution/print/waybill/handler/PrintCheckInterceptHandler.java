@@ -43,6 +43,6 @@ public class PrintCheckInterceptHandler implements InterceptHandler<WaybillPrint
             result.toWeakSuccess(JdResponse.CODE_RE_PRINT_IN_ONE_HOUR,JdResponse.MESSAGE_RE_PRINT_IN_ONE_HOUR);
         }
 
-        return context.getResult();
+        return result;
     }
 }

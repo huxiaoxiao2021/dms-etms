@@ -35,9 +35,6 @@ public class PickThisPackageHandler implements  InterceptHandler<WaybillPrintCon
         InterceptResult<String> result = context.getResult();
 
         String barCode = context.getRequest().getBarCode();
-        if (WaybillUtil.isWaybillCode(barCode)) {
-            return result;
-        }
 
         /* 获取打印结果 */
         WaybillPrintResponse waybillPrintResponse = context.getResponse();
@@ -80,7 +77,7 @@ public class PickThisPackageHandler implements  InterceptHandler<WaybillPrintCon
                     waybillPrintResponse.getWaybillCode(),waybillPrintResponse.getPackList().size());
             result.toWeakSuccess(JdResponse.CODE_RE_PRINT_PACK_SIZE_TOO_LARGE, MessageFormat
                     .format(JdResponse.MESSAGE_RE_PRINT_PACK_SIZE_TOO_LARGE,waybillPrintResponse.getPackList().size()));
-            return context.getResult();
+            return result;
         }
         return result;
     }
