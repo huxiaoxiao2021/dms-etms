@@ -58,7 +58,7 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100501"  value-ref="packageReprint"/>
 				<entry key="100502"  value-ref="packageReverseChangePrint"/>
-				<entry key="100503"  value-ref="basicPrint"/>
+				<entry key="100503"  value-ref="reSchedulePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -75,8 +75,6 @@
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
-				<ref bean="pickThisPackageHandler"/>
-				<ref bean="printCheckInterceptHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
@@ -141,5 +139,22 @@
 			</list>
 		</property>
 	</bean>
+    <!-- 现场预分拣-站长工作台 -->
+    <bean id="reSchedulePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+        <property name="handlers">
+            <list>
+                <ref bean="basicWaybillPrintHandler"/>
+                <ref bean="c2cInterceptHandler"/>
+                <ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleSiteSupportInterceptHandler"/>
+                <ref bean="scheduleWaybillHandler"/>
+                <ref bean="specialMarkWaybillHandler"/>
+                <ref bean="specialTextWaybillHandler"/>
+                <ref bean="promiseWaybillHandler"/>
+                <ref bean="hideInfoWaybillHandler"/>
+                <ref bean="templateSelectorWaybillHandler"/>
+            </list>
+        </property>
+    </bean>
 
 </beans>

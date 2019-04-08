@@ -2,8 +2,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -24,7 +23,7 @@ import java.util.List;
  * @since 2019/4/5
  */
 @Service("pickThisPackageHandler")
-public class PickThisPackageHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PickThisPackageHandler implements  InterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PickThisPackageHandler.class);
 
@@ -32,7 +31,7 @@ public class PickThisPackageHandler implements Handler<WaybillPrintContext, JdRe
     private static final int MAX_PRINT_SIZE = 100;
 
     @Override
-    public JdResult<String> handle(WaybillPrintContext context) {
+    public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
 
         String barCode = context.getRequest().getBarCode();

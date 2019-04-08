@@ -3,8 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.KeyConstants;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/5
  */
 @Service("printCheckInterceptHandler")
-public class PrintCheckInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class PrintCheckInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PrintCheckInterceptHandler.class);
 
@@ -29,7 +28,7 @@ public class PrintCheckInterceptHandler implements Handler<WaybillPrintContext, 
     private RedisManager redisManager;
 
     @Override
-    public JdResult<String> handle(WaybillPrintContext context) {
+    public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
         String barCode = context.getRequest().getBarCode();
         if (StringHelper.isEmpty(barCode)) {

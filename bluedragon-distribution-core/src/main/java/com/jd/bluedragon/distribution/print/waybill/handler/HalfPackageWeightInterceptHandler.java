@@ -6,8 +6,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
@@ -27,7 +26,7 @@ import org.springframework.stereotype.Service;
  * @since 2019/4/6
  */
 @Service("halfPackageWeightInterceptHandler")
-public class HalfPackageWeightInterceptHandler implements Handler<WaybillPrintContext, JdResult<String>> {
+public class HalfPackageWeightInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HalfPackageWeightInterceptHandler.class);
 
@@ -41,7 +40,7 @@ public class HalfPackageWeightInterceptHandler implements Handler<WaybillPrintCo
     private ReceiveWeightCheckService receiveWeightCheckService;
 
     @Override
-    public JdResult<String> handle(WaybillPrintContext context) {
+    public InterceptResult<String> handle(WaybillPrintContext context) {
         InterceptResult<String> result = context.getResult();
         String barCode = context.getRequest().getBarCode();/* 获取输入单号 */
         String oldWaybillCode = WaybillUtil.getWaybillCode(barCode);/* 获取运单号 */
