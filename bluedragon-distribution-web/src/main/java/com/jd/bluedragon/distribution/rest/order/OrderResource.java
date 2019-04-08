@@ -11,9 +11,10 @@ import com.jd.bluedragon.distribution.api.response.OrderPackage;
 import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.product.domain.Product;
+import com.jd.bluedragon.distribution.waybill.domain.PaymentEnum;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillTypeEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -22,7 +23,6 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 
@@ -74,8 +74,10 @@ public class OrderResource {
 		response.setMobile(waybill.getReceiverMobile());
 		response.setPackageQuantity(waybill.getGoodNumber());
 		response.setPayment(waybill.getPayment());
+		response.setPaymentText(PaymentEnum.getNameByCode(waybill.getPayment()));
 		response.setWaybillCode(waybill.getWaybillCode());
 		response.setWaybillType(waybill.getWaybillType());
+		response.setWaybillTypeText(WaybillTypeEnum.getNameByCode(waybill.getWaybillType()));
 		response.setSendPay(waybill.getSendPay());
 		response.setSiteId(waybill.getOldSiteId());
 		response.setSiteName(receiveSite != null ? receiveSite.getSiteName() : null);
