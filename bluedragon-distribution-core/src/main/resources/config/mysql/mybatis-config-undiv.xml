@@ -107,6 +107,9 @@
         <!-- 签单返回 -->
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill" alias="mergedWaybill"/>
+
+        <!-- 冷链发货 -->
+        <typeAlias type="com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend" alias="ColdChainSend"/>
     </typeAliases>
 
     <plugins>
@@ -283,5 +286,7 @@
         <!-- 分组箱号 -->
         <mapper resource="mappers/mysql/box/GroupBoxMapper.xml"/>
 
+        <!-- 冷链发货 -->
+        <mapper resource="mappers/mysql/coldchain/ColdChainSendMapper.xml"/>
     </mappers>
 </configuration>

@@ -1,12 +1,19 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.tfc.dto.ScheduleCargoSimpleDto;
+import com.jd.tms.tfc.dto.TransPlanScheduleCargoDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,8 +21,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,6 +46,12 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
 
     @Autowired
     private SortingService sortingService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private TmsTfcWSManager tmsTfcWSManager;
 
     @Override
     public boolean add(ColdChainSend coldChainSend) {
@@ -147,6 +165,107 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             }
         }
         return null;
+    }
+
+    @Override
+    public List<TransPlanDetailResult> getTransPlanDetail(Integer createSiteCode, Integer receiveSiteCode) {
+        ScheduleCargoSimpleDto queryCondition = this.getQueryCondition(createSiteCode, receiveSiteCode);
+        if (queryCondition != null) {
+            List<TransPlanScheduleCargoDto> result = tmsTfcWSManager.getTransPlanScheduleCargoByCondition(queryCondition);
+            if (result != null) {
+                if (result.size() > 0) {
+                    return this.getTransPlanDetailResultList(result);
+                } else {
+                    return Collections.EMPTY_LIST;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ScheduleCargoSimpleDto getQueryCondition(Integer createSiteCode, Integer receiveSiteCode) {
+        BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
+        BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
+        if (createSiteDto != null && receiveSiteDto != null) {
+            Date beginPlanDepartTime = this.getDateTimeByParam(null, 0, 0, 0);
+            Date endPlanDepartTime = this.getDateTimeByParam(null, 23, 59, 59);
+            String beginNodeCode = createSiteDto.getDmsSiteCode();
+            String endNodeCode = receiveSiteDto.getDmsSiteCode();
+            ScheduleCargoSimpleDto condition = new ScheduleCargoSimpleDto();
+            condition.setBeginNodeCode(beginNodeCode);
+            condition.setEndNodeCode(endNodeCode);
+            condition.setBeginPlanDepartTime(beginPlanDepartTime);
+            condition.setEndPlanDepartTime(endPlanDepartTime);
+            // 返回的业务编码类型 11-运单号
+            condition.setBusinessCodeType(11);
+            // 1-卡班调度; 2-非卡班调度
+            condition.setScheduleType(1);
+            // 20-待确认; 30-已确认
+            condition.setCargoConfirmStatus(20);
+            condition.setYn(1);
+            return condition;
+        }
+        return null;
+    }
+
+    private List<TransPlanDetailResult> getTransPlanDetailResultList(List<TransPlanScheduleCargoDto> dtoList) {
+        Map<String, Set<String>> resultMap = new HashMap<>();
+        for (TransPlanScheduleCargoDto dto : dtoList) {
+            String transPlanCode = dto.getTransPlanCode();
+            if (StringUtils.isNotEmpty(transPlanCode)) {
+                if (resultMap.containsKey(transPlanCode)) {
+                    resultMap.get(transPlanCode).add(dto.getBusinessCode());
+                } else {
+                    Set<String> waybillSet = new HashSet<>();
+                    waybillSet.add(dto.getBusinessCode());
+                    resultMap.put(transPlanCode, waybillSet);
+                }
+            }
+        }
+        if (resultMap.size() > 0) {
+            List<TransPlanDetailResult> resultList = new ArrayList<>();
+            for (Map.Entry<String, Set<String>> entry : resultMap.entrySet()) {
+                TransPlanDetailResult result = new TransPlanDetailResult();
+                result.setTransPlanCode(entry.getKey());
+                result.setWaybills(new ArrayList<>(entry.getValue()));
+                resultList.add(result);
+            }
+            return resultList;
+        }
+        return Collections.EMPTY_LIST;
+
+
+    }
+
+    /**
+     * 根据时分秒获取时间
+     *
+     * @param hour
+     * @param minute
+     * @param second
+     * @return
+     */
+    private Date getDateTimeByParam(Date date, int hour, int minute, int second) {
+        Calendar calendar = Calendar.getInstance();
+        if (date == null) {
+            calendar.setTime(new Date());
+        } else {
+            calendar.setTime(date);
+        }
+        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.MINUTE, minute);
+        calendar.set(Calendar.SECOND, second);
+        return calendar.getTime();
+    }
+
+    @Override
+    public String getSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode) {
+        ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
+        if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
+            return coldChainSend.getSendCode();
+        } else {
+            return SerialRuleUtil.generateSendCode(createSiteCode, receiveSiteCode, new Date());
+        }
     }
 
 }

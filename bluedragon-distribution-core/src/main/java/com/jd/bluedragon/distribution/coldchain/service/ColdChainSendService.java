@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.coldchain.service;
 
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 
 import java.util.List;
@@ -55,5 +56,23 @@ public interface ColdChainSendService {
      */
     ColdChainSend getBySendCode(String waybillCode, String sendCode);
 
+    /**
+     * 根据始发分拣中心和目的分拣中心 获取当日的运输计划明细信息
+     *
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    List<TransPlanDetailResult> getTransPlanDetail(Integer createSiteCode, Integer receiveSiteCode);
+
+    /**
+     * 冷链发货获取批次号(若该运输计划编码已经发过一次，则获取上次批次号，若第一次发货则返回新批次号)
+     *
+     * @param transPlanCode
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    String getSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode);
 
 }

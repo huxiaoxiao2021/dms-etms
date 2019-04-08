@@ -420,6 +420,8 @@ public class DeliveryResource {
     @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
     public DeliveryResponse coldChainSendDelivery(List<DeliveryRequest> request, String transPlanCode) {
         this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
+
+
         if (this.check(request) || StringUtils.isBlank(transPlanCode)) {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }

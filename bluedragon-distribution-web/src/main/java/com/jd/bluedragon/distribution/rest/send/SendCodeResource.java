@@ -3,12 +3,10 @@ package com.jd.bluedragon.distribution.rest.send;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.GenerateColdChainSendCodeRequest;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.response.BatchGenerateSendCodeReponse;
 import com.jd.bluedragon.distribution.api.response.GenerateSendCodeResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.rest.departure.DepartureResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -24,7 +22,6 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -254,29 +251,6 @@ public class SendCodeResource {
                     request.getReceiveSiteCode(),
                     request.getTime()
             );
-            response.setCode(200);
-            response.setSendCode(sendCode);
-        } catch (Exception e) {
-            response.setCode(CODE_CREATE_SEND_CODE_ERROR);
-            response.setMessage(MESSAGE_CODE_CREATE_SEND_CODE_ERROR);
-            logger.error(MESSAGE_CODE_CREATE_SEND_CODE_ERROR, e);
-        }
-        return response;
-    }
-
-    @POST
-    @Path("/sendCode/coldChain/generate")
-    public GenerateSendCodeResponse generateSendCode(GenerateColdChainSendCodeRequest request) {
-        GenerateSendCodeResponse response = new GenerateSendCodeResponse();
-        try {
-            String transPlanCode = request.getTransPlanCode();
-            ColdChainSend coldChainSend = coldChainSendService.getByTransCode(transPlanCode);
-            String sendCode;
-            if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
-                sendCode = coldChainSend.getSendCode();
-            } else {
-                sendCode = SerialRuleUtil.generateSendCode(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getTime());
-            }
             response.setCode(200);
             response.setSendCode(sendCode);
         } catch (Exception e) {

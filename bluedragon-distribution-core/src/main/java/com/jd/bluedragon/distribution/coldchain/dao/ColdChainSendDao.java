@@ -36,7 +36,7 @@ public class ColdChainSendDao extends BaseDao<ColdChainSend> {
      * @return
      */
     public int batchAdd(List<ColdChainSend> coldChainSends) {
-        return this.getSqlSession().insert(NAMESPACE + ".add", coldChainSends);
+        return this.getSqlSession().insert(NAMESPACE + ".batchAdd", coldChainSends);
     }
 
     /**
