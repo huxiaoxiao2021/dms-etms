@@ -488,7 +488,7 @@ public class DeliveryResource {
             Integer opType = request.get(0).getOpType();
             String boxCode = request.get(0).getBoxCode();
             //包裹号才校验
-            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){//todo code 重用 强制拦截 找毕老师 确认一个强制确认的code
+            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){
                 return new ThreeDeliveryResponse(JdResponse.CODE_CROSS_CODE_ERROR,JdResponse.MESSAGE_CROSS_CODE_ERROR, null);
             }
             ThreeDeliveryResponse response = null;
