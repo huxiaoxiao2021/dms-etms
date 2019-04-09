@@ -183,13 +183,15 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.findSortingPackages(sorting);
 	}
 
-	private String getBoxCodes(Sorting sorting) {
+	private List<String> getBoxCodes(Sorting sorting) {
 		Box box = new Box();
 		box.setType(Box.BOX_TYPE_FORWARD);
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
 		List<Box> boxes = this.boxService.findBoxes(box);
+        for(){
 
+        }
 		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
 	}
 
