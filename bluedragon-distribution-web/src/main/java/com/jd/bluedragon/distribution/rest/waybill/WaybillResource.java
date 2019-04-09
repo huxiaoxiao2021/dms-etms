@@ -38,6 +38,8 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
+import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
+import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
@@ -50,10 +52,12 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -163,13 +167,16 @@ public class WaybillResource {
 	private LDOPManager ldopManager;
 
     @Autowired
-    private BaseService baseService;
+    private WaybillService waybillService;
 
-    @Autowired
-    private WaybillTraceApi waybillTraceApi;
+	@Autowired
+	private BaseService baseService;
 
-    @Autowired
-    private ReceiveWeightCheckService receiveWeightCheckService;
+	@Autowired
+	private WaybillTraceApi waybillTraceApi;
+
+	@Autowired
+	private ReceiveWeightCheckService receiveWeightCheckService;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -2216,4 +2223,81 @@ public class WaybillResource {
 		}
 		return result;
 	}
+
+	/**
+	 * 判断仓配/纯配订单
+     * 0：运单号为空 1：纯配运单 2：仓配运单 3：既不是纯配也不是仓配
+	 * 4：运单数据为空 5.服务异常
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/checkIsPureMatchOrWarehouse/{waybillCode}")
+	public InvokeResult<Integer> checkIsPureMatchOrWarehouse(@PathParam("waybillCode") String waybillCode){
+		InvokeResult<Integer> result = new InvokeResult<Integer>();
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		if(StringUtils.isBlank(waybillCode)){
+			this.logger.error("运单号不能为空!");
+			result.setData(0);
+			result.setMessage("运单号不能为空!");
+			return result;
+		}
+		try{
+            String oldWaybillCode1 = "";
+            String oldWaybillCode2 = "";
+            String busiOrderCode = "";
+            BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill1 = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if(oldWaybill1 != null && oldWaybill1.getData() != null){
+                oldWaybillCode1 = oldWaybill1.getData().getWaybillCode();
+                busiOrderCode = oldWaybill1.getData().getBusiOrderCode();
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill2 = waybillQueryManager.getWaybillByReturnWaybillCode(oldWaybillCode1);
+                if(oldWaybill2 != null && oldWaybill2.getData() != null){
+                    //二次换单
+                    oldWaybillCode2 = oldWaybill2.getData().getWaybillCode();
+                    isPurematchOrWarehouse(result, oldWaybillCode2,busiOrderCode);
+                }else if(oldWaybill2 != null && oldWaybill2.getData() == null){
+                    //一次换单
+                    isPurematchOrWarehouse(result, oldWaybillCode1,busiOrderCode);
+                }
+            }else if(oldWaybill1 != null && oldWaybill1.getData() == null){
+                //原单
+                isPurematchOrWarehouse(result, waybillCode,busiOrderCode);
+            }
+		}catch (Exception e){
+			this.logger.error("通过运单号："+waybillCode+"查询运单信息失败!");
+			result.setMessage("服务异常!");
+			result.setData(5);
+		}
+        return result;
+    }
+
+
+    /**
+     * 仓配纯配判断
+     * @param result
+     * @param waybillCode
+     * @param busiOrderCode
+     */
+    private void isPurematchOrWarehouse(InvokeResult<Integer> result, String waybillCode,String busiOrderCode) {
+        BigWaybillDto bigWaybillDto = waybillService.getWaybillProduct(waybillCode);
+        if(bigWaybillDto != null && bigWaybillDto.getWaybill() != null
+                && StringUtils.isNotBlank(bigWaybillDto.getWaybill().getWaybillSign())){
+            if(StringUtils.isEmpty(busiOrderCode)){
+                busiOrderCode = bigWaybillDto.getWaybill().getBusiOrderCode();
+            }
+            if(BusinessUtil.isPurematch(bigWaybillDto.getWaybill().getWaybillSign())){
+                //纯配外单
+                result.setData(1);
+            }else if(WaybillUtil.isECLPByBusiOrderCode(busiOrderCode)){
+                //仓配订单
+                result.setData(2);
+            }else{
+                result.setData(3);//既不是纯配也不是仓配
+            }
+        }else{
+            this.logger.error("通过运单号查询运单为空!");
+            result.setMessage("运单号："+waybillCode+"数据为空!");
+            result.setData(4);
+        }
+    }
 }

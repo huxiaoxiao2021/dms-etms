@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.reverse.domain;
 
+import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
+
 import java.util.Date;
+import java.util.List;
 
 public class ReverseReceive {
     
@@ -64,6 +67,17 @@ public class ReverseReceive {
     
     // 是否删除
     private Integer yn;
+
+    // 商品明细
+    private List<Eclp2BdReceiveDetail> detailList;
+
+    public List<Eclp2BdReceiveDetail> getDetailList() {
+        return detailList;
+    }
+
+    public void setDetailList(List<Eclp2BdReceiveDetail> detailList) {
+        this.detailList = detailList;
+    }
     
     public Integer getCanReceive() {
         return this.canReceive;

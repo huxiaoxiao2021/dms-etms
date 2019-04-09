@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -19,21 +20,28 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -107,6 +115,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private PopPrintService popPrintService;
+    @Autowired
+    private ReverseSpareEclp reverseSpareEclp;
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -383,6 +394,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     /**
      * 逆向换单限制校验
      * 拒收和异常处理的运单才可以执行逆向换单（该限制仅限手工逆向换单操作）
+     * （纯配外单 且 理赔完成 且 物权归京东的才可以执行逆向换单）
      * @param wayBillCode
      * @return
      */
@@ -402,8 +414,15 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
 
         //2.获取运单信息判断是否拒收或妥投
-        BigWaybillDto waybillDto = waybillService.getWaybillState(wayBillCode);
-        if(waybillDto == null){
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillM(true);
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(wayBillCode, wChoice);
+        BigWaybillDto waybillDto = null;
+        if(baseEntity != null && baseEntity.getData() != null){
+            waybillDto = baseEntity.getData();
+        }
+        if(waybillDto == null || waybillDto.getWaybill() == null){
             result.setData(false);
             result.setMessage("运单接口调用返回结果为空");
             return result;
@@ -417,6 +436,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         //2.2拒收运单，可以操作逆向换单
         if(wdomain != null && Constants.WAYBILL_REJECT_CODE.equals(wdomain.getWaybillState())){
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
             return result;
         }
         //3.查询运单是否操作异常处理
@@ -426,9 +446,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             result.setData(false);
             result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
         }
+        reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         return result;
     }
-
 
 
 

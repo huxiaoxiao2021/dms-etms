@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -58,6 +59,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         return result;
     }
 
+    // TODO: 2019/3/27 此处若发货批次量较大，在操作整批转发时，存在潜在风险
     @Override
     public boolean dealBatchForwardTask(Task task) {
         this.logger.info("批次转发开始：" + JsonHelper.toJson(task));
@@ -84,7 +86,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         if(oldSendMList != null &&oldSendMList.size() > 0){
             for(SendM oldSendM : oldSendMList){
                 domain.setBoxCode(oldSendM.getBoxCode());
-                deliveryService.packageSend(domain);
+                deliveryService.packageSend(SendBizSourceEnum.BATCH_FORWARD_SEND, domain);
             }
             return true;
         }

@@ -34,7 +34,14 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -63,7 +70,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -809,36 +821,33 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sendDetail 发货明细数据
 	 */
 	private SendDetail addTransitSendDetail(SendDetail sendDetail, SendM sendM) {
-		// 分拣补中转发货
-		try {
-			SendDetail transitSendD = new SendDetail();
-			BeanUtils.copyProperties(sendDetail, transitSendD);
+		SendDetail transitSendD = new SendDetail();
+		BeanUtils.copyProperties(sendDetail, transitSendD);
 
-			transitSendD.setCreateSiteCode(sendM.getCreateSiteCode());
-			transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
-			// 补全批次号SendCode
-			transitSendD.setSendCode(sendM.getSendCode());
+		transitSendD.setCreateSiteCode(sendM.getCreateSiteCode());
+		transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
+		// 补全批次号SendCode
+		transitSendD.setSendCode(sendM.getSendCode());
 
-			// 更新或者插入发货明细表
-			this.deliveryService.saveOrUpdate(transitSendD);
+		// 更新或者插入发货明细表
+		this.deliveryService.saveOrUpdate(transitSendD);
 
-			transitSendD.setYn(1);
+		transitSendD.setYn(1);
 
-			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
-			if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
-				transitSendD.setOperateTime(sendDetail.getOperateTime());
-			} else {
-				transitSendD.setOperateTime(sendM.getOperateTime());
-			}
-
-			transitSendD.setCreateUser(sendM.getCreateUser());
-			transitSendD.setCreateUserCode(sendM.getCreateUserCode());
-			return transitSendD;
-		} catch (Exception ex) {
-			logger.error("[分拣Worker]分拣补中转发货数据时发生异常，包裹号：" + sendDetail.getPackageBarcode(), ex);
+		// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
+		if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
+			transitSendD.setOperateTime(sendDetail.getOperateTime());
+		} else {
+			transitSendD.setOperateTime(sendM.getOperateTime());
 		}
-		return null;
+
+		transitSendD.setCreateUser(sendM.getCreateUser());
+		transitSendD.setCreateUserCode(sendM.getCreateUserCode());
+		transitSendD.setBoardCode(sendM.getBoardCode());
+		transitSendD.setBizSource(sendM.getBizSource());
+		return transitSendD;
 	}
+
 	/**
 	 * B网建箱自动触发验货全程跟踪
 	 * 推验货任务
@@ -932,11 +941,7 @@ public class SortingServiceImpl implements SortingService {
 					for (SendDetail sendDetail : sendDs) {
 					    // 只有按箱操作才存在跨分拣的情况
 						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-							SendDetail sendDetail1 = this.addTransitSendDetail(sendDetail, sendM);
-							if (sendDetail1 != null) {
-								sendDetail1.setBoardCode(sendM.getBoardCode());
-								transitSendDs.add(sendDetail1);
-							}
+							transitSendDs.add(this.addTransitSendDetail(sendDetail, sendM));
 						}
 					}
 				}
@@ -1010,6 +1015,7 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setCreateUser(sendM.getCreateUser());
 		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
         sendDetail.setBoardCode(sendM.getBoardCode());
+		sendDetail.setBizSource(sendM.getBizSource());
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {

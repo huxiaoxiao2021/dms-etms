@@ -157,7 +157,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 * 
 	 * @param cenConfirm
 	 */
-	protected void sendTrack(CenConfirm cenConfirm) {
+	protected void sendTrack(TaskContext<T> taskContext,CenConfirm cenConfirm) {
 		BaseStaffSiteOrgDto bDto = baseService.getSiteBySiteID(cenConfirm
 				.getCreateSiteCode());
 		if (bDto == null) {
@@ -344,7 +344,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		if(saveOrUpdateCenConfirmFlg){
 			cenConfirmService.saveOrUpdateCenConfirm(cenConfirm);
 		}
-		sendTrack(cenConfirm);
+		sendTrack(taskContext,cenConfirm);
 
 		// 取件单推送mq
 		if (WaybillUtil.isSurfaceCode(receive.getBoxCode())) {
@@ -390,7 +390,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				addOperationLog(receive);// 记录日志
 				cenConfirm.setPackageBarcode(sendDetail.getPackageBarcode());
 				cenConfirm.setWaybillCode(sendDetail.getWaybillCode());
-				sendTrack(cenConfirm);
+				sendTrack(taskContext,cenConfirm);
 
 				cenConfirmList.add(cenConfirm);
 

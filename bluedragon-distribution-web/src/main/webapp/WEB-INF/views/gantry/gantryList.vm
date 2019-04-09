@@ -19,6 +19,8 @@
     <script type="text/javascript" src="#springUrl('/static/js/jquery.form.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/common-client.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/utils.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/imports/plugin/layer/layer.js')"></script>
+    <script type="text/javascript" src="#springUrl('/static/js/common/plugin-helper.js')"></script>
     <script type="text/javascript" src="#springUrl('/static/js/common/page-bar.js')"></script>
 	<script type="text/javascript" src="#springUrl("/static/js/gantry/gantry-index.js")"></script>
     <style type="text/css">
