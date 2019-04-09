@@ -28,4 +28,13 @@
 	<!-- 特殊业务 -->
 	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-special.xml" />-->
 
+	<!--<bean id="waybillStatusTask"
+		  class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
+		  init-method="init" lazy-init="false" depends-on="managerFactory">
+		<property name="dataSource" ref="taskDataSource"/>
+		<property name="taskType" value="WaybillStatusTaskN"/>
+		<property name="managerFactory" ref="managerFactory"/>
+		<property name="ownSign" value="${ownSign}"/>
+	</bean>-->
+
 </beans>

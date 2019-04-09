@@ -897,4 +897,12 @@
 		and waybill_code = #{waybillCode,jdbcType=VARCHAR}  and yn = 1 and is_cancel = 0 and is_loss = 1 and send_code is null
 
 	</select>
+
+	<select id="queryPackageCode"  parameterType="SendDetail" resultType="String">
+		select package_barcode from send_d where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and send_code = #{sendCode,jdbcType=VARCHAR}
+		and yn = 1
+		and is_cancel = 0
+	</select>
 </mapper>

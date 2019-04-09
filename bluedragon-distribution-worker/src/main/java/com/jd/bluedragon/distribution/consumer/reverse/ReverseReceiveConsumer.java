@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.consumer.reverse;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WorkTaskServiceManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.api.request.Eclp2BdReceiveDetail;
 import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.reverse.dao.ReverseSpareDao;
@@ -23,8 +26,19 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.fastjson.JSON;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.XmlHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Goods;
+import com.jd.etms.waybill.domain.SparsModel;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.erp.domain.OrderDeliverBody;
@@ -39,12 +53,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("reverseReceiveConsumer")
 public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	private final Log logger = LogFactory.getLog(this.getClass());
+
+	/** 0拒收 1全收 2半收 -1表示此次没回传 */
+    private static final Integer TYPE_RECEIVE_DEFAULT = -1;
+    private static final Integer TYPE_RECEIVE_0 = 0;
+    private static final Integer TYPE_RECEIVE_1 = 1;
+    private static final Integer TYPE_RECEIVE_2 = 2;
 
 	@Autowired
 	private ReverseRejectService reverseRejectService;
@@ -63,7 +87,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	@Autowired
 	private SendMDao sendMDao;
-	
+
 	@Autowired
     private BaseMajorManager baseMajorManager;
 	
@@ -71,7 +95,10 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
     private ReversePrintService reversePrintService;
 
 	@Autowired
-	WaybillService waybillService;
+	private WaybillQueryManager waybillQueryManager;
+
+	@Autowired
+    WaybillService waybillService;
 
 	@Autowired
 	WorkTaskServiceManager workTaskServiceManager;
@@ -134,7 +161,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
 					date = sdf.parse(jrequest.getReceiveTime());
 				}
-				if(reverseReceive.getReceiveType() == 7 ){ //处理报文 操作人字段
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 ){ //处理报文 操作人字段
 					date = sdf.parse(jrequest.getOperateTime());
 					reverseReceive.setOperatorName(jrequest.getOperaterName());
 					reverseReceive.setOrderId(jrequest.getWaybillCode());
@@ -221,15 +248,15 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 		//添加全称跟踪
-		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7) {
+		if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5|| reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 6 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) {
 			String sendCode = "";
 			if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 				this.logger.info("逆向添加全称跟踪sendCode" + xrequest.getSendCode());
 				sendCode = xrequest.getSendCode();
-			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null) {
+			} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8) && jrequest != null) {
 				this.logger.info("逆向添加全称跟踪sendCode" + jrequest.getSendCode());
 				sendCode = jrequest.getSendCode();
-				if(reverseReceive.getReceiveType() == 7){
+				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8){
 					//ECLP退备件库时
 					reverseReceive.setOrderId(jrequest.getWaybillCode());
 				}else{
@@ -266,7 +293,7 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 				if (reverseReceive.getReceiveType() == 3 || reverseReceive.getReceiveType() == 1 || reverseReceive.getReceiveType() == 5 || reverseReceive.getReceiveType() == 6) {
 					tWaybillStatus.setSendCode(xrequest.getSendCode());
-				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7) && jrequest != null ) {
+				} else if ((reverseReceive.getReceiveType() == 4 || reverseReceive.getReceiveType() == 7 ||reverseReceive.getReceiveType() == 8) && jrequest != null ) {
 					tWaybillStatus.setSendCode(jrequest.getSendCode());
 				}
 
@@ -285,6 +312,9 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 					}else {
 						return;
 					}
+				}else if(reverseReceive.getReceiveType() == 8){
+					//仓配发包裹维度的全程跟踪
+					sendTraceAndUpdateWaybillStatue(jrequest,tWaybillStatus);
 				}else if(reverseReceive.getReceiveType()==5 && reverseReceive.getCanReceive() == 2){
 		        	//ECLP退仓半退的逻辑
 					tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
@@ -307,7 +337,87 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 
 	}
 
-	private Task toTask(WaybillStatus tWaybillStatus) {
+	/**
+	 * 发包裹维度的发全程跟踪
+	 * @param jrequest
+	 * @param tWaybillStatus
+	 */
+	private void sendTraceAndUpdateWaybillStatue(ReverseReceiveRequest jrequest, WaybillStatus tWaybillStatus) {
+
+		//存放   备件条码:包裹号
+		Map<String,String> sparePackCodeMap = new HashMap<String,String>();
+		//回传包裹数据   0拒收 1全收 2半收 -1表示此次没回传
+		Map<String,Integer> packageReceiveMap = new HashMap<>();
+		//
+		String waybillCode = jrequest.getWaybillCode();
+
+		WChoice wChoice = new WChoice();
+		wChoice.setQueryWaybillC(true);
+		wChoice.setQueryWaybillE(false);
+		wChoice.setQueryWaybillM(false);
+		wChoice.setQueryGoodList(true);
+		wChoice.setQueryPackList(true);
+		BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(waybillCode,wChoice);
+		if(baseEntity != null && baseEntity.getData() != null &&
+				baseEntity.getData().getGoodsList() != null && baseEntity.getData().getGoodsList().size() > 0){
+			List<Goods> goodsList = baseEntity.getData().getGoodsList();
+			for (Goods goods : goodsList){
+				List<SparsModel> spareList = goods.getSpareList();
+				for(SparsModel sparsModel : spareList){
+					sparePackCodeMap.put(sparsModel.getSpareCode(),sparsModel.getPackBarcode());
+				}
+			}
+		}
+
+		for(String key : sparePackCodeMap.keySet()){
+			packageReceiveMap.put(sparePackCodeMap.get(key),TYPE_RECEIVE_DEFAULT);
+		}
+
+		for(Eclp2BdReceiveDetail eclp2BdReceiveDetail : jrequest.getDetailList()) {
+
+			String spareCode = eclp2BdReceiveDetail.getBatchNo();
+			String _packNo = sparePackCodeMap.get(spareCode);
+			Integer quantity = eclp2BdReceiveDetail.getQuantity()==null?0:eclp2BdReceiveDetail.getQuantity(); //只有 0 1  0没收 1收了
+			//只有是半收的时候才需要去判断
+			if (TYPE_RECEIVE_2.equals(jrequest.getCanReceive())) {
+				if (TYPE_RECEIVE_DEFAULT.equals(packageReceiveMap.get(_packNo))) {
+					packageReceiveMap.put(_packNo, quantity);
+				} else {
+					if (!TYPE_RECEIVE_2.equals(packageReceiveMap.get(_packNo)) && !quantity.equals(packageReceiveMap.get(_packNo))) {
+						packageReceiveMap.put(_packNo, TYPE_RECEIVE_2);
+					}
+				}
+			} else {
+				// 收货  和 拒收 直接给
+				packageReceiveMap.put(_packNo, jrequest.getCanReceive());
+			}
+		}
+
+
+		for(String key : packageReceiveMap.keySet()){
+
+			tWaybillStatus.setPackageCode(key);
+			if(TYPE_RECEIVE_0.equals(packageReceiveMap.get(key))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_BH);
+				taskService.add(this.toTask(tWaybillStatus));
+			}else if(TYPE_RECEIVE_1.equals(packageReceiveMap.get(key))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}else if(TYPE_RECEIVE_2.equals(packageReceiveMap.get(key))){
+				tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STATUS_SHREVERSE);
+				tWaybillStatus.setReturnFlag(WaybillStatus.WAYBILL_RETURN_COMPLETE_FLAG_HALF);
+				taskService.add(this.toTaskStatus(tWaybillStatus));
+			}
+		}
+
+
+
+
+	}
+
+
+
+    private Task toTask(WaybillStatus tWaybillStatus) {
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_POP);
 		task.setSequenceName(Task.getSequenceName(task.getTableName()));
