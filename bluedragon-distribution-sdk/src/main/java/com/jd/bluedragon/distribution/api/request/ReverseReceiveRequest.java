@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import com.jd.bluedragon.distribution.api.JdRequest;
+
+import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 //逆向收货接收对象
 @XmlRootElement(name = "ReceiveRequest")
@@ -51,7 +52,18 @@ public class ReverseReceiveRequest extends JdRequest {
 
 	private String waybillCode;
 
-    public Integer getCanReceive() {
+	/** 商品明细 */
+	private List<Eclp2BdReceiveDetail> detailList;
+
+	public List<Eclp2BdReceiveDetail> getDetailList() {
+		return detailList;
+	}
+
+	public void setDetailList(List<Eclp2BdReceiveDetail> detailList) {
+		this.detailList = detailList;
+	}
+
+	public Integer getCanReceive() {
 		return canReceive;
 	}
 

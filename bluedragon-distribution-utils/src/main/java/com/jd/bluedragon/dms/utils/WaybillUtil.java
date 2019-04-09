@@ -194,7 +194,7 @@ public class WaybillUtil {
     }
 
     /**
-     * 判断是否是ECLP订单
+     * 判断是否是仓配ECLP订单
      * ECLP : 仓储开发平台
      *
      * @param busiOrderCode 运单中的busiOrderCode字段,判断它是不是esl开头单号
