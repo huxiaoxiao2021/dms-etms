@@ -1,12 +1,17 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.seal.domain.TransWorkItemResult;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -26,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -65,6 +71,12 @@ public class NewSealVehicleResource {
 
     @Autowired
     private CarLicenseChangeUtil carLicenseChangeUtil;
+
+    @Autowired
+    private TmsTfcWSManager tmsTfcWSManager;
+
+    @Autowired
+    private ColdChainSendService coldChainSendService;
 
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
@@ -593,6 +605,50 @@ public class NewSealVehicleResource {
                 return dto2.getCreateTime().compareTo(dto1.getCreateTime());
             }
         });
+    }
+
+    /**
+     * 根据派车任务明细简码获取派车任务明细
+     *
+     * @param simpleCode
+     * @return
+     */
+    @GET
+    @Path("/new/vehicle/getTransWorkItem/{simpleCode}")
+    public InvokeResult<TransWorkItemResult> getTransWorkItemBySimpleCode(@PathParam("simpleCode") String simpleCode) {
+        Assert.notNull(simpleCode, "simpleCode must not be null");
+        InvokeResult<TransWorkItemResult> result = new InvokeResult<>();
+        if (StringUtils.isEmpty(simpleCode)) {
+            result.parameterError(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        try {
+            TransWorkItemDto item = tmsTfcWSManager.queryTransWorkItemBySimpleCode(simpleCode);
+            if (item != null) {
+                TransWorkItemResult transWorkItemResult = new TransWorkItemResult();
+                transWorkItemResult.setTransPlanCode(item.getTransPlanCode());
+                transWorkItemResult.setRouteLineCode(item.getRouteLineCode());
+                transWorkItemResult.setRouteLineName(item.getRouteLineName());
+                transWorkItemResult.setType(item.getScheduleType());
+                // ScheduleType=1 是卡班调度模式
+                if (Integer.valueOf(1).equals(item.getScheduleType())) {
+                    if (StringUtils.isNotEmpty(transWorkItemResult.getTransPlanCode())) {
+                        ColdChainSend coldChainSend = coldChainSendService.getByTransCode(transWorkItemResult.getTransPlanCode());
+                        if (coldChainSend != null) {
+                            transWorkItemResult.setSendCode(coldChainSend.getSendCode());
+                        }
+                    }
+                }
+                result.setData(transWorkItemResult);
+                return result;
+            } else {
+                result.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
+            }
+        } catch (Exception e) {
+            logger.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
+            result.error(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
     }
 
 }

@@ -212,7 +212,7 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         Map<String, Set<String>> resultMap = new HashMap<>();
         for (TransPlanScheduleCargoDto dto : dtoList) {
             String transPlanCode = dto.getTransPlanCode();
-            if (StringUtils.isNotEmpty(transPlanCode)) {
+            if (StringUtils.isNotEmpty(transPlanCode) && StringUtils.isNotEmpty(dto.getBusinessCode())) {
                 if (resultMap.containsKey(transPlanCode)) {
                     resultMap.get(transPlanCode).add(dto.getBusinessCode());
                 } else {
@@ -259,7 +259,7 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
     }
 
     @Override
-    public String getSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode) {
+    public String getOrGenerateSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode) {
         ColdChainSend coldChainSend = this.getByTransCode(transPlanCode);
         if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getSendCode())) {
             return coldChainSend.getSendCode();

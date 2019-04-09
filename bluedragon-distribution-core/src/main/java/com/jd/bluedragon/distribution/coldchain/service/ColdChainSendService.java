@@ -73,6 +73,6 @@ public interface ColdChainSendService {
      * @param receiveSiteCode
      * @return
      */
-    String getSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode);
+    String getOrGenerateSendCode(String transPlanCode, Integer createSiteCode, Integer receiveSiteCode);
 
 }

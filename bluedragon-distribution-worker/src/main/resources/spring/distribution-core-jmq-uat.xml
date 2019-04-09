@@ -339,4 +339,10 @@
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
     </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

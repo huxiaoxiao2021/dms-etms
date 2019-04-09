@@ -19,7 +19,6 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBill;
@@ -129,9 +128,6 @@ public class DeliveryResource {
 
     @Autowired
     private WaybillPackageBarcodeService waybillPackageBarcodeService;
-
-    @Autowired
-    private ColdChainSendService coldChainSendService;
 
     /**
      * 原包发货【一车一件项目，发货专用】
@@ -311,7 +307,6 @@ public class DeliveryResource {
                     JdResponse.MESSAGE_SERVICE_ERROR, null);
         }
     }
-
     @POST
     @Path("/delivery/recyclableboxsend")
     public RecyclableBoxSend recyclableBoxSend(RecyclableBoxRequest request) {
@@ -406,35 +401,6 @@ public class DeliveryResource {
         } else {
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND,
                     JdResponse.MESSAGE_SERVICE_ERROR);
-        }
-    }
-
-    /**
-     * 冷链发货接口
-     * @param request
-     * @return
-     */
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.delivery.sendPack", mState = {JProEnum.TP, JProEnum.FunctionError})
-    @POST
-    @Path("/delivery/coldChain/send")
-    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1003)
-    public DeliveryResponse coldChainSendDelivery(List<DeliveryRequest> request, String transPlanCode) {
-        this.logger.info("开始写入发货信息"+JsonHelper.toJson(request));
-
-
-        if (this.check(request) || StringUtils.isBlank(transPlanCode)) {
-            return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-        }
-        List<SendM> sendMList = toSendDetailList(request);
-        DeliveryResponse tDeliveryResponse = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, sendMList);
-        if (JdResponse.CODE_OK.equals(tDeliveryResponse.getCode())) {
-            coldChainSendService.batchAdd(sendMList, transPlanCode);
-        }
-        this.logger.info("结束写入发货信息");
-        if (tDeliveryResponse != null) {
-            return tDeliveryResponse;
-        } else {
-            return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
 
@@ -825,7 +791,7 @@ public class DeliveryResource {
         return sendM;
     }
 
-    private <T extends DeliveryRequest> List<SendM> toSendDetailList(List<T> request) {
+    private List<SendM> toSendDetailList(List<DeliveryRequest> request) {
         List<SendM> sendMList = new ArrayList<SendM>();
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
@@ -835,7 +801,7 @@ public class DeliveryResource {
                     //B冷链快运发货支持扫运单号发货
                     DeliveryResponse response = isValidWaybillCode(deliveryRequest);
                     if (!JdResponse.CODE_OK.equals(response.getCode())) {
-                        logger.error("DeliveryResource--toSendDetailList出现运单号，但非冷链快运发货,siteCode:" +
+                        logger.error("DeliveryResource--toSendDatailList出现运单号，但非冷链快运发货,siteCode:" +
                                 deliveryRequest.getSiteCode() + ",单号:" + deliveryRequest.getBoxCode());
                     } else {
                         sendMList.addAll(deliveryRequest2SendMList(deliveryRequest));
@@ -903,7 +869,7 @@ public class DeliveryResource {
         return sendM;
     }
 
-    private <T extends DeliveryRequest> boolean check(List<T> request) {
+    private boolean check(List<DeliveryRequest> request) {
         if (request != null && !request.isEmpty()) {
             for (DeliveryRequest deliveryRequest : request) {
                 if (deliveryRequest.getBoxCode() == null || deliveryRequest.getSiteCode() == null || deliveryRequest.getReceiveSiteCode() == null

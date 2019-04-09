@@ -473,4 +473,9 @@
     <bean id="groupBoxDao" class="com.jd.bluedragon.distribution.box.dao.GroupBoxDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 </beans>
