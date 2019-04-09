@@ -489,6 +489,7 @@ public class DeliveryResource {
             String boxCode = request.get(0).getBoxCode();
             //包裹号才校验
             if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){
+                this.logger.info(String.format("滑道号不正确[%s]",boxCode));
                 return new ThreeDeliveryResponse(JdResponse.CODE_CROSS_CODE_ERROR,JdResponse.MESSAGE_CROSS_CODE_ERROR, null);
             }
             ThreeDeliveryResponse response = null;
