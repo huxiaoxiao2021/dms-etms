@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.half.domain.*;
@@ -16,6 +17,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillOpe;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,7 @@ public class PackageHalfDetailController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/half/packageHalfDetail";
@@ -62,6 +65,7 @@ public class PackageHalfDetailController {
 	 * @param id
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<PackageHalfDetail> detail(@PathVariable("id") Long id) {
 		JdResponse<PackageHalfDetail> rest = new JdResponse<PackageHalfDetail>();
@@ -73,6 +77,7 @@ public class PackageHalfDetailController {
 	 * @param packageHalfDetail
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfDetail packageHalfDetail) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -89,6 +94,7 @@ public class PackageHalfDetailController {
 	 * @param ids
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -105,6 +111,7 @@ public class PackageHalfDetailController {
 	 * @param packageHalfDetailCondition
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackageHalfDetail> listData(@RequestBody PackageHalfDetailCondition packageHalfDetailCondition) {
 		JdResponse<PagerResult<PackageHalfDetail>> rest = new JdResponse<PagerResult<PackageHalfDetail>>();
@@ -121,6 +128,7 @@ public class PackageHalfDetailController {
 	 * @param waybillCode
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/getPackageStatus")
 	public @ResponseBody InvokeResult<PackageHalfDetailResponseVO> getPackageStatus(String waybillCode) {
 		InvokeResult<PackageHalfDetailResponseVO>  result = new InvokeResult<PackageHalfDetailResponseVO>();

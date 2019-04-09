@@ -63,7 +63,7 @@ public class KuGuanController {
 		return "kuguan/kuguan";
 	}
 
-	@Authorization("DMS-WEB-QUERY-KUGUANINIT")
+	@Authorization("DMS-WEB-QUERY-KUGUANLIST")
 	@RequestMapping(value = "/listForYanfa", method = RequestMethod.GET)
 	public String listForYanfa(KuGuanDomain kuGuanDomain, Model model) {
 		return queryOperateLog(kuGuanDomain, model);
