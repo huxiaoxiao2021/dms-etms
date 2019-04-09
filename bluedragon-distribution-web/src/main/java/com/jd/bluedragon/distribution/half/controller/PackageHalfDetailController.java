@@ -14,8 +14,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.etms.waybill.domain.WaybillOpe;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;

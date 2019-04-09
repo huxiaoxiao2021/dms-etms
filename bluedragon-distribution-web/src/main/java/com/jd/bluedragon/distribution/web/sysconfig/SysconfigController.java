@@ -4,12 +4,8 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigContentResponse;
-import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
@@ -30,17 +26,10 @@ import com.jd.bluedragon.configuration.client.DefaultDataSubscriber;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.SpringHelper;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 @Controller
 @RequestMapping("/sysconfig")

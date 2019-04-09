@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.web.tips;
 import com.jd.bluedragon.Constants;
 import com.jd.uim.annotation.Authorization;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
