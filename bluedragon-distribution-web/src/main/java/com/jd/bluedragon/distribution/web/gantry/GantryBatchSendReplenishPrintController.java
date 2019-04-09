@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.gantry;
 
 import com.alibaba.fastjson.TypeReference;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.request.BatchSendPrintImageRequest;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigRequest;
@@ -17,6 +18,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.RestHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,6 +55,7 @@ public class GantryBatchSendReplenishPrintController {
     @Autowired
     BaseService baseService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/index")
     public String index(Model model, Integer machineId, Integer createSiteCode, String createSiteName, String startTime, String endTime) {
         if (machineId != null && createSiteCode != null) {
@@ -70,6 +73,7 @@ public class GantryBatchSendReplenishPrintController {
         return "/gantry/GantryBatchSendReplenishPrint";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<ScannerFrameBatchSend>>> query(ScannerFrameBatchSendSearchArgument request, Pager<List<ScannerFrameBatchSend>> pager) {
@@ -100,6 +104,7 @@ public class GantryBatchSendReplenishPrintController {
         return result;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/querySubSiteNo", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<ScannerFrameBatchSend>> querySubSiteNo(ScannerFrameBatchSendSearchArgument request) {
@@ -125,6 +130,7 @@ public class GantryBatchSendReplenishPrintController {
     /**
      * 批次号打印
      */
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/sendCodePrint", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<List<BatchSendPrintImageResponse>> printSendCode(@RequestBody ScannerFrameBatchSendPrint[] requests) {

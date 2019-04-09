@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.areadest;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.areadest.service.AreaDestService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.RouteType;
 import com.jd.ql.basic.dto.SimpleBaseSite;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -64,6 +66,7 @@ public class AreaDestController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/getList", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestResponse getList(AreaDestRequest request, Pager<List<AreaDest>> pager) {
@@ -107,6 +110,7 @@ public class AreaDestController {
      * @param orgId
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/dmsList", method = RequestMethod.GET)
     @ResponseBody
     public List<SimpleBaseSite> queryDmsListByOrg(Integer orgId) {
@@ -125,6 +129,7 @@ public class AreaDestController {
      * @param routeType
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/getSelected", method = RequestMethod.GET)
     @ResponseBody
     public List<AreaDest> getSelected(Integer planId, Integer routeType) {
@@ -136,6 +141,7 @@ public class AreaDestController {
         return null;
     }
 
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestResponse save(AreaDestRequest request) {
@@ -203,6 +209,7 @@ public class AreaDestController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/saveBatch", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestResponse saveBatch(@RequestBody AreaDestRequest request) {
@@ -240,6 +247,7 @@ public class AreaDestController {
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/delBatch", method = RequestMethod.POST)
     @ResponseBody
     public AreaDestResponse delBatch(@RequestBody AreaDestRequest request) {
@@ -277,6 +285,7 @@ public class AreaDestController {
      * @param file
      * @param response
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     public void doImportExcel(@RequestParam("importExcelFile") MultipartFile file, HttpServletRequest request, HttpServletResponse response) {
         response.setContentType("text/json;charset=utf-8");
@@ -377,6 +386,7 @@ public class AreaDestController {
      * @param planId
      * @param response
      */
+    @Authorization(Constants.DMS_WEB_TOOL_AREADESTPLAN_R)
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
     public void doExportExcel(Integer planId, HttpServletResponse response) {

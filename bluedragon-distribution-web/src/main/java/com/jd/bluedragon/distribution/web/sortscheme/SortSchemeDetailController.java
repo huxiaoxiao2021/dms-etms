@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.sortscheme;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.SortSchemeDetailRequest;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeDetailService
 import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.jsf.gd.util.StringUtils;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -40,6 +42,7 @@ public class SortSchemeDetailController {
     private SortSchemeDetailService sortSchemeDetailService;
 
     // 页面跳转控制
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public ModelAndView index(SortSchemeRequest request){
 
@@ -54,6 +57,7 @@ public class SortSchemeDetailController {
         return new ModelAndView("sortscheme/sort-scheme-detail-index").addObject("schemeParam",schemeParamMap);
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "list", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeDetailResponse<Pager<List<SortSchemeDetail>>> pageQuerySortSchemeDetails(@RequestBody SortSchemeDetailRequest request) {
@@ -84,6 +88,7 @@ public class SortSchemeDetailController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/list/mixsite", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeDetailResponse<List<String>> mixsite(@RequestBody SortSchemeDetailRequest request) {
@@ -114,6 +119,7 @@ public class SortSchemeDetailController {
         return response;
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/list/chutecode", method = RequestMethod.POST)
     @ResponseBody
     public SortSchemeDetailResponse<List<String>> chuteCode(@RequestBody SortSchemeDetailRequest request) {
