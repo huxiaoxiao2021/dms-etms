@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.worker.domain.TBTaskType;
 import com.jd.bluedragon.distribution.worker.service.TBTaskTypeService;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,7 @@ public class WorkerSettingController {
      * 任务列表
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_WORKER_SETTING_R)
     @RequestMapping(value = "/index")
     public String index(Pager<String> splitPager, Model model) throws Exception{
         splitPager.init();
@@ -54,6 +56,8 @@ public class WorkerSettingController {
         }
 
     }
+
+    @Authorization(Constants.DMS_WEB_DEVELOP_WORKER_SETTING_R)
     @RequestMapping(value = "/create",method = RequestMethod.GET)
     public String create(HttpServletRequest request,Model model) throws Exception{
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -65,6 +69,7 @@ public class WorkerSettingController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_WORKER_SETTING_R)
     @RequestMapping(value = "/create",method = RequestMethod.POST)
     public String create(TBTaskType domain,String lastLastUrl,Model model) throws Exception {
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -81,6 +86,7 @@ public class WorkerSettingController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_WORKER_SETTING_R)
     @RequestMapping(value = "/edit",method = RequestMethod.GET)
     public String edit(int id,HttpServletRequest request,Model model) throws Exception{
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -99,6 +105,7 @@ public class WorkerSettingController {
 
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_WORKER_SETTING_R)
     @RequestMapping(value = "/edit",method = RequestMethod.POST)
     public String edit(TBTaskType domain,String lastLastUrl,Model model) throws Exception{
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();

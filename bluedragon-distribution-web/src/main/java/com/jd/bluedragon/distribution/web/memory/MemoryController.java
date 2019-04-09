@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.web.memory;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdRequest;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NetHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.framework.utils.cache.memory.MemoryCache;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,12 +43,13 @@ public class MemoryController {
     private final static String SUFFIX_COUNT = ":1601/admin/memory/count";
     private final static String SUFFIX_VALUE = ":1601/admin/memory/value";
 
-
+    @Authorization(Constants.DMS_WEB_DEVELOP_MEMORY_CACHE_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         return "admin/memory-monitor/memory-monitor-index";
     }
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_MEMORY_CACHE_R)
     @RequestMapping(value = "/value", method = RequestMethod.POST)
     @ResponseBody
     public MemoryCacheResponse getValueByKey(@RequestBody MemoryCacheRequest request) {
@@ -61,7 +64,7 @@ public class MemoryController {
         return response;
     }
 
-
+    @Authorization(Constants.DMS_WEB_DEVELOP_MEMORY_CACHE_R)
     @RequestMapping(value = "/count", method = RequestMethod.POST)
     @ResponseBody
     public MemoryCacheResponse getCountByIp(@RequestBody MemoryCacheRequest request) {

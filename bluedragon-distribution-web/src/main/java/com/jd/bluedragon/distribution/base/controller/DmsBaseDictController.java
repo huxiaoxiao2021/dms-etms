@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.base.controller;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ public class DmsBaseDictController {
      * 根据id获取实体基本信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
     	String rest ="/infoSite/infoSiteList";
@@ -49,6 +52,7 @@ public class DmsBaseDictController {
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<DmsBaseDict> detail(@PathVariable("id") Long id) {
     	JdResponse<DmsBaseDict> rest = new JdResponse<DmsBaseDict>();
@@ -60,6 +64,7 @@ public class DmsBaseDictController {
      * @param dmsBaseDict
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsBaseDict dmsBaseDict) {
     	JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -76,6 +81,7 @@ public class DmsBaseDictController {
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
     	JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -92,6 +98,7 @@ public class DmsBaseDictController {
      * @param dmsBaseDictCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<DmsBaseDict> listData(@RequestBody DmsBaseDictCondition dmsBaseDictCondition) {
     	JdResponse<PagerResult<DmsBaseDict>> rest = new JdResponse<PagerResult<DmsBaseDict>>();
@@ -103,6 +110,7 @@ public class DmsBaseDictController {
      * 根据typeCode获取页面选择框、业务枚举值
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/selectAndEnum/{typeCode}")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getSelect(@PathVariable("typeCode") Integer typeCode) {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -115,6 +123,7 @@ public class DmsBaseDictController {
      * 根据条件分页查询数据信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/airRailwayExceptionType")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionType() {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -125,6 +134,7 @@ public class DmsBaseDictController {
      * 根据条件分页查询数据信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/airRailwayExceptionReason/{typeGroup}")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionReason(@PathVariable("typeGroup") Integer typeGroup) {
     	JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -136,6 +146,7 @@ public class DmsBaseDictController {
      * 根据条件分页查询数据信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/airRailwayExceptionResult/{typeGroup}")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -147,6 +158,7 @@ public class DmsBaseDictController {
      * @param nodeLevel
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/getDicListByNodeLevel/{nodeLevel}")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getDicListByNodeLevel(@PathVariable("nodeLevel") Integer nodeLevel) {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -162,6 +174,7 @@ public class DmsBaseDictController {
      * 获取所有分组信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/getAllDicGroups")
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
