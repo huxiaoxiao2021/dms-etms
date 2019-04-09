@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -190,6 +192,7 @@ public class SysconfigController {
      * @return
      */
 //    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
+    @JProfiler( jKey = "DMS.WEB.SysconfigController.findConfigContentByConfigName", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     @RequestMapping(value = "/findConfigContentByConfigName/{configName}", method = RequestMethod.GET)
     @ResponseBody
     public SysConfigContentResponse findConfigContentByConfigName(@PathVariable String configName) {
