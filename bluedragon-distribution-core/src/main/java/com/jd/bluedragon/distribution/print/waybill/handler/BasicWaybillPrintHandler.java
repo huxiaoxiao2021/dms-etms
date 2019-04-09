@@ -1,18 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -42,6 +29,18 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
@@ -204,6 +203,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             commonWaybill.setPopSupName(tmsWaybill.getConsigner());
             commonWaybill.setBusiId(tmsWaybill.getBusiId());
             commonWaybill.setBusiName(tmsWaybill.getBusiName());
+            /* 打印需要该字段,避免客户端转换 */
+            commonWaybill.setCompanyId(tmsWaybill.getConsignerId());
+            commonWaybill.setCompanyName(tmsWaybill.getConsigner());
+            commonWaybill.setbCustomerId(tmsWaybill.getBusiId());
+            commonWaybill.setbCustomerName(tmsWaybill.getBusiName());
+
             commonWaybill.setOriginalCrossType(BusinessUtil.getOriginalCrossType(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay()));
             //调用外单接口，根据商家id获取商家编码
             BasicTraderInfoDTO basicTraderInfoDTO = baseMinorManager.getBaseTraderById(tmsWaybill.getBusiId());
@@ -212,13 +217,17 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 context.setBusiCode(basicTraderInfoDTO.getTraderCode());
             }
             commonWaybill.setQuantity(tmsWaybill.getGoodNumber());
+            commonWaybill.setPackageCounter(tmsWaybill.getGoodNumber());/* 打印需要该字段,避免客户端转换 */
             commonWaybill.setOrderCode(tmsWaybill.getVendorId());
+            commonWaybill.setBarCode(tmsWaybill.getVendorId());/* 打印需要该字段,避免客户端转换 */
            // commonWaybill.setBusiOrderCode(tmsWaybill.getBusiOrderCode());//增加商家订单号字段
             commonWaybill.setOriginalDmsCode(dmsCode);
             commonWaybill.setPrepareSiteCode(tmsWaybill.getOldSiteId());
+            commonWaybill.setPrintSiteCode(tmsWaybill.getOldSiteId());/* 打印需要该字段,避免客户端转换 */
             commonWaybill.setPrintAddress(tmsWaybill.getReceiverAddress());
             commonWaybill.setNewAddress(tmsWaybill.getNewRecAddr());
             commonWaybill.setPackagePrice(tmsWaybill.getCodMoney());
+            commonWaybill.setReceivable(tmsWaybill.getCodMoney());/* 打印需要该字段,避免客户端转换 */
             commonWaybill.setWaybillSign(tmsWaybill.getWaybillSign());
             commonWaybill.setSendPay(tmsWaybill.getSendPay());
             commonWaybill.setDistributeType(tmsWaybill.getDistributeType());
@@ -282,6 +291,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 }
             }
             commonWaybill.setType(tmsWaybill.getWaybillType());
+            commonWaybill.setWaybillType(tmsWaybill.getWaybillType());/* 打印需要该字段,避免客户端转换 */
             commonWaybill.appendRemark(tmsWaybill.getImportantHint());
             String roadCode = "";
             if(BusinessUtil.isUrban(tmsWaybill.getWaybillSign(), tmsWaybill.getSendPay())) {//城配的订单标识，remark打派车单号
@@ -312,15 +322,19 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         		}
         	}
         	commonWaybill.setRoad(roadCode);
+            commonWaybill.setRodeCode(roadCode);/* 打印需要该字段,避免客户端转换 */
         	commonWaybill.setRoadCode(roadCode);
 
             if(tmsWaybill.getPayment()!=null){
                 if(tmsWaybill.getPayment()==ComposeService.ONLINE_PAYMENT_SIGN){
                     commonWaybill.setPackagePrice(ComposeService.ONLINE_PAYMENT);
+                    commonWaybill.setReceivable(ComposeService.ONLINE_PAYMENT);/* 打印需要该字段,避免客户端转换 */
                 }
             }
             commonWaybill.setCustomerName(tmsWaybill.getReceiverName());
             commonWaybill.setCustomerContacts(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
+            /* 打印需要该字段,避免客户端转换 */
+            commonWaybill.setCustomerPhoneText(concatPhone(tmsWaybill.getReceiverMobile(),tmsWaybill.getReceiverTel()));
             //因为要求手机号和座机号的后四位加大、标红显示，分成4段设置收件人联系方式
             String receiverMobile = tmsWaybill.getReceiverMobile();
             String receiverTel = tmsWaybill.getReceiverTel();
@@ -406,6 +420,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private final void loadPrintedData(WaybillPrintContext context){
     	WaybillPrintResponse printWaybill = context.getResponse();
     	printWaybill.setPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
+        /* 打印需要该字段,避免客户端转换 */
+        printWaybill.setHasPrintInvoice(context.getWaybill().getIsPrintInvoice() == Waybill.IS_PRINT_INVOICE);
         for (int i = 0; i < printWaybill.getPackList().size(); i++) {
         	printWaybill.getPackList().get(i).setIsPrintPack(
         			context.getWaybill().getPackList().get(i).getIsPrintPack() == Waybill.IS_PRINT_PACK);

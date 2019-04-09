@@ -295,6 +295,21 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Boolean useNewTemplate = Boolean.FALSE;
 
+	/**
+	 * @see this.customerContacts
+     */
+	private String customerPhoneText;
+
+	/**
+	 * @see this.road
+     */
+	private String rodeCode;
+
+	/**
+	 * 寄件人信息前缀
+     */
+	private String consignerPrefixText;
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -1108,5 +1123,29 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setUseNewTemplate(Boolean useNewTemplate) {
 		this.useNewTemplate = useNewTemplate;
+	}
+
+	public String getCustomerPhoneText() {
+		return customerPhoneText;
+	}
+
+	public void setCustomerPhoneText(String customerPhoneText) {
+		this.customerPhoneText = customerPhoneText;
+	}
+
+	public String getRodeCode() {
+		return rodeCode;
+	}
+
+	public void setRodeCode(String rodeCode) {
+		this.rodeCode = rodeCode;
+	}
+
+	public String getConsignerPrefixText() {
+		return consignerPrefixText;
+	}
+
+	public void setConsignerPrefixText(String consignerPrefixText) {
+		this.consignerPrefixText = consignerPrefixText;
 	}
 }

@@ -108,6 +108,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
@@ -127,6 +128,7 @@
 			<list>
 				<ref bean="halfPackageWeightInterceptHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
@@ -144,6 +146,7 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
                 <ref bean="c2cInterceptHandler"/>
                 <ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleSiteSupportInterceptHandler"/>
