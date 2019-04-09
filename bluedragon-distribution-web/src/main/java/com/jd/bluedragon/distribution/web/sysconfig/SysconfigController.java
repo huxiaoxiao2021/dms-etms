@@ -184,7 +184,12 @@ public class SysconfigController {
         return querySysconfig(null, null, model);
     }
 
-    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
+    /**
+     * 分拣机有用到，暂时不加
+     * @param configName
+     * @return
+     */
+//    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
     @RequestMapping(value = "/findConfigContentByConfigName/{configName}", method = RequestMethod.GET)
     @ResponseBody
     public SysConfigContentResponse findConfigContentByConfigName(@PathVariable String configName) {
