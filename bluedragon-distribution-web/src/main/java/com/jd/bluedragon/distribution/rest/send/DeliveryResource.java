@@ -847,12 +847,13 @@ public class DeliveryResource {
         }
         return sendMList;
     }
+
     /**
      * DeliveryRequest对象转sendM
      * @param deliveryRequest
      * @return
      */
-    private SendM deliveryRequest2SendM(DeliveryRequest deliveryRequest){
+    protected SendM deliveryRequest2SendM(DeliveryRequest deliveryRequest){
         SendM sendM = new SendM();
         sendM.setBoxCode(deliveryRequest.getBoxCode());
         sendM.setCreateSiteCode(deliveryRequest.getSiteCode());

@@ -506,6 +506,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sealCarDto.setSealCarTime(nowTime);    //封车时间取服务器当前时间
             }
         }
+        sealCarDto.setRouteLineCode(sourceSealDto.getRouteLineCode());
 
         return sealCarDto;
     }

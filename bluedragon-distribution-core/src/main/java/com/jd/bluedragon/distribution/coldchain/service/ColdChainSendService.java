@@ -57,6 +57,14 @@ public interface ColdChainSendService {
     ColdChainSend getBySendCode(String waybillCode, String sendCode);
 
     /**
+     * 根据运单号获取冷链发货信息列表
+     *
+     * @param waybillCode
+     * @return
+     */
+    List<ColdChainSend> getByWaybillCode(String waybillCode);
+
+    /**
      * 根据始发分拣中心和目的分拣中心 获取当日的运输计划明细信息
      *
      * @param createSiteCode

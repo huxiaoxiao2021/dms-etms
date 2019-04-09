@@ -1666,19 +1666,48 @@ public class DeliveryServiceImpl implements DeliveryService {
                     if (needSendMQ) {
                         // 发送取消发货MQ
                         sendMQ(model, tSendM);
-                        if (SendBizSourceEnum.getEnum(model.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND) {
-                            if (coldChainWaybillSet.add(model.getWaybillCode())) {
-                                coldChainSendDetails.add(model);
-                            }
+                        if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
+                            coldChainSendDetails.add(model);
                         }
                     }
                 }
             }
-
             this.sendColdChainSendMQ(coldChainSendDetails);
         } catch (Exception ex) {
             logger.error("取消发货 发全程跟踪sendMessage： " + ex);
         }
+    }
+
+    /**
+     * 取消发货判断运单是否为冷链卡班发货
+     *
+     * @param sendD
+     * @param tSendM
+     * @param coldChainWaybillSet
+     * @return
+     */
+    private boolean isColdChainSend(SendDetail sendD, SendM tSendM, Set<String> coldChainWaybillSet) {
+        Integer bizSource = sendD.getBizSource() == null ? tSendM.getBizSource() : sendD.getBizSource();
+        if (bizSource != null) {
+            if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND) {
+                if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
+                    return true;
+                }
+            }
+        } else {
+            if (!coldChainWaybillSet.contains(sendD.getWaybillCode())) {
+                List<ColdChainSend> coldChainSends = coldChainSendService.getByWaybillCode(sendD.getWaybillCode());
+                if (coldChainSends != null && coldChainSends.size() > 0) {
+                    if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
+                        if (StringUtils.isEmpty(sendD.getSendCode())) {
+                            sendD.setSendCode(coldChainSends.get(0).getSendCode());
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

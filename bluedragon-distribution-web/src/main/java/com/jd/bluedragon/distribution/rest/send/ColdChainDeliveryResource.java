@@ -32,7 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,7 +45,7 @@ import java.util.List;
 @Path(Constants.REST_URL)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({MediaType.APPLICATION_JSON})
-public class ColdChainDeliveryResource {
+public class ColdChainDeliveryResource extends DeliveryResource{
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -120,9 +119,9 @@ public class ColdChainDeliveryResource {
             List<SendM> sendMList = new ArrayList<>();
             for (DeliveryRequest deliveryRequest : request) {
                 if (WaybillUtil.isWaybillCode(deliveryRequest.getBoxCode())) {
-                    sendMList.addAll(request2SendMByWaybillCode(deliveryRequest));
+                    sendMList.addAll(this.request2SendMByWaybillCode(deliveryRequest));
                 } else {
-                    sendMList.add(request2SendM(deliveryRequest));
+                    sendMList.add(this.deliveryRequest2SendM(deliveryRequest));
                 }
             }
             return sendMList;
@@ -143,36 +142,13 @@ public class ColdChainDeliveryResource {
         List<String> packageCodes = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(deliveryRequest.getBoxCode());
         for (String packageCode : packageCodes) {
             deliveryRequest.setBoxCode(packageCode);
-            sendMList.add(this.request2SendM(deliveryRequest));
+            sendMList.add(this.deliveryRequest2SendM(deliveryRequest));
         }
         return sendMList;
     }
 
     /**
-     * DeliveryRequest对象转sendM
-     *
-     * @param deliveryRequest
-     * @return
-     */
-    private SendM request2SendM(DeliveryRequest deliveryRequest) {
-        SendM sendM = new SendM();
-        sendM.setBoxCode(deliveryRequest.getBoxCode());
-        sendM.setCreateSiteCode(deliveryRequest.getSiteCode());
-        sendM.setReceiveSiteCode(deliveryRequest.getReceiveSiteCode());
-        sendM.setCreateUserCode(deliveryRequest.getUserCode());
-        sendM.setSendType(deliveryRequest.getBusinessType());
-        sendM.setCreateUser(deliveryRequest.getUserName());
-        sendM.setSendCode(deliveryRequest.getSendCode());
-        sendM.setCreateTime(new Date());
-        sendM.setOperateTime(new Date());
-        sendM.setYn(1);
-        sendM.setTurnoverBoxCode(deliveryRequest.getTurnoverBoxCode());
-        sendM.setTransporttype(deliveryRequest.getTransporttype());
-        return sendM;
-    }
-
-    /**
-     * 冷链发货接口
+     * 根据始发和目的站点获取当日的运输计划信息
      *
      * @param request
      * @return

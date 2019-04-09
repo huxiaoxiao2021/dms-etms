@@ -168,6 +168,16 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
     }
 
     @Override
+    public List<ColdChainSend> getByWaybillCode(String waybillCode) {
+        if (StringUtils.isNotEmpty(waybillCode)) {
+            ColdChainSend parameter = new ColdChainSend();
+            parameter.setWaybillCode(waybillCode);
+            return coldChainSendDao.get(parameter);
+        }
+        return null;
+    }
+
+    @Override
     public List<TransPlanDetailResult> getTransPlanDetail(Integer createSiteCode, Integer receiveSiteCode) {
         ScheduleCargoSimpleDto queryCondition = this.getQueryCondition(createSiteCode, receiveSiteCode);
         if (queryCondition != null) {
@@ -252,9 +262,10 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         } else {
             calendar.setTime(date);
         }
-        calendar.set(Calendar.HOUR, hour);
+        calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, second);
+        calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTime();
     }
 
