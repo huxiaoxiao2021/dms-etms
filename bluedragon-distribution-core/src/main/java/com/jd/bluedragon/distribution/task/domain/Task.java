@@ -6,7 +6,6 @@ import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.core.redis.TaskModeAware;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +14,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 public class Task implements java.io.Serializable, TaskModeAware{
@@ -303,7 +303,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /** 所属队列 */
     private Integer queueId;
 
-
+    private List<Integer> statusesList;
 
     public Task() {
     }
@@ -494,6 +494,14 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public void setQueueId(Integer queueId) {
         this.queueId = queueId;
+    }
+
+    public List<Integer> getStatusesList() {
+        return statusesList;
+    }
+
+    public void setStatusesList(List<Integer> statusesList) {
+        this.statusesList = statusesList;
     }
 
     public static String getTableName(Integer type) {

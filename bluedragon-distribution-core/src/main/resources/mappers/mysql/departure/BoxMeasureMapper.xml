@@ -50,11 +50,4 @@
 		where box_code = #{boxCode,jdbcType=VARCHAR}
 	</update>
 
-	<select id="queryByBoxCodes" parameterType="java.lang.String"
-		resultMap="BaseResultMap">
-		SELECT box_code, weight, volume
-		FROM box_measure where yn=1
-		and box_code in ${boxCodeIn}
-	</select>
-
 </mapper>

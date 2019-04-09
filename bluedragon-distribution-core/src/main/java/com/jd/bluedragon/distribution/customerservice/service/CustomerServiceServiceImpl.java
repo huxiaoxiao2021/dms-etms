@@ -168,11 +168,6 @@ public class CustomerServiceServiceImpl implements CustomerServiceService {
                 + box.getReceiveSiteCode();
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Integer updateStatusByCodes(Box box) {
-        return this.boxDao.updateStatusByCodes(box);
-    }
-
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");

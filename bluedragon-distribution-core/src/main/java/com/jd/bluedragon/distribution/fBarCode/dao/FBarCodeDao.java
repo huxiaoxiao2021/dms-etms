@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.fBarCode.dao;
 
-import java.util.List;
-
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.fBarCode.domain.FBarCode;
+
+import java.util.List;
 
 public class FBarCodeDao extends BaseDao<FBarCode> {
 
@@ -33,10 +33,6 @@ public class FBarCodeDao extends BaseDao<FBarCode> {
     @SuppressWarnings("unchecked")
     public List<FBarCode> findFBarCodees(FBarCode fBarCode) {
         return super.getSqlSession().selectList(FBarCodeDao.namespace + ".findFBarCodees", fBarCode);
-    }
-
-    public Integer updateStatusByCodes(FBarCode fBarCode) {
-        return super.getSqlSession().update(FBarCodeDao.namespace + ".updateStatusByCodes", fBarCode);
     }
 
     public Integer batchUpdateStatus(FBarCode fBarCode) {

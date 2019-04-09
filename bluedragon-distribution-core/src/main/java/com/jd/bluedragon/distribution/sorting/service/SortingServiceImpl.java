@@ -57,6 +57,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -174,12 +175,12 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findSortingPackages(Sorting sorting) {
-		String boxCodes = this.getBoxCodes(sorting);
-		if (StringHelper.isEmpty(boxCodes)) {
+		List<String> boxCodelist = this.getBoxCodes(sorting);
+		if (CollectionUtils.isEmpty(boxCodelist)) {
 			return Collections.emptyList();
 		}
 
-		sorting.setBoxCodes(boxCodes);
+		sorting.setBoxCodeList(boxCodelist);
 		return this.sortingDao.findSortingPackages(sorting);
 	}
 
@@ -189,10 +190,11 @@ public class SortingServiceImpl implements SortingService {
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
 		List<Box> boxes = this.boxService.findBoxes(box);
-        for(){
-
+		List<String> boxCodelist = new ArrayList();
+        for(Box item : boxes){
+            boxCodelist.add(item.getCode());
         }
-		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+		return boxCodelist;
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {

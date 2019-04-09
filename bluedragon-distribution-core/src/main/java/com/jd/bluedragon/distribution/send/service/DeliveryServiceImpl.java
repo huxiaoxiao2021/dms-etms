@@ -113,6 +113,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1300,19 +1301,30 @@ public class DeliveryServiceImpl implements DeliveryService {
      */
     private List<String> batchQuerySendMList(List<SendM> sendMList) {
         List<SendM>[] sendArray = splitSendMList(sendMList);
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (List<SendM> list : sendArray) {
-            String boxCode = StringHelper.join(list, "getBoxCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+            List<String> boxCodelist = getBoxCodeList(list);
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendM request = new SendM();
-            request.setBoxCode(boxCode);
+            request.setBoxCodeList(boxCodelist);
             request.setCreateSiteCode(createSiteCode);
             request.setReceiveSiteCode(receiveSiteCode);
             result.addAll(sendMDao.batchQuerySendMList(request));
         }
 
         return result;
+    }
+
+    private List<String> getBoxCodeList(List<SendM> list) {
+        if(CollectionUtils.isEmpty(list)){
+            return 	Collections.<String>emptyList();
+        }
+        List<String> boxCodelist = new ArrayList<>(list.size());
+        for(SendM item : list){
+            boxCodelist.add(item.getBoxCode());
+        }
+        return boxCodelist;
     }
 
     /**

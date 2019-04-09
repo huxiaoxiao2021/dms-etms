@@ -410,13 +410,6 @@
 		</where>
 	</update>
 
-	<select id="querySendCodesByBoxCodes" parameterType="SendM"
-		resultMap="SendM">
-		SELECT box_code, send_code
-		FROM send_m where yn=1 and
-		box_code in ${boxCode}
-	</select>
-
 	<select id="findCancel" parameterType="SendM"
 		resultMap="SendM">
 		select
@@ -486,7 +479,10 @@
 			yn = 1
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			and box_code in (${boxCode})
+			and box_code in
+            <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
 		</where>
 	</select>
 	
