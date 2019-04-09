@@ -591,4 +591,27 @@ public class BusinessUtil {
         return isSignChar(waybillSign, 27, '5');
     }
 
+
+    /**
+     * 纯配外单判断 【waybillSign第1为为2、3、6、9、K、Y且第53位为2】
+     * */
+    public static Boolean isPurematch(String waybillSign){
+        if(waybillSign == null){
+            return Boolean.FALSE;
+        }
+        if(isSignChar(waybillSign,53,'2')
+                && isSignInChars(waybillSign,1,'2','3','6','9','K','Y')){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+    /**
+     * 判断是否是移动仓内配单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMovingWareHouseInnerWaybill(String waybillSign){
+        return isSignChar(waybillSign,14,'5');
+    }
+
 }

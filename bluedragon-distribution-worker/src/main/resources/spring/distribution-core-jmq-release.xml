@@ -40,10 +40,7 @@
 
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
-    <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="1000"/>
-        <property name="topic" value="${jmq.topic.bd.monitor}"/>
-    </bean>
+
     <bean id="ownWaybillTransformMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="1000"/>
         <property name="topic" value="${jmq.topic.ownWaybillTransform}"/>
@@ -264,6 +261,11 @@
         <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
     </bean>
 
     <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->

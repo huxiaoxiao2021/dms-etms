@@ -27,6 +27,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
 import com.jd.ql.dms.common.web.mvc.BaseService;
@@ -43,14 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -100,6 +94,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     @Qualifier("arSendRegisterMQ")
     @Autowired
     private DefaultJMQProducer arSendRegisterMQ;
+
+    @Qualifier("arSendReportMQ")
+    @Autowired
+    private DefaultJMQProducer arSendReportMQ;
 
     /**
      * 分隔符 逗号
@@ -164,6 +162,8 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                     this.sendTrack(arSendRegister, sendCodes);
                     // 新增发货MQ任务
                     this.sendDetailMQTask(arSendRegister, sendCodes);
+                    //增加批次发货消息供报表使用
+                    this.sendArSendReportMQ(arSendRegister,sendCodes);
                     // 判断是否为航空
                     if (arSendRegister.getTransportType() != null && arSendRegister.getTransportType().equals(AIR_TRANSPORT.getCode())) {
                         // 调用TMS BASIC订阅实时航班JSF接口
@@ -174,6 +174,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             } else {
                 return true;
             }
+
         }
         return false;
     }
@@ -724,6 +725,22 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
             }
         }
         return null;
+    }
+
+    /**
+     * 空铁发货报表推送数据
+     * @param arSendRegister
+     * @param sendCodes
+     */
+    private void sendArSendReportMQ(ArSendRegister arSendRegister, String[] sendCodes){
+        try {
+            if(sendCodes.length>0){
+                arSendRegister.setSendCodes(Arrays.asList(sendCodes));
+            }
+            arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
+        } catch (JMQException e) {
+            logger.error("空铁发货登记报表数据发送异常"+arSendRegister.getTransCompanyCode()+e.getMessage(),e);
+        }
     }
 
     private void sendDetailMQTask(ArSendRegister arSendRegister, String[] sendCodes) {

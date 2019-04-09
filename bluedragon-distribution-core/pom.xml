@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.2.46</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.57</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -412,7 +412,7 @@
 		<dependency>
 			<groupId>com.jd.ql.erp</groupId>
 			<artifactId>ql-erp-client</artifactId>
-			<version>5.3.51-SNAPSHOT</version>
+			<version>5.3.66-SNAPSHOT</version>
 		</dependency>
 		<!--jsf  -->
 		<dependency>
@@ -939,9 +939,16 @@
 		<dependency>
 			<groupId>com.jd.jspliter</groupId>
 			<artifactId>jspliter-jmq</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
-    </dependencies>
+
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-spare-ext-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+	</dependencies>
 
 	<build>
 		<plugins>

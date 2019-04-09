@@ -52,10 +52,6 @@
 
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
-    <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="1000"/>
-        <property name="topic" value="${jmq.topic.bd.monitor}"/>
-    </bean>
 
     <!--uat-->
     <bean id="ownWaybillTransformMQ" parent="uatDmsWebDefaultJMQProducer">
@@ -219,6 +215,11 @@
         <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
         <property name="timeout" value="1000"/>
         <!--已修改主题-->
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
     </bean>
 
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->

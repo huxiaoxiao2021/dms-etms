@@ -26,10 +26,13 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_CITY_BILL_CHECK = 39002;
     public static final String MESSAGE_CITY_BILL_CHECK = "，是否强制发货？";
 
+    public static final Integer CODE_CONFIRM_CANCEL_LAST_SEND = 39003;
+    public static final String MESSAGE_CONFIRM_CANCEL_LAST_SEND = "该箱号/包裹已发货，是否取消上次发货并操作本次发货？";
+
     public static final Integer CODE_Delivery_NO_MESAGE = 40003;
     public static final String MESSAGE_Delivery_NO_MESAGE = "无该箱号发货的记录";
     public static final String MESSAGE_Delivery_IS_MESAGE = "发货处理中请稍后再试";
-    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的记录";
+    public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的发货记录";
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
     
@@ -115,6 +118,16 @@ public class DeliveryResponse extends JdResponse {
      * 单纯的提示语
      */
     private List<String> tipMessages;
+
+    private Integer waybillType;
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
 
     public DeliveryResponse() {
         super();

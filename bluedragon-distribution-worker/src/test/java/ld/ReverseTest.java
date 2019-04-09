@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
@@ -32,6 +33,9 @@ public class ReverseTest {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
+    @Autowired
+    private WaybillService waybillService;
+
     @Test
     public void ECLPRejectReason(){
 
@@ -57,6 +61,42 @@ public class ReverseTest {
 
 
     }
+
+
+    @Test
+    public void WaybillStatus(){
+
+        Task tTask = new Task();
+
+        tTask.setBody("{\n" +
+                "  \"sendCode\" : \"910-11252-20190328135641090\",\n" +
+                "  \"waybillCode\" : \"JDVA00001757689\",\n" +
+                "  \"packageCode\" : \"JDVA00001757689\",\n" +
+                "  \"createSiteCode\" : 11252,\n" +
+                "  \"createSiteType\" : 903,\n" +
+                "  \"createSiteName\" : \"北京服装备件库\",\n" +
+                "  \"receiveSiteCode\" : 11252,\n" +
+                "  \"receiveSiteType\" : 903,\n" +
+                "  \"receiveSiteName\" : \"北京服装备件库\",\n" +
+                "  \"operatorId\" : -1,\n" +
+                "  \"operator\" : \"bjtc\",\n" +
+                "  \"operateType\" : 900,\n" +
+                "  \"operateTime\" : 1553753239000\n" +
+                "}");
+
+
+        tTask.setOwnSign("LD");
+        tTask.setKeyword1("JDVA00001757689");
+
+        try {
+            waybillService.doWaybillStatusTask(tTask);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+    }
+
 
     @Test
     public void test1() {
@@ -96,16 +136,14 @@ public class ReverseTest {
     @Test
     public void testMQ(){
         Message message = new Message();
-        message.setText("{\n" +
-                "    \"waybillCode\": \"JDVA00000184905\",\n" +
-                "    \"sendCode\": \"910-11252-2018120720455885\",\n" +
-                "    \"receiveType\": 7,\n" +
-                "    \"canReceive\": 0,\n" +
-                "    \"operaterName\": \"刘铎测试\",\n" +
-                "    \"operateTime\": \"2018-12-10 10:15:32\"\n" +
-                "}");
+        message.setText("{\"waybillCode\":\"JDVA00001757689\",\"sendCode\":\"910-11252-20190328135641090\",\"receiveType\":8,\"canReceive\":2,\"operaterName\":\"bjtc\",\"operateTime\":\"2019-03-29 09:09:53\",\"detailList\":[{\"goodsNo\":\"EMG4398059875755\",\"goodsName\":\"商品1\",\"batchNo\":\"ISV-C-20190327112208-1508-1\",\"quantity\":0},{\"goodsNo\":\"EMG4398059875756\",\"goodsName\":\"商品1\",\"batchNo\":\"ISV-C-20190327111908-2532-1\",\"quantity\":1}]}\n");
         reverseReceiveConsumer.consume(message);
     }
+
+
+
+
+
 
     @Autowired
     private BaseMajorManager baseMajorManager;
