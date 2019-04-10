@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -30,6 +31,9 @@ public class SortingWaybillSplitServiceImpl extends SortingPackServiceImpl{
             for(DeliveryPackageD packageD : packageDList){
                 SortingVO sortingTarget = new SortingVO();
                 BeanUtils.copyProperties(sorting,sortingTarget);
+                if (!BusinessHelper.isBoxcode(sorting.getBoxCode())) {
+                    sortingTarget.setBoxCode(packageD.getPackageBarcode());
+                }
                 sortingTarget.setPackageCode(packageD.getPackageBarcode());
                 super.doSorting(sortingTarget);
             }
