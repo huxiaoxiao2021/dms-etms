@@ -84,6 +84,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
 		return insert(preSealVehicle);
 	}
 
+    @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
     public boolean updateById(PreSealVehicle preSealVehicle) {
         return preSealVehicleDao.update(preSealVehicle);

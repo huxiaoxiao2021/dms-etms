@@ -340,7 +340,7 @@ public class PreSealVehicleController extends DmsBaseController{
         }
         Integer createSiteCode = user.getSiteCode();
 		try{
-            rest.setData(getUnusedTransports(createSiteCode));
+            rest.setData(getRemainTransportCodes(createSiteCode));
         }catch (Exception e){
 		    logger.error("查询当前场地未使用的运力编码失败，场地ID：" + createSiteCode, e);
             rest.setCode(JdResponse.CODE_ERROR);
@@ -355,7 +355,7 @@ public class PreSealVehicleController extends DmsBaseController{
      * @param createSiteCode
      * @return
      */
-	private List<CapacityDomain> getUnusedTransports(Integer createSiteCode){
+	private List<CapacityDomain> getRemainTransportCodes(Integer createSiteCode){
         List<CapacityDomain> result = new ArrayList<>();
 
         List<String> usedList = getUsedTransports(createSiteCode);
