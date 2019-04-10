@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.web.systemlog;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +28,13 @@ public class SystemLogController {
 	@Autowired
 	private SystemLogService systemLogService;
 
+	@Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
 		return "systemLog/systemLog";
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(SystemLog systemLog, Pager<SystemLog> pager, Model model) {
 		try{
@@ -65,12 +69,14 @@ public class SystemLogController {
 
 		return "systemLog/systemLog";
 	}
-	
+
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
 	public String goListpage1(Model model) {
 		return "systemLog/systemLog1";
 	}
-	
+
+    @Authorization(Constants.DMS_WEB_DEVELOP_SYSTEMLOG_R)
 	@RequestMapping(value = "/list1", method = RequestMethod.GET)
 	public String queryOperateLog1(SystemLog systemLog, Pager<SystemLog> pager, Model model) {
 		try{

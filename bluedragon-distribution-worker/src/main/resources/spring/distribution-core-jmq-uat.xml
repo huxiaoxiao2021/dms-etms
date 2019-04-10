@@ -52,11 +52,7 @@
 
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
-    <bean id="bdMonitorMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="timeout" value="1000"/>
-        <property name="topic" value="${jmq.topic.bd.monitor}"/>
-    </bean>
-
+    
     <!--uat-->
     <bean id="ownWaybillTransformMQ" parent="uatDmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ownWaybillTransform}"/>

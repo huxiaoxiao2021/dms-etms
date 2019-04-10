@@ -229,6 +229,7 @@ public class PopReceiveAbnormalController {
 	 * @param paramMap
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/getWaybill", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getWaybillByOrderCode(
@@ -659,6 +660,7 @@ public class PopReceiveAbnormalController {
 		return null;
 	}
 
+	@Authorization(Constants.DMS_WEB_PTORDER_DIFF_R)
 	@RequestMapping(value = "/getSubReasons", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getSubReasonsByMainType(

@@ -53,6 +53,7 @@ public class B2BRouterController {
         return "b2bRouter/list";
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping("/toAdd")
     public String toAdd(Model model) {
         return "b2bRouter/add";
@@ -63,6 +64,7 @@ public class B2BRouterController {
      * @param router
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @ResponseBody
     @RequestMapping("/check")
     public B2BRouterResponse<Integer> check(B2BRouter router) {
@@ -100,6 +102,7 @@ public class B2BRouterController {
      * @param model
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @ResponseBody
     @RequestMapping("/doAdd")
     public B2BRouterResponse<String> doAdd(B2BRouter router, Model model) {
@@ -147,6 +150,7 @@ public class B2BRouterController {
      * @param pager
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping("/query")
     @ResponseBody
     public B2BRouterResponse<Pager<List<B2BRouter>>> query(B2BRouterRequest b2bRouterRequest, Pager<List<B2BRouter>> pager) {
@@ -179,6 +183,7 @@ public class B2BRouterController {
         return b2bRouterResponse;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping("/toEdit")
     public String toEdit(B2BRouterRequest b2bRouterRequest,Integer id, Model model) {
         try {
@@ -232,6 +237,7 @@ public class B2BRouterController {
         return "b2bRouter/add";
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @ResponseBody
     @RequestMapping("/doUpdate")
     public B2BRouterResponse<String> doUpdate(B2BRouter router, Model model) {
@@ -262,6 +268,7 @@ public class B2BRouterController {
         return b2bRouterResponse;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @ResponseBody
     @RequestMapping("/delete")
     public B2BRouterResponse<String>  delete(@RequestBody List<Integer> idList) {
@@ -297,11 +304,13 @@ public class B2BRouterController {
         return b2bRouterResponse;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping("/toImport")
     public String toImport(Model model) {
         return "b2bRouter/import_data";
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_B2BROUTER_R)
     @RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
     public String uploadExcel(Model model, MultipartHttpServletRequest request) {
         logger.debug("uploadExcelFile begin...");

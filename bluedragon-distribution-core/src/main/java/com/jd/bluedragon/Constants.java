@@ -411,6 +411,7 @@ public class Constants {
     public static final String PDA_USER_IP_WRONG_MSG = "ip在黑名单中"; //ip在黑名单中
     public static final String PDA_USER_EMPTY_MSG = "用户名或密码为空"; //用户名或密码为空
     public static final String PDA_USER_ABNORMAL_MSG = "登录异常"; //登录异常
+    public static final String PURE_MATCH_ERROR_MESSAGE = "该订单理赔未完成或物权不归京东!";//纯配逆向换单校验提示语
 
     public static final String PDA_THIRDPL_TYPE = "3pl_"; //小第三方
     public static final String PDA_BIG_THIRDPL_TYPE = "third_"; //大第三方（申通、圆通）
@@ -583,6 +584,26 @@ public class Constants {
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
     public static final String DMS_WEB_PRE_SEALVEHICLE_R ="DMS_WEB_PRE_SEALVEHICLE_R"; //预封车权限码
+    public static final String DMS_WEB_OFFLINE_MANAGER_R ="bluedragon_offlinePwd_list"; //离线密码管理
+    public static final String DMS_WEB_QUERY_KUGUANINIT ="DMS-WEB-QUERY-KUGUANINIT"; //库管首页
+    public static final String DMS_WEB_QUERY_KUGUANLIST ="DMS-WEB-QUERY-KUGUANLIST"; //库管查询
+
+    /********************************************* 研发UIM权限资源码相关start ***********************************************/
+    public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
+    public static final String DMS_WEB_DEVELOP_TASK_R ="DMS_WEB_DEVELOP_TASK_R"; //分拣任务监控
+    public static final String DMS_WEB_DEVELOP_DBTASK_R ="DMS_WEB_DEVELOP_DBTASK_R"; //分拣数据库任务查询
+    public static final String DMS_WEB_DEVELOP_METHOD_INVOKE_R ="DMS_WEB_DEVELOP_METHOD_INVOKE_R"; //线上方法验证
+    public static final String DMS_WEB_DEVELOP_SQLKIT_R ="DMS_WEB_DEVELOP_SQLKIT_R"; //分拣SQLKit
+    public static final String DMS_WEB_DEVELOP_SYSCONFIG_R ="DMS_WEB_DEVELOP_SYSCONFIG_R"; //分拣规则管理
+    public static final String DMS_WEB_DEVELOP_TOOLS_SUMMARY_R ="DMS_WEB_DEVELOP_TOOLS_SUMMARY_R"; //分拣工具管理
+    public static final String DMS_WEB_DEVELOP_SYSTEMLOG_R ="DMS_WEB_DEVELOP_SYSTEMLOG_R"; //分拣操作日志
+    public static final String DMS_WEB_DEVELOP_MEMORY_CACHE_R ="DMS_WEB_DEVELOP_MEMORY_CACHE_R"; //分拣内存缓存查询
+    public static final String DMS_WEB_DEVELOP_WORKER_SETTING_R ="DMS_WEB_DEVELOP_WORKER_SETTING_R"; //分拣任务配置
+    public static final String DMS_WEB_DEVELOP_OPERATE_R ="DMS_WEB_DEVELOP_OPERATE_R"; //分拣实操查询
+    public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
+
+    /********************************************* 研发UIM权限资源码相关end ***********************************************/
+
     /********************************************* UIM权限资源码相关end ***********************************************/
 
     /******************************************** 封车类型相关start *****************************************/

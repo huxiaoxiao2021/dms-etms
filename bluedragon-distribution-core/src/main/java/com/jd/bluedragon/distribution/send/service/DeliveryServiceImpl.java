@@ -3973,6 +3973,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired private WaybillCommonService waybillCommonService;
 
+    @Autowired private SiteService siteService;
+
+      @Autowired
+      private WaybillQueryManager waybillQueryManager;
+
+
     @Override
     public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
       Collections.sort(
@@ -4004,6 +4010,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (isScheduleRequest && hasDiff > 0) {
           break;
         }
+          //纯配外单支持缺量退备件库因此剔除
+          String waybillCode = item.getWaybillCode();
+          com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
+          if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
+              BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
+              Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+              if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
+                  break;
+              }
+          }
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
@@ -4017,13 +4033,11 @@ public class DeliveryServiceImpl implements DeliveryService {
           pacageSumShoudBe =
               WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
           if (pacageSumShoudBe == 0) { // 特殊包裹号，包裹总数位是0时，从运单获取包裹总数
-            com.jd.bluedragon.common.domain.Waybill waybill =
-                waybillCommonService.findWaybillAndPack(lastWaybillCode);
-            if (waybill != null
-                && waybill.getPackList() != null
-                && waybill.getPackList().size() > 0) {
-              pacageSumShoudBe = waybill.getPackList().size();
-            }
+
+              BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(lastWaybillCode, true, true, true, false);
+              if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
+                  pacageSumShoudBe = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
+              }
           }
 
           scanCount = 0;

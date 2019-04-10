@@ -2,13 +2,16 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 
@@ -357,5 +360,18 @@ public class SendDatailDao extends BaseDao<SendDetail> {
      */
     public Integer findLossSortingNoSendCount(SendDetail sendDetail){
         return this.getSqlSession().selectOne(namespace +".findLossSortingNoSendCount",sendDetail);
+    }
+
+    /**
+     * 根据批次号查询已退包裹号（逆向）
+     * @param sendDetail
+     * @return
+     */
+    public List<String> queryPackageCode(SendDetail sendDetail){
+        if(sendDetail.getCreateSiteCode() != null && sendDetail.getSendCode() != null){
+            return this.getSqlSession().selectList(namespace +".queryPackageCode",sendDetail);
+        }else{
+             return new ArrayList<>();
+        }
     }
 }

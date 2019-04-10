@@ -205,7 +205,7 @@ function print(url){
 
 //加载分拣中心
 var loadSite = function (params) {
-    var siteListUrl = '/base/dmsStorageArea/getAllSiteList';
+    var siteListUrl = '/transport/tmsProxy/getAllSiteList';
     $.ajax({
         type: "post",
         url: siteListUrl,
