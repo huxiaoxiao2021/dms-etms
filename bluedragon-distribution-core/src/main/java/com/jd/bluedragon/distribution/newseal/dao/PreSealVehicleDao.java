@@ -37,6 +37,14 @@ public interface PreSealVehicleDao extends Dao<PreSealVehicle> {
     int updateStatusByTransportCodes(List<String> transportCodes, String updateUserErp, String updateUserName, Integer status);
 
     /**
+     * 根据始发目的取消预封车
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @return
+     */
+    int preCancelByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode, String updateUserErp, String updateUserName);
+
+    /**
      * 根据始发目的查询预封车数据
      * @param createSiteCode
      * @param receiveSiteCode

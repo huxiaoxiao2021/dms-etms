@@ -55,6 +55,17 @@ public class PreSealVehicleDaoImpl extends BaseDao<PreSealVehicle> implements Pr
     }
 
     @Override
+    public int preCancelByCreateAndReceive(Integer createSiteCode, Integer receiveSiteCode, String updateUserErp, String updateUserName) {
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("createSiteCode", createSiteCode);
+        parameter.put("receiveSiteCode", receiveSiteCode);
+        parameter.put("updateUserErp", updateUserErp);
+        parameter.put("updateUserName", updateUserName);
+        parameter.put("updateTime", new Date());
+        return sqlSession.update(this.nameSpace+".preCancelByCreateAndReceive", parameter);
+    }
+
+    @Override
     public List<PreSealVehicle> queryByCondition(PreSealVehicle preSealVehicle) {
         return sqlSession.selectList(this.nameSpace+".queryByCondition", preSealVehicle);
     }

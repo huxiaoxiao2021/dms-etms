@@ -72,15 +72,8 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
 	public boolean cancelPreSealBeforeInsert(PreSealVehicle preSealVehicle) {
-        //TODO 根据条件直接更新
-		List<PreSealVehicle> exists = findByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode());
-		if(exists != null && !exists.isEmpty()){
-			List<Long> ids = new ArrayList<>(exists.size());
-			for (PreSealVehicle vo : exists){
-				ids.add(vo.getId());
-			}
-			updateStatusByIds(ids, preSealVehicle.getCreateUserErp(), preSealVehicle.getCreateUserName(), SealVehicleEnum.CANCEL_PRE_SEAL);
-		}
+        preSealVehicleDao.preCancelByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode(),
+                preSealVehicle.getCreateUserErp(), preSealVehicle.getCreateUserName());
 		return insert(preSealVehicle);
 	}
 
