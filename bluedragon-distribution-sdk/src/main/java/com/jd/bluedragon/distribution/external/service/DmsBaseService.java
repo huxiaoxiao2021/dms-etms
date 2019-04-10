@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import java.util.List;
+
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
-
-import java.util.List;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 
 /**
  * <p>
@@ -12,13 +14,18 @@ import java.util.List;
 public interface DmsBaseService {
 
     /**
-     * 登录验证
+     * 登录验证(安卓PDA)
      *
      * @param request
      * @return
      */
     BaseResponse login(LoginRequest request);
-
+    /**
+     * web页面，cookies自动登录后，调用该接口获取用户登录信息
+     * @param request
+     * @return
+     */
+    JdResult<LoginUserResponse> getLoginUser(LoginRequest request);
     /**
      * 获取始发网点详细信息
      *
