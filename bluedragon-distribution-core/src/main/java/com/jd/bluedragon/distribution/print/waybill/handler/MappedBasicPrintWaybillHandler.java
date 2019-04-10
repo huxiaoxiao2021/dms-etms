@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -127,10 +126,4 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         return context.getResult();
     }
 
-    public static void main(String[] args) {
-        System.out.println(DateHelper.formatDate(new Date(),"yyyy-MM-dd HH:mm"));
-
-        System.out.println(WaybillUtil.getPackageIndex("12345678944"));
-        System.out.println(WaybillUtil.getPackIndexByPackCode("12345678944"));
-    }
 }
