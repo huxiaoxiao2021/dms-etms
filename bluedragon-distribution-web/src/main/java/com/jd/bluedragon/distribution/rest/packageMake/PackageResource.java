@@ -178,7 +178,7 @@ public class PackageResource {
         try {
             /* 2.发送全程跟踪 */
             this.packageRePrint(barCode,request.getWaybillSign(),request.getCreateSiteCode()
-                    ,String.valueOf(request.getOperateUserCode()));
+                    ,request.getOperateUserName());
 
             /* 3.客户改址拦截MQ */
             String waybillSign = request.getWaybillSign();

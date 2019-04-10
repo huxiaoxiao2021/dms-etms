@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
@@ -64,13 +63,6 @@ public class PickThisPackageHandler implements  InterceptHandler<WaybillPrintCon
                 if (barCode.equals(printPackage.getPackageCode()) ||
                         WaybillUtil.getPackIndexByPackCode(printPackage.getPackageCode()) == packageIndex) {
                     newPack.add(printPackage);
-
-                    /* 为当前的包裹赋值称重信息 */
-                    if ((context.getRequest().getWeightVolumeOperEnable() & Constants.WEIGHT_ENABLE) == Constants.WEIGHT_ENABLE) {
-                        Double weight = context.getRequest().getWeightOperFlow().getWeight();
-                        printPackage.setWeight(weight);
-                        printPackage.setPackageWeight(String.valueOf(weight));
-                    }
                 }
             }
             /* 将当前打印的包裹过滤出来重新赋值 */

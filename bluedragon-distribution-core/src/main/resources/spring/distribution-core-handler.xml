@@ -137,6 +137,7 @@
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
 				<ref bean="pickThisPackageHandler"/>
+				<ref bean="packageWeightHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>

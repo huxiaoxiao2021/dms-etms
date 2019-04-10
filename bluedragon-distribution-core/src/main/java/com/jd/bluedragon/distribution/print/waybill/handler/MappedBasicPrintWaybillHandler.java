@@ -75,7 +75,7 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
             printWaybill.getSendPay().length() >= 8 && printWaybill.getSendPay().charAt(7) == '6' ) {
             remark += BAD_WAREHOURSE_FOR_PORT;
         } else {
-            remark += printWaybill.getRemark();
+            remark += StringHelper.isEmpty(printWaybill.getRemark())? "" : printWaybill.getRemark();
         }
         if (StringHelper.isNotEmpty(printWaybill.getServiceCode())) {
             if (!remark.contains(printWaybill.getServiceCode())) {
