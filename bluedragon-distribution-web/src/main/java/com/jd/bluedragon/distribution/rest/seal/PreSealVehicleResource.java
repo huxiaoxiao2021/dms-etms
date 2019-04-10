@@ -104,6 +104,7 @@ public class PreSealVehicleResource {
                         //该目的已有预封车数据时，但是运力编码不一致时提示是否更新
                         preSealResponse.setCode(NewSealVehicleResponse.CODE_PRESEAL_EXIST_ERROR);
                         preSealResponse.setMessage(NewSealVehicleResponse.TIPS_PRESEAL_EXIST_ERROR);
+                        break;
                     }else if(sealCarDto.getVehicleNumber().equals(exist.getVehicleNumber())){
                         //该目的已有预封车数据时，但是运力编码一致，车牌也一致时，属于更新封签号
                         existId = exist.getId();

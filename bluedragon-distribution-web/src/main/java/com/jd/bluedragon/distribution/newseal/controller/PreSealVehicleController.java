@@ -170,26 +170,27 @@ public class PreSealVehicleController extends DmsBaseController{
 	private List<PreSealVehicle> buildPreSealVehicle(Map<Integer, PreSealVehicle> preMap, List<SealVehicles> unSealSendCodes){
 
         //组装批次信息
-        for(SealVehicles vo : unSealSendCodes){
-	        Integer key = vo.getReceiveSiteCode();
-	        if(preMap.containsKey(key)){
-                PreSealVehicle pre = preMap.get(key);
-                List<SealVehicles> temp = pre.getSendCodes();
-                boolean exist = false;
-                for(SealVehicles seal : temp){
-                    if(seal.getSealDataCode().equals(vo.getSealDataCode())){
-                        exist = true;
+        for(SealVehicles unSealVehiclesWithSendCodeTemp : unSealSendCodes){
+	        Integer receiveSiteCode = unSealVehiclesWithSendCodeTemp.getReceiveSiteCode();
+	        if(preMap.containsKey(receiveSiteCode)){
+                PreSealVehicle preSV = preMap.get(receiveSiteCode);
+                List<SealVehicles> preSealVehiclesWithSendCodeList = preSV.getSendCodes();
+                //批次去重
+                boolean isSealed = false;
+                for(SealVehicles sealVehicleTemp : preSealVehiclesWithSendCodeList){
+                    if(sealVehicleTemp.getSealDataCode().equals(unSealVehiclesWithSendCodeTemp.getSealDataCode())){
+                        isSealed = true;
                         break;
                     }
                 }
-                if(!exist){
+                if(!isSealed){
                     //该目的地只有一个车牌号时默认设置为改车牌号
-                    List<String> vehicleNumbers = pre.getVehicleNumbers();
+                    List<String> vehicleNumbers = preSV.getVehicleNumbers();
                     if(vehicleNumbers.size() == 1){
-                        vo.setVehicleNumber(vehicleNumbers.get(0));
-                        vo.setSealCodes(pre.getVehicleSealCodeMap().get(vo.getVehicleNumber()));
+                        unSealVehiclesWithSendCodeTemp.setVehicleNumber(vehicleNumbers.get(0));
+                        unSealVehiclesWithSendCodeTemp.setSealCodes(preSV.getVehicleSealCodeMap().get(unSealVehiclesWithSendCodeTemp.getVehicleNumber()));
                     }
-                    temp.add(vo);
+                    preSealVehiclesWithSendCodeList.add(unSealVehiclesWithSendCodeTemp);
                 }
             }
 

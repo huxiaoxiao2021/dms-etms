@@ -72,6 +72,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
     @Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
 	public boolean cancelPreSealBeforeInsert(PreSealVehicle preSealVehicle) {
+        //TODO 根据条件直接更新
 		List<PreSealVehicle> exists = findByCreateAndReceive(preSealVehicle.getCreateSiteCode(), preSealVehicle.getReceiveSiteCode());
 		if(exists != null && !exists.isEmpty()){
 			List<Long> ids = new ArrayList<>(exists.size());
@@ -247,7 +248,7 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
      */
     private void addSealTask(List<PreSealVehicle> preList, Integer updateUserCode, String updateUserName, Date operateTime){
         Integer siteCode = preList.get(0).getCreateSiteCode();
-        Map<String, SealTaskBody> bodyMap = new HashMap<>();
+        Map<String, SealTaskBody> taskBodyMap = new HashMap<>();
 
         for(PreSealVehicle pre : preList){
             List<SealVehicles> sendCodes = pre.getSendCodes();
@@ -278,13 +279,13 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());
-                if(!bodyMap.containsKey(vo.getVehicleNumber())){
-                    bodyMap.put(vo.getVehicleNumber(), body);
+                if(!taskBodyMap.containsKey(vo.getVehicleNumber())){
+                    taskBodyMap.put(vo.getVehicleNumber(), body);
                 }
             }
         }
         Task task = new Task();
-        task.setBody(JsonHelper.toJson(bodyMap.values()));
+        task.setBody(JsonHelper.toJson(taskBodyMap.values()));
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setType(Task.TASK_TYPE_OFFLINE);
         task.setTableName(Task.getTableName(Task.TASK_TYPE_OFFLINE));
