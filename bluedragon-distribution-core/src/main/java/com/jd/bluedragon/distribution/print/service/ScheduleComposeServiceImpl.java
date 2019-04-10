@@ -15,6 +15,7 @@ public class ScheduleComposeServiceImpl implements ComposeService {
     public void handle(final PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         if(null!=targetSiteCode&&targetSiteCode>0){
             waybill.setPrepareSiteCode(targetSiteCode);
+            waybill.setPrintSiteCode(targetSiteCode);
 
             if(StringHelper.isNotEmpty(waybill.getNewAddress())){
                 waybill.setPrintAddress(waybill.getNewAddress());

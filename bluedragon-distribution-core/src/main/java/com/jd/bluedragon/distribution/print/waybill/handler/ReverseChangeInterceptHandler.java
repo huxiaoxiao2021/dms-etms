@@ -25,10 +25,10 @@ import org.springframework.stereotype.Service;
  * @author wuzuxiang
  * @since 2019/4/6
  */
-@Service("halfPackageWeightInterceptHandler")
-public class HalfPackageWeightInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+@Service("reverseChangeInterceptHandler")
+public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HalfPackageWeightInterceptHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeInterceptHandler.class);
 
     @Autowired
     private WaybillPrintService waybillPrintService;
@@ -46,7 +46,7 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
         String oldWaybillCode = WaybillUtil.getWaybillCode(barCode);/* 获取运单号 */
         String newWaybillCode = "";/* 新运单号 */
         if (!WaybillUtil.isWaybillCode(oldWaybillCode)) {
-            LOGGER.error("HalfPackageWeightInterceptHandler.handle-->单号输入不正确{}",barCode);
+            LOGGER.error("ReverseChangeInterceptHandler.handle-->单号输入不正确{}",barCode);
             result.toError(JdResponse.CODE_PARAM_ERROR,JdResponse.MESSAGE_PACKAGE_ERROR);
             return result;
         }
@@ -60,7 +60,7 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
                     .getPrintWaybill(context.getRequest().getDmsSiteCode(),oldWaybillCode,0);
             if (null == invokeResult || invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE
                     || null == invokeResult.getData()) {
-                LOGGER.error("HalfPackageWeightInterceptHandler.handle-->该单号{}无运单信息", barCode);
+                LOGGER.error("ReverseChangeInterceptHandler.handle-->该单号{}无运单信息", barCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO);
                 return result;
@@ -75,17 +75,17 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
         InvokeResult<RepeatPrint> newWaybillResult = reversePrintService.getNewWaybillCode1(oldWaybillCode, true);
         if (null == newWaybillResult ||
                 newWaybillResult.getCode() != JdResponse.CODE_OK || null == newWaybillResult.getData()) {
-            LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->获取新单的信息失败{}",oldWaybillCode);
+            LOGGER.warn("ReverseChangeInterceptHandler.handle-->获取新单的信息失败{}",oldWaybillCode);
             result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_INFO,
                     JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_INFO);
             return result;
         } else if (!WaybillUtil.isWaybillCode(newWaybillResult.getData().getNewWaybillCode())){
-            LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->未获取到新单号{}",oldWaybillCode);
+            LOGGER.warn("ReverseChangeInterceptHandler.handle-->未获取到新单号{}",oldWaybillCode);
             result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE,
                     JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE);
             return result;
         } else if (newWaybillResult.getData().getOverTime()) {
-            LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->单号已经超过十五天{}",oldWaybillCode);
+            LOGGER.warn("ReverseChangeInterceptHandler.handle-->单号已经超过十五天{}",oldWaybillCode);
             result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS,
                     JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS);
             return result;
@@ -94,18 +94,19 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
         /* 将新单号替换为请求 */
         newWaybillCode = newWaybillResult.getData().getNewWaybillCode();
         context.getRequest().setBarCode(newWaybillCode);
+        context.getRequest().setPackageIndex(WaybillUtil.getPackIndexByPackCode(barCode));//设置包裹的index
 
         WeightOperFlow weightOperFlow = context.getRequest().getWeightOperFlow();
         /* 非签单返还 符合包裹半收，则必须进行称重和量方 */
         if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage) {
             if (weightOperFlow.getHigh() <= 0 || weightOperFlow.getWidth() <= 0 || weightOperFlow.getLength() <= 0) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->体积录入异常！此包裹{}为半收包裹，长宽高必须输入！",
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->体积录入异常！此包裹{}为半收包裹，长宽高必须输入！",
                         oldWaybillCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME);
                 return result;
             } else if (weightOperFlow.getWeight() <= 0) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->重量录入异常！此包裹{}为半收包裹，重量必须录入！",
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->重量录入异常！此包裹{}为半收包裹，重量必须录入！",
                         oldWaybillCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT);
@@ -124,20 +125,20 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
                 .waybillExchangeCheckWeightAndVolume(oldWaybillCode,newWaybillCode);
         if (null == weightAndVolumeCheck || weightAndVolumeCheck.getCode() != JdResponse.CODE_OK
                 || null == weightAndVolumeCheck.getData()) {
-            LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->校验是否需要进行称重量方失败，旧单{},新单{}",
+            LOGGER.warn("ReverseChangeInterceptHandler.handle-->校验是否需要进行称重量方失败，旧单{},新单{}",
                     oldWaybillCode,newWaybillCode);
             return result;
         } else if (weightAndVolumeCheck.getData() == 1) {
             if (null == weightOperFlow || weightOperFlow.getLength() <= 0
                     || weightOperFlow.getWidth() <= 0 || weightOperFlow.getHigh() <= 0) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->旧单号{}操作换单打印必须进行量方",oldWaybillCode);
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行量方",oldWaybillCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME);
                 return result;
             }
         } else if (weightAndVolumeCheck.getData() == 2) {
             if (null == weightOperFlow || weightOperFlow.getWeight() <= 0) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重",oldWaybillCode);
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重",oldWaybillCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT);
                 return result;
@@ -145,7 +146,7 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
         } else if (weightAndVolumeCheck.getData() == 3) {
             if (null == weightOperFlow || weightOperFlow.getWeight() <= 0 || weightOperFlow.getLength() <= 0
                     || weightOperFlow.getWidth() <= 0 || weightOperFlow.getHigh() <= 0) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重量方",oldWaybillCode);
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重量方",oldWaybillCode);
                 result.toError(JdResponse.
                         CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT);
@@ -153,28 +154,33 @@ public class HalfPackageWeightInterceptHandler implements InterceptHandler<Waybi
             }
         }
 
-        /* 当客户端进行称重量方时，对称重量方的数据进行判断 0不启用称重，1启用称重 */
-        if (Constants.INTEGER_FLG_TRUE.equals(context.getRequest().getPackOpeFlowFlg())) {
+        /* 当客户端进行称重量方时，对称重量方的数据进行判断  0/null不启用 1启用称重 2启用量方 3启用称重量方 */
+        if (context.getRequest().getWeightVolumeOperEnable() == null) {
+            return result;
+        }
+
+        /* 启用称重 01 */
+        if ((Constants.WEIGHT_ENABLE & context.getRequest().getWeightVolumeOperEnable()) == Constants.WEIGHT_ENABLE) {
             if (null == weightOperFlow || weightOperFlow.getWeight() <= 0.00 ) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->{}启用包裹称重，未回传重量信息",oldWaybillCode);
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，未回传重量信息",oldWaybillCode);
                 result.toError(JdResponse.
                                 CODE_REVERSE_CHANGE_PRINT_NO_WEIGHT,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_NO_WEIGHT);
                 return result;
             } else if (weightOperFlow.getWeight() >= Constants.ILLEGAL_WEIGHT_1000) {
-                LOGGER.error("HalfPackageWeightInterceptHandler.handle-->{}启用包裹称重，重量超过1000KG！",oldWaybillCode);
+                LOGGER.error("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过1000KG！",oldWaybillCode);
                 result.toError(JdResponse.
                                 CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000);
                 return result;
             } else if (weightOperFlow.getWeight() >= Constants.CONFIRM_WEIGHT_100) {
-                LOGGER.warn("HalfPackageWeightInterceptHandler.handle-->{}启用包裹称重，重量超过100KG！",oldWaybillCode);
+                LOGGER.warn("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过100KG！",oldWaybillCode);
                 result.toWeakSuccess(JdResponse.
                                 CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100);
                 return result;
             } else if (weightOperFlow.getWeight() >= Constants.CONFIRM_WEIGHT_25) {
-                LOGGER.debug("HalfPackageWeightInterceptHandler.handle-->{}启用包裹称重，重量超过25KG！",oldWaybillCode);
+                LOGGER.debug("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过25KG！",oldWaybillCode);
                 result.toWeakSuccess(JdResponse.
                                 CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT);

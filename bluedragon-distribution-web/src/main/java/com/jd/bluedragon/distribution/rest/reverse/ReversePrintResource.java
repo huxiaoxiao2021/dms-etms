@@ -188,6 +188,7 @@ public class ReversePrintResource {
         try {
             if (null != request.getPackOpeFlowFlg() && Constants.INTEGER_FLG_TRUE.equals(request.getPackOpeFlowFlg())) {
                 TaskResponse taskResponse = taskResource.add(convert2TaskRequest(request));
+                logger.debug("ReversePrintResource.reversePrintAfter-->换单打印离线称重数据上传返回：{}",JsonHelper.toJson(taskResponse));
                 if (null == taskResponse || !TaskResponse.CODE_OK.equals(taskResponse.getCode())) {
                     result.setCode(InvokeResult.SERVER_ERROR_CODE);
                     result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【称重数据保存失败】");

@@ -310,6 +310,11 @@ public class BasePrintWaybill implements Serializable {
      */
 	private String consignerPrefixText;
 
+	/**
+	 * 寄件人号码信息
+     */
+	private String consignerTelText;
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -1147,5 +1152,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setConsignerPrefixText(String consignerPrefixText) {
 		this.consignerPrefixText = consignerPrefixText;
+	}
+
+	public String getConsignerTelText() {
+		return consignerTelText;
+	}
+
+	public void setConsignerTelText(String consignerTelText) {
+		this.consignerTelText = consignerTelText;
 	}
 }

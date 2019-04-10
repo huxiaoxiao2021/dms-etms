@@ -3,11 +3,15 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * <P>
@@ -96,17 +100,17 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         printWaybill.setRemark(remark);
 
         /* 寄件人电话 */
-        String customerPhoneText = "";
+        String consignerTelText = "";
         if (StringHelper.isNotEmpty(printWaybill.getConsignerTel())) {
-            customerPhoneText += printWaybill.getConsignerTel();
+            consignerTelText += printWaybill.getConsignerTel();
         }
         if (StringHelper.isNotEmpty(printWaybill.getConsignerMobile())) {
-            if (customerPhoneText.length() > 0) {
-                customerPhoneText += ",";
+            if (consignerTelText.length() > 0) {
+                consignerTelText += ",";
             }
-            customerPhoneText += printWaybill.getConsignerMobile();
+            consignerTelText += printWaybill.getConsignerMobile();
         }
-        printWaybill.setCustomerPhoneText(customerPhoneText);
+        printWaybill.setConsignerTelText(consignerTelText);
 
         /* 寄件信息前缀字符 */
         String consignerPrefixText = "";
@@ -117,6 +121,16 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         }
         printWaybill.setConsignerPrefixText(consignerPrefixText);
 
+        /* packText如果为空的话则设置当前打印的时间yyyy-MM-dd HH:mm */
+        printWaybill.setPackText(DateHelper.formatDate(new Date(),"yyyy-MM-dd HH:mm"));
+
         return context.getResult();
+    }
+
+    public static void main(String[] args) {
+        System.out.println(DateHelper.formatDate(new Date(),"yyyy-MM-dd HH:mm"));
+
+        System.out.println(WaybillUtil.getPackageIndex("12345678944"));
+        System.out.println(WaybillUtil.getPackIndexByPackCode("12345678944"));
     }
 }

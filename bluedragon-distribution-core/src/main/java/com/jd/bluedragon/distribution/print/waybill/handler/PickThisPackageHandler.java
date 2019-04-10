@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
@@ -53,11 +54,23 @@ public class PickThisPackageHandler implements  InterceptHandler<WaybillPrintCon
             return result;
         }
 
-        if (WaybillUtil.isPackageCode(barCode)) {
+        /* barCode为包裹号或者是请求中的packageIndex>0 */
+        Integer packageIndex = context.getRequest().getPackageIndex();
+        if (WaybillUtil.isPackageCode(barCode) ||
+                (packageIndex != null && packageIndex > 0)) {
             List<PrintPackage> newPack = new ArrayList<>(1);
+            packageIndex = packageIndex == null? -1 : packageIndex;//为null的话，则赋值为-1
             for (PrintPackage printPackage : packages) {
-                if (barCode.equals(printPackage.getPackageCode())) {
+                if (barCode.equals(printPackage.getPackageCode()) ||
+                        WaybillUtil.getPackIndexByPackCode(printPackage.getPackageCode()) == packageIndex) {
                     newPack.add(printPackage);
+
+                    /* 为当前的包裹赋值称重信息 */
+                    if ((context.getRequest().getWeightVolumeOperEnable() & Constants.WEIGHT_ENABLE) == Constants.WEIGHT_ENABLE) {
+                        Double weight = context.getRequest().getWeightOperFlow().getWeight();
+                        printPackage.setWeight(weight);
+                        printPackage.setPackageWeight(String.valueOf(weight));
+                    }
                 }
             }
             /* 将当前打印的包裹过滤出来重新赋值 */

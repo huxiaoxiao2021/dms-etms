@@ -461,6 +461,16 @@ public class Constants {
      * 包裹称重流水-操作类型-仓储操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
+
+    /**
+     * 是否启用称重量方：启用称重
+     */
+    public static final Integer WEIGHT_ENABLE = 1;
+
+    /**
+     * 是否启用称重量方：启用量方
+     */
+    public static final Integer VOLUME_ENABLE = 2;
     /**
      * Text-保价
      */

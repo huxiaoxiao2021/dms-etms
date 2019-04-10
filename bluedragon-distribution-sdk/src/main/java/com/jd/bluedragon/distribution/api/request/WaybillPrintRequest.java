@@ -89,6 +89,20 @@ public class WaybillPrintRequest extends JdRequest{
      */
     private String paperSizeCode;
 
+	/**
+	 * 是否启用称重量方
+	 * 0不启用		(二进制：00)
+	 * 1启用称重    	(二进制：01)
+	 * 2启用量方    	(二进制：10)
+	 * 3启用称重量方 	(二进制：11)
+     */
+	private Integer weightVolumeOperEnable;
+
+	/**
+	 * 包裹的index 第几件包裹 默认为-1
+     */
+	private Integer packageIndex = -1;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -281,4 +295,19 @@ public class WaybillPrintRequest extends JdRequest{
 		this.paperSizeCode = paperSizeCode;
 	}
 
+	public Integer getWeightVolumeOperEnable() {
+		return weightVolumeOperEnable;
+	}
+
+	public void setWeightVolumeOperEnable(Integer weightVolumeOperEnable) {
+		this.weightVolumeOperEnable = weightVolumeOperEnable;
+	}
+
+	public Integer getPackageIndex() {
+		return packageIndex;
+	}
+
+	public void setPackageIndex(Integer packageIndex) {
+		this.packageIndex = packageIndex;
+	}
 }

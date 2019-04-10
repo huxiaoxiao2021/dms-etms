@@ -126,7 +126,7 @@
 	<bean id="packageReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-				<ref bean="halfPackageWeightInterceptHandler"/>
+				<ref bean="ReverseChangeInterceptHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="c2cInterceptHandler"/>
