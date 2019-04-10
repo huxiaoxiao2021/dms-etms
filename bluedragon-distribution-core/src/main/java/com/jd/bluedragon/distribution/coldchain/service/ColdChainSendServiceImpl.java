@@ -212,7 +212,6 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             condition.setScheduleType(1);
             // 20-待确认; 30-已确认
             condition.setCargoConfirmStatus(20);
-            condition.setYn(1);
             return condition;
         }
         return null;
