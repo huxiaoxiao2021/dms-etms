@@ -60,6 +60,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<WaybillConsumableRecord> detail(@PathVariable("id") Long id) {
 		JdResponse<WaybillConsumableRecord> rest = new JdResponse<WaybillConsumableRecord>();
@@ -71,6 +72,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param waybillConsumableRecord
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody WaybillConsumableRecord waybillConsumableRecord) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -87,6 +89,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param waybillConsumableRecordCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/check/canModify")
 	public @ResponseBody JdResponse<Boolean> canModify(@RequestBody WaybillConsumableRecordCondition waybillConsumableRecordCondition) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -103,6 +106,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -119,6 +123,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param records
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/confirmByIds")
 	public @ResponseBody JdResponse<Integer> confirmByIds(@RequestBody List<WaybillConsumableRecord> records) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -148,6 +153,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	 * @param waybillConsumableRecordCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<WaybillConsumableRecord> listData(@RequestBody WaybillConsumableRecordCondition waybillConsumableRecordCondition) {
 		JdResponse<PagerResult<WaybillConsumableRecord>> rest = new JdResponse<PagerResult<WaybillConsumableRecord>>();
@@ -162,6 +168,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
      * @param response
      * @return
      */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/export")
 	public @ResponseBody JdResponse<Boolean> exportByCondition(WaybillConsumableRecordCondition condition,  HttpServletResponse response) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();

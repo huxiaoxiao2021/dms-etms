@@ -58,6 +58,7 @@ public class PackageHalfController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<PackageHalf> detail(@PathVariable("id") Long id) {
 		JdResponse<PackageHalf> rest = new JdResponse<PackageHalf>();
@@ -69,6 +70,7 @@ public class PackageHalfController {
 	 * @param packageHalf
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody PackageHalfVO packageHalfVO) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -157,6 +159,7 @@ public class PackageHalfController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -173,6 +176,7 @@ public class PackageHalfController {
 	 * @param packageHalfCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_PACKAGEHALF_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<PackageHalf> listData(@RequestBody PackageHalfCondition packageHalfCondition) {
 		JdResponse<PagerResult<PackageHalf>> rest = new JdResponse<PagerResult<PackageHalf>>();

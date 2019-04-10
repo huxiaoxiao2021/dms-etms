@@ -85,6 +85,7 @@ public class StoragePackageMController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<StoragePackageM> detail(@PathVariable("id") Long id) {
 		JdResponse<StoragePackageM> rest = new JdResponse<StoragePackageM>();
@@ -96,6 +97,7 @@ public class StoragePackageMController {
 	 * @param storagePackageM
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody StoragePackageM storagePackageM) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -112,6 +114,7 @@ public class StoragePackageMController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -128,6 +131,7 @@ public class StoragePackageMController {
 	 * @param storagePackageMCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<StoragePackageM> listData(@RequestBody StoragePackageMCondition storagePackageMCondition) {
 		JdResponse<PagerResult<StoragePackageM>> rest = new JdResponse<PagerResult<StoragePackageM>>();
@@ -152,6 +156,7 @@ public class StoragePackageMController {
 
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@Deprecated
 	@RequestMapping(value = "/forceSend")
 	public @ResponseBody JdResponse<Boolean> forceSend(@RequestBody List<String> performanceCodes) {
@@ -199,6 +204,7 @@ public class StoragePackageMController {
      * @param ids
      * @return
      */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
     @RequestMapping(value = "/cancelPutaway")
     public @ResponseBody JdResponse<Boolean> cancelPutaway(@RequestBody List<Long> ids) {
         JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -217,6 +223,7 @@ public class StoragePackageMController {
 	 * @param waybillCode 运单号
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/refreshSendStatus/{waybillCode}")
 	public @ResponseBody JdResponse<Boolean> refreshSendStatus(@PathVariable("waybillCode") String waybillCode) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -238,6 +245,7 @@ public class StoragePackageMController {
 	 * @param waybillCode 运单号
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/queryWaybills/{waybillCode}")
 	public @ResponseBody JdResponse<List<FulfillmentOrderDto>> queryWaybills(@PathVariable("waybillCode") String waybillCode) {
 		JdResponse<List<FulfillmentOrderDto>> result = new JdResponse<List<FulfillmentOrderDto>>();

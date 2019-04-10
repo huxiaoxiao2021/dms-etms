@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.kuGuan;
 
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,14 +25,14 @@ public class KuGuanController {
 	@Autowired
 	private StockExportManager stockExportManager;
 	
-	@Authorization("DMS-WEB-QUERY-KUGUANINIT")
+	@Authorization(Constants.DMS_WEB_QUERY_KUGUANINIT)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListpage(Model model) {
 		model.addAttribute("errorMesage", "0");
 		return "kuguan/kuguan";
 	}
 
-	@Authorization("DMS-WEB-QUERY-KUGUANLIST")
+	@Authorization(Constants.DMS_WEB_QUERY_KUGUANLIST)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(KuGuanDomain kuGuanDomain, Model model) {
 
@@ -62,7 +63,8 @@ public class KuGuanController {
         }
 		return "kuguan/kuguan";
 	}
-	
+
+	@Authorization(Constants.DMS_WEB_QUERY_KUGUANLIST)
 	@RequestMapping(value = "/listForYanfa", method = RequestMethod.GET)
 	public String listForYanfa(KuGuanDomain kuGuanDomain, Model model) {
 		return queryOperateLog(kuGuanDomain, model);
