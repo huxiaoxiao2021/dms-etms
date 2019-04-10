@@ -78,7 +78,7 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM cold_chain_send_waybill
-        WHERE YN = 1
+        WHERE yn = 1
         <if test="waybillCode != null">
             AND waybill_code = #{waybillCode, jdbcType=VARCHAR}
         </if>

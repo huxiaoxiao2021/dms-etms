@@ -50,6 +50,11 @@ public class ColdChainSend {
      */
     private Date updateTime;
 
+    /**
+     * 是否删除 0 - 已删除， 1 - 未删除
+     */
+    private Integer yn;
+
     public Long getId() {
         return id;
     }
@@ -112,5 +117,13 @@ public class ColdChainSend {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getYn() {
+        return yn;
+    }
+
+    public void setYn(Integer yn) {
+        this.yn = yn;
     }
 }
