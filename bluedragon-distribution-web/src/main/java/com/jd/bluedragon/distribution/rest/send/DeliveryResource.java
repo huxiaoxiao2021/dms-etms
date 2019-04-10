@@ -486,12 +486,6 @@ public class DeliveryResource {
                         JdResponse.MESSAGE_PARAM_ERROR, null);
             }
             Integer opType = request.get(0).getOpType();
-            String boxCode = request.get(0).getBoxCode();
-            //包裹号才校验
-            if(WaybillUtil.isPackageCode(boxCode) && !checkPackageCrossCodeSucc(request)){
-                this.logger.info(String.format("滑道号不正确[%s]",boxCode));
-                return new ThreeDeliveryResponse(JdResponse.CODE_CROSS_CODE_ERROR,JdResponse.MESSAGE_CROSS_CODE_ERROR, null);
-            }
             ThreeDeliveryResponse response = null;
             if(KY_DELIVERY.equals(opType)){//快运发货
                 response =  deliveryService.checkThreePackageForKY(toSendDatailList(request));
@@ -509,49 +503,21 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/router/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification", mState = {JProEnum.TP})
-    public DeliveryResponse checkThreeDelivery(DeliveryRequest request) {
-        try {
-            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
-                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
-                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-            }
-
-            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
-            if(isWaybillCode(request.getBoxCode())){
-                DeliveryResponse response = isValidWaybillCode(request);
-                if(!JdResponse.CODE_OK.equals(response.getCode())){
-                    return response;
-                }
-            }
-
-            Integer opType = request.getOpType();
-            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
-            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
-                // 因为B冷链转运中心需要支持扫描运单号发货，
-                // 如果扫的是运单号，则生成第一个包裹号，用于校验
-                if (isWaybillCode(request.getBoxCode())) {
-                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
-                    if(waybillCodeList == null || waybillCodeList.size() < 1){
-                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
-                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
-                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
-                        return response;
-                    }
-                    request.setBoxCode(waybillCodeList.get(0));
-                }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
-            }
-            return response;
-        } catch (Exception ex) {
-            logger.error("快运发货路由验证出错：", ex);
-            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-        }
+    public DeliveryResponse checkThreeDeliveryOld(DeliveryRequest request) {
+        return checkThreeDelivery(request,Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
     }
 
     @POST
     @Path("/delivery/router/verification/new")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)
     public DeliveryResponse checkThreeDeliveryNew(DeliveryRequest request) {
+        return checkThreeDelivery(request,Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
+    }
+
+    /**
+     * @param flag 新老版本标识，0是老版本调用，1是新版本调用接口
+     */
+    private DeliveryResponse checkThreeDelivery(DeliveryRequest request,Integer flag) {
         try {
             if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
                     request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
@@ -564,6 +530,11 @@ public class DeliveryResource {
                 if(!JdResponse.CODE_OK.equals(response.getCode())){
                     return response;
                 }
+            }
+            //校验滑道号
+            if(WaybillUtil.isPackageCode(request.getBoxCode()) && !checkPackageCrossCodeSucc(request.getBoxCode())){
+                this.logger.info(String.format("滑道号不正确[%s]",request.getBoxCode()));
+                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
             }
 
             Integer opType = request.getOpType();
@@ -581,7 +552,7 @@ public class DeliveryResource {
                     }
                     request.setBoxCode(waybillCodeList.get(0));
                 }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), flag);
             }
             return response;
         } catch (Exception ex) {
@@ -777,6 +748,11 @@ public class DeliveryResource {
 
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
                     if (WaybillUtil.isPackageCode(boxCode)) {
+                        //校验滑道号
+                        if(!checkPackageCrossCodeSucc(boxCode)){
+                            this.logger.info(String.format("滑道号不正确[%s]",boxCode));
+                            return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
+                        }
                         try {
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
                             if (baseStaffSiteOrgDto != null) {
@@ -921,8 +897,7 @@ public class DeliveryResource {
      * 校验滑道号
      * @return true 滑道号正确，false 不正确
      */
-    private boolean checkPackageCrossCodeSucc(List<DeliveryRequest> request){
-        String packageCode = request.get(0).getBoxCode();
+    private boolean checkPackageCrossCodeSucc(String packageCode){
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
     }
 

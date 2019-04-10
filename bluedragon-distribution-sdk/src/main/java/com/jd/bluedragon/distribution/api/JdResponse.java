@@ -64,9 +64,6 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SITE_SIGNRE_ERROR = 20009;
     public static final String MESSAGE_SITE_SIGNRE_ERROR = "此运单要求签单返回，只能分配至自营站点!";
 
-    public static final Integer CODE_CROSS_CODE_ERROR = 32000;
-    public static final String MESSAGE_CROSS_CODE_ERROR = "滑道号不正确，请补充正确的滑道号或者尝试重打面单!";
-
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

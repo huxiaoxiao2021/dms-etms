@@ -65,6 +65,9 @@ public class DeliveryResponse extends JdResponse {
     public static final Integer CODE_SEND_CODE_ERROR =40012;
     public static final String MESSAGE_SEND_CODE_ERROR="批次号已操作封车，请换批次!";
 
+    public static final Integer CODE_CROSS_CODE_ERROR = 40013;
+    public static final String MESSAGE_CROSS_CODE_ERROR = "包裹号不正确，请检查包裹号对应的滑道号或重打面单！";
+
     public static final Integer CODE_Delivery_NO_SORTING = 30002;
     public static final String MESSAGE_Delivery_NO_SORTING = "包裹没有分拣记录，是否发货？";
     
