@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -297,14 +298,19 @@ public class UserServiceImpl implements UserService{
 		    		// 机构名称
 		        	loginUserResponse.setOrgName(siteInfo.getOrgName());
 		    		// DMS编码
-		        	loginUserResponse.setDmsCode(siteInfo.getDmsShortName());
+		        	loginUserResponse.setDmsCode(siteInfo.getDmsSiteCode());
 		    		// 站点类型
 		        	loginUserResponse.setSiteType(siteInfo.getSiteType());
 		            // 站点子类型
 		        	loginUserResponse.setSubType(siteInfo.getSubType());
-		        	//设置分拣中心信息
-	        		loginUserResponse.setDmsSiteCode(siteInfo.getDmsId());
-	        		loginUserResponse.setDmsSiteName(siteInfo.getDmsName());
+		        	//设置分拣中心信息(同打印客户端逻辑)
+		        	if(siteInfo.getDmsId() != null){
+		        		loginUserResponse.setDmsSiteCode(siteInfo.getDmsId());
+		        		loginUserResponse.setDmsSiteName(siteInfo.getDmsName());
+		        	}else{
+		        		loginUserResponse.setDmsSiteCode(siteInfo.getSiteCode());
+		        		loginUserResponse.setDmsSiteName(siteInfo.getSiteName());
+		        	}
 	        		loginResult.setData(loginUserResponse);
 	        	}else{
 	        		loginResult.toFail("账号"+userErp+"对应的站点"+basestaffDto.getSiteCode()+"无效！");
