@@ -72,15 +72,21 @@ public class ColdChainDeliveryResource extends DeliveryResource{
     @Path("/delivery/coldChain/send")
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1003)
     public DeliveryResponse coldChainSendDelivery(List<ColdChainDeliveryRequest> request) {
-        this.logger.info("冷链发发货 - 开始:" + JsonHelper.toJson(request));
-        DeliveryResponse response = this.coldChainSendCheckAndFixSendCode(request);
-        if (response != null) {
-            return response;
-        }
-        List<SendM> sendMList = toSendMList(request);
-        response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, sendMList);
-        if (JdResponse.CODE_OK.equals(response.getCode())) {
-            coldChainSendService.batchAdd(sendMList, request.get(0).getTransPlanCode());
+        this.logger.info("冷链发货 - 开始:" + JsonHelper.toJson(request));
+        DeliveryResponse response;
+        try {
+            response = this.coldChainSendCheckAndFixSendCode(request);
+            if (response != null) {
+                return response;
+            }
+            List<SendM> sendMList = toSendMList(request);
+            response = deliveryService.dellDeliveryMessage(SendBizSourceEnum.COLD_CHAIN_SEND, sendMList);
+            if (JdResponse.CODE_OK.equals(response.getCode())) {
+                coldChainSendService.batchAdd(sendMList, request.get(0).getTransPlanCode());
+            }
+        } catch (Exception e) {
+            logger.error("B网冷链发货时发生异常", e);
+            return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
         }
         if (response != null) {
             return response;

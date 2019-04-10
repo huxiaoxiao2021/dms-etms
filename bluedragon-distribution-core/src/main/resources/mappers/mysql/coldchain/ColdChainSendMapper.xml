@@ -25,7 +25,7 @@
         yn
     </sql>
 
-    <insert id="add" parameterType="areaDest">
+    <insert id="add" parameterType="ColdChainSend">
         INSERT INTO cold_chain_send_waybill(
         waybill_code,
         send_code,
@@ -48,7 +48,7 @@
         )
     </insert>
 
-    <insert id="addBatch" parameterType="java.util.List">
+    <insert id="batchAdd" parameterType="java.util.List">
         INSERT INTO cold_chain_send_waybill(
         waybill_code,
         send_code,
