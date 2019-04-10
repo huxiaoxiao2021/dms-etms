@@ -748,11 +748,6 @@ public class DeliveryResource {
 
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
                     if (WaybillUtil.isPackageCode(boxCode)) {
-                        //校验滑道号
-                        if(!checkPackageCrossCodeSucc(boxCode)){
-                            this.logger.info(String.format("滑道号不正确[%s]",boxCode));
-                            return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
-                        }
                         try {
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
                             if (baseStaffSiteOrgDto != null) {
@@ -768,6 +763,12 @@ public class DeliveryResource {
                                     InvokeResult<Boolean> result = waybillService.isReverseOperationAllowed(waybillCode, Integer.parseInt(siteCode));
                                     if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
                                         return new DeliveryResponse(result.getCode(), result.getMessage());
+                                    }
+                                }else{
+                                    //校验滑道号
+                                    if(!checkPackageCrossCodeSucc(boxCode)){
+                                        this.logger.info(String.format("滑道号不正确[%s]",boxCode));
+                                        return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
                                     }
                                 }
                             } else{
@@ -894,8 +895,8 @@ public class DeliveryResource {
     }
 
     /**
-     * 校验滑道号
-     * @return true 滑道号正确，false 不正确
+     * 只校验包裹的 校验滑道号
+     * @return true 滑道号正确，或者非包裹号，false 不正确
      */
     private boolean checkPackageCrossCodeSucc(String packageCode){
         return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
