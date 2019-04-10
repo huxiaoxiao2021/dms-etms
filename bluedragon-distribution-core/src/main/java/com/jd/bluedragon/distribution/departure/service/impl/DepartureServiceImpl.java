@@ -780,58 +780,6 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
 	/**
-	 * 批次根据运单号获得交接单号
-	 * 
-	 * @param
-	 *
-	 * @return
-	 */
-	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes) {
-		if (sendCodes == null) {
-			return null;
-		}
-		List<String> waybillCodes = new ArrayList<String>();
-		for (SendCode sendCode : sendCodes) {
-			String waybillCode = sendCode.getBoxCode();
-			if (waybillCode != null) {
-				waybillCodes.add(waybillCode);
-			}
-		}
-		if (waybillCodes.size() == 0) {
-			return sendCodes;
-		}
-		String waybillCodeIn = StringHelper.join(waybillCodes, ",", "(", ")",
-				"'");
-		// 根据运单号获得最后的批次号
-		List<SendDetail> sendDatails = sendDatailDao
-				.querySendCodesByWaybills(waybillCodeIn);
-
-		List<SendCode> results = new ArrayList<SendCode>();
-		Map<String, String> resultMap = new HashMap<String, String>();
-		if (sendDatails != null) {
-			for (SendDetail sendDatail : sendDatails) {
-				resultMap.put(sendDatail.getWaybillCode(),
-						sendDatail.getSendCode());
-			}
-		}
-		for (SendCode sendCode : sendCodes) {
-			String waybillCode = sendCode.getBoxCode();
-			if (resultMap.containsKey(waybillCode)) {
-				SendCode result = new SendCode();
-				result.setBoxCode(waybillCode);
-				result.setSendCode(resultMap.get(waybillCode));
-				results.add(result);
-			} else {
-				SendCode result = new SendCode();
-				result.setBoxCode(waybillCode);
-				result.setSendCode(null);
-				results.add(result);
-			}
-		}
-		return results;
-	}
-
-	/**
 	 * 批次更新包裹重量
 	 */
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails) {

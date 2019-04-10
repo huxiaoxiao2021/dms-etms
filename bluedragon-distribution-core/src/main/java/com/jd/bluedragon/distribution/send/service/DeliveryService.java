@@ -233,7 +233,7 @@ public interface DeliveryService {
     /**
      * 回传运单状态数据后补状态
      */
-    List<SendDetail> findWaybillStatus(List<String> queryCondition);
+    List<SendDetail> findWaybillStatus(List<Long> queryCondition);
 
     List<SendDetail> queryBySendCodeAndSiteCode(String sendCode, Integer createSiteCode, Integer receiveSiteCode, Integer senddStatus);
 

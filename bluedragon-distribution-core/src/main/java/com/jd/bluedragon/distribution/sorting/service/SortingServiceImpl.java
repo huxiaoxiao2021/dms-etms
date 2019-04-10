@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -174,7 +175,7 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<Sorting> findSortingPackages(Sorting sorting) {
+	public List<Sorting> findSortingPackages(Sorting sorting) {//todo 测试
 		List<String> boxCodelist = this.getBoxCodes(sorting);
 		if (CollectionUtils.isEmpty(boxCodelist)) {
 			return Collections.emptyList();
@@ -190,11 +191,7 @@ public class SortingServiceImpl implements SortingService {
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
 		List<Box> boxes = this.boxService.findBoxes(box);
-		List<String> boxCodelist = new ArrayList();
-        for(Box item : boxes){
-            boxCodelist.add(item.getCode());
-        }
-		return boxCodelist;
+		return CollectionHelper.joinToList(boxes,"getCode",String.class);
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {

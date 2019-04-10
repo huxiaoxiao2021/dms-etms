@@ -1,17 +1,19 @@
 package com.jd.bluedragon.distribution.worker.delivery;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.worker.AbstractScheduler;
+import com.jd.bluedragon.utils.LongHelper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.worker.AbstractScheduler;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
+@Deprecated
 public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -38,10 +40,17 @@ public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
 
     @Override
     public List<SendDetail> selectTasks(String ownSign, int queueNum, List<String> queryCondition,
-            int fetchNum) throws Exception {
+            int fetchNum) throws Exception {//todo 测试
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
+        if(CollectionUtils.isEmpty(queryCondition)){
+            return null;
+        }
+        List<Long> ids = new ArrayList<>();
+        for(String item : queryCondition){
+            ids.add(LongHelper.strToLongOrNull(item));
+        }
         try {
-            List<SendDetail> unhandles = deliveryService.findWaybillStatus(queryCondition);
+            List<SendDetail> unhandles = deliveryService.findWaybillStatus(ids);
             for (SendDetail sendDetail : unhandles) {
                 if (this.isMyTask(queueNum, sendDetail.getSendDId(), queryCondition)) {
                     sendDetails.add(sendDetail);

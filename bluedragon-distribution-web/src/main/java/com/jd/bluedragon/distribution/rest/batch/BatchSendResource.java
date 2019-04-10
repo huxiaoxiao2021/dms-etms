@@ -6,16 +6,20 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendRequest;
 import com.jd.bluedragon.distribution.batch.domain.BatchSendResponse;
 import com.jd.bluedragon.distribution.batch.service.BatchSendService;
-
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -32,11 +36,18 @@ public class BatchSendResource {
 
     @POST
     @Path("/batchsend/findBatchSend")
-    public BatchSendResponse findBatchSend(BatchSendRequest request) {
+    public BatchSendResponse findBatchSend(BatchSendRequest request) {//todo 测试
         if(request.getCreateSiteCode()==null){
         	return new BatchSendResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
-        
+        if(StringUtils.isNotEmpty(request.getReceiveCodes())){
+            String[] siteCodeArry = request.getReceiveCodes().split(",");
+            List<Integer> receiveCodeList = new ArrayList<>();
+            for(String code : siteCodeArry){
+                receiveCodeList.add(Integer.valueOf(code));
+            }
+            request.setReceiveCodeList(receiveCodeList);
+        }
         return batchSendService.findBatchSend(request);
     }
 

@@ -129,7 +129,10 @@
 			excute_count = 0,
 			excute_time = NOW()
 		where
-		    yn = 1 AND box_code in (${boxCode})
+		    yn = 1 AND box_code in
+        <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
     </update>
@@ -487,9 +490,6 @@
 			<if test="packageBarcode!=null">
 				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 			</if>
-			<if test="sendCode!=null">
-				and package_barcode in ${sendCode}
-			</if>
 		</where>
     </update>
     
@@ -534,12 +534,6 @@
 		FROM send_d where yn=1 and weight = -1 LIMIT 2000
 	</select>
 
-	<select id="querySendCodesByWaybills" parameterType="SendDetail"
-		resultMap="SendDetail">
-		SELECT 
-		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and waybill_code in (${waybillCode}) order by update_time
-	</select>
 	<select id="getSendSiteID" parameterType="SendDetail"
 		resultMap="SendDetail">
 		<![CDATA[SELECT 
@@ -730,8 +724,11 @@
 			<if test="receiveSiteCode!=null">
 				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 			</if>
-			<if test="boxCode!=null">
-				and box_code in (${boxCode})
+			<if test="boxCodeList !=null ">
+                and box_code in
+                <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+                    #{item,jdbcType=VARCHAR}
+                </foreach>
 			</if>
 			
 		</where>

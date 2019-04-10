@@ -1061,18 +1061,18 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void saveOrUpdateBatch(List<SendDetail> sdList) {
+    public void saveOrUpdateBatch(List<SendDetail> sdList) {//todo 测试
         List<SendDetail>[] sendArray = splitList(sdList);
         List<String> result = new ArrayList<String>();
 
         List<SendDetail> updateList = new ArrayList<SendDetail>();
         //批量查询是否存在send_d
         for (List<SendDetail> list : sendArray) {
-            String boxCode = StringHelper.join(list, "getBoxCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendDetail request = new SendDetail();
-            request.setBoxCode(boxCode);
+            request.setBoxCodeList(boxCodelist);
             request.setCreateSiteCode(createSiteCode);
             request.setReceiveSiteCode(receiveSiteCode);
             result.addAll(sendDatailDao.batchQuerySendDList(request));
@@ -1089,11 +1089,11 @@ public class DeliveryServiceImpl implements DeliveryService {
         //对于存在send_d的执行批量更新
         sendArray = splitList(updateList);
         for (List<SendDetail> list : sendArray) {
-            String boxCode = StringHelper.join(list, "getBoxCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendDetail request = new SendDetail();
-            request.setBoxCode(boxCode);
+            request.setBoxCodeList(boxCodelist);
             request.setCreateSiteCode(createSiteCode);
             request.setReceiveSiteCode(receiveSiteCode);
             sendDatailDao.updateCancelBatch(request);
@@ -1299,11 +1299,11 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
      * *
      */
-    private List<String> batchQuerySendMList(List<SendM> sendMList) {
+    private List<String> batchQuerySendMList(List<SendM> sendMList) {//todo 测试
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<>();
         for (List<SendM> list : sendArray) {
-            List<String> boxCodelist = getBoxCodeList(list);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendM request = new SendM();
@@ -1316,33 +1316,22 @@ public class DeliveryServiceImpl implements DeliveryService {
         return result;
     }
 
-    private List<String> getBoxCodeList(List<SendM> list) {
-        if(CollectionUtils.isEmpty(list)){
-            return 	Collections.<String>emptyList();
-        }
-        List<String> boxCodelist = new ArrayList<>(list.size());
-        for(SendM item : list){
-            boxCodelist.add(item.getBoxCode());
-        }
-        return boxCodelist;
-    }
-
     /**
      * 次发货数据状态更新,添加批量操作
      *
      * @param sendMList 待发货列表
      * @param list      已发货的箱号列表
      */
-    private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {
+    private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {//todo 测试
         //操作过取消发货的箱子查询  result结果集
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<String>();
         for (List<SendM> slist : sendArray) {
-            String boxCode = StringHelper.join(slist, "getBoxCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
             Integer createSiteCode = slist.get(0).getCreateSiteCode();
             Integer receiveSiteCode = slist.get(0).getReceiveSiteCode();
             SendM request = new SendM();
-            request.setBoxCode(boxCode);
+            request.setBoxCodeList(boxCodelist);
             request.setCreateSiteCode(createSiteCode);
             request.setReceiveSiteCode(receiveSiteCode);
             result.addAll(sendMDao.batchQueryCancelSendMList(request));
@@ -3409,7 +3398,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Override
-    public List<SendDetail> findWaybillStatus(List<String> queryCondition) {
+    public List<SendDetail> findWaybillStatus(List<Long> queryCondition) {
         logger.info("findWaybillStatus查询");
         return sendDatailReadDao.findUpdatewaybillCodeMessage(queryCondition);
     }

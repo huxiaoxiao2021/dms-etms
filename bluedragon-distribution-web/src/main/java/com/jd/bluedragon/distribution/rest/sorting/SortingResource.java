@@ -240,7 +240,7 @@ public class SortingResource {
 		}
 	}
 
-	private List<Task> findWaitingProcessSortingTasks(SortingRequest request) {
+	private List<Task> findWaitingProcessSortingTasks(SortingRequest request) {//todo 测试
 		Task task = new Task();
 		task.setTableName(Task.TABLE_NAME_SORTING);
 		task.setCreateSiteCode(request.getSiteCode());

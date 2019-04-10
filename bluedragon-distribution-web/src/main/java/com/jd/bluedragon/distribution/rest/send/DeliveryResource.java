@@ -50,6 +50,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -978,11 +979,13 @@ public class DeliveryResource {
     public String findWaybillStatus(@PathParam("id") String id) {
         String result = null;
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-
+        if(NumberUtils.isDigits(id)){
+            return null;
+        }
         try {
-            List<String> queueid = new ArrayList<String>();
-            queueid.add(id);
-            sendDetails = deliveryService.findWaybillStatus(queueid);
+            List<Long> queueid = new ArrayList<>();
+            queueid.add(LongHelper.strToLongOrNull(id));
+            sendDetails = deliveryService.findWaybillStatus(queueid);//todo 测试
             if (sendDetails != null && !sendDetails.isEmpty()) {
                 this.deliveryService.updateWaybillStatus(sendDetails);
                 result = JsonHelper.toJsonUseGson(sendDetails);

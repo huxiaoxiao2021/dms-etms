@@ -40,7 +40,10 @@
 		where sed.sendd_status=0
 		and sem.create_Time <= timestampadd(minute, -10, now())
 		and sed.create_Time >=  timestampadd(DAY, -2, now()) 
-		and mod(sed.send_d_id,8) in ${queueId}
+		and mod(sed.send_d_id,8) in
+        <foreach collection="queueIds" item="item" index="index" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
 		LIMIT 500
 		]]>
 	</select>

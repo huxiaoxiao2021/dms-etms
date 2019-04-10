@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.batch.domain;
 
 import java.util.Date;
+import java.util.List;
 
 public class BatchSendRequest {
 
@@ -29,6 +30,8 @@ public class BatchSendRequest {
      * 最后修改时间
      */
     private Date updateTime;
+
+    private List<Integer> receiveCodeList;
 
 
 	public String getBatchCode() {
@@ -79,5 +82,11 @@ public class BatchSendRequest {
 		this.updateTime = updateTime;
 	}
 
+    public void setReceiveCodeList(List<Integer> receiveCodeList) {
+        this.receiveCodeList = receiveCodeList;
+    }
 
+    public List<Integer> getReceiveCodeList() {
+        return receiveCodeList;
+    }
 }

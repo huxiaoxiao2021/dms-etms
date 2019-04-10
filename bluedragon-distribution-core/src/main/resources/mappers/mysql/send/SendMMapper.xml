@@ -495,7 +495,10 @@
 			yn = 0
 			and create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
-			and box_code in (${boxCode})
+			and box_code in
+            <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
 		</where>
 	</select>
 

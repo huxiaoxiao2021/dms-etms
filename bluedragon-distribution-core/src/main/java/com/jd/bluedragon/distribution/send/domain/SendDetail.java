@@ -6,6 +6,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 
 public class SendDetail implements java.io.Serializable, Comparable<SendDetail> {
 
@@ -151,6 +152,7 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
      * 发货业务来源
      */
     private Integer bizSource;
+    private List<String> boxCodeList;
 
     public String getSource() {
         return source;
@@ -387,6 +389,14 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public List<String> getBoxCodeList() {
+        return boxCodeList;
+    }
+
+    public void setBoxCodeList(List<String> boxCodeList) {
+        this.boxCodeList = boxCodeList;
     }
 
     @Override

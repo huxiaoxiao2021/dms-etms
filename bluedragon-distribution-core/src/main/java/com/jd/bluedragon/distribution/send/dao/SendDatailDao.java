@@ -2,13 +2,16 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SendDatailDao extends BaseDao<SendDetail> {
 
@@ -127,14 +130,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public Integer updateCancelBatch(SendDetail sendDetail) {
         return this.getSqlSession().update(SendDatailDao.namespace + ".updateCancelBatch",
                 sendDetail);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<SendDetail> querySendCodesByWaybills(String waybillCodeIn) {
-        SendDetail querySendDatail = new SendDetail();
-        querySendDatail.setWaybillCode(waybillCodeIn);
-        return this.getSqlSession().selectList(
-                SendDatailDao.namespace + ".querySendCodesByWaybills", querySendDatail);
     }
 
     @SuppressWarnings("unchecked")
