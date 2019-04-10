@@ -197,8 +197,10 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(createSiteCode);
         BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(receiveSiteCode);
         if (createSiteDto != null && receiveSiteDto != null) {
-            Date beginPlanDepartTime = this.getDateTimeByParam(null, 0, 0, 0);
-            Date endPlanDepartTime = this.getDateTimeByParam(null, 23, 59, 59);
+            // 取昨天的零点
+            Date beginPlanDepartTime = this.getDateTimeByParam(-1, 0, 0, 0);
+            // 取3日后的23点59分59秒
+            Date endPlanDepartTime = this.getDateTimeByParam(3, 23, 59, 59);
             String beginNodeCode = createSiteDto.getDmsSiteCode();
             String endNodeCode = receiveSiteDto.getDmsSiteCode();
             ScheduleCargoSimpleDto condition = new ScheduleCargoSimpleDto();
@@ -246,20 +248,18 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
     }
 
     /**
-     * 根据时分秒获取时间
+     * 根据当日日期的偏移量和指定的时、分、秒获取日期
      *
-     * @param hour
-     * @param minute
-     * @param second
+     * @param dayOffset 当日日期的偏移量
+     * @param hour 时
+     * @param minute 分
+     * @param second 秒
      * @return
      */
-    private Date getDateTimeByParam(Date date, int hour, int minute, int second) {
+    private Date getDateTimeByParam(int dayOffset, int hour, int minute, int second) {
         Calendar calendar = Calendar.getInstance();
-        if (date == null) {
-            calendar.setTime(new Date());
-        } else {
-            calendar.setTime(date);
-        }
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DAY_OF_MONTH, dayOffset);
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, minute);
         calendar.set(Calendar.SECOND, second);
