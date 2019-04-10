@@ -617,6 +617,12 @@ public class Constants {
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
 
     /**
+     * 配置信息-新分拣开启的分拣中心
+     */
+    public static final String SYS_CONFIG_NEW_SORTING_OPEN_DMS_CODES="sorting.new.sites";
+
+
+    /**
      * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）
      */
     public static final String SYS_CONFIG_PACKAGE_PAGE_SWITCH= "package.page.switch";

@@ -18,6 +18,8 @@ import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.seal.service.SealBoxService;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.ReverseDeliveryService;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
+import com.jd.bluedragon.distribution.sorting.service.SortingFactory;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
@@ -210,9 +212,20 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     //分拣
     @Autowired
     private SortingService sortingService;
+    @Autowired
+    private SortingFactory sortingFactory;
 
     public boolean sortingTaskProcess(Task task) throws Exception {
+        if(sortingService.useNewSorting(task.getCreateSiteCode())){
+            SortingVO sortingVO = new SortingVO(task);
+            return sortingFactory.bulid(sortingVO).execute(sortingVO);
+        }
         return sortingService.processTaskData(task);
+    }
+
+    public boolean sortingSplitTaskProcess(Task task) throws Exception {
+        SortingVO sortingVO = new SortingVO(task);
+        return sortingFactory.bulid(sortingVO).execute(sortingVO);
     }
 
     //称重信息回传运单中心

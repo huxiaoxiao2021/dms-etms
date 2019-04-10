@@ -37,4 +37,13 @@
 		<property name="ownSign" value="${ownSign}"/>
 	</bean>-->
 
+	<bean id="sortingSplitTask"
+		  class="com.jd.bluedragon.distribution.worker.sorting.SortingSplitTask"
+		  init-method="init" depends-on="managerFactory">
+		<property name="dataSource" ref="taskDataSource"/>
+		<property name="taskType" value="SortingSplitTaskN"/>
+		<property name="ownSign" value="${ownSign}"/>
+		<property name="type" value="1260"/>
+	</bean>
+
 </beans>

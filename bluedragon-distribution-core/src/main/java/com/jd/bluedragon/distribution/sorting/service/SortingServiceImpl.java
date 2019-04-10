@@ -11,6 +11,8 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
@@ -28,6 +30,7 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -143,14 +146,6 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void addSortingAndSendDetail(Sorting sorting) {
-		this.addSorting(sorting, null);
-		SendDetail sendDetail = this.addSendDetail(sorting);
-		List<SendDetail> sendDList = new ArrayList<SendDetail>(1);
-		sendDList.add(sendDetail);
-		this.fixSendDAndSendTrack(sorting, sendDList);
-	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
@@ -263,7 +258,11 @@ public class SortingServiceImpl implements SortingService {
         WaybillStatus waybillStatus = new WaybillStatus();
 
         waybillStatus.setWaybillCode(sorting.getWaybillCode());
-        waybillStatus.setPackageCode(sorting.getPackageCode());
+        if(StringUtils.isNotBlank(sorting.getPackageCode())){
+			waybillStatus.setPackageCode(sorting.getPackageCode());
+		}else{
+			waybillStatus.setPackageCode(sorting.getWaybillCode());
+		}
 		waybillStatus.setBoxCode(sorting.getBoxCode());
 
 		waybillStatus.setOrgId(createSite.getOrgId());
@@ -293,6 +292,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+
 		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
 				Constants.UMP_APP_NAME_DMSWORKER);
 		//记录本次分拣处理的包裹数量
@@ -508,7 +508,7 @@ public class SortingServiceImpl implements SortingService {
 		Integer createSiteCode = sorting.getCreateSiteCode();
 		Integer receiveSiteCode = sorting.getReceiveSiteCode();
 
-		if (StringHelper.isEmpty(sorting.getPackageCode()) || !NumberHelper.isPositiveNumber(createSiteCode)
+		if ((StringHelper.isEmpty(sorting.getPackageCode())&&StringHelper.isEmpty(sorting.getWaybillCode())) || !NumberHelper.isPositiveNumber(createSiteCode)
 				|| !NumberHelper.isPositiveNumber(receiveSiteCode)
 				|| !NumberHelper.isPositiveNumber(sorting.getUpdateUserCode())
 				|| StringHelper.isEmpty(sorting.getUpdateUser())) {
@@ -571,7 +571,7 @@ public class SortingServiceImpl implements SortingService {
 		return null;
 	}
 
-	private void fillSortingIfPickup(Sorting sorting) {
+	public void fillSortingIfPickup(Sorting sorting) {
 		if (WaybillUtil.isSurfaceCode(sorting.getPackageCode())) {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
@@ -784,7 +784,7 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 * @return
 	 */
-	private SendDetail addSendDetail(Sorting sorting) {
+	public SendDetail addSendDetail(Sorting sorting) {
 		// added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
@@ -919,7 +919,7 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 * @param sendDs
 	 */
-	private void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
+	public void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
 		if (sendDs.size() > 0) {
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
@@ -1252,6 +1252,9 @@ public class SortingServiceImpl implements SortingService {
 
 	private static final String SPLIT_CHAR="$";
 
+	@Autowired
+	private SortingFactory sortingFactory;
+
 	/**
 	 * 处理任务数据
 	 * @param task
@@ -1290,5 +1293,23 @@ public class SortingServiceImpl implements SortingService {
 		cacheService.del(fingerPrintKey);
 		Profiler.registerInfoEnd(process1200TaskData);
 		return result;
+	}
+
+	@Autowired
+	private SysConfigService sysConfigService;
+
+	/**
+	 * 获取开启新分拣的分拣中心
+	 * @param siteCode
+	 * @return
+	 */
+	public boolean useNewSorting(Integer siteCode){
+		SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_NEW_SORTING_OPEN_DMS_CODES);
+		if (content != null) {
+			if (content.getMasterSwitch() || content.getSiteCodes().contains(siteCode)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
