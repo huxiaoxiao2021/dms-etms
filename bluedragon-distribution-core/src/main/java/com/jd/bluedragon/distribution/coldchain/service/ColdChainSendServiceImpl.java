@@ -206,8 +206,6 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             condition.setEndNodeCode(endNodeCode);
             condition.setBeginPlanDepartTime(beginPlanDepartTime);
             condition.setEndPlanDepartTime(endPlanDepartTime);
-            // 返回的业务编码类型 11-运单号
-            condition.setBusinessCodeType(11);
             // 1-卡班调度; 2-非卡班调度
             condition.setScheduleType(1);
             // 20-待确认; 30-已确认

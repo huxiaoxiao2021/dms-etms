@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,6 +39,9 @@ public class TmsTfcWSManagerImpl implements TmsTfcWSManager {
             CommonDto<List<TransPlanScheduleCargoDto>> commonDto = tfcSelectWS.getTransPlanScheduleCargoByCondition(cargoSimpleDto);
             if (commonDto.getCode() == 1) {
                 return commonDto.getData();
+            } else if (commonDto.getCode() == 2) {
+                // 查询失败 状态码2 表示查询数据为空
+                return Collections.EMPTY_LIST;
             } else {
                 logger.error("[调用TMS-TFC-JSF接口]根据条件查询运输计划信息接口返回状态失败，调用参数: " + JsonHelper.toJson(cargoSimpleDto) + ", 接口返回code:" + commonDto.getCode() + ", message:" + commonDto.getMessage());
             }
