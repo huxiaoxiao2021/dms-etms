@@ -145,6 +145,14 @@ public class InspectionDao extends BaseDao<Inspection>{
     }
 
 	/**
+	 * 查询符合条件验货记录数量 - 按包裹号去重
+	 *
+	 * */
+	public Integer queryCountByConditionOfSolePackage(Inspection inspection) {
+		return (Integer) this.getSqlSession().selectOne(namespace + ".selectCountSelectiveOfSolePackage", inspection);
+	}
+
+	/**
 	 * 根据运单号，查询所有包裹号
 	 * @param inspectionQuery inspectionQuery
 	 * @return
