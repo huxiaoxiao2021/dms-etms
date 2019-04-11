@@ -482,7 +482,7 @@ public class Constants {
     /**
      * waybillSign-point-92 安心寄增值服务
      */
-    public static final Integer WAYBILL_SIGN_POSITION_92 = 92;
+    public static final int WAYBILL_SIGN_POSITION_92 = 92;
 
     /**
      * waybillSign-point-92 安心寄增值服务 为2:追踪器
