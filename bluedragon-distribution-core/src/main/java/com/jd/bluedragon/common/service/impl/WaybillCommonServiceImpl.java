@@ -115,7 +115,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
-    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/r/k0keBi7EY3McrWpl9xyB}")
+    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/q/02ixD6QH52bQO100000074}")
     private String popularizeMatrixCode;
 
     /**
