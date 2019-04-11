@@ -106,13 +106,17 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         }
         //设置模板纸张大小编码
         basePrintWaybill.setTemplatePaperSizeCode(paperSizeCode);
-        //设置启用新模板标识
-        if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE)
-        		.contains(context.getRequest().getDmsSiteCode())){
-        	basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
-        }else{
-        	basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
+        //设置启用新模板标识--默认为启用
+        basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
+        //查询总开关，1表示开，0表示关
+        if(!sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_NAME_USE_NEW_TEMPLATE_SWITCH)){
+            basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
+            if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE)
+                    .contains(context.getRequest().getDmsSiteCode())){
+                basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
+            }
         }
+
         //得到业务模板
         //根据key查config
         if (siteCode != null) {

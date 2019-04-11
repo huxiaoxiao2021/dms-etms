@@ -115,15 +115,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
+    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/r/k0keBi7EY3McrWpl9xyB}")
+    private String popularizeMatrixCode;
+
     /**
      * 京东logo的文件路径
      */
     private final String LOGO_IMAGE_KEY_JD="JDLogo.gif";
 
-    /**
-     * 推广二维码内容
-     */
-    private final String POPULARIZE_MATRIX_CODE_CONTENT="https://logistics-mrd.jd.com/cmail";
 
     /**
      * 验视
@@ -665,7 +664,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setAdditionalComment("");
         }else{
             target.setJdLogoImageKey(LOGO_IMAGE_KEY_JD);
-            target.setPopularizeMatrixCode(POPULARIZE_MATRIX_CODE_CONTENT);
+            target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
