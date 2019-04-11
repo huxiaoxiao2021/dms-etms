@@ -601,6 +601,7 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
+    public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限
 
     /********************************************* UIM权限资源码相关end ***********************************************/
 

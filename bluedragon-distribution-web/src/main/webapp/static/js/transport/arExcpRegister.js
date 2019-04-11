@@ -414,7 +414,7 @@ var excpResultData={};
 function initExcpType() {
 
 
-    var url = "/base/dmsBaseDict/airRailwayExceptionType";
+    var url = "/transport/arExcpRegister/airRailwayExceptionType";
     var param = {};
     $.get(url, param, function (myData) {
         var data = myData.data;
@@ -515,7 +515,7 @@ function changeExcpTypeEdit(selectVal1,selectVal2){
     if(k){
         $("#edit-form #excpType").val(p);
         $("#edit-form #excpTypeName").val(v);
-        var url = "/base/dmsBaseDict/airRailwayExceptionReason/"+k
+        var url = "/transport/arExcpRegister/airRailwayExceptionReason/"+k
 
 
         $.get(url, {}, function (myData) {
@@ -572,7 +572,7 @@ function changeExcpReasonEdit(selectVal){
     if(k){
         $("#edit-form #excpReason").val(p);
         $("#edit-form #excpReasonName").val(v);
-        var url = "/base/dmsBaseDict/airRailwayExceptionResult/"+k
+        var url = "/transport/arExcpRegister/airRailwayExceptionResult/"+k
 
         $.get(url, {}, function (myData) {
 
