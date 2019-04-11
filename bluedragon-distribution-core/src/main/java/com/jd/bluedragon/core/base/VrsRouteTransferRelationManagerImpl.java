@@ -324,55 +324,53 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
-        List<String> cityNameList = new ArrayList<String>();
+        List<String> dmsSiteNameList = new ArrayList<String>();
 
         //校验参数
         if(originalDmsCode == null || destinationDmsCode == null || routeProduct == null || predictSendTime == null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         //获取始发和目的的七位编码
         BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsCode);
         if (originalDms==null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsCode);
         if (destinationDms==null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
 
         //调路由的接口获取路由节点
         String router=queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
 
         if (StringUtils.isEmpty(router)){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         //拼接路由站点的名称
         String[] siteArr=router.split("\\|");
         //有路由节点的话，加上发出和接收节点，数量一定会>2个
         if (siteArr.length < 2){
-            return cityNameList;
+            return dmsSiteNameList;
         }
 
-        String preCityName = "";
+        String preDmsName = "";
         for(int i=0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
             if (baseStaffSiteOrgDto!=null){
-                Integer provinceId = baseStaffSiteOrgDto.getProvinceId();
-                String cityName = baseStaffSiteOrgDto.getCityName();
-                //直辖市的城市显示直辖市
-                if(isMunicipality(provinceId)){
-                    cityName = baseStaffSiteOrgDto.getProvinceName();
+                String dmsName = baseStaffSiteOrgDto.getDmsShortName();
+                if(StringUtils.isBlank(dmsName)){
+                    dmsName = baseStaffSiteOrgDto.getDmsName();
                 }
-                if(cityName.equals(preCityName)){
+                if(dmsName.equals(preDmsName)){
                     continue;
                 }else{
-                    preCityName = cityName;
-                    cityNameList.add(cityName);
+                    preDmsName = dmsName;
+                    dmsSiteNameList.add(dmsName);
                 }
             }
         }
-        return cityNameList;
+        return dmsSiteNameList;
     }
 
     /**
