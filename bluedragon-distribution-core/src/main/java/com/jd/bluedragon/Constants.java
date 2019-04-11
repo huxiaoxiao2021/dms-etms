@@ -124,6 +124,11 @@ public class Constants {
      * 业务操作日志系统编码-分拣web
      */
     public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+
+    /**
+     * 业务操作日志系统编码-分拣worker
+     */
+    public static final int BUSINESS_LOG_SOURCE_SYS_DMSWORKER = 66;
     /**
      * 业务类型-未知业务类型
      */
@@ -133,6 +138,17 @@ public class Constants {
      * 操作日志业务编码-打印
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+
+    /**
+     * 操作日志记录
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_OPERATE_LOG=2003;
+
+    /**
+     * 操作日志慢发货记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
+
     /**
      * 操作日志业务编码-航空转陆运
      */

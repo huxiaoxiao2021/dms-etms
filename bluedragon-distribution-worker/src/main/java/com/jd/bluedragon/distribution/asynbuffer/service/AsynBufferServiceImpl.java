@@ -26,6 +26,8 @@ import com.jd.bluedragon.distribution.task.domain.DmsTaskExecutor;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weight.service.WeightService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -247,33 +249,58 @@ public class AsynBufferServiceImpl implements AsynBufferService {
     //统一处理task_send入口，根据keyword1对应具体的方法
     public boolean taskSendProcess(Task task) throws Exception {
         String keyword1 = task.getKeyword1().trim();
-        if (keyword1.equals("1")){
-            //发货回传运单状态任务
-            return deliveryService.updatewaybillCodeMessage(task);
-        } else if(keyword1.equals("2")){
-            //回传周转箱号任务
-            return  deliveryService.findSendwaybillMessage(task);
-        } else if (keyword1.equals("3")) {
-            //发货新老数据同步任务
-            return reverseService.findsendMToReverse(task);
-        } else if (keyword1.equals("4")) {
-            return reverseSendService.findSendwaybillMessage(task);
-        } else if (keyword1.equals("5")) {
-            //中转发货补全任务
-            return deliveryService.findTransitSend(task);
+        CallerInfo sendMonitor = ProfilerHelper.registerInfo("DMSWORKER.AsynBufferServiceImpl.taskSendProcess"+keyword1,
+                Constants.UMP_APP_NAME_DMSWORKER);
+        Long startTime = System.currentTimeMillis();
+        try{
 
-        } else if (keyword1.equals("6")) {
-            //发送发货明细MQ任务
-            return deliveryService.sendDetailMQ(task);
+            if (keyword1.equals("1")){
+                //发货回传运单状态任务
+                return deliveryService.updatewaybillCodeMessage(task);
+            } else if(keyword1.equals("2")){
+                //回传周转箱号任务
+                return  deliveryService.findSendwaybillMessage(task);
+            } else if (keyword1.equals("3")) {
+                //发货新老数据同步任务
+                return reverseService.findsendMToReverse(task);
+            } else if (keyword1.equals("4")) {
+                return reverseSendService.findSendwaybillMessage(task);
+            } else if (keyword1.equals("5")) {
+                //中转发货补全任务
+                return deliveryService.findTransitSend(task);
 
-        } else if (keyword1.equals("7")) {
-            //组板任务处理
-            return deliveryService.doBoardDelivery(task);
-        }else {
-            //没有找到对应的方法，提供报错信息
-            this.logger.error("task id is " + task.getId()+"can not find process method");
+            } else if (keyword1.equals("6")) {
+                //发送发货明细MQ任务
+                return deliveryService.sendDetailMQ(task);
+
+            } else if (keyword1.equals("7")) {
+                //组板任务处理
+                return deliveryService.doBoardDelivery(task);
+            }else {
+                //没有找到对应的方法，提供报错信息
+                this.logger.error("task id is " + task.getId()+"can not find process method");
+            }
+            return false;
+
+        }finally {
+            Long runTime = System.currentTimeMillis() - startTime;
+            if(runTime>3000){
+                //logger.error("send"+keyword1+":"+runTime+"ms|"+task.getBody());
+                //写入自定义日志
+                BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+                businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWORKER);
+                businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_OPERATE_LOG);
+                businessLogProfiler.setOperateType(Constants.BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND);
+                businessLogProfiler.setOperateRequest(task.getBody());
+                businessLogProfiler.setOperateResponse("runTime:"+runTime+"ms");
+                businessLogProfiler.setTimeStamp(System.currentTimeMillis());
+                BusinessLogWriter.writeLog(businessLogProfiler);
+            }
+            Profiler.registerInfoEnd(sendMonitor);
         }
-        return false;
+
+
+
     }
 
     @Autowired
