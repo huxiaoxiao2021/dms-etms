@@ -259,7 +259,7 @@ public class ReversePrintResource {
         weightTask.setKeyword1(request.getNewCode());
         weightTask.setKeyword2("离线称重");
         weightTask.setReceiveSiteCode(0);
-        weightTask.setBoxCode(JsonHelper.toJson(entity));
+        weightTask.setBody("[" + JsonHelper.toJson(entity) + "]");
         return weightTask;
     }
 
