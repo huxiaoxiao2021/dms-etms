@@ -89,9 +89,9 @@ public class ReversePrintRequest extends JdObject {
     private WeightOperFlow weightOperFlow;
 
     /**
-     * 是否获取称重信息（temp）0不称重 1称重
+     * 是否进行称重量方：0不启用  1启用称重 2启用量方 3启用称重量方
      */
-    private Integer packOpeFlowFlg;
+    private Integer weightVolumeOperEnable;
 
     public String getOldCode() {
         return oldCode;
@@ -221,12 +221,12 @@ public class ReversePrintRequest extends JdObject {
         this.weightOperFlow = weightOperFlow;
     }
 
-    public Integer getPackOpeFlowFlg() {
-        return packOpeFlowFlg;
+    public Integer getWeightVolumeOperEnable() {
+        return weightVolumeOperEnable;
     }
 
-    public void setPackOpeFlowFlg(Integer packOpeFlowFlg) {
-        this.packOpeFlowFlg = packOpeFlowFlg;
+    public void setWeightVolumeOperEnable(Integer weightVolumeOperEnable) {
+        this.weightVolumeOperEnable = weightVolumeOperEnable;
     }
 
     @Override
@@ -247,7 +247,7 @@ public class ReversePrintRequest extends JdObject {
                 ", busiId=" + busiId +
                 ", busiName='" + busiName + '\'' +
                 ", weightOperFlow=" + weightOperFlow +
-                ", packOpeFlowFlg=" + packOpeFlowFlg +
+                ", weightVolumeOperEnable=" + weightVolumeOperEnable +
                 "} " + super.toString();
     }
 }

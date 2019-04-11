@@ -79,7 +79,7 @@ public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResu
                         || WaybillUtil.getPackIndexByPackCode(printPackage.getPackageCode()) == context.getRequest().getPackageIndex()) {
                     /* 如果是当前的包裹 则设置包裹称重信息 */
                     Double weight = context.getRequest().getWeightOperFlow().getWeight();
-                    printPackage.setPackageWeight(String.valueOf(weight));
+                    printPackage.setPackageWeight(String.valueOf(weight) + Constants.MEASURE_UNIT_NAME_KG);
                     printPackage.setWeight(weight);
                 }
             }
