@@ -149,7 +149,7 @@ public class PackageResource {
      * @return
      */
     @POST
-    @Path("/package/ReprintAfter")
+    @Path("/package/reprintAfter")
     public JdResponse packReprintAfter(ClientOperateRequest request) {
         JdResponse response = new JdResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         String barCode = request.getBarCode();

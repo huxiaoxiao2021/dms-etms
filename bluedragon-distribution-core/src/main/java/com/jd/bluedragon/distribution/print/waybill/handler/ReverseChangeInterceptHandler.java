@@ -86,7 +86,7 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
             return result;
         } else if (newWaybillResult.getData().getOverTime()) {
             LOGGER.warn("ReverseChangeInterceptHandler.handle-->单号已经超过十五天{}",oldWaybillCode);
-            result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS,
+            result.toWeakSuccess(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS,
                     JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS);
             return result;
         }

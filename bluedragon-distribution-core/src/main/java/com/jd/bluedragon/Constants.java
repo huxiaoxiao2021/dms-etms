@@ -828,4 +828,14 @@ public class Constants {
 
     public static final double ILLEGAL_WEIGHT_1000 = 1000.00;
 
+    /**
+     * 计量单位：kg
+     */
+    public static final String MEASURE_UNIT_NAME_KG = "kg";
+
+    /**
+     * 计量单位：cm
+     */
+    public static final String MEASURE_UNIT_NAME_CM = "cm";
+
 }

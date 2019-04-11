@@ -60,14 +60,16 @@ public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResu
                     /* 如果已经打印的话，则 */
                     continue;
                 }
-                boolean bool = WaybillUtil.getPackIndexByPackCode(printPackage.getPackageCode()) <= min;
+                boolean bool = printPackage.getPackageIndexNum() <= min
+                        || context.getRequest().getPackageIndex().equals(printPackage.getPackageIndexNum());
                 if (bool) {
+                    min = printPackage.getPackageIndexNum();
                     minPackage = printPackage;//将当前引用设置给minPackage
                 }
             }
             if (null != minPackage) {
                 Double weight = context.getRequest().getWeightOperFlow().getWeight();
-                minPackage.setPackageWeight(String.valueOf(weight));
+                minPackage.setPackageWeight(String.valueOf(weight) + Constants.MEASURE_UNIT_NAME_KG);
                 minPackage.setWeight(weight);
             }
         } else if (WaybillUtil.isPackageCode(context.getRequest().getBarCode())) {
