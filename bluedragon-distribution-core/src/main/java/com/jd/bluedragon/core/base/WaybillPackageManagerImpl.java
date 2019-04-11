@@ -57,6 +57,42 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         }
     }
 
+    @Override
+    public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCodeOfPage(String waybillCode,int pageNo,int pageSize){
+
+        BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();
+        List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
+        result.setData(packageList);
+        Page<DeliveryPackageDto> pageParam = new Page<DeliveryPackageDto>();
+        pageParam.setCurPage(pageNo);
+        pageParam.setPageSize(pageSize);
+
+        //调用运单分页接口
+        BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
+
+        //调用接口异常，添加自定义报警
+        if (null == baseEntity || baseEntity.getResultCode() != 1) {
+            String alarmInfo = "调用运单接口getPackageByParam失败.waybillCode:" + waybillCode;
+            if (null != baseEntity) {
+                alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
+            }
+            logger.error(alarmInfo);
+            Profiler.businessAlarm("调用运单接口getPackageByParam失败", alarmInfo);
+            return null;
+        }
+
+        //有包裹数据，则分页读取
+        if (null != baseEntity && null != baseEntity.getData() &&
+                null != baseEntity.getData().getResult() && baseEntity.getData().getResult().size() > 0) {
+
+            packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
+
+            logger.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.waybillCode:" + waybillCode);
+        }
+
+        return result;
+    }
+
     /**
      * 根据运单号列表获取包裹信息
      * @param waybillCodes

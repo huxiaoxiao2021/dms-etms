@@ -124,6 +124,11 @@ public class Constants {
      * 业务操作日志系统编码-分拣web
      */
     public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+
+    /**
+     * 业务操作日志系统编码-分拣worker
+     */
+    public static final int BUSINESS_LOG_SOURCE_SYS_DMSWORKER = 66;
     /**
      * 业务类型-未知业务类型
      */
@@ -133,6 +138,17 @@ public class Constants {
      * 操作日志业务编码-打印
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+
+    /**
+     * 操作日志记录
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_OPERATE_LOG=2003;
+
+    /**
+     * 操作日志慢发货记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
+
     /**
      * 操作日志业务编码-航空转陆运
      */
@@ -642,6 +658,12 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
+
+    /**
+     * 配置信息-新分拣开启的分拣中心
+     */
+    public static final String SYS_CONFIG_NEW_SORTING_OPEN_DMS_CODES="sorting.new.sites";
+
 
     /**
      * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）
