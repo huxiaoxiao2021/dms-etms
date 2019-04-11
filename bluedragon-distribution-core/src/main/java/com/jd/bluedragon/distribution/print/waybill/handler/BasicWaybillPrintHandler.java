@@ -509,6 +509,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
                     	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
                             pack.setWeight(deliveryPackageD.getAgainWeight());
+                            pack.setPackageWeight(String.valueOf(deliveryPackageD.getAgainWeight()) + Constants.MEASURE_UNIT_NAME_KG);
                         }
                     }
                 }
