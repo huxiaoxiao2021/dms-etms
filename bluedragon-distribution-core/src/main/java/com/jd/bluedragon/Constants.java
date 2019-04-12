@@ -496,6 +496,22 @@ public class Constants {
     public static final Integer WAYBILL_SIGN_POSITION_TRANSPORT_MODE = 31;
 
     /**
+     * waybillSign-point-92 安心寄增值服务
+     */
+    public static final int WAYBILL_SIGN_POSITION_92 = 92;
+
+    /**
+     * waybillSign-point-92 安心寄增值服务 为2:追踪器
+     */
+    public static final char WAYBILL_SIGN_POSITION_92_2 = '2';
+
+
+    /**
+     * waybillSign-point-92 安心寄增值服务 为3:追踪箱
+     */
+    public static final char WAYBILL_SIGN_POSITION_92_3 = '3';
+
+    /**
      * waybill_cancel 表 featureType ：30-病单，31-取消病单，32- 非病单
      */
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单

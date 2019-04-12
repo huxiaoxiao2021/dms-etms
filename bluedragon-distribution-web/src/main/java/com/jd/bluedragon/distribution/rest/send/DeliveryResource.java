@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -42,7 +43,11 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -128,6 +133,9 @@ public class DeliveryResource {
 
     @Autowired
     private CycleBoxService cycleBoxService;
+
+    @Autowired
+    private JsfSortingResourceService jsfSortingResourceService;
 
 
     /**
@@ -495,49 +503,21 @@ public class DeliveryResource {
     @POST
     @Path("/delivery/router/verification")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification", mState = {JProEnum.TP})
-    public DeliveryResponse checkThreeDelivery(DeliveryRequest request) {
-        try {
-            if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
-                    request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
-                return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
-            }
-
-            //如果扫描的是运单号，判断是否是B冷链操作的快运发货
-            if(isWaybillCode(request.getBoxCode())){
-                DeliveryResponse response = isValidWaybillCode(request);
-                if(!JdResponse.CODE_OK.equals(response.getCode())){
-                    return response;
-                }
-            }
-
-            Integer opType = request.getOpType();
-            DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
-            if(KY_DELIVERY.equals(opType)){//只有快运发货才做路由校验
-                // 因为B冷链转运中心需要支持扫描运单号发货，
-                // 如果扫的是运单号，则生成第一个包裹号，用于校验
-                if (isWaybillCode(request.getBoxCode())) {
-                    List<String> waybillCodeList = waybillPackageBarcodeService.getPackageCodeListByWaybillCode(request.getBoxCode());
-                    if(waybillCodeList == null || waybillCodeList.size() < 1){
-                        logger.error("快运发货扫运单号，根据运单号[" + request.getBoxCode() + "]生成包裹号失败.没有运单/包裹信息");
-                        response.setCode(JdResponse.CODE_CAN_NOT_GENERATE_PACKAGECODE);
-                        response.setMessage(MessageFormat.format(JdResponse.MESSAGE_CAN_NOT_GENERATE_PACKAGECODE,request.getBoxCode()));
-                        return response;
-                    }
-                    request.setBoxCode(waybillCodeList.get(0));
-                }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
-            }
-            return response;
-        } catch (Exception ex) {
-            logger.error("快运发货路由验证出错：", ex);
-            return new DeliveryResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
-        }
+    public DeliveryResponse checkThreeDeliveryOld(DeliveryRequest request) {
+        return checkThreeDelivery(request,Constants.DELIVERY_ROUTER_VERIFICATION_OLD);
     }
 
     @POST
     @Path("/delivery/router/verification/new")
     @JProfiler(jKey = "DMSWEB.DeliveryResource.router.verification.new", mState = {JProEnum.TP}, jAppName=Constants.UMP_APP_NAME_DMSWEB)
     public DeliveryResponse checkThreeDeliveryNew(DeliveryRequest request) {
+        return checkThreeDelivery(request,Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
+    }
+
+    /**
+     * @param flag 新老版本标识，0是老版本调用，1是新版本调用接口
+     */
+    private DeliveryResponse checkThreeDelivery(DeliveryRequest request,Integer flag) {
         try {
             if (request == null || StringUtils.isBlank(request.getBoxCode()) ||
                     request.getSiteCode() == null || request.getReceiveSiteCode() == null) {
@@ -550,6 +530,11 @@ public class DeliveryResource {
                 if(!JdResponse.CODE_OK.equals(response.getCode())){
                     return response;
                 }
+            }
+            //校验滑道号
+            if(WaybillUtil.isPackageCode(request.getBoxCode()) && !checkPackageCrossCodeSucc(request.getBoxCode())){
+                this.logger.info(String.format("滑道号不正确[%s]",request.getBoxCode()));
+                return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
             }
 
             Integer opType = request.getOpType();
@@ -567,7 +552,7 @@ public class DeliveryResource {
                     }
                     request.setBoxCode(waybillCodeList.get(0));
                 }
-                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), Constants.DELIVERY_ROUTER_VERIFICATION_NEW);
+                response =  deliveryService.checkRouterForKY(deliveryRequest2SendM(request), flag);
             }
             return response;
         } catch (Exception ex) {
@@ -779,6 +764,12 @@ public class DeliveryResource {
                                     if(result != null && InvokeResult.RESULT_SUCCESS_CODE != result.getCode()) {
                                         return new DeliveryResponse(result.getCode(), result.getMessage());
                                     }
+                                }else{
+                                    //校验滑道号
+                                    if(!checkPackageCrossCodeSucc(boxCode)){
+                                        this.logger.info(String.format("滑道号不正确[%s]",boxCode));
+                                        return new DeliveryResponse(DeliveryResponse.CODE_CROSS_CODE_ERROR, DeliveryResponse.MESSAGE_CROSS_CODE_ERROR);
+                                    }
                                 }
                             } else{
                                 this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
@@ -901,6 +892,14 @@ public class DeliveryResource {
             }
         }
         return sendMList;
+    }
+
+    /**
+     * 只校验包裹的 校验滑道号
+     * @return true 滑道号正确，或者非包裹号，false 不正确
+     */
+    private boolean checkPackageCrossCodeSucc(String packageCode){
+        return jsfSortingResourceService.checkPackageCrossCode(WaybillUtil.getWaybillCode(packageCode),packageCode);
     }
 
     /**

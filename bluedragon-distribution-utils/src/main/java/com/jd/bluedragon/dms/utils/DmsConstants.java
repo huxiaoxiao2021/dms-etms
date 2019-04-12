@@ -130,4 +130,9 @@ public class DmsConstants {
      * 批次号正则
      */
     public static final String SEND_CODE_REG = "^\\d+-\\d+-\\d{15,17}$"; //批次号正则
+
+    /**
+     * 滑道号正则表达式
+     */
+    public static final Pattern PACKAGE_CODE_CROSSCODE_REGEX = Pattern.compile("^\\w+([-,N])([1-9][0-9]{0,5})([-,S])([0-9A-GI-MO-RT-Z]{1,6})([-,H])(\\w{1,8})$");
 }

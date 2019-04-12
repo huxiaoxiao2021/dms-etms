@@ -878,6 +878,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
         }
+
+        //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_UTENSIL);
+        }
+        //waybill_sign标识位，第九十二位为3，一体化面单显示"箱"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),Constants.WAYBILL_SIGN_POSITION_92,Constants.WAYBILL_SIGN_POSITION_92_3)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_BOX);
+        }
         //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
         if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
             target.setRoad(waybill.getWaybillExt().getUnpackClassifyNum());
