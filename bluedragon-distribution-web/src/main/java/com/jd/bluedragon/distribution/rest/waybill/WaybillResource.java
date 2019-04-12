@@ -38,8 +38,6 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
-import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
@@ -82,7 +80,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.DoubleRange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -97,7 +94,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -2309,7 +2305,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("/waybill/getPackNum/{waybillCode}")
-	public InvokeResult<Integer> getPackNum(@QueryParam("waybillCode")String waybillCode){
+	public InvokeResult<Integer> getPackNum(@PathParam("waybillCode") String waybillCode){
 
         InvokeResult<Integer> result = new InvokeResult<Integer>();
         Integer packNum = 0;
