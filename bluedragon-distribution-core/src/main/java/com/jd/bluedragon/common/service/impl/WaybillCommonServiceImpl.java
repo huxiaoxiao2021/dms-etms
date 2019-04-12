@@ -115,15 +115,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
+    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/q/02ixD6QH52bQO100000074}")
+    private String popularizeMatrixCode;
+
     /**
      * 京东logo的文件路径
      */
     private final String LOGO_IMAGE_KEY_JD="JDLogo.gif";
 
-    /**
-     * 推广二维码内容
-     */
-    private final String POPULARIZE_MATRIX_CODE_CONTENT="https://logistics-mrd.jd.com/cmail";
 
     /**
      * 验视
@@ -665,7 +664,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setAdditionalComment("");
         }else{
             target.setJdLogoImageKey(LOGO_IMAGE_KEY_JD);
-            target.setPopularizeMatrixCode(POPULARIZE_MATRIX_CODE_CONTENT);
+            target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
@@ -878,6 +877,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
+        }
+
+        //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_UTENSIL);
+        }
+        //waybill_sign标识位，第九十二位为3，一体化面单显示"箱"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),Constants.WAYBILL_SIGN_POSITION_92,Constants.WAYBILL_SIGN_POSITION_92_3)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_BOX);
         }
         //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
         if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
