@@ -56,7 +56,7 @@ public class CollectionHelper<E> {
         return objects;
     }
 
-    public static <E> List<E> joinToList(Collection<?> objects, String methodName, Class<E> eClass) {
+    public static <E> List<E> joinToList(Collection<?> objects, String methodName) {
         List<E> result = new ArrayList<>();
         for (Iterator<?> iterator = objects.iterator(); iterator.hasNext();) {
             Object o = iterator.next();
@@ -91,7 +91,7 @@ public class CollectionHelper<E> {
         list.add(sendM);
         list.add(sendM2);
         list.add(sendM3);
-        System.out.println(joinToList(list,"getBoxCode",Integer.class));
+        System.out.println(joinToList(list,"getBoxCode"));
     }
 
 }

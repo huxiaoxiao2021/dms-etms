@@ -1068,7 +1068,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendDetail> updateList = new ArrayList<SendDetail>();
         //批量查询是否存在send_d
         for (List<SendDetail> list : sendArray) {
-            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode");
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendDetail request = new SendDetail();
@@ -1089,7 +1089,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         //对于存在send_d的执行批量更新
         sendArray = splitList(updateList);
         for (List<SendDetail> list : sendArray) {
-            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode");
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendDetail request = new SendDetail();
@@ -1303,7 +1303,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<>();
         for (List<SendM> list : sendArray) {
-            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
+            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode");
             Integer createSiteCode = list.get(0).getCreateSiteCode();
             Integer receiveSiteCode = list.get(0).getReceiveSiteCode();
             SendM request = new SendM();
@@ -1327,7 +1327,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<String>();
         for (List<SendM> slist : sendArray) {
-            List<String> boxCodelist = CollectionHelper.joinToList(slist,"getBoxCode",String.class);
+            List<String> boxCodelist = CollectionHelper.joinToList(slist,"getBoxCode");
             Integer createSiteCode = slist.get(0).getCreateSiteCode();
             Integer receiveSiteCode = slist.get(0).getReceiveSiteCode();
             SendM request = new SendM();

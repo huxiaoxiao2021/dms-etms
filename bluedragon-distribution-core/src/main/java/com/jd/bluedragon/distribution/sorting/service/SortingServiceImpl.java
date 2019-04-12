@@ -191,7 +191,7 @@ public class SortingServiceImpl implements SortingService {
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
 		List<Box> boxes = this.boxService.findBoxes(box);
-		return CollectionHelper.joinToList(boxes,"getCode",String.class);
+		return CollectionHelper.joinToList(boxes,"getCode");
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {
