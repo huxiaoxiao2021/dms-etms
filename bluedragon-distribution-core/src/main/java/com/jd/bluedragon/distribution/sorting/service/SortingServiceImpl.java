@@ -587,7 +587,7 @@ public class SortingServiceImpl implements SortingService {
 		if (WaybillUtil.isSurfaceCode(sorting.getPackageCode())) {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
-			sorting.setPackageCode(sorting.getPackageCode());
+//			sorting.setPackageCode(sorting.getPackageCode());
 			if(WaybillUtil.isPickupCodeWW(sorting.getPackageCode()))
 			{
 				// sorting.setPickupCode(pickup.getData().getPickupCode());
@@ -1008,7 +1008,7 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setYn(1);
 		/* 取sendM创建人，作为全程跟踪发货人，以及操作时间  sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14*/
 		if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
-			sendDetail.setOperateTime(sendDetail.getOperateTime());
+//			sendDetail.setOperateTime(sendDetail.getOperateTime());
 		} else {
 			sendDetail.setOperateTime(sendM.getOperateTime());
 		}

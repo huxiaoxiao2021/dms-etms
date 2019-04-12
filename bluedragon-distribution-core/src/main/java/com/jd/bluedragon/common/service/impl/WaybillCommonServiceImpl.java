@@ -609,8 +609,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 						res.put(key, newData);
 					}else{
 						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
-							newData.setpWeight(newData.getpWeight());
-							newData.setWeighTime(newData.getWeighTime());
+//							newData.setpWeight(newData.getpWeight());
+//							newData.setWeighTime(newData.getWeighTime());
 						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
 							oldData.setpWeight(newData.getpWeight());
 							oldData.setWeighTime(newData.getWeighTime());
