@@ -36,7 +36,7 @@ public class BatchSendResource {
 
     @POST
     @Path("/batchsend/findBatchSend")
-    public BatchSendResponse findBatchSend(BatchSendRequest request) {//todo 测试
+    public BatchSendResponse findBatchSend(BatchSendRequest request) {
         if(request.getCreateSiteCode()==null){
         	return new BatchSendResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }

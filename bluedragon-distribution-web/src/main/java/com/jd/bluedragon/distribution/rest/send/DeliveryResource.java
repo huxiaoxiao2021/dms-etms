@@ -979,13 +979,13 @@ public class DeliveryResource {
     public String findWaybillStatus(@PathParam("id") String id) {
         String result = null;
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-        if(NumberUtils.isDigits(id)){
+        if(!NumberUtils.isDigits(id)){
             return null;
         }
         try {
             List<Long> queueid = new ArrayList<>();
             queueid.add(LongHelper.strToLongOrNull(id));
-            sendDetails = deliveryService.findWaybillStatus(queueid);//todo 测试
+            sendDetails = deliveryService.findWaybillStatus(queueid);
             if (sendDetails != null && !sendDetails.isEmpty()) {
                 this.deliveryService.updateWaybillStatus(sendDetails);
                 result = JsonHelper.toJsonUseGson(sendDetails);

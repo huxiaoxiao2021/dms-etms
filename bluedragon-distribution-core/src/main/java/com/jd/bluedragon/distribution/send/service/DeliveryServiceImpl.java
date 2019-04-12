@@ -1061,7 +1061,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public void saveOrUpdateBatch(List<SendDetail> sdList) {//todo 测试
+    public void saveOrUpdateBatch(List<SendDetail> sdList) {
         List<SendDetail>[] sendArray = splitList(sdList);
         List<String> result = new ArrayList<String>();
 
@@ -1299,7 +1299,7 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 批量判断箱号是否已经发货，提出公用，减少查询次数
      * *
      */
-    private List<String> batchQuerySendMList(List<SendM> sendMList) {//todo 测试
+    private List<String> batchQuerySendMList(List<SendM> sendMList) {
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<>();
         for (List<SendM> list : sendArray) {
@@ -1322,12 +1322,12 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @param sendMList 待发货列表
      * @param list      已发货的箱号列表
      */
-    private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {//todo 测试
+    private void cancelStatusReceipt(List<SendM> sendMList, List<String> list) {
         //操作过取消发货的箱子查询  result结果集
         List<SendM>[] sendArray = splitSendMList(sendMList);
         List<String> result = new ArrayList<String>();
         for (List<SendM> slist : sendArray) {
-            List<String> boxCodelist = CollectionHelper.joinToList(list,"getBoxCode",String.class);
+            List<String> boxCodelist = CollectionHelper.joinToList(slist,"getBoxCode",String.class);
             Integer createSiteCode = slist.get(0).getCreateSiteCode();
             Integer receiveSiteCode = slist.get(0).getReceiveSiteCode();
             SendM request = new SendM();

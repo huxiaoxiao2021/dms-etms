@@ -40,7 +40,7 @@ public class ToSendwaybillTask extends AbstractScheduler<SendDetail> {
 
     @Override
     public List<SendDetail> selectTasks(String ownSign, int queueNum, List<String> queryCondition,
-            int fetchNum) throws Exception {//todo 测试
+            int fetchNum) throws Exception {
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
         if(CollectionUtils.isEmpty(queryCondition)){
             return null;

@@ -175,8 +175,8 @@ public class SortingServiceImpl implements SortingService {
 	}
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<Sorting> findSortingPackages(Sorting sorting) {//todo 测试
-		List<String> boxCodelist = this.getBoxCodes(sorting);
+	public List<Sorting> findSortingPackages(Sorting sorting) {
+		List<String> boxCodelist = this.getBoxCodes(sorting);//方法对应的mapper 已经没有
 		if (CollectionUtils.isEmpty(boxCodelist)) {
 			return Collections.emptyList();
 		}

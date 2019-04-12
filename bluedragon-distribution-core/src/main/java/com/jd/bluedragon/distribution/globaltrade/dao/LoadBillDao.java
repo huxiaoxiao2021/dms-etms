@@ -15,7 +15,7 @@ public class LoadBillDao extends BaseDao<LoadBill> {
 
 	private static final String namespace = LoadBillDao.class.getName();
 
-	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {//todo 测试
+	public int updateLoadBillStatus(Map<String, Object> loadBillStatusMap) {
 		logger.info("LoadBillDao.updateLoadBillStatus loadId is " + loadBillStatusMap.get("loadIdList").toString());
 		return this.getSqlSession().update(LoadBillDao.namespace + ".updateLoadBillStatus", loadBillStatusMap);
 	}
