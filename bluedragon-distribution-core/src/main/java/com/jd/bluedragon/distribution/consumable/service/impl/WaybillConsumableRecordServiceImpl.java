@@ -140,7 +140,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     public Boolean isConfirmed(String waybillCode) {
         WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
-        if (record != null && ! TREATED_STATE.equals(record.getConfirmStatus())) {
+        if (record != null && UNTREATED_STATE.equals(record.getConfirmStatus())) {
             return false;
         }
         return true;
