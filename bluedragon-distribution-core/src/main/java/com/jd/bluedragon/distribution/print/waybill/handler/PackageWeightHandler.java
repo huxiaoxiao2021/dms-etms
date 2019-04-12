@@ -5,7 +5,6 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -49,41 +48,15 @@ public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResu
         /*
             如果是运单号的话，则计算未打印的包裹中index最小的那个
             如果是包裹号的话，则找到当前的包裹
-            逻辑好像可以精简
+            直接根据之前的willPrintPackageIndex值找到那个将要打印的包裹
          */
-        int min = packages.size();//最小的包裹index
-        PrintPackage minPackage = null;//未打印的index最小的包裹对象
-        if (WaybillUtil.isWaybillCode(context.getRequest().getBarCode())) {
-            /* 遍历所有的包裹 */
-            for (PrintPackage printPackage : packages) {
-                if (printPackage.getIsPrintPack()) {
-                    /* 如果已经打印的话，则 */
-                    continue;
-                }
-                boolean bool = printPackage.getPackageIndexNum() <= min
-                        || context.getRequest().getPackageIndex().equals(printPackage.getPackageIndexNum());
-                if (bool) {
-                    min = printPackage.getPackageIndexNum();
-                    minPackage = printPackage;//将当前引用设置给minPackage
-                }
-            }
-            if (null != minPackage) {
-                Double weight = context.getRequest().getWeightOperFlow().getWeight();
-                minPackage.setPackageWeight(String.valueOf(weight) + Constants.MEASURE_UNIT_NAME_KG);
-                minPackage.setWeight(weight);
-            }
-        } else if (WaybillUtil.isPackageCode(context.getRequest().getBarCode())) {
-            /* 遍历所有的包裹 */
-            for (PrintPackage printPackage : packages) {
-                if (printPackage.getPackageCode().equals(context.getRequest().getBarCode())
-                        || WaybillUtil.getPackIndexByPackCode(printPackage.getPackageCode()) == context.getRequest().getPackageIndex()) {
-                    /* 如果是当前的包裹 则设置包裹称重信息 */
-                    Double weight = context.getRequest().getWeightOperFlow().getWeight();
-                    printPackage.setPackageWeight(String.valueOf(weight) + Constants.MEASURE_UNIT_NAME_KG);
-                    printPackage.setWeight(weight);
-                }
-            }
-        }
+        PrintPackage printPackage = context.getResponse().getPackList().get(context.getResponse().getWillPrintPackageIndex());
+
+        /* 设置用户称重 */
+        printPackage.setWeight(context.getRequest().getWeightOperFlow().getWeight());
+        printPackage.setPackageWeight(String.valueOf(context.getRequest().getWeightOperFlow().getWeight())
+                + Constants.MEASURE_UNIT_NAME_KG);
+
         return result;
     }
 }

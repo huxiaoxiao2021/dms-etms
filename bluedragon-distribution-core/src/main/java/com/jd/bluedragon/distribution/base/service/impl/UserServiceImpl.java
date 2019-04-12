@@ -1,13 +1,5 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,11 +19,17 @@ import com.jd.bluedragon.distribution.sysloginlog.domain.SysLoginLog;
 import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 
@@ -275,7 +273,7 @@ public class UserServiceImpl implements UserService{
 			String userErp = request.getErpAccount();
 			BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
 	        if (null == basestaffDto) {
-	        	loginResult.toFail("根据erp"+userErp+"获取青龙基础资料失败！");
+	        	loginResult.toFail("账号"+userErp+"在青龙基础资料中未维护！");
 	        } else if(basestaffDto.getSiteCode() == null 
 	        		|| basestaffDto.getSiteCode() <= 0){
 	        	loginResult.toFail("账号"+userErp+"在青龙基础资料中未维护站点信息！");
@@ -303,13 +301,12 @@ public class UserServiceImpl implements UserService{
 		        	loginUserResponse.setSiteType(siteInfo.getSiteType());
 		            // 站点子类型
 		        	loginUserResponse.setSubType(siteInfo.getSubType());
+					loginUserResponse.setDmsSiteCode(siteInfo.getSiteCode());
+					loginUserResponse.setDmsSiteName(siteInfo.getSiteName());
 		        	//设置分拣中心信息(同打印客户端逻辑)
-		        	if(siteInfo.getDmsId() != null){
+		        	if(siteInfo.getDmsId() != null && siteInfo.getDmsId() > 0){
 		        		loginUserResponse.setDmsSiteCode(siteInfo.getDmsId());
 		        		loginUserResponse.setDmsSiteName(siteInfo.getDmsName());
-		        	}else{
-		        		loginUserResponse.setDmsSiteCode(siteInfo.getSiteCode());
-		        		loginUserResponse.setDmsSiteName(siteInfo.getSiteName());
 		        	}
 	        		loginResult.setData(loginUserResponse);
 	        	}else{

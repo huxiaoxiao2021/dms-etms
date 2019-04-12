@@ -4,7 +4,10 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
@@ -16,10 +19,12 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +37,7 @@ import java.util.List;
 @Service
 public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService {
 
-    private Logger log = Logger.getLogger(ReceiveWeightCheckServiceImpl.class);
+    private Logger logger = LoggerFactory.getLogger(ReceiveWeightCheckServiceImpl.class);
 
     @Autowired
     private ReceiveWeightCheckDao receiveWeightCheckDao;
@@ -145,7 +150,7 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
         result.setData(0);
 
         if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newWaybillCode)) {
-            log.error("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
+            logger.error("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
             result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
             result.setMessage("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
             result.setData(-1);
@@ -201,7 +206,7 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
                         try {
                             againVolume = Double.parseDouble(againVolumeStr);
                         } catch (Exception e) {
-                            log.error("体积数据转换异常，体积值为：" + againVolumeStr);
+                            logger.error("体积数据转换异常，体积值为：" + againVolumeStr);
                         }
                     }
                     //如果体积不存在，或者体积小于等于0，需要进行量方
@@ -228,10 +233,10 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
                     }
 
                     if (isNeedWeight || isNeedVolume) {
-                        log.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！result：" + result.getData());
+                        logger.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！result：" + result.getData());
                     }
                 } else {
-                    log.error("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
+                    logger.error("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
                     result.setMessage("新单号:"+ newWaybillCode + "的运单信息为空，请联系IT人员处理");
                     result.setData(-1);
@@ -240,11 +245,128 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
             }
 
         }catch (Exception e){
-            log.error("判断新单是否必须称重量方服务异常，老单号:" + newWaybillCode + ",新单号：" + newWaybillCode, e);
+            logger.error("判断新单是否必须称重量方服务异常，老单号:" + newWaybillCode + ",新单号：" + newWaybillCode, e);
             result.setData(-1);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
+        return result;
+    }
+
+    @Override
+    public InterceptResult<String> reverseChangePrintCheckWeightAndVolume(String oldWaybillCode, String newWaybillCode, int eightVolumeOperEnable, WeightOperFlow weightOperFlow, boolean isHalfPackage) {
+        InterceptResult<String> result = new InterceptResult<>();
+        result.toSuccess();//初始状态成功
+
+        /* 非签单返还 符合包裹半收，则必须进行称重和量方 */
+        if (!WaybillUtil.isReturnCode(newWaybillCode) && isHalfPackage) {
+            if ((Constants.WEIGHT_ENABLE & eightVolumeOperEnable) != Constants.WEIGHT_ENABLE
+                    || (Constants.VOLUME_ENABLE & eightVolumeOperEnable) != Constants.VOLUME_ENABLE) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->此包裹{}为半收包裹，必须启用包裹称重，并进行量方",
+                        oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME,
+                        MessageFormat.format(JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME,oldWaybillCode));
+                return result;
+            }
+            if (null == weightOperFlow) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->体积录入异常！此包裹{}为半收包裹，长宽高必须输入！",
+                        oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT);
+                return result;
+            }
+            if (weightOperFlow.getHigh() <= 0 || weightOperFlow.getWidth() <= 0 || weightOperFlow.getLength() <= 0) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->体积录入异常！此包裹{}为半收包裹，长宽高必须输入！",
+                        oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME);
+                return result;
+            }
+            if (weightOperFlow.getWeight() <= 0) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->重量录入异常！此包裹{}为半收包裹，重量必须录入！",
+                        oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT);
+                return result;
+            }
+        }
+
+        /*
+            校验是否必须进行称重量方 获取是够进行必须称重量方的结果，目前只判断取件单和自营拒收单
+            0表示不需要称重，不需要量方
+            1表示不需要称重，需要量方
+            2表示需要称重，不需要量方
+            3表示需要称重，需要量方
+         */
+        InvokeResult<Integer> weightAndVolumeCheck = waybillExchangeCheckWeightAndVolume(oldWaybillCode,newWaybillCode);
+        if (null == weightAndVolumeCheck || weightAndVolumeCheck.getCode() != JdResponse.CODE_OK
+                || null == weightAndVolumeCheck.getData()) {
+            logger.warn("ReverseChangeInterceptHandler.handle-->校验是否需要进行称重量方失败，旧单{},新单{}",
+                    oldWaybillCode,newWaybillCode);
+            result.toError(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+            return result;
+        } else if (weightAndVolumeCheck.getData() == 1) {
+            /* 未启用量方或者量方数据不准确 */
+            if ((Constants.VOLUME_ENABLE & eightVolumeOperEnable) != Constants.VOLUME_ENABLE
+                    || null == weightOperFlow || weightOperFlow.getLength() <= 0
+                    || weightOperFlow.getWidth() <= 0 || weightOperFlow.getHigh() <= 0) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行量方",oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME);
+                return result;
+            }
+        } else if (weightAndVolumeCheck.getData() == 2) {
+            /* 未启用称重或者称重数据不准确 */
+            if ((Constants.WEIGHT_ENABLE & eightVolumeOperEnable) != Constants.WEIGHT_ENABLE
+                    || null == weightOperFlow || weightOperFlow.getWeight() <= 0) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重",oldWaybillCode);
+                result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT);
+                return result;
+            }
+        } else if (weightAndVolumeCheck.getData() == 3) {
+            /* 未启用称重+量方，或者称重量方数据不准确 */
+            if ((Constants.WEIGHT_ENABLE & eightVolumeOperEnable) != Constants.WEIGHT_ENABLE
+                    || (Constants.VOLUME_ENABLE & eightVolumeOperEnable) != Constants.VOLUME_ENABLE
+                    || null == weightOperFlow || weightOperFlow.getWeight() <= 0 || weightOperFlow.getLength() <= 0
+                    || weightOperFlow.getWidth() <= 0 || weightOperFlow.getHigh() <= 0) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->旧单号{}操作换单打印必须进行称重量方",oldWaybillCode);
+                result.toError(JdResponse.
+                                CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT);
+                return result;
+            }
+        }
+
+        /* 启用称重 01 */
+        if ((Constants.WEIGHT_ENABLE & eightVolumeOperEnable) == Constants.WEIGHT_ENABLE) {
+            if (null == weightOperFlow || weightOperFlow.getWeight() <= 0.00 ) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，未回传重量信息",oldWaybillCode);
+                result.toError(JdResponse.
+                                CODE_REVERSE_CHANGE_PRINT_NO_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_NO_WEIGHT);
+                return result;
+            } else if (weightOperFlow.getWeight() >= Constants.ILLEGAL_WEIGHT_1000) {
+                logger.error("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过1000KG！",oldWaybillCode);
+                result.toError(JdResponse.
+                                CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000);
+                return result;
+            } else if (weightOperFlow.getWeight() >= Constants.CONFIRM_WEIGHT_100) {
+                logger.warn("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过100KG！",oldWaybillCode);
+                result.toWeakSuccess(JdResponse.
+                                CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100);
+                return result;
+            } else if (weightOperFlow.getWeight() >= Constants.CONFIRM_WEIGHT_25) {
+                logger.debug("ReverseChangeInterceptHandler.handle-->{}启用包裹称重，重量超过25KG！",oldWaybillCode);
+                result.toWeakSuccess(JdResponse.
+                                CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT,
+                        JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT);
+                return result;
+            }
+        }
+
         return result;
     }
 }

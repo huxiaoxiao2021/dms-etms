@@ -329,6 +329,12 @@ public class BasePrintWaybill implements Serializable {
 	 * */
 	private String additionalComment;
 
+	/**
+	 * 传入运单时待打印的包裹列表的下标指引
+	 * 用于指引客户端需要打印哪一个包裹
+	 */
+	private Integer willPrintPackageIndex = 0;
+
 	public String getAdditionalComment() {
 		return additionalComment;
 	}
@@ -1160,5 +1166,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setConsignerTelText(String consignerTelText) {
 		this.consignerTelText = consignerTelText;
+	}
+
+	public Integer getWillPrintPackageIndex() {
+		return willPrintPackageIndex;
+	}
+
+	public void setWillPrintPackageIndex(Integer willPrintPackageIndex) {
+		this.willPrintPackageIndex = willPrintPackageIndex;
 	}
 }

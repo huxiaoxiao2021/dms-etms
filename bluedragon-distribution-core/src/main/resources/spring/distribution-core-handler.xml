@@ -12,7 +12,7 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="1001"  value-ref="waybillPrintCommandHandler"/>
 				<entry key="1003"  value-ref="waybillPrintJsfCommandHandler"/>
-				<entry key="1005"  value-ref="siteMasterWorkspaceWaybillPrintCommandHandler"/>
+				<entry key="1005"  value-ref="waybillPrintWebCommandHandler"/>
 			</map>
 		</property>
 	</bean>
@@ -49,11 +49,11 @@
 		</property>
 	</bean>
 	<!-- 站长工作台打印-指令处理配置 -->
-	<bean id="siteMasterWorkspaceWaybillPrintCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
-		<property name="jsonOperateHandlerMapping" ref="siteMasterWorkspaceWaybillPrintOperateHandlerMapping"/>
+	<bean id="waybillPrintWebCommandHandler" class ="com.jd.bluedragon.distribution.command.WaybillPrintCommandHandler">
+		<property name="jsonOperateHandlerMapping" ref="waybillPrintWebOperateHandlerMapping"/>
 	</bean>
 	<!-- 站长工作台打印-打印逻辑映射关系配置 -->
-	<bean id="siteMasterWorkspaceWaybillPrintOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
+	<bean id="waybillPrintWebOperateHandlerMapping" class ="com.jd.bluedragon.distribution.command.handler.JsonOperateHandlerMapping">
 		<property name="handlerMap">
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100501"  value-ref="packageReprint"/>
@@ -108,16 +108,16 @@
 		<property name="handlers">
 			<list>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="duplicatePrintInterceptHandler"/>
+				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
-				<ref bean="pickThisPackageHandler"/>
-				<ref bean="printCheckInterceptHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
@@ -128,16 +128,16 @@
 			<list>
 				<ref bean="reverseChangeInterceptHandler"/>
 				<ref bean="basicWaybillPrintHandler"/>
-				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="c2cInterceptHandler"/>
+				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
 				<ref bean="hideInfoWaybillHandler"/>
-				<ref bean="pickThisPackageHandler"/>
 				<ref bean="packageWeightHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
@@ -147,16 +147,16 @@
         <property name="handlers">
             <list>
                 <ref bean="basicWaybillPrintHandler"/>
-				<ref bean="mappedBasicPrintWaybillHandler"/>
                 <ref bean="c2cInterceptHandler"/>
-                <ref bean="interceptWaybillHandler"/>
+				<ref bean="interceptWaybillHandler"/>
 				<ref bean="scheduleSiteSupportInterceptHandler"/>
-                <ref bean="scheduleWaybillHandler"/>
-                <ref bean="specialMarkWaybillHandler"/>
-                <ref bean="specialTextWaybillHandler"/>
-                <ref bean="promiseWaybillHandler"/>
-                <ref bean="hideInfoWaybillHandler"/>
-                <ref bean="templateSelectorWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="mappedBasicPrintWaybillHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
             </list>
         </property>
     </bean>

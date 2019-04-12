@@ -172,6 +172,12 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000 = 30119;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000 = "包裹重量为{0},已经超过1000KG,不允许操作！";
 
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME = 30120;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME = "该包裹{0}属于半收业务必须启用称重，并进行量方";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_ALREADY = 30121;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_ALREADY = "该单号{0}已打印";
+
     /** 请求服务URL */
     private String request;
     

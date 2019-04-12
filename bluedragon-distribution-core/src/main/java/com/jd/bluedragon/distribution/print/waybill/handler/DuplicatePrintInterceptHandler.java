@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
  * @author wuzuxiang
  * @since 2019/4/5
  */
-@Service("printCheckInterceptHandler")
-public class PrintCheckInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
+@Service("duplicatePrintInterceptHandler")
+public class DuplicatePrintInterceptHandler implements InterceptHandler<WaybillPrintContext,String> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PrintCheckInterceptHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DuplicatePrintInterceptHandler.class);
 
     @Autowired
     private RedisManager redisManager;
@@ -39,7 +39,7 @@ public class PrintCheckInterceptHandler implements InterceptHandler<WaybillPrint
         String barCodeCached = redisManager.getCache(
                 KeyConstants.genConstantsKey(KeyConstants.REDIS_PREFIX_KEY_PACK_REPRINT, barCode));
         if(StringHelper.isNotEmpty(barCodeCached)){
-            LOGGER.warn("handler.PrintCheckInterceptHandler-->{}该单号一小时之内重复打印",barCode);
+            LOGGER.warn("DuplicatePrintInterceptHandler.handler-->{}该单号一小时之内重复打印",barCode);
             result.toWeakSuccess(JdResponse.CODE_RE_PRINT_IN_ONE_HOUR,JdResponse.MESSAGE_RE_PRINT_IN_ONE_HOUR);
         }
 

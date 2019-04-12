@@ -103,6 +103,11 @@ public class WaybillPrintRequest extends JdRequest{
      */
 	private Integer packageIndex = -1;
 
+	/**
+	 * 旧单号
+     */
+	private String oldBarCode;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -309,5 +314,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setPackageIndex(Integer packageIndex) {
 		this.packageIndex = packageIndex;
+	}
+
+	public String getOldBarCode() {
+		return oldBarCode;
+	}
+
+	public void setOldBarCode(String oldBarCode) {
+		this.oldBarCode = oldBarCode;
 	}
 }
