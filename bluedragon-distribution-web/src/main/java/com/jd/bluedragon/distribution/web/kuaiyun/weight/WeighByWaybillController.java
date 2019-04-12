@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -13,11 +14,14 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
@@ -33,6 +37,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,11 +64,18 @@ public class WeighByWaybillController {
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
 
+    private final Integer EXCESS_CODE = 600;
+    private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
+    private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
+
     @Autowired
     WeighByWaybillService service;
 
     @Autowired
     BaseMajorManager baseMajorManager;
+
+    @Autowired
+    WaybillQueryManager waybillQueryManager;
 
     @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
     @RequestMapping("/index")
@@ -507,6 +519,46 @@ public class WeighByWaybillController {
         }
 
         return resList;
+    }
+
+    @Authorization(Constants.DMS_WEB_TOOL_B2BWEIGHT_R)
+    @ResponseBody
+    @RequestMapping("/checkIsExcess")
+    public InvokeResult checkIsExcess(@QueryParam("codeStr") String codeStr,
+                                               @QueryParam("weight") String weight,@QueryParam("volume") String volume){
+        InvokeResult result = new InvokeResult();
+
+        if(StringUtils.isEmpty(codeStr) || StringUtils.isEmpty(weight)
+                || StringUtils.isEmpty(volume)){
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        try{
+            if(WaybillUtil.isWaybillCode(codeStr)){
+                int packNum = 0;
+                BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(codeStr, true, true, true, false);
+                if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
+                    packNum = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
+                    if(Double.parseDouble(weight) > 200*packNum || Double.parseDouble(volume) > packNum){
+                        result.setCode(EXCESS_CODE);
+                        result.setMessage(WAYBILL_WEIGHT_VOLUME_EXCESS_HIT);
+                    }
+                }else{
+                    result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                    result.setMessage("运单信息为空!");
+                }
+            }else{
+                if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
+                    result.setCode(EXCESS_CODE);
+                    result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
+                }
+            }
+        }catch (Exception e){
+            this.logger.error("通过运单号:"+codeStr+"获取运单信息失败!");
+        }
+
+        return result;
     }
 
 

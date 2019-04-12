@@ -392,6 +392,13 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             if(isValid) {
                 var weight = $('#waybill-weight-kg-input').numberbox('getValue');
                 var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
+                var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
+                /*重量体积最大限额校验*/
+                isExcessResult(codeStr,weight,cbm);
+                if(flag){
+                    return;
+                }
+
                 /*校验密度*/
                 if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
                     var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
@@ -416,7 +423,28 @@ function existSubmit(insertParam,removeFailData,removeIndex){
         }
 
     });
-
+    /*重量体积最大限额确定取消标识*/
+    var flag = false;
+    var isExcessResult = function(codeStr,weight,volume){
+        $.ajax({
+            type: 'GET',
+            contentType : 'application/json',
+            url : "/b2b/express/weight/checkIsExcess?codeStr=" + codeStr +"&weight="+ weight +"&volume="+ volume,
+            dataType : 'json',
+            async : true,
+            success : function(result) {
+                if(result.code == 600){
+                    $.messager.confirm('请您仔细确认',result.message
+                        ,function(confirmFlag){
+                            if(confirmFlag != true){
+                                flag = true;
+                            }
+                        }
+                    );
+                }
+            }
+        });
+    }
 
     /*批量导入按钮*/
     $('#waybill-weight-import-btn').linkbutton({
