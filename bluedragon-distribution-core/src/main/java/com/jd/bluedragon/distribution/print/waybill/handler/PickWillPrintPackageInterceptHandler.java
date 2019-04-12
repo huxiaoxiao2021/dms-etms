@@ -83,18 +83,24 @@ public class PickWillPrintPackageInterceptHandler implements  InterceptHandler<W
         List<PrintPackage> newPackList = new ArrayList<>(context.getResponse().getPackList().size());
         int minIndex = context.getResponse().getPackList().size();
         boolean alreadyPrint = Boolean.TRUE;
+        /* 用户是否以包裹号进行请求 */
+        boolean getPackageFlag = WaybillUtil.isPackageCode(context.getRequest().getBarCode())
+                || WaybillUtil.isPackageCode(context.getRequest().getOldBarCode());
+
         for (int i = 0; i < context.getResponse().getPackList().size(); i++) {
             PrintPackage printPackage = context.getResponse().getPackList().get(i);
-            if (context.getRequest().getBarCode().equals(printPackage.getPackageCode())
-                    || context.getRequest().getPackageIndex().equals(printPackage.getPackageIndexNum())) {
+            if (getPackageFlag) {
                 /* 请求是包裹号 */
-                newPackList.add(printPackage);
-                context.getResponse().setWillPrintPackageIndex(0);
-                if (!printPackage.isPrintPack) {
+                if (context.getRequest().getBarCode().equals(printPackage.getPackageCode())
+                        || context.getRequest().getPackageIndex().equals(printPackage.getPackageIndexNum())) {
+                    newPackList.add(printPackage);
+                    context.getResponse().setWillPrintPackageIndex(0);
+                    if (!printPackage.isPrintPack) {
                     /* 一旦出现未打印的则置alreadyPrint = false */
-                    alreadyPrint = Boolean.FALSE;
+                        alreadyPrint = Boolean.FALSE;
+                    }
                 }
-            } else if (WaybillUtil.isWaybillCode(context.getRequest().getBarCode())) {
+            } else {
                 /* 请求是运单号 */
                 newPackList.add(printPackage);
                 if (!printPackage.isPrintPack) {
