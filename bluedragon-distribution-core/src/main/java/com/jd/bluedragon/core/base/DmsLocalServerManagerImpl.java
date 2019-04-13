@@ -9,8 +9,8 @@ import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.entity.ComponentPosi
 import com.jd.bd.dms.automatic.sdk.modules.storagecomponent.request.ComponentPositionInfoJsfRequest;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,38 +43,43 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
     @Qualifier("dmsLocalInstanceInfoJsfService")
     private DmsLocalInstanceInfoJsfService dmsLocalInstanceInfoJsfService;
 
-    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVipListByDmsId", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public List<VipInfoJsfEntity> getVipListByDmsId(Integer dmsId) {
         if (dmsId == null) {
             return Collections.emptyList();
         }
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsLocalServerManagerImpl.getVipListByDmsId", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             return this.getDataListByResponse(dmsLocalServerInfoJsfService.getVipListByDmsId(dmsId));
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[JSF接口调用异常]调用自动化JSF接口getVipListByDmsId()获取分拣中心本地服务器VIP地址出现异常", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
-    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getAllVipList", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public List<VipInfoJsfEntity> getAllVipList() {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsLocalServerManagerImpl.getAllVipList", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             return this.getDataListByResponse(dmsLocalServerInfoJsfService.getAllVipList());
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[JSF接口调用异常]调用自动化JSF接口getAllVipList()获取分拣中心本地服务器VIP地址出现异常", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
-    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getStorageCodeByDmsId", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public List<String> getStorageCodeByDmsId(Integer dmsId) {
         ComponentPositionInfoJsfRequest param = new ComponentPositionInfoJsfRequest();
         List<String> result = new ArrayList<String>();
         param.setCreateSiteCode(dmsId.toString());
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsLocalServerManagerImpl.getStorageCodeByDmsId", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseDmsAutoJsfResponse<List<ComponentPositionJsfEntity>> baseDmsAutoJsfResponse = storageComponentJsfService.getPositionBySite(param);
             if(BaseDmsAutoJsfResponse.SUCCESS_CODE == baseDmsAutoJsfResponse.getStatusCode()){
@@ -86,15 +91,18 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
                 logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySite  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySite "+ JsonHelper.toJson(param), e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return result;
     }
 
-    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.getVerAppUrlBySiteCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public String getVerAppUrlBySiteCode(String siteCode) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsLocalServerManagerImpl.getVerAppUrlBySiteCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseDmsAutoJsfResponse<String> response=dmsLocalInstanceInfoJsfService.getSortSchemeUrlBySiteCode(siteCode);
             if (response != null && response.getStatusCode() == BaseDmsAutoJsfResponse.SUCCESS_CODE){
@@ -104,18 +112,21 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
             }
 
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[JSF接口调用异常]调用自动化JSF接口getVerAppUrlBySiteCode获取分拣中心本地服务器地址出现异常", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
-    @JProfiler(jKey = "DMSWEB.DmsLocalServerManagerImpl.checkStorage", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @Override
     public boolean checkStorage(Integer dmsId, String storageCode) {
         ComponentPositionInfoJsfRequest param = new ComponentPositionInfoJsfRequest();
         param.setCreateSiteCode(dmsId.toString());
         param.setPositionCode(storageCode);
 
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsLocalServerManagerImpl.checkStorage", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseDmsAutoJsfResponse<List<ComponentPositionJsfEntity>> baseDmsAutoJsfResponse = storageComponentJsfService.getPositionBySiteAndCode(param);
             if(BaseDmsAutoJsfResponse.SUCCESS_CODE == baseDmsAutoJsfResponse.getStatusCode()){
@@ -131,7 +142,10 @@ public class DmsLocalServerManagerImpl implements DmsLocalServerManager {
                 logger.error("[JSF接口调用失败]调用自动化JSF接口getPositionBySiteAndCode  "+ JsonHelper.toJson(param)+"  "+baseDmsAutoJsfResponse.getStatusMessage());
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[JSF接口调用异常]调用自动化JSF接口getPositionBySiteAndCode "+ JsonHelper.toJson(param), e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return false;

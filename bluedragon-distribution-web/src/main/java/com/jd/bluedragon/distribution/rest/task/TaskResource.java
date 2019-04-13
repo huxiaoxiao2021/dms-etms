@@ -241,8 +241,6 @@ public class TaskResource {
     @POST
     @Path("/astasks")
     public TaskResponse addASTask(TaskRequest request) {
-        //加入监控，开始
-        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
         Assert.notNull(request, "autosorting task request must not be null");
         this.logger.info("总部接口接收到自动分拣机传来的交接数据,数据 ：" + JsonHelper.toJson(request));
         TaskResponse response = null;
@@ -251,14 +249,18 @@ public class TaskResource {
                     JdResponse.MESSAGE_PARAM_ERROR);
             return response;
         }
-        //加入监控结束
-        Profiler.registerInfoEnd(info);
+        //加入监控，开始
+        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
         try {
             taskService.addInspectSortingTask(request);
         } catch (Exception ex) {
+            Profiler.functionError(info);
             logger.error("总部接口接收到自动分拣机传来的交接数据插入分拣交接数据失败。原因 " + ex);
             response = new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
             return response;
+        }finally {
+            //加入监控结束
+            Profiler.registerInfoEnd(info);
         }
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
@@ -270,16 +272,18 @@ public class TaskResource {
      * @param packageDtos
      * @return
      */
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.addInspectSortingTask", mState = {
-            JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/InspectSortingTask")
     public TaskResponse addInspectSortingTask(AutoSortingPackageDto packageDtos) {
+        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.addInspectSortingTask", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             taskService.addInspectSortingTaskDirectly(packageDtos);
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("智能分拣线插入交接、分拣任务失败，原因", e);
             return new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));

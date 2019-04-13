@@ -30,7 +30,6 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -56,8 +55,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -418,10 +415,9 @@ public class SortingServiceImpl implements SortingService {
 		return true;
 	}
 
-	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getSendMSelective", mState = {
-			JProEnum.TP, JProEnum.FunctionError })
 	public SendM getSendMSelective(Sorting sorting){
-		SendM result = null;
+        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.sorting.getSendMSelective", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        SendM result = null;
 		try{
 			SendM sendM = new SendM();
 			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
@@ -438,8 +434,12 @@ public class SortingServiceImpl implements SortingService {
 				}
 			}
 		}catch (Throwable ex){
+			Profiler.functionError(info);
 			logger.error("find sendm selective error ", ex);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
+
 		return result;
 	}
 
@@ -1016,28 +1016,6 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
         sendDetail.setBoardCode(sendM.getBoardCode());
 		sendDetail.setBizSource(sendM.getBizSource());
-	}
-
-	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
-			JProEnum.TP, JProEnum.FunctionError })
-	private SendM getReadOnlySendM(Sorting sorting){
-		try {
-			SendM sendM = new SendM();
-			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
-			sendM.setBoxCode(sorting.getBoxCode());
-			sendM.setReceiveSiteCode(sorting.getReceiveSiteCode());
-			List<SendM> sendMs = sendMReadDao.findSendMByBoxCode(sendM);
-			if (null != sendMs && !sendMs.isEmpty()) {
-				logger.warn("find senm from db success value <"
-						+ JsonHelper.toJson(sendMs.get(0)) + ">");
-				return sendMs.get(0);
-			}
-		} catch (Exception ex) {
-			logger.warn("find senm from db throws exception ", ex);
-			return null;
-		}
-		logger.warn("find senm from db fail value <null>");
-		return null;
 	}
 
 	private void fillSendDetailIfPickup(SendDetail sendDetail) {

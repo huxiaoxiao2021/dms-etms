@@ -3,7 +3,6 @@ package com.jd.bluedragon.core.base;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
-import com.jd.bluedragon.distribution.packageToMq.domain.Pack;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.orm.page.Page;
@@ -15,6 +14,8 @@ import com.jd.ldop.middle.api.basic.domain.BasicTraderQueryDTO;
 import com.jd.ql.erp.jsf.VendorOrderJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +39,11 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
     private VendorOrderJsfService vendorOrderJsfService;
 
     @Override
-    @JProfiler(jKey = "com.jd.bluedragon.core.base.SiteRetakeManagerImpl.queryBasicTraderInfoByKey", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<BasicTraderQueryDTO> queryBasicTraderInfoByKey(String key) {
         if (StringHelper.isEmpty(key)) {
             return new ArrayList();
         }
+        CallerInfo info = Profiler.registerInfo("com.jd.bluedragon.core.base.SiteRetakeManagerImpl.queryBasicTraderInfoByKey", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseResult<List<BasicTraderQueryDTO>> baseResult = basicTraderInfoQueryApi.queryBasicTraderInfoByKey(key.trim());
             if (baseResult != null && baseResult.getStatusCode() == 0 && baseResult.getData() != null && baseResult.getData().size() > 0) {
@@ -55,8 +56,11 @@ public class SiteRetakeManagerImpl implements SiteRetakeManager {
                 return new ArrayList();
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("SiteRetakeManagerImpl-queryBasicTraderInfoByKey 查询失败，key:" + key, e);
             return new ArrayList();
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
