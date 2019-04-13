@@ -3,11 +3,12 @@ package com.jd.bluedragon.distribution.web.admin;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +37,7 @@ public class WorkerMonitorController {
 	@Autowired
 	private WorkerMonitorService workerMonitorService;
 
+	@Authorization(Constants.DMS_WEB_DEVELOP_DBTASK_R)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String index(Model model) {
 		try {
@@ -47,6 +49,7 @@ public class WorkerMonitorController {
 		return "admin/worker-monitor/worker-monitor-index";
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_DBTASK_R)
 	@RequestMapping(value = "/list", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<Pager<List<Task>>> doQueryWorker(WorkerRequest request, Pager<List<Task>> pager, Model model) {
@@ -85,6 +88,7 @@ public class WorkerMonitorController {
 		return cdto;
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_DBTASK_R)
 	@RequestMapping(value = "/queryTaskTypeByTableName", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<List<Integer>> queryTaskTypeByTableName(Model model, @RequestParam(value = "tableName", required = false) String tableName) {
@@ -113,6 +117,7 @@ public class WorkerMonitorController {
 		return cdto;
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_DBTASK_R)
 	@RequestMapping(value = "/doTaskReset", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<Integer> doTaskReset(Model model, @RequestParam(value = "id", required = false) Integer id, @RequestParam(value = "tableName", required = false) String tableName) {
@@ -139,6 +144,7 @@ public class WorkerMonitorController {
 		return cdto;
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_DBTASK_R)
 	@RequestMapping(value = "/doTaskBatchReset", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<Integer> doTaskBatchReset(WorkerRequest request, Model model) {

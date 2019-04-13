@@ -17,7 +17,6 @@ import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.domain.ProvinceNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -84,12 +83,12 @@ public class DmsStorageAreaController extends DmsBaseController{
     @RequestMapping("/getProvinceList")
     @ResponseBody
     public List getProvince() {
-        this.logger.info("获取所有的省份");
+        logger.info("获取所有的省份");
         List<ProvinceNode> provinces = new ArrayList<ProvinceNode>();
         try {
             provinces.addAll(AreaHelper.getAllProvince());
         } catch (Exception e) {
-            this.logger.warn("获取所有的省份失败", e);
+            logger.warn("获取所有的省份失败", e);
         }
         return provinces;
     }
@@ -103,12 +102,12 @@ public class DmsStorageAreaController extends DmsBaseController{
     @RequestMapping("/getCityList")
     @ResponseBody
     public List getCity(Integer provinceId) {
-        this.logger.info("获取对应省下的所有城市");
+        logger.info("获取对应省下的所有城市");
         List<ProvinceAndCity> cities = new ArrayList<ProvinceAndCity>();
         try {
             cities = provinceAndCityService.getCityByProvince(provinceId);
         } catch (Exception e) {
-            this.logger.warn("根据省份Id获取城市失败：" + provinceId, e);
+            logger.warn("根据省份Id获取城市失败：" + provinceId, e);
         }
         return cities;
     }
@@ -235,7 +234,7 @@ public class DmsStorageAreaController extends DmsBaseController{
                 }
             }
         } catch (Exception e) {
-            this.logger.error("加载站点失败areaId：" + areaId + "provinceId:" + provinceId + "cityId:" + cityId, e);
+            logger.error("加载站点失败areaId：" + areaId + "provinceId:" + provinceId + "cityId:" + cityId, e);
         }
         return allDms;
     }
@@ -251,7 +250,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             allDms.addAll(siteService.getAllDmsSite());
         } catch (Exception e) {
-            this.logger.error("加载站点失败：", e);
+            logger.error("加载站点失败：", e);
         }
         return allDms;
     }
@@ -262,6 +261,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<DmsStorageArea> detail(@PathVariable("id") Long id) {
@@ -269,7 +269,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             rest.setData(dmsStorageAreaService.findById(id));
         } catch (Exception e) {
-            this.logger.warn("通过id查询失败：" + id, e);
+            logger.warn("通过id查询失败：" + id, e);
             rest.setCode(JdResponse.CODE_FAIL);
         }
         return rest;
@@ -281,6 +281,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param dmsStorageArea
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/save")
     public @ResponseBody
     JdResponse<Boolean> save(DmsStorageArea dmsStorageArea) {
@@ -328,7 +329,7 @@ public class DmsStorageAreaController extends DmsBaseController{
                 dmsStorageArea.setUpdateUserName(erpUser.getUserName());
             }
         } catch (Exception e) {
-            this.logger.warn("获取信息失败", e);
+            logger.warn("获取信息失败", e);
             rest.setCode(JdResponse.CODE_FAIL);
             rest.setMessage("获取信息失败");
             return rest;
@@ -365,6 +366,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
@@ -384,6 +386,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param dmsStorageAreaCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<DmsStorageArea> listData(@RequestBody DmsStorageAreaCondition dmsStorageAreaCondition) {
@@ -391,7 +394,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         try {
             rest.setData(dmsStorageAreaService.queryByPagerCondition(dmsStorageAreaCondition));
         } catch (Exception e) {
-            this.logger.error("服务异常查询失败！");
+            logger.error("服务异常查询失败！");
         }
         return rest.getData();
     }
@@ -402,6 +405,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param file
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_DMSSTORAGEAREA_R)
     @RequestMapping("/uploadExcel")
     @ResponseBody
     public JdResponse uploadExcel(@RequestParam("importExcelFile") MultipartFile file) {
@@ -424,7 +428,7 @@ public class DmsStorageAreaController extends DmsBaseController{
             dmsSiteCode = bssod.getSiteCode();
             Integer siteType = bssod.getSiteType();
             if (siteType != 64) {
-                this.logger.warn("该操作机构不是分拣中心");
+                logger.warn("该操作机构不是分拣中心");
                 errorString = "该操作机构不是分拣中心！";
                 return new JdResponse(JdResponse.CODE_FAIL, errorString);
             }
@@ -465,7 +469,7 @@ public class DmsStorageAreaController extends DmsBaseController{
             if (e instanceof IllegalArgumentException) {
                 errorString = e.getMessage();
             } else {
-                this.logger.error("导入异常信息：", e);
+                logger.error("导入异常信息：", e);
                 errorString = "导入出现异常";
             }
             return new JdResponse(JdResponse.CODE_FAIL, errorString);

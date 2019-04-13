@@ -83,6 +83,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -98,12 +99,15 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
@@ -137,6 +141,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 @Service("deliveryService")
@@ -293,6 +298,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ReversePartDetailService reversePartDetailService;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private WaybillPackageApi waybillPackageApi;
 
     private static final int OPERATE_TYPE_REVERSE_SEND = 50;
 
@@ -2605,7 +2616,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-  /**
+    /**
    * 快运发货差异查询
    *
    * @param sendMList

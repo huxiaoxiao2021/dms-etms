@@ -1,11 +1,12 @@
 package com.jd.bluedragon.distribution.web.operatelog;
 
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.operateMonitor.domain.OperateMonitor;
 import com.jd.bluedragon.distribution.operateMonitor.service.OperateMonitorService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +32,7 @@ public class DmsOperateMonitorController {
      * 跳转到主界面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_OPERATE_R)
     @RequestMapping("/index")
     public String index() {
         return "operateMonitor/operateMonitor";
@@ -40,6 +42,7 @@ public class DmsOperateMonitorController {
      * 根据包裹号查询实操数据
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_OPERATE_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<OperateMonitor> listData(@RequestBody OperateMonitor operateMonitor) {
         PagerResult<OperateMonitor> rest = new PagerResult<OperateMonitor>();

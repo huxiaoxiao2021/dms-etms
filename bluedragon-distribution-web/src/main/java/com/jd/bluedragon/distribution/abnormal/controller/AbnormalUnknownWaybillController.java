@@ -59,6 +59,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<AbnormalUnknownWaybill> detail(@PathVariable("id") Long id) {
@@ -70,6 +71,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
     /**
      * 二次上报
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/submitAgain/{waybillCode}")
     public @ResponseBody
     JdResponse<String> submitAgain(@PathVariable("waybillCode") String waybillCode) {
@@ -82,6 +84,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      * @param abnormalUnknownWaybill
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/save")
     public @ResponseBody
     JdResponse<String> save(@RequestBody AbnormalUnknownWaybill abnormalUnknownWaybill) {
@@ -105,6 +108,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
@@ -121,6 +125,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
     /**
      * 校验输入的运单号
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/checkWaybillCode")
     public @ResponseBody
     JdResponse checkWaybillCode(@QueryParam("waybillCodes") String waybillCodes) {
@@ -146,6 +151,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
      * @param abnormalUnknownWaybillCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<AbnormalUnknownWaybill> listData(@RequestBody AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition) {
@@ -158,6 +164,7 @@ public class AbnormalUnknownWaybillController extends DmsBaseController{
         rest.setData(abnormalUnknownWaybillService.queryByPagerCondition(abnormalUnknownWaybillCondition));
         return rest.getData();
     }
+    @Authorization(Constants.DMS_WEB_SORTING_UNKNOWNWAYBILL_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(AbnormalUnknownWaybillCondition abnormalUnknownWaybillCondition, Model model) {
         try {

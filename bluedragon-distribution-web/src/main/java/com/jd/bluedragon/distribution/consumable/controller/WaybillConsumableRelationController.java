@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +43,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/consumable/waybillConsumableRelation";
@@ -50,6 +53,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * @param id
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<WaybillConsumableRelation> detail(@PathVariable("id") Long id) {
 		JdResponse<WaybillConsumableRelation> rest = new JdResponse<WaybillConsumableRelation>();
@@ -61,6 +65,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * @param waybillConsumableRelation
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody WaybillConsumableRelation waybillConsumableRelation) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -90,6 +95,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * @param waybillConsumableRelationBatchDelete
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody WaybillConsumableRelationBatchDelete waybillConsumableRelationBatchDelete) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -111,6 +117,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 * @param waybillConsumableRelationCondition
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<WaybillConsumableDetailInfo> listData(@RequestBody WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
 		JdResponse<PagerResult<WaybillConsumableDetailInfo>> rest = new JdResponse<PagerResult<WaybillConsumableDetailInfo>>();
@@ -118,11 +125,13 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 		return rest.getData();
 	}
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping("/getModifyPage")
 	public String getModifyPage() {
 		return "consumable/waybillConsumableDetailModify";
 	}
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping("/getAddPage")
 	public String getAddPage() {
 		return "consumable/waybillConsumableDetailAdd";

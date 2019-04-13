@@ -1,1 +1,78 @@
-无权限操作，请先申请权限！ 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0032)http://www.zanpo.net/error404.htm -->
+<HTML>
+<HEAD><TITLE>青龙分拣系统</TITLE>
+    <META http-equiv=Content-Type content="text/html; charset=gb2312">
+    <STYLE type=text/css>BODY {
+        BACKGROUND: #fff;
+        MARGIN: 80px auto;
+        FONT: 14px/150% Verdana, Georgia, Sans-Serif;
+        COLOR: #000;
+        TEXT-ALIGN: center
+    }
+
+    A:link {
+        COLOR: #2c4c78;
+        TEXT-DECORATION: none
+    }
+
+    A:visited {
+        COLOR: #2c4c78;
+        TEXT-DECORATION: none
+    }
+
+    A:hover {
+        COLOR: #2c4c78;
+        TEXT-DECORATION: none
+    }
+
+    A:active {
+        COLOR: #2c4c78;
+        TEXT-DECORATION: none
+    }
+
+    H1 {
+        PADDING-RIGHT: 4px;
+        PADDING-LEFT: 4px;
+        FONT-SIZE: 30px;
+        BACKGROUND: #eee;
+        PADDING-BOTTOM: 15px;
+        MARGIN: 0px;
+        PADDING-TOP: 15px;
+        BORDER-BOTTOM: #84b0c7 1px solid
+    }
+
+    DIV {
+        BORDER-RIGHT: #84b0c7 1px solid;
+        BORDER-TOP: #84b0c7 1px solid;
+        BACKGROUND: #e5eef5;
+        MARGIN: 150px auto;
+        BORDER-LEFT: #84b0c7 1px solid;
+        WIDTH: 520px;
+        BORDER-BOTTOM: #84b0c7 1px solid
+    }
+
+    P {
+        PADDING-RIGHT: 15px;
+        PADDING-LEFT: 15px;
+        PADDING-BOTTOM: 10px;
+        MARGIN: 0px;
+        PADDING-TOP: 10px;
+        font-size: 15px;
+    }
+
+    </STYLE>
+
+    <META content="MSHTML 6.00.2900.2523" name=GENERATOR>
+</HEAD>
+<BODY>
+<DIV>
+    <H1>你无权进行此操作</H1>
+    <P>你没有相关权限</P>
+    <P>请联系系统管理员开通相关权限</P>
+    <P>You need following privileges:</P>
+    <P  style="color: red">${code}</P>
+    <p>维护地址：http://erp.jd.com > 通用功能 > 权限申请 > ERP权限申请</p>
+</DIV>
+</BODY>
+</HTML>
