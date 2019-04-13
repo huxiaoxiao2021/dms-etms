@@ -51,9 +51,9 @@ public class ColdChainSend {
     private Date updateTime;
 
     /**
-     * 是否删除 0 - 已删除， 1 - 未删除
+     * 逻辑删除标志,1-删除,0-正常
      */
-    private Integer yn;
+    private Integer isDelete;
 
     public Long getId() {
         return id;
@@ -119,11 +119,11 @@ public class ColdChainSend {
         this.updateTime = updateTime;
     }
 
-    public Integer getYn() {
-        return yn;
+    public Integer getIsDelete() {
+        return isDelete;
     }
 
-    public void setYn(Integer yn) {
-        this.yn = yn;
+    public void setIsDelete(Integer isDelete) {
+        this.isDelete = isDelete;
     }
 }

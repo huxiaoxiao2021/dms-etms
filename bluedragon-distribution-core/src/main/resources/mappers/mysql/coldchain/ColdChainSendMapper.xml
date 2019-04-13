@@ -10,7 +10,7 @@
         <result column="receive_site_code" jdbcType="INTEGER" property="receiveSiteCode"/>
         <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
         <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
-        <result column="yn" jdbcType="INTEGER" property="yn"/>
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -22,7 +22,7 @@
         receive_site_code,
         create_time,
         update_time,
-        yn
+        is_delete
     </sql>
 
     <insert id="add" parameterType="ColdChainSend">
@@ -34,7 +34,7 @@
         receive_site_code,
         create_time,
         update_time,
-        yn
+        is_delete
         )
         VALUES(
         #{waybillCode, jdbcType=VARCHAR},
@@ -44,7 +44,7 @@
         #{receiveSiteCode, jdbcType=INTEGER},
         NOW(),
         NOW(),
-        1
+        0
         )
     </insert>
 
@@ -57,7 +57,7 @@
         receive_site_code,
         create_time,
         update_time,
-        yn
+        is_delete
         )
         VALUES
         <foreach collection="list" item="item" index="index" separator=",">
@@ -69,7 +69,7 @@
             #{item.receiveSiteCode, jdbcType=INTEGER},
             NOW(),
             NOW(),
-            1
+            0
             )
         </foreach>
     </insert>
@@ -78,7 +78,7 @@
         SELECT
         <include refid="Base_Column_List"/>
         FROM cold_chain_send_waybill
-        WHERE yn = 1
+        WHERE is_delete = 0
         <if test="waybillCode != null">
             AND waybill_code = #{waybillCode, jdbcType=VARCHAR}
         </if>
