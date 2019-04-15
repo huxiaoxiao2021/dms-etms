@@ -27,6 +27,16 @@ public class LocalClaimInfoRespDTO{
     private String settleSubjectName;
     //结算主体编码
     private String settleSubjectCode;
+    //目的事业部编码
+    private String divisionNumber;
+
+    public String getDivisionNumber() {
+        return divisionNumber;
+    }
+
+    public void setDivisionNumber(String divisionNumber) {
+        this.divisionNumber = divisionNumber;
+    }
 
     public BigDecimal getPaymentRealMoney() {
         return paymentRealMoney;

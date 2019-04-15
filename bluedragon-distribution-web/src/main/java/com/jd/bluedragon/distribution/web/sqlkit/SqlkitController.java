@@ -12,6 +12,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Controller;
@@ -54,6 +55,7 @@ public class SqlkitController {
 		this.dataSource = (DataSource) SpringHelper.getBean(dataSourceName);
 	}
 
+	@Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
 	@RequestMapping("/toView")
 	public String toView(Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -75,6 +77,7 @@ public class SqlkitController {
 		model.addAttribute("dataSourceNames", dataSourceNames);
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_SQLKIT_R)
 	@RequestMapping(value = "/executeSql", method = { RequestMethod.GET, RequestMethod.POST })
 	public String executeSql(Sqlkit sqlkit, @SuppressWarnings("rawtypes") Pager pager, Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();

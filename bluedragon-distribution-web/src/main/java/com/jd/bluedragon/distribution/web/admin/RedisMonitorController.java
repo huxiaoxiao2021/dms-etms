@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,6 +40,7 @@ public class RedisMonitorController {
 	@Autowired
 	private RedisManager redisManager;
 
+	@Authorization(Constants.DMS_WEB_DEVELOP_REDIS_R)
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	public String index(Model model) {
 		try {
@@ -49,7 +52,8 @@ public class RedisMonitorController {
 		return "admin/redis-monitor/redis-monitor-index";
 	}
 
-	@RequestMapping(value = "/queryValueByKey", method = RequestMethod.POST)
+    @Authorization(Constants.DMS_WEB_DEVELOP_REDIS_R)
+    @RequestMapping(value = "/queryValueByKey", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<List<Map<String, Object>>> queryValueByKey(@RequestParam(value = "key", required = false) String key) {
 
@@ -85,6 +89,7 @@ public class RedisMonitorController {
 		return cdto;
 	}
 
+    @Authorization(Constants.DMS_WEB_DEVELOP_REDIS_R)
 	@RequestMapping(value = "/deleteByKey", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<String> deleteByKey(@RequestParam(value = "key", required = false) String key) {
@@ -113,6 +118,7 @@ public class RedisMonitorController {
 	 * 
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_DEVELOP_REDIS_R)
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	@ResponseBody
 	public CommonDto<List<Map<String, Object>>> add() {

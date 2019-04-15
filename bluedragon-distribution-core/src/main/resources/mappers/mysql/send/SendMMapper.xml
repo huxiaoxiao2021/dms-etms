@@ -25,6 +25,7 @@
 		<result column="excute_count" property="excuteCount" />
 		<result column="excute_time" property="excuteTime" />
 		<result column="transport_type" property="transporttype" />
+		<result column="biz_source" property="bizSource" />
 		<result column="yn" property="yn" />
 	</resultMap>
 	
@@ -33,19 +34,30 @@
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		send_m_id, send_code, send_user, send_user_code,box_code,turnoverBox_Code,
-		create_site_code,
-		receive_site_code,
-		car_code, send_type,
-		create_user, create_user_code, create_time,operate_time,
-		update_user_code,
-		updater_user,
-		update_time, yn,
-		shields_car_id,
-		transport_type,
-		excute_count,
-		excute_time,
-		board_code
+	send_m_id,
+	send_code,
+	send_user,
+	send_user_code,
+	box_code,
+	turnoverBox_Code,
+	create_site_code,
+	receive_site_code,
+	car_code,
+	send_type,
+	create_user,
+	create_user_code,
+	create_time,
+	operate_time,
+	update_user_code,
+	updater_user,
+	update_time,
+	yn,
+	shields_car_id,
+	transport_type,
+	excute_count,
+	excute_time,
+	board_code,
+	biz_source
 	</sql>
 	
 	<select id="selectBySendCode" parameterType="SendM"
@@ -137,24 +149,58 @@
 		<!--<selectKey resultType="long"  keyProperty="sendMId" order="BEFORE" statementType="PREPARED">      
 			<![CDATA[select dms_core_send_m.nextval]]>
 	    </selectKey>-->
-	
 		INSERT INTO send_m (
-		send_m_id, send_code, send_user, send_user_code,box_code,turnoverBox_Code,
+		send_m_id,
+		send_code,
+		send_user,
+		send_user_code,
+		box_code,
+		turnoverBox_Code,
 		create_site_code,
-		receive_site_code, car_code,
+		receive_site_code,
+		car_code,
 		send_type,
-		create_user, create_user_code, create_time,operate_time,
-		update_user_code, updater_user,sendm_status,
-		update_time, yn,shields_car_id,excute_count,excute_time,transport_type,board_code
+		create_user,
+		create_user_code,
+		create_time,
+		operate_time,
+		update_user_code,
+		updater_user,
+		sendm_status,
+		update_time,
+		yn,
+		shields_car_id,
+		excute_count,
+		excute_time,
+		transport_type,
+		board_code,
+		biz_source
 		)
 		VALUES
-			(
-			#{sendMId,jdbcType=BIGINT},
-			#{sendCode,jdbcType=VARCHAR},#{sendUser,jdbcType=VARCHAR},#{sendUserCode,jdbcType=INTEGER},#{boxCode,jdbcType=VARCHAR},#{turnoverBoxCode,jdbcType=VARCHAR},
-			#{createSiteCode,jdbcType=INTEGER},#{receiveSiteCode,jdbcType=INTEGER},#{carCode,jdbcType=INTEGER},#{sendType,jdbcType=INTEGER},
-			#{createUser,jdbcType=VARCHAR},#{createUserCode,jdbcType=INTEGER},NOW(),#{operateTime,jdbcType=TIMESTAMP},
-			#{updateUserCode,jdbcType=INTEGER},#{updaterUser,jdbcType=VARCHAR},1,#{updateTime,jdbcType=TIMESTAMP},#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER}
-			,0,NOW(),#{transporttype,jdbcType=INTEGER},#{boardCode,jdbcType=VARCHAR})
+		(
+		#{sendMId,jdbcType=BIGINT},
+		#{sendCode,jdbcType=VARCHAR},
+		#{sendUser,jdbcType=VARCHAR},
+		#{sendUserCode,jdbcType=INTEGER},
+		#{boxCode,jdbcType=VARCHAR},
+		#{turnoverBoxCode,jdbcType=VARCHAR},
+		#{createSiteCode,jdbcType=INTEGER},
+		#{receiveSiteCode,jdbcType=INTEGER},
+		#{carCode,jdbcType=INTEGER},
+		#{sendType,jdbcType=INTEGER},
+		#{createUser,jdbcType=VARCHAR},
+		#{createUserCode,jdbcType=INTEGER},NOW(),
+		#{operateTime,jdbcType=TIMESTAMP},
+		#{updateUserCode,jdbcType=INTEGER},
+		#{updaterUser,jdbcType=VARCHAR},
+		1,
+		#{updateTime,jdbcType=TIMESTAMP},
+		#{yn,jdbcType=TINYINT},#{shieldsCarId,jdbcType=INTEGER},
+		0,
+		NOW(),
+		#{transporttype,jdbcType=INTEGER},
+		#{boardCode,jdbcType=VARCHAR},
+		#{bizSource,jdbcType=TINYINT})
 	</insert>
 
 	<insert id = "addBatch">
@@ -182,7 +228,8 @@
 		excute_count,
 		excute_time,
 		transport_type,
-		board_code
+		board_code,
+		biz_source
 		)
 		VALUES
 		<foreach collection="list" item="sendM" index="index" separator=",">
@@ -210,7 +257,8 @@
 			0,
 			NOW(),
 			#{sendM.transporttype,jdbcType=INTEGER},
-			#{sendM.boardCode,jdbcType=VARCHAR})
+			#{sendM.boardCode,jdbcType=VARCHAR},
+			#{sendM.bizSource,jdbcType=TINYINT})
 		</foreach>
 	</insert>
 

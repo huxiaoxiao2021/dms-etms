@@ -53,6 +53,7 @@ public class PerformanceController {
      * @param performanceCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @RequestMapping(value = "/query")
     @ResponseBody
     public PagerResult<Performance> query(@RequestBody PerformanceCondition performanceCondition){
@@ -61,6 +62,7 @@ public class PerformanceController {
         return pagerResult;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @RequestMapping(value = "/isCanPrint")
     @ResponseBody
     public Integer isCanPrint(@RequestBody PerformanceCondition performanceCondition){
@@ -73,6 +75,7 @@ public class PerformanceController {
      * 跳转到打印的履约单页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @RequestMapping(value = "/print")
     public ModelAndView print(@QueryParam("performanceCode")String performanceCode,
                         @QueryParam("waybillorPackCode")String waybillorPackCode){
@@ -88,6 +91,7 @@ public class PerformanceController {
      * 将履约单的详细数据传给前台
      * @return
      */
+    @Authorization(Constants.DMS_WEB_EXPRESS_PERFORMANCE_R)
     @ResponseBody
     @RequestMapping(value = "/printInfo")
     public String printInfo(@QueryParam("performanceCode")String performanceCode,

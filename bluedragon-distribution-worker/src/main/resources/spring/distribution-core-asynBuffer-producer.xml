@@ -82,6 +82,11 @@
 					<entry key="task_sorting_1200_PRE" value="${jmq.task.topic.sorting.pre}"/>
 					<entry key="task_sorting_1200_UAT" value="${jmq.task.topic.sorting.uat}"/>
 
+					<!-- 分拣拆分-->
+					<entry key="task_sorting_1260_DMS" value="${jmq.task.topic.sorting.split.dms}"/>
+					<entry key="task_sorting_1260_PRE" value="${jmq.task.topic.sorting.split.pre}"/>
+					<entry key="task_sorting_1260_UAT" value="${jmq.task.topic.sorting.split.uat}"/>
+
 					<!-- 称重信息回传运单中心 -->
 					<entry key="task_weight_1160_DMS" value="${jmq.task.topic.weight.dms}"/>
 					<entry key="task_weight_1160_PRE" value="${jmq.task.topic.weight.pre}"/>

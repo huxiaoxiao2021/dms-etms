@@ -11,6 +11,8 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
@@ -28,13 +30,21 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.domain.SortingVO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -63,7 +73,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -143,14 +158,6 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
 
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public void addSortingAndSendDetail(Sorting sorting) {
-		this.addSorting(sorting, null);
-		SendDetail sendDetail = this.addSendDetail(sorting);
-		List<SendDetail> sendDList = new ArrayList<SendDetail>(1);
-		sendDList.add(sendDetail);
-		this.fixSendDAndSendTrack(sorting, sendDList);
-	}
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
@@ -263,7 +270,11 @@ public class SortingServiceImpl implements SortingService {
         WaybillStatus waybillStatus = new WaybillStatus();
 
         waybillStatus.setWaybillCode(sorting.getWaybillCode());
-        waybillStatus.setPackageCode(sorting.getPackageCode());
+        if(StringUtils.isNotBlank(sorting.getPackageCode())){
+			waybillStatus.setPackageCode(sorting.getPackageCode());
+		}else{
+			waybillStatus.setPackageCode(sorting.getWaybillCode());
+		}
 		waybillStatus.setBoxCode(sorting.getBoxCode());
 
 		waybillStatus.setOrgId(createSite.getOrgId());
@@ -293,6 +304,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public boolean doSorting(Task task) {
+
 		CallerInfo doSorting = ProfilerHelper.registerInfo("DMSWORKER.SortingService.doSorting",
 				Constants.UMP_APP_NAME_DMSWORKER);
 		//记录本次分拣处理的包裹数量
@@ -508,7 +520,7 @@ public class SortingServiceImpl implements SortingService {
 		Integer createSiteCode = sorting.getCreateSiteCode();
 		Integer receiveSiteCode = sorting.getReceiveSiteCode();
 
-		if (StringHelper.isEmpty(sorting.getPackageCode()) || !NumberHelper.isPositiveNumber(createSiteCode)
+		if ((StringHelper.isEmpty(sorting.getPackageCode())&&StringHelper.isEmpty(sorting.getWaybillCode())) || !NumberHelper.isPositiveNumber(createSiteCode)
 				|| !NumberHelper.isPositiveNumber(receiveSiteCode)
 				|| !NumberHelper.isPositiveNumber(sorting.getUpdateUserCode())
 				|| StringHelper.isEmpty(sorting.getUpdateUser())) {
@@ -571,7 +583,7 @@ public class SortingServiceImpl implements SortingService {
 		return null;
 	}
 
-	private void fillSortingIfPickup(Sorting sorting) {
+	public void fillSortingIfPickup(Sorting sorting) {
 		if (WaybillUtil.isSurfaceCode(sorting.getPackageCode())) {
 //            sorting.setPackageCode(SerialRuleUtil.getWaybillCode(sorting.getPackageCode()));
 			//包裹号写到运单字段bug修改    packagecode存包裹号  waybillcode存换单后单号即W单      add by lhc   2016.12.21
@@ -784,7 +796,7 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 * @return
 	 */
-	private SendDetail addSendDetail(Sorting sorting) {
+	public SendDetail addSendDetail(Sorting sorting) {
 		// added by huangliang
 		CallerInfo info = Profiler.registerInfo("DMSWORKER.SortingService.addSendDetail", false, true);
 		SendDetail sendDetail = SendDetail.toSendDatail(sorting);
@@ -809,36 +821,33 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sendDetail 发货明细数据
 	 */
 	private SendDetail addTransitSendDetail(SendDetail sendDetail, SendM sendM) {
-		// 分拣补中转发货
-		try {
-			SendDetail transitSendD = new SendDetail();
-			BeanUtils.copyProperties(sendDetail, transitSendD);
+		SendDetail transitSendD = new SendDetail();
+		BeanUtils.copyProperties(sendDetail, transitSendD);
 
-			transitSendD.setCreateSiteCode(sendM.getCreateSiteCode());
-			transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
-			// 补全批次号SendCode
-			transitSendD.setSendCode(sendM.getSendCode());
+		transitSendD.setCreateSiteCode(sendM.getCreateSiteCode());
+		transitSendD.setReceiveSiteCode(sendM.getReceiveSiteCode());
+		// 补全批次号SendCode
+		transitSendD.setSendCode(sendM.getSendCode());
 
-			// 更新或者插入发货明细表
-			this.deliveryService.saveOrUpdate(transitSendD);
+		// 更新或者插入发货明细表
+		this.deliveryService.saveOrUpdate(transitSendD);
 
-			transitSendD.setYn(1);
+		transitSendD.setYn(1);
 
-			// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
-			if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
-				transitSendD.setOperateTime(sendDetail.getOperateTime());
-			} else {
-				transitSendD.setOperateTime(sendM.getOperateTime());
-			}
-
-			transitSendD.setCreateUser(sendM.getCreateUser());
-			transitSendD.setCreateUserCode(sendM.getCreateUserCode());
-			return transitSendD;
-		} catch (Exception ex) {
-			logger.error("[分拣Worker]分拣补中转发货数据时发生异常，包裹号：" + sendDetail.getPackageBarcode(), ex);
+		// 补全全程跟踪数据，取sendM创建人，作为全程跟踪发货人，以及操作时间 sendM发货时间小于操作时间取实际操作时间    update by lhc 2017.12.14
+		if (sendM.getOperateTime().getTime() < sendDetail.getOperateTime().getTime()) {
+			transitSendD.setOperateTime(sendDetail.getOperateTime());
+		} else {
+			transitSendD.setOperateTime(sendM.getOperateTime());
 		}
-		return null;
+
+		transitSendD.setCreateUser(sendM.getCreateUser());
+		transitSendD.setCreateUserCode(sendM.getCreateUserCode());
+		transitSendD.setBoardCode(sendM.getBoardCode());
+		transitSendD.setBizSource(sendM.getBizSource());
+		return transitSendD;
 	}
+
 	/**
 	 * B网建箱自动触发验货全程跟踪
 	 * 推验货任务
@@ -919,7 +928,7 @@ public class SortingServiceImpl implements SortingService {
 	 * @param sorting
 	 * @param sendDs
 	 */
-	private void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
+	public void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs){
 		if (sendDs.size() > 0) {
 			List<SendM> sendMs = new ArrayList<SendM>();
 			List<SendM> transitSendMs = new ArrayList<SendM>();
@@ -932,11 +941,7 @@ public class SortingServiceImpl implements SortingService {
 					for (SendDetail sendDetail : sendDs) {
 					    // 只有按箱操作才存在跨分拣的情况
 						if (BusinessHelper.isBoxcode(sorting.getBoxCode())) {
-							SendDetail sendDetail1 = this.addTransitSendDetail(sendDetail, sendM);
-							if (sendDetail1 != null) {
-								sendDetail1.setBoardCode(sendM.getBoardCode());
-								transitSendDs.add(sendDetail1);
-							}
+							transitSendDs.add(this.addTransitSendDetail(sendDetail, sendM));
 						}
 					}
 				}
@@ -1010,6 +1015,7 @@ public class SortingServiceImpl implements SortingService {
 		sendDetail.setCreateUser(sendM.getCreateUser());
 		sendDetail.setCreateUserCode(sendM.getCreateUserCode());
         sendDetail.setBoardCode(sendM.getBoardCode());
+		sendDetail.setBizSource(sendM.getBizSource());
 	}
 
 	@JProfiler(jKey = "Bluedragon_dms_center.dms.method.sorting.getReadSendM", mState = {
@@ -1252,6 +1258,9 @@ public class SortingServiceImpl implements SortingService {
 
 	private static final String SPLIT_CHAR="$";
 
+	@Autowired
+	private SortingFactory sortingFactory;
+
 	/**
 	 * 处理任务数据
 	 * @param task
@@ -1290,5 +1299,23 @@ public class SortingServiceImpl implements SortingService {
 		cacheService.del(fingerPrintKey);
 		Profiler.registerInfoEnd(process1200TaskData);
 		return result;
+	}
+
+	@Autowired
+	private SysConfigService sysConfigService;
+
+	/**
+	 * 获取开启新分拣的分拣中心
+	 * @param siteCode
+	 * @return
+	 */
+	public boolean useNewSorting(Integer siteCode){
+		SysConfigContent content = sysConfigService.getSysConfigJsonContent(Constants.SYS_CONFIG_NEW_SORTING_OPEN_DMS_CODES);
+		if (content != null) {
+			if (content.getMasterSwitch() || content.getSiteCodes().contains(siteCode)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

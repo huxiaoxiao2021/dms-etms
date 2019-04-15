@@ -52,6 +52,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<DmsConsumableRelation> detail(@PathVariable("id") Long id) {
 		JdResponse<DmsConsumableRelation> rest = new JdResponse<DmsConsumableRelation>();
@@ -63,6 +64,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param dmsConsumableRelation
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody DmsConsumableRelation dmsConsumableRelation) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -79,6 +81,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -95,6 +98,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param dmsConsumableRelationCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<DmsConsumableRelationDetailInfo> listData(@RequestBody DmsConsumableRelationCondition dmsConsumableRelationCondition) {
 		dmsConsumableRelationCondition.setDmsId(this.getLoginUser().getSiteCode());
@@ -108,6 +112,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param codes
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/enableByCodes")
 	public @ResponseBody JdResponse<Boolean> enableByCodes(@RequestBody List<String> codes) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -130,6 +135,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param codes
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/disableByCodes")
 	public @ResponseBody JdResponse<Boolean> disableByCodes(@RequestBody List<String> codes) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -152,6 +158,7 @@ public class DmsConsumableRelationController extends DmsBaseController {
 	 * @param
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R)
 	@RequestMapping(value = "/getConsumableInfoList")
 	public @ResponseBody JdResponse<List<PackingConsumableBaseInfo>> getConsumableInfoList() {
 

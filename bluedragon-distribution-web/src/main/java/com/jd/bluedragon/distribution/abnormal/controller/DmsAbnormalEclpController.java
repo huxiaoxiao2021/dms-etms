@@ -59,6 +59,7 @@ public class DmsAbnormalEclpController {
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ECLPREFUSED_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<DmsAbnormalEclp> detail(@PathVariable("id") Long id) {
@@ -73,6 +74,7 @@ public class DmsAbnormalEclpController {
      * @param dmsAbnormalEclp
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ECLPREFUSED_R)
     @RequestMapping(value = "/save")
     public @ResponseBody
     JdResponse<Boolean> save(@RequestBody DmsAbnormalEclp dmsAbnormalEclp) {
@@ -101,6 +103,7 @@ public class DmsAbnormalEclpController {
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ECLPREFUSED_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
@@ -120,6 +123,7 @@ public class DmsAbnormalEclpController {
      * @param dmsAbnormalEclpCondition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_ECLPREFUSED_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     PagerResult<DmsAbnormalEclp> listData(@RequestBody DmsAbnormalEclpCondition dmsAbnormalEclpCondition) {
