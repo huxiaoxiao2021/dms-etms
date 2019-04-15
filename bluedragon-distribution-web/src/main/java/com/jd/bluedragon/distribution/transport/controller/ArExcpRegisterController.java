@@ -146,7 +146,7 @@ public class ArExcpRegisterController {
 	 * 根据条件分页查询数据信息
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
 	@RequestMapping(value = "/airRailwayExceptionType")
 	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionType() {
 		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -157,7 +157,7 @@ public class ArExcpRegisterController {
 	 * 根据条件分页查询数据信息
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
 	@RequestMapping(value = "/airRailwayExceptionReason/{typeGroup}")
 	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionReason(@PathVariable("typeGroup") Integer typeGroup) {
 		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
@@ -169,7 +169,7 @@ public class ArExcpRegisterController {
 	 * 根据条件分页查询数据信息
 	 * @return
 	 */
-	@Authorization(Constants.DMS_WEB_COMMON_R)
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
 	@RequestMapping(value = "/airRailwayExceptionResult/{typeGroup}")
 	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
 		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();

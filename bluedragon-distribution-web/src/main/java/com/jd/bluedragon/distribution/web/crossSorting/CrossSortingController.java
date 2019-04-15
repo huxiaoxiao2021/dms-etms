@@ -67,6 +67,7 @@ public class CrossSortingController {
         return "cross-sorting/cross-sorting-add";
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<Pager<List<CrossSorting>>> doQueryCrossSorting(CrossSortingRequest request, Pager<List<CrossSorting>> pager, Model model) {
