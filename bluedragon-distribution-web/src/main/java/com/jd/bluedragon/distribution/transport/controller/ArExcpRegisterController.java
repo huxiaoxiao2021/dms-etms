@@ -52,6 +52,7 @@ public class ArExcpRegisterController {
      * 根据id获取实体基本信息
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
     	return "/transport/arExcpRegister";
@@ -61,6 +62,7 @@ public class ArExcpRegisterController {
      * @param id
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<ArExcpRegister> detail(@PathVariable("id") Long id) {
     	JdResponse<ArExcpRegister> rest = new JdResponse<ArExcpRegister>();
@@ -74,6 +76,7 @@ public class ArExcpRegisterController {
      * @param arExcpRegister
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(ArExcpRegister arExcpRegister) {
 		convertDate(arExcpRegister,true);
@@ -102,6 +105,7 @@ public class ArExcpRegisterController {
      * @param ids
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
     	JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -118,6 +122,7 @@ public class ArExcpRegisterController {
      * @param arExcpRegisterCondition
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArExcpRegister> listData(@RequestBody ArExcpRegisterCondition arExcpRegisterCondition) {
 		convertDate(arExcpRegisterCondition);
