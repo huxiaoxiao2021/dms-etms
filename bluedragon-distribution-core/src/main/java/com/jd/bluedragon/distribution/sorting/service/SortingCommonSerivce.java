@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -37,6 +39,8 @@ import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,18 +127,30 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      */
     public boolean execute(SortingVO sorting){
-        long startTime = System.currentTimeMillis();
-        if(check(sorting)){
-            before(sorting);
-            if(doSorting(sorting)){
-                after(sorting);
-            }else{
-                logger.error(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
-                return false;
+        String keyword = this.getClass().getSimpleName();
+        CallerInfo sendMonitor = ProfilerHelper.registerInfo("DMSWORKER."+keyword+".execute",
+                Constants.UMP_APP_NAME_DMSWORKER);
+        try {
+            long startTime = System.currentTimeMillis();
+            if(check(sorting)){
+                before(sorting);
+                if(doSorting(sorting)){
+                    after(sorting);
+                }else{
+                    logger.debug(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
+                    return false;
+                }
             }
+            logger.debug(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
+            return true;
+        }catch (Exception e){
+            logger.error("分拣任务执行异常"+sorting.getWaybillCode()+"|"+sorting.getPackageCode(),e);
+            Profiler.functionError(sendMonitor);
+            return false;
+        }finally {
+            Profiler.registerInfoEnd(sendMonitor);
         }
-        logger.error(this.getClass().getName()+".execute:"+(System.currentTimeMillis()-startTime)+"ms"+sorting.getWaybillCode()+"|"+sorting.getPackageCode());
-        return true;
+
     }
 
     /**

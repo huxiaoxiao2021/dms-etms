@@ -23,7 +23,6 @@ import java.util.List;
 public class SortingWaybillSplitServiceImpl extends SortingPackServiceImpl{
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.SortingWaybillSplitServiceImpl.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     public boolean doSorting(SortingVO sorting) {
         //获取需要处理的数据
         List<DeliveryPackageD> packageDList = sorting.getPackageList();
