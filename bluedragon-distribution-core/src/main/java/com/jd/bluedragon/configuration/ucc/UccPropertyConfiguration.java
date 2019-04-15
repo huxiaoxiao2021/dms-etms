@@ -34,6 +34,9 @@ public class UccPropertyConfiguration {
     /** 配置哪些任务失败后不再重复抓取的 */
     private String workerFetchWithoutFailedTable;
 
+    /** 分拣拆分任务 每页执行的包裹数**/
+    private int waybillSplitPageSize;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -96,5 +99,13 @@ public class UccPropertyConfiguration {
 
     public void setWorkerFetchWithoutFailedTable(String workerFetchWithoutFailedTable) {
         this.workerFetchWithoutFailedTable = workerFetchWithoutFailedTable;
+    }
+
+    public int getWaybillSplitPageSize() {
+        return waybillSplitPageSize;
+    }
+
+    public void setWaybillSplitPageSize(int waybillSplitPageSize) {
+        this.waybillSplitPageSize = waybillSplitPageSize;
     }
 }

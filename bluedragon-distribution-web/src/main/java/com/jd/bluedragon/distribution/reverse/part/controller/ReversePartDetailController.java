@@ -1,15 +1,16 @@
 package com.jd.bluedragon.distribution.reverse.part.controller;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
+import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
+import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.lang.StringUtils;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +20,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetail;
-import com.jd.bluedragon.distribution.reverse.part.domain.ReversePartDetailCondition;
-import com.jd.bluedragon.distribution.reverse.part.service.ReversePartDetailService;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -51,6 +49,7 @@ public class ReversePartDetailController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex(Model model) {
 
@@ -77,6 +76,7 @@ public class ReversePartDetailController {
 	 * @param id
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<ReversePartDetail> detail(@PathVariable("id") Long id) {
 		JdResponse<ReversePartDetail> rest = new JdResponse<ReversePartDetail>();
@@ -88,6 +88,7 @@ public class ReversePartDetailController {
 	 * @param reversePartDetail
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody ReversePartDetail reversePartDetail) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -104,6 +105,7 @@ public class ReversePartDetailController {
 	 * @param ids
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -120,6 +122,7 @@ public class ReversePartDetailController {
 	 * @param reversePartDetailCondition
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<ReversePartDetail> listData(@RequestBody ReversePartDetailCondition reversePartDetailCondition) {
 		JdResponse<PagerResult<ReversePartDetail>> rest = new JdResponse<PagerResult<ReversePartDetail>>();
@@ -129,6 +132,7 @@ public class ReversePartDetailController {
 		return rest.getData();
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/allSendPack/{createSiteCode}/{waybillCode}")
 	public @ResponseBody JdResponse<List<ReversePartDetail>> allSendPack(@PathVariable("waybillCode") String waybillCode,@PathVariable("createSiteCode") String createSiteCode) {
 		JdResponse<List<ReversePartDetail>> rest = new JdResponse<List<ReversePartDetail>>();
@@ -142,6 +146,7 @@ public class ReversePartDetailController {
 		return rest;
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/noSendPack/{createSiteCode}/{waybillCode}")
 	public @ResponseBody JdResponse<List<String>> noSendPack(@PathVariable("waybillCode") String waybillCode,@PathVariable("createSiteCode") String createSiteCode) {
 		JdResponse<List<String>> rest = new JdResponse<List<String>>();
@@ -162,6 +167,7 @@ public class ReversePartDetailController {
 	 * @param model
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R)
 	@RequestMapping(value = "/toExport")
 	public ModelAndView toExport(ReversePartDetailCondition reversePartDetailCondition, Model model) {
 		try {
