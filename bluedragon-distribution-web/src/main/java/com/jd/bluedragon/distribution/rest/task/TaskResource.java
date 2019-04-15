@@ -240,6 +240,8 @@ public class TaskResource {
     @Path("/astasks")
     public TaskResponse addASTask(TaskRequest request) {
         Assert.notNull(request, "autosorting task request must not be null");
+        //加入监控，开始
+        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
         this.logger.info("总部接口接收到自动分拣机传来的交接数据,数据 ：" + JsonHelper.toJson(request));
         TaskResponse response = null;
         if (StringUtils.isBlank(request.getBody())) {
@@ -247,8 +249,6 @@ public class TaskResource {
                     JdResponse.MESSAGE_PARAM_ERROR);
             return response;
         }
-        //加入监控，开始
-        CallerInfo info = Profiler.registerInfo("Bluedragon_dms_center.dms.method.astask.add", false, true);
         try {
             taskService.addInspectSortingTask(request);
         } catch (Exception ex) {

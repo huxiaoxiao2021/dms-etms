@@ -349,9 +349,7 @@ public class CenConfirmServiceImpl implements CenConfirmService {
 		if (Constants.BUSSINESS_TYPE_POP == cenConfirm.getType() || Constants.BUSSINESS_TYPE_SITE == cenConfirm.getType()|| Constants.BUSSINESS_TYPE_InFactory == cenConfirm.getType()) {
 			if (StringUtils.isBlank(tWaybillStatus.getPackageCode()) || "-1".equals(tWaybillStatus.getPackageCode())) {
 				tWaybillStatus.setPackageCode(tWaybillStatus.getWaybillCode());
-			} /*else {
-				tWaybillStatus.setPackageCode(tWaybillStatus.getPackageCode());
-			}*/
+			}
 		}
 		return tWaybillStatus;
 	}

@@ -309,7 +309,6 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             log.warn(LOG_PREFIX+" 没有获取预分拣站点(未定位门店),"+request.getWaybillCode());
         } else if(labelPrinting.getPrepareSiteCode() !=null && labelPrinting.getPrepareSiteCode().intValue() < LabelPrintingService.PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
-//            labelPrinting.setPrepareSiteCode(labelPrinting.getPrepareSiteCode());
             labelPrinting.setPrepareSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             labelPrinting.setPrintSiteName(LabelPrintingService.PREPARE_SITE_NAME_OVER_AREA);
             log.warn(LOG_PREFIX+" 没有获取预分拣站点(细分超区)," + labelPrinting.getPrepareSiteCode() + ","+request.getWaybillCode());

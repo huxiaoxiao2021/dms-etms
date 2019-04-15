@@ -95,7 +95,6 @@ public class AuditResource {
         response.setRejectMessage(reverseReceive.getRejectMessage());
         response.setSendCode(reverseReceive.getSendCode());
         response.setStoreId(reverseReceive.getStoreId());
-//        response.setUpdateTime(response.getUpdateTime());
         response.setWaybillCode(reverseReceive.getWaybillCode());
         response.setYn(reverseReceive.getYn());
         return  response;
