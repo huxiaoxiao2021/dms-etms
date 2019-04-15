@@ -111,14 +111,18 @@ public class SendPrintServiceImpl implements SendPrintService {
         List<SendM> sendMs = this.selectUniquesSendMs(nSendM); //this.sendMDao.selectBySendSiteCode(nSendM);
         if (sendMs != null && !sendMs.isEmpty()) {
             logger.info("打印交接清单-批次汇总数目" + sendMs.size());
+            CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery.summaryPrintResultToList", Constants.UMP_APP_NAME_DMSWEB,false, true);
             try {
                 results = this.summaryPrintResultToList(sendMs, criteria);
             } catch (Exception e) {
+                Profiler.functionError(info);
                 logger.error("批次汇总&&批次汇总打印异常", e);
                 tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
                 tSummaryPrintResultResponse.setMessage("批次汇总打印异常");
                 tSummaryPrintResultResponse.setData(results);
                 return tSummaryPrintResultResponse;
+            }finally {
+                Profiler.registerInfoEnd(info);
             }
         }
         tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK);
@@ -863,9 +867,9 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 基本查询
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.basicPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public BasicQueryEntityResponse basicPrintQuery(PrintQueryCriteria criteria) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.basicPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
         Date startDate = new Date();
         logger.info("打印交接清单-基本信息查询开始" + DateHelper.formatDate(startDate));
         BasicQueryEntityResponse tBasicQueryEntityResponse = new BasicQueryEntityResponse();
@@ -876,10 +880,13 @@ public class SendPrintServiceImpl implements SendPrintService {
                 tBasicQueryEntityResponse = detailPrintQuery(sendMs, criteria);
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("打印明细基本查询异常", e);
             tBasicQueryEntityResponse.setCode(JdResponse.CODE_NOT_FOUND);
             tBasicQueryEntityResponse.setMessage("打印明细基本查询异常");
             return tBasicQueryEntityResponse;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         Date endDate = new Date();
         logger.info("打印交接清单-基本信息查询结束-" + (startDate.getTime() - endDate.getTime()));

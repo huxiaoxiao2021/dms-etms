@@ -301,7 +301,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             } catch (Exception ex) {
                 Profiler.functionError(info1);
                 logger.error("调用总部VER验证JSF服务失败", ex);
-                return JdResponse.CODE_ERROR;
+                throw ex;
             } finally {
                 Profiler.registerInfoEnd(info1);
             }

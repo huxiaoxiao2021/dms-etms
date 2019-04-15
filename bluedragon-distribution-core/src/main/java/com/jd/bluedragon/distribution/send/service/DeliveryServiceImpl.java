@@ -772,23 +772,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 return new SendResult(SendResult.CODE_SENDED,"已经操作过按板发货.");
             }
             //4.校验板号和批次号的目的地是否一致，并校验板号的合法性
-            try{
-                BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
-                if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
-                    return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
-                }
-                if(boardResponse.getReceiveSiteCode()==null){
-                    return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
-                }
-                if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
-                    return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
-                }
-                if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
-                    return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
-                }
-            }catch (Exception e){
-                logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
-                return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
+            SendResult checkResponse = checkBoard(boardCode, domain);
+            if(!SendResult.CODE_OK.equals(checkResponse.getKey())){
+                return checkResponse;
             }
         }
 
@@ -796,6 +782,15 @@ public class DeliveryServiceImpl implements DeliveryService {
         pushBoardSendTask(domain,Task.TASK_TYPE_BOARD_SEND);
 
         //6.写组板发货任务完成，调用TC执行关板
+        closeBoard(boardCode, domain);
+
+        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    }
+
+    /**
+     * 写组板发货任务完成，调用TC执行关板
+     */
+    private void closeBoard(String boardCode, SendM domain){
         try{
             Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
             logger.info("组板发货关板板号：" + boardCode + "，关板结果：" + JsonHelper.toJson(closeBoardResponse));
@@ -805,8 +800,34 @@ public class DeliveryServiceImpl implements DeliveryService {
         } catch (Exception e) {
             logger.error("组板发货调用TC关板异常：" + JsonHelper.toJson(domain),e);
         }
+    }
 
-        return new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
+    /**
+     * 校验板号和批次号的目的地是否一致，并校验板号的合法性
+     * @param boardCode
+     * @param domain
+     * @return
+     */
+    private SendResult checkBoard(String boardCode, SendM domain){
+        try{
+            BoardResponse boardResponse=boardCombinationService.getBoardByBoardCode(boardCode);
+            if(boardResponse.getStatusInfo() != null && boardResponse.getStatusInfo().size() >0){
+                return new SendResult(SendResult.CODE_SENDED, boardResponse.buildStatusMessages());
+            }
+            if(boardResponse.getReceiveSiteCode()==null){
+                return new SendResult(SendResult.CODE_SENDED,"获取板号目的地失败");
+            }
+            if(SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode())==null){
+                return new SendResult(SendResult.CODE_SENDED,"获取批次号目的地失败");
+            }
+            if(!SerialRuleUtil.getReceiveSiteCodeFromSendCode(domain.getSendCode()).equals(boardResponse.getReceiveSiteCode())){
+                return new SendResult(SendResult.CODE_CONFIRM,"板号目的地与批次号目的地不一致，是否强制操作发货？");
+            }
+        }catch (Exception e){
+            logger.error("组板发货板号校验失败:" + JsonHelper.toJson(domain),e);
+            return new SendResult(SendResult.CODE_SENDED,"组板发货板号校验失败");
+        }
+        return new SendResult(SendResult.CODE_OK,"校验通过!");
     }
 
     /**
@@ -4280,8 +4301,8 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return 1：发货成功  2：发货失败  4：需要用户确认
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.AtuopackageSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SendResult autoPackageSend(SendM domain, UploadData uploadData) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.AtuopackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             if (logger.isInfoEnabled()) {
                 logger.info("execute device auto send,parameter is :" + JsonHelper.toJson(domain));
@@ -4298,8 +4319,11 @@ public class DeliveryServiceImpl implements DeliveryService {
             return this.scannerFrameAutoPackageSend(domain, uploadData);
 
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("一车一单自动发货异常，sendM：" + JsonHelper.toJson(domain), e);
             return new SendResult(SendResult.CODE_SERVICE_ERROR, SendResult.MESSAGE_SERVICE_ERROR);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -4523,7 +4547,6 @@ public class DeliveryServiceImpl implements DeliveryService {
      * 此处为了减少性能损耗，直接掉用取消组板的接口，组过板的直接取消
      * @param domain
      */
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.boardCombinationCancel", jAppName=Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     private void boardCombinationCancel(SendM domain){
         BoardCombinationRequest request = new BoardCombinationRequest();
         request.setBoxOrPackageCode(domain.getBoxCode());
@@ -4532,6 +4555,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         request.setUserCode(domain.getCreateUserCode());
         request.setUserName(domain.getCreateUser());
         BoardResponse response = null;
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.boardCombinationCancel", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             response = boardCombinationService.boardCombinationCancel(request);
             String logInfo = "一车一单发货取消组板.包裹号/箱号:" + domain.getBoxCode() +
@@ -4545,9 +4569,12 @@ public class DeliveryServiceImpl implements DeliveryService {
             addCassandraLog(domain.getBoxCode(),domain.getBoxCode(),logInfo);
 
         }catch(Exception e){
+            Profiler.functionError(info);
             //取消组板异常
             logger.error("一车一单发货取消组板异常.包裹号/箱号:" + domain.getBoxCode() + ",操作站点:" + domain.getCreateSiteCode() +
                     "异常原因:" +e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

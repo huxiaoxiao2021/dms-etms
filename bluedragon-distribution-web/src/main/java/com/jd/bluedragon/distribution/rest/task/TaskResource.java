@@ -236,8 +236,6 @@ public class TaskResource {
     /**
      * 亚一或者大福线自动分拣机任务交接接口
      */
-    @JProfiler(jKey = "Bluedragon_dms_center.dms.method.astask.addPack", mState = {
-            JProEnum.TP, JProEnum.FunctionError})
     @POST
     @Path("/astasks")
     public TaskResponse addASTask(TaskRequest request) {

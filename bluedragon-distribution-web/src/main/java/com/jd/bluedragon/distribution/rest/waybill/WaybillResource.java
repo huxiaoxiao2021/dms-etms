@@ -684,7 +684,7 @@ public class WaybillResource {
 		//判断返调度目的地是否为3pl站点
 		boolean isThreePLSchedule = false;
 		BaseStaffSiteOrgDto scheduleSiteOrgDto;
-
+        CallerInfo getScheduleSiteInfo = Profiler.registerInfo("DMS.BASE.WaybillResource.getWaybillPack.getScheduleSiteInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
 			scheduleSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(localSchedule);
 			if (scheduleSiteOrgDto != null) {
@@ -697,14 +697,19 @@ public class WaybillResource {
 				}
 			}
 		} catch (Exception e) {
-			logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
+            Profiler.functionError(getScheduleSiteInfo);
+            logger.error("现场预分拣获取返调度目的地信息出错：" + waybillCodeOrPackage, e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR, "查询返调度目的地信息失败!");
-		}
+		}finally {
+            Profiler.registerInfoEnd(getScheduleSiteInfo);
+        }
 
 		// 转换运单号
 		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
 		// 调用服务
-		try {
+        CallerInfo doSchedule = Profiler.registerInfo("DMS.BASE.WaybillResource.getWaybillPack.doSchedule", Constants.UMP_APP_NAME_DMSWEB,false, true);
+
+        try {
 			Waybill waybill = findWaybillMessage(waybillCode, packOpeFlowFlg);
 			if (waybill == null) {
 				this.logger.info("运单号【" + waybillCode
@@ -747,12 +752,15 @@ public class WaybillResource {
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
-			// 调用服务异常
+            Profiler.functionError(doSchedule);
+            // 调用服务异常
 			this.logger
 					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
-		}
+		}finally {
+            Profiler.registerInfoEnd(doSchedule);
+        }
 
 	}
 

@@ -226,12 +226,7 @@ public class InspectionServiceImpl implements InspectionService {
 			service.saveData(inspection);
 			if(Constants.BUSSINESS_TYPE_OEM==inspection.getInspectionType()){
 				// OEM同步wms
-				try {
-					pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
-				} catch (Exception e) {
-					e.printStackTrace();
-					logger.error(" 验货 inspectionCore调用OEM服务异常",e);
-				}	
+                pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
 			}
 			
 		}
@@ -448,45 +443,44 @@ public class InspectionServiceImpl implements InspectionService {
 	}
 
 	public void pushOEMToWMS(Inspection inspection) {
-		DmsRouter dmsRouter = new DmsRouter();
-		Order order = orderWebService.getOrder(Long.parseLong(inspection
-				.getWaybillCode()));
-		StringBuffer fingerprint = new StringBuffer();
-		fingerprint.append(order.getIdCompanyBranch()).append("_")
-				.append(order.getDeliveryCenterID()).append("_")
-				.append(order.getStoreId()).append("_")
-				.append(inspection.getWaybillCode()).append("_")
-				.append(inspection.getPackageBarcode()).append("_")
-				.append(DateHelper.formatDateTime(inspection.getCreateTime()))
-				.append("_").append(inspection.getCreateUserCode()).append("|")
-				.append(inspection.getCreateUser());
+        DmsRouter dmsRouter = new DmsRouter();
+        try {
+			Order order = orderWebService.getOrder(Long.parseLong(inspection
+					.getWaybillCode()));
+			StringBuffer fingerprint = new StringBuffer();
+			fingerprint.append(order.getIdCompanyBranch()).append("_")
+					.append(order.getDeliveryCenterID()).append("_")
+					.append(order.getStoreId()).append("_")
+					.append(inspection.getWaybillCode()).append("_")
+					.append(inspection.getPackageBarcode()).append("_")
+					.append(DateHelper.formatDateTime(inspection.getCreateTime()))
+					.append("_").append(inspection.getCreateUserCode()).append("|")
+					.append(inspection.getCreateUser());
 
-		StringBuffer jsonBuffer = new StringBuffer();
-		jsonBuffer.append("{\"orgId\":").append(order.getIdCompanyBranch())
-				.append(",\"cky2\":").append(order.getDeliveryCenterID())
-				.append(",\"storeId\":").append(order.getStoreId())
-				.append(",\"orderId\":").append(inspection.getWaybillCode())
-				.append(",\"packageCode\":\"")
-				.append(inspection.getPackageBarcode())
-				.append("\",\"operateTime\":\"")
-				.append(DateHelper.formatDateTime(inspection.getCreateTime()))
-				.append("\",\"operator\":\"")
-				.append(inspection.getCreateUserCode()).append("|")
-				.append(inspection.getCreateUser())
-				.append("\",\"fingerprint\":\"")
-				.append(Md5Helper.encode(fingerprint.toString())).append("\"}");
+			StringBuffer jsonBuffer = new StringBuffer();
+			jsonBuffer.append("{\"orgId\":").append(order.getIdCompanyBranch())
+					.append(",\"cky2\":").append(order.getDeliveryCenterID())
+					.append(",\"storeId\":").append(order.getStoreId())
+					.append(",\"orderId\":").append(inspection.getWaybillCode())
+					.append(",\"packageCode\":\"")
+					.append(inspection.getPackageBarcode())
+					.append("\",\"operateTime\":\"")
+					.append(DateHelper.formatDateTime(inspection.getCreateTime()))
+					.append("\",\"operator\":\"")
+					.append(inspection.getCreateUserCode()).append("|")
+					.append(inspection.getCreateUser())
+					.append("\",\"fingerprint\":\"")
+					.append(Md5Helper.encode(fingerprint.toString())).append("\"}");
 
-		dmsRouter.setBody(jsonBuffer.toString());
-		dmsRouter.setType(80);
-		String json = JsonHelper.toJson(dmsRouter);
+			dmsRouter.setBody(jsonBuffer.toString());
+			dmsRouter.setType(80);
+			String json = JsonHelper.toJson(dmsRouter);
 
-		this.logger.info("分拣中心OEM收货推送WMS:MQ[" + json + "]");
-		try {
+			this.logger.info("分拣中心OEM收货推送WMS:MQ[" + json + "]");
 			//messageClient.sendMessage("dms_router", json,inspection.getWaybillCode());
             dmsRouterMQ.send(inspection.getWaybillCode(),json);
 		} catch (Exception e) {
-			this.logger.error(
-					"分拣中心OEM收货推送WMS失败[" + json + "]:" + e.getMessage(), e);
+			this.logger.error("分拣中心OEM收货推送WMS失败[" + JsonHelper.toJson(dmsRouter) + "]:" + e.getMessage(), e);
 		}
 	}
 
