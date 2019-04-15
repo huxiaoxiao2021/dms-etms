@@ -4516,6 +4516,17 @@ public class DeliveryServiceImpl implements DeliveryService {
         logger.info("按板取消发货开始：" + JsonHelper.toJson(task));
         SendM domain = JsonHelper.fromJson(task.getBody(), SendM.class);
         List<String> boxCodeList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(domain);
+
+        return doBoardDeliveryCancel(domain, boxCodeList);
+    }
+
+    /**
+     * 按板取消发货任务：逐个箱子取消
+     * @param domain
+     * @param boxCodeList
+     * @return
+     */
+    private boolean doBoardDeliveryCancel(SendM domain, List<String> boxCodeList){
         boolean isSuccess = true;
         if(boxCodeList!=null && !boxCodeList.isEmpty()){
             for(String boxCode : boxCodeList){

@@ -100,36 +100,37 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 批次汇总&&批次汇总打印
      */
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    @JProfiler(jKey = "DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", mState = {JProEnum.TP, JProEnum.FunctionError})
     public SummaryPrintResultResponse batchSummaryPrintQuery(PrintQueryCriteria criteria) {
         SummaryPrintResultResponse tSummaryPrintResultResponse = new SummaryPrintResultResponse();
         List<SummaryPrintResult> results = new ArrayList<SummaryPrintResult>();
-        SendM nSendM = tosendM(criteria);
-        Date startDate = new Date();
-        logger.info("打印交接清单-批次汇总开始" + DateHelper.formatDate(startDate));
-        //满足条件的所有箱号
-        List<SendM> sendMs = this.selectUniquesSendMs(nSendM); //this.sendMDao.selectBySendSiteCode(nSendM);
-        if (sendMs != null && !sendMs.isEmpty()) {
-            logger.info("打印交接清单-批次汇总数目" + sendMs.size());
-            CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery.summaryPrintResultToList", Constants.UMP_APP_NAME_DMSWEB,false, true);
-            try {
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.SendPrintServiceImpl.batchSummaryPrintQuery", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            SendM nSendM = tosendM(criteria);
+            Date startDate = new Date();
+            logger.info("打印交接清单-批次汇总开始" + DateHelper.formatDate(startDate));
+            //满足条件的所有箱号
+            List<SendM> sendMs = this.selectUniquesSendMs(nSendM); //this.sendMDao.selectBySendSiteCode(nSendM);
+            if (sendMs != null && !sendMs.isEmpty()) {
+                logger.info("打印交接清单-批次汇总数目" + sendMs.size());
                 results = this.summaryPrintResultToList(sendMs, criteria);
-            } catch (Exception e) {
-                Profiler.functionError(info);
-                logger.error("批次汇总&&批次汇总打印异常", e);
-                tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
-                tSummaryPrintResultResponse.setMessage("批次汇总打印异常");
-                tSummaryPrintResultResponse.setData(results);
-                return tSummaryPrintResultResponse;
-            }finally {
-                Profiler.registerInfoEnd(info);
             }
+            tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK);
+            tSummaryPrintResultResponse.setMessage(JdResponse.MESSAGE_OK);
+            tSummaryPrintResultResponse.setData(results);
+            Date endDate = new Date();
+            logger.info("打印交接清单-批次汇总结束-" + (startDate.getTime() - endDate.getTime()));
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("批次汇总&&批次汇总打印异常", e);
+            tSummaryPrintResultResponse.setCode(JdResponse.CODE_NOT_FOUND);
+            tSummaryPrintResultResponse.setMessage("批次汇总打印异常");
+            tSummaryPrintResultResponse.setData(results);
+            return tSummaryPrintResultResponse;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
-        tSummaryPrintResultResponse.setCode(JdResponse.CODE_OK);
-        tSummaryPrintResultResponse.setMessage(JdResponse.MESSAGE_OK);
-        tSummaryPrintResultResponse.setData(results);
-        Date endDate = new Date();
-        logger.info("打印交接清单-批次汇总结束-" + (startDate.getTime() - endDate.getTime()));
+
         return tSummaryPrintResultResponse;
     }
 
