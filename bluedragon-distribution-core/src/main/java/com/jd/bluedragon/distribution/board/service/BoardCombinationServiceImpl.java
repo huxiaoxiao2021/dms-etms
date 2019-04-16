@@ -26,7 +26,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;

@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.transport.controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.domain.TmsProxyCondition;
 import com.jd.bluedragon.distribution.transport.domain.TransBookBillDto;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.tms.tfc.dto.CommonDto;
@@ -43,6 +45,9 @@ public class TmsProxyController extends DmsBaseController{
     @Autowired
     private NewSealVehicleService newsealVehicleService;
 
+    @Autowired
+    private SiteService siteService;
+
     @Value("${transBook.bill.printUrl:http://tfc.tms.jd.com/tfc/trans-book-bill/print}")
     private String printBaseUrl;
 
@@ -62,11 +67,25 @@ public class TmsProxyController extends DmsBaseController{
         return "/transport/tmsProxy";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_TMSPROXY_R)
+    @ResponseBody
+    @RequestMapping("/getAllSiteList")
+    public Object getAllSiteList() {
+        List<BaseStaffSiteOrgDto> allDms = new ArrayList<BaseStaffSiteOrgDto>();
+        try {
+            allDms.addAll(siteService.getAllDmsSite());
+        } catch (Exception e) {
+            logger.error("加载站点失败：", e);
+        }
+        return allDms;
+    }
+
     /**
      * 分页查询
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_TMSPROXY_R)
     @RequestMapping(value = "/listData")
     @POST
     public @ResponseBody

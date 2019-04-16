@@ -353,4 +353,17 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public Integer findLossSortingNoSendCount(SendDetail sendDetail){
         return this.getSqlSession().selectOne(namespace +".findLossSortingNoSendCount",sendDetail);
     }
+
+    /**
+     * 根据批次号查询已退包裹号（逆向）
+     * @param sendDetail
+     * @return
+     */
+    public List<String> queryPackageCode(SendDetail sendDetail){
+        if(sendDetail.getCreateSiteCode() != null && sendDetail.getSendCode() != null){
+            return this.getSqlSession().selectList(namespace +".queryPackageCode",sendDetail);
+        }else{
+             return new ArrayList<>();
+        }
+    }
 }

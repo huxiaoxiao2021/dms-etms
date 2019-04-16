@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.sortscheme;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -9,6 +10,7 @@ import com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,7 @@ public class SortSchemeSyncController {
     @Autowired
     BaseService baseService;
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/index" ,method = RequestMethod.GET)
     public String index(Model model){
         this.logger.debug("分拣计划同步数据 --> index");
@@ -71,6 +74,7 @@ public class SortSchemeSyncController {
         return "sortscheme/sort-scheme-sync";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTSCHEME_R)
     @RequestMapping(value = "/sync",method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<String> sortSchemeSync(String siteCode){

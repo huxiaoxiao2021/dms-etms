@@ -1,18 +1,22 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRecordDao;
-import com.jd.bluedragon.distribution.consumable.domain.*;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
+import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ump.annotation.JProEnum;
@@ -140,10 +144,17 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     public Boolean isConfirmed(String waybillCode) {
         WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
-        if(record != null && TREATED_STATE.equals(record.getConfirmStatus())){
-            return true;
+        if (record != null) {
+            logger.info("运单号" + waybillCode + "确认耗材服务结果【0：未确认，1：确认】：" + record.getConfirmStatus());
+            return TREATED_STATE.equals(record.getConfirmStatus());
         }
-        return false;
+        //added by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
+        else {
+            logger.warn("运单号" + waybillCode + "需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档");
+            return false;
+        }
+        //edited by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
+        //return true;
     }
 
     /**

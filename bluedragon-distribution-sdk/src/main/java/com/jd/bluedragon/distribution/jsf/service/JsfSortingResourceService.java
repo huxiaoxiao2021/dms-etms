@@ -22,4 +22,10 @@ public interface JsfSortingResourceService {
      * @return
      */
     public Map<String,String> getRouterByWaybillCodes(List<String> waybillCodes);
+
+    /**
+     * 校验滑道号
+     * @return true 滑道号正确，false 不正确
+     */
+    public Boolean checkPackageCrossCode(String waybillCode, String packageCode);
 }

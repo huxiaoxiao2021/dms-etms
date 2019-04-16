@@ -83,6 +83,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -98,14 +99,17 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.erp.ws.SupportServiceInterface;
+import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.Response;
@@ -138,6 +142,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 @Service("deliveryService")
@@ -294,6 +299,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired
     private ReversePartDetailService reversePartDetailService;
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private WaybillPackageApi waybillPackageApi;
 
     private static final int OPERATE_TYPE_REVERSE_SEND = 50;
 
@@ -2606,7 +2617,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
     }
 
-  /**
+    /**
    * 快运发货差异查询
    *
    * @param sendMList
@@ -3974,6 +3985,12 @@ public class DeliveryServiceImpl implements DeliveryService {
 
     @Autowired private WaybillCommonService waybillCommonService;
 
+    @Autowired private SiteService siteService;
+
+      @Autowired
+      private WaybillQueryManager waybillQueryManager;
+
+
     @Override
     public List<SendThreeDetail> compute(List<SendDetail> list, boolean isScheduleRequest) {
       Collections.sort(
@@ -4005,6 +4022,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         if (isScheduleRequest && hasDiff > 0) {
           break;
         }
+          //纯配外单支持缺量退备件库因此剔除
+          String waybillCode = item.getWaybillCode();
+          com.jd.bluedragon.common.domain.Waybill reverseWaybill = waybillCommonService.findByWaybillCode(waybillCode);
+          if(reverseWaybill != null && StringUtils.isNotBlank(reverseWaybill.getWaybillSign())){
+              BaseStaffSiteOrgDto site = siteService.getSite(item.getReceiveSiteCode());
+              Integer spwms_type = Integer.valueOf(PropertiesHelper.newInstance().getValue("spwms_type"));
+              if(BusinessUtil.isPurematch(reverseWaybill.getWaybillSign()) && spwms_type.equals(site.getSiteType())){
+                  break;
+              }
+          }
         SendThreeDetail diff = new SendThreeDetail();
         diff.setBoxCode(item.getBoxCode());
         diff.setPackageBarcode(item.getPackageBarcode());
@@ -4018,13 +4045,11 @@ public class DeliveryServiceImpl implements DeliveryService {
           pacageSumShoudBe =
               WaybillUtil.getPackNumByPackCode(item.getPackageBarcode()); // 根据运单中一个包裹的包裹号 获取包裹数量
           if (pacageSumShoudBe == 0) { // 特殊包裹号，包裹总数位是0时，从运单获取包裹总数
-            com.jd.bluedragon.common.domain.Waybill waybill =
-                waybillCommonService.findWaybillAndPack(lastWaybillCode);
-            if (waybill != null
-                && waybill.getPackList() != null
-                && waybill.getPackList().size() > 0) {
-              pacageSumShoudBe = waybill.getPackList().size();
-            }
+
+              BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(lastWaybillCode, true, true, true, false);
+              if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
+                  pacageSumShoudBe = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
+              }
           }
 
           scanCount = 0;

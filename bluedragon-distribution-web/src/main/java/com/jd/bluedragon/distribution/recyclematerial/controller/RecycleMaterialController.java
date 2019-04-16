@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.recyclematerial.controller;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ public class RecycleMaterialController {
     @Value("${DMS_BUSINESS_ADDRESS}")
     private String businessUrl;
 
+    @Authorization(Constants.DMS_WEB_TOOL_RECYCLEMATERIAL_R)
     @RequestMapping("/index")
     public String index() {
         return "redirect:" + businessUrl + "/recycleMaterialManager/index";

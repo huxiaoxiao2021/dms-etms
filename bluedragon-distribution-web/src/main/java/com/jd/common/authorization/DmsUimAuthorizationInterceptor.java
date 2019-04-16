@@ -42,7 +42,7 @@ public class DmsUimAuthorizationInterceptor extends SpringAuthorizationIntercept
                             return true;
                         }
 
-                        this.sendErrorMessage(request, response, e);
+                        request.getRequestDispatcher("/permission/toIndex/"+e).forward(request,response);
                         return false;
                     }
                 }

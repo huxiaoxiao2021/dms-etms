@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -12,6 +13,8 @@ import com.jd.etms.waybill.dto.DeliveryPackageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
@@ -51,6 +55,42 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
         } else {
             return waybillPackageApi.getPackListByWaybillCode(waybillCode);
         }
+    }
+
+    @Override
+    public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCodeOfPage(String waybillCode,int pageNo,int pageSize){
+
+        BaseEntity<List<DeliveryPackageD>> result = new BaseEntity<List<DeliveryPackageD>>();
+        List<DeliveryPackageD> packageList = new ArrayList<DeliveryPackageD>();
+        result.setData(packageList);
+        Page<DeliveryPackageDto> pageParam = new Page<DeliveryPackageDto>();
+        pageParam.setCurPage(pageNo);
+        pageParam.setPageSize(pageSize);
+
+        //调用运单分页接口
+        BaseEntity<Page<DeliveryPackageDto>> baseEntity = waybillPackageApi.getPackageByParam(waybillCode, pageParam);
+
+        //调用接口异常，添加自定义报警
+        if (null == baseEntity || baseEntity.getResultCode() != 1) {
+            String alarmInfo = "调用运单接口getPackageByParam失败.waybillCode:" + waybillCode;
+            if (null != baseEntity) {
+                alarmInfo = alarmInfo + ",resultCode:" + baseEntity.getResultCode() + "-" + baseEntity.getMessage();
+            }
+            logger.error(alarmInfo);
+            Profiler.businessAlarm("调用运单接口getPackageByParam失败", alarmInfo);
+            return null;
+        }
+
+        //有包裹数据，则分页读取
+        if (null != baseEntity && null != baseEntity.getData() &&
+                null != baseEntity.getData().getResult() && baseEntity.getData().getResult().size() > 0) {
+
+            packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
+
+            logger.info("getPackageByWaybillCode获取包裹数据共" + packageList.size() + "条.waybillCode:" + waybillCode);
+        }
+
+        return result;
     }
 
     /**
