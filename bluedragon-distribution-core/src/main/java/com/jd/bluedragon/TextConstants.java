@@ -34,6 +34,11 @@ public class TextConstants {
     public static final String FREIGHT_MONTH = "月结";
 
     /**
+     * B网运费-临时欠款
+     */
+    public static final String FREIGHT_TEMPORARY_ARREARS="临欠";
+
+    /**
      * 货款-货到付款
      */
     public static final String GOODS_PAYMENT_COD = "货到付款";
