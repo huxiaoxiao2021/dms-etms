@@ -708,7 +708,6 @@ public class DeliveryResource {
                                               @QueryParam("siteCode") String siteCode,
                                               @QueryParam("receiveSiteCode") String receiveSiteCode,
                                               @QueryParam("businessType") String businessType) {
-        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
         this.logger.info("开始验证箱号信息");
         this.logger.info("boxCode is " + boxCode);
         this.logger.info("siteCode is " + siteCode);
@@ -718,8 +717,7 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
 
-
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
         tSendM.setCreateSiteCode(Integer.parseInt(siteCode));
