@@ -18,8 +18,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.ListResponse;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -128,7 +128,6 @@ public class ArReceiveResource {
         return result;
     }
 
-    @JProfiler(jKey = "DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<List<ArSendRegister>> getArSendRegisterByTransInfo(Integer transType, String transName, String siteOrder, Date sendDate) {
         JdResponse<List<ArSendRegister>> response = new JdResponse<List<ArSendRegister>>();
         if (StringUtils.isEmpty(transName)) {
@@ -138,7 +137,7 @@ public class ArReceiveResource {
         if (sendDate == null) {
             response.toFail("发货日期不能为空");
         }
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.ArReceiveResource.getArSendRegisterByTransInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             //只支持航空单查询
             if (transType.equals(ArTransportTypeEnum.AIR_TRANSPORT.getCode()) && siteOrder == null) {
@@ -179,8 +178,11 @@ public class ArReceiveResource {
                 response.setData(sendRegisterListToRouter);
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("获取发货登记信息和批次信息时发生异常", e);
             response.toError("获取发货登记信息和批次信息时发生异常");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return response;
     }

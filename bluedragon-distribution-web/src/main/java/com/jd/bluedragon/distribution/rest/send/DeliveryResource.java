@@ -160,13 +160,12 @@ public class DeliveryResource {
 
     @POST
     @Path("/delivery/newpackagesend")
-    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.newPackageSend", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1001)
     public InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
         if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(request));
         }
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
         InvokeResult<SendResult> result = new InvokeResult<SendResult>();
         try {
@@ -186,8 +185,11 @@ public class DeliveryResource {
                 }
             }
         } catch (Exception ex) {
+            Profiler.functionError(info);
             result.error(ex);
             logger.error("一车一单发货", ex);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         if (logger.isInfoEnabled()) {
             logger.info(JsonHelper.toJsonUseGson(result));
@@ -700,7 +702,6 @@ public class DeliveryResource {
         return new DeliveryResponse(JdResponse.CODE_OK, msg);
     }
 
-    @JProfiler(jKey = "DMSWEB.DeliveryResource.checkDeliveryInfo", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     @GET
     @Path("/delivery/check")
     public DeliveryResponse checkDeliveryInfo(@QueryParam("boxCode") String boxCode,
@@ -716,8 +717,7 @@ public class DeliveryResource {
             return new DeliveryResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
         }
 
-
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM tSendM = new SendM();
         tSendM.setBoxCode(boxCode);
         tSendM.setCreateSiteCode(Integer.parseInt(siteCode));
@@ -748,6 +748,7 @@ public class DeliveryResource {
 
                     //added by hanjiaxing3 2018.10.12 delivered is not allowed to reverse
                     if (WaybillUtil.isPackageCode(boxCode)) {
+                        CallerInfo reverseCheckInfo = Profiler.registerInfo("DMSWEB.DeliveryResource.checkDeliveryInfo.reverseCheckInfo", Constants.UMP_APP_NAME_DMSWEB,false, true);
                         try {
                             BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseSiteBySiteId(Integer.parseInt(receiveSiteCode));
                             if (baseStaffSiteOrgDto != null) {
@@ -775,7 +776,10 @@ public class DeliveryResource {
                                 this.logger.warn("发货校验获取站点信息为空：" + receiveSiteCode);
                             }
                         } catch (Exception e) {
+                            Profiler.functionError(reverseCheckInfo);
                             this.logger.error("发货校验获取站点信息失败，站点编号:" + receiveSiteCode, e);
+                        }finally {
+                            Profiler.registerInfoEnd(reverseCheckInfo);
                         }
                     }
 
@@ -788,8 +792,11 @@ public class DeliveryResource {
                 return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("发货校验异常", e);
             return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

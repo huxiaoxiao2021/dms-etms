@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.web;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ssa.utils.SSOHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class IndexController {
     @Value("${mixedConfigUrl}")
     private String mixedConfigUrl;
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String welcomePage() {
         this.logger.debug("IndexController --> welcomePage");
@@ -68,6 +71,7 @@ public class IndexController {
         return true;
     }
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/index", method = RequestMethod.GET)
     public String index() {
         this.logger.debug("IndexController --> index");
@@ -77,6 +81,7 @@ public class IndexController {
         return "index";
     }
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/top", method = RequestMethod.GET)
     public String top(Model model) {
         this.logger.debug("IndexController --> top");
@@ -106,6 +111,7 @@ public class IndexController {
         return "topFrame";
     }
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/left", method = RequestMethod.GET)
     public String left(Model model) {
         this.logger.debug("IndexController --> left");
@@ -124,6 +130,7 @@ public class IndexController {
         return "leftFrame";
     }
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/quit")
     public void quit(HttpServletRequest request, HttpServletResponse response, Model model) {
 //        this.cookieUtils.invalidate(request, response);
