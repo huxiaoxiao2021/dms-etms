@@ -95,15 +95,16 @@ public class PickWillPrintPackageInterceptHandler implements  InterceptHandler<W
                         || context.getRequest().getPackageIndex().equals(printPackage.getPackageIndexNum())) {
                     newPackList.add(printPackage);
                     context.getResponse().setWillPrintPackageIndex(0);
-                    if (!printPackage.isPrintPack) {
+                    if (Boolean.FALSE.equals(printPackage.getIsPrintPack())) {
                     /* 一旦出现未打印的则置alreadyPrint = false */
                         alreadyPrint = Boolean.FALSE;
                     }
+                    break;//一单找到包裹，直接break掉避免多余的循环
                 }
             } else {
                 /* 请求是运单号 */
                 newPackList.add(printPackage);
-                if (!printPackage.isPrintPack) {
+                if (Boolean.FALSE.equals(printPackage.getIsPrintPack())) {
                     /* 如果该包裹未打印 */
                     if (printPackage.getPackageIndexNum() <= minIndex) {
                         minIndex = printPackage.getPackageIndexNum();
