@@ -38,8 +38,6 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
-import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeCheckDto;
@@ -81,8 +79,9 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.DoubleRange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -515,7 +514,6 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
-	@JProfiler(jKey = "DMS.BASE.WaybillResource.getwaybillPackOld",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 													  @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless) {
@@ -528,7 +526,9 @@ public class WaybillResource {
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		// 转换运单号
-		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillResource.getwaybillPackOld", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+
 		// 调用服务
 		try {
 
@@ -548,11 +548,14 @@ public class WaybillResource {
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			// 调用服务异常
 			this.logger
 					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 
 	}
@@ -645,6 +648,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}")
+    @JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType) {
@@ -660,7 +664,6 @@ public class WaybillResource {
 	 * @param packOpeFlowFlg - 是否获取称重流水信息
 	 * @return
 	 */
-	@JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@GET
 	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
 	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
@@ -744,7 +747,7 @@ public class WaybillResource {
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
-			// 调用服务异常
+            // 调用服务异常
 			this.logger
 					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,

@@ -80,6 +80,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @RequestMapping("/getProvinceList")
     @ResponseBody
     public List getProvince() {
@@ -99,6 +100,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param provinceId
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @RequestMapping("/getCityList")
     @ResponseBody
     public List getCity(Integer provinceId) {
@@ -112,6 +114,7 @@ public class DmsStorageAreaController extends DmsBaseController{
         return cities;
     }
 
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getAllArea")
     public Object getAllArea(String isDefault) {
@@ -139,6 +142,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param isDefault
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getCityListByKey")
     public Object getCityList(Integer areaId, Integer provinceId, String isDefault) {
@@ -173,6 +177,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param isDefault
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getProvinceListByKey")
     public Object getProvinceList(Integer areaId, String isDefault) {
@@ -206,6 +211,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      * @param cityId
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getSiteListByKey")
     public Object getSiteList(Integer areaId, Integer provinceId, Integer cityId, String isDefault) {
@@ -243,6 +249,7 @@ public class DmsStorageAreaController extends DmsBaseController{
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getAllSiteList")
     public Object getAllSiteList() {

@@ -5,10 +5,9 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,7 +56,6 @@ public class ReassignWaybillResource {
      * */
     @GET
     @Path("/packLastScheduleSite/{packageCode}")
-    @JProfiler(jKey = "DMSWEB.ReassignWaybillResource.queryLastScheduleSite", mState = {JProEnum.TP})
     public BaseResponse queryLastScheduleSite(@PathParam("packageCode") String packageCode){
         this.logger.info("the packagecode is : " + packageCode);
         BaseResponse baseResponse = new BaseResponse();
@@ -68,6 +66,7 @@ public class ReassignWaybillResource {
             return baseResponse;
         }
 
+        CallerInfo info = Profiler.registerInfo("DMSWEB.ReassignWaybillResource.queryLastScheduleSite", Constants.UMP_APP_NAME_DMSWEB,false, true);
         ReassignWaybill reassignWaybill = null;
         try{
         	if(WaybillUtil.isPackageCode(packageCode))//判断是否是包裹号
@@ -75,10 +74,13 @@ public class ReassignWaybillResource {
         	else                                         //否则默认按运单号处理
         		reassignWaybill = reassignWaybillService.queryByWaybillCode(packageCode);
         }catch(Exception e){
+            Profiler.functionError(info);
             this.logger.error("获取包裹 [" + packageCode +"] 最后一次反调度站点异常，原因：" + e);
             baseResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
             baseResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             return baseResponse;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         if(null == reassignWaybill){

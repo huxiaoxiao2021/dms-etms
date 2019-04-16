@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.crossSorting;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.CrossSortingRequest;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.erp.service.dto.CommonDto;
 import com.jd.fastjson.JSON;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,6 +49,7 @@ public class CrossSortingController {
     @Autowired
     private CrossSortingService crossSortingService;
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
         try {
@@ -58,11 +61,13 @@ public class CrossSortingController {
         return "cross-sorting/cross-sorting-index";
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/goAddBatch", method = RequestMethod.GET)
     public String goAddBatch(Model model) {
         return "cross-sorting/cross-sorting-add";
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<Pager<List<CrossSorting>>> doQueryCrossSorting(CrossSortingRequest request, Pager<List<CrossSorting>> pager, Model model) {
@@ -120,6 +125,7 @@ public class CrossSortingController {
         return params;
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<String> doDeleteCrossSorting(CrossSortingRequest request) {
@@ -154,6 +160,7 @@ public class CrossSortingController {
         return cdto;
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/addBatch", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<String> doAddBatchCrossSorting(CrossSortingRequest request) {
@@ -272,6 +279,7 @@ public class CrossSortingController {
         return false;
     }
 
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/mixDms", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<List<CrossSorting>> doQueryMixDms(CrossSortingRequest request) {
@@ -311,6 +319,7 @@ public class CrossSortingController {
      * @param response
      * 前台已经注释掉了
      */
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/import", method = RequestMethod.POST)
     @Deprecated
     public void doImportExcel(@RequestParam("importExcelFile") MultipartFile file, HttpServletResponse response){
@@ -386,6 +395,7 @@ public class CrossSortingController {
      * @param request
      * @param response
      */
+    @Authorization(Constants.DMS_WEB_CROSS_SORTING_R)
     @RequestMapping(value = "/export", method = RequestMethod.GET)
     @ResponseBody
     public void doExportExcel(HttpServletRequest request, HttpServletResponse response) {
