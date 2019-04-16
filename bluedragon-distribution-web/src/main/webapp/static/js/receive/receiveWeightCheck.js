@@ -1,6 +1,7 @@
 $(function () {
     var queryUrl = '/receive/listData';
     var exportUrl = '/receive/toExport';
+    var upExcessPictureUrl = '/receive/toUpload';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -76,23 +77,35 @@ $(function () {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         }, {
+            field: 'waybillCode',
+            title: '运单号'
+        },{
             field: 'packageCode',
             title: '包裹号'
         }, {
             field: 'busiName',
             title: '商家名称'
         }, {
+            field: 'isTrustBusiName',
+            title: '信任商家',
+            formatter: function (value, row, index) {
+                return value == "1" ? "是" : "否";
+            }
+        },{
             field: 'reviewOrg',
             title: '复核区域'
         }, {
             field: 'reviewCreateSiteName',
             title: '复核分拣'
         },{
+            field: 'mechanismType',
+            title: '机构类型'
+        },{
             field: 'reviewErp',
             title: '复核人erp'
         },{
             field: 'reviewWeight',
-            title: '分拣重量kg'
+            title: '分拣复重kg'
         },{
             field: 'reviewLwh',
             title: '复核长宽高cm'
@@ -100,23 +113,23 @@ $(function () {
             field: 'reviewVolume',
             title: '复核体积cm³'
         },{
-            field: 'receiveOrg',
-            title: '揽收区域'
+            field: 'billingArea',
+            title: '计费操作区域'
         },{
-            field: 'receiveDepartment',
-            title: '揽收营业部'
+            field: 'billingMechanism',
+            title: '计费操作机构'
         },{
-            field: 'receiveErp',
-            title: '揽收人erp'
+            field: 'billingOperatorErp',
+            title: '计费操作人ERP'
         },{
-            field: 'receiveWeight',
-            title: '揽收重量kg'
+            field: 'billingWeight',
+            title: '计费重量'
         },{
-            field: 'receiveLwh',
-            title: '揽收长宽高cm'
+            field: 'billingLwh',
+            title: '计费长宽高'
         },{
-            field: 'receiveVolume',
-            title: '揽收体积cm³'
+            field: 'billingVolume',
+            title: '计费体积'
         },{
             field: 'weightDiff',
             title: '重量差异'
@@ -129,8 +142,65 @@ $(function () {
         },{
             field: 'isExcess',
             title: '是否超标',
-            formatter : function(value,row,index){
-                return value=="1"?"超标":value=="0"?"未超标":"未知状态";
+            formatter: function (value, row, index) {
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
+            }
+        },{
+            field: 'upPicture',
+            title: '照片上传',
+            formatter : function (value, row, index) {
+                return '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
+                        '<br/>' +
+                    '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+            },
+            events: {
+                'click .upLoad': function(e, value, row, index) {
+                    layer.open({
+                        id:'upExcessPicture',
+                        type: 2,
+                        title:'超标图片上传',
+                        shadeClose: true,
+                        shade: 0.7,
+                        maxmin: true,
+                        shadeClose: false,
+                        area: ['1000px', '500px'],
+                        content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode,
+                        success: function(layero, index){
+                            var frameId = document.getElementById("upExcessPicture").getElementsByTagName("iframe")[0].id;
+                            var frameWindow = $('#' + frameId)[0].contentWindow;
+
+                            frameWindow.$('#normal-flag-input').val('normal');
+
+                            frameWindow.$('#id-input').val(row.id);
+                            frameWindow.$('#maker-code-input').val(row.makerCode);
+                            frameWindow.$('#maker-name-input').val(row.makerName);
+                            frameWindow.$('#contact-person-input').val(row.contactPerson);
+                            frameWindow.$('#contact-email-input').val(row.contactEmail);
+                            frameWindow.$('#contact-tel-input').val(row.contactTel);
+                            frameWindow.$('#maker-address-input').val(row.makerAddress);
+                        }
+                    });
+                },
+                'click .search': function(e, value, row, index) {
+                    $.msg.confirm('确认要删除该条设备厂商记录吗？该操作将记录操作日志及相关操作人，请谨慎操作，切勿影响现场生产！',function () {
+                        var blocker = $.pageBlocker.block();
+
+                        var id = row.id;
+                        var param = {id:id};
+                        var paramJson = JSON.stringify(param);
+
+                        $.ajaxHelper.doPostSync(deleteUrl,paramJson,function(res){
+                            if(res != null && res.statusCode == 200){
+                                $.msg.ok('删除设备厂商记录成功！','',function () {
+                                    $('#btn_query').click();
+                                });
+                            }else {
+                                $.msg.error("删除设备厂商记录失败！",res.statusMessage);
+                            }
+                        },'json');
+                        $.pageBlocker.close(blocker);
+                    }, function () {});
+                }
             }
         }];
         oTableInit.refresh = function () {

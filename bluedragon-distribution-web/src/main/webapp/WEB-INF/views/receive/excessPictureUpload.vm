@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>超标图片上传</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <style>
+        .file{  filter:alpha(opacity:0);opacity: 0;width:0px }
+    </style>
+    <script src="/static/js/receive/excessPictureUpload.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main">
+        <ol class="breadcrumb">
+            <li><a href="#">重量体积抽检统计</a></li>
+            <li class="active">超标图片上传</li>
+        </ol>
+
+        <div id="query-condition">
+            <form id="query-form" class="form-horizontal" enctype="multipart/form-data" action="#springUrl('')/receive/uploadExcessPicture" method="POST">
+                <fieldset>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-1">
+                                <div class="form-group" >
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <div class=" col-xs-12">
+                                        <p id="waybillCodeStr" style="font-size: 17px">运单号：$!{waybillCode}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <div class=" col-xs-12 ">
+                                        <p id="packageCodeStr" style="font-size: 17px">包裹号：$!{packageCode}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-1">
+                                <div class="form-group" >
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <div class=" col-xs-8">
+                                        <input type="text" id="pictureField" class="form-control search-param" >
+                                    </div>
+                                    <div class=" col-xs-4">
+                                        <button id="btn_browse" type="button" class="btn btn-default">
+                                            <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;浏览
+                                        </button>
+                                        <input  type="file" id="fileField" name="fileField" class="file" size="28" onchange="document.getElementById('pictureField').value=this.value" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-6">
+                                <button id="btn_upload" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>&nbsp;上传
+                                </button>
+                                <button id="btn_return" type="button" class="btn btn-default">
+                                    <span class="glyphicon glyphicon-default" aria-hidden="true"></span>返回
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-1">
+                                <div class="form-group" >
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <div class=" col-xs-12">
+                                        <p style="font-size: 17px ">支持.jpg .jpeg .gif .png .bmp图片格式</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </fieldset>
+            </form>
+        </div>
+        <hr />
+        <div class="row">
+            <p id="successMessage" style="color: #00CC33;font-size: 40px;" align="center">上传成功</p>
+        </div>
+        <div class="row">
+            <p id="failMessage" style="color: #FF0040;font-size: 40px;" align="center">上传失败</p>
+        </div>
+</div>
+</body>
+</html>

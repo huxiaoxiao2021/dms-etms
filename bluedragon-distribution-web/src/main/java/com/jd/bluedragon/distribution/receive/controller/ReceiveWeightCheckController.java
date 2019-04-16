@@ -1,27 +1,42 @@
 package com.jd.bluedragon.distribution.receive.controller;
 
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.receive.domain.ImageParams;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.RestHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.QueryParam;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,6 +50,8 @@ import java.util.List;
 public class ReceiveWeightCheckController extends DmsBaseController {
 
     private static final Log logger = LogFactory.getLog(ReceiveWeightCheckController.class);
+
+    private static final String CENTER_CONTEXT = "/services/upload/image";
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -94,5 +111,69 @@ public class ReceiveWeightCheckController extends DmsBaseController {
             return null;
         }
     }
+
+    /**
+     * 跳转上传页面
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
+    @RequestMapping("/toUpload")
+    public String toUpload(@QueryParam("waybillCode")String waybillCode,
+                           @QueryParam("packageCode")String packageCode,Model model) {
+        model.addAttribute("waybillCode",waybillCode);
+        model.addAttribute("packageCode",packageCode);
+
+        return "receive/excessPictureUpload";
+    }
+
+    /**
+     * 上传超标图片
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
+    @RequestMapping(value = "/uploadExcessPicture", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult uploadExcessPicture(Model model,MultipartHttpServletRequest request,
+                                            HttpServletResponse httpServletResponse,HttpServletRequest httpServletRequest) {
+
+        InvokeResult result = new InvokeResult();
+        MultipartFile fileField = request.getFile("fileField");
+        MultipartFile[] images = new MultipartFile[]{fileField};
+        String fileName = fileField.getOriginalFilename();
+
+        ImageParams imageParams = new ImageParams();
+        imageParams.setImage(images);
+        imageParams.setOperateTime(new Long[]{new Date().getTime()});
+        imageParams.setMachineCode("");
+        imageParams.setSiteCode(-1);
+
+
+        //提交参数设置
+        MultiValueMap<String, Object> map = new LinkedMultiValueMap<>();
+
+        try {
+            ByteArrayResource contentsAsResource = new ByteArrayResource(fileField.getBytes()){
+                public String getFilename(){
+                    return "fileName";
+                }
+            };
+            map.add("image", contentsAsResource);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        map.add("operateTime", new Long[]{new Date().getTime()});
+        map.add("machineCode", "hjp");
+        map.add("siteCode", -1);
+
+        String url = PropertiesHelper.newInstance().getValue("DMSAUTOMATIC_ADDRESS") + CENTER_CONTEXT;
+
+        result = RestHelper.formPostForEntity(url, request.getContentType(), map, new TypeReference<InvokeResult>(){});
+        if(result == null){
+            return new InvokeResult();
+        }
+        return result;
+
+    }
+
 
 }

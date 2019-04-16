@@ -2,19 +2,20 @@ package com.jd.bluedragon.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 
 /**
@@ -53,6 +54,35 @@ public class RestHelper {
             header.add("Accept", MediaType.APPLICATION_JSON.toString());
             HttpEntity<String> formEntity = new HttpEntity<String>(JSON.toJSONString(request), header);
             ResponseEntity result = restTemplate.postForEntity(url, formEntity, Object.class);
+            if (result.getStatusCode() == HttpStatus.OK) {
+                return JSON.parseObject(JSON.toJSONString(result.getBody()), typeReference);
+            }
+            logger.error("rest jsonPostForEntity  fail url:" + url + "result:" + JsonHelper.toJson(result));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 基于json交互的http访问
+     *
+     * @param url           访问的url
+     * @param request       请求的对象
+     * @param typeReference 返回对象的泛型类型, 例如 new TypeReference<SortSchemeResponse<Pager<List<SortScheme>>>>(){}
+     * @param <T>
+     * @return
+     */
+    public static <T> T formPostForEntity(String url, String content, MultiValueMap<String, Object> request, TypeReference<T> typeReference) {
+        try {
+            //请求头设置
+            HttpHeaders headers = new HttpHeaders();
+//            headers.setContentType(new MediaType(content));
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            //提交请求
+            HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(request, headers);
+            ResponseEntity result = restTemplate.postForEntity(url, entity, Object.class);
             if (result.getStatusCode() == HttpStatus.OK) {
                 return JSON.parseObject(JSON.toJSONString(result.getBody()), typeReference);
             }
