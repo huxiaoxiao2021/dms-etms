@@ -27,7 +27,6 @@ public class SortingPackServiceImpl extends SortingCommonSerivce{
 
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.SortingPackServiceImpl.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public boolean doSorting(SortingVO sorting) {
         if(sorting.getIsCancel().equals(SortingService.SORTING_CANCEL_NORMAL)){
             //分拣
