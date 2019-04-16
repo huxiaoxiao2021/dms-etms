@@ -50,16 +50,17 @@ public class LoadBillServiceTest {
 
 //        loadBillService.updateLoadBillStatusByReport(report2);
 
-//
-//        LoadBillReport report3 = new LoadBillReport();
-//        report3.setReportId("1,1,1");
-//        report3.setWarehouseId("werwqer");
-//        report3.setProcessTime(new Date());
-//        report3.setCiqCheckFlag(1);
-//        report3.setCustBillNo("123123");
-//        report3.setWaybillCode("JDVA00000265077,JDVA00000265077,JDVA00000265077");
-//        report3.setStatus(0);
-//        loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report3,null));
+
+        LoadBillReport report3 = new LoadBillReport();
+        report3.setReportId("1,1,1");
+        report3.setWarehouseId("werwqer");
+        report3.setProcessTime(new Date());
+        report3.setCiqCheckFlag(1);
+        report3.setCustBillNo("123123");
+        report3.setWaybillCode("JDVA00000265077,JDVA00000265077,JDVA00000265077");
+        report3.setStatus(1);
+        report3.setLoadId("1,1,1");
+        loadBillDao.updateLoadBillStatus(getLoadBillStatusMap(report3,null));
 
         LoadBillReport report4 = new LoadBillReport();
         report4.setReportId("1,1,1");
