@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.redis.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.redis.QueueKeyInfo;
 import com.jd.bluedragon.core.redis.RedisTaskHelper;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -11,6 +12,8 @@ import com.jd.tbschedule.redis.utils.JsonUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -124,12 +127,11 @@ public class RedisManagerImpl implements RedisManager {
 	 * @return
 	 * @throws Exception
 	 */
-	@JProfiler(jKey = "erp.RedisClientProxy.queryRedisQueueCount", mState = { JProEnum.TP,
-			JProEnum.Heartbeat, JProEnum.FunctionError })
 	public Map<String,Long> queryRedisQueueCount(List<String> list) throws Exception {
 		if(list == null || list.size() < 1){
 			return null;
 		}
+        CallerInfo info = Profiler.registerInfo("erp.RedisClientProxy.queryRedisQueueCount", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		Map<String,Long> result = new HashMap<String,Long>();
 		try {
 			logger.info("queryRedisQueueCount: " + list);
@@ -142,7 +144,10 @@ public class RedisManagerImpl implements RedisManager {
 				result.put(item, count);
 			}
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			logger.error("queryRedisQueueCount-error", e);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 		return result;
 	}

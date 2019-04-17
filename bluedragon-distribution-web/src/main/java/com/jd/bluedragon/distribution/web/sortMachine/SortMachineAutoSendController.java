@@ -547,7 +547,7 @@ public class SortMachineAutoSendController {
             Integer count = gantryExceptionService.getGantryExceptionCount(request.getMachineId(),
                     request.getStartTime(), request.getEndTime());
             result.setData(count);
-        } catch (NullPointerException e) {
+        } catch (Exception e) {
             logger.error("获取分拣机自动发货异常数据失败，分拣机ID为：" + request.getMachineId());
         }
         return result;

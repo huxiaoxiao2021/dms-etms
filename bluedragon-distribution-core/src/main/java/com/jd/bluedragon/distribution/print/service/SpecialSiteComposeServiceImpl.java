@@ -56,7 +56,7 @@ public class SpecialSiteComposeServiceImpl implements ComposeService {
         } else if(waybill.getPrepareSiteCode() !=null
                 && waybill.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE){
             //新细分超区
-            waybill.setPrepareSiteCode(waybill.getPrepareSiteCode());
+//            waybill.setPrepareSiteCode(waybill.getPrepareSiteCode());
             waybill.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
             waybill.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
             logger.warn(" 没有获取预分拣站点(细分超区)," + waybill.getPrepareSiteCode() + ","+waybill.getWaybillCode());

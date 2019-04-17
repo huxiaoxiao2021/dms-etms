@@ -180,7 +180,7 @@ public class SysconfigController {
      * @param configName
      * @return
      */
-//    @Authorization(Constants.DMS_WEB_DEVELOP_SYSCONFIG_R)
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @JProfiler( jKey = "DMS.WEB.SysconfigController.findConfigContentByConfigName", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     @RequestMapping(value = "/findConfigContentByConfigName/{configName}", method = RequestMethod.GET)
     @ResponseBody

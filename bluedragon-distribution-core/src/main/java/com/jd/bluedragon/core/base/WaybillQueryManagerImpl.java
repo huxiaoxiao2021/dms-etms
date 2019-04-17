@@ -90,13 +90,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             if (isQueryPackList != null && isQueryPackList) {
                 // 是否需要从缓存获取包裹信息
                 if (this.isNeedGetFromCache(baseEntity.getData().getWaybill())) {
-                    try {
-                        baseEntity.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
-                        // 回滚wChoice查询配置及返回的数据信息
-                        this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
+                    boolean isDone = setPackageListFromCache(waybillCode, isQueryPackList, isQueryWaybillC, wChoice, baseEntity);
+                    if(isDone){
                         return baseEntity;
-                    } catch (Exception e) {
-                        logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
                     }
                 }
                 // 根据运单号获取包裹信息
@@ -125,6 +121,25 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         wChoice.setQueryPackList(false);
     }
 
+    /**
+     * 从缓存获取包裹信息
+     *
+     * @param isQueryPackList
+     * @param isQueryWaybillC
+     * @param wChoice
+     * @param result
+     */
+    private boolean setPackageListFromCache(String waybillCode, Boolean isQueryPackList, Boolean isQueryWaybillC, WChoice wChoice, BaseEntity<BigWaybillDto> result) {
+        try {
+            result.getData().setPackageList(BigWaybillPackageListCache.getPackageListFromCache(waybillCode));
+            // 回滚wChoice查询配置及返回的数据信息
+            this.revertWChoiceSettingAndData(isQueryPackList, isQueryWaybillC, wChoice, result);
+            return true;
+        } catch (Exception e) {
+            logger.error("[大包裹运单缓存]获取包裹信息时发生异常，运单号:" + waybillCode, e);
+        }
+        return false;
+    }
     /**
      * 查询配置及数据回滚
      *
