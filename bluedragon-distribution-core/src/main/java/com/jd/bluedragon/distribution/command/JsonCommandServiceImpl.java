@@ -105,38 +105,47 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	 * @param operateType
 	 */
 	private void writeBusinessLog(String jsonCommand, String responseJsonString,Integer operateType){
-		//写入自定义日志
-		JdResult<String> jdResultToLog = JSON.parseObject(responseJsonString,JdResult.class);
+		JdResult<String> jdResultToLog = null;
+		try {
+			//写入自定义日志
+			jdResultToLog = JSON.parseObject(responseJsonString, JdResult.class);
 
-		if(jdResultToLog != null && jdResultToLog.getData() != null){
-			String dataStr = jdResultToLog.getData();
-			if(StringUtils.isNotBlank(dataStr)){
-				JSONObject dataJson = JSON.parseObject(dataStr);
-				String afterProcess = null;
-				//平台打印、站点平台打印和其他打印逻辑返回值不一样，需要分开处理
-				if(operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
-						|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType())){
-					if(dataJson !=null && dataJson.get("jsonData")!= null) {
-						String jsonDataStr = dataJson.get("jsonData").toString();
-						dataJson.put("jsonData", encryptedInfoProcess(jsonDataStr));
-						afterProcess = dataJson.toJSONString();
+			if (jdResultToLog != null && jdResultToLog.getData() != null) {
+				String dataStr = jdResultToLog.getData();
+				if (StringUtils.isNotBlank(dataStr)) {
+					JSONObject dataJson = JSON.parseObject(dataStr);
+					String afterProcess = null;
+					//平台打印、站点平台打印和其他打印逻辑返回值不一样，需要分开处理
+					if (operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
+							|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType())) {
+						if (dataJson != null && dataJson.get("jsonData") != null) {
+							String jsonDataStr = dataJson.get("jsonData").toString();
+							dataJson.put("jsonData", encryptedInfoProcess(jsonDataStr));
+							afterProcess = dataJson.toJSONString();
+						}
+					} else {
+						afterProcess = encryptedInfoProcess(dataStr);
 					}
-				}else{
-					afterProcess = encryptedInfoProcess(dataStr);
+					jdResultToLog.setData(afterProcess);
 				}
-				jdResultToLog.setData(afterProcess);
 			}
+		}catch (Exception e){
+			logger.error("打印写操作日志异常.jsonCommand:"+jsonCommand+",responseJsonString:"+
+					responseJsonString +
+					",operateType:" + operateType,e);
 		}
 
 		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
 		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
-		if(operateType == null){
+		if (operateType == null) {
 			operateType = Constants.OPERATE_TYPE_UNKNOWN;
 		}
 		businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_PRINT);
 		businessLogProfiler.setOperateType(operateType);
 		businessLogProfiler.setOperateRequest(jsonCommand);
-		businessLogProfiler.setOperateResponse(JSON.toJSONString(jdResultToLog));
+		if(jdResultToLog!=null) {
+			businessLogProfiler.setOperateResponse(JSON.toJSONString(jdResultToLog));
+		}
 		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
 		BusinessLogWriter.writeLog(businessLogProfiler);
 	}
