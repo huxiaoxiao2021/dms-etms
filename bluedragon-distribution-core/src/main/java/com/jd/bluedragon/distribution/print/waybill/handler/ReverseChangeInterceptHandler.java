@@ -44,7 +44,7 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
         String oldBarCode = context.getRequest().getOldBarCode();/* 获取输入旧单号 */
         String oldWaybillCode = WaybillUtil.getWaybillCode(oldBarCode);/* 获取旧运单号 */
         String newWaybillCode = "";/* 新运单号 */
-        if (!WaybillUtil.isWaybillCode(oldWaybillCode)) {
+        if (!WaybillUtil.isWaybillCode(oldWaybillCode) || !WaybillUtil.isPickupCode(oldWaybillCode)) {
             LOGGER.error("ReverseChangeInterceptHandler.handle-->单号输入不正确{}",oldBarCode);
             result.toError(JdResponse.CODE_PARAM_ERROR,JdResponse.MESSAGE_PACKAGE_ERROR);
             return result;

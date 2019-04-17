@@ -182,7 +182,7 @@ public class PackageResource {
 
             /* 3.客户改址拦截MQ */
             String waybillSign = request.getWaybillSign();
-            if (StringHelper.isEmpty(request.getWaybillSign()) && waybillSign.length() > 8 &&
+            if (StringHelper.isNotEmpty(request.getWaybillSign()) && waybillSign.length() > 8 &&
                     (BusinessUtil.isSignChar(waybillSign,8,'1' ) || BusinessUtil.isSignChar(waybillSign,8,'2' )
                             || BusinessUtil.isSignChar(waybillSign,8,'3' ))) {
                 char sign = waybillSign.charAt(7);
