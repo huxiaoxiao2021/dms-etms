@@ -9,6 +9,8 @@ import java.util.Map;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -33,7 +35,6 @@ import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.SignConfig;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -42,12 +43,8 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.domain.BaseDmsStore;
-import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
-import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 
 /**
  * Created by wangtingwei on 2015/12/23.
@@ -150,11 +147,11 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
      * 收件人联系方式需要突出显示的位数
      */
     private static final int PHONE_HIGHLIGHT_NUMBER = 4;
-    @JProfiler(jKey = "DMSWEB.SimpleWaybillPrintServiceImpl.getPrintWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     @Override
     public InvokeResult<WaybillPrintResponse> getPrintWaybill(Integer dmsCode, String waybillCode, Integer targetSiteCode) {
 
         InvokeResult<WaybillPrintResponse> result=new InvokeResult<WaybillPrintResponse>();
+        CallerInfo info = Profiler.registerInfo("DMSWEB.SimpleWaybillPrintServiceImpl.getPrintWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if(baseEntity != null && Constants.RESULT_SUCCESS == baseEntity.getResultCode()){
@@ -172,8 +169,11 @@ public class SimpleWaybillPrintServiceImpl implements WaybillPrintService {
                 result.error("查询运单信息为空");
             }
         }catch (Exception ex){
+            Profiler.functionError(info);
             logger.error("标签打印接口异常，运单号:"+waybillCode,ex);
             result.error(ex);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }

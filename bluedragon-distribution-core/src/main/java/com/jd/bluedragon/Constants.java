@@ -35,7 +35,8 @@ public class Constants {
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
-    
+    public static final String SEPARATOR_COLON = ":";
+
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
     public static final String PUNCTUATION_OPEN_BRACKET_SMALL = "(";
@@ -124,6 +125,11 @@ public class Constants {
      * 业务操作日志系统编码-分拣web
      */
     public static final int BUSINESS_LOG_SOURCE_SYS_DMSWEB = 1;
+
+    /**
+     * 业务操作日志系统编码-分拣worker
+     */
+    public static final int BUSINESS_LOG_SOURCE_SYS_DMSWORKER = 66;
     /**
      * 业务类型-未知业务类型
      */
@@ -133,6 +139,17 @@ public class Constants {
      * 操作日志业务编码-打印
      */
     public static final Integer BUSINESS_LOG_BIZ_TYPE_PRINT=2001;
+
+    /**
+     * 操作日志记录
+     */
+    public static final Integer BUSINESS_LOG_BIZ_TYPE_OPERATE_LOG=2003;
+
+    /**
+     * 操作日志慢发货记录
+     */
+    public static final Integer BUSINESS_LOG_OPERATE_TYPE_SLOW_SEND=2003001;
+
     /**
      * 操作日志业务编码-航空转陆运
      */
@@ -480,6 +497,22 @@ public class Constants {
     public static final Integer WAYBILL_SIGN_POSITION_TRANSPORT_MODE = 31;
 
     /**
+     * waybillSign-point-92 安心寄增值服务
+     */
+    public static final int WAYBILL_SIGN_POSITION_92 = 92;
+
+    /**
+     * waybillSign-point-92 安心寄增值服务 为2:追踪器
+     */
+    public static final char WAYBILL_SIGN_POSITION_92_2 = '2';
+
+
+    /**
+     * waybillSign-point-92 安心寄增值服务 为3:追踪箱
+     */
+    public static final char WAYBILL_SIGN_POSITION_92_3 = '3';
+
+    /**
      * waybill_cancel 表 featureType ：30-病单，31-取消病单，32- 非病单
      */
     public static final Integer FEATURE_TYPCANCEE_UNSICKL = 32; // 非病单
@@ -538,9 +571,11 @@ public class Constants {
     public static final int OPERATE_TYPE_AR_RECEIVE = 1810;
 
     /********************************************* UIM权限资源码相关start *********************************************/
+    public static final String DMS_WEB_PERMISSION_CONTROL_R="DMS-WEB-PERMISSION-CONTROL-R"; //权限跳转
     public static final String DMS_WEB_PTORDER_DIFF_R="DMS-WEB-PTORDER-DIFF-R"; //平台差异处理
     public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
+    public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
     public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
     public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
@@ -559,6 +594,8 @@ public class Constants {
     public static final String DMS_WEB_SORTING_DMSBARCODE_R="DMS-WEB-SORTING-DMSBARCODE-R";//69码查询商品名称
     public static final String DMS_WEB_SORTING_TMSPROXY_R="DMS-WEB-SORTING-TMSPROXY-R";//运输委托书打印
     public static final String DMS_WEB_SORTING_GOODSPRINT_R="DMS_WEB_SORTING_GOODSPRINT_R";//托寄物品名打印
+    public static final String DMS_WEB_SORTING_REVERSEPARTDETAIL_CHECK_R="DMS-WEB-SORTING-REVERSEPARTDETAIL-CHECK-R";//半退明细查询
+    public static final String DMS_WEB_EXPRESS_QUARANTINELICENSE_R="DMS-WEB-EXPRESS-QUARANTINELICENSE-R";//冷链卡班检疫证票号管理
     public static final String DMS_WEB_EXPRESS_B2BROUTER_R="DMS-WEB-EXPRESS-B2BROUTER-R";//B网路由配置表
     public static final String DMS_WEB_EXPRESS_DMSSTORAGEAREA_R="DMS-WEB-EXPRESS-DMSSTORAGEAREA-R";//流向库位配置表
     public static final String DMS_WEB_EXPRESS_PACKAGEHALF_R="DMS-WEB-EXPRESS-PACKAGEHALF-R";//快运协商再投
@@ -569,6 +606,8 @@ public class Constants {
     public static final String DMS_WEB_EXPRESS_DMSCONSUMABLERELATION_R="DMS-WEB-EXPRESS-DMSCONSUMABLERELATION-R";//快运中心包装耗材管理
     public static final String DMS_WEB_EXPRESS_STORAGEPACKAGEM_R="DMS-WEB-EXPRESS-STORAGEPACKAGEM-R";//暂存管理
     public static final String DMS_WEB_EXPRESS_PERFORMANCE_R="DMS-WEB-EXPRESS-PERFORMANCE-R";//加履交接单打印
+    public static final String DMS_WEB_TOOL_WAYBILLCODECHECK_R ="DMS-WEB-TOOL-WAYBILLCODECHECK-R"; //金融客户运单号对比校验
+    public static final String DMS_WEB_TOOL_SIGNRETURN_R ="DMS-WEB-TOOL-SIGNRETURN-R"; //签单返回合单打印交接单
     public static final String DMS_WEB_TOOL_REPAILSTOCK_R ="DMS-WEB-TOOL-REPAILSTOCK-R"; //逆向物流重新推送库管
     public static final String DMS_WEB_TOOL_REPAILREVERSE_R ="DMS-WEB-TOOL-REPAILREVERSE-R"; //逆向物流重新推送数据
     public static final String DMS_WEB_TOOL_WAYBILLCHECK_R ="DMS-WEB-TOOL-WAYBILLCHECK-R"; //运单判断
@@ -580,11 +619,21 @@ public class Constants {
     public static final String DMS_WEB_TOOL_AREADESTPLAN_R ="DMS-WEB-TOOL-AREADESTPLAN-R"; //龙门架发货关系维护
     public static final String DMS_WEB_TOOL_B2BWEIGHT_R ="DMS-WEB-TOOL-B2BWEIGHT-R"; //快运运单称重
     public static final String DMS_WEB_TOOL_DMSOPERATEHINT_R="DMS-WEB-TOOL-DMSOPERATEHINT-R";//PDA验货提示语
+    public static final String DMS_WEB_TOOL_RECYCLEMATERIAL_R="DMS-WEB-TOOL-RECYCLEMATERIAL-R";//循环物资管理
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
+    public static final String DMS_WEB_PRE_SEALVEHICLE_R ="DMS_WEB_PRE_SEALVEHICLE_R"; //预封车权限码
     public static final String DMS_WEB_OFFLINE_MANAGER_R ="bluedragon_offlinePwd_list"; //离线密码管理
     public static final String DMS_WEB_QUERY_KUGUANINIT ="DMS-WEB-QUERY-KUGUANINIT"; //库管首页
     public static final String DMS_WEB_QUERY_KUGUANLIST ="DMS-WEB-QUERY-KUGUANLIST"; //库管查询
+    public static final String DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R="DMS-WEB-TRANSPORT-ARBOOKINGSPACE-R"; //空铁订舱登记
+    public static final String DMS_WEB_TRANSPORT_AREXCPREGISTER_R="DMS-WEB-TRANSPORT-AREXCPREGISTER-R"; //空铁异常登记
+    public static final String DMS_WEB_ABNORMAL_ORDER_R="DMS-WEB-ABNORMAL-ORDER-R"; //异常单操作
+    public static final String DMS_WEB_CROSS_SORTING_R="DMS-WEB-CROSS-SORTING-R";   //跨区分拣校验GlobalTrade
+    public static final String DMS_WEB_POP_ABNORMAL_R="DMS-WEB-POP-ABNORMAL-R";  //POP差异订单
+    public static final String DMS_WEB_SORTING_MACHINE_EXCEPTION="DMS-WEB-SORTING-MACHINE-EXCEPTION"; //分拣机或者龙门架异常
+    public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
+
 
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
@@ -601,6 +650,7 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
+    public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限
 
     /********************************************* UIM权限资源码相关end ***********************************************/
 
@@ -635,6 +685,12 @@ public class Constants {
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
      */
     public static final String SYS_CONFIG_BOARD_COM_CANCEL_ATUO_OPEN_DMS_CODES="packageSend.board.com.cancel.auto.sites";
+
+    /**
+     * 配置信息-新分拣开启的分拣中心
+     */
+    public static final String SYS_CONFIG_NEW_SORTING_OPEN_DMS_CODES="sorting.new.sites";
+
 
     /**
      * 配置信息-调用运单的分页获取数据包裹开关接口（为了支持2w个订单）

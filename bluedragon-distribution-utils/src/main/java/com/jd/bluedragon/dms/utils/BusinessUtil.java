@@ -441,7 +441,7 @@ public class BusinessUtil {
                     return Boolean.TRUE;
                 }
             }
-        } catch (IndexOutOfBoundsException ex) {
+        } catch (Exception ex) {
             return Boolean.FALSE;
         }
 

@@ -1,21 +1,18 @@
 package com.jd.bluedragon.distribution.external.service.jos.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoadBillReportRequest;
 import com.jd.bluedragon.distribution.api.response.LoadBillReportResponse;
 import com.jd.bluedragon.distribution.external.jos.service.JosService;
 import com.jd.bluedragon.distribution.globaltrade.domain.LoadBillReport;
 import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jsf.gd.util.StringUtils;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by yangbo7 on 2015/9/1.
@@ -29,12 +26,12 @@ public class JosServiceImpl implements JosService {
     private LoadBillService loadBillService;
 
     @Override
-    @JProfiler(jKey = "DMSWEB.JosServiceImpl.updateLoadBillStatus", mState = {JProEnum.TP})
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request) {
         if(request != null) {
             logger.info("全球购更新配载单状态获取到的appKey:" + request.getAppKey());
         }
         LoadBillReportResponse response = new LoadBillReportResponse(1, JdResponse.MESSAGE_OK);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.JosServiceImpl.updateLoadBillStatus", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             if (request == null || StringUtils.isBlank(request.getReportId())
                     || StringUtils.isBlank(request.getLoadId())
@@ -46,8 +43,11 @@ public class JosServiceImpl implements JosService {
             }
             loadBillService.updateLoadBillStatusByReport(resolveLoadBillReport(request));
         } catch (Exception e) {
+            Profiler.functionError(info);
             response = new LoadBillReportResponse(2, "操作异常");
             logger.error("GlobalTradeController 发生异常,异常信息 : ", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return response;
     }

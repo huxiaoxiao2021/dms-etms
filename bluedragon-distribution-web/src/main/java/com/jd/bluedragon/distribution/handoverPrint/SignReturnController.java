@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.handoverPrint;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill;
 import com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class SignReturnController extends DmsBaseController {
      * 返回主页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(){
         return "/signReturn/signReturnPrint";
@@ -56,6 +59,7 @@ public class SignReturnController extends DmsBaseController {
      * 查询
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/query")
     public @ResponseBody PagerResult<SignReturnPrintM> query(@RequestBody SignReturnCondition condition){
 
@@ -90,6 +94,7 @@ public class SignReturnController extends DmsBaseController {
      * 查询明细
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<MergedWaybill> listData(@RequestBody SignReturnCondition condition){
 
@@ -110,6 +115,7 @@ public class SignReturnController extends DmsBaseController {
      * 导出
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public void toExport(SignReturnCondition condition, HttpServletResponse response, Model model){
 
@@ -126,6 +132,7 @@ public class SignReturnController extends DmsBaseController {
      * 跳转打印页面
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @RequestMapping(value = "/toPrint")
     public String toPrint(SignReturnCondition condition,Model model){
 
@@ -137,6 +144,7 @@ public class SignReturnController extends DmsBaseController {
     /**
      * 打印明细
      * */
+    @Authorization(Constants.DMS_WEB_TOOL_SIGNRETURN_R)
     @ResponseBody
     @RequestMapping(value = "/printInfo")
     public String printInfo(@QueryParam("newWaybillCode")String newWaybillCode,

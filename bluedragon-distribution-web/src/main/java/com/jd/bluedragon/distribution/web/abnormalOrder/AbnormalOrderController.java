@@ -5,6 +5,8 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +39,7 @@ public class AbnormalOrderController {
 	@Autowired
 	AbnormalOrderService abnormalOrderService;
 
+	@Authorization(Constants.DMS_WEB_ABNORMAL_ORDER_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String queryOperateLog(AbnormalOrderRequest abnormalOrderRequest, Pager pager, Model model){
 		RefundReason[] refundReasons = abnormalOrderService.queryRefundReason();
@@ -51,7 +54,7 @@ public class AbnormalOrderController {
 		}
 		return "abnormalOrder/abnormalOrderList";
 	}
-	
+	@Authorization(Constants.DMS_WEB_ABNORMAL_ORDER_R)
 	@RequestMapping(value = "/add", method = RequestMethod.POST)
 	public String queryOperateLog(AbnormalOrderRequest abnormalOrderRequest, Pager pager, Model model,Integer[] row,HttpServletRequest request){
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();

@@ -71,7 +71,11 @@ public class CapacityDomain implements Serializable{
 	 * 发车时间
 	 * */
 	private String sendTime;
-	
+	/**
+	 * 发车时间HH:MM
+	 * */
+	private String sendTimeStr;
+
 	/**
 	 * 到车时间
 	 * */
@@ -167,6 +171,14 @@ public class CapacityDomain implements Serializable{
 
 	public void setSendTime(String sendTime) {
 		this.sendTime = sendTime;
+	}
+
+	public String getSendTimeStr() {
+		return sendTimeStr;
+	}
+
+	public void setSendTimeStr(String sendTimeStr) {
+		this.sendTimeStr = sendTimeStr;
 	}
 
 	public String getArriveTime() {

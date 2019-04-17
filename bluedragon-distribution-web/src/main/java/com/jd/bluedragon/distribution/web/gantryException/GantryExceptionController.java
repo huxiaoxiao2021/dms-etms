@@ -13,6 +13,7 @@ import com.jd.bluedragon.utils.ObjectMapHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.util.DateUtil;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -23,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletRequest;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -51,6 +52,7 @@ public class GantryExceptionController {
      * 初始化
      *
      */
+    @Authorization(Constants.DMS_WEB_SORTING_GANTRYAUTOSEND_R)
     @RequestMapping(value = "/gantryExceptionList", method = RequestMethod.GET)
     public String gantryExceptionPageList(GantryExceptionRequest request, Model model) {
         try {
@@ -72,6 +74,7 @@ public class GantryExceptionController {
         return "gantryException/gantryExceptionList";
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_SORTMACHINEAUTOSEND_R)
     @RequestMapping(value = "/autoMachineExceptionList", method = RequestMethod.GET)
     public String autoMachineExceptionList(GantryExceptionRequest request, Model model) {
 
@@ -93,6 +96,7 @@ public class GantryExceptionController {
      * 查询符合条件的异常数据
      *
      */
+    @Authorization(Constants.DMS_WEB_SORTING_MACHINE_EXCEPTION)
     @RequestMapping(value = "/doQuery", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<List<GantryException>>> queryGantryExceptionByParam(GantryExceptionRequest request
@@ -134,6 +138,7 @@ public class GantryExceptionController {
      * 查询符合条件的数量
      *
      */
+    @Authorization(Constants.DMS_WEB_SORTING_MACHINE_EXCEPTION)
     @RequestMapping(value = "/doQueryCount", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Integer> queryGantryExceptionCountByParam(GantryExceptionRequest request){
@@ -163,6 +168,7 @@ public class GantryExceptionController {
      * 导出异常信息数据
      *
      */
+    @Authorization(Constants.DMS_WEB_SORTING_MACHINE_EXCEPTION)
     @RequestMapping(value = "/doExport", method = RequestMethod.GET)
     public void exportGantryException(GantryExceptionRequest request, HttpServletResponse response) {
         this.logger.info("导出发货异常信息数据");

@@ -31,6 +31,7 @@
 		<property name="migrationDbBackupReplicateIgnoreExp" value="${migration.db.backup.replicate.ignoreExp}"/>
 		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
+		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -46,6 +47,7 @@
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateIgnoreExp</value>
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
+				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
 			</list>
 		</property>
 	</bean>
