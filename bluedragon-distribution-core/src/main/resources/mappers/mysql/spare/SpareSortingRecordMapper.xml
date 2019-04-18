@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.spare.domain.SpareSortingRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="box_code" jdbcType="VARCHAR" property="boxCode" />
+    <result column="waybill_code" jdbcType="VARCHAR" property="waybillCode" />
+    <result column="create_site_code" jdbcType="INTEGER" property="createSiteCode" />
+    <result column="create_site_name" jdbcType="VARCHAR" property="createSiteName" />
+    <result column="receive_site_code" jdbcType="INTEGER" property="receiveSiteCode" />
+    <result column="receive_site_name" jdbcType="VARCHAR" property="receiveSiteName" />
+    <result column="duty_code" jdbcType="VARCHAR" property="dutyCode" />
+    <result column="duty_name" jdbcType="VARCHAR" property="dutyName" />
+    <result column="spare_reason" jdbcType="VARCHAR" property="spareReason" />
+    <result column="create_user_code" jdbcType="INTEGER" property="createUserCode" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user_code" jdbcType="INTEGER" property="updateUserCode" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, box_code, waybill_code, create_site_code, create_site_name, receive_site_code, 
+    receive_site_name, duty_code, duty_name, spare_reason, create_user_code, create_user, 
+    create_time, update_user_code, update_user, update_time, is_delete, ts
+  </sql>
+
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.spare.domain.SpareSortingRecord">
+    insert into spare_sorting_record
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="boxCode != null">
+        box_code,
+      </if>
+      <if test="waybillCode != null">
+        waybill_code,
+      </if>
+      <if test="createSiteCode != null">
+        create_site_code,
+      </if>
+      <if test="createSiteName != null">
+        create_site_name,
+      </if>
+      <if test="receiveSiteCode != null">
+        receive_site_code,
+      </if>
+      <if test="receiveSiteName != null">
+        receive_site_name,
+      </if>
+      <if test="dutyCode != null">
+        duty_code,
+      </if>
+      <if test="dutyName != null">
+        duty_name,
+      </if>
+      <if test="spareReason != null">
+        spare_reason,
+      </if>
+      <if test="createUserCode != null">
+        create_user_code,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUserCode != null">
+        update_user_code,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+        is_delete
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="boxCode != null">
+        #{boxCode,jdbcType=VARCHAR},
+      </if>
+      <if test="waybillCode != null">
+        #{waybillCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createSiteCode != null">
+        #{createSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="createSiteName != null">
+        #{createSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="receiveSiteCode != null">
+        #{receiveSiteCode,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteName != null">
+        #{receiveSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyCode != null">
+        #{dutyCode,jdbcType=VARCHAR},
+      </if>
+      <if test="dutyName != null">
+        #{dutyName,jdbcType=VARCHAR},
+      </if>
+      <if test="spareReason != null">
+        #{spareReason,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserCode != null">
+        #{createUserCode,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserCode != null">
+        #{updateUserCode,jdbcType=INTEGER},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      0
+    </trim>
+  </insert>
+
+  <select id="getLastRecord" resultMap="BaseResultMap" parameterType="java.util.Map" >
+		select
+          <include refid="Base_Column_List"/>
+		from spare_sorting_record
+		where is_delete = 0
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		and waybill_code =  #{waybillCode, jdbcType=VARCHAR}
+		order by create_time desc limit 1
+	</select>
+</mapper>

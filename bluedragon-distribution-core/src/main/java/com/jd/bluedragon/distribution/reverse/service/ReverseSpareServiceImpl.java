@@ -11,6 +11,8 @@ import com.jd.bluedragon.distribution.reverse.domain.ReverseSpare;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao;
+import com.jd.bluedragon.distribution.spare.domain.SpareSortingRecord;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.utils.DateHelper;
@@ -29,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -58,6 +61,9 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SpareSortingRecordDao spareSortingRecordDao;
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
@@ -141,6 +147,10 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
                         .info("ReverseRejectSpareTask toDataMap--> sortingTemp对象为空，继续后面的");
                 continue;
             }
+
+            //记录备件库分拣记录
+            this.insertSpareSortingRecord(request);
+
             for (ReverseSpareDto spareDto : request.getData()) {
                 ReverseSpare reverseSpare = this.toReverseSpare(spareDto);
                 if (reverseSpare != null) {
@@ -292,5 +302,31 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
         reverseSpare.setArrtCode4(spareDto.getArrtCode4());
         reverseSpare.setArrtDesc4(spareDto.getArrtDesc4());
         return reverseSpare;
+    }
+
+    /*
+    * 保存备件库分拣记录
+    * */
+    private void insertSpareSortingRecord(ReverseSpareRequest reverseSpareRequest) {
+	    //组装实体
+        SpareSortingRecord spareSortingRecord = new SpareSortingRecord();
+        spareSortingRecord.setBoxCode(reverseSpareRequest.getBoxCode());
+        spareSortingRecord.setWaybillCode(reverseSpareRequest.getWaybillCode());
+        spareSortingRecord.setCreateSiteCode(reverseSpareRequest.getSiteCode());
+        spareSortingRecord.setCreateSiteName(reverseSpareRequest.getSiteName());
+        spareSortingRecord.setReceiveSiteCode(reverseSpareRequest.getReceiveSiteCode());
+        spareSortingRecord.setReceiveSiteName(reverseSpareRequest.getReceiveSiteName());
+        spareSortingRecord.setDutyCode(reverseSpareRequest.getDutyCode());
+        spareSortingRecord.setDutyName(reverseSpareRequest.getDutyName());
+        spareSortingRecord.setSpareReason(reverseSpareRequest.getSpareReason());
+        spareSortingRecord.setCreateUser(reverseSpareRequest.getUserName());
+        spareSortingRecord.setCreateUserCode(reverseSpareRequest.getUserCode());
+        spareSortingRecord.setCreateTime(new Date());
+        try {
+            spareSortingRecordDao.insert(spareSortingRecord);
+        } catch (Exception e) {
+            logger.error("保存备件库分拣记录失败！", e);
+        }
+
     }
 }
