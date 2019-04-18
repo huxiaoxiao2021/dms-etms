@@ -91,10 +91,10 @@ public class WaybillPrintRequest extends JdRequest{
 
 	/**
 	 * 是否启用称重量方
-	 * 0不启用		(二进制：00)
-	 * 1启用称重    	(二进制：01)
-	 * 2启用量方    	(二进制：10)
-	 * 3启用称重量方 	(二进制：11)
+	 * 0不启用
+	 * 1启用称重
+	 * 2启用量方
+	 * 3启用称重量方
      */
 	private Integer weightVolumeOperEnable;
 

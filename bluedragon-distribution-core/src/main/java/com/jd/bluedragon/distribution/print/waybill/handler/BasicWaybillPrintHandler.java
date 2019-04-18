@@ -41,6 +41,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT;
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT;
+
 @Service
 public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintContext,String>{
 	private static final Log logger= LogFactory.getLog(BasicWaybillPrintHandler.class);
@@ -133,16 +137,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private static final int WAYBILL_CODE_HIGHLIGHT_NUMBER = 4;
 
     /**
-     * 换单打印的操作类型
-     */
-    private static final Integer OPERATE_TYPE_EXCHANGE_PRINT = 100104;
-
-    /**
      * 半收的运单状态
      */
     private static final Integer WAYBILL_STATE_HALF_RECEIVE = 600;
-
-    private static final String UNIT_WEIGHT_KG = "kg";
 
 	@Override
 	public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -346,7 +343,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageIndexNum(WaybillUtil.getCurrentPackageNum(item.getPackageBarcode()));
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
-                    pack.setPackageWeight(item.getGoodWeight() + UNIT_WEIGHT_KG);
+                    pack.setPackageWeight(item.getGoodWeight() + Constants.MEASURE_UNIT_NAME_KG);
                     packageList.add(pack);
                 }
             }
@@ -359,19 +356,23 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                //waybillSign第66位等于1时，为信任运单，打印【已称】
                if(BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 25, '3') ||
                        BusinessUtil.isSignChar(tmsWaybill.getWaybillSign(), 66, '1') ||
-                       OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+                       SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                       SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
                    commonWaybill.setWeightFlagText(TextConstants.WEIGHT_FLAG_TRUE);
                }
                //半收的不打印【已称】，这里需要判断原单的状态
-               if(OPERATE_TYPE_EXCHANGE_PRINT.equals(context.getRequest().getOperateType())){
+               if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType()) ||
+                       SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
                    //获取原运单号
                    BaseEntity<com.jd.etms.waybill.domain.Waybill>  oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(tmsWaybill.getWaybillCode());
                    if(oldWaybill != null && oldWaybill.getData()!=null){
                        String oldWaybillCode = oldWaybill.getData().getWaybillCode();
                        //查询原单号的状态
                        if(StringHelper.isNotEmpty(oldWaybillCode)){
+                           context.getResponse().setOldWaybillCode(oldWaybillCode);/* 设置旧单号到返回值中 */
                            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
                            if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
+                               context.setOldBigWaybillDto(baseEntity.getData());/* 设置旧单的运单对象到context中 */
                                if(WAYBILL_STATE_HALF_RECEIVE.equals(baseEntity.getData().getWaybillState().getWaybillState())){
                                    commonWaybill.setWeightFlagText("");
                                }
@@ -482,7 +483,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param commonWaybill
      */
     private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
-        if(WaybillPrintOperateTypeEnum.SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
+        if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             if (bigWaybillDto != null && bigWaybillDto.getPackageList() != null && !bigWaybillDto.getPackageList().isEmpty()) {

@@ -112,6 +112,7 @@
 				<ref bean="duplicatePrintInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
@@ -131,6 +132,7 @@
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="pickWillPrintPackageInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>
+				<ref bean="oldWaybillQueryHandler"/>
 				<ref bean="scheduleWaybillHandler"/>
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>

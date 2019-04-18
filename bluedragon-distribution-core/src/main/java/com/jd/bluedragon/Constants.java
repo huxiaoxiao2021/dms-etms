@@ -465,12 +465,12 @@ public class Constants {
     /**
      * 是否启用称重量方：启用称重
      */
-    public static final Integer WEIGHT_ENABLE = 1;
+    public static final int WEIGHT_ENABLE = 1;
 
     /**
      * 是否启用称重量方：启用量方
      */
-    public static final Integer VOLUME_ENABLE = 2;
+    public static final int VOLUME_ENABLE = 2;
     /**
      * Text-保价
      */

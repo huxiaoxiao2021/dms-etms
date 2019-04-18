@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -78,8 +79,8 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         /* 新加字段：waybillType 从：type */
         printWaybill.setWaybillType(printWaybill.getType());
 
-        /* 新加字段：rodeCode 从：road */
-        printWaybill.setRodeCode(printWaybill.getRoad());
+        /* 新加字段：rodeCode 从：roadCode （截止到2019年4月18日客户端取值从road中，后面会进行迁移使用roadCode） */
+        printWaybill.setRodeCode(printWaybill.getRoadCode());
 
         /* 新加字段：customerPhoneText 从：customerContacts */
         printWaybill.setCustomerPhoneText(printWaybill.getCustomerContacts());
@@ -126,8 +127,8 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
                 || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
                 || SITE_MASTER_RESCHEDULE_PRINT.getType().equals(context.getRequest().getOperateType())) {
             String remark = "";
-            if (WaybillUtil.isSwitchCode(printWaybill.getWaybillCode()) && StringHelper.isNotEmpty(printWaybill.getSendPay()) &&
-                    printWaybill.getSendPay().length() >= 8 && printWaybill.getSendPay().charAt(7) == '6' ) {
+            if (WaybillUtil.isSwitchCode(printWaybill.getWaybillCode())
+                    && BusinessUtil.isSignChar(printWaybill.getSendPay(),8,'6')) {
                 remark += BAD_WAREHOURSE_FOR_PORT;
             } else {
                 remark += StringHelper.isEmpty(printWaybill.getRemark())? "" : printWaybill.getRemark();
@@ -180,9 +181,26 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         /* 加工字段：barCode */
         printWaybill.setBarCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()));
 
-        /* 加工字段：comment */
-        printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,context.getRequest().getBarCode(),
-                context.getResponse().getWaybillCode()));
+        /*
+            加工字段：comment
+            逆向换单，原单号【{0}】新单号【{1}】
+            包裹补打和换单打印
+         */
+        if (SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())
+                || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())) {
+            String oldBarCode = context.getRequest().getOldBarCode();
+            String oldWaybillCode = WaybillUtil.getWaybillCode(oldBarCode);//获取原单号的运单号
+
+            String newBarCode = context.getRequest().getBarCode();
+            String newWaybillCode = WaybillUtil.getWaybillCode(newBarCode);//获取新单号的运单号
+
+            /* 如果原单号为空的话，则需要从oldWaybillEntity中进行获取在之前已经设值 */
+            if (StringHelper.isEmpty(oldWaybillCode) && context.getOldBigWaybillDto() != null
+                    && context.getOldBigWaybillDto().getWaybill() != null) {
+                oldWaybillCode = context.getOldBigWaybillDto().getWaybill().getWaybillCode();
+            }
+            printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,oldWaybillCode, newWaybillCode));
+        }
 
         return context.getResult();
     }

@@ -49,11 +49,11 @@ public interface ReceiveWeightCheckService {
      * 逆向换单打印业务校验称重和量方
      * @param oldWaybillCode 换单之前的旧单号
      * @param newWaybillCode 换单之后的新单号
-     * @param eightVolumeOperEnable 是否启用包裹称重和量方 {@see WaybillPrintRequest#weightVolumeOperEnable}
+     * @param weightVolumeOperEnable 是否启用包裹称重和量方 {@see WaybillPrintRequest#weightVolumeOperEnable}
      * @param weightOperFlow 包裹称重和量方数据 {@see WaybillPrintRequest#weightOperFlow}
      * @param isHalfPackage 是否包裹半收，（符合原单号的waybillStatus == 600）
      * @return
      */
     InterceptResult<String> reverseChangePrintCheckWeightAndVolume(String oldWaybillCode, String newWaybillCode,
-                                       int eightVolumeOperEnable, WeightOperFlow weightOperFlow, boolean isHalfPackage);
+                                       int weightVolumeOperEnable, WeightOperFlow weightOperFlow, boolean isHalfPackage);
 }

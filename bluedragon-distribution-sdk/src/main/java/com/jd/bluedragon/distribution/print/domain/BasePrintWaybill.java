@@ -335,6 +335,11 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Integer willPrintPackageIndex = 0;
 
+	/**
+	 * 旧单的运单号
+     */
+	private String oldWaybillCode;
+
 	public String getAdditionalComment() {
 		return additionalComment;
 	}
@@ -1174,5 +1179,13 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setWillPrintPackageIndex(Integer willPrintPackageIndex) {
 		this.willPrintPackageIndex = willPrintPackageIndex;
+	}
+
+	public String getOldWaybillCode() {
+		return oldWaybillCode;
+	}
+
+	public void setOldWaybillCode(String oldWaybillCode) {
+		this.oldWaybillCode = oldWaybillCode;
 	}
 }

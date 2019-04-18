@@ -1,16 +1,18 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +32,13 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
     private static final Logger LOGGER = LoggerFactory.getLogger(ReverseChangeInterceptHandler.class);
 
     @Autowired
-    private WaybillPrintService waybillPrintService;
-
-    @Autowired
     private ReversePrintService reversePrintService;
 
     @Autowired
     private ReceiveWeightCheckService receiveWeightCheckService;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -55,17 +57,19 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
         /* 获取旧单号的数据 */
         if (!WaybillUtil.isPickupCode(oldWaybillCode)) {
             /* 不是取件单的话，需要判断包裹半收的标识 */
-            InvokeResult<WaybillPrintResponse> invokeResult =  waybillPrintService
-                    .getPrintWaybill(context.getRequest().getDmsSiteCode(),oldWaybillCode,0);
-            if (null == invokeResult || invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE
-                    || null == invokeResult.getData()) {
+            BaseEntity<BigWaybillDto> oldWaybillEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
+            if (null == oldWaybillEntity || Constants.RESULT_SUCCESS != oldWaybillEntity.getResultCode()
+                    || null == oldWaybillEntity.getData()) {
                 LOGGER.error("ReverseChangeInterceptHandler.handle-->该单号{}无运单信息", oldBarCode);
                 result.toError(JdResponse.CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO,
                         JdResponse.MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO);
                 return result;
             }
-            Integer waybillStatus = invokeResult.getData().getWaybillStatus();/* 获取旧单号的运单状态 */
-            isHalfPackage = (waybillStatus != null && waybillStatus == 600);
+            /* 将旧单的waybillEntity信息设置到context的oldWaybillEntity中 */
+            context.setOldBigWaybillDto(oldWaybillEntity.getData());
+            /* 判断是否是包裹半收的标识 */
+            isHalfPackage = (oldWaybillEntity.getData().getWaybillState() != null
+                    && 600 == oldWaybillEntity.getData().getWaybillState().getWaybillState());
         }
 
         /* 获取新单的信息 */
