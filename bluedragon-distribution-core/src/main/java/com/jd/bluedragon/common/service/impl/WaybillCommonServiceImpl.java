@@ -1107,17 +1107,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         RouteProductEnum routeProduct = null;
 
         /**
-         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
          * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
          * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
          */
-        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
-            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
-                routeProduct = RouteProductEnum.TB1;
-            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
-                routeProduct = RouteProductEnum.TB2;
-            }
+
+        if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+            routeProduct = RouteProductEnum.TB1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+            routeProduct = RouteProductEnum.TB2;
         }
+
 
         List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
         logger.info("获取到的城市名列表为:" + routerNameList);
