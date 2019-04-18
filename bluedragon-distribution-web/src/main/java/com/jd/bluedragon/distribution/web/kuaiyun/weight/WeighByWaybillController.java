@@ -449,6 +449,17 @@ public class WeighByWaybillController {
                 return false;
             }
 
+            //校验重量体积是否超标
+            InvokeResult invokeResult = checkIsExcess(codeStr, weight==null?"0":weight.toString(), volume==null?"0":volume.toString());
+            if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
+                //没通过
+                waybillWeightVO.setErrorMessage(invokeResult.getMessage());
+                waybillWeightVO.setErrorCode(invokeResult.getCode());
+                //可让前台强制提交
+                waybillWeightVO.setCanSubmit(1);
+                return false;
+            }
+
             //校验重泡比
             if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
                 //没通过
