@@ -155,10 +155,10 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT = "换单新单无重量及体积数据，请输入新单包裹重量及长宽高！";
 
     public static final Integer CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME = 30114;
-    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME = "体积录入异常！\\n此包裹为半收包裹，长宽高必须输入！";
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME = "体积录入异常！此包裹为半收包裹，长宽高必须输入！";
 
     public static final Integer CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT = 30115;
-    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT = "重量录入异常！\\n此包裹为半收包裹，重量必须录入！";
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT = "重量录入异常！此包裹为半收包裹，重量必须录入！";
 
     public static final Integer CODE_REVERSE_CHANGE_PRINT_NO_WEIGHT = 30116;
     public static final String MESSAGE_REVERSE_CHANGE_PRINT_NO_WEIGHT = "启用包裹称重，未录入包裹重量信息！";
