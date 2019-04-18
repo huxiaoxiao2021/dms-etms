@@ -3,6 +3,10 @@ package com.jd.bluedragon.distribution.receive.controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
+import com.jd.bluedragon.distribution.basic.DataResolver;
+import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
+import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
@@ -104,6 +108,17 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         if (!fileName.endsWith("xls")) {
             return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
         }
+
+        DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
+        List<DmsStorageArea> dataList = null;
+
+        try {
+            dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         return response;
 
     }
