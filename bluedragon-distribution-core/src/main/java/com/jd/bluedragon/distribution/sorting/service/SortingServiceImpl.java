@@ -34,14 +34,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -70,12 +63,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -1297,4 +1285,26 @@ public class SortingServiceImpl implements SortingService {
 		Profiler.registerInfoEnd(process1200TaskData);
 		return result;
 	}
+
+	@Override
+	public List<String> getWaybillCodeListByBoxCode(String boxCode) {
+		Box box = this.boxService.findBoxByCode(boxCode);
+		if (box == null) {
+			return null;
+		}
+		Sorting queryParam = new Sorting();
+		queryParam.setCreateSiteCode(box.getCreateSiteCode());
+		queryParam.setBoxCode(boxCode);
+		List<Sorting> sortingList = this.findByBoxCode(queryParam);
+		if (sortingList.size() > 0) {
+			Set<String> waybillCodeSet = new HashSet<>();
+			for (Sorting sorting : sortingList) {
+				waybillCodeSet.add(sorting.getWaybillCode());
+			}
+			return new ArrayList<>(waybillCodeSet);
+		} else {
+			return Collections.EMPTY_LIST;
+		}
+	}
+
 }

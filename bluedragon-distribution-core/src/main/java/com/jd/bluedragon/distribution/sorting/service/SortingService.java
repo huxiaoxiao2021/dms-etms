@@ -145,4 +145,12 @@ public interface SortingService {
      * @return 成功与否
      */
     public boolean processTaskData(Task task);
+
+    /**
+     * 根据箱号获取运单号列表
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getWaybillCodeListByBoxCode(String boxCode);
 }

@@ -8,8 +8,6 @@ import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
@@ -36,22 +34,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Component
 @Path(Constants.REST_URL)
@@ -78,9 +66,6 @@ public class SortingResource {
 
 	@Autowired
 	private SendMDao sendMDao;
-
-	@Autowired
-	private BoxService boxService;
 
 	/**
 	 * 取消分拣
@@ -480,25 +465,10 @@ public class SortingResource {
 	public InvokeResult<List<String>> getWaybillCodes(@PathParam("boxCode") String boxCode) {
 		Assert.notNull(boxCode, "boxCode must not be null");
 		this.logger.info("box code's " + boxCode);
-
 		InvokeResult result = new InvokeResult();
-		Box box = this.boxService.findBoxByCode(boxCode);
-		if (box == null) {
+		List<String> waybillList = sortingService.getWaybillCodeListByBoxCode(boxCode);
+		if (waybillList == null) {
 			result.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
-			return result;
-		}
-		Sorting queryParam = new Sorting();
-		queryParam.setCreateSiteCode(box.getCreateSiteCode());
-		queryParam.setBoxCode(boxCode);
-		List<Sorting> sortingList = sortingService.findByBoxCode(queryParam);
-		if (sortingList.size() > 0) {
-			Set<String> waybillCodeSet = new HashSet<>();
-			for (Sorting sorting : sortingList) {
-				waybillCodeSet.add(sorting.getWaybillCode());
-			}
-			result.setData(new ArrayList<>(waybillCodeSet));
-		} else {
-			result.setData(Collections.EMPTY_LIST);
 		}
 		return result;
 	}

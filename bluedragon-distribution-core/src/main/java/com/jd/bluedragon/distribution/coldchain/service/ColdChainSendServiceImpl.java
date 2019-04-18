@@ -6,7 +6,6 @@ import com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -20,15 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author lixin39
@@ -83,8 +74,8 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
                 } else if (WaybillUtil.isPackageCode(boxCode)) {
                     this.buildColdChainSend(WaybillUtil.getWaybillCode(boxCode), transPlanCode, sendM, waybillCodes, coldChainSends);
                 } else if (BusinessUtil.isBoxcode(boxCode)) {
-                    Set<String> boxWaybillCodeSet = this.getWaybillCodeByBoxCode(boxCode, sendM.getCreateSiteCode());
-                    if (boxWaybillCodeSet.size() > 0) {
+                    List<String> boxWaybillCodeSet = this.sortingService.getWaybillCodeListByBoxCode(boxCode);
+                    if (boxWaybillCodeSet != null && boxWaybillCodeSet.size() > 0) {
                         for (String waybillCode : boxWaybillCodeSet) {
                             this.buildColdChainSend(waybillCode, transPlanCode, sendM, waybillCodes, coldChainSends);
                         }
@@ -117,27 +108,6 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
             coldChainSend.setReceiveSiteCode(sendM.getReceiveSiteCode());
             coldChainSends.add(coldChainSend);
         }
-    }
-
-    /**
-     * 根据箱号获取运单号
-     *
-     * @param boxCode
-     * @param createSiteCode
-     * @return
-     */
-    private Set<String> getWaybillCodeByBoxCode(String boxCode, Integer createSiteCode) {
-        Set<String> waybillCodes = new HashSet<>();
-        Sorting parameter = new Sorting();
-        parameter.setBoxCode(boxCode);
-        parameter.setCreateSiteCode(createSiteCode);
-        List<Sorting> sortingList = sortingService.findByBoxCode(parameter);
-        if (sortingList.size() > 0) {
-            for (Sorting sorting : sortingList) {
-                waybillCodes.add(sorting.getWaybillCode());
-            }
-        }
-        return waybillCodes;
     }
 
     @Override
@@ -217,42 +187,41 @@ public class ColdChainSendServiceImpl implements ColdChainSendService {
         return null;
     }
 
+    /**
+     * 根据TMS运输接口返回对象拼装为运输计划号对应运单列表的对象集合
+     *
+     * @param dtoList
+     * @return
+     */
     private List<TransPlanDetailResult> getTransPlanDetailResultList(List<TransPlanScheduleCargoDto> dtoList) {
-        Map<String, Set<String>> resultMap = new HashMap<>();
+        Map<String, TransPlanDetailResult> resultMap = new HashMap<>();
         for (TransPlanScheduleCargoDto dto : dtoList) {
             String transPlanCode = dto.getTransPlanCode();
             if (StringUtils.isNotEmpty(transPlanCode) && StringUtils.isNotEmpty(dto.getBusinessCode())) {
                 if (resultMap.containsKey(transPlanCode)) {
-                    resultMap.get(transPlanCode).add(dto.getBusinessCode());
+                    if (!resultMap.get(transPlanCode).getWaybills().contains(dto.getBusinessCode())) {
+                        resultMap.get(transPlanCode).getWaybills().add(dto.getBusinessCode());
+                    }
                 } else {
-                    Set<String> waybillSet = new HashSet<>();
-                    waybillSet.add(dto.getBusinessCode());
-                    resultMap.put(transPlanCode, waybillSet);
+                    TransPlanDetailResult result = new TransPlanDetailResult();
+                    result.setTransPlanCode(transPlanCode);
+                    List waybills = new ArrayList<>();
+                    waybills.add(dto.getBusinessCode());
+                    result.setWaybills(waybills);
+                    resultMap.put(transPlanCode, result);
                 }
             }
         }
-        if (resultMap.size() > 0) {
-            List<TransPlanDetailResult> resultList = new ArrayList<>();
-            for (Map.Entry<String, Set<String>> entry : resultMap.entrySet()) {
-                TransPlanDetailResult result = new TransPlanDetailResult();
-                result.setTransPlanCode(entry.getKey());
-                result.setWaybills(new ArrayList<>(entry.getValue()));
-                resultList.add(result);
-            }
-            return resultList;
-        }
-        return Collections.EMPTY_LIST;
-
-
+        return new ArrayList(resultMap.values());
     }
 
     /**
      * 根据当日日期的偏移量和指定的时、分、秒获取日期
      *
      * @param dayOffset 当日日期的偏移量
-     * @param hour 时
-     * @param minute 分
-     * @param second 秒
+     * @param hour      时
+     * @param minute    分
+     * @param second    秒
      * @return
      */
     private Date getDateTimeByParam(int dayOffset, int hour, int minute, int second) {

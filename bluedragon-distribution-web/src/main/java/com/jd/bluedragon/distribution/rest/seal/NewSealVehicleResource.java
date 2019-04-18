@@ -606,6 +606,11 @@ public class NewSealVehicleResource {
     }
 
     /**
+     * ScheduleType=1 是卡班调度模式
+     */
+    private static final Integer SCHEDULE_TYPE_KA_BAN = 1;
+
+    /**
      * 根据派车任务明细简码获取派车任务明细
      *
      * @param transWorkItemCode
@@ -620,7 +625,7 @@ public class NewSealVehicleResource {
                 sealVehicleResponse.setRouteLineName(item.getRouteLineName());
                 sealVehicleResponse.setScheduleType(item.getScheduleType());
                 // ScheduleType=1 是卡班调度模式
-                if (Integer.valueOf(1).equals(item.getScheduleType())) {
+                if (SCHEDULE_TYPE_KA_BAN.equals(item.getScheduleType())) {
                     if (StringUtils.isNotEmpty(item.getTransPlanCode())) {
                         ColdChainSend coldChainSend = coldChainSendService.getByTransCode(item.getTransPlanCode());
                         if (coldChainSend != null) {
