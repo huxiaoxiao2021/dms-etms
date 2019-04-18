@@ -175,30 +175,29 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
         }
         printWaybill.setConsignerPrefixText(consignerPrefixText);
 
-        /* 加工字段：wareHouseText */
-        printWaybill.setWarehouseText(context.getRequest().getSiteName());
-
         /* 加工字段：barCode */
         printWaybill.setBarCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()));
 
-        /*
-            加工字段：comment
-            逆向换单，原单号【{0}】新单号【{1}】
-            包裹补打和换单打印
-         */
-        if (SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())
-                || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())) {
-            String oldBarCode = context.getRequest().getOldBarCode();
-            String oldWaybillCode = WaybillUtil.getWaybillCode(oldBarCode);//获取原单号的运单号
+        String newWaybillCode = context.getResponse().getWaybillCode();//获取新单号的运单号
 
-            String newBarCode = context.getRequest().getBarCode();
-            String newWaybillCode = WaybillUtil.getWaybillCode(newBarCode);//获取新单号的运单号
+        /* 包裹补打且是T、F单 或者是换单打印 */
+        boolean bool = (SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType())
+                        && (WaybillUtil.isReturnCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()))
+                            || WaybillUtil.isSwitchCode(WaybillUtil.getWaybillCode(context.getRequest().getBarCode()))))
+                || SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType());
+        if (bool) {
+            /* 加工字段：wareHouseText */
+            printWaybill.setWarehouseText(context.getRequest().getSiteName());
 
-            /* 如果原单号为空的话，则需要从oldWaybillEntity中进行获取在之前已经设值 */
-            if (StringHelper.isEmpty(oldWaybillCode) && context.getOldBigWaybillDto() != null
-                    && context.getOldBigWaybillDto().getWaybill() != null) {
-                oldWaybillCode = context.getOldBigWaybillDto().getWaybill().getWaybillCode();
+            /*
+                加工字段：comment
+                逆向换单，原单号【{0}】新单号【{1}】
+            */
+            String oldWaybillCode = context.getResponse().getOldWaybillCode();//获取原单号的运单号
+            if (StringHelper.isEmpty(oldWaybillCode)) {
+                oldWaybillCode = WaybillUtil.getWaybillCode(context.getRequest().getOldBarCode());
             }
+
             printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,oldWaybillCode, newWaybillCode));
         }
 

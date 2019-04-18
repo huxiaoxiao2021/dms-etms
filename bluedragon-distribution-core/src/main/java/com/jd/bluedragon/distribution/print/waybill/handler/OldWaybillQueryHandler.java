@@ -35,8 +35,11 @@ public class OldWaybillQueryHandler implements Handler<WaybillPrintContext, JdRe
     public JdResult<String> handle(WaybillPrintContext context) {
         JdResult<String> result = context.getResult();
 
-        if (context.getOldBigWaybillDto() == null) {
+        if (context.getOldBigWaybillDto() != null && context.getOldBigWaybillDto().getWaybill() != null) {
             /* 如果context中已经有了oldWaybillEntity的属性，就不用重新设置了，直接返回 */
+            if (StringHelper.isEmpty(context.getResponse().getOldWaybillCode())) {
+                context.getResponse().setOldWaybillCode(context.getOldBigWaybillDto().getWaybill().getWaybillCode());
+            }
             return result;
         }
 

@@ -369,7 +369,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                        String oldWaybillCode = oldWaybill.getData().getWaybillCode();
                        //查询原单号的状态
                        if(StringHelper.isNotEmpty(oldWaybillCode)){
-                           context.getResponse().setOldWaybillCode(oldWaybillCode);/* 设置旧单号到返回值中 */
+                           context.getBasePrintWaybill().setOldWaybillCode(oldWaybillCode);/* 设置旧单号到返回值中 */
                            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getWaybillDataForPrint(oldWaybillCode);
                            if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybillState()!=null){
                                context.setOldBigWaybillDto(baseEntity.getData());/* 设置旧单的运单对象到context中 */

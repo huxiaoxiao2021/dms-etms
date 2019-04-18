@@ -463,14 +463,25 @@ public class Constants {
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
 
     /**
+     * 是否启用称重量方：未启用称重未启用量方
+     */
+    public static final Integer WEIGHT_VOLUME_UNABLE = 0;
+
+    /**
      * 是否启用称重量方：启用称重
      */
-    public static final int WEIGHT_ENABLE = 1;
+    public static final Integer WEIGHT_ENABLE = 1;
 
     /**
      * 是否启用称重量方：启用量方
      */
-    public static final int VOLUME_ENABLE = 2;
+    public static final Integer VOLUME_ENABLE = 2;
+
+    /**
+     * 是否启用称重量方：启用量方和量方
+     */
+    public static final Integer WEIGHT_VOLUME_ENABLE = 3;
+
     /**
      * Text-保价
      */

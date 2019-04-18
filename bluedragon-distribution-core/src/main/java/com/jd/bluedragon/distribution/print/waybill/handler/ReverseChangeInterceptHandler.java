@@ -69,7 +69,7 @@ public class ReverseChangeInterceptHandler implements InterceptHandler<WaybillPr
             context.setOldBigWaybillDto(oldWaybillEntity.getData());
             /* 判断是否是包裹半收的标识 */
             isHalfPackage = (oldWaybillEntity.getData().getWaybillState() != null
-                    && 600 == oldWaybillEntity.getData().getWaybillState().getWaybillState());
+                    && new Integer(600).equals(oldWaybillEntity.getData().getWaybillState().getWaybillState()));
         }
 
         /* 获取新单的信息 */
