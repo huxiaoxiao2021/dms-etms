@@ -1,25 +1,22 @@
 package com.jd.bluedragon.distribution.receive.controller;
 
-import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.receive.domain.ImageParams;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.RestHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.LinkedMultiValueMap;
@@ -27,7 +24,9 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
@@ -35,7 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
-import java.io.IOException;
+import java.io.File;
 import java.util.Date;
 import java.util.List;
 
@@ -133,15 +132,14 @@ public class ReceiveWeightCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
     @RequestMapping(value = "/uploadExcessPicture", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult uploadExcessPicture(Model model,MultipartHttpServletRequest request,
-                                            HttpServletResponse httpServletResponse,HttpServletRequest httpServletRequest) {
+    public InvokeResult uploadExcessPicture(Model model,MultipartHttpServletRequest request) {
 
         InvokeResult result = new InvokeResult();
         MultipartFile fileField = request.getFile("fileField");
         MultipartFile[] images = new MultipartFile[]{fileField};
         String fileName = fileField.getOriginalFilename();
 
-        ImageParams imageParams = new ImageParams();
+        /*ImageParams imageParams = new ImageParams();
         imageParams.setImage(images);
         imageParams.setOperateTime(new Long[]{new Date().getTime()});
         imageParams.setMachineCode("");
@@ -163,15 +161,50 @@ public class ReceiveWeightCheckController extends DmsBaseController {
         }
         map.add("operateTime", new Long[]{new Date().getTime()});
         map.add("machineCode", "hjp");
-        map.add("siteCode", -1);
+        map.add("siteCode", -1);*/
+
+        String realPath = request.getSession().getServletContext().getRealPath("/static/images/areaError.png");
+        File file = new File(realPath);
+        FileSystemResource resource = new FileSystemResource(file);
+        MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
+        param.add("image", new FileSystemResource[]{resource});
+        param.add("operateTime",new Long[]{new Date().getTime()});
+        param.add("machineCode","hjp");
+        param.add("siteCode",-1);
 
         String url = PropertiesHelper.newInstance().getValue("DMSAUTOMATIC_ADDRESS") + CENTER_CONTEXT;
 
-        result = RestHelper.formPostForEntity(url, request.getContentType(), map, new TypeReference<InvokeResult>(){});
+        RestTemplate restTemplate = new RestTemplate();
+        try{
+
+            result = restTemplate.postForObject(url, param, InvokeResult.class);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         if(result == null){
             return new InvokeResult();
         }
         return result;
+
+    }
+
+    /**
+     * 上传超标图片
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R)
+    @RequestMapping(value = "/uploadExcessPicture1", method = RequestMethod.POST)
+    @ResponseBody
+    public InvokeResult uploadExcessPicture1(@RequestParam("image") MultipartFile[] images,
+                                             @RequestParam("operateTime") Long[] operateTimes,
+                                             @RequestParam("machineCode") String machineCode,
+                                             @RequestParam("siteCode") Integer siteCode,
+                                             HttpServletResponse response,
+                                             HttpServletRequest request) {
+
+        InvokeResult result = new InvokeResult();
+
+        return null;
 
     }
 

@@ -1,6 +1,6 @@
 $(function () {
 
-    var uploadUrl = "http://dms.automatic.test.jd.com/services/upload/image";
+    var uploadUrl = "/receive/uploadExcessPicture1";
 
     //提示语隐藏
     $("#successMessage").hide();
@@ -27,7 +27,35 @@ $(function () {
             return;
         }
         debugger;
-        $('#query-form').submit();
+        // $('#query-form').submit();
+
+        var formData = new FormData();
+        formData.append('image',$('#fileField')[0].files[0]);
+        // var formData = new FormData($("#query-form")[0]);  //重点：要用这种方法接收表单的参数
+        var params = {};
+         params.image = formData;
+         params.operateTime = [new Date().getTime()];
+         params.machineCode = '';
+         params.siteCode = -1;
+
+
+        $.ajax({
+            url : uploadUrl,
+            type : 'POST',
+            data : params,
+            // 告诉jQuery不要去处理发送的数据
+            processData : false,
+            // 告诉jQuery不要去设置Content-Type请求头
+            contentType : false,
+            // mimeType:"multipart/form-data",
+            // dataType:'json',
+            async : false,
+            success : function(data) {
+                if(data && data.code == 200){
+                    alert(123);
+                }
+            }
+        });
 
 
 

@@ -575,6 +575,7 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
     public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
     public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
