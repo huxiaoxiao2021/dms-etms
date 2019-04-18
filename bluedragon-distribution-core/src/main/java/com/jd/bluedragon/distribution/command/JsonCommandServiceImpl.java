@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.command;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,9 @@ import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import java.util.HashSet;
+import java.util.Set;
+
 
 /**
  * 
@@ -27,6 +34,25 @@ import com.jd.ump.annotation.JProfiler;
 @Service("jsonCommandService")
 public class JsonCommandServiceImpl implements JdCommandService{
 	private static final Log logger= LogFactory.getLog(JsonCommandServiceImpl.class);
+
+	private static Set<String> encryptedInfo = new HashSet<String>();
+	static {
+		encryptedInfo.add("customerName");//收件人姓名
+		encryptedInfo.add("customerContacts");//收件人联系方式
+		encryptedInfo.add("mobileFirst");//收件人手机前几位
+		encryptedInfo.add("mobileLast");//收件人手机后几位
+		encryptedInfo.add("telFirst");//收件人电话前几位
+		encryptedInfo.add("telLast");//收件人电话后几位
+		encryptedInfo.add("printAddress");//收件人地址
+
+		encryptedInfo.add("consigner");//寄件人姓名
+		encryptedInfo.add("consignerTel");//寄件人电话
+		encryptedInfo.add("consignerMobile");//寄件人手机
+		encryptedInfo.add("consignerAddress");//寄件人地址
+		encryptedInfo.add("senderCompany");//寄件人公司
+		encryptedInfo.add("consigneeCompany");//寄件人公司
+	}
+
 	/**
 	 * json格式的指令集配置
 	 */
@@ -67,18 +93,74 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		}
 		String jsonResponse = JsonHelper.toJson(jdResult);
 		//写入自定义日志
+		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
+
+		return jsonResponse;
+	}
+
+	/**
+	 * 写入操作日志
+	 * @param jsonCommand
+	 * @param responseJsonString
+	 * @param operateType
+	 */
+	private void writeBusinessLog(String jsonCommand, String responseJsonString,Integer operateType){
+		JdResult<String> jdResultToLog = null;
+		try {
+			//写入自定义日志
+			jdResultToLog = JSON.parseObject(responseJsonString, JdResult.class);
+
+			if (jdResultToLog != null && jdResultToLog.getData() != null) {
+				String dataStr = jdResultToLog.getData();
+				if (StringUtils.isNotBlank(dataStr)) {
+					JSONObject dataJson = JSON.parseObject(dataStr);
+					String afterProcess = null;
+					//平台打印、站点平台打印和其他打印逻辑返回值不一样，需要分开处理
+					if (operateType.equals(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType())
+							|| operateType.equals(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType())) {
+						if (dataJson != null && dataJson.get("jsonData") != null) {
+							String jsonDataStr = dataJson.get("jsonData").toString();
+							dataJson.put("jsonData", encryptedInfoProcess(jsonDataStr));
+							afterProcess = dataJson.toJSONString();
+						}
+					} else {
+						afterProcess = encryptedInfoProcess(dataStr);
+					}
+					jdResultToLog.setData(afterProcess);
+				}
+			}
+		}catch (Exception e){
+			logger.error("打印写操作日志异常.jsonCommand:"+jsonCommand+",responseJsonString:"+
+					responseJsonString +
+					",operateType:" + operateType,e);
+		}
+
 		BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
 		businessLogProfiler.setSourceSys(Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB);
-		Integer operateType = jdCommand.getOperateType();
-		if(operateType == null){
+		if (operateType == null) {
 			operateType = Constants.OPERATE_TYPE_UNKNOWN;
 		}
 		businessLogProfiler.setBizType(Constants.BUSINESS_LOG_BIZ_TYPE_PRINT);
 		businessLogProfiler.setOperateType(operateType);
 		businessLogProfiler.setOperateRequest(jsonCommand);
-		businessLogProfiler.setOperateResponse(jsonResponse);
+		if(jdResultToLog!=null) {
+			businessLogProfiler.setOperateResponse(JSON.toJSONString(jdResultToLog));
+		}
 		businessLogProfiler.setTimeStamp(System.currentTimeMillis());
 		BusinessLogWriter.writeLog(businessLogProfiler);
-		return jsonResponse;
+	}
+
+	/**
+	 * 处理敏感信息
+	 * 将涉及敏感信息的字段置为空
+	 * @param data
+	 * @return
+	 */
+	private String encryptedInfoProcess(String data){
+		JSONObject jsonObject = JSON.parseObject(data);
+		for(String fieldName : encryptedInfo){
+			jsonObject.put(fieldName,null);
+		}
+		return jsonObject.toJSONString();
 	}
 }

@@ -18,6 +18,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -90,7 +92,6 @@ public class PreSealVehicleController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/queryPreSeals")
-    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.queryPreSeals", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public @ResponseBody JdResponse<List<PreSealVehicle>>  queryPreSeals(@RequestBody PreSealVehicleCondition condition) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         if( condition.getHourRange() == null){
@@ -104,6 +105,7 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setMessage("登录已过期，请重新登录!");
             return rest;
         }
+        CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleController.queryPreSeals", Constants.UMP_APP_NAME_DMSWEB,false, true);
         Integer createSiteCode = user.getSiteCode();
         try{
             List<PreSealVehicle> preSealVehicleList = preSealVehicleService.queryBySiteCode(createSiteCode);
@@ -127,9 +129,12 @@ public class PreSealVehicleController extends DmsBaseController{
                 }
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("查询预封车数据信息失败，查询条件：" + JsonHelper.toJson(condition), e);
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询预封车数据信息失败!");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 		return rest;
 	}
@@ -269,7 +274,7 @@ public class PreSealVehicleController extends DmsBaseController{
      */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
     @RequestMapping(value = "/batchSeal")
-    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.batchSeal", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP})
     public @ResponseBody JdResponse<List<PreSealVehicle>>  batchSeal(@RequestBody List<PreSealVehicle> data) {
         JdResponse<List<PreSealVehicle>> rest = new JdResponse<List<PreSealVehicle>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         logger.info("一键封车请求参数：" + JsonHelper.toJson(data));
@@ -329,7 +334,6 @@ public class PreSealVehicleController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_PRE_SEALVEHICLE_R)
 	@RequestMapping(value = "/getRemainTransportCode")
-    @JProfiler(jKey = "DMSWEB.PreSealVehicleController.getRemainTransportCode", jAppName=Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
 	public @ResponseBody JdResponse<List<CapacityDomain>> getRemainTransportCode() {
 		JdResponse<List<CapacityDomain>> rest = new JdResponse<List<CapacityDomain>>(JdResponse.CODE_SUCCESS, JdResponse.MESSAGE_SUCCESS);
         LoginUser user = getLoginUser();
@@ -338,13 +342,17 @@ public class PreSealVehicleController extends DmsBaseController{
             rest.setMessage("登录已过期，请重新登录!");
             return rest;
         }
+        CallerInfo info = Profiler.registerInfo("DMSWEB.PreSealVehicleController.getRemainTransportCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         Integer createSiteCode = user.getSiteCode();
 		try{
             rest.setData(getRemainTransportCodes(createSiteCode));
         }catch (Exception e){
+            Profiler.functionError(info);
 		    logger.error("查询当前场地未使用的运力编码失败，场地ID：" + createSiteCode, e);
             rest.setCode(JdResponse.CODE_ERROR);
             rest.setMessage("服务异常，查询当前场地未使用的运力编码失败!");
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return rest;

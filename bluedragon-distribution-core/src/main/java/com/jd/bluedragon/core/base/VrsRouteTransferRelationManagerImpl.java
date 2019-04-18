@@ -63,9 +63,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
 
-    /** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
-    private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
-
     @Override
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
@@ -389,14 +386,5 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
             }
         }
         return dmsSiteNameList;
-    }
-
-    /**
-     * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
-     * @param provinceId
-     * @return
-     */
-    private boolean isMunicipality(Integer provinceId){
-        return municipalityList.contains(provinceId);
     }
 }
