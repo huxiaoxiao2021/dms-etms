@@ -450,7 +450,7 @@ public class WeighByWaybillController {
             }
 
             //校验重量体积是否超标
-            InvokeResult invokeResult = checkIsExcess(codeStr, weight==null?"0":weight.toString(), volume==null?"0":volume.toString());
+            InvokeResult invokeResult = checkIsExcess(codeStr, weight.toString(), volume.toString());
             if(invokeResult != null && invokeResult.getCode() == EXCESS_CODE){
                 //没通过
                 waybillWeightVO.setErrorMessage(invokeResult.getMessage());
