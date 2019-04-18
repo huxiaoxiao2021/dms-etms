@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.transport.domain.*;
 import com.jd.bluedragon.distribution.transport.service.ArSendCodeService;
@@ -11,6 +12,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.BusType;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +69,7 @@ public class ArSendRegisterController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
         return "/transport/arSendRegister";
@@ -77,6 +80,7 @@ public class ArSendRegisterController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/getAllBusType")
     public @ResponseBody
     JdResponse<List<BusType>> getAllBusType() {
@@ -96,6 +100,7 @@ public class ArSendRegisterController {
      * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody
     JdResponse<ArSendRegister> detail(@PathVariable("id") Long id) {
@@ -110,6 +115,7 @@ public class ArSendRegisterController {
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/insert")
     public @ResponseBody
     JdResponse<Boolean> insert(@RequestBody ArSendRegisterCondition condition) {
@@ -142,6 +148,7 @@ public class ArSendRegisterController {
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/update")
     public @ResponseBody
     JdResponse<Boolean> update(@RequestBody ArSendRegisterCondition condition) {
@@ -172,6 +179,7 @@ public class ArSendRegisterController {
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody
     JdResponse<Integer> deleteByIds(@RequestBody List<Integer> ids) {
@@ -203,6 +211,7 @@ public class ArSendRegisterController {
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/listData")
     @POST
     public @ResponseBody
@@ -216,6 +225,7 @@ public class ArSendRegisterController {
      * @param condition
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/getTransportInfo")
     public
     @ResponseBody

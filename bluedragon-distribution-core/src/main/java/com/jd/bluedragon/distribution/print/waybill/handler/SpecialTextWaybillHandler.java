@@ -92,7 +92,7 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
             // -2或者<-100 超区
         }else if(PREPARE_SITE_CODE_OVER_AREA.equals(printInfo.getPrepareSiteCode())
                 || printInfo.getPrepareSiteCode().intValue() < PREPARE_SITE_CODE_OVER_LINE.intValue()){
-        	printInfo.setPrepareSiteCode(printInfo.getPrepareSiteCode());
+//        	printInfo.setPrepareSiteCode(printInfo.getPrepareSiteCode());
         	printInfo.setPrepareSiteName(PREPARE_SITE_NAME_OVER_AREA);
         	printInfo.setPrintSiteName(PREPARE_SITE_NAME_OVER_AREA);
             logger.warn(" 没有获取预分拣站点(细分超区)," + printInfo.getPrepareSiteCode() + ","+printInfo.getWaybillCode());

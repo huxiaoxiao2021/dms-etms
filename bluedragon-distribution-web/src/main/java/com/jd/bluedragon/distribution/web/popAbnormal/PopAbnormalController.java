@@ -11,6 +11,8 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,6 +59,7 @@ public class PopAbnormalController {
 	 * @return
 	 */
 //	@HrmPrivilege("TMS-REPORT-POPCY")
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/goListPage", method = RequestMethod.GET)
 	public String goListPage() {
 		logger.info("跳转到查询POP差异列表页面");
@@ -71,6 +74,7 @@ public class PopAbnormalController {
 	 * @return
 	 */
 //	@HrmPrivilege("TMS-REPORT-POPCY")
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	public String list(PopAbnormalDTO popAbnormalDTO, Pager pager, Model model) {
 		logger.info("按条件查询POP差异订单数据集合");
@@ -119,6 +123,7 @@ public class PopAbnormalController {
 	 * @return
 	 */
 //	@HrmPrivilege("TMS-REPORT-POPCY")
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/detail", method = RequestMethod.GET)
 	public String detail(Model model) {
 		logger.info("进入反馈页面");
@@ -146,6 +151,7 @@ public class PopAbnormalController {
 	 * @param paramMap
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/getWaybillByOrderCode", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult getWaybillByOrderCode(
@@ -199,6 +205,7 @@ public class PopAbnormalController {
 	 * @return
 	 */
 //	@HrmPrivilege("TMS-REPORT-POPCY")
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/savePopAbnormal", method = RequestMethod.POST)
 	@ResponseBody
 	public JsonResult savePopAbnormal(PopAbnormal popAbnormal) {
@@ -260,6 +267,7 @@ public class PopAbnormalController {
 	 * @return
 	 */
 //	@HrmPrivilege("TMS-REPORT-POPCY")
+	@Authorization(Constants.DMS_WEB_POP_ABNORMAL_R)
 	@RequestMapping(value = "/exportPopAbnormal", method = RequestMethod.POST)
 	public String exportPopAbnormal(PopAbnormalDTO popAbnormalDTO, Pager pager,
 			HttpServletResponse response) {

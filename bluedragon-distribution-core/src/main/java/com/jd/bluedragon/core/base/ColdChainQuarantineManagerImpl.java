@@ -4,8 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.sdk.modules.quarantine.ColdChainQuarantineJsfService;
 import com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,9 +25,9 @@ public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManag
      * @param siteCode
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "ColdChainQuarantineManagerImpl.isWaybillNeedAddQuarantine", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean isWaybillNeedAddQuarantine(String waybillCode, Integer siteCode) {
         logger.info("查询是否需要录入检疫证票号...");
+        CallerInfo info = Profiler.registerInfo("ColdChainQuarantineManagerImpl.isWaybillNeedAddQuarantine", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             if (StringUtils.isBlank(waybillCode) || siteCode == null) {
                 return false;
@@ -37,7 +37,10 @@ public class ColdChainQuarantineManagerImpl implements  ColdChainQuarantineManag
             logger.info("查询是否需要录入检疫证票号.waybillCode:" + waybillCode + ",siteCode:" + siteCode + ".结果为:" + JSON.toJSONString(result));
             return result.getData();
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("查询是否需要录入检疫证票号异常，waybillCode：" + waybillCode + ",siteCode:" + siteCode, e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return false;
     }

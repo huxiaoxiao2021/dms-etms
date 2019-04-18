@@ -18,7 +18,6 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
-import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -265,11 +264,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.waybillCommonService.getReverseWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
         InvokeResult<Waybill> result = new InvokeResult<Waybill>();
         Waybill waybill = null;
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.waybillCommonService.getReverseWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
@@ -290,8 +288,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
             }
         } catch (Throwable e) {
+            Profiler.functionError(info);
             this.logger.error("运单号【 " + oldWaybillCode + "】调用运单JSF异常：", e);
             result.error(e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         result.setData(waybill);
         return result;
@@ -609,8 +610,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 						res.put(key, newData);
 					}else{
 						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
-							newData.setpWeight(newData.getpWeight());
-							newData.setWeighTime(newData.getWeighTime());
+//							newData.setpWeight(newData.getpWeight());
+//							newData.setWeighTime(newData.getWeighTime());
 						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
 							oldData.setpWeight(newData.getpWeight());
 							oldData.setWeighTime(newData.getWeighTime());
