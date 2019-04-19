@@ -186,8 +186,8 @@ public class ReversePrintResource {
 
         /* 1.保存离线称重信息 */
         try {
-            if (null != request.getWeightVolumeOperEnable() &&
-                    (Constants.WEIGHT_ENABLE & request.getWeightVolumeOperEnable()) == Constants.WEIGHT_ENABLE) {
+            if (Constants.WEIGHT_ENABLE.equals(request.getWeightVolumeOperEnable())
+                || Constants.WEIGHT_VOLUME_ENABLE.equals(request.getWeightVolumeOperEnable())) {
                 TaskResponse taskResponse = taskResource.add(convert2TaskRequest(request));
                 logger.debug("ReversePrintResource.reversePrintAfter-->换单打印离线称重数据上传返回：{}",JsonHelper.toJson(taskResponse));
                 if (null == taskResponse || !TaskResponse.CODE_OK.equals(taskResponse.getCode())) {

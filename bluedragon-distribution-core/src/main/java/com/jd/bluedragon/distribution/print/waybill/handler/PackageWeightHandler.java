@@ -38,10 +38,9 @@ public class PackageWeightHandler implements Handler<WaybillPrintContext, JdResu
         }
 
         /* 是否开启用户称重 1启用称重 3启用称重量方*/
-        boolean flag = context.getRequest().getWeightVolumeOperEnable() == null
-                || context.getRequest().getWeightVolumeOperEnable() != Constants.WEIGHT_ENABLE
-                || context.getRequest().getWeightVolumeOperEnable() != (Constants.WEIGHT_ENABLE|Constants.VOLUME_ENABLE);
-        if (flag) {
+        boolean flag = Constants.WEIGHT_ENABLE.equals(context.getRequest().getWeightVolumeOperEnable())
+                || Constants.WEIGHT_VOLUME_ENABLE.equals(context.getRequest().getWeightVolumeOperEnable());
+        if (!flag) {
             /* 未启用用户称重则直接退出 */
             return result;
         }
