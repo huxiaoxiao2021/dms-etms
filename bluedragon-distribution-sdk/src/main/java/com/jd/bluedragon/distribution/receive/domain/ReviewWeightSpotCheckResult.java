@@ -24,6 +24,8 @@ public class ReviewWeightSpotCheckResult extends DbEntity {
     private String reviewOrgName;
     /** 机构类型 */
     private Integer reviewMechanismType;
+    /** 机构编码 */
+    private Integer reviewSiteCode;
     /** 机构名称 */
     private String reviewSiteName;
     /** 普通应抽查包裹数 */
@@ -57,6 +59,14 @@ public class ReviewWeightSpotCheckResult extends DbEntity {
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getReviewSiteCode() {
+        return reviewSiteCode;
+    }
+
+    public void setReviewSiteCode(Integer reviewSiteCode) {
+        this.reviewSiteCode = reviewSiteCode;
     }
 
     public Date getReviewDate() {

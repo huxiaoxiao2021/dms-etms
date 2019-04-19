@@ -3,12 +3,12 @@ package com.jd.bluedragon.distribution.receive.controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.base.domain.DmsStorageArea;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
+import com.jd.bluedragon.distribution.receive.domain.ReviewWeightSpotCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
@@ -104,23 +104,29 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     public JdResponse toImport(@RequestParam("importExcelFile") MultipartFile file) {
         logger.debug("uploadExcelFile begin...");
         JdResponse response = new JdResponse();
+        try {
         String fileName = file.getOriginalFilename();
         if (!fileName.endsWith("xls")) {
             return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
         }
 
         DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
-        List<DmsStorageArea> dataList = null;
+        List<ReviewWeightSpotCheckResult> dataList = dataResolver.resolver(file.getInputStream(), ReviewWeightSpotCheckResult.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+        String errorMessage = checkExportData(dataList);
 
-        try {
-            dataList = dataResolver.resolver(file.getInputStream(), DmsStorageArea.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+
         } catch (Exception e) {
-            e.printStackTrace();
+            this.logger.error("导入失败!");
         }
 
 
         return response;
 
+    }
+
+    private String checkExportData(List<ReviewWeightSpotCheckResult> dataList) {
+
+        return null;
     }
 
     /**
