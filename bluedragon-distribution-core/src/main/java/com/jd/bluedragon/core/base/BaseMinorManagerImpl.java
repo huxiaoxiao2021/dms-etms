@@ -173,8 +173,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Cache(key = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 			redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
-	@JProfiler(jKey = "DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseSiteGoods getGoodsVolumeLimitBySiteCode(Integer siteCode) {
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMinorManagerImpl.getGoodsVolumeLimitBySiteCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
 			BaseResult<BaseSiteGoods> baseResult = basicSecondaryWS.getGoodsVolumeLimitBySiteCode(siteCode);
 			if (baseResult != null && baseResult.getResultCode() == BaseResult.RESULT_SUCCESS) {
@@ -183,8 +183,11 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 				log.warn("获取三方站点超限配置为空，siteCode："+siteCode + ",返回结果："+ JsonHelper.toJson(baseResult));
 			}
 		} catch (Exception e) {
-			log.error("获取三方站点超限配置异常，siteCode："+siteCode, e);
-		}
+            Profiler.functionError(info);
+            log.error("获取三方站点超限配置异常，siteCode："+siteCode, e);
+		}finally {
+            Profiler.registerInfoEnd(info);
+        }
 		return null;
 	}
 

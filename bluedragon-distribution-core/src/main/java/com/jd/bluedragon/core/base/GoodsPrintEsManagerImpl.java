@@ -5,8 +5,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,8 +26,8 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
     ReportExternalService reportExternalService;
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.insertOrUpdate", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public boolean insertOrUpdate(GoodsPrintDto goodsPrintDto) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.insertOrUpdate", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             logger.info("GoodsPrintEsManagerImpl.insertOrUpdate插入或修改："+JsonHelper.toJson(goodsPrintDto));
             BaseEntity<Boolean> booleanBaseEntity= reportExternalService.insertOrUpdate(goodsPrintDto);
@@ -38,14 +38,17 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
                 return false;
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("GoodsPrintEsManagerImpl.insertOrUpdate错误，",e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return false;
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public GoodsPrintDto findGoodsPrintBySendCodeAndWaybillCode(String sendCode, String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseEntity<GoodsPrintDto>  baseEntity=reportExternalService.findGoodsPrintBySendCodeAndWaybillCode(sendCode,waybillCode);
             if (baseEntity.isSuccess()){
@@ -55,14 +58,17 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
                 return null;
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndWaybillCode错误，",e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatus", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public List<GoodsPrintDto> findGoodsPrintBySendCodeAndStatus(String sendCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatus", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseEntity<List<GoodsPrintDto>> baseEntity= reportExternalService.findGoodsPrintBySendCodeAndStatus(sendCode,Constants.GOODS_PRINT_WAYBILL_STATUS_1);
             if (baseEntity.isSuccess()){
@@ -72,14 +78,17 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
                 return new ArrayList<GoodsPrintDto>();
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCode错误，",e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatusOfPage", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public List<GoodsPrintDto> findGoodsPrintBySendCodeAndStatusOfPage(String sendCode, int pageNo, int pageSize) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatusOfPage", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseEntity<List<GoodsPrintDto>> baseEntity=  reportExternalService.findGoodsPrintBySendCodeAndStatusOfPage(sendCode,Constants.GOODS_PRINT_WAYBILL_STATUS_1,pageNo,pageSize);
             if (baseEntity.isSuccess()){
@@ -89,15 +98,18 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
                 return new ArrayList<GoodsPrintDto>();
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeOfPage，",e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return null;
     }
 
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatusCount", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public Long findGoodsPrintBySendCodeAndStatusCount(String sendCode) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeAndStatusCount", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             BaseEntity<Long> baseEntity= reportExternalService.findGoodsPrintBySendCodeAndStatusCount(sendCode,Constants.GOODS_PRINT_WAYBILL_STATUS_1);
             if (baseEntity.isSuccess()){
@@ -107,7 +119,10 @@ public class GoodsPrintEsManagerImpl implements GoodsPrintEsManager {
                 return 0L;
             }
         }catch (Exception e){
+            Profiler.functionError(info);
             logger.error("GoodsPrintEsManagerImpl.findGoodsPrintBySendCodeCount，"+",sendCode:"+sendCode,e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return 0L;
     }

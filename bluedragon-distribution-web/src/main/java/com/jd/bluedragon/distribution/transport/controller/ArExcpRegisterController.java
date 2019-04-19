@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.transport.controller;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +45,14 @@ public class ArExcpRegisterController {
 
 	@Autowired
 	BaseMajorManager baseMajorManager;
+
+    @Autowired
+    DmsBaseDictService dmsBaseDictService;
     /**
      * 根据id获取实体基本信息
-     * @param id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex() {
     	return "/transport/arExcpRegister";
@@ -56,6 +62,7 @@ public class ArExcpRegisterController {
      * @param id
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<ArExcpRegister> detail(@PathVariable("id") Long id) {
     	JdResponse<ArExcpRegister> rest = new JdResponse<ArExcpRegister>();
@@ -66,9 +73,10 @@ public class ArExcpRegisterController {
     }
     /**
      * 保存数据
-     * @param ArExcpRegister
+     * @param arExcpRegister
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(ArExcpRegister arExcpRegister) {
 		convertDate(arExcpRegister,true);
@@ -94,9 +102,10 @@ public class ArExcpRegisterController {
     }
     /**
      * 根据id删除一条数据
-     * @param id
+     * @param ids
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
     	JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -110,9 +119,10 @@ public class ArExcpRegisterController {
     }
     /**
      * 根据条件分页查询数据信息
-     * @param pagerCondition
+     * @param arExcpRegisterCondition
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArExcpRegister> listData(@RequestBody ArExcpRegisterCondition arExcpRegisterCondition) {
 		convertDate(arExcpRegisterCondition);
@@ -131,6 +141,41 @@ public class ArExcpRegisterController {
     	rest.setData(arExcpRegisterService.queryByPagerCondition(arExcpRegisterCondition));
     	return rest.getData();
     }
+
+	/**
+	 * 根据条件分页查询数据信息
+	 * @return
+	 */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
+	@RequestMapping(value = "/airRailwayExceptionType")
+	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionType() {
+		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+		rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(1, null));
+		return rest;
+	}
+	/**
+	 * 根据条件分页查询数据信息
+	 * @return
+	 */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
+	@RequestMapping(value = "/airRailwayExceptionReason/{typeGroup}")
+	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionReason(@PathVariable("typeGroup") Integer typeGroup) {
+		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+		rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(2, typeGroup));
+		return rest;
+	}
+
+	/**
+	 * 根据条件分页查询数据信息
+	 * @return
+	 */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_AREXCPREGISTER_R)
+	@RequestMapping(value = "/airRailwayExceptionResult/{typeGroup}")
+	public @ResponseBody JdResponse<List<DmsBaseDict>> getAirRailwayExceptionResult(@PathVariable("typeGroup") Integer typeGroup) {
+		JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
+		rest.setData(dmsBaseDictService.queryByParentIdAndTypeGroup(3, typeGroup));
+		return rest;
+	}
 
 	private void convertDate(ArExcpRegister arExcpRegister,boolean str2Date){
     	if(str2Date){

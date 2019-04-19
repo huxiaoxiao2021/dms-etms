@@ -153,43 +153,11 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		} else if (JsonHelper.isJson(messageContent, ReverseReceiveRequest.class)) {
 			jrequest = JsonHelper.fromJson(messageContent, ReverseReceiveRequest.class);
 			this.logger.info("逆向收货消息ReverseReceiveRequest：" + jrequest.toString());
-
-			Date date = null;
-			try {
-				BeanHelper.copyProperties(reverseReceive, jrequest);
-				SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-				if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
-					date = sdf.parse(jrequest.getReceiveTime());
-				}
-				if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 ){ //处理报文 操作人字段
-					date = sdf.parse(jrequest.getOperateTime());
-					reverseReceive.setOperatorName(jrequest.getOperaterName());
-					reverseReceive.setOrderId(jrequest.getWaybillCode());
-					reverseReceive.setPackageCode(jrequest.getWaybillCode());
-				}
-				reverseReceive.setReceiveTime(date);
-			} catch (Exception e) {
-				this.logger.error("逆向收货消息转换失败：" + e);
-			}
-		}
-		try {
-			//业务流程监控, 各系统埋点
-			Map<String, String> data = new HashMap<String, String>();
-			data.put("orderId", reverseReceive.getPackageCode());
-			data.put("outboundNo", reverseReceive.getPackageCode());
-			data.put("packageCode", reverseReceive.getPackageCode());
-
-			if (reverseReceive.getReceiveType() == 1){//仓储
-				Profiler.bizNode("bd_dms_reverse_receive_wms", data);
-			}else if (reverseReceive.getReceiveType() == 2){//售后系统
-				Profiler.bizNode("Reverse_mq_dms2stock", data);
-			}else if (reverseReceive.getReceiveType() == 3){//备件库系统
-				Profiler.bizNode("Reverse_mq_ams2dms", data);
-			}
-		} catch (Exception e) {
-			this.logger.error("推送UMP发生异常.", e);
+            reverseReceive = getReverseReceiveFromJson(jrequest);
 		}
 
+		//业务流程监控, 各系统埋点
+        umpBizPoint(reverseReceive);
 
 		//如果是移动仓内配单需要推送终端
 		if(reverseReceive.getReceiveType() == 1 && waybillService.isMovingWareHouseInnerWaybill(WaybillUtil.getWaybillCode(reverseReceive.getOrderId()))) {
@@ -336,6 +304,57 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		}
 
 	}
+
+    /**
+     * JSON请求体的request转为逆向收货对象
+     * @param jrequest
+     * @return
+     */
+	private ReverseReceive getReverseReceiveFromJson(ReverseReceiveRequest jrequest){
+        ReverseReceive reverseReceive = new ReverseReceive();
+        Date date = null;
+        try {
+            BeanHelper.copyProperties(reverseReceive, jrequest);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            if(StringUtils.isNotBlank(jrequest.getReceiveTime())){
+                date = sdf.parse(jrequest.getReceiveTime());
+            }
+            if(reverseReceive.getReceiveType() == 7 || reverseReceive.getReceiveType() == 8 ){ //处理报文 操作人字段
+                date = sdf.parse(jrequest.getOperateTime());
+                reverseReceive.setOperatorName(jrequest.getOperaterName());
+                reverseReceive.setOrderId(jrequest.getWaybillCode());
+                reverseReceive.setPackageCode(jrequest.getWaybillCode());
+            }
+            reverseReceive.setReceiveTime(date);
+        } catch (Exception e) {
+            this.logger.error("逆向收货消息转换失败：" + e);
+        }
+        return reverseReceive;
+    }
+
+    /**
+     * 业务流程监控, 各系统埋点
+     * @param reverseReceive
+     */
+	private void umpBizPoint(ReverseReceive reverseReceive){
+        try {
+            //业务流程监控, 各系统埋点
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("orderId", reverseReceive.getPackageCode());
+            data.put("outboundNo", reverseReceive.getPackageCode());
+            data.put("packageCode", reverseReceive.getPackageCode());
+
+            if (reverseReceive.getReceiveType() == 1){//仓储
+                Profiler.bizNode("bd_dms_reverse_receive_wms", data);
+            }else if (reverseReceive.getReceiveType() == 2){//售后系统
+                Profiler.bizNode("Reverse_mq_dms2stock", data);
+            }else if (reverseReceive.getReceiveType() == 3){//备件库系统
+                Profiler.bizNode("Reverse_mq_ams2dms", data);
+            }
+        } catch (Exception e) {
+            this.logger.error("推送UMP发生异常.", e);
+        }
+    }
 
 	/**
 	 * 发包裹维度的发全程跟踪
