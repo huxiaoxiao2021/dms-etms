@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -48,7 +48,8 @@ public class OldWaybillQueryHandler implements Handler<WaybillPrintContext, JdRe
 
         //获取原运单
         BaseEntity<Waybill> oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(newWaybillCode);
-        if (null == oldWaybill || Constants.RESULT_SUCCESS != oldWaybill.getResultCode() || null == oldWaybill.getData()) {
+        LOGGER.info("OldWaybillQueryHandler.handler-->根据单号{}获取到旧单信息：{}",newWaybillCode, JsonHelper.toJson(oldWaybill));
+        if (null == oldWaybill || null == oldWaybill.getData()) {
             LOGGER.warn("OldWaybillQueryHandler.handler-->根据单号{}未获取到旧单号",newWaybillCode);
             return result;
         }
