@@ -198,7 +198,8 @@ public class MappedBasicPrintWaybillHandler implements Handler<WaybillPrintConte
                 oldWaybillCode = WaybillUtil.getWaybillCode(context.getRequest().getOldBarCode());
             }
 
-            printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,oldWaybillCode, newWaybillCode));
+            printWaybill.setComment(MessageFormat.format(REVERSE_PRINT_COMMENT,
+                    oldWaybillCode == null? "" : oldWaybillCode, newWaybillCode));
         }
 
         return context.getResult();

@@ -213,6 +213,20 @@ public class PackageResource {
         return response;
     }
 
+    /**
+     * 主要用于用户操作了客户端的打印之后，记录操作日志，回传全程跟踪，等附加信息
+     * @return
+     */
+    @POST
+    @Path("/package/afterPrint")
+    public JdResponse afterPackagePrint() {
+
+
+
+
+        return new JdResponse();
+    }
+
     private Task toAddressModTask(String barCode, String operateName){
         WaybillStatus waybillStatus = new WaybillStatus();
 
