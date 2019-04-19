@@ -280,7 +280,7 @@ public class UserServiceImpl implements UserService{
 	        }else{	
 	        	LoginUserResponse loginUserResponse = new LoginUserResponse();
 	    		// 用户ID
-	        	loginUserResponse.setStaffId(basestaffDto.getsId());
+	        	loginUserResponse.setStaffId(basestaffDto.getStaffNo());
 	    		// 用户名称
 	        	loginUserResponse.setStaffName(basestaffDto.getStaffName());
 	        	//erp
