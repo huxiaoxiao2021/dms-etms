@@ -2200,8 +2200,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             if (logger.isInfoEnabled()) {
                 logger.info("SEND_D明细" + JsonHelper.toJson(sendDetailList));
             }
-            updateWaybillStatus(sendDetailList);
         }
+        updateWaybillStatus(sendDetailList);
         return true;
     }
 
