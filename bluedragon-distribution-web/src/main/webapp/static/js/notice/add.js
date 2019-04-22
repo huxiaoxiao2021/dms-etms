@@ -9,7 +9,7 @@ $(function () {
     var saveInfoUrl = '/notice/add';
 
     // 20M
-    var fileMaxSize = 1 * 1024 * 1024;
+    var fileMaxSize = 20 * 1024 * 1024;
 
     /*****************************************/
     /*组件*/
