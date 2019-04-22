@@ -890,7 +890,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         //调DTC接口给WMS发报文
         String target = orgId + "," + cky2 + "," + storeId;
         com.jd.staig.receiver.rpc.Result result = new Result();
-        String outboundType = "wms_receiving_transBoxFromDMSService_parcel";
+        String outboundType = "transBoxFromDMS_parce";
         String messageValue = JSON.toJSONString(waybill);
         String source="DMS";
         try {
