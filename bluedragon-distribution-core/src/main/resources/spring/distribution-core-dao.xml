@@ -482,4 +482,13 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 通知栏 -->
+    <bean id="noticeDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="noticeAttachmentDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeAttachmentDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

@@ -107,6 +107,10 @@
         <!-- 签单返回 -->
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill" alias="mergedWaybill"/>
+
+        <!-- 通知栏 -->
+        <typeAlias type="com.jd.bluedragon.distribution.notice.domain.Notice" alias="Notice"/>
+        <typeAlias type="com.jd.bluedragon.distribution.notice.domain.NoticeAttachment" alias="NoticeAttachment"/>
     </typeAliases>
 
     <plugins>
@@ -288,5 +292,8 @@
         <!-- 揽收重量校验 -->
         <mapper resource="mappers/mysql/receive/ReceivedWeightCheckMapper.xml"/>
 
+        <!-- 通知栏 -->
+        <mapper resource="mappers/mysql/notice/NoticeMapper.xml"/>
+        <mapper resource="mappers/mysql/notice/NoticeAttachmentMapper.xml"/>
     </mappers>
 </configuration>
