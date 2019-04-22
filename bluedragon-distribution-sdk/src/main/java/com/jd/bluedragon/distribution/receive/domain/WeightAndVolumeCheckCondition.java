@@ -7,12 +7,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * @ClassName: ReceiveWeightCheckCondition.java
+ * @ClassName: WeightAndVolumeCheckCondition.java
  * @Description: 揽收重量校验统计-查询条件
  * @author: hujiping
  * @date: 2019/2/27 11:21
  */
-public class ReceiveWeightCheckCondition extends BasePagerCondition {
+public class WeightAndVolumeCheckCondition extends BasePagerCondition {
 
     private static final long serialVersionUID = 1L;
 

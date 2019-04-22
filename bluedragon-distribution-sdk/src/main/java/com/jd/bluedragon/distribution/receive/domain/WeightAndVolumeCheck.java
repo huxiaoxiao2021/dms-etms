@@ -5,12 +5,12 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 import java.util.Date;
 
 /**
- * @ClassName: ReceiveWeightCheckResult
- * @Description: 揽收重量校验统计-实体类
+ * @ClassName: WeightAndVolumeCheck
+ * @Description: 重量体积校验-实体类
  * @author: hujiping
- * @date: 2019/2/27 13:48
+ * @date: 2019/04/22 10:48
  */
-public class ReceiveWeightCheckResult extends DbEntity {
+public class WeightAndVolumeCheck extends DbEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -20,36 +20,46 @@ public class ReceiveWeightCheckResult extends DbEntity {
     private Long id;
     /** 复核日期 */
     private Date reviewDate;
+    /** 运单号 */
+    private String waybillCode;
     /** 包裹号 */
     private String packageCode;
     /** 商家名称 */
     private String busiName;
+    /** 是否是信任商家 */
+    private Integer isTrustBusiName;
     /** 复核区域 */
     private Integer reviewOrgCode;
     private String reviewOrg;
     /** 复核分拣 */
     private Integer reviewCreateSiteCode;
     private String reviewCreateSiteName;
+    /** 机构类型(1:分拣中心 0:转运中心) */
+    private Integer mechanismType;
     /** 复核人erp */
     private String reviewErp;
-    /** 分拣重量kg */
+    /** 复核重量kg */
     private Double reviewWeight;
+    /** 复核长cm */
+    private Double reviewLength;
+    /** 复核宽cm */
+    private Double reviewWidth;
+    /** 复核高cm */
+    private Double reviewHeight;
     /** 复核长宽高cm */
     private String reviewLwh;
     /** 复核体积cm */
     private Double reviewVolume;
-    /** 揽收区域 */
-    private String receiveOrg;
-    /** 揽收营业部 */
-    private String receiveDepartment;
-    /** 揽收人erp */
-    private String receiveErp;
-    /** 揽收重量kg */
-    private Double receiveWeight;
-    /** 揽收长宽高cm */
-    private String receiveLwh;
-    /** 揽收体积cm */
-    private Double receiveVolume;
+    /** 计费操作区域 */
+    private String billingOperateOrg;
+    /** 计费操作机构 */
+    private String billingOperateDepartment;
+    /** 计费操作人ERP */
+    private String billingOperateErp;
+    /** 计费重量kg */
+    private Double billingWeight;
+    /** 计费体积cm */
+    private Double billingVolume;
     /** 重量差异 */
     private String weightDiff;
     /** 体积重量差异 */
@@ -73,12 +83,44 @@ public class ReceiveWeightCheckResult extends DbEntity {
         this.id = id;
     }
 
+    public Double getReviewLength() {
+        return reviewLength;
+    }
+
+    public void setReviewLength(Double reviewLength) {
+        this.reviewLength = reviewLength;
+    }
+
+    public Double getReviewWidth() {
+        return reviewWidth;
+    }
+
+    public void setReviewWidth(Double reviewWidth) {
+        this.reviewWidth = reviewWidth;
+    }
+
+    public Double getReviewHeight() {
+        return reviewHeight;
+    }
+
+    public void setReviewHeight(Double reviewHeight) {
+        this.reviewHeight = reviewHeight;
+    }
+
     public Date getReviewDate() {
         return reviewDate;
     }
 
     public void setReviewDate(Date reviewDate) {
         this.reviewDate = reviewDate;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
     }
 
     public String getPackageCode() {
@@ -95,6 +137,14 @@ public class ReceiveWeightCheckResult extends DbEntity {
 
     public void setBusiName(String busiName) {
         this.busiName = busiName;
+    }
+
+    public Integer getIsTrustBusiName() {
+        return isTrustBusiName;
+    }
+
+    public void setIsTrustBusiName(Integer isTrustBusiName) {
+        this.isTrustBusiName = isTrustBusiName;
     }
 
     public Integer getReviewOrgCode() {
@@ -129,6 +179,14 @@ public class ReceiveWeightCheckResult extends DbEntity {
         this.reviewCreateSiteName = reviewCreateSiteName;
     }
 
+    public Integer getMechanismType() {
+        return mechanismType;
+    }
+
+    public void setMechanismType(Integer mechanismType) {
+        this.mechanismType = mechanismType;
+    }
+
     public String getReviewErp() {
         return reviewErp;
     }
@@ -161,52 +219,44 @@ public class ReceiveWeightCheckResult extends DbEntity {
         this.reviewVolume = reviewVolume;
     }
 
-    public String getReceiveOrg() {
-        return receiveOrg;
+    public String getBillingOperateOrg() {
+        return billingOperateOrg;
     }
 
-    public void setReceiveOrg(String receiveOrg) {
-        this.receiveOrg = receiveOrg;
+    public void setBillingOperateOrg(String billingOperateOrg) {
+        this.billingOperateOrg = billingOperateOrg;
     }
 
-    public String getReceiveDepartment() {
-        return receiveDepartment;
+    public String getBillingOperateDepartment() {
+        return billingOperateDepartment;
     }
 
-    public void setReceiveDepartment(String receiveDepartment) {
-        this.receiveDepartment = receiveDepartment;
+    public void setBillingOperateDepartment(String billingOperateDepartment) {
+        this.billingOperateDepartment = billingOperateDepartment;
     }
 
-    public String getReceiveErp() {
-        return receiveErp;
+    public String getBillingOperateErp() {
+        return billingOperateErp;
     }
 
-    public void setReceiveErp(String receiveErp) {
-        this.receiveErp = receiveErp;
+    public void setBillingOperateErp(String billingOperateErp) {
+        this.billingOperateErp = billingOperateErp;
     }
 
-    public Double getReceiveWeight() {
-        return receiveWeight;
+    public Double getBillingWeight() {
+        return billingWeight;
     }
 
-    public void setReceiveWeight(Double receiveWeight) {
-        this.receiveWeight = receiveWeight;
+    public void setBillingWeight(Double billingWeight) {
+        this.billingWeight = billingWeight;
     }
 
-    public String getReceiveLwh() {
-        return receiveLwh;
+    public Double getBillingVolume() {
+        return billingVolume;
     }
 
-    public void setReceiveLwh(String receiveLwh) {
-        this.receiveLwh = receiveLwh;
-    }
-
-    public Double getReceiveVolume() {
-        return receiveVolume;
-    }
-
-    public void setReceiveVolume(Double receiveVolume) {
-        this.receiveVolume = receiveVolume;
+    public void setBillingVolume(Double billingVolume) {
+        this.billingVolume = billingVolume;
     }
 
     public String getWeightDiff() {

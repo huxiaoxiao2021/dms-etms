@@ -3,6 +3,8 @@ package com.jd.bluedragon.dms.utils;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Arrays;
+
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
 
 /**
@@ -612,6 +614,26 @@ public class BusinessUtil {
      */
     public static Boolean isMovingWareHouseInnerWaybill(String waybillSign){
         return isSignChar(waybillSign,14,'5');
+    }
+
+    /**
+     * 分拣中心和转运中心判断
+     * 1:分拣中心 0:转运中心 -1:都不是
+     * @param subType 站点子类型
+     * @return
+     */
+    public static Integer isSortOrTransport(Integer subType){
+        Integer flage = -1;
+        Integer[] transportSite = new Integer[]{6420,6460,44079};
+        Integer[] notSortSites = new Integer[]{6420,6440,6450,6460,6470,44079};
+        if(Arrays.asList(transportSite).contains(subType)){
+            flage = 0;
+        }else if(!Arrays.asList(notSortSites).contains(subType)){
+            flage = 1;
+        }else{
+            flage = -1;
+        }
+        return flage;
     }
 
 }

@@ -1,6 +1,6 @@
 $(function () {
 
-    var uploadUrl = "/receive/uploadExcessPicture1";
+    var uploadUrl = "/weightAndVolumeCheck/uploadExcessPicture";
 
     //提示语隐藏
     $("#successMessage").hide();
@@ -26,23 +26,15 @@ $(function () {
             Jd.alert('上传图片的格式不正确,请检查后在上传!');
             return;
         }
-        debugger;
-        // $('#query-form').submit();
 
         var formData = new FormData();
         formData.append('image',$('#fileField')[0].files[0]);
-        // var formData = new FormData($("#query-form")[0]);  //重点：要用这种方法接收表单的参数
-        var params = {};
-         params.image = formData;
-         params.operateTime = [new Date().getTime()];
-         params.machineCode = '';
-         params.siteCode = -1;
-
+        formData.append('packageCode',$('#packageCode').val());
 
         $.ajax({
             url : uploadUrl,
             type : 'POST',
-            data : params,
+            data : formData,
             // 告诉jQuery不要去处理发送的数据
             processData : false,
             // 告诉jQuery不要去设置Content-Type请求头
@@ -52,7 +44,10 @@ $(function () {
             async : false,
             success : function(data) {
                 if(data && data.code == 200){
-                    alert(123);
+                    $("#successMessage").show();
+                }else{
+                    Jd.alert(data.message);
+                    $("#failMessage").show();
                 }
             }
         });

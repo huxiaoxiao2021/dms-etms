@@ -347,4 +347,15 @@
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
     </bean>
+
+    <!-- 超标mq，提供给fxm系统 -->
+    <bean id="dmsAbnormalInfoMQToFXM" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.abnormal.dmsToFXM}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 超标mq，提供给判责系统 -->
+    <bean id="dmsAbnormalInfoMQToPanZe" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.abnormal.dmsToPanZe}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

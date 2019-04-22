@@ -10,9 +10,10 @@
     <style>
         .file{  filter:alpha(opacity:0);opacity: 0;width:0px }
     </style>
-    <script src="/static/js/receive/excessPictureUpload.js"></script>
+    <script src="/static/js/weightAndVolumeCheck/excessPictureUpload.js"></script>
 </head>
 <body>
+<input type="hidden" id="packageCode" value="$!{packageCode}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">重量体积抽检统计</a></li>

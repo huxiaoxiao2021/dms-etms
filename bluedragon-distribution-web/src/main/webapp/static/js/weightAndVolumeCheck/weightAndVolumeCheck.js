@@ -1,7 +1,8 @@
 $(function () {
-    var queryUrl = '/receive/listData';
-    var exportUrl = '/receive/toExport';
-    var upExcessPictureUrl = '/receive/toUpload';
+    var queryUrl = '/weightAndVolumeCheck/listData';
+    var exportUrl = '/weightAndVolumeCheck/toExport';
+    var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
+    var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {
@@ -99,7 +100,10 @@ $(function () {
             title: '复核分拣'
         },{
             field: 'mechanismType',
-            title: '机构类型'
+            title: '机构类型',
+            formatter: function (value, row, index) {
+                return value == "1" ? "分拣中心" : "转运中心";
+            }
         },{
             field: 'reviewErp',
             title: '复核人erp'
@@ -113,20 +117,17 @@ $(function () {
             field: 'reviewVolume',
             title: '复核体积cm³'
         },{
-            field: 'billingArea',
+            field: 'billingOperateOrg',
             title: '计费操作区域'
         },{
-            field: 'billingMechanism',
+            field: 'billingOperateDepartment',
             title: '计费操作机构'
         },{
-            field: 'billingOperatorErp',
+            field: 'billingOperateErp',
             title: '计费操作人ERP'
         },{
             field: 'billingWeight',
             title: '计费重量'
-        },{
-            field: 'billingLwh',
-            title: '计费长宽高'
         },{
             field: 'billingVolume',
             title: '计费体积'
@@ -166,40 +167,33 @@ $(function () {
                         area: ['1000px', '500px'],
                         content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode,
                         success: function(layero, index){
-                            var frameId = document.getElementById("upExcessPicture").getElementsByTagName("iframe")[0].id;
-                            var frameWindow = $('#' + frameId)[0].contentWindow;
-
-                            frameWindow.$('#normal-flag-input').val('normal');
-
-                            frameWindow.$('#id-input').val(row.id);
-                            frameWindow.$('#maker-code-input').val(row.makerCode);
-                            frameWindow.$('#maker-name-input').val(row.makerName);
-                            frameWindow.$('#contact-person-input').val(row.contactPerson);
-                            frameWindow.$('#contact-email-input').val(row.contactEmail);
-                            frameWindow.$('#contact-tel-input').val(row.contactTel);
-                            frameWindow.$('#maker-address-input').val(row.makerAddress);
                         }
                     });
                 },
                 'click .search': function(e, value, row, index) {
-                    $.msg.confirm('确认要删除该条设备厂商记录吗？该操作将记录操作日志及相关操作人，请谨慎操作，切勿影响现场生产！',function () {
-                        var blocker = $.pageBlocker.block();
-
-                        var id = row.id;
-                        var param = {id:id};
-                        var paramJson = JSON.stringify(param);
-
-                        $.ajaxHelper.doPostSync(deleteUrl,paramJson,function(res){
-                            if(res != null && res.statusCode == 200){
-                                $.msg.ok('删除设备厂商记录成功！','',function () {
-                                    $('#btn_query').click();
+                    $.ajax({
+                        type : "get",
+                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode,
+                        data : {},
+                        async : false,
+                        success : function (data) {
+                            if(data && data.code == 200){
+                                layer.open({
+                                    type: 2,
+                                    title: "",
+                                    shadeClose: true,
+                                    shade: 0.5,
+                                    area: ['500px','400px'],
+                                    content: data.data,
+                                    success: function(layero, index) {
+                                        layer.iframeAuto(index);
+                                    }
                                 });
-                            }else {
-                                $.msg.error("删除设备厂商记录失败！",res.statusMessage);
+                            }else{
+                                Jd.alert(data.message);
                             }
-                        },'json');
-                        $.pageBlocker.close(blocker);
-                    }, function () {});
+                        }
+                    });
                 }
             }
         }];

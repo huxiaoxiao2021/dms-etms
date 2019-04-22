@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.receive.controller;
+package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -6,9 +6,9 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
-import com.jd.bluedragon.distribution.receive.domain.ReviewWeightSpotCheckResult;
+import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.receive.domain.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
@@ -70,7 +70,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             }
         }
         model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
-        return "/receive/reviewWeightSpotCheck";
+        return "/weightAndVolumeCheck/reviewWeightSpotCheck";
     }
 
     /**
@@ -80,14 +80,14 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
-    public PagerResult<ReceiveWeightCheckResult> listData(@RequestBody ReceiveWeightCheckCondition condition){
+    public PagerResult<WeightAndVolumeCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        PagerResult<ReceiveWeightCheckResult> result = new PagerResult<ReceiveWeightCheckResult>();
+        PagerResult<WeightAndVolumeCheck> result = new PagerResult<WeightAndVolumeCheck>();
 
         Integer num = 3;
-        List<ReceiveWeightCheckResult> list = new ArrayList<ReceiveWeightCheckResult>();
-        ReceiveWeightCheckResult receiveWeightCheckResult = new ReceiveWeightCheckResult();
-        list.add(receiveWeightCheckResult);
+        List<WeightAndVolumeCheck> list = new ArrayList<WeightAndVolumeCheck>();
+        WeightAndVolumeCheck weightAndVolumeCheck = new WeightAndVolumeCheck();
+        list.add(weightAndVolumeCheck);
         result.setRows(list);
         result.setTotal(num);
 
@@ -106,12 +106,12 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         JdResponse response = new JdResponse();
         try {
         String fileName = file.getOriginalFilename();
-        if (!fileName.endsWith("xls")) {
+        if (!fileName.endsWith("xlsx")) {
             return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
         }
 
         DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
-        List<ReviewWeightSpotCheckResult> dataList = dataResolver.resolver(file.getInputStream(), ReviewWeightSpotCheckResult.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+        List<ReviewWeightSpotCheck> dataList = dataResolver.resolver(file.getInputStream(), ReviewWeightSpotCheck.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
         String errorMessage = checkExportData(dataList);
 
 
@@ -124,7 +124,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
     }
 
-    private String checkExportData(List<ReviewWeightSpotCheckResult> dataList) {
+    private String checkExportData(List<ReviewWeightSpotCheck> dataList) {
 
         return null;
     }
@@ -135,9 +135,9 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
      */
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
-    public ModelAndView toExport(ReceiveWeightCheckCondition condition, Model model) {
+    public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
-        this.logger.info("导出揽收重量校验统计表");
+        this.logger.info("分拣复重抽查任务统计表");
         try{
             List<List<Object>> resultList = receiveWeightCheckService.getExportData(condition);
             model.addAttribute("filename", "分拣复重抽检任务统计表.xls");

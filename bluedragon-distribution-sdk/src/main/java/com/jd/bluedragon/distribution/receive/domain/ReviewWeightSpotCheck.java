@@ -5,12 +5,12 @@ import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 import java.util.Date;
 
 /**
- * @ClassName: ReviewWeightSpotCheckResult
+ * @ClassName: ReviewWeightSpotCheck
  * @Description: 重量体积抽验统计-实体类
  * @author: hujiping
  * @date: 2019/2/27 13:48
  */
-public class ReviewWeightSpotCheckResult extends DbEntity {
+public class ReviewWeightSpotCheck extends DbEntity {
 
     private static final long serialVersionUID = 1L;
 

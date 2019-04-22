@@ -179,15 +179,16 @@ $(function () {
         var suffixName = inputValue.substring(index1+1,index2);
         if(inputValue == ''){
             Jd.alert('请先浏览文件在上传!');
+            $('#btn_import').attr("disabled",false);
             return;
         }
         debugger;
         if(suffixName != 'xlsx'){
             Jd.alert('请上传指定Excel文件!');
+            $('#btn_import').attr("disabled",false);
             return;
         }
-        debugger;
-        //todo....
+
         var form =  $("#query-form");
         var options = {
             url:importUrl,
@@ -195,10 +196,11 @@ $(function () {
             success:function(data){
                 if(data.code == '200'){
                     alert("导入成功！");
-
+                    $('#btn_import').attr("disabled",false);
                 }else{
 
                     alert(data.message);
+                    $('#btn_import').attr("disabled",false);
                 }
 
             },
@@ -381,12 +383,15 @@ function initImportExcel(){
                 }else{
                     Jd.alert("上传失败!" + res.message);
                 }
+                $('#btn_upload').attr("disabled",false);
             },
             error:function(err){
                 Jd.alert("网络连接失败,稍后重试");
+                $('#btn_upload').attr("disabled",false);
             }
 
-        })
+
+        });
 
     });
 }
