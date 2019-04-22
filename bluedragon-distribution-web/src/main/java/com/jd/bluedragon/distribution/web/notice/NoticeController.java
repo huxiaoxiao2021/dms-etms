@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.notice;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,43 +58,10 @@ public class NoticeController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/list")
     public String index() {
         return "notice/list";
-    }
-
-    /**
-     * 跳转到管理页
-     *
-     * @return
-     */
-    @RequestMapping("/manage")
-    public String manage() {
-        return "notice/manage";
-    }
-
-    /**
-     * 跳转新增页
-     *
-     * @return
-     */
-    @RequestMapping("/addView")
-    public String addView(Model model) {
-        model.addAttribute("levelValues", NoticeLevelEnum.values());
-        model.addAttribute("typeValues", NoticeTypeEnum.values());
-        model.addAttribute("topDisplayValues", TopDisplayEnum.values());
-        return "notice/add";
-    }
-
-    /**
-     * 跳转附件查看页
-     *
-     * @return
-     */
-    @RequestMapping("/attachment/view/{noticeId}")
-    public String attachmentView(@PathVariable("noticeId") Long noticeId, Model model) {
-        model.addAttribute("noticeId", noticeId);
-        return "notice/attachment";
     }
 
     /**
@@ -100,6 +69,7 @@ public class NoticeController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/show", method = RequestMethod.POST)
     @ResponseBody
     public PagerResult<Notice> show() {
@@ -111,10 +81,23 @@ public class NoticeController {
     }
 
     /**
-     * 通知展示
+     * 跳转附件查看页
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_INDEX_R)
+    @RequestMapping("/attachment/view/{noticeId}")
+    public String attachmentView(@PathVariable("noticeId") Long noticeId, Model model) {
+        model.addAttribute("noticeId", noticeId);
+        return "notice/attachment";
+    }
+
+    /**
+     * 通知附件展示
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/attachment/detail", method = RequestMethod.POST)
     @ResponseBody
     public PagerResult<NoticeAttachment> attachmentDetail(@RequestBody NoticeAttachmentRequest request) {
@@ -132,12 +115,58 @@ public class NoticeController {
     }
 
     /**
+     * 附件下载页
+     *
+     * @param attachmentId
+     * @param response
+     */
+    @Authorization(Constants.DMS_WEB_INDEX_R)
+    @RequestMapping(value = "/attachment/download", method = RequestMethod.GET)
+    @ResponseBody
+    public void download(@RequestParam Long attachmentId, HttpServletResponse response) {
+        try {
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+            if (erpUser != null) {
+                this.noticeAttachmentService.download(attachmentId, response);
+            }
+        } catch (Exception ex) {
+            logger.error("物资状态变更历史导出异常", ex);
+        }
+    }
+
+    /**
+     * 跳转到管理页
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
+    @RequestMapping("/manage")
+    public String manage() {
+        return "notice/manage";
+    }
+
+    /**
+     * 跳转新增页
+     *
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
+    @RequestMapping("/addView")
+    public String addView(Model model) {
+        model.addAttribute("levelValues", NoticeLevelEnum.values());
+        model.addAttribute("typeValues", NoticeTypeEnum.values());
+        model.addAttribute("topDisplayValues", TopDisplayEnum.values());
+        return "notice/add";
+    }
+
+    /**
      * 保存
      *
      * @param files
      * @param request
      * @return
      */
+    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult add(@RequestParam("files") MultipartFile[] files, @RequestParam("noticeRequest") String paramJson, HttpServletRequest request) {
@@ -168,25 +197,13 @@ public class NoticeController {
         return result;
     }
 
-    @RequestMapping(value = "/attachment/download", method = RequestMethod.GET)
-    @ResponseBody
-    public void download(@RequestParam Long attachmentId, HttpServletResponse response) {
-        try {
-            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-            if (erpUser != null) {
-                this.noticeAttachmentService.download(attachmentId, response);
-            }
-        } catch (Exception ex) {
-            logger.error("物资状态变更历史导出异常", ex);
-        }
-    }
-
     /**
-     * 根据id删除一条数据
+     * 根据id删除通知和附件
      *
      * @param ids
      * @return
      */
+    @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
     @RequestMapping(value = "/deleteByIds")
     @ResponseBody
     public InvokeResult<Integer> deleteByIds(@RequestBody List<Integer> ids) {
@@ -213,4 +230,5 @@ public class NoticeController {
         }
         return result;
     }
+
 }
