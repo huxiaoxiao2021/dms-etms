@@ -2197,9 +2197,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 dSendDetail.setBizSource(newSendM.getBizSource());
                 sendDetailList.add(dSendDetail);
             }
-            if (logger.isInfoEnabled()) {
-                logger.info("SEND_D明细" + JsonHelper.toJson(sendDetailList));
-            }
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info("SEND_D明细" + JsonHelper.toJson(sendDetailList));
         }
         updateWaybillStatus(sendDetailList);
         return true;
