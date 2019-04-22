@@ -440,7 +440,10 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
     <bean id="abnormalQcDao"  parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
-
+    <bean id="preSealVehicleDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealVehicleDaoImpl"/>
+    <bean id="sealVehiclesDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.newseal.dao.impl.SealVehiclesDaoImpl"/>
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>

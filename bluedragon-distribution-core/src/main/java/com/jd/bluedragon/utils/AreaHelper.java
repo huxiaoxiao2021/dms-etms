@@ -21,6 +21,9 @@ public class AreaHelper {
 	private final static Map<Integer, AreaNode> AREA_DATAS = new TreeMap<Integer, AreaNode>();
 	private final static Map<Integer, ProvinceNode> PROVINCE_DATAS = new TreeMap<Integer, ProvinceNode>();
 	private final static Map<Integer, Set<Integer>> AREA_PROVINCE_MAPPING = new TreeMap<Integer, Set<Integer>>();
+	/** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
+	private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
+
 	static{
 		init();
 	}
@@ -232,5 +235,14 @@ public class AreaHelper {
 	 */
 	public static boolean isNotEmptyAndTitle(Integer id){
 		return (id != null && id != -1);
+	}
+
+	/**
+	 * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
+	 * @param provinceId
+	 * @return
+	 */
+	public boolean isMunicipality(Integer provinceId){
+		return municipalityList.contains(provinceId);
 	}
 }

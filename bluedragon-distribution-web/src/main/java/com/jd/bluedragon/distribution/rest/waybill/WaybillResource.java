@@ -2303,4 +2303,34 @@ public class WaybillResource {
             result.setData(4);
         }
     }
+
+	/**
+	 * 获取运单中包裹数量
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/getPackNum/{waybillCode}")
+	public InvokeResult<Integer> getPackNum(@PathParam("waybillCode") String waybillCode){
+
+        InvokeResult<Integer> result = new InvokeResult<Integer>();
+        Integer packNum = 0;
+        try{
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+                packNum = baseEntity.getData().getWaybill().getGoodNumber() == null?0:baseEntity.getData().getWaybill().getGoodNumber();
+                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+            }else{
+                this.logger.error("未获取到该运单"+waybillCode+"信息");
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setMessage("未获取到该运单"+waybillCode+"信息");
+            }
+        }catch(Exception e){
+            this.logger.error("通过运单号:"+waybillCode+"获取运单信息失败!");
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        result.setData(packNum);
+        return result;
+	}
 }

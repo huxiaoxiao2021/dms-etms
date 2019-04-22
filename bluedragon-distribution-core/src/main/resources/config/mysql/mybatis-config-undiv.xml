@@ -265,6 +265,8 @@
         <mapper resource="mappers/mysql/abnormal/DmsAbnormalEclpMapper.xml"/>
         <mapper resource="mappers/mysql/abnormal/AbnormalUnknownWaybillMapper.xml"/>
         <mapper resource="mappers/mysql/abnormaldispose/AbnormalQcMapper.xml"/>
+        <mapper resource="mappers/mysql/newseal/PreSealVehicleMapper.xml"/>
+        <mapper resource="mappers/mysql/newseal/SealVehiclesMapper.xml"/>
 
         <!-- RMA -->
         <mapper resource="mappers/mysql/rma/RmaHandOverWaybillMapper.xml"/>
