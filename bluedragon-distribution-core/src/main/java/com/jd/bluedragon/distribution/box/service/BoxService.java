@@ -18,7 +18,7 @@ public interface BoxService {
     /**重打*/
     Integer reprint(Box box);
     
-    List<Box> findBoxes(Box box);
+//    List<Box> findBoxes(Box box);
 
     Box findBoxByCode(String boxCode);
     

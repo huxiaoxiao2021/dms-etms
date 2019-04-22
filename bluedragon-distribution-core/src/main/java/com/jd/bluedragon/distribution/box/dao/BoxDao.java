@@ -27,9 +27,9 @@ public class BoxDao extends BaseDao<Box> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Box> findBoxes(Box box) {
+    /*public List<Box> findBoxes(Box box) {
         return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxes", box);
-    }
+    }*/
 
     public Integer updateStatusByCodes(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateStatusByCodes", box);

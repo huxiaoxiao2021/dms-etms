@@ -275,7 +275,7 @@ public class SortingResource {
 		return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 	}
 
-	@GET
+	/*@GET
 	@Path("/sorting/package")
 	public List<SortingResponse> queryPackage(@QueryParam("packageCode") String packageCode,
 			@QueryParam("siteCode") Integer siteCode, @QueryParam("receiveSiteCode") Integer receiveSiteCode) {
@@ -297,7 +297,7 @@ public class SortingResource {
 		}
 
 		return sortingResponses;
-	}
+	}*/
 
 	@GET
 	@Path("/sorting/box")

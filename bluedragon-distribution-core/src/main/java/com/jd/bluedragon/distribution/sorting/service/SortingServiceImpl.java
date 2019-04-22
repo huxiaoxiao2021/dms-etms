@@ -55,6 +55,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -164,7 +166,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+	/*@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findSortingPackages(Sorting sorting) {
 		String boxCodes = this.getBoxCodes(sorting);
 		if (StringHelper.isEmpty(boxCodes)) {
@@ -173,9 +175,9 @@ public class SortingServiceImpl implements SortingService {
 
 		sorting.setBoxCodes(boxCodes);
 		return this.sortingDao.findSortingPackages(sorting);
-	}
+	}*/
 
-	private String getBoxCodes(Sorting sorting) {
+	/*private String getBoxCodes(Sorting sorting) {
 		Box box = new Box();
 		box.setType(Box.BOX_TYPE_FORWARD);
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
@@ -183,7 +185,7 @@ public class SortingServiceImpl implements SortingService {
 		List<Box> boxes = this.boxService.findBoxes(box);
 
 		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
-	}
+	}*/
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
@@ -1046,6 +1048,7 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.SortingServiceImpl.findOrderDetail", mState = JProEnum.TP)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
