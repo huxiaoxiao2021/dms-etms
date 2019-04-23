@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URI;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
@@ -54,15 +53,7 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
     public List<NoticeAttachment> getByNoticeId(Long noticeId) {
         Map<String, Object> parameter = new HashMap<>(1);
         parameter.put("noticeId", noticeId);
-        List<NoticeAttachment> result = noticeAttachmentDao.getByNoticeId(parameter);
-        if (result.size() > 0) {
-            for (NoticeAttachment attachment : result) {
-                URI uri = jssService.getURI(bucket, attachment.getKeyName(), 300);
-                attachment.setUrl(uri.toString());
-                attachment.setSize(String.valueOf(Long.valueOf(attachment.getSize()) / 1024) + "KB");
-            }
-        }
-        return result;
+        return noticeAttachmentDao.getByNoticeId(parameter);
     }
 
     @Override
@@ -90,7 +81,7 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
         if (noticeId != null) {
             List<NoticeAttachment> attachments = this.getByNoticeId(noticeId);
             if (attachments.size() > 0) {
-                for (NoticeAttachment attachment : attachments){
+                for (NoticeAttachment attachment : attachments) {
                     if (StringUtils.isNotEmpty(attachment.getKeyName())) {
                         // 删除附件
                         try {

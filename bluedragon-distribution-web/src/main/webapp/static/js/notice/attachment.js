@@ -41,7 +41,14 @@ $(function () {
             },
             {
                 field: 'size',
-                title: '文件大小(KB)'
+                title: '文件大小(KB)',
+                formatter: function (value, row, index) {
+                    if (value == null) {
+                        return null;
+                    } else {
+                        return (parseInt(value) / 1024).toFixed(2) + "KB";
+                    }
+                }
             },
             {
                 field: 'url',

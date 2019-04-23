@@ -28,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -123,15 +123,22 @@ public class NoticeController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/attachment/download", method = RequestMethod.GET)
     @ResponseBody
-    public void download(@RequestParam Long attachmentId, HttpServletResponse response) {
+    public InvokeResult download(@RequestParam Long attachmentId, HttpServletResponse response) {
+        InvokeResult result = new InvokeResult();
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 this.noticeAttachmentService.download(attachmentId, response);
+            } else {
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setMessage("获取当前登录用户信息失败，请重新登录ERP后尝试");
             }
         } catch (Exception ex) {
-            logger.error("物资状态变更历史导出异常", ex);
+            logger.error("附件下载异常", ex);
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
+        return result;
     }
 
     /**
@@ -162,16 +169,17 @@ public class NoticeController {
     /**
      * 保存
      *
-     * @param files
      * @param request
      * @return
      */
     @Authorization(Constants.DMS_WEB_NOTICE_MANAGE)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
-    public InvokeResult add(@RequestParam("files") MultipartFile[] files, @RequestParam("noticeRequest") String paramJson, HttpServletRequest request) {
+    public InvokeResult add(MultipartHttpServletRequest request) {
         InvokeResult result = new InvokeResult();
         try {
+            String paramJson = request.getParameter("noticeRequest");
+            List<MultipartFile> files = request.getFiles("files");
             if (JsonHelper.isJsonString(paramJson)) {
                 ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
                 if (erpUser != null) {

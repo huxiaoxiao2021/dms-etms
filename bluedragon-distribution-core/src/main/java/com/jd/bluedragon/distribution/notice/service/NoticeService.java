@@ -36,7 +36,7 @@ public interface NoticeService {
      * @param request
      * @param userErp
      */
-    void addAndUploadFile(MultipartFile[] files, NoticeRequest request, String userErp) throws IOException;
+    void addAndUploadFile(List<MultipartFile> files, NoticeRequest request, String userErp) throws IOException;
 
     /**
      * 根据id列表删除

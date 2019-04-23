@@ -83,12 +83,14 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public void addAndUploadFile(MultipartFile[] files, NoticeRequest request, String userErp) throws IOException {
+    public void addAndUploadFile(List<MultipartFile> files, NoticeRequest request, String userErp) throws IOException {
         Notice notice = this.getNotice(request, userErp);
         // 新增
         this.add(notice);
-        // 上传附件
-        this.batchUploadFile(files, notice.getId());
+        if (files != null && files.size() > 0) {
+            // 上传附件
+            this.batchUploadFile(files, notice.getId());
+        }
     }
 
     /**
@@ -98,9 +100,9 @@ public class NoticeServiceImpl implements NoticeService {
      * @return
      * @throws IOException
      */
-    private void batchUploadFile(MultipartFile[] files, Long noticeId) throws IOException {
+    private void batchUploadFile(List<MultipartFile> files, Long noticeId) throws IOException {
         int index = 0;
-        List<NoticeAttachment> attachments = new ArrayList<>(files.length);
+        List<NoticeAttachment> attachments = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
             String fileName = file.getOriginalFilename();
             String keyName = this.getKeyName(index, this.getFileExtName(fileName));

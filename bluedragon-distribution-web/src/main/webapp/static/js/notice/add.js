@@ -8,8 +8,8 @@ $(function () {
 
     var saveInfoUrl = '/notice/add';
 
-    // 20M
-    var fileMaxSize = 20 * 1024 * 1024;
+    // 5M
+    var fileMaxSize = 5 * 1024 * 1024;
 
     /*****************************************/
     /*组件*/
@@ -86,9 +86,9 @@ $(function () {
 
     initPageFunc();
 
-    var submitFormData = function (formData) {
+    var submitFormData = function (formData, blocker) {
         $.ajax({
-            type: 'post',
+            type: 'POST',
             data: formData,
             url: saveInfoUrl,
             async: false,
@@ -96,7 +96,7 @@ $(function () {
             dataType: 'json',
             contentType: false,
             processData: false,
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
+            error: function (XMLHttpRequest, status, errorThrown) {
                 $.msg.error("新增通知失败！", "");
                 console.log('XMLHttpRequest:' + XMLHttpRequest);
                 console.log('status:' + status);
@@ -122,25 +122,22 @@ $(function () {
     /*****************************************/
     /*新增*/
     $('#btn_add').click(function () {
+        var blocker = $.pageBlocker.block();
         /*进行查询参数校验*/
         var flag = $.formValidator.isValid('add-form');
         if (flag == true) {
             $.msg.confirm('确认新增吗？', function () {
-                var blocker = $.pageBlocker.block();
-
                 var formData = new FormData();
                 var files = $('#importFiles')[0].files;
                 if (files.length > 5) {
                     $.msg.error("新增失败！", "附件数量不能超过5个");
-                    $.pageBlocker.close(blocker);
                     return;
                 }
 
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     if (file.size > fileMaxSize) {
-                        $.msg.error("新增失败！", "每个附件大小不能超过20M");
-                        $.pageBlocker.close(blocker);
+                        $.msg.error("新增失败！", "每个附件大小不能超过5M");
                         return;
                     }
                     formData.append("files", files[i]);
@@ -149,9 +146,9 @@ $(function () {
                 var formParams = $.formHelper.serialize('add-form');
                 var formJson = JSON.stringify(formParams);
                 formData.append("noticeRequest", formJson);
-                submitFormData(formData);
-                $.pageBlocker.close(blocker);
+                submitFormData(formData, blocker);
             });
+            $.pageBlocker.close(blocker);
         } else {
             $.msg.warn('参数有误', '请您检查服务器信息是否有误');
         }
