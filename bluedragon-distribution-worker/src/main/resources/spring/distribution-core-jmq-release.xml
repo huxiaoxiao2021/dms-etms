@@ -349,8 +349,7 @@
     </bean>
 
     <!-- 冷链发货 -->
-    <bean id="dmsColdChainSendWaybill" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
-        <property name="timeout" value="1000"/>
     </bean>
 </beans>
