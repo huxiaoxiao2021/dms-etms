@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>批次异常单排查</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+	#parse("system/common/baseImport.vm")
+    <script type="text/javascript">
+        document.write("<sc"+"ript type='text/javascript' src='/static/js/exception/sendCodeHandler.js?_t="
+                + new Date().valueOf() + "'></sc"+"ript>");
+    </script>
+
+</head>
+<body>
+    <ol class="breadcrumb">
+        <li><a href="#">异常处理</a></li>
+        <li><a href="/exception/sendCodeHandler/index">批次异常单排查</a></li>
+    </ol>
+
+    <div id="query-condition">
+        <form id="query-form" class="form-horizontal">
+            <fieldset>
+                <div class="form-group">
+                    <label class="control-label col-xs-2 " for="barCode">运单号</label>
+                    <div class=" col-xs-4">
+                        <input type="text" id="barCode" class="form-control" placeholder="扫单号查询该单所在的批次">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label col-xs-2 " for="sendCode">批次号</label>
+                    <div class=" col-xs-4">
+                        <input type="text" id="sendCode" class="form-control" placeholder="扫描接受到的批次号">
+                    </div>
+                </div>
+
+                <div class="form-group" >
+                    <label class="control-label col-xs-2" for="box-code-input">批次号待查列表</label>
+                    <div class="col-xs-4 ">
+                        <div class="panel panel-primary form-control" title="1">1</div>
+                        <div class="panel panel-default form-control" title="2">2</div>
+                        <div class="panel panel-default form-control" title="3">3</div>
+                        <div class="panel panel-default form-control" title="4">4</div>
+                        <div class="panel panel-default form-control" title="5">5</div>
+                    </div>
+                </div>
+
+                <div class="form-group" >
+                    <div class="col-xs-4 col-xs-offset-2">
+                        <span>提示：每行一个批次，最多5个批次</span>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-primary">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
+        </button>
+    </div>
+
+    <hr/>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="well text-center" style="background-color: #F2F2F2">
+                    <h4><Strong>批次号总单量</Strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <abbr title="批次号内包含的所有箱号的总数量">
+                                    箱号<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="批次号内包含的所有未建箱包裹号的总数量">
+                                    箱外包裹<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="批次号内包含的箱号里包裹加未建箱包裹的总数量">
+                                    总包裹<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="well text-center" style="background-color: #F2F2F2">
+                    <h4><Strong>批次已操作</Strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href="/exception/sendCodeHandler/detailPager"><span class="badge">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <abbr title="箱号或箱号里的包裹，操作了收货、验货、分拣建箱、发货任意一个动作则为已操作">
+                                    箱号<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="未建箱的包裹号，操作了收货、验货、分拣建箱、发货任意一个动作则为已操作">
+                                    箱外包裹<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="箱号里包裹加未建箱包裹，操作了收货、验货、分拣建箱、发货任意一个动作则为已操作">
+                                    总包裹<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="well text-center">
+                    <h4><strong>批次未操作</strong></h4>
+                    <div class="thumbnail">
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <a href=""><span class="badge" style="color: red">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                            <div class="col-md-4">
+                                <a href=""><span class="badge">0</span></a>
+                            </div>
+                        </div>
+                        <br/>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <abbr title="箱号或箱号里的包裹，没操作收货、验货、分拣建箱、发货任意一个动作则为未操作">
+                                    箱号<span class="glyphicon glyphicon-question-sign" aria-hidden="true"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="未建箱的包裹号，没操作过收货、验货、分拣建箱、发货任意一个动作则为未操作">
+                                    箱外包裹<span class="glyphicon glyphicon-question-sign"/>
+                                </abbr>
+                            </div>
+                            <div class="col-md-4">
+                                <abbr title="箱号里包裹加未建箱包裹，没操作过收货、验货、分拣建箱、发货任意一个动作则为未操作">
+                                    总包裹<span class="glyphicon glyphicon-question-sign"/>
+                                </abbr>
+                            </div>
+                        </div>
+                        <br/>
+                    </div>
+                    <br/>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
