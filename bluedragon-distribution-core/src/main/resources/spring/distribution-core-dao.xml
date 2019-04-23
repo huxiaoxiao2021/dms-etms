@@ -485,4 +485,9 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 备件库分拣记录 -->
+    <bean id="spareSortingRecordDao" class="com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

@@ -290,5 +290,8 @@
         <!-- 揽收重量校验 -->
         <mapper resource="mappers/mysql/receive/ReceivedWeightCheckMapper.xml"/>
 
+        <!-- 备件库分拣记录 -->
+        <mapper resource="mappers/mysql/spare/SpareSortingRecordMapper.xml"/>
+
     </mappers>
 </configuration>
