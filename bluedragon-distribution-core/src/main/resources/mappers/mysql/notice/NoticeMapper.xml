@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.notice.dao.NoticeDao">
+
+    <resultMap id="notice" type="com.jd.bluedragon.distribution.notice.domain.Notice">
+        <result column="id" property="id"/>
+        <result column="theme" property="theme"/>
+        <result column="level" property="level"/>
+        <result column="type" property="type"/>
+        <result column="upload_time" property="uploadTime"/>
+        <result column="is_display" property="isDisplay"/>
+        <result column="is_top_display" property="isTopDisplay"/>
+        <result column="content" property="content"/>
+        <result column="create_user" property="createUser"/>
+        <result column="update_user" property="updateUser"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_delete" property="isDelete"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        theme,
+        level,
+        type,
+        upload_time,
+        is_display,
+        is_top_display,
+        content,
+        create_user,
+        update_user,
+        create_time,
+        update_time,
+        is_delete
+    </sql>
+
+    <insert id="add" parameterType="Notice" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO notice(
+		    id,
+		    theme,
+		    level,
+		    type,
+		    upload_time,
+		    is_display,
+		    is_top_display,
+		    content,
+		    create_user,
+		    update_user,
+		    create_time,
+		    update_time,
+		    is_delete
+		    )
+		VALUES(
+		    #{id, jdbcType=BIGINT},
+		    #{theme, jdbcType=VARCHAR},
+		    #{level, jdbcType=TINYINT},
+			#{type, jdbcType=TINYINT},
+			#{uploadTime, jdbcType=TIMESTAMP},
+			#{isDisplay, jdbcType=TINYINT},
+			#{isTopDisplay, jdbcType=TINYINT},
+			#{content, jdbcType=VARCHAR},
+			#{createUser, jdbcType=VARCHAR},
+			#{updateUser, jdbcType=VARCHAR},
+			NOW(),
+			NOW(),
+			0
+		)
+	</insert>
+
+    <select id="getByParam" resultMap="notice" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice
+        WHERE is_delete = 0
+        AND is_display = 1
+        ORDER BY is_top_display desc, create_time desc
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <update id="logicDelete" parameterType="java.util.Map">
+        UPDATE notice
+        SET
+        is_delete = 1,
+        <if test="updateUser != null">
+            update_user = #{updateUser, jdbcType=VARCHAR},
+        </if>
+        update_time = NOW()
+        WHERE
+        is_delete = 0
+        AND id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>	
