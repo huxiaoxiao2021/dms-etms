@@ -64,7 +64,7 @@
                     <div class="form-group">
                         <label for="importFiles">选择上传附件</label>
                         <input type="file" id="importFiles" name="importFiles" multiple="multiple"/>
-                        <p class="help-block">附件数量不得超过5个，每个附件大小不能超过5M</p>
+                        <p class="help-block">按住Ctrl键可选择多个附件，数量不得超过5个，每个大小不能超过5M</p>
                     </div>
                 </div>
             </fieldset>
