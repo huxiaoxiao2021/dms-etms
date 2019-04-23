@@ -308,24 +308,24 @@ public class ReverseSpareServiceImpl implements ReverseSpareService {
     * 保存备件库分拣记录
     * */
     private void insertSpareSortingRecord(ReverseSpareRequest reverseSpareRequest) {
-	    //组装实体
         SpareSortingRecord spareSortingRecord = new SpareSortingRecord();
-        spareSortingRecord.setBoxCode(reverseSpareRequest.getBoxCode());
-        spareSortingRecord.setWaybillCode(reverseSpareRequest.getWaybillCode());
-        spareSortingRecord.setCreateSiteCode(reverseSpareRequest.getSiteCode());
-        spareSortingRecord.setCreateSiteName(reverseSpareRequest.getSiteName());
-        spareSortingRecord.setReceiveSiteCode(reverseSpareRequest.getReceiveSiteCode());
-        spareSortingRecord.setReceiveSiteName(reverseSpareRequest.getReceiveSiteName());
-        spareSortingRecord.setDutyCode(reverseSpareRequest.getDutyCode());
-        spareSortingRecord.setDutyName(reverseSpareRequest.getDutyName());
-        spareSortingRecord.setSpareReason(reverseSpareRequest.getSpareReason());
-        spareSortingRecord.setCreateUser(reverseSpareRequest.getUserName());
-        spareSortingRecord.setCreateUserCode(reverseSpareRequest.getUserCode());
-        spareSortingRecord.setCreateTime(new Date());
         try {
+            //组装实体
+            spareSortingRecord.setBoxCode(reverseSpareRequest.getBoxCode());
+            spareSortingRecord.setWaybillCode(reverseSpareRequest.getWaybillCode());
+            spareSortingRecord.setCreateSiteCode(reverseSpareRequest.getSiteCode());
+            spareSortingRecord.setCreateSiteName(reverseSpareRequest.getSiteName());
+            spareSortingRecord.setReceiveSiteCode(reverseSpareRequest.getReceiveSiteCode());
+            spareSortingRecord.setReceiveSiteName(reverseSpareRequest.getReceiveSiteName());
+            spareSortingRecord.setDutyCode(reverseSpareRequest.getDutyCode());
+            spareSortingRecord.setDutyName(reverseSpareRequest.getDutyName());
+            spareSortingRecord.setSpareReason(reverseSpareRequest.getSpareReason());
+            spareSortingRecord.setCreateUser(reverseSpareRequest.getUserName());
+            spareSortingRecord.setCreateUserCode(reverseSpareRequest.getUserCode());
+            spareSortingRecord.setCreateTime(new Date());
             spareSortingRecordDao.insert(spareSortingRecord);
         } catch (Exception e) {
-            logger.error("保存备件库分拣记录失败！", e);
+            logger.error("保存备件库分拣记录失败！" + JsonHelper.toJson(spareSortingRecord), e);
         }
 
     }
