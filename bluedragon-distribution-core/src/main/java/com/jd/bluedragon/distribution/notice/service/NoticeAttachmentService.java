@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.notice.service;
 
+import com.jd.bluedragon.distribution.notice.domain.AttachmentDownloadDto;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -41,10 +40,8 @@ public interface NoticeAttachmentService {
      * 附件下载
      *
      * @param attachmentId
-     * @param response
-     * @throws IOException
      */
-    void download(Long attachmentId, HttpServletResponse response) throws IOException;
+    AttachmentDownloadDto download(Long attachmentId);
 
     /**
      * 删除附件

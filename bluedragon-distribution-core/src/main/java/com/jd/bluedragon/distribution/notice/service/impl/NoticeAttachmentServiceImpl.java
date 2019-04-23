@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.notice.service.impl;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.notice.dao.NoticeAttachmentDao;
+import com.jd.bluedragon.distribution.notice.domain.AttachmentDownloadDto;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
 import com.jd.bluedragon.distribution.notice.service.NoticeAttachmentService;
 import org.apache.commons.lang.StringUtils;
@@ -11,11 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,16 +60,18 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
     }
 
     @Override
-    public void download(Long attachmentId, HttpServletResponse response) throws IOException {
+    public AttachmentDownloadDto download(Long attachmentId) {
         NoticeAttachment attachment = this.getById(attachmentId);
         if (attachment != null) {
+            AttachmentDownloadDto dto = new AttachmentDownloadDto();
             String keyName = attachment.getKeyName();
             if (StringUtils.isNotEmpty(keyName)) {
-                InputStream inputStream = jssService.downloadFile(bucket, keyName);
-                response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(attachment.getFileName(), "UTF-8"));
-                this.writeResponse(inputStream, response.getOutputStream());
+                dto.setInputStream(jssService.downloadFile(bucket, keyName));
+                dto.setFileName(attachment.getFileName());
             }
+            return dto;
         }
+        return null;
     }
 
     @Override
@@ -97,19 +95,6 @@ public class NoticeAttachmentServiceImpl implements NoticeAttachmentService {
             }
         }
         return 0;
-    }
-
-    private void writeResponse(InputStream is, OutputStream os) {
-        try {
-            byte[] b = new byte[1024];
-            int i;
-            while ((i = is.read(b)) > 0) {
-                os.write(b, 0, i);
-            }
-            os.flush();
-        } catch (Exception e) {
-            logger.error("导出失败", e);
-        }
     }
 
 }

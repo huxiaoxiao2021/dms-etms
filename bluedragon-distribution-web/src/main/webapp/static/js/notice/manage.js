@@ -41,31 +41,14 @@ $(function () {
                 visible: false
             }, {
                 field: 'theme',
-                title: '主题'
-            }, {
-                field: 'attachment',
-                title: '附件信息',
-                formatter: function (value, row, index) {
-                    return '<a class="attachment" href="javascript:void(0)" ><i class="glyphicon glyphicon-file"></i>&nbsp;附件信息&nbsp;</a>';
-                },
-                events: {
-                    'click .attachment': function (e, value, row, index) {
-                        layer.open({
-                            id: 'attachmentFrame',
-                            type: 2,
-                            title: '附件信息',
-                            shadeClose: true,
-                            shade: 0.7,
-                            shadeClose: false,
-                            maxmin: true,
-                            area: ['1000px', '600px'],
-                            content: attachmentPageUrl + row.id
-                        });
-                    }
-                }
+                title: '主题',
+                align: 'center',
+                width: 300
             }, {
                 field: 'typeText',
-                title: '类型'
+                title: '类型',
+                align: 'center',
+                width: 50
             }, {
                 field: 'level',
                 title: '级别',
@@ -77,7 +60,9 @@ $(function () {
                     } else {
                         return row.levelText;
                     }
-                }
+                },
+                align: 'center',
+                width: 50
             }, {
                 field: 'isTopDisplay',
                 title: '置顶',
@@ -87,7 +72,9 @@ $(function () {
                     } else {
                         return '-';
                     }
-                }
+                },
+                align: 'center',
+                width: 50
             }, {
                 field: 'uploadTime',
                 title: '上传时间',
@@ -97,7 +84,32 @@ $(function () {
                     } else {
                         return $.dateHelper.formatDateTime(new Date(value));
                     }
-                }
+                },
+                align: 'center',
+                width: 100
+            }, {
+                field: 'attachment',
+                title: '附件信息',
+                formatter: function (value, row, index) {
+                    return '<a class="attachment" href="javascript:void(0)" ><i class="glyphicon glyphicon-file"></i>&nbsp;附件&nbsp;</a>';
+                },
+                events: {
+                    'click .attachment': function (e, value, row, index) {
+                        layer.open({
+                            id: 'attachmentFrame',
+                            type: 2,
+                            title: '附件信息',
+                            shadeClose: true,
+                            shade: 0.7,
+                            shadeClose: false,
+                            maxmin: true,
+                            area: ['800px', '450px'],
+                            content: attachmentPageUrl + row.id
+                        });
+                    }
+                },
+                align: 'center',
+                width: 50
             }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refresh');

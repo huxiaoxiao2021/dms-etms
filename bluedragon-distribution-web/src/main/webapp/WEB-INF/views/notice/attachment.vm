@@ -22,15 +22,16 @@
     </style>
 </head>
 <body>
-<div id="main" style="margin-left: 10px;">
+<div id="main" style="margin-left: 10px;margin-right: 10px;">
     <div id="query-form-wrapper" style="margin-left: 20px; margin-top: 30px; display: none">
         <form id="query-form" method="post">
             <div class="form-group">
-                <input type="input" id="notice-id" class="form-control" name="noticeId" readonly="readonly" value=$!{noticeId}>
+                <input type="input" id="notice-id" class="form-control" name="noticeId" readonly="readonly"
+                       value=$!{noticeId}>
             </div>
         </form>
     </div>
-    <table id="dataTable"></table>
+    <table id="dataTable" data-classes="table table-no-border"></table>
 </div>
 </body>
 </html>

@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.web.notice;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.basic.FileUtils;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
+import com.jd.bluedragon.distribution.notice.domain.AttachmentDownloadDto;
 import com.jd.bluedragon.distribution.notice.domain.Notice;
 import com.jd.bluedragon.distribution.notice.domain.NoticeAttachment;
 import com.jd.bluedragon.distribution.notice.request.NoticeAttachmentRequest;
@@ -31,6 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -128,7 +131,14 @@ public class NoticeController {
         try {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
-                this.noticeAttachmentService.download(attachmentId, response);
+                AttachmentDownloadDto downloadDto = this.noticeAttachmentService.download(attachmentId);
+                if (downloadDto != null && downloadDto.getInputStream() != null) {
+                    response.addHeader("content-disposition", "attachment;filename=" + URLEncoder.encode(downloadDto.getFileName(), "UTF-8"));
+                    FileUtils.write(downloadDto.getInputStream(), response.getOutputStream());
+                } else {
+                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                    result.setMessage("参数错误，附件不存在，下载失败");
+                }
             } else {
                 result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                 result.setMessage("获取当前登录用户信息失败，请重新登录ERP后尝试");

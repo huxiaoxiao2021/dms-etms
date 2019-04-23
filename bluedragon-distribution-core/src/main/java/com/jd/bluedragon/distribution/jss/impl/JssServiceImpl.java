@@ -33,7 +33,6 @@ public class JssServiceImpl implements JssService {
         try {
             JingdongStorageService jss = jssStorageClient.getStorageService();
             jss.bucket(bucket).object(keyName).entity(length, inputStream).put();
-            inputStream.close();
             logger.info(MessageFormat.format("[JSS存储服务]上传文件成功keyName:{0},length:{1}", keyName, length));
         } catch (Exception e) {
             logger.error("[JSS存储服务]上传文件异常：", e);

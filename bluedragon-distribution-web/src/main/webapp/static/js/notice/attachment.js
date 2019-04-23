@@ -10,7 +10,7 @@ $(function () {
                 url: queryUrl, // 请求后台的URL（*）
                 queryParams: oTableInit.getSearchParams, // 查询参数（*）
                 method: 'post', // 请求方式（*）
-                height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
+                //height: 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
                 uniqueId: "ID", // 每一行的唯一标识，一般为主键列
                 pagination: false, // 是否显示分页（*）
                 cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
