@@ -172,13 +172,25 @@ $(function () {
                 return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
             }
         },{
+            field: 'isHasPicture',
+            title: '有无图片',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == 1 ? "有" : "无";
+            }
+        },{
             field: 'upPicture',
             title: '照片上传',
             align: 'center',
             formatter : function (value, row, index) {
-                return '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
-                        '<br/>' +
-                    '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>';
+                var flage;
+                if(row.isHasPicture == 0){
+                    flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
+                        '<br/>'
+                }else{
+                    flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
+                }
+                return flage;
             },
             events: {
                 'click .upLoad': function(e, value, row, index) {

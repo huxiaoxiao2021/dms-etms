@@ -2,8 +2,12 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @ClassName: WeightAndVolumeCheckService
@@ -37,4 +41,18 @@ public interface WeightAndVolumeCheckService {
      * @param siteCode
      */
     void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq,Integer siteCode);
+
+    /**
+     * 根据条件查询
+     * @param condition
+     * @return
+     */
+    PagerResult<WeightAndVolumeCheck> queryByCondition(WeightAndVolumeCheckCondition condition);
+
+    /**
+     * 导出
+     * @param condition
+     * @return
+     */
+    List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition);
 }

@@ -96,6 +96,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<WeightAndVolumeCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
+        //TODO 页面查询
+//        PagerResult<WeightAndVolumeCheck> result = weightAndVolumeCheckService.queryByCondition(condition);
         PagerResult<WeightAndVolumeCheck> result = receiveWeightCheckService.queryByCondition(condition);
         return result;
     }
@@ -108,15 +110,15 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/toExport", method = RequestMethod.POST)
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
-        this.logger.info("导出揽收重量校验统计表");
+        this.logger.info("导出重量体积抽验统计表");
         try{
-            List<List<Object>> resultList = receiveWeightCheckService.getExportData(condition);
-            model.addAttribute("filename", "揽收重量统计校验表.xls");
-            model.addAttribute("sheetname", "揽收重量统计校验结果");
+            List<List<Object>> resultList = weightAndVolumeCheckService.getExportData(condition);
+            model.addAttribute("filename", "重量体积抽验统计表.xls");
+            model.addAttribute("sheetname", "重量体积抽验统计结果");
             model.addAttribute("contents", resultList);
             return new ModelAndView(new DefaultExcelView(), model.asMap());
         }catch (Exception e){
-            this.logger.error("导出揽收重量统计校验表失败:" + e.getMessage(), e);
+            this.logger.error("导出重量体积抽验统计表失败:" + e.getMessage(), e);
             return null;
         }
     }

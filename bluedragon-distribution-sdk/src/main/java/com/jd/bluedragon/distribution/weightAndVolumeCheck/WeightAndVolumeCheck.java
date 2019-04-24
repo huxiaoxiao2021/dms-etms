@@ -50,8 +50,12 @@ public class WeightAndVolumeCheck extends DbEntity {
     private String reviewLwh;
     /** 复核体积cm */
     private Double reviewVolume;
+    /** 计费操作区域编码 */
+    private Integer billingOperateOrgCode;
     /** 计费操作区域 */
     private String billingOperateOrg;
+    /** 计费操作机构编码 */
+    private Integer billingOperateDepartmentCode;
     /** 计费操作机构 */
     private String billingOperateDepartment;
     /** 计费操作人ERP */
@@ -68,6 +72,10 @@ public class WeightAndVolumeCheck extends DbEntity {
     private String diffStandard;
     /** 是否超标 */
     private Integer isExcess;
+    /** 是否有图片 */
+    private Integer isHasPicture;
+    /** 图片链接 */
+    private String pictureAddress;
     /** 是否有效 1：有效 0：无效 */
     private Integer isDelete;
     /** 默认时间 */
@@ -81,6 +89,38 @@ public class WeightAndVolumeCheck extends DbEntity {
     @Override
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Integer getBillingOperateOrgCode() {
+        return billingOperateOrgCode;
+    }
+
+    public void setBillingOperateOrgCode(Integer billingOperateOrgCode) {
+        this.billingOperateOrgCode = billingOperateOrgCode;
+    }
+
+    public Integer getBillingOperateDepartmentCode() {
+        return billingOperateDepartmentCode;
+    }
+
+    public void setBillingOperateDepartmentCode(Integer billingOperateDepartmentCode) {
+        this.billingOperateDepartmentCode = billingOperateDepartmentCode;
+    }
+
+    public String getPictureAddress() {
+        return pictureAddress;
+    }
+
+    public void setPictureAddress(String pictureAddress) {
+        this.pictureAddress = pictureAddress;
+    }
+
+    public Integer getIsHasPicture() {
+        return isHasPicture;
+    }
+
+    public void setIsHasPicture(Integer isHasPicture) {
+        this.isHasPicture = isHasPicture;
     }
 
     public Double getReviewLength() {

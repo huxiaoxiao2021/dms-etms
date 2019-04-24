@@ -102,6 +102,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -196,6 +197,9 @@ public class WaybillResource {
 	 * 运单路由字段使用的分隔符
 	 */
 	private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
+
+	/** 系统标识 */
+	private static final String DMS = "dms";
 
 
 
@@ -1959,7 +1963,9 @@ public class WaybillResource {
             double billingVolume = 0;
             ResponseDTO<BizDutyDTO> responseDto = businessDetailQueryJsf.queryDutyInfo(waybillCode);
             if(responseDto != null && responseDto.getStatusCode() == 0 && responseDto.getData() != null){
+                weightAndVolumeCheck.setBillingOperateOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()));
                 weightAndVolumeCheck.setBillingOperateOrg(responseDto.getData().getFirstLevelName());
+                weightAndVolumeCheck.setBillingOperateDepartmentCode(Integer.parseInt(responseDto.getData().getSecondLevelId()));
                 weightAndVolumeCheck.setBillingOperateDepartment(responseDto.getData().getSecondLevelName());
                 weightAndVolumeCheck.setBillingOperateErp(responseDto.getData().getDutyErp());
                 weightAndVolumeCheck.setBillingWeight(responseDto.getData().getWeight().doubleValue());
@@ -2033,9 +2039,9 @@ public class WaybillResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        //TODO 将重量体积实体存入es中
+        //TODO 将重量体积实体存入es中(根据包裹号插入或更新 并返回主键id)
 //		receiveWeightCheckService.insert(weightAndVolumeCheck);
-        //TODO 超标给fxm发消息
+        //超标给fxm发消息
         sendMqToFXM(weightAndVolumeCheck);
         return result;
     }
@@ -2047,9 +2053,10 @@ public class WaybillResource {
     private void sendMqToFXM(WeightAndVolumeCheck weightAndVolumeCheck) {
         try{
             AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
+            abnormalResultMq.setAbnormalId(DMS + "_" + weightAndVolumeCheck.getId());
             abnormalResultMq.setFrom(SystemEnum.DMS.getName());
             abnormalResultMq.setTo(SystemEnum.PANZE.getName());
-            abnormalResultMq.setBillCode(weightAndVolumeCheck.getWaybillCode());
+            abnormalResultMq.setBillCode(weightAndVolumeCheck.getPackageCode());
             abnormalResultMq.setReviewDate(new Date());
             abnormalResultMq.setReviewFirstLevelId(weightAndVolumeCheck.getReviewOrgCode());
             abnormalResultMq.setReviewFirstLevelName(weightAndVolumeCheck.getReviewOrg());
@@ -2063,18 +2070,26 @@ public class WaybillResource {
             abnormalResultMq.setReviewWidth(weightAndVolumeCheck.getReviewWidth());
             abnormalResultMq.setReviewHeight(weightAndVolumeCheck.getReviewHeight());
             abnormalResultMq.setReviewVolume(weightAndVolumeCheck.getReviewVolume());
+
+			abnormalResultMq.setFirstLevelId(weightAndVolumeCheck.getBillingOperateOrgCode().toString());
+			abnormalResultMq.setFirstLevelName(weightAndVolumeCheck.getBillingOperateOrg());
+			abnormalResultMq.setSecondLevelId(weightAndVolumeCheck.getBillingOperateDepartmentCode().toString());
+			abnormalResultMq.setSecondLevelName(weightAndVolumeCheck.getBillingOperateDepartment());
+			abnormalResultMq.setWeight(new BigDecimal(weightAndVolumeCheck.getBillingWeight()));
+			abnormalResultMq.setVolume(new BigDecimal(weightAndVolumeCheck.getBillingVolume()));
+
             abnormalResultMq.setDiffStandard(weightAndVolumeCheck.getDiffStandard());
-//            abnormalResultMq.setWeightDiff(weightAndVolumeCheck.getWeightDiff());
-//            abnormalResultMq.setVolumeDiff(weightAndVolumeCheck.getVolumeWeightDiff());
+            abnormalResultMq.setWeightDiff(Double.parseDouble(weightAndVolumeCheck.getWeightDiff()));
+            abnormalResultMq.setVolumeDiff(Double.parseDouble(weightAndVolumeCheck.getVolumeWeightDiff()));
             abnormalResultMq.setIsExcess(weightAndVolumeCheck.getIsExcess());
-            abnormalResultMq.setPictureAddress("");//todo 图片链接
-            abnormalResultMq.setIsAccusation(1);//todo 是否认责
+            abnormalResultMq.setPictureAddress("");
+            abnormalResultMq.setIsAccusation(1);//todo 是否认责待确认
             abnormalResultMq.setOperateUser(weightAndVolumeCheck.getReviewErp());
             abnormalResultMq.setOperateTime(new Date());
 
-            dmsAbnormalInfoMQToFXM.send("",JsonHelper.toJson(abnormalResultMq));
+            dmsAbnormalInfoMQToFXM.send(abnormalResultMq.getBillCode(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
-            this.logger.error("发送查表异常mq给fxm失败" + "" + "失败原因：" + e);
+            this.logger.error("发送查表异常mq给fxm失败" + weightAndVolumeCheck.getPackageCode() + "失败原因：" + e);
         }
     }
 
