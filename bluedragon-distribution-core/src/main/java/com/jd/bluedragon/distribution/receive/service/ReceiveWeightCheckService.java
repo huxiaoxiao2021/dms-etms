@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.receive.service;
 
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.util.List;

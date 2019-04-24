@@ -5,20 +5,22 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.receive.domain.AbnormalPictureMq;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -61,6 +63,10 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Autowired
+    @Qualifier("basicPrimaryWS")
+    private BasicPrimaryWS basicPrimaryWS;
 
     /**
      * 返回主页面
@@ -139,6 +145,20 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     public InvokeResult uploadExcessPicture(@RequestParam("image") MultipartFile image, HttpServletRequest request) {
 
         InvokeResult result = new InvokeResult();
+
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//            String importErpCode = erpUser.getUserCode();
+        String importErpCode = "bjxings";
+        Integer siteCode = -1;
+        try{
+            BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
+            if(baseDto != null){
+                siteCode = baseDto.getSiteCode();
+            }
+        }catch (Exception e){
+            logger.error("通过登陆人erp获取所属分拣中心异常!"+importErpCode);
+        }
+
         long imageSize = image.getSize();
         String imageName = image.getOriginalFilename();
         String[] strArray = imageName.split("\\.");
@@ -169,8 +189,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         String packageCode = request.getParameter("packageCode");
         try {
             String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
-            imageName = imageName.replace(".","_"+ operateTimeForm + ".");
-            imageName = packageCode + "_" + operateTimeForm + "." + suffixName;
+            imageName = packageCode + "_" + siteCode + "_" + operateTimeForm + "." + suffixName;
             //上传到jss
             weightAndVolumeCheckService.uploadExcessPicture(imageName,imageSize,image.getInputStream());
         }catch (Exception e){
@@ -184,7 +203,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
             abnormalPictureMq.setWaybillCode(packageCode);
             abnormalPictureMq.setUploadTime(uploadTime);
-            weightAndVolumeCheckService.sendMqToPanZe(abnormalPictureMq);
+            weightAndVolumeCheckService.sendMqToPanZe(abnormalPictureMq,siteCode);
         }
 
         return result;
@@ -199,9 +218,9 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping(value = "/searchExcessPicture", method = RequestMethod.GET)
     @ResponseBody
     public InvokeResult<String> searchExcessPicture(@QueryParam("packageCode")String packageCode,
-                                            @QueryParam("reviewDate")Long reviewDate) {
+                                            @QueryParam("siteCode")Integer siteCode) {
 
-        return weightAndVolumeCheckService.searchExcessPicture(packageCode);
+        return weightAndVolumeCheckService.searchExcessPicture(packageCode,siteCode);
     }
 
 }

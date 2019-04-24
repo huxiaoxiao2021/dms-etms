@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.receive.domain;
+package com.jd.bluedragon.distribution.weightAndVolumeCheck;
 
 /**
  * @ClassName: SystemEnum

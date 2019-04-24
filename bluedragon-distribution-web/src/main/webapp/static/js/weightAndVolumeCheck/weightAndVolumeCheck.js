@@ -74,81 +74,107 @@ $(function () {
         }, {
             field: 'reviewDate',
             title: '复核日期',
+            align: 'center',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         }, {
             field: 'waybillCode',
-            title: '运单号'
+            title: '运单号',
+            align: 'center'
         },{
             field: 'packageCode',
-            title: '包裹号'
+            title: '包裹号',
+            align: 'center'
         }, {
             field: 'busiName',
-            title: '商家名称'
+            title: '商家名称',
+            align: 'center'
         }, {
             field: 'isTrustBusiName',
             title: '信任商家',
+            align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "是" : "否";
             }
         },{
             field: 'reviewOrg',
-            title: '复核区域'
+            title: '复核区域',
+            align: 'center'
+        }, {
+            field: 'reviewCreateSiteCode',
+            title: '复核分拣',
+            align: 'center',
+            visible: false
         }, {
             field: 'reviewCreateSiteName',
             title: '复核分拣'
         },{
             field: 'mechanismType',
             title: '机构类型',
+            align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "分拣中心" : "转运中心";
             }
         },{
             field: 'reviewErp',
-            title: '复核人erp'
+            title: '复核人erp',
+            align: 'center'
         },{
             field: 'reviewWeight',
-            title: '分拣复重kg'
+            title: '分拣复重kg',
+            align: 'center'
         },{
             field: 'reviewLwh',
-            title: '复核长宽高cm'
+            title: '复核长宽高cm',
+            align: 'center'
         },{
             field: 'reviewVolume',
-            title: '复核体积cm³'
+            title: '复核体积cm³',
+            align: 'center'
         },{
             field: 'billingOperateOrg',
-            title: '计费操作区域'
+            title: '计费操作区域',
+            align: 'center'
         },{
             field: 'billingOperateDepartment',
-            title: '计费操作机构'
+            title: '计费操作机构',
+            align: 'center'
         },{
             field: 'billingOperateErp',
-            title: '计费操作人ERP'
+            title: '计费操作人ERP',
+            align: 'center'
         },{
             field: 'billingWeight',
-            title: '计费重量'
+            title: '计费重量',
+            align: 'center'
         },{
             field: 'billingVolume',
-            title: '计费体积'
+            title: '计费体积',
+            align: 'center'
         },{
             field: 'weightDiff',
-            title: '重量差异'
+            title: '重量差异',
+            align: 'center'
         },{
             field: 'volumeWeightDiff',
-            title: '体积重量差异'
+            title: '体积重量差异',
+            align: 'center'
         },{
             field: 'diffStandard',
-            title: '误差标准值'
+            title: '误差标准值',
+            align: 'center'
         },{
             field: 'isExcess',
             title: '是否超标',
+            align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
             }
         },{
             field: 'upPicture',
             title: '照片上传',
+            align: 'center',
             formatter : function (value, row, index) {
                 return '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                         '<br/>' +
@@ -173,7 +199,7 @@ $(function () {
                 'click .search': function(e, value, row, index) {
                     $.ajax({
                         type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode,
+                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewCreateSiteCode,
                         data : {},
                         async : false,
                         success : function (data) {

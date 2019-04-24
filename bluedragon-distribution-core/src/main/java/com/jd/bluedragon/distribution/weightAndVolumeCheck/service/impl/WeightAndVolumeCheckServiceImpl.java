@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.weightAndVolumeCheck.impl;
+package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.jcloud.jss.JingdongStorageService;
 import com.jcloud.jss.client.Request;
@@ -9,8 +9,8 @@ import com.jcloud.jss.service.BucketService;
 import com.jcloud.jss.service.ObjectService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.receive.domain.AbnormalPictureMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckService;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import org.apache.commons.lang.StringUtils;
@@ -92,7 +92,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     @Override
-    public InvokeResult<String> searchExcessPicture(String packageCode) {
+    public InvokeResult<String> searchExcessPicture(String packageCode,Integer siteCode) {
 
         InvokeResult<String> result = new InvokeResult<String>();
         try{
@@ -113,8 +113,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     }
                 }
             }
-            //获取最近时间的图片路径并返回
-            String excessPictureUrl = getRecentUrl(urls);
+            //获取最近的对应的图片并返回
+            String excessPictureUrl = getRecentUrl(urls,siteCode);
             if("".equals(excessPictureUrl)){
                 result.parameterError("图片未上传!"+packageCode);
                 return result;
@@ -127,30 +127,40 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         return result;
     }
 
-    private String getRecentUrl(List<String> urls){
+    private String getRecentUrl(List<String> urls,Integer siteCode){
         String recentUrl = "";
         try{
             if(urls.size() == 0){
                 return recentUrl;
             }else if(urls.size() == 1){
-                return urls.get(0);
+                String[] packageCodeAndOperateTimes = getArrayByUrl(urls.get(0));
+                if(packageCodeAndOperateTimes.length == 3){
+                    return urls.get(0);
+                }
+                return recentUrl;
             }else{
 
                 Map<String,Long> map = new HashMap<>();
                 for(String url : urls){
-                    String[] splits = url.split("/");
-                    String pictureName = splits[splits.length - 1];
-                    String[] pictureNames = pictureName.split("\\.");
-                    String pictureNamePrefix = pictureNames[0];
-                    String[] packageCodeAndOperateTimes = pictureNamePrefix.split("_");
-                    String operateTime = packageCodeAndOperateTimes[packageCodeAndOperateTimes.length - 1];
-                    long l = Long.parseLong(operateTime);
-                    map.put(url,l);
+                    String[] packageCodeAndOperateTimes = getArrayByUrl(url);
+                    String operateTime = "";
+                    if(packageCodeAndOperateTimes.length == 3){
+                        String siteCodeFromOSS = packageCodeAndOperateTimes[1];
+                        if(siteCodeFromOSS.equals(siteCode)){
+                            operateTime = packageCodeAndOperateTimes[packageCodeAndOperateTimes.length - 1];
+                        }
+                    }else{
+                        break;
+                    }
+                    if(!"".equals(operateTime)){
+                        long l = Long.parseLong(operateTime);
+                        map.put(url,l);
+                    }
                 }
                 Object[] objects = map.values().toArray();
                 Arrays.sort(objects);
                 for(String url : map.keySet()){
-                    if(map.get(url) == objects[0]){
+                    if(map.get(url) == objects[objects.length-1]){
                         recentUrl = url;
                         break;
                     }
@@ -164,15 +174,24 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     }
 
+    private String[]  getArrayByUrl(String url) {
+        String[] splits = url.split("/");
+        String pictureName = splits[splits.length - 1];
+        String[] pictureNames = pictureName.split("\\.");
+        String pictureNamePrefix = pictureNames[0];
+        return pictureNamePrefix.split("_");
+    }
+
 
     /**
      * 上传异常照片的同时给判责发消息
      * @param abnormalPictureMq
+     * @param siteCode
      */
-    public void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq){
+    public void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq,Integer siteCode){
         try{
-            abnormalPictureMq.setAbnormalId("");
-            InvokeResult<String> result = searchExcessPicture(abnormalPictureMq.getWaybillCode());
+            abnormalPictureMq.setAbnormalId("");    //TODO 根据运单号从es中获取异常id（主键）
+            InvokeResult<String> result = searchExcessPicture(abnormalPictureMq.getWaybillCode(),siteCode);
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
                 abnormalPictureMq.setExcessPictureAddress(result.getData());
             }else{

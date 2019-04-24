@@ -6,12 +6,12 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.receive.domain.ReviewWeightSpotCheck;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck;
-import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -48,7 +48,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private ReceiveWeightCheckService receiveWeightCheckService;
+    private ReviewWeightSpotCheckService reviewWeightSpotCheckService;
 
     /**
      * 返回主页面
@@ -80,16 +80,17 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
-    public PagerResult<WeightAndVolumeCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
+    public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        PagerResult<WeightAndVolumeCheck> result = new PagerResult<WeightAndVolumeCheck>();
+        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition);
 
         Integer num = 3;
-        List<WeightAndVolumeCheck> list = new ArrayList<WeightAndVolumeCheck>();
-        WeightAndVolumeCheck weightAndVolumeCheck = new WeightAndVolumeCheck();
-        list.add(weightAndVolumeCheck);
+        List<ReviewWeightSpotCheck> list = new ArrayList<ReviewWeightSpotCheck>();
+        ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+        list.add(reviewWeightSpotCheck);
         result.setRows(list);
         result.setTotal(num);
+
 
         return result;
     }
@@ -105,28 +106,24 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         logger.debug("uploadExcelFile begin...");
         JdResponse response = new JdResponse();
         try {
-        String fileName = file.getOriginalFilename();
-        if (!fileName.endsWith("xlsx")) {
-            return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
-        }
-
-        DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
-        List<ReviewWeightSpotCheck> dataList = dataResolver.resolver(file.getInputStream(), ReviewWeightSpotCheck.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
-        String errorMessage = checkExportData(dataList);
-
-
+            String fileName = file.getOriginalFilename();
+            if (!fileName.endsWith("xlsx")) {
+                return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
+            }
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+//            String importErpCode = erpUser.getUserCode();
+            String importErpCode = "bjxings";
+            DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
+            List<SpotCheckInfo> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckInfo.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
+            String errorMessage = reviewWeightSpotCheckService.checkExportData(dataList,importErpCode);
+            if (!"".equals(errorMessage)) {
+                return new JdResponse(JdResponse.CODE_FAIL, errorMessage);
+            }
         } catch (Exception e) {
-            this.logger.error("导入失败!");
+            this.logger.error("导入异常!");
+            return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
-
-
         return response;
-
-    }
-
-    private String checkExportData(List<ReviewWeightSpotCheck> dataList) {
-
-        return null;
     }
 
     /**
@@ -139,7 +136,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
         this.logger.info("分拣复重抽查任务统计表");
         try{
-            List<List<Object>> resultList = receiveWeightCheckService.getExportData(condition);
+            List<List<Object>> resultList = reviewWeightSpotCheckService.getExportData(condition);
             model.addAttribute("filename", "分拣复重抽检任务统计表.xls");
             model.addAttribute("sheetname", "分拣复重抽检任务统计结果");
             model.addAttribute("contents", resultList);

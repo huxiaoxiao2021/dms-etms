@@ -290,5 +290,8 @@
         <!-- 揽收重量校验 -->
         <mapper resource="mappers/mysql/receive/ReceivedWeightCheckMapper.xml"/>
 
+        <!-- 分拣复重抽检任务统计 -->
+        <mapper resource="mappers/mysql/weightAndVolume/ReviewWeightSpotCheckMapper.xml"/>
+
     </mappers>
 </configuration>

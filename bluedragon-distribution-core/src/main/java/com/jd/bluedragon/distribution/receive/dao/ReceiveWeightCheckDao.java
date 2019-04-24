@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.receive.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition;
-import com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 
 import java.util.List;
 

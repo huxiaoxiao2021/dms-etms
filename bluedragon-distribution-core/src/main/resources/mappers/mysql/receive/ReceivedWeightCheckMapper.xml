@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao">
 
-	<resultMap id="weightAndVolumeCheck" type="com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck" >
+	<resultMap id="weightAndVolumeCheck" type="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="review_date" property="reviewDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -35,7 +35,7 @@
 		ts
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck">
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck">
 		insert into review_collect_weight
 		(
 		<trim suffixOverrides=",">
@@ -204,7 +204,7 @@
 		</if>
 	</sql>
 
-	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition" resultMap="weightAndVolumeCheck">
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition" resultMap="weightAndVolumeCheck">
 		select 
 		 <include refid="Base_Column_List"/>
 		from
@@ -218,7 +218,7 @@
 		</if>
 	</select>
 
-	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheckCondition"
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition"
 			resultType="Integer">
 		select
 		count(1) as num
@@ -240,7 +240,7 @@
 		limit 1
 	</select>
 
-	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.receive.domain.WeightAndVolumeCheck" timeout="3">
+	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck" timeout="3">
 		UPDATE review_collect_weight
 		<set>
 			<if test="reviewDate != null">

@@ -80,54 +80,69 @@ $(function () {
         }, {
             field: 'reviewDate',
             title: '复核日期',
+            align: 'center',
             formatter : function(value,row,index){
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         }, {
             field: 'reviewOrg',
-            title: '复核区域'
+            title: '复核区域',
+            align: 'center'
         },{
             field: 'reviewMechanismType',
             title: '机构类型',
+            align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "分拣中心" : "转运中心";
             }
         }, {
             field: 'reviewSiteName',
-            title: '机构名称'
+            title: '机构名称',
+            align: 'center'
         }, {
             field: 'normalPackageNum',
-            title: '普通应抽查包裹数'
+            title: '普通应抽查包裹数',
+            align: 'center'
         },{
             field: 'normalPackageNumOfActual',
-            title: '普通实际抽查包裹数'
+            title: '普通实际抽查包裹数',
+            align: 'center'
         }, {
             field: 'normalCheckRate',
-            title: '普通抽查率'
+            title: '普通抽查率',
+            align: 'center'
         },{
             field: 'normalPackageNumOfDiff',
-            title: '普通抽查差异包裹数'
+            title: '普通抽查差异包裹数',
+            align: 'center'
         },{
             field: 'normalCheckRateOfDiff',
-            title: '普通抽查差异率'
+            title: '普通抽查差异率',
+            align: 'center'
         },{
             field: 'trustPackageNum',
-            title: '信任商家应抽查包裹数'
+            title: '信任商家应抽查包裹数',
+            align: 'center'
         },{
             field: 'trustPackageNumOfActual',
-            title: '信任商家实际抽查包裹数'
+            title: '信任商家实际抽查包裹数',
+            align: 'center'
         },{
             field: 'trustCheckRate',
-            title: '信任商家抽查率'
+            title: '信任商家抽查率',
+            align: 'center'
         },{
             field: 'trustPackageNumOfDiff',
-            title: '信任商家抽查差异包裹数'
+            title: '信任商家抽查差异包裹数',
+            align: 'center'
         },{
             field: 'trustCheckRateOfDiff',
-            title: '信任商家抽查差异率'
+            title: '信任商家抽查差异率',
+            align: 'center'
         },{
             field: 'totalCheckRate',
-            title: '总抽查率'
+            title: '总抽查率',
+            align: 'center'
         }];
         oTableInit.refresh = function () {
             $('#dataTable').bootstrapTable('refreshOptions', {pageNumber: 1});

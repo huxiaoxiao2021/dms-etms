@@ -68,35 +68,6 @@
                         </div>
                     </div>
 
-                    #*<div class="row">
-                        <div class="col-xs-12">
-                            <div class="col-xs-4">
-                                <div class="form-group">
-                                    <label class="control-label col-xs-4 "></label>
-                                    <div class=" col-xs-6">
-                                        <input type="text" id="excelField" name="excelField" class="form-control search-param" >
-                                    </div>
-                                    <div class=" col-xs-2">
-                                        <button id="btn_browse" type="button" class="btn btn-default">
-                                            <span  aria-hidden="true"></span>&nbsp;浏览
-                                        </button>
-                                        <input  type="file" id="fileField" name="fileField" class="file" size="28" onchange="document.getElementById('excelField').value=this.value" />
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xs-4">
-                                <div class="form-group">
-                                    <div class=" col-xs-8">
-                                        <button id="btn_import" type="button" class="btn btn-default">
-                                            <span aria-hidden="true"></span>&nbsp;导入抽查任务
-                                        </button>
-                                        <a href="#springUrl('')/static/importFileModel/reviewWeightSpotCheck.xlsx"
-                                           type="application/vnd.ms-excel">下载抽查任务模板</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>*#
                 </fieldset>
             </form>
         </div>
