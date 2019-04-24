@@ -15,7 +15,7 @@
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
-            <li class="active">揽收重量校验统计</li>
+            <li class="active">重量体积抽验统计</li>
         </ol>
 		<!-- 查询条件 -->
         <div id="query-condition">
