@@ -184,7 +184,8 @@ $(function () {
             align: 'center',
             formatter : function (value, row, index) {
                 var flage;
-                if(row.isHasPicture == 0){
+                // if(row.isHasPicture == 0){
+                if(0 == 0){
                     flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                         '<br/>'
                 }else{

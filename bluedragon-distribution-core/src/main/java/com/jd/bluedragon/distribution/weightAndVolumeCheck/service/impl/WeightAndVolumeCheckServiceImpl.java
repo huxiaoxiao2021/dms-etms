@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service.impl;
 
 import com.google.common.collect.Lists;
+import com.jcloud.jss.Credential;
 import com.jcloud.jss.JingdongStorageService;
+import com.jcloud.jss.client.ClientConfig;
 import com.jcloud.jss.client.Request;
 import com.jcloud.jss.domain.ObjectListing;
 import com.jcloud.jss.domain.ObjectSummary;
@@ -9,6 +11,7 @@ import com.jcloud.jss.http.JssInputStreamEntity;
 import com.jcloud.jss.service.BucketService;
 import com.jcloud.jss.service.ObjectService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.alpha.jss.JssVersionService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
@@ -43,12 +46,9 @@ import java.util.Map;
  * @date: 2019/4/22 17:48
  */
 @Service("weightAndVolumeCheckService")
-public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService {
+public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckService,JssVersionService {
 
     private final Logger logger = Logger.getLogger(this.getClass());
-
-    /** 存储空间文件夹名称 */
-    private static final String JSS_BUCKET = "jss.bucket.picture";
 
     /** 对象存储 **/
     /**外部 访问域名 */
@@ -60,8 +60,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Qualifier("dmsAbnormalInfoMQToPanZe")
     private DefaultJMQProducer dmsAbnormalInfoMQToPanZe;
 
-    @Autowired
-    private JingdongStorageService jingdongStorageService;
 
     /**
      * 上传超标图片
@@ -73,8 +71,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public void uploadExcessPicture(String imageName, long imageSize, InputStream inputStream) throws Exception {
         try {
-            String value = PropertiesHelper.newInstance().getValue(JSS_BUCKET);
-            ObjectService objectService = jingdongStorageService.bucket(value).object(imageName);
+            JingdongStorageService jingdongStorageService = getJss();
+            ObjectService objectService = jingdongStorageService.bucket(bucket).object(imageName);
             JssInputStreamEntity entity =  new JssInputStreamEntity(inputStream, imageSize);
             Request.Builder builder = (Request.Builder) FieldUtils.readField(objectService, "builder", true);
             builder.entity(entity);
@@ -302,8 +300,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         if(maxKeys <= 0 ){
             maxKeys = 1000;
         }
-        String value = PropertiesHelper.newInstance().getValue(JSS_BUCKET);
-        BucketService bucketService = jingdongStorageService.bucket(value);
+        JingdongStorageService jingdongStorageService = getJss();
+        BucketService bucketService = jingdongStorageService.bucket(bucket);
         if(StringUtils.isNotBlank(prefix)){
             bucketService.prefix(prefix);
         }
@@ -319,8 +317,119 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     public URI getURI(String keyName){
         //获得带有预签名的下载地址timeout == 10000
-        String value = PropertiesHelper.newInstance().getValue(JSS_BUCKET);
-        URI uri = jingdongStorageService.bucket(value).object(keyName).generatePresignedUrl(10000);
+        JingdongStorageService jingdongStorageService = getJss();
+        URI uri = jingdongStorageService.bucket(bucket).object(keyName).generatePresignedUrl(10000);
         return uri;
+    }
+
+
+    public JingdongStorageService getJss() {
+        Credential credential = new Credential(accesskey, secretkey);
+        ClientConfig config = new ClientConfig();
+        config.setEndpoint(endpoint);
+        config.setConnectionTimeout(Integer.parseInt(connectionTimeout));
+        config.setSocketTimeout(Integer.parseInt(socketTimeout));
+        return  new JingdongStorageService(credential,config);
+    }
+
+    static {
+        bucket = PropertiesHelper.newInstance().getValue("jss.bucket.picture");
+        accesskey = PropertiesHelper.newInstance().getValue("jss.accessKey");
+        secretkey = PropertiesHelper.newInstance().getValue("jss.secretKey");
+        endpoint = PropertiesHelper.newInstance().getValue("jss.endpoint");
+        connectionTimeout = PropertiesHelper.newInstance().getValue("jss.connectionTimeout");
+        socketTimeout = PropertiesHelper.newInstance().getValue("jss.socketTimeout");
+        storeTime = PropertiesHelper.newInstance().getValue("jss.storeTime");
+    }
+
+    /** 存储空间文件夹名称 */
+    private static String bucket;
+    /**访问密钥*/
+    public static String accesskey;
+    /**安全密钥*/
+    public static String secretkey;
+    /**内网连接端点*/
+    public static String endpoint;
+    /**服务器请求超时*/
+    public static String connectionTimeout;
+    /**服务器响应超时*/
+    public static String socketTimeout;
+    /**存放时间*/
+    public static String storeTime;
+
+    public static String getBucket() {
+        return bucket;
+    }
+
+    public static void setBucket(String bucket) {
+        WeightAndVolumeCheckServiceImpl.bucket = bucket;
+    }
+
+    public static String getAccesskey() {
+        return accesskey;
+    }
+
+    public static void setAccesskey(String accesskey) {
+        WeightAndVolumeCheckServiceImpl.accesskey = accesskey;
+    }
+
+    public static String getSecretkey() {
+        return secretkey;
+    }
+
+    public static void setSecretkey(String secretkey) {
+        WeightAndVolumeCheckServiceImpl.secretkey = secretkey;
+    }
+
+    public static String getEndpoint() {
+        return endpoint;
+    }
+
+    public static void setEndpoint(String endpoint) {
+        WeightAndVolumeCheckServiceImpl.endpoint = endpoint;
+    }
+
+    public static String getConnectionTimeout() {
+        return connectionTimeout;
+    }
+
+    public static void setConnectionTimeout(String connectionTimeout) {
+        WeightAndVolumeCheckServiceImpl.connectionTimeout = connectionTimeout;
+    }
+
+    public static String getSocketTimeout() {
+        return socketTimeout;
+    }
+
+    public static void setSocketTimeout(String socketTimeout) {
+        WeightAndVolumeCheckServiceImpl.socketTimeout = socketTimeout;
+    }
+
+    public static String getStoreTime() {
+        return storeTime;
+    }
+
+    public static void setStoreTime(String storeTime) {
+        WeightAndVolumeCheckServiceImpl.storeTime = storeTime;
+    }
+
+    @Override
+    public List<String> getVersionId() {
+        return null;
+    }
+
+    @Override
+    public void addVersion(String keyName, long length, InputStream inputStream) {
+
+    }
+
+    @Override
+    public void deleteVersion(List<String> versionIdList) {
+
+    }
+
+    @Override
+    public URI downloadVersion(String versionId) {
+        return null;
     }
 }
