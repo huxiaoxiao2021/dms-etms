@@ -98,7 +98,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
 
         //TODO 页面查询
 //        PagerResult<WeightAndVolumeCheck> result = weightAndVolumeCheckService.queryByCondition(condition);
-        PagerResult<WeightAndVolumeCheck> result = receiveWeightCheckService.queryByCondition(condition);
+        PagerResult<WeightAndVolumeCheck> result = receiveWeightCheckService.queryByCondition1(condition);
         return result;
     }
 
