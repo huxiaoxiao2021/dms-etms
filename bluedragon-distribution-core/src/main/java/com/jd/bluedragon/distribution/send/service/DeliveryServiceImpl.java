@@ -438,6 +438,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             domain.setSendType(lastSendM.getSendType());
             //更新时间为操作时间
             domain.setUpdateTime(domain.getOperateTime());
+            // 设置批次号为空，B冷链发货会调用该接口，传入无效批次号，故在此清空
+            domain.setSendCode(null);
             return this.dellCancelDeliveryMessage(domain, true);
         } else {
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);

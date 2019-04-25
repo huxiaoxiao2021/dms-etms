@@ -122,14 +122,15 @@ $(function () {
     /*****************************************/
     /*新增*/
     $('#btn_add').click(function () {
-        var blocker = $.pageBlocker.block();
         /*进行查询参数校验*/
         var flag = $.formValidator.isValid('add-form');
         if (flag == true) {
             $.msg.confirm('确认新增吗？', function () {
+                var blocker = $.pageBlocker.block();
                 var formData = new FormData();
                 var files = $('#importFiles')[0].files;
                 if (files.length > 5) {
+                    $.pageBlocker.close(blocker);
                     $.msg.error("新增失败！", "附件数量不能超过5个");
                     return;
                 }
@@ -137,6 +138,7 @@ $(function () {
                 for (var i = 0; i < files.length; i++) {
                     var file = files[i];
                     if (file.size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
                         $.msg.error("新增失败！", "每个附件大小不能超过5M");
                         return;
                     }
@@ -147,10 +149,8 @@ $(function () {
                 var formJson = JSON.stringify(formParams);
                 formData.append("noticeRequest", formJson);
                 submitFormData(formData, blocker);
+                $.pageBlocker.close(blocker);
             });
-            $.pageBlocker.close(blocker);
-        } else {
-            $.msg.warn('参数有误', '请您检查服务器信息是否有误');
         }
     });
 
