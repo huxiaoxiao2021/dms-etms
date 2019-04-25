@@ -404,7 +404,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if(WaybillUtil.isPackageCode(wayBillCode)){
             wayBillCode = SerialRuleUtil.getWaybillCode(wayBillCode);
         }
-        InvokeResult result = new InvokeResult();
+        InvokeResult<Boolean> result = new InvokeResult();
         result.setData(true);
         //1.运单号为空
         if(StringUtils.isBlank(wayBillCode) || siteCode == null){
@@ -445,8 +445,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         if(abnormalWayBill == null || !wayBillCode.equals(abnormalWayBill.getWaybillCode())){
             result.setData(false);
             result.setMessage("订单未操作拒收或分拣异常处理扫描，请先操作");
+        }else{
+            reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         }
-        reverseSpareEclp.checkIsPureMatch(waybillDto.getWaybill().getWaybillCode(),waybillDto.getWaybill().getWaybillSign(),result);
         return result;
     }
 
