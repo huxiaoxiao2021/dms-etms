@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
@@ -44,6 +45,7 @@ public class CommonController {
      *
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getBaseOrg")
     public Object getBaseOrg() {
@@ -56,6 +58,7 @@ public class CommonController {
      * @param orgCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @ResponseBody
     @RequestMapping("/getSiteByOrg")
     public Object getSiteByOrg(Integer orgCode) {
@@ -81,6 +84,7 @@ public class CommonController {
      * @param name
      * @return
      */
+    @Authorization(Constants.DMS_WEB_COMMON_R)
     @SuppressWarnings("unchecked")
     @ResponseBody
     @RequestMapping("/getSiteByName")

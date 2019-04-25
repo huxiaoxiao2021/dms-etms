@@ -440,7 +440,10 @@
           class="com.jd.bluedragon.distribution.abnormal.dao.impl.AbnormalUnknownWaybillDaoImpl"/>
     <bean id="abnormalQcDao"  parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.abnormalDispose.dao.AbnormalQcDao"/>
-
+    <bean id="preSealVehicleDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.newseal.dao.impl.PreSealVehicleDaoImpl"/>
+    <bean id="sealVehiclesDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.newseal.dao.impl.SealVehiclesDaoImpl"/>
     <!-- RMA -->
     <bean id="rmaHandOverWaybillDao" class="com.jd.bluedragon.distribution.rma.dao.RmaHandOverWaybillDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
@@ -479,6 +482,25 @@
 
     <!-- 揽收重量校验统计 -->
     <bean id="receiveWeightCheckDao" class="com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 备件库分拣记录 -->
+    <bean id="spareSortingRecordDao" class="com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 通知栏 -->
+    <bean id="noticeDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="noticeAttachmentDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeAttachmentDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 

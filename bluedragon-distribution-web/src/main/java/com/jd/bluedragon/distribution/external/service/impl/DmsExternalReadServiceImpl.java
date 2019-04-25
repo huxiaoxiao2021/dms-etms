@@ -25,6 +25,8 @@ import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -64,29 +66,35 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
 	 */
 	@Override
-	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findWaybillByBoxCode", mState = { JProEnum.TP })
 	public List<String> findWaybillByBoxCode(String boxCode) {
+		CallerInfo info = Profiler.registerInfo("DMSWEB.DmsExternalReadServiceImpl.findWaybillByBoxCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             Integer createSiteCode = kvIndexDao.queryOneByKeyword(boxCode);
             if (createSiteCode != null) {
                 return sendDatailReadDao.findWaybillByBoxCode(boxCode, createSiteCode);
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             this.logger.error("根据箱号获得运单号异常boxCode:" + boxCode, e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return Collections.emptyList();
     }
 
 
 	@Override
-	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findSendBoxByWaybillCode", mState = {JProEnum.TP})
 	public List<SendBoxDetailResponse> findSendBoxByWaybillCode(String waybillCode) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsExternalReadServiceImpl.findSendBoxByWaybillCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		List<SendBoxDetailResponse> sendBoxList = null;
 		try {
 			sendBoxList = sendDatailReadDao.findSendBoxByWaybillCode(waybillCode);
 		} catch (Exception e) {
+            Profiler.functionError(info);
 			this.logger.error("根据箱号获得批次号,箱号,包裹号异常 waybillCode:"+waybillCode, e);
-		}
+		}finally {
+            Profiler.registerInfoEnd(info);
+        }
 		return sendBoxList;
 	}
 

@@ -347,4 +347,9 @@
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
     </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
+    </bean>
 </beans>

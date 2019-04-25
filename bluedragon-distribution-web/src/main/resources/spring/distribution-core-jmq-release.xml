@@ -343,4 +343,9 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
     </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
+    </bean>
 </beans>

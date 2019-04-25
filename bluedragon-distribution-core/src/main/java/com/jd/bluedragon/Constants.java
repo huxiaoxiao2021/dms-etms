@@ -35,7 +35,8 @@ public class Constants {
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
-    
+    public static final String SEPARATOR_COLON = ":";
+
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
     public static final String PUNCTUATION_OPEN_BRACKET_SMALL = "(";
@@ -621,9 +622,19 @@ public class Constants {
     public static final String DMS_WEB_TOOL_RECYCLEMATERIAL_R="DMS-WEB-TOOL-RECYCLEMATERIAL-R";//循环物资管理
     public static final String DMS_WEB_ISV_CONTROL_R ="DMS-WEB-ISV-CONTROL-R"; //ISV版本控制
     public static final String DMS_WEB_ISV_MANAGE_R ="DMS-WEB-ISV-MANAGE-R"; //ISV版本管理
+    public static final String DMS_WEB_PRE_SEALVEHICLE_R ="DMS_WEB_PRE_SEALVEHICLE_R"; //预封车权限码
     public static final String DMS_WEB_OFFLINE_MANAGER_R ="bluedragon_offlinePwd_list"; //离线密码管理
     public static final String DMS_WEB_QUERY_KUGUANINIT ="DMS-WEB-QUERY-KUGUANINIT"; //库管首页
     public static final String DMS_WEB_QUERY_KUGUANLIST ="DMS-WEB-QUERY-KUGUANLIST"; //库管查询
+    public static final String DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R="DMS-WEB-TRANSPORT-ARBOOKINGSPACE-R"; //空铁订舱登记
+    public static final String DMS_WEB_TRANSPORT_AREXCPREGISTER_R="DMS-WEB-TRANSPORT-AREXCPREGISTER-R"; //空铁异常登记
+    public static final String DMS_WEB_ABNORMAL_ORDER_R="DMS-WEB-ABNORMAL-ORDER-R"; //异常单操作
+    public static final String DMS_WEB_CROSS_SORTING_R="DMS-WEB-CROSS-SORTING-R";   //跨区分拣校验GlobalTrade
+    public static final String DMS_WEB_POP_ABNORMAL_R="DMS-WEB-POP-ABNORMAL-R";  //POP差异订单
+    public static final String DMS_WEB_SORTING_MACHINE_EXCEPTION="DMS-WEB-SORTING-MACHINE-EXCEPTION"; //分拣机或者龙门架异常
+    public static final String DMS_WEB_NOTICE_MANAGE="DMS-WEB-NOTICE-MANAGE"; //通知栏管理
+    public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
+
 
     /********************************************* 研发UIM权限资源码相关start ***********************************************/
     public static final String DMS_WEB_DEVELOP_REDIS_R ="DMS_WEB_DEVELOP_REDIS_R"; //分拣缓存查询
@@ -640,6 +651,7 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
+    public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限
 
     /********************************************* UIM权限资源码相关end ***********************************************/
 

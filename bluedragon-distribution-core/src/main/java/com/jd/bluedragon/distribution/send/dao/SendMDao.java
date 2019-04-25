@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
@@ -227,4 +228,21 @@ public  class SendMDao extends BaseDao<SendM>  {
 		}
 		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectOneByBoxCode",sendM);
 	}
+
+    /**
+     * 根据始发场地和起始时间查询发货记录
+     * @param createSiteCode
+     * @param startDate
+     * @return
+     */
+    public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate) {
+        if(createSiteCode == null || startDate == null){
+            throw new IllegalArgumentException("始发分拣中心、起始时间不能为空.");
+        }
+        SendM sendM = new SendM();
+        sendM.setCreateSiteCode(createSiteCode);
+        sendM.setReceiveSiteCode(receiveSiteCode);
+        sendM.setOperateTime(startDate);
+        return this.getSqlSession().selectList(SendMDao.namespace + ".findAllSendCodesWithStartTime",sendM);
+    }
 }

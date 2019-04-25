@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.notice.dao.NoticeAttachmentDao">
+
+    <resultMap id="noticeAttachment" type="com.jd.bluedragon.distribution.notice.domain.NoticeAttachment">
+        <result column="id" property="id"/>
+        <result column="notice_id" property="noticeId"/>
+        <result column="size" property="size"/>
+        <result column="type" property="type"/>
+        <result column="file_name" property="fileName"/>
+        <result column="key_name" property="keyName"/>
+        <result column="url" property="url"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="is_delete" property="isDelete"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        notice_id,
+        size,
+        type,
+        file_name,
+        key_name,
+        url,
+        create_time,
+        update_time,
+        is_delete
+    </sql>
+
+    <select id="getById" parameterType="Long" resultMap="noticeAttachment">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        notice_attachment
+        WHERE id = #{id,jdbcType=BIGINT} AND is_delete = 0
+    </select>
+
+    <insert id="add" parameterType="NoticeAttachment">
+		INSERT INTO notice_attachment(
+        notice_id,
+        size,
+        type,
+        file_name,
+        key_name,
+        url,
+        create_time,
+        update_time,
+        is_delete
+        )
+		VALUES(
+		    #{noticeId, jdbcType=BIGINT},
+		    #{size, jdbcType=VARCHAR},
+			#{type, jdbcType=VARCHAR},
+			#{fileName, jdbcType=VARCHAR},
+			#{keyName, jdbcType=VARCHAR},
+			#{url, jdbcType=VARCHAR},
+			NOW(),
+			NOW(),
+			0
+		)
+	</insert>
+
+    <insert id="batchAdd" parameterType="NoticeAttachment">
+        INSERT INTO notice_attachment(
+        notice_id,
+        size,
+        type,
+        file_name,
+        key_name,
+        url,
+        create_time,
+        update_time,
+        is_delete
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.noticeId, jdbcType=BIGINT},
+            #{item.size, jdbcType=VARCHAR},
+            #{item.type, jdbcType=VARCHAR},
+            #{item.fileName, jdbcType=VARCHAR},
+            #{item.keyName, jdbcType=VARCHAR},
+            #{item.url, jdbcType=VARCHAR},
+            NOW(),
+            NOW(),
+            0
+            )
+        </foreach>
+    </insert>
+
+    <select id="getByNoticeId" resultMap="noticeAttachment" parameterType="java.util.Map">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM notice_attachment
+        WHERE is_delete = 0
+        <if test="noticeId != null">
+            AND notice_id = #{noticeId, jdbcType=BIGINT}
+        </if>
+        ORDER BY create_time desc
+    </select>
+
+    <update id="deleteByNoticeId" parameterType="java.util.Map">
+        UPDATE notice_attachment
+        SET
+        is_delete = 1,
+        update_time = NOW()
+        WHERE
+        is_delete = 0
+        AND notice_id = #{noticeId, jdbcType=BIGINT}
+    </update>
+
+</mapper>	

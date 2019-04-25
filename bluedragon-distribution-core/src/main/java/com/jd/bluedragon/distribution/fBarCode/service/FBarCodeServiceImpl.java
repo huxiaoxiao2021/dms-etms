@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.fBarCode.service;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,7 +99,7 @@ class FBarCodeServiceImpl implements FBarCodeService  {
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public FBarCode findFBarCodeByCode(String code) {
         Assert.notNull(code, "code must not be null");
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.FBarCodeService.findFBarCodeByCode.fromRedis", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             // 取出缓存
             // keyF条码
@@ -120,7 +123,10 @@ class FBarCodeServiceImpl implements FBarCodeService  {
 
 
         } catch (Exception e) {
+            Profiler.functionError(info);
             this.logger.error("findFBarCodeByCode获取缓存F条码失败，F条码为" + code, e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
         return this.fBarCodeDao.findFBarCodeByCode(code);

@@ -32,7 +32,6 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
     public static int WAYBILL_SPLIT_NUM = 100;
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.SortingWaybillServiceImpl.doSorting", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public boolean doSorting(SortingVO sorting) {
         if (sorting.getIsCancel().equals(getSortingService().SORTING_CANCEL_NORMAL)) {
 
