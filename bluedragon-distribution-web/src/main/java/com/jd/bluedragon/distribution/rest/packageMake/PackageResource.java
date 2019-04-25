@@ -129,7 +129,7 @@ public class PackageResource {
      * 包裹补打回调方法
      * @return
      */
-    @Post
+    @POST
     @Path("/package/rePrintCallBack")
     public JdResult<Boolean> rePrintCallBack(RePrintCallBackRequest rePrintCallBackRequest){
     	JdResult<Boolean> result = new JdResult<Boolean>();
