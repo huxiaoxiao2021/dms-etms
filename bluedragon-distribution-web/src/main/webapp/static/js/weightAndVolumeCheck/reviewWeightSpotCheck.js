@@ -178,6 +178,10 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
+                if($('#site-group-select').val()==null){
+                    Jd.alert("请选择指定的复核区域!");
+                    return;
+                }
                 tableInit().refresh();
             });
 

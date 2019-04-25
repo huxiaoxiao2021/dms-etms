@@ -2039,7 +2039,7 @@ public class WaybillResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        //TODO 将重量体积实体存入es中(根据包裹号插入或更新 并返回主键id)
+        //TODO 1.将重量体积实体存入es中(根据包裹号插入或更新 并返回主键id)
 //		receiveWeightCheckService.insert(weightAndVolumeCheck);
         //超标给fxm发消息
         sendMqToFXM(weightAndVolumeCheck);
@@ -2087,6 +2087,7 @@ public class WaybillResource {
             abnormalResultMq.setOperateUser(weightAndVolumeCheck.getReviewErp());
             abnormalResultMq.setOperateTime(new Date());
 
+			this.logger.info("发送MQ[" + dmsAbnormalInfoMQToFXM.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
             dmsAbnormalInfoMQToFXM.send(abnormalResultMq.getBillCode(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
             this.logger.error("发送查表异常mq给fxm失败" + weightAndVolumeCheck.getPackageCode() + "失败原因：" + e);

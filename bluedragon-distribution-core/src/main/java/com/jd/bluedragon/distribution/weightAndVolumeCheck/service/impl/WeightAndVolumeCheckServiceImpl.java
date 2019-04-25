@@ -50,6 +50,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     private final Logger logger = Logger.getLogger(this.getClass());
 
+    /** 系统标识 */
+    private static final String DMS = "dms";
+
     /** 对象存储 **/
     /**外部 访问域名 */
     private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
@@ -194,13 +197,16 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     public void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq,Integer siteCode){
         try{
-            abnormalPictureMq.setAbnormalId("");    //TODO 根据运单号从es中获取异常id（主键）
+            abnormalPictureMq.setAbnormalId(DMS+"_"+abnormalPictureMq.getWaybillCode()+"|"+siteCode);
+            //查存储空间获取图片链接
             InvokeResult<String> result = searchExcessPicture(abnormalPictureMq.getWaybillCode(),siteCode);
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
                 abnormalPictureMq.setExcessPictureAddress(result.getData());
             }else{
+                logger.error("获取图片链接失败!"+abnormalPictureMq.getWaybillCode()+"|"+siteCode);
                 return;
             }
+            this.logger.info("发送MQ[" + dmsAbnormalInfoMQToPanZe.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
             dmsAbnormalInfoMQToPanZe.send(abnormalPictureMq.getWaybillCode(), JsonHelper.toJson(abnormalPictureMq));
         }catch (Exception e){
             logger.error("异常消息发送失败!"+abnormalPictureMq.getWaybillCode());
@@ -215,7 +221,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public PagerResult<WeightAndVolumeCheck> queryByCondition(WeightAndVolumeCheckCondition condition) {
 
-        //TODO 从es中获取数据并返回前台
+        //TODO 3.第一个页面导出从es中获取数据并返回前台
+        PagerResult<WeightAndVolumeCheck>  result = new PagerResult<WeightAndVolumeCheck>();
+//        List<WeightAndVolumeCheck> list = queryFromEsByCondition(condition);
+        List<WeightAndVolumeCheck> list = new ArrayList<>();
+//        Integer num = queryNumByCondition(condition);
+        Integer num = 3;
+        result.setRows(list);
+        result.setTotal(num);
         return null;
     }
 
@@ -282,7 +295,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightAndVolumeCheck.getDiffStandard());
                 body.add(weightAndVolumeCheck.getIsExcess()==1?"超标":"未超标");
                 body.add(weightAndVolumeCheck.getIsHasPicture()==1?"有":"无");
-                body.add(weightAndVolumeCheck.getPictureAddress());
+                body.add(weightAndVolumeCheck.getPictureAddress()==null?"":weightAndVolumeCheck.getPictureAddress());
                 resList.add(body);
             }
         }

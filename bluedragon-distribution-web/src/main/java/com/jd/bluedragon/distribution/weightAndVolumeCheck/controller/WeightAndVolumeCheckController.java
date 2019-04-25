@@ -97,7 +97,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<WeightAndVolumeCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        //TODO 页面查询
+        //TODO 2.第一个页面查询
 //        PagerResult<WeightAndVolumeCheck> result = weightAndVolumeCheckService.queryByCondition(condition);
         PagerResult<WeightAndVolumeCheck> result = receiveWeightCheckService.queryByCondition1(condition);
         return result;

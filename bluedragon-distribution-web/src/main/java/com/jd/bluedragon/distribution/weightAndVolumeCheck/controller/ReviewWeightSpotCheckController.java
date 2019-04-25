@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -83,15 +82,6 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
         PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition);
-
-        Integer num = 3;
-        List<ReviewWeightSpotCheck> list = new ArrayList<ReviewWeightSpotCheck>();
-        ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
-        list.add(reviewWeightSpotCheck);
-        result.setRows(list);
-        result.setTotal(num);
-
-
         return result;
     }
 

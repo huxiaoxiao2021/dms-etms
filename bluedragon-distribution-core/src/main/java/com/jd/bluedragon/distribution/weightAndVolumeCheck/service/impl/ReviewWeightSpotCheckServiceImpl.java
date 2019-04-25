@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
@@ -15,9 +16,13 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,7 +69,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("总抽查率");
         resList.add(heads);
         condition.setLimit(-1);
-        PagerResult<ReviewWeightSpotCheck> result = queryByCondition(condition);
+        PagerResult<ReviewWeightSpotCheck> result = listData(condition);
         if(result != null && result.getRows() != null && result.getRows().size() > 0){
             List<ReviewWeightSpotCheck> list = result.getRows();
             //表格信息
@@ -91,10 +96,20 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         return  resList;
     }
 
-    private PagerResult<ReviewWeightSpotCheck> queryByCondition(WeightAndVolumeCheckCondition condition) {
-        //TODO 从es中获取数据
+    private List<WeightAndVolumeCheck> queryByCondition(WeightAndVolumeCheckCondition condition) {
+        //TODO 6.第二个页面导出从es中获取数据
+        //从es中获取数据(根据复核日期和分拣中心id获取数据)
+//        List<WeightAndVolumeCheck>  result = queryFromEsByCondition(condition);
+        List<WeightAndVolumeCheck>  result = new ArrayList<>();
+        return result;
+    }
 
-        return null;
+    private Integer queryNumByCondition(WeightAndVolumeCheckCondition condition) {
+        //TODO 7.第二个页面导出从es中获取数据总数
+        //从es中获取数据(根据复核日期和分拣中心id获取数据)
+//        Integer num = queryFromEsByCondition(condition);
+        Integer num = 3;
+        return num;
     }
 
     /**
@@ -193,20 +208,169 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
      */
     @Override
     public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition) {
-        PagerResult<ReviewWeightSpotCheck>  result = new PagerResult<ReviewWeightSpotCheck>();
-        //1.根据查询条件获取分拣复重抽检任务数据集合
-        List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryByCondition(condition);
 
-        //TODO 2.从es中获取数据
-        PagerResult<ReviewWeightSpotCheck> resultFromES = queryByCondition(condition);
+        //TODO 5.第二个页面查询从es中获取数据
+        PagerResult<ReviewWeightSpotCheck>  result = new PagerResult<>();
+        List<ReviewWeightSpotCheck> list = new ArrayList<>();
 
-        //TODO 3.将步骤1的数据和步骤2的数据结合生成result返回
+        //1.从es中获取所有数据
+        List<WeightAndVolumeCheck> resultFromES = queryByCondition(condition);
+        Integer num = queryNumByCondition(condition);
 
+        //2.根据复核日期、站点分组（复核日期转换成yyyy-mm-dd）
+        Map<Date,Map<Integer,List<WeightAndVolumeCheck>>> map = convertAndGroup(resultFromES);
 
-        /*Integer num = queryNumByCondition(condition);
+        //3.将步骤1的数据和步骤2的数据结合生成result返回给前台
+        if(map != null && map.size() > 0){
+
+            for(Date date : map.keySet()){
+
+                Map<Integer, List<WeightAndVolumeCheck>> mapOfSite = map.get(date);
+                for(Integer siteCode : mapOfSite.keySet()){
+
+                    //站点对应的复核总记录
+                    List<WeightAndVolumeCheck> weightAndVolumeChecks = mapOfSite.get(siteCode);
+                    //查询站点的抽查任务数据
+                    SpotCheckInfo spotCheckInfo = reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
+
+                    WeightAndVolumeCheck weightAndVolumeCheck = weightAndVolumeChecks.get(0);
+
+                    Integer trustNumOfActual = getPackageNumOfSpotCheck(weightAndVolumeChecks,1);//信任商家实际抽查包裹数量
+                    Integer normalNumOfActual = getPackageNumOfSpotCheck(weightAndVolumeChecks,0);//普通商家实际抽查包裹数量
+                    Integer trustNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getTrustPackageNum();              //信任商家应抽查包裹数
+                    Integer normalNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getNormalPackageNum();            //普通应抽查包裹数
+                    Integer trustNumOfExcess = getPackageNumOfExcess(weightAndVolumeChecks,1);     //信任商家超标数
+                    Integer normalNumOfExcess = getPackageNumOfExcess(weightAndVolumeChecks,0);    //普通商家超标数
+
+                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+                    reviewWeightSpotCheck.setReviewDate(date);
+                    reviewWeightSpotCheck.setReviewOrgName(weightAndVolumeCheck.getReviewOrg());//复核区域
+                    reviewWeightSpotCheck.setReviewMechanismType(weightAndVolumeCheck.getMechanismType());//机构类型
+                    reviewWeightSpotCheck.setReviewSiteCode(weightAndVolumeCheck.getReviewCreateSiteCode());//机构名称
+                    reviewWeightSpotCheck.setReviewSiteName(weightAndVolumeCheck.getReviewCreateSiteName());//机构名称
+                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);                          //普通应抽查包裹数
+                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);                  //普通实际抽查包裹数
+                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));        //普通抽查率
+                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);                    //普通抽查差异包裹数(超标)
+                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));   //普通抽查差异率
+                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);                            //信任商家应抽查包裹数
+                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);                    //信任商家实际抽查包裹数
+                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));            //信任商家抽查率
+                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);                      //信任商家抽查差异包裹数(超标数)
+                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));      //信任商家抽查差异率
+                    reviewWeightSpotCheck.setTotalCheckRate(spotCheckInfo==null?null:convertPercentage((trustNumOfActual+normalNumOfActual),(trustNumOfShould+normalNumOfShould)));                 //总抽查率
+
+                    list.add(reviewWeightSpotCheck);
+
+                }
+
+            }
+
+        }
+
         result.setRows(list);
-        result.setTotal(num);*/
+        result.setTotal(num);
+
         return result;
+    }
+
+
+
+    /**
+     * 根据复核日期、站点进行分组
+     * @param weightAndVolumeChecks
+     * @return
+     */
+    private Map<Date, Map<Integer, List<WeightAndVolumeCheck>>> convertAndGroup(List<WeightAndVolumeCheck> weightAndVolumeChecks) {
+
+        Map<Date, Map<Integer, List<WeightAndVolumeCheck>>> map = new HashMap<>();
+        //1.按日期分组
+        Map<Date,List<WeightAndVolumeCheck>> mapOfDate = new HashMap<>();
+        for(WeightAndVolumeCheck weightAndVolumeCheck : weightAndVolumeChecks){
+            //将日期格式转换成yyyy-MM-dd类型
+            weightAndVolumeCheck.setReviewDate(DateHelper.parseDate(DateHelper.formatDate(weightAndVolumeCheck.getReviewDate())));
+            if(!mapOfDate.containsKey(weightAndVolumeCheck.getReviewDate())){
+
+                List list = new ArrayList<WeightAndVolumeCheck>();
+                list.add(weightAndVolumeCheck);
+                mapOfDate.put(weightAndVolumeCheck.getReviewDate(),list);
+
+            }else{
+                mapOfDate.get(weightAndVolumeCheck.getReviewDate()).add(weightAndVolumeCheck);
+            }
+        }
+
+        //2.按站点分组
+        Map<Date,Map<String,List<WeightAndVolumeCheck>>> mapOfDateAndSite = new HashMap<>();
+        for(Date date : mapOfDate.keySet()){
+
+            //日期下的所有集合
+            List<WeightAndVolumeCheck> weightAndVolumeChecks1 = mapOfDate.get(date);
+            for(WeightAndVolumeCheck weightAndVolumeCheck : weightAndVolumeChecks1){
+
+                if(!map.get(date).containsKey(weightAndVolumeCheck.getReviewCreateSiteCode())){
+
+                    Map<Integer, List<WeightAndVolumeCheck>> mapOfSite = new HashMap<>();
+                    List list = new ArrayList<WeightAndVolumeCheck>();
+                    list.add(weightAndVolumeCheck);
+                    mapOfSite.put(weightAndVolumeCheck.getReviewCreateSiteCode(),list);
+                    map.put(date,mapOfSite);
+
+                }else{
+                    map.get(date).get(weightAndVolumeCheck.getReviewCreateSiteCode()).add(weightAndVolumeCheck);
+                }
+
+            }
+
+        }
+
+        return map;
+    }
+
+    /**
+     * 获取信任/普通商家包裹数量
+     * @param weightAndVolumeChecks
+     * @param type 1:信任商家 0:普通商家
+     * @return
+     */
+    private Integer getPackageNumOfSpotCheck(List<WeightAndVolumeCheck> weightAndVolumeChecks,int type) {
+        int count = 0;
+        for(WeightAndVolumeCheck weightAndVolumeCheck : weightAndVolumeChecks){
+            if(weightAndVolumeCheck.getIsTrustBusiName() == type){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 获取信任/普通商家超标包裹数
+     * @param weightAndVolumeChecks
+     * @param type 1:信任商家 0:普通商家
+     * @return
+     */
+    private Integer getPackageNumOfExcess(List<WeightAndVolumeCheck> weightAndVolumeChecks, int type) {
+        int count = 0;
+        for(WeightAndVolumeCheck weightAndVolumeCheck : weightAndVolumeChecks){
+            if(weightAndVolumeCheck.getIsTrustBusiName() == type && weightAndVolumeCheck.getIsExcess() == 1){
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * 转换成百分比
+     * @param num1
+     * @param num2
+     * @return
+     */
+    private String convertPercentage(int num1,int num2){
+        float num = (float)num1/num2;
+        NumberFormat percentInstance = NumberFormat.getPercentInstance();
+        percentInstance.setMinimumFractionDigits(2);
+        String format = percentInstance.format(num);
+        return format;
     }
 
 }
