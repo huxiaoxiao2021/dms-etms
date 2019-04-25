@@ -139,6 +139,9 @@ public class PackageResource {
     		rePrintRecordMq.setOperateType(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT_TYPE);
     		rePrintRecordMq.setWaybillCode(rePrintCallBackRequest.getWaybillCode());
     		rePrintRecordMq.setPackageCode(rePrintCallBackRequest.getPackageCode());
+    		rePrintRecordMq.setTemplateGroupCode(rePrintCallBackRequest.getTemplateGroupCode());
+    		rePrintRecordMq.setTemplateName(rePrintCallBackRequest.getTemplateName());
+    		rePrintRecordMq.setTemplateVersion(rePrintCallBackRequest.getTemplateVersion());
     		rePrintRecordMq.setUserCode(rePrintCallBackRequest.getUserCode());
     		rePrintRecordMq.setUserName(rePrintCallBackRequest.getUserName());
     		rePrintRecordMq.setUserErp(rePrintCallBackRequest.getUserErp());
