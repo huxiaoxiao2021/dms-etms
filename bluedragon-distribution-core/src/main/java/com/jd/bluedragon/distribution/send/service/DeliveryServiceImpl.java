@@ -438,6 +438,8 @@ public class DeliveryServiceImpl implements DeliveryService {
             domain.setSendType(lastSendM.getSendType());
             //更新时间为操作时间
             domain.setUpdateTime(domain.getOperateTime());
+            // 设置批次号为空，B冷链发货会调用该接口，传入无效批次号，故在此清空
+            domain.setSendCode(null);
             return this.dellCancelDeliveryMessage(domain, true);
         } else {
             return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE, DeliveryResponse.MESSAGE_Delivery_NO_PACKAGE, null);
@@ -3180,6 +3182,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     	List<String> noHasWeightWaybills = new ArrayList<String>();
     	List<String> noHasFreightWaybills = new ArrayList<String>();
     	List<String> sendNoHasFreightWaybills = new ArrayList<String>();
+        List<String> noHasVolumeWaybills = new ArrayList<>();
         for(String waybillCode:waybillCodes){
         	BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
         	if(baseEntity != null
@@ -3191,7 +3194,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
                 if (! BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessUtil.isSignChar(waybill.getWaybillSign(), 66, '0')) {
                     //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
-                    if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '2')){
+                    //edited by hanjiaxing3 2019.04.10 临时欠款运单也需要称重拦截
+                    if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '2') || BusinessUtil.isTemporaryArrearsWaybill(waybill.getWaybillSign())){
                         boolean hasTotalWeight = false;
                         //先校验运单的againWeight然后校验称重流水
                         if(NumberHelper.gt0(waybill.getAgainWeight())){
@@ -3203,7 +3207,14 @@ public class DeliveryServiceImpl implements DeliveryService {
                             noHasWeightWaybills.add(waybillCode);
                         }
                     }
-                //end
+                    //added by hanjiaxing3 2019.04.10 临时欠款运单校验量方
+                    if (BusinessUtil.isTemporaryArrearsWaybill(waybill.getWaybillSign())){
+                        //先校验运单的复核体积，以及称重流水（含体积）
+                        if (! (NumberHelper.gt0(waybill.getSpareColumn2()) || dmsWeightFlowService.checkTotalWeight(waybillCode))) {
+                            noHasVolumeWaybills.add(waybillCode);
+                        }
+                    }
+                    //end
         		}
         		//b2b校验是否包含-到付运费
         		if(!BusinessHelper.hasFreightForB2b(baseEntity.getData())){
@@ -3215,11 +3226,12 @@ public class DeliveryServiceImpl implements DeliveryService {
         		}
         	}else{
         		noHasWeightWaybills.add(waybillCode);
+                noHasVolumeWaybills.add(waybillCode);
         	}
         	//超过3单则中断校验逻辑
     		if(noHasWeightWaybills.size() >= MAX_SHOW_NUM
                     ||noHasFreightWaybills.size() >= MAX_SHOW_NUM
-                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM){
+                    || sendNoHasFreightWaybills.size() >= MAX_SHOW_NUM || noHasVolumeWaybills.size() >= MAX_SHOW_NUM){
     			break;
     		}
         }
@@ -3228,6 +3240,13 @@ public class DeliveryServiceImpl implements DeliveryService {
         	interceptResult.setMessage("运单无总重量："+noHasWeightWaybills);
         	return interceptResult;
         }
+        //added by hanjiaxing3 2019.04.10 临时欠款运单校验量方
+        if(! noHasVolumeWaybills.isEmpty()) {
+            interceptResult.toFail();
+            interceptResult.setMessage("运单无总体积：" + noHasVolumeWaybills);
+            return interceptResult;
+        }
+        //end
         if(!noHasFreightWaybills.isEmpty()){
         	interceptResult.toFail();
         	interceptResult.setMessage("运单无到付运费金额："+noHasFreightWaybills);

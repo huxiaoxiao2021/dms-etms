@@ -91,8 +91,8 @@
 	<bean id="multipartResolver"
 		  class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
 		<property name="defaultEncoding" value="UTF-8" />
-		<!-- 设定文件上传的最大值为5MB，5*1024*1024 -->
-		<property name="maxUploadSize" value="5242880" />
+		<!-- 设定文件上传的最大值为25MB，25*1024*1024 -->
+		<property name="maxUploadSize" value="26214400" />
 	</bean>
 
 	<!-- Access resource bundles with the specified basename -->
