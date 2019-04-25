@@ -356,5 +356,8 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
     </bean>
-
+    <!--包裹补打发送mq消息 -->
+    <bean id="packageRePrintProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.packageRePrintProducer}"/>
+    </bean>
 </beans>

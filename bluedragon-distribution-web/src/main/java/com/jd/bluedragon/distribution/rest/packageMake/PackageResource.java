@@ -1,9 +1,30 @@
 package com.jd.bluedragon.distribution.rest.packageMake;
 
+import java.util.Date;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.codehaus.jra.Post;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -13,14 +34,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.util.Date;
 
 /**
  * Created by hujiping on 2018/4/4.
@@ -41,6 +54,10 @@ public class PackageResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    @Qualifier("packageRePrintProducer")
+    private DefaultJMQProducer packageRePrintProducer;
 
     public static String RE_PRINT_PREFIX = "RE_PRINT_CODE_";
     @GET
@@ -108,7 +125,42 @@ public class PackageResource {
 
         return jdResponse;
     }
-
+    /**
+     * 包裹补打回调方法
+     * @return
+     */
+    @Post
+    @Path("/package/rePrintCallBack")
+    public JdResult<Boolean> rePrintCallBack(RePrintCallBackRequest rePrintCallBackRequest){
+    	JdResult<Boolean> result = new JdResult<Boolean>();
+    	result.toSuccess();
+    	if(rePrintCallBackRequest != null){
+    		RePrintRecordMq rePrintRecordMq = new RePrintRecordMq();
+    		rePrintRecordMq.setOperateType(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT_TYPE);
+    		rePrintRecordMq.setWaybillCode(rePrintCallBackRequest.getWaybillCode());
+    		rePrintRecordMq.setPackageCode(rePrintCallBackRequest.getPackageCode());
+    		rePrintRecordMq.setUserCode(rePrintCallBackRequest.getUserCode());
+    		rePrintRecordMq.setUserName(rePrintCallBackRequest.getUserName());
+    		rePrintRecordMq.setUserErp(rePrintCallBackRequest.getUserErp());
+    		rePrintRecordMq.setSiteCode(rePrintCallBackRequest.getSiteCode());
+    		rePrintRecordMq.setSiteName(rePrintCallBackRequest.getSiteName());
+    		rePrintRecordMq.setOperateTime(new Date());
+    		
+    		packageRePrintProducer.sendOnFailPersistent(rePrintRecordMq.getWaybillCode(), JsonHelper.toJson(rePrintRecordMq));
+    		
+    		String barCode = rePrintRecordMq.getWaybillCode();
+    		if(StringHelper.isNotEmpty(rePrintRecordMq.getPackageCode())){
+    			barCode = rePrintRecordMq.getPackageCode();
+    		}
+    		//调用旧逻辑发送全程跟踪等
+    		this.packageRePrint(
+    				barCode,
+    				rePrintCallBackRequest.getWaybillSign(),
+    				rePrintCallBackRequest.getSiteCode(), 
+    				rePrintCallBackRequest.getUserErp());
+    	}
+    	return result;
+    }
     @GET
     @Path("/package/checkRePrint/{barCode}")
     public JdResponse checkRePrint(@PathParam("barCode") String barCode){
