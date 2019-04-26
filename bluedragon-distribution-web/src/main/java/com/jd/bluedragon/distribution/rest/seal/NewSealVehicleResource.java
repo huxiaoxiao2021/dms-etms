@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -65,6 +68,12 @@ public class NewSealVehicleResource {
 
     @Autowired
     private CarLicenseChangeUtil carLicenseChangeUtil;
+
+    @Autowired
+    private TmsTfcWSManager tmsTfcWSManager;
+
+    @Autowired
+    private ColdChainSendService coldChainSendService;
 
     private static final int ROLL_BACK_DAY = -7; //查询几天内的带解任务（负数）
     private static final int RANGE_HOUR = 2; //运力编码在两小时范围内
@@ -219,6 +228,7 @@ public class NewSealVehicleResource {
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode() && returnCommonDto.getData() != null) {
                     sealVehicleResponse = getVehicleNumBySimpleCode(returnCommonDto.getData().getTransWorkItemCode());
+                    this.buildTransWorkItemBySimpleCode(sealVehicleResponse, request.getTransWorkItemCode());
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
                     sealVehicleResponse.setTransWorkItemCode(returnCommonDto.getData().getTransWorkItemCode());
@@ -593,6 +603,40 @@ public class NewSealVehicleResource {
                 return dto2.getCreateTime().compareTo(dto1.getCreateTime());
             }
         });
+    }
+
+    /**
+     * ScheduleType=1 是卡班调度模式
+     */
+    private static final Integer SCHEDULE_TYPE_KA_BAN = 1;
+
+    /**
+     * 根据派车任务明细简码获取派车任务明细
+     *
+     * @param transWorkItemCode
+     * @return
+     */
+    private void buildTransWorkItemBySimpleCode(TransWorkItemResponse sealVehicleResponse, String transWorkItemCode) {
+        try {
+            TransWorkItemDto item = tmsTfcWSManager.queryTransWorkItemBySimpleCode(transWorkItemCode);
+            if (item != null) {
+                sealVehicleResponse.setTransPlanCode(item.getTransPlanCode());
+                sealVehicleResponse.setRouteLineCode(item.getRouteLineCode());
+                sealVehicleResponse.setRouteLineName(item.getRouteLineName());
+                sealVehicleResponse.setScheduleType(item.getScheduleType());
+                // ScheduleType=1 是卡班调度模式
+                if (SCHEDULE_TYPE_KA_BAN.equals(item.getScheduleType())) {
+                    if (StringUtils.isNotEmpty(item.getTransPlanCode())) {
+                        ColdChainSend coldChainSend = coldChainSendService.getByTransCode(item.getTransPlanCode());
+                        if (coldChainSend != null) {
+                            sealVehicleResponse.setSendCode(coldChainSend.getSendCode());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
+        }
     }
 
 }
