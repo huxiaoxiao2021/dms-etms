@@ -366,6 +366,10 @@
                   protocol="jsf" alias="${jsf.inboundOrderService.alias}" timeout="5000" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <jsf:consumer id="deptServiceApi" interface="com.jd.eclp.master.export.api.service.dept.DeptServiceApi"
+                  protocol="jsf" alias="${jsf.deptServiceApi.alias}" timeout="1000" retries="${jsf.retries}" >
+    </jsf:consumer>
+
     <!-- automatic分拣自动化：获取发货方案配置的接口 -->
     <jsf:consumer id="areaDestJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">

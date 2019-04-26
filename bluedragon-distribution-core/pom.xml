@@ -948,6 +948,12 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-master-export</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

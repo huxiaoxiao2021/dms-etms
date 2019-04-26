@@ -19,6 +19,9 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.eclp.core.ApiResponse;
+import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
+import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrderTypeEnum;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
@@ -73,6 +76,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     @Autowired
     private SendDatailDao sendDetailDao;
+
+    @Autowired
+    private DeptServiceApi deptServiceApi;
 
     @Override
     public BdInboundECLPDto makeEclpMessage(String waybillCode, SendDetail sendDetail) {
@@ -265,7 +271,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     compensationMoney = claimInfoRespDTO.getPaymentRealMoney()==null?null:claimInfoRespDTO.getPaymentRealMoney().toString();   //仓配运单理赔金额
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称
-                    inboundOrder.setTargetDeptNo(claimInfoRespDTO.getDivisionNumber());//目的事业部编码
+                    ApiResponse<DeptDomain> apiResponse = deptServiceApi.getDeptBySettlementOuId(null, claimInfoRespDTO.getSettleSubjectCode());
+                    if(apiResponse != null && apiResponse.getCode() == 1 && apiResponse.getData() != null){
+                        inboundOrder.setTargetDeptNo(apiResponse.getData().getDeptNo());//目的事业部编码
+                    }
                 } else {
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
                 }
@@ -305,7 +314,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 if (claimInfoRespDTO != null) {
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
-                    inboundOrder.setTargetDeptNo(claimInfoRespDTO.getDivisionNumber());
+                    ApiResponse<DeptDomain> apiResponse = deptServiceApi.getDeptBySettlementOuId(null, claimInfoRespDTO.getSettleSubjectCode());
+                    if(apiResponse != null && apiResponse.getCode() == 1 && apiResponse.getData() != null){
+                        inboundOrder.setTargetDeptNo(apiResponse.getData().getDeptNo());//目的事业部编码
+                    }
                 }else{
                     logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
                 }
