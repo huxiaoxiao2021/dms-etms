@@ -598,4 +598,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public Boolean queryExist(String waybillCode){
         return waybillQueryApi.queryExist(waybillCode);
     }
+
+
+    /**
+     * 根据运单号查询waybillSign
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillSignByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
+        BaseEntity<String> baseEntity = waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
+        return baseEntity;
+    }
 }

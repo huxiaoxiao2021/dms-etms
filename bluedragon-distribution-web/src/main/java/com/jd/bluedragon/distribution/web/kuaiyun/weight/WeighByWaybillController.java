@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.ws.rs.QueryParam;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -150,8 +151,8 @@ public class WeighByWaybillController {
                         }
                     }else if(erpUser!=null && baseStaffSiteOrgDto!=null){
                         //供批量导入使用
-                        vo.setOperatorId(erpUser.getUserId());
-                        vo.setOperatorName(erpUser.getUserName());
+                        vo.setOperatorId(baseStaffSiteOrgDto.getStaffNo());
+                        vo.setOperatorName(baseStaffSiteOrgDto.getStaffName());
                         vo.setOperatorSiteCode(baseStaffSiteOrgDto.getSiteCode());
                         vo.setOperatorSiteName(baseStaffSiteOrgDto.getSiteName());
                     }
@@ -169,6 +170,12 @@ public class WeighByWaybillController {
             }
 
             service.insertWaybillWeightEntry(vo);
+            //判断是否转网
+            if(service.waybillTransferB2C(vo)){
+                result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                result.setMessage(MessageFormat.format(InvokeResult.RESULT_INTERCEPT_MESSAGE, WaybillUtil.getWaybillCode(vo.getCodeStr())));
+                result.setData(true);
+            }
         } catch (WeighByWaybillExcpetion weighByWaybillExcpetion) {
             WeightByWaybillExceptionTypeEnum exceptionType = weighByWaybillExcpetion.exceptionType;
             if (exceptionType.shouldBeThrowToTop) {
@@ -185,6 +192,10 @@ public class WeighByWaybillController {
                     result.setData(false);
                 }
             }
+        } catch (Exception e){
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            result.setData(false);
         }
         return result;
     }
@@ -319,13 +330,13 @@ public class WeighByWaybillController {
                 if(bssod == null){
                     service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
                     if(service.isOpenIntercept()) {
-                        return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人机构信息，请在青龙基础资料维护员工信息");
+                        return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人机构信息，请在青龙基础资料维护员工信息");
                     }
                 }
             }else {
                 service.errorLogForOperator(null, LoginContext.getLoginContext(),true);
                 if(service.isOpenIntercept()) {
-                    return new JdResponse(JdResponse.CODE_FAIL,"未获取的操作人信息，请在青龙基础资料维护员工信息");
+                    return new JdResponse(JdResponse.CODE_FAIL,"未获取到操作人信息，请在青龙基础资料维护员工信息");
                 }
             }
             //解析excel
@@ -334,9 +345,11 @@ public class WeighByWaybillController {
             List<String> resultMessages = new ArrayList<String>();
             List<WaybillWeightVO> successList = new ArrayList<WaybillWeightVO>();
             List<WaybillWeightVO> errorList = new ArrayList<WaybillWeightVO>(); //校验失败的数据
+            List<WaybillWeightVO> warnList = new ArrayList<>();
             WaybillWeightImportResponse waybillWeightImportResponse =  new WaybillWeightImportResponse();
             waybillWeightImportResponse.setErrorList(errorList);
             waybillWeightImportResponse.setSuccessList(successList);
+            waybillWeightImportResponse.setWarnList(warnList);
             dataList = dataResolver.resolver(file.getInputStream(), WaybillWeightVO.class, new PropertiesMetaDataFactory("/excel/waybillWeight.properties"),true,resultMessages);
             if (dataList != null && dataList.size() > 0) {
                 if (dataList.size() > 1000) {
@@ -351,6 +364,10 @@ public class WeighByWaybillController {
                         if(checkOfImport(waybillWeightVO,erpUser,bssod)){
                             //校验通过
                             successList.add(waybillWeightVO);
+                            //判断是否有提示信息
+                            if(InvokeResult.RESULT_INTERCEPT_CODE == waybillWeightVO.getErrorCode()) {
+                                warnList.add(waybillWeightVO);
+                            }
                         }else{
                             errorList.add(waybillWeightVO);
                         }
@@ -365,7 +382,14 @@ public class WeighByWaybillController {
                 //拼装返回数据
                 waybillWeightImportResponse.setSuccessCount(successList.size());
                 waybillWeightImportResponse.setErrorCount(errorList.size());
+                waybillWeightImportResponse.setWarnCount(warnList.size());
                 waybillWeightImportResponse.setCount(errorList.size()+successList.size());
+
+                JdResponse response = new JdResponse();
+                //有拦截提示的数据
+                if(warnList.size() > 0){
+                    response.setData(waybillWeightImportResponse);
+                }
 
                 //存在失败的数据
                 if(errorList.size()>0){
@@ -373,8 +397,12 @@ public class WeighByWaybillController {
                     for(WaybillWeightVO errorVo :errorList){
                         errorVo.setKey(key++);
                     }
-                    return new JdResponse(JdResponse.CODE_PARTIAL_SUCCESS,JdResponse.MESSAGE_PARTIAL_SUCCESS,waybillWeightImportResponse);
+                    response.setCode(JdResponse.CODE_PARTIAL_SUCCESS);
+                    response.setMessage(JdResponse.MESSAGE_PARTIAL_SUCCESS);
+                    response.setData(waybillWeightImportResponse);
                 }
+
+                return response;
 
             } else {
                 errorString = "导入数据表格为空，请检查excel数据";
@@ -390,8 +418,6 @@ public class WeighByWaybillController {
             }
             return new JdResponse(JdResponse.CODE_FAIL,errorString);
         }
-
-        return new JdResponse();
     }
 
 
@@ -473,12 +499,15 @@ public class WeighByWaybillController {
             //存在
             //校验成功 执行插入
             InvokeResult<Boolean> insertWaybillWeightResult = insertWaybillWeight(waybillWeightVO,erpUser,baseStaffSiteOrgDto);
-            if(InvokeResult.RESULT_SUCCESS_CODE != insertWaybillWeightResult.getCode()){
+            if(InvokeResult.RESULT_INTERCEPT_CODE == insertWaybillWeightResult.getCode()){
+                waybillWeightVO.setErrorMessage(insertWaybillWeightResult.getMessage());
+                waybillWeightVO.setErrorCode(InvokeResult.RESULT_INTERCEPT_CODE);
+                return true;
+            } else if(InvokeResult.RESULT_SUCCESS_CODE != insertWaybillWeightResult.getCode()){
                 //插入失败
                 waybillWeightVO.setErrorMessage(insertWaybillWeightResult.getMessage());
                 return false;
             }
-
         }
 
         return true;

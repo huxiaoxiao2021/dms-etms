@@ -1,6 +1,8 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.preseparate.jsf.BatchExpressTransferHandleAPI;
+import com.jd.preseparate.vo.*;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.preseparate.vo.external.PreSeparateAddressInfo;
 import com.jd.ump.annotation.JProEnum;
@@ -16,11 +18,6 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.preseparate.jsf.CommonOrderServiceJSF;
 import com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.preseparate.vo.BaseResponseIncidental;
-import com.jd.preseparate.vo.MediumStationOrderInfo;
-import com.jd.preseparate.vo.OriginalOrderInfo;
-import com.jd.preseparate.vo.PsOrderSeparateVo;
 import com.jd.preseparate.vo.external.ExternalOrderDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -42,7 +39,10 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 	private static final Integer CODE_SUC = 200;
     @Autowired
     private PresortMediumStationAPI presortMediumStation;
-    
+
+    @Autowired
+    private BatchExpressTransferHandleAPI batchExpressTransferHandleAPI;
+
     @Override
     public Integer getPreseparateSiteId(String waybillCode) throws Exception {
         Integer siteId=null;
@@ -109,5 +109,16 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 		addressInfo.setFullAddress(address);
 		addressInfo.setSysCode(Constants.SYSTEM_CODE_WEB);
 		return preseparateOrderService.analysisAddress(addressInfo);
+	}
+
+
+	/**
+	 * 批量转网
+	 * @param request
+	 * @return
+	 */
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PreseparateWaybillManagerImpl.batchTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
+	public BaseResponseIncidental<BatchTransferResult> batchTransfer(BatchTransferRequest request){
+		return batchExpressTransferHandleAPI.handle(request);
 	}
 }

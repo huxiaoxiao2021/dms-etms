@@ -614,4 +614,22 @@ public class BusinessUtil {
         return isSignChar(waybillSign,14,'5');
     }
 
+    /**
+     * 判断是否是纯外单 waybill_sign第1位等于 3或6或9或K或Y
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isForeignWaybill(String waybillSign){
+        return isSignInChars(waybillSign,1,'3','6','K','Y');
+    }
+
+    /**
+     * 判断是否是纯配运单 waybill_sign第53位等于0或2
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isPureDeliveryWaybill(String waybillSign){
+        return isSignInChars(waybillSign,53,'0', '2');
+    }
+
 }

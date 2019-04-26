@@ -357,4 +357,8 @@
         <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
     </bean>
 
+    <!--转网拦截推送MQ消息-->
+    <bean id="dmsWaybillTransferInterceptMQ" parent="uatDmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.transfer.intercept}"/>
+    </bean>
 </beans>

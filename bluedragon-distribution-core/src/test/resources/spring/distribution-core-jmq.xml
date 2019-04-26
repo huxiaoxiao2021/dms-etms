@@ -218,4 +218,11 @@
                    password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
 
     <jmq:producer id="workerProducer" retryTimes="3" transport="jmq.dmsWorker.transport"/>
+
+    <!--转网拦截推送MQ消息-->
+    <bean id="dmsWaybillTransferInterceptMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.waybill.transfer.intercept}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
 </beans>

@@ -21,6 +21,8 @@
     var ERROR_PARAM_RESULT_CODE = 400;
     var ERROR_HALF_RESULT_CODE = 600; //部分成功
     var SERVER_SUCCESS_CODE = 200;
+    var INTERCEPT_CODE = 300;
+    var INTERCEPT_MESSAGE = "根据重量体积信息已经转至C网进行后续操作，请操作【包裹补打】更换面单，否则无法操作建箱及发货";
 
     var VALID_EXISTS_STATUS_CODE = 10;
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
@@ -152,7 +154,7 @@
             {field:'weight',title:'总重量/千克',width:200},
             {field:'volume',title:'总体积/立方米',width:200},
             {field:'statusText',title:'录入方式',width:200},
-            {field:'memo',title:'备注说明',width:500}
+            {field:'memo',title:'备注说明',width:800}
         ]]
     });
 
@@ -307,7 +309,25 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 /*为方便输入 清空输入内容*/
                 clearInputContentsFunc();
-            } else
+            } else if(res.code == INTERCEPT_CODE)
+            {
+                /*录入成功*/
+                insertParam.statusText = '在线录入';
+                insertParam.memo = res.message;
+
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+                if(allForcedToSubmit == 0){
+                    $.messager.alert('运单录入结果',res.message,'info');
+                }
+                $('#waybill-weight-btn').linkbutton('enable');
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            }else
             {
                 /*录入成功*/
                 insertParam.statusText = '在线录入';
@@ -392,13 +412,6 @@ function existSubmit(insertParam,removeFailData,removeIndex){
             if(isValid) {
                 var weight = $('#waybill-weight-kg-input').numberbox('getValue');
                 var cbm = $('#waybill-weight-cbm-input').numberbox('getValue');
-                var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
-                /*重量体积最大限额校验*/
-                isExcessResult(codeStr,weight,cbm);
-                if(flag){
-                    return;
-                }
-
                 /*校验密度*/
                 if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
                     var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
@@ -423,28 +436,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
         }
 
     });
-    /*重量体积最大限额确定取消标识*/
-    var flag = false;
-    var isExcessResult = function(codeStr,weight,volume){
-        $.ajax({
-            type: 'GET',
-            contentType : 'application/json',
-            url : "/b2b/express/weight/checkIsExcess?codeStr=" + codeStr +"&weight="+ weight +"&volume="+ volume,
-            dataType : 'json',
-            async : true,
-            success : function(result) {
-                if(result.code == 600){
-                    $.messager.confirm('请您仔细确认',result.message
-                        ,function(confirmFlag){
-                            if(confirmFlag != true){
-                                flag = true;
-                            }
-                        }
-                    );
-                }
-            }
-        });
-    }
+
 
     /*批量导入按钮*/
     $('#waybill-weight-import-btn').linkbutton({
@@ -472,7 +464,6 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 var data = eval('('+data+')');
 
-
                 if(data.code==SERVER_SUCCESS_CODE){
                     $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
                 }else if(data.code==ERROR_HALF_RESULT_CODE){
@@ -491,11 +482,28 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                             waybillCode:successRows[i].codeStr,
                             weight:successRows[i].weight,
                             volume:successRows[i].volume,
-                            statusText:'批量导入'
+                            statusText:'批量导入',
+                            memo:successRows[i].errorMessage
                         });
                     }
-
                 }
+                //提示转网运单数据
+                if(data.data.warnList && data.data.warnList.length >0){
+                    var warnMessage = "";
+                    var warnList = data.data.warnList;
+                    for(var i in warnList){
+                        warnMessage = warnMessage + warnList[i].codeStr + ",";
+                    }
+                    if(warnMessage.length > 0){
+                        warnMessage = warnMessage.substr(0,warnMessage.length-1);
+                        if(warnMessage.length > 0){
+                            warnMessage = "运单号" + warnMessage + INTERCEPT_MESSAGE;
+                            $.messager.alert('提示',warnMessage);
+                        }
+                    }
+                }
+                $("#waybill-weight-import-dialog").dialog('close');
+
             }
         });
     });

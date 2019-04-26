@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.jmq.domain.DmsWaybillTransferInterceptMQDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -15,6 +18,8 @@ import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -23,16 +28,26 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.preseparate.util.BusinessTypeEnum;
+import com.jd.preseparate.util.OperationExpectEnum;
+import com.jd.preseparate.util.OperationNodeEnum;
+import com.jd.preseparate.util.TransferStatusEnum;
+import com.jd.preseparate.vo.*;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -75,6 +90,30 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     @Autowired
     WaybillTraceManager waybillTraceManager;
+
+    //topic:dms_waybill_transfer_intercept
+    @Autowired
+    @Qualifier("dmsWaybillTransferInterceptMQ")
+    private DefaultJMQProducer dmsWaybillTransferInterceptMQ;
+
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private PreseparateWaybillManager preseparateWaybillManager;
+
+    @Value("${preseparate.systemCode}")
+    private String preseparateSystemCode;
+
+    @Autowired
+    private TaskService taskService;
+
+
+    private static final Integer FEATURE_TYPE_C2B = 7;
+    private static final Integer FEATURE_TYPE_B2C = 8;
+    private static final String SYSTEM_CODE_DMS ="DMS";
+
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
      *
@@ -339,4 +378,172 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         return sysConfigService.getConfigByName("b2b.weight.user.switch");
 
     }
+
+    /**
+     * 判断是否转网--B转C
+     * @return
+     */
+    public boolean waybillTransferB2C(WaybillWeightVO vo){
+        boolean flag = false;
+        //从vo中取出运单号、重量体积、操作人和操作站点信息
+        String waybillCode = WaybillUtil.getWaybillCode(vo.getCodeStr());
+
+        if(StringUtils.isNotBlank(waybillCode)){
+            //调用运单接口获取waybillSign
+            BaseEntity<String> baseEntity = waybillQueryManager.getWaybillSignByWaybillCode(waybillCode);
+            if(baseEntity == null || baseEntity.getResultCode() != 1){
+                logger.error("获取waybillSign失败,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
+                return false;
+            }
+            String waybillSign = baseEntity.getData();
+            //如果是纯配外单，调用预分拣接口判断是否需要转网
+            if(BusinessUtil.isForeignWaybill(waybillSign)
+                    && BusinessUtil.isPureDeliveryWaybill(waybillSign)
+                    && BusinessUtil.isSignChar(waybillSign,89,'0')){
+                BatchTransferRequest batchTransferRequest =buildTransferRequest(vo,waybillCode,waybillSign);
+                BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
+                try {
+                    baseResponse= preseparateWaybillManager.batchTransfer(batchTransferRequest);
+                    logger.debug("调用预分拣批量转网接口返回值:" + JSON.toJSONString(baseResponse));
+                    if (baseResponse == null || !baseResponse.getCode().equals(BaseResponse.CODE_OK)) {
+                        logger.error("调用预分拣批量转网接口失败,参数:" + JSON.toJSONString(batchTransferRequest) + ",返回值:" + baseResponse);
+                        return false;
+                    }
+                }catch(Exception e){
+                    logger.error("调用预分拣批量转网接口异常.",e);                   
+                    return false;
+                }
+
+                if(baseResponse.getData()!= null && baseResponse.getData().getTransferStatus().equals(TransferStatusEnum.already_transferred)){
+                    flag = true;
+                }
+            }
+        }
+
+        //如果转网成功发拦截任务给分拣拦截并发送全称跟踪
+        if(flag){
+            //发送拦截任务
+            pushInterceptTask(vo,FEATURE_TYPE_B2C);
+
+            //发送全称跟踪
+            sendWaybillTrace(vo);
+        }
+
+        return flag;
+    }
+
+    /**
+     * 组装请求预分拣批量转网接口的参数
+     * @param vo
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    private BatchTransferRequest buildTransferRequest(WaybillWeightVO vo,String waybillCode,String waybillSign){
+        Double weight = this.convertWeightUnitToRequired(vo.getWeight());
+        Double volume = this.convertVolumeUnitToRequired(vo.getVolume());
+        Integer operatorId = vo.getOperatorId();
+        Integer operateSiteCode = vo.getOperatorSiteCode();
+
+        //根据操作人编码获取操作人erp
+        String userErp = "";
+        BaseStaffSiteOrgDto staffdto = baseMajorManager.getBaseStaffByStaffId(operatorId);
+        if (staffdto == null || StringUtils.isBlank(staffdto.getErp())) {
+            logger.error("根据操作人id:" + operatorId + "获取操作人erp失败.返回值:" + JSON.toJSONString(staffdto));
+        } else {
+            userErp = staffdto.getErp();
+        }
+
+        //组装参数
+        BatchTransferRequest batchTransferRequest = new BatchTransferRequest();
+        List<TransferRequestOrder> waybillList = new ArrayList<TransferRequestOrder>(0);
+        TransferRequestOrder transferRequestOrder = new TransferRequestOrder();
+        transferRequestOrder.setWaybillCode(waybillCode);
+        transferRequestOrder.setWaybillSign(waybillSign);
+        transferRequestOrder.setWeight(new BigDecimal(String.valueOf(weight)));
+        transferRequestOrder.setVolume(new BigDecimal(String.valueOf(volume)));
+        waybillList.add(transferRequestOrder);
+
+        batchTransferRequest.setOrderList(waybillList);
+        batchTransferRequest.setOperationNode(OperationNodeEnum.SORTING_CENTER);
+        batchTransferRequest.setBusinessType(BusinessTypeEnum.DELIVER_ORDER);
+        batchTransferRequest.setOperationBranchId(operateSiteCode);
+        batchTransferRequest.setOperationExpect(OperationExpectEnum.transfer_to_station);
+        batchTransferRequest.setOperatorErp(userErp);
+        batchTransferRequest.setOperationTime(new Date());
+        batchTransferRequest.setSystemCode(preseparateSystemCode);
+
+        return batchTransferRequest;
+    }
+
+    /**
+     * 发送转网拦截
+     * @param vo
+     * @param featureType
+     */
+    private void pushInterceptTask(WaybillWeightVO vo,Integer featureType){
+        DmsWaybillTransferInterceptMQDto mqDto = new DmsWaybillTransferInterceptMQDto();
+        mqDto.setWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
+        mqDto.setFeatureType(featureType);
+        mqDto.setOperatorCode(vo.getOperatorId());
+        mqDto.setSiteCode(vo.getOperatorSiteCode());
+        mqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
+        mqDto.setSourceSystem(SYSTEM_CODE_DMS);
+        dmsWaybillTransferInterceptMQ.sendOnFailPersistent(mqDto.getWaybillCode(),JSON.toJSONString(mqDto));
+    }
+
+    private void sendWaybillTrace(WaybillWeightVO vo){
+        try {
+            WaybillStatus waybillStatus = this.getWaybillStatus(vo);
+            // 添加到task表
+            taskService.add(toTask(waybillStatus));
+
+        } catch (Exception e) {
+            logger.error("B网转C网全称跟踪发送失败.", e);
+        }
+    }
+    private WaybillStatus getWaybillStatus(WaybillWeightVO vo) {
+        WaybillStatus tWaybillStatus = new WaybillStatus();
+        //设置站点相关属性
+        tWaybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
+
+        tWaybillStatus.setCreateSiteCode(vo.getOperatorSiteCode());
+        tWaybillStatus.setCreateSiteName(vo.getOperatorSiteName());
+
+        tWaybillStatus.setOperatorId(vo.getOperatorId());
+        tWaybillStatus.setOperator(vo.getOperatorName());
+        tWaybillStatus.setOperateTime(new Date());
+        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_TRANSFER);
+        tWaybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_MESSAGE_WAYBILL_TRANSFER_B2C);
+
+        return tWaybillStatus;
+    }
+
+    /**
+     * 转换成全称跟踪的Task
+     *
+     * @param waybillStatus
+     * @return
+     */
+    private Task toTask(WaybillStatus waybillStatus) {
+        Task task = new Task();
+        task.setTableName(Task.TABLE_NAME_POP);
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1(waybillStatus.getPackageCode());
+        task.setKeyword2(String.valueOf(waybillStatus.getOperateType()));
+        task.setCreateSiteCode(waybillStatus.getCreateSiteCode());
+        task.setBody(JSON.toJSONString(waybillStatus));
+        task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        task.setOwnSign(BusinessHelper.getOwnSign());
+        return task;
+    }
+
+    public String getPreseparateSystemCode() {
+        return preseparateSystemCode;
+    }
+
+    public void setPreseparateSystemCode(String preseparateSystemCode) {
+        this.preseparateSystemCode = preseparateSystemCode;
+    }
+
 }

@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.jmq.domain;
 
-import java.util.Date;
 
 /**
  * 运单预分拣站点变更MQ实体
