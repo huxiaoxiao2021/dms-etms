@@ -5,18 +5,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -60,9 +58,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private ReceiveWeightCheckService receiveWeightCheckService;
-
-    @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
     @Autowired
@@ -95,11 +90,9 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping("/listData")
     @ResponseBody
-    public PagerResult<WeightAndVolumeCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
+    public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        //TODO 2.第一个页面查询
-//        PagerResult<WeightAndVolumeCheck> result = weightAndVolumeCheckService.queryByCondition(condition);
-        PagerResult<WeightAndVolumeCheck> result = receiveWeightCheckService.queryByCondition1(condition);
+        PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
 

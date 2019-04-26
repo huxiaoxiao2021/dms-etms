@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao">
 
-	<resultMap id="weightAndVolumeCheck" type="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck" >
+	<resultMap id="ReceiveWeightCheckResult" type="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="review_date" property="reviewDate" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -15,11 +15,12 @@
 		<result column="review_weight" property="reviewWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="review_lwh" property="reviewLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="review_volume" property="reviewVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="collect_org_name" property="billingOperateOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="collect_department" property="billingOperateDepartment" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="collect_erp" property="billingOperateErp" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="collect_weight" property="billingWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="collect_volume" property="billingVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="collect_org_name" property="receiveOrg" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_department" property="receiveDepartment" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_erp" property="receiveErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_weight" property="receiveWeight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="collect_lwh" property="receiveLwh" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="collect_volume" property="receiveVolume" javaType="java.lang.Double" jdbcType="DOUBLE" />
 		<result column="weight_diff" property="weightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="volume_weight_diff" property="volumeWeightDiff" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="diff_standard" property="diffStandard" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -35,7 +36,7 @@
 		ts
 	</sql>
 
-	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck">
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult">
 		insert into review_collect_weight
 		(
 		<trim suffixOverrides=",">
@@ -75,19 +76,22 @@
 			<if test="reviewVolume != null">
 				review_volume,
 			</if>
-			<if test="billingOperateOrg != null">
+			<if test="receiveOrg != null">
 				collect_org_name,
 			</if>
-			<if test="billingOperateDepartment != null">
+			<if test="receiveDepartment != null">
 				collect_department,
 			</if>
-			<if test="billingOperateErp != null">
+			<if test="receiveErp != null">
 				collect_erp,
 			</if>
-			<if test="billingWeight != null">
+			<if test="receiveWeight != null">
 				collect_weight,
 			</if>
-			<if test="billingVolume != null">
+			<if test="receiveLwh != null">
+				collect_lwh,
+			</if>
+			<if test="receiveVolume != null">
 				collect_volume,
 			</if>
 			<if test="weightDiff != null">
@@ -145,20 +149,23 @@
 			<if test="reviewVolume != null">
 				#{reviewVolume,jdbcType=DOUBLE},
 			</if>
-			<if test="billingOperateOrg != null">
-				#{billingOperateOrg,jdbcType=VARCHAR},
+			<if test="receiveOrg != null">
+				#{receiveOrg,jdbcType=VARCHAR},
 			</if>
-			<if test="billingOperateDepartment != null">
-				#{billingOperateDepartment,jdbcType=VARCHAR},
+			<if test="receiveDepartment != null">
+				#{receiveDepartment,jdbcType=VARCHAR},
 			</if>
-			<if test="billingOperateErp != null">
-				#{billingOperateErp,jdbcType=VARCHAR},
+			<if test="receiveErp != null">
+				#{receiveErp,jdbcType=VARCHAR},
 			</if>
-			<if test="billingWeight != null">
-				#{billingWeight,jdbcType=DOUBLE},
+			<if test="receiveWeight != null">
+				#{receiveWeight,jdbcType=DOUBLE},
 			</if>
-			<if test="billingVolume != null">
-				#{billingVolume,jdbcType=DOUBLE},
+			<if test="receiveLwh != null">
+				#{receiveLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveVolume != null">
+				#{receiveVolume,jdbcType=DOUBLE},
 			</if>
 			<if test="weightDiff != null">
 				#{weightDiff,jdbcType=VARCHAR},
@@ -204,7 +211,7 @@
 		</if>
 	</sql>
 
-	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition" resultMap="weightAndVolumeCheck">
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition" resultMap="ReceiveWeightCheckResult">
 		select 
 		 <include refid="Base_Column_List"/>
 		from
@@ -218,7 +225,7 @@
 		</if>
 	</select>
 
-	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition"
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition"
 			resultType="Integer">
 		select
 		count(1) as num
@@ -229,7 +236,7 @@
 		<include refid="Base_Condition_Sql"/>
 	</select>
 
-	<select id="queryByPackageCode" parameterType="String" resultMap="weightAndVolumeCheck">
+	<select id="queryByPackageCode" parameterType="String" resultMap="ReceiveWeightCheckResult">
 		select
 		<include refid="Base_Column_List"/>
 		from
@@ -240,7 +247,7 @@
 		limit 1
 	</select>
 
-	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck" timeout="3">
+	<update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult"  timeout="3">
 		UPDATE review_collect_weight
 		<set>
 			<if test="reviewDate != null">
@@ -276,20 +283,23 @@
 			<if test="reviewVolume != null">
 				review_volume = #{reviewVolume,jdbcType=DOUBLE},
 			</if>
-			<if test="billingOperateOrg != null">
-				collect_org_name = #{billingOperateOrg,jdbcType=VARCHAR},
+			<if test="receiveOrg != null">
+				collect_org_name = #{receiveOrg,jdbcType=VARCHAR},
 			</if>
-			<if test="billingOperateDepartment != null">
-				collect_department = #{billingOperateDepartment,jdbcType=VARCHAR},
+			<if test="receiveDepartment != null">
+				collect_department = #{receiveDepartment,jdbcType=VARCHAR},
 			</if>
-			<if test="billingOperateErp != null">
-				collect_erp = #{billingOperateErp,jdbcType=VARCHAR},
+			<if test="receiveErp != null">
+				collect_erp = #{receiveErp,jdbcType=VARCHAR},
 			</if>
-			<if test="billingWeight != null">
-				collect_weight = #{billingWeight,jdbcType=DOUBLE},
+			<if test="receiveWeight != null">
+				collect_weight = #{receiveWeight,jdbcType=DOUBLE},
 			</if>
-			<if test="billingVolume != null">
-				collect_volume = #{billingVolume,jdbcType=DOUBLE},
+			<if test="receiveLwh != null">
+				collect_lwh = #{receiveLwh,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveVolume != null">
+				collect_volume = #{receiveVolume,jdbcType=DOUBLE},
 			</if>
 			<if test="weightDiff != null">
 				weight_diff = #{weightDiff,jdbcType=VARCHAR},

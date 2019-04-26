@@ -2,9 +2,9 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 
 import java.io.InputStream;
 import java.util.List;
@@ -47,7 +47,7 @@ public interface WeightAndVolumeCheckService {
      * @param condition
      * @return
      */
-    PagerResult<WeightAndVolumeCheck> queryByCondition(WeightAndVolumeCheckCondition condition);
+    PagerResult<WeightVolumeCollectDto> queryByCondition(WeightAndVolumeCheckCondition condition);
 
     /**
      * 导出

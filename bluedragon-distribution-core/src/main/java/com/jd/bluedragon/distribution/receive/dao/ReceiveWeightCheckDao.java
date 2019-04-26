@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.receive.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 
 import java.util.List;
 
@@ -32,18 +30,10 @@ public class ReceiveWeightCheckDao extends BaseDao<ReceiveWeightCheckResult> {
         return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
     }
 
-    public List<WeightAndVolumeCheck> queryByCondition1(WeightAndVolumeCheckCondition condition){
-        return this.getSqlSession().selectList(namespace + ".queryByCondition",condition);
-    }
-
     /**
      * 根据条件查询数据条数
      * */
     public Integer queryNumByCondition(ReceiveWeightCheckCondition condition) {
-        return this.getSqlSession().selectOne(namespace + ".pageNum_queryByPagerCondition",condition);
-    }
-
-    public Integer queryNumByCondition1(WeightAndVolumeCheckCondition condition) {
         return this.getSqlSession().selectOne(namespace + ".pageNum_queryByPagerCondition",condition);
     }
 

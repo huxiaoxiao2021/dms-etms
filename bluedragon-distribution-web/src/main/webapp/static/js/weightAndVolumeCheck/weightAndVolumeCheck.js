@@ -91,26 +91,26 @@ $(function () {
             title: '商家名称',
             align: 'center'
         }, {
-            field: 'isTrustBusiName',
+            field: 'isTrustBusi',
             title: '信任商家',
             align: 'center',
             formatter: function (value, row, index) {
                 return value == "1" ? "是" : "否";
             }
         },{
-            field: 'reviewOrg',
+            field: 'reviewOrgName',
             title: '复核区域',
             align: 'center'
         }, {
-            field: 'reviewCreateSiteCode',
+            field: 'reviewSiteCode',
             title: '复核分拣',
             align: 'center',
             visible: false
         }, {
-            field: 'reviewCreateSiteName',
+            field: 'reviewSiteName',
             title: '复核分拣'
         },{
-            field: 'mechanismType',
+            field: 'reviewSubType',
             title: '机构类型',
             align: 'center',
             formatter: function (value, row, index) {
@@ -125,7 +125,7 @@ $(function () {
             title: '分拣复重kg',
             align: 'center'
         },{
-            field: 'reviewLwh',
+            field: 'reviewLWH',
             title: '复核长宽高cm',
             align: 'center'
         },{
@@ -133,15 +133,15 @@ $(function () {
             title: '复核体积cm³',
             align: 'center'
         },{
-            field: 'billingOperateOrg',
+            field: 'billingOrgName',
             title: '计费操作区域',
             align: 'center'
         },{
-            field: 'billingOperateDepartment',
+            field: 'billingDeptName',
             title: '计费操作机构',
             align: 'center'
         },{
-            field: 'billingOperateErp',
+            field: 'billingErp',
             title: '计费操作人ERP',
             align: 'center'
         },{
@@ -184,8 +184,7 @@ $(function () {
             align: 'center',
             formatter : function (value, row, index) {
                 var flage;
-                // if(row.isHasPicture == 0){
-                if(0 == 0){
+                if(row.isHasPicture == 0){
                     flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                         '<br/>'
                 }else{
@@ -212,7 +211,7 @@ $(function () {
                 'click .search': function(e, value, row, index) {
                     $.ajax({
                         type : "get",
-                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewCreateSiteCode,
+                        url : searchExcessPictureUrl + "?packageCode=" + row.packageCode + "&siteCode=" +row.reviewSiteCode,
                         data : {},
                         async : false,
                         success : function (data) {

@@ -6,8 +6,6 @@ import com.jd.bluedragon.distribution.receive.dao.ReceiveWeightCheckDao;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckCondition;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import org.apache.log4j.Logger;
@@ -59,23 +57,8 @@ public class ReceiveWeightCheckServiceImpl implements ReceiveWeightCheckService 
     }
 
     @Override
-    public PagerResult<WeightAndVolumeCheck> queryByCondition1(WeightAndVolumeCheckCondition condition) {
-        PagerResult<WeightAndVolumeCheck>  result = new PagerResult<WeightAndVolumeCheck>();
-        List<WeightAndVolumeCheck> list = receiveWeightCheckDao.queryByCondition1(condition);
-        Integer num = queryNumByCondition1(condition);
-        result.setRows(list);
-        result.setTotal(num);
-        return result;
-    }
-
-    @Override
     public Integer queryNumByCondition(ReceiveWeightCheckCondition condition) {
         return receiveWeightCheckDao.queryNumByCondition(condition);
-    }
-
-    @Override
-    public Integer queryNumByCondition1(WeightAndVolumeCheckCondition condition) {
-        return receiveWeightCheckDao.queryNumByCondition1(condition);
     }
 
     /**

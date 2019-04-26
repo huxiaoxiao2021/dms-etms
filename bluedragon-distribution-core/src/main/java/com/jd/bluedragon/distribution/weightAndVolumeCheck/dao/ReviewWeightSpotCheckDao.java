@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 
 import java.util.List;
@@ -13,7 +12,7 @@ import java.util.List;
  * @author: hujiping
  * @date: 2019/4/23 10:41
  */
-public class ReviewWeightSpotCheckDao extends BaseDao<WeightAndVolumeCheck> {
+public class ReviewWeightSpotCheckDao extends BaseDao<SpotCheckInfo> {
 
     public static final String namespace = ReviewWeightSpotCheckDao.class.getName();
 

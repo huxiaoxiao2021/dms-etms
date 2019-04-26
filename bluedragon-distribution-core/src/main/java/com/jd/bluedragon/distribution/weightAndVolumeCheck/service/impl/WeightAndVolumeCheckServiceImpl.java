@@ -15,13 +15,17 @@ import com.jd.bluedragon.alpha.jss.JssVersionService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheck;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.ReportExternalService;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.Pager;
+import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.log4j.Logger;
@@ -58,6 +62,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
     /**内部 访问域名 */
     private static final String STORAGE_DOMAIN_LOCAL = "storage.jd.local";
+
+    @Autowired
+    private ReportExternalService reportExternalService;
 
     @Autowired
     @Qualifier("dmsAbnormalInfoMQToPanZe")
@@ -219,17 +226,31 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @return
      */
     @Override
-    public PagerResult<WeightAndVolumeCheck> queryByCondition(WeightAndVolumeCheckCondition condition) {
+    public PagerResult<WeightVolumeCollectDto> queryByCondition(WeightAndVolumeCheckCondition condition) {
 
-        //TODO 3.第一个页面导出从es中获取数据并返回前台
-        PagerResult<WeightAndVolumeCheck>  result = new PagerResult<WeightAndVolumeCheck>();
-//        List<WeightAndVolumeCheck> list = queryFromEsByCondition(condition);
-        List<WeightAndVolumeCheck> list = new ArrayList<>();
-//        Integer num = queryNumByCondition(condition);
-        Integer num = 3;
-        result.setRows(list);
-        result.setTotal(num);
-        return null;
+        PagerResult<WeightVolumeCollectDto>  result = new PagerResult<>();
+
+        try{
+            Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+            WeightVolumeQueryCondition transform = transform(condition);
+            pager.setSearchVo(transform);
+            if(condition.getOffset() == 0){
+                pager.setPageNo(1);
+            }else{
+                pager.setPageNo(condition.getOffset()/condition.getLimit());
+            }
+            pager.setPageSize(condition.getLimit());
+            BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
+            if(baseEntity != null && baseEntity.getCode() == BaseEntity.CODE_SUCCESS){
+
+                result.setTotal(baseEntity.getData().getTotal().intValue());
+                result.setRows(baseEntity.getData().getData());
+            }
+        }catch (Exception e){
+            logger.error("服务异常,根据查询条件查询es失败!"+JsonHelper.toJson(condition));
+        }
+
+        return result;
     }
 
     /**
@@ -267,39 +288,53 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("图片链接");
         resList.add(heads);
         condition.setLimit(-1);
-        PagerResult<WeightAndVolumeCheck> result = queryByCondition(condition);
-        if(result != null && result.getRows() != null && result.getRows().size() > 0){
-            List<WeightAndVolumeCheck> list = result.getRows();
+        WeightVolumeQueryCondition transform = transform(condition);
+        BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
+        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
+            List<WeightVolumeCollectDto> list = baseEntity.getData();
             //表格信息
-            for(WeightAndVolumeCheck weightAndVolumeCheck : list){
+            for(WeightVolumeCollectDto weightVolumeCollectDto : list){
                 List<Object> body = Lists.newArrayList();
-                body.add(weightAndVolumeCheck.getReviewDate() == null ? null : DateHelper.formatDate(weightAndVolumeCheck.getReviewDate(), Constants.DATE_TIME_FORMAT));
-                body.add(weightAndVolumeCheck.getWaybillCode());
-                body.add(weightAndVolumeCheck.getPackageCode());
-                body.add(weightAndVolumeCheck.getBusiName());
-                body.add(weightAndVolumeCheck.getIsTrustBusiName()==1?"是":"否");
-                body.add(weightAndVolumeCheck.getReviewOrg());
-                body.add(weightAndVolumeCheck.getReviewCreateSiteName());
-                body.add(weightAndVolumeCheck.getMechanismType()==1?"分拣中心":"转运中心");
-                body.add(weightAndVolumeCheck.getReviewErp());
-                body.add(weightAndVolumeCheck.getReviewWeight());
-                body.add(weightAndVolumeCheck.getReviewLwh());
-                body.add(weightAndVolumeCheck.getReviewVolume());
-                body.add(weightAndVolumeCheck.getBillingOperateOrg());
-                body.add(weightAndVolumeCheck.getBillingOperateDepartment());
-                body.add(weightAndVolumeCheck.getBillingOperateErp());
-                body.add(weightAndVolumeCheck.getBillingWeight());
-                body.add(weightAndVolumeCheck.getBillingVolume());
-                body.add(weightAndVolumeCheck.getWeightDiff());
-                body.add(weightAndVolumeCheck.getVolumeWeightDiff());
-                body.add(weightAndVolumeCheck.getDiffStandard());
-                body.add(weightAndVolumeCheck.getIsExcess()==1?"超标":"未超标");
-                body.add(weightAndVolumeCheck.getIsHasPicture()==1?"有":"无");
-                body.add(weightAndVolumeCheck.getPictureAddress()==null?"":weightAndVolumeCheck.getPictureAddress());
+                body.add(weightVolumeCollectDto.getReviewDate() == null ? null : DateHelper.formatDate(weightVolumeCollectDto.getReviewDate(), Constants.DATE_TIME_FORMAT));
+                body.add(weightVolumeCollectDto.getWaybillCode());
+                body.add(weightVolumeCollectDto.getPackageCode());
+                body.add(weightVolumeCollectDto.getBusiName());
+                body.add(weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
+                body.add(weightVolumeCollectDto.getReviewOrgName());
+                body.add(weightVolumeCollectDto.getReviewSiteName());
+                body.add(weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
+                body.add(weightVolumeCollectDto.getReviewErp());
+                body.add(weightVolumeCollectDto.getReviewWeight());
+                body.add(weightVolumeCollectDto.getReviewLWH());
+                body.add(weightVolumeCollectDto.getReviewVolume());
+                body.add(weightVolumeCollectDto.getBillingOrgName());
+                body.add(weightVolumeCollectDto.getBillingDeptName());
+                body.add(weightVolumeCollectDto.getBillingErp());
+                body.add(weightVolumeCollectDto.getBillingWeight());
+                body.add(weightVolumeCollectDto.getBillingVolume());
+                body.add(weightVolumeCollectDto.getWeightDiff());
+                body.add(weightVolumeCollectDto.getVolumeWeightDiff());
+                body.add(weightVolumeCollectDto.getDiffStandard());
+                body.add(weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
+                body.add(weightVolumeCollectDto.getPictureAddress()==null?"":weightVolumeCollectDto.getPictureAddress());
                 resList.add(body);
             }
         }
         return  resList;
+    }
+
+    /**
+     * 查询条件转换
+     * */
+    private WeightVolumeQueryCondition transform(WeightAndVolumeCheckCondition condition) {
+        WeightVolumeQueryCondition newCondition = new WeightVolumeQueryCondition();
+        newCondition.setStartTime(DateHelper.parseDateTime(condition.getStartTime()));
+        newCondition.setEndTime(DateHelper.parseDateTime(condition.getEndTime()));
+        newCondition.setReviewOrgCode(condition.getReviewOrgCode()==null?null:condition.getReviewOrgCode().intValue());
+        newCondition.setReviewSiteCode(condition.getCreateSiteCode()==null?null:condition.getCreateSiteCode().intValue());
+        newCondition.setIsExcess(condition.getIsExcess());
+        return newCondition;
     }
 
 
