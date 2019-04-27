@@ -12,7 +12,6 @@
 <body>
 <input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
 <input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
-<input type="hidden" id="errorMessage" value="$!{errorMessage}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
