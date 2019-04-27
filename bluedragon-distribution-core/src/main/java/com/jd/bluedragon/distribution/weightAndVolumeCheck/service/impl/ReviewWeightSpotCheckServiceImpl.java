@@ -83,7 +83,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             //表格信息
             for(ReviewWeightSpotCheck reviewWeightSpotCheck : list){
                 List<Object> body = Lists.newArrayList();
-                body.add(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_TIME_FORMAT));
+                body.add(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_FORMAT));
                 body.add(reviewWeightSpotCheck.getReviewOrgName());
                 body.add(reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
                 body.add(reviewWeightSpotCheck.getReviewSiteName());
@@ -221,33 +221,11 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
         //1.从es中获取所有数据
         List<WeightVolumeCollectDto> data = Collections.EMPTY_LIST;
-        Integer num = 0;
         WeightVolumeQueryCondition transform = transform(condition);
         try{
-            if(type==0){
-
-                Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-                pager.setSearchVo(transform);
-                if(condition.getOffset() == 0){
-                    pager.setPageNo(1);
-                }else{
-                    pager.setPageNo(condition.getOffset()/condition.getLimit());
-                }
-                pager.setPageSize(condition.getLimit());
-                BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
-
-                if(baseEntity != null && baseEntity.getCode() == BaseEntity.CODE_SUCCESS
-                        && baseEntity.getData() != null && baseEntity.getData().getData() !=null){
-
-                    data = baseEntity.getData().getData();
-                    num = baseEntity.getData().getTotal().intValue();
-                }
-            }else{
-                BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
-                if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
-                    data = baseEntity.getData();
-                    num = baseEntity.getData().size();
-                }
+            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
+            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
+                data = baseEntity.getData();
             }
         }catch (Exception e){
             logger.error("查询es获取数据失败，"+ JsonHelper.toJson(condition));
@@ -271,7 +249,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     SpotCheckInfo spotCheckInfo = reviewWeightSpotCheckDao.queryBySiteCode(siteCode);
 
                     WeightVolumeCollectDto weightVolumeCollectDto = weightVolumeCollectDtos.get(0);
-
                     Integer trustNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,1);//信任商家实际抽查包裹数量
                     Integer normalNumOfActual = getPackageNumOfSpotCheck(weightVolumeCollectDtos,0);//普通商家实际抽查包裹数量
                     Integer trustNumOfShould = spotCheckInfo==null?null:spotCheckInfo.getTrustPackageNum();              //信任商家应抽查包裹数
@@ -305,8 +282,22 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
 
         }
 
-        result.setRows(list);
-        result.setTotal(num);
+        if(type == 0){
+            //分页查询
+            List<ReviewWeightSpotCheck> listOfReturn = new ArrayList<>();
+            int limit = condition.getLimit();
+            int offset = condition.getOffset();
+            int start = offset;
+            int end = limit+offset;
+            for (int i = start; i < (list.size()<end?list.size():end); i++) {
+                listOfReturn.add(list.get(i));
+            }
+            result.setRows(listOfReturn);
+        }else{
+            //导出
+            result.setRows(list);
+        }
+        result.setTotal(list.size());
 
         return result;
     }
@@ -345,7 +336,8 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             List<WeightVolumeCollectDto> weightVolumeCollectDto1 = mapOfDate.get(date);
             for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDto1){
 
-                if(!map.get(date).containsKey(weightVolumeCollectDto.getReviewSiteCode())){
+//                if(!map.get(date).containsKey(weightVolumeCollectDto.getReviewSiteCode())){
+                if(!map.containsKey(date)){
 
                     Map<Integer, List<WeightVolumeCollectDto>> mapOfSite = new HashMap<>();
                     List list = new ArrayList<WeightVolumeCollectDto>();

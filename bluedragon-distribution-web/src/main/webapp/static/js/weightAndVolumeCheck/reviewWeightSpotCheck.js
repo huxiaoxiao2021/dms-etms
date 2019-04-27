@@ -82,10 +82,10 @@ $(function () {
             title: '复核日期',
             align: 'center',
             formatter : function(value,row,index){
-                return $.dateHelper.formateDateTimeOfTs(value);
+                return $.dateHelper.formateDateOfTs(value);
             }
         }, {
-            field: 'reviewOrg',
+            field: 'reviewOrgName',
             title: '复核区域',
             align: 'center'
         },{

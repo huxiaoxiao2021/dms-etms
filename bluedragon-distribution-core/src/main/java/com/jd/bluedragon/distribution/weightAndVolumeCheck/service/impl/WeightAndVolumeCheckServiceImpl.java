@@ -238,7 +238,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(condition.getOffset() == 0){
                 pager.setPageNo(1);
             }else{
-                pager.setPageNo(condition.getOffset()/condition.getLimit());
+                pager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
             }
             pager.setPageSize(condition.getLimit());
             BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);

@@ -280,7 +280,6 @@ $(function () {
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            debugger;
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;

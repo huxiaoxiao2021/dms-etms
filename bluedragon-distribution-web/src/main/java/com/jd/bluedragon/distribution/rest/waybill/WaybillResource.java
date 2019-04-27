@@ -120,6 +120,22 @@ public class WaybillResource {
 
     private final Log logger = LogFactory.getLog(this.getClass());
 
+	@POST
+	@Path("/insertOrUpdate")
+	public void getWaybillAndPack(WeightVolumeCollectDto dto){
+        try {
+
+            com.jd.ql.dms.report.domain.BaseEntity<String> entity = reportExternalService.insertOrUpdateForWeightVolume(dto);
+            if(entity != null && entity.getCode() == com.jd.ql.dms.report.domain.BaseEntity.CODE_SUCCESS){
+
+            }
+
+        }catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+
     /**
      * 揽收完成状态
      * */
