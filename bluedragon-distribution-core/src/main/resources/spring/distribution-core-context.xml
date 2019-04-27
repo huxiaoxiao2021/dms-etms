@@ -27,6 +27,7 @@
     <!--<import resource="classpath:spring/distribution-core-dcam.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
+	<import resource="classpath:spring/distribution-core-quartz.xml"/>
 	<import resource="classpath:spring/distribution-core-ucc.xml"/>
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
