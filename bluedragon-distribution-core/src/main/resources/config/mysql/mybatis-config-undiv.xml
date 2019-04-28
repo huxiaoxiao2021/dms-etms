@@ -107,6 +107,13 @@
         <!-- 签单返回 -->
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.SignReturnPrintM" alias="signReturnPrintM"/>
         <typeAlias type="com.jd.bluedragon.distribution.signAndReturn.domain.MergedWaybill" alias="mergedWaybill"/>
+
+        <!-- 通知栏 -->
+        <typeAlias type="com.jd.bluedragon.distribution.notice.domain.Notice" alias="Notice"/>
+        <typeAlias type="com.jd.bluedragon.distribution.notice.domain.NoticeAttachment" alias="NoticeAttachment"/>
+
+        <!-- 冷链发货 -->
+        <typeAlias type="com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend" alias="ColdChainSend"/>
     </typeAliases>
 
     <plugins>
@@ -290,5 +297,14 @@
         <!-- 揽收重量校验 -->
         <mapper resource="mappers/mysql/receive/ReceivedWeightCheckMapper.xml"/>
 
+        <!-- 备件库分拣记录 -->
+        <mapper resource="mappers/mysql/spare/SpareSortingRecordMapper.xml"/>
+
+        <!-- 通知栏 -->
+        <mapper resource="mappers/mysql/notice/NoticeMapper.xml"/>
+        <mapper resource="mappers/mysql/notice/NoticeAttachmentMapper.xml"/>
+
+        <!-- 冷链发货 -->
+        <mapper resource="mappers/mysql/coldchain/ColdChainSendMapper.xml"/>
     </mappers>
 </configuration>

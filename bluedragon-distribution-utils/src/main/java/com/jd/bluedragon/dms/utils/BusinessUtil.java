@@ -615,6 +615,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是运费临时欠款 【WaybillSign 62位 =1（营业厅运单），且WaybillSign 25位 = 4 时】
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isTemporaryArrearsWaybill(String waybillSign){
+        return isSignChar(waybillSign,62,'1') && isSignChar(waybillSign,25,'4');
+    }
+
+    /**
      * 判断是否是纯外单 waybill_sign第1位等于 3或6或9或K或Y
      * @param waybillSign
      * @return
