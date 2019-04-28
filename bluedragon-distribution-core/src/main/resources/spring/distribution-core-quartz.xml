@@ -6,11 +6,15 @@
    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <!--
-		Spring整合Quartz进行配置遵循下面的步骤：
+        0: 实例化job
 		1：定义工作任务的Job
 		2：定义触发器Trigger，并将触发器与工作任务绑定
 		3：定义调度器，并将Trigger注册到Scheduler
 	 -->
+
+    <!-- 0: 实例化job -->
+    <bean id="jobInstance" class="com.jd.bluedragon.quartz.QuartzJobFacotry"></bean>
+
     <!-- 1：定义任务的bean ，这里使用JobDetailFactoryBean,也可以使用MethodInvokingJobDetailFactoryBean -->
     <bean name="hwJob" class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
         <!-- 指定job的名称 -->
@@ -37,7 +41,6 @@
         <property name="cronExpression" value="0 0 0/2 * * ?" />
     </bean>
 
-
     <!-- 3.定义调度器，并将Trigger注册到调度器中 -->
     <bean id="scheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
         <property name="triggers">
@@ -45,6 +48,7 @@
                 <ref bean="cronTrigger"/>
             </list>
         </property>
+        <property name="jobFactory" ref="jobInstance"/>
         <!-- <property name="autoStartup" value="true" /> -->
     </bean>
 

@@ -2082,7 +2082,7 @@ public class WaybillResource {
             abnormalResultMq.setOperateTime(new Date());
 
 			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
-            dmsWeightVolumeExcess.send(abnormalResultMq.getBillCode(),JsonHelper.toJson(abnormalResultMq));
+            dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
             this.logger.error("发送查表异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
         }

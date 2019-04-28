@@ -221,7 +221,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(!StringHelper.isEmpty(pictureAddress)){
                 abnormalPictureMq.setExcessPictureAddress(pictureAddress);
                 this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
-                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getWaybillCode(), JsonHelper.toJson(abnormalPictureMq));
+                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(), JsonHelper.toJson(abnormalPictureMq));
                 //更新es数据
                 WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
                 dto.setPackageCode(packageCode);
