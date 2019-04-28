@@ -188,10 +188,6 @@ public class WaybillResource {
 	 */
 	private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
 
-	/** 系统标识 */
-	private static final String DMS = "dms";
-
-
 
 	/* 运单查询 */
 	@Autowired
@@ -2045,7 +2041,7 @@ public class WaybillResource {
 							 int dutyType,double reviewLength,double reviewWidth,double reviewHigh) {
         try{
             AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
-            abnormalResultMq.setAbnormalId(DMS + "_" + weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
+            abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
             abnormalResultMq.setFrom(SystemEnum.DMS.getName());
             if(dutyType == 2 || dutyType == 3){
 				//分拣、站点发给下游判责
