@@ -36,16 +36,6 @@
 		    <artifactId>guava</artifactId>
 		    <version>14.0.1</version>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>RELEASE</version>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>joda-time</groupId>-->
             <!--<artifactId>joda-time</artifactId>-->

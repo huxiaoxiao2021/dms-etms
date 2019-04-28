@@ -115,9 +115,9 @@
         <!-- 配置那些sqlId走从数据源-->
         <property name="minorSqlIds">
             <set>
-                <!--<value>com.jd.bluedragon.distribution.service.dao.BoxDao.findBoxByCode</value>-->
-                <!--<value>com.jd.bluedragon.distribution.service.dao.BoxDao.findBoxByBoxCode</value>-->
-                <!--<value>com.jd.bluedragon.distribution.sservice.dao.SendMDao.findSendMByBoxCode</value>-->
+                <!--<value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByCode</value>-->
+                <!--<value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByBoxCode</value>-->
+                <!--<value>com.jd.bluedragon.distribution.send.dao.SendMDao.findSendMByBoxCode</value>-->
                 <!--<value>com.jd.bluedragon.distribution.send.router.SendMRouter.findSendMByBoxCode</value>-->
             </set>
         </property>
