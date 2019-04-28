@@ -347,11 +347,4 @@
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
     </bean>
-
-    <!--转网拦截推送MQ消息-->
-    <bean id="dmsWaybillTransferInterceptMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dms.waybill.transfer.intercept}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-
 </beans>

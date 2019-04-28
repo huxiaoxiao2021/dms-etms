@@ -620,7 +620,7 @@ public class BusinessUtil {
      * @return
      */
     public static Boolean isForeignWaybill(String waybillSign){
-        return isSignInChars(waybillSign,1,'3','6','K','Y');
+        return isSignInChars(waybillSign,1,'3','6','9','K','Y');
     }
 
     /**

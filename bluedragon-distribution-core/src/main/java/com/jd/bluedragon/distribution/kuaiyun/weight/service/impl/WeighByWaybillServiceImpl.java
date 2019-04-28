@@ -399,8 +399,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             //如果是纯配外单，调用预分拣接口判断是否需要转网
             if(BusinessUtil.isForeignWaybill(waybillSign)
                     && BusinessUtil.isPureDeliveryWaybill(waybillSign)
-                    && BusinessUtil.isSignChar(waybillSign,89,'0')){
-                BatchTransferRequest batchTransferRequest =buildTransferRequest(vo,waybillCode,waybillSign);
+                    && (waybillSign.length() <= 90 || BusinessUtil.isSignChar(waybillSign,89,'0'))){
+                BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {
                     baseResponse= preseparateWaybillManager.batchTransfer(batchTransferRequest);
@@ -410,7 +410,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                         return false;
                     }
                 }catch(Exception e){
-                    logger.error("调用预分拣批量转网接口异常.",e);                   
+                    logger.error("调用预分拣批量转网接口异常.运单号:" + waybillCode,e);
                     return false;
                 }
 
@@ -420,10 +420,8 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             }
         }
 
-        //如果转网成功发拦截任务给分拣拦截并发送全称跟踪
+        //如果转网成功发送全称跟踪
         if(flag){
-            //发送拦截任务
-            pushInterceptTask(vo,FEATURE_TYPE_B2C);
 
             //发送全称跟踪
             sendWaybillTrace(vo);
@@ -456,7 +454,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         //组装参数
         BatchTransferRequest batchTransferRequest = new BatchTransferRequest();
-        List<TransferRequestOrder> waybillList = new ArrayList<TransferRequestOrder>(0);
+        List<TransferRequestOrder> waybillList = new ArrayList<TransferRequestOrder>(1);
         TransferRequestOrder transferRequestOrder = new TransferRequestOrder();
         transferRequestOrder.setWaybillCode(waybillCode);
         transferRequestOrder.setWaybillSign(waybillSign);
@@ -476,21 +474,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         return batchTransferRequest;
     }
 
-    /**
-     * 发送转网拦截
-     * @param vo
-     * @param featureType
-     */
-    private void pushInterceptTask(WaybillWeightVO vo,Integer featureType){
-        DmsWaybillTransferInterceptMQDto mqDto = new DmsWaybillTransferInterceptMQDto();
-        mqDto.setWaybillCode(WaybillUtil.getWaybillCode(vo.getCodeStr()));
-        mqDto.setFeatureType(featureType);
-        mqDto.setOperatorCode(vo.getOperatorId());
-        mqDto.setSiteCode(vo.getOperatorSiteCode());
-        mqDto.setOperateTime(DateHelper.formatDateTime(new Date()));
-        mqDto.setSourceSystem(SYSTEM_CODE_DMS);
-        dmsWaybillTransferInterceptMQ.sendOnFailPersistent(mqDto.getWaybillCode(),JSON.toJSONString(mqDto));
-    }
 
     private void sendWaybillTrace(WaybillWeightVO vo){
         try {

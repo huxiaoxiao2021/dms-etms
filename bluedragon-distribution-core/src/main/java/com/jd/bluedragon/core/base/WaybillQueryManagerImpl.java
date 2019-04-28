@@ -605,10 +605,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @param waybillCode
      * @return
      */
-    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillSignByWaybillCode",
+    @JProfiler(jKey = "DMS.JSF.Waybill.waybillQueryApi.getWaybillSignByWaybillCode",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
-        BaseEntity<String> baseEntity = waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
-        return baseEntity;
+        return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
     }
 }

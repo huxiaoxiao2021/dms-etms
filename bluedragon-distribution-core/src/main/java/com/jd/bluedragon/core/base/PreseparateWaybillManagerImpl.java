@@ -117,7 +117,7 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 	 * @param request
 	 * @return
 	 */
-	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.PreseparateWaybillManagerImpl.batchTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.JSF.Preseparate.batchExpressTransferHandleAPI.handle", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public BaseResponseIncidental<BatchTransferResult> batchTransfer(BatchTransferRequest request){
 		return batchExpressTransferHandleAPI.handle(request);
 	}

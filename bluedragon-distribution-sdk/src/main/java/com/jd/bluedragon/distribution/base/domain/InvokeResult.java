@@ -26,7 +26,7 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_MULTI_ERROR=600;
     public static final String MULTI_ERROR = "数据已存在";
 
-    public static final int RESULT_INTERCEPT_CODE = 300;
+    public static final Integer RESULT_INTERCEPT_CODE = 300;
     public static final String RESULT_INTERCEPT_MESSAGE = "运单号:{0}，根据重量体积信息已经转至C网进行后续操作，请操作【包裹补打】更换面单，否则无法操作建箱及发货";
 
 

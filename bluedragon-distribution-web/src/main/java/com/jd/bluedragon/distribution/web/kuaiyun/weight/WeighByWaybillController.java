@@ -365,7 +365,7 @@ public class WeighByWaybillController {
                             //校验通过
                             successList.add(waybillWeightVO);
                             //判断是否有提示信息
-                            if(InvokeResult.RESULT_INTERCEPT_CODE == waybillWeightVO.getErrorCode()) {
+                            if(InvokeResult.RESULT_INTERCEPT_CODE.equals(waybillWeightVO.getErrorCode())) {
                                 warnList.add(waybillWeightVO);
                             }
                         }else{
