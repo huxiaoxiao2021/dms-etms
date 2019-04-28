@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintMessages;
 import com.jd.etms.erp.service.dto.SendInfoDto;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +36,7 @@ public class ResidentResource {
     private TerminalManager terminalManager;
 
     /**
-     * 查询运单号是否操作站点发货
+     * 查询包裹是否操作站点发货
      * @param boxCode
      * @return
      */
@@ -43,27 +44,35 @@ public class ResidentResource {
     @Path("/resident/isSendBySite/{boxCode}")
     public InvokeResult<String> isSendBySite(@PathParam("boxCode") String boxCode){
         InvokeResult<String> result = new InvokeResult<String>();
-        String waybillCode = null;
+        String packageCode = null;
         try{
-            //获取箱号中其中的一个运单号（终端）
+            //获取箱号中其中的一个包裹号（终端）
             com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = terminalManager.getSendDetails(boxCode);
             if(baseEntity != null && baseEntity.getResultCode() > 0) {
                 List<SendInfoDto> data = baseEntity.getData();
                 if(data != null && data.size() > 0){
-                    waybillCode = data.get(0).getWaybillCode();
+                    packageCode = data.get(0).getWaybillCode();
                 }
             }
-            //根据运单号判断是否操作发货
-            if(waybillCode != null){
-                List<PackageState> list = waybillTraceManager.getPkStateByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE);
-                if(list != null && list.size() > 0){
-                    result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
+            //根据包裹号判断是否操作发货
+            if(packageCode != null){
+                BaseEntity<List<PackageState>> entity = waybillTraceManager.getPkStateByPCode(packageCode);
+                if(entity != null && entity.getData() != null &&
+                        entity.getData().size() > 0){
+                    List<PackageState> packageStateList = entity.getData();
+                    for(PackageState packageState : packageStateList){
+                        if(packageState.getState().equals(Constants.WAYBILL_TRACE_STATE_SEND_BY_SITE)){
+                            result.setData(WaybillPrintMessages.MESSAGE_WAYBILL_STATE_SEND_BY_SITE);
+                            break;
+                        }
+                    }
                 }
             }
         }catch (Exception e){
-            this.logger.error("通过运单号"+waybillCode+"查询运单全程跟踪失败！");
+            this.logger.error("查询箱号"+boxCode+"是否操作站点发货服务异常!");
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+            result.setData(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
     }
