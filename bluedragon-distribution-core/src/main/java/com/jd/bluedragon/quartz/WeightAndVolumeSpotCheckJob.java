@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -17,8 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +29,7 @@ import java.util.List;
  * @author: hujiping
  * @date: 2019/4/26 18:34
  */
+@Service
 public class WeightAndVolumeSpotCheckJob implements Job {
 
     private static final Log logger = LogFactory.getLog(WeightAndVolumeSpotCheckJob.class);
@@ -36,17 +37,6 @@ public class WeightAndVolumeSpotCheckJob implements Job {
     /** 称重计费分页初始值 */
     private static final Integer PAGESIZE = 5000;
     private static final Integer PAGENO = 1;
-
-    @Autowired
-    private ReportExternalService reportExternalService;
-
-    @Autowired
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-    @Autowired
-    @Qualifier("dmsAbnormalInfoMQToPanZe")
-    private DefaultJMQProducer dmsAbnormalInfoMQToPanZe;
-
 
     /**
      * @param jobExecutionContext
@@ -89,6 +79,7 @@ public class WeightAndVolumeSpotCheckJob implements Job {
     }
 
     private BaseEntity<Pager<WeightVolumeCollectDto>> getPagerBaseEntity(int pageNo) {
+        ReportExternalService reportExternalService = (ReportExternalService) SpringHelper.getBean("reportExternalService");
         BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity;
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
@@ -101,8 +92,14 @@ public class WeightAndVolumeSpotCheckJob implements Job {
     }
 
     private void updateAndSendMq(List<WeightVolumeCollectDto> list) throws JMQException {
+        WeightAndVolumeCheckService weightAndVolumeCheckService = (WeightAndVolumeCheckService)SpringHelper.getBean("weightAndVolumeCheckService");
+        ReportExternalService reportExternalService = (ReportExternalService) SpringHelper.getBean("reportExternalService");
+        DefaultJMQProducer dmsWeightVolumeAbnormal = (DefaultJMQProducer) SpringHelper.getBean("dmsWeightVolumeAbnormal");
         for(WeightVolumeCollectDto weightVolumeCollectDto : list){
             //2.根据包裹号和站点查询oss是否有图片
+            if(!StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())){
+                break;
+            }
             String packageCode = weightVolumeCollectDto.getPackageCode();
             int siteCode = weightVolumeCollectDto.getReviewSiteCode();
             String pictureAddress = weightVolumeCollectDto.getPictureAddress();
@@ -120,9 +117,10 @@ public class WeightAndVolumeSpotCheckJob implements Job {
                 abnormalPictureMq.setWaybillCode(weightVolumeCollectDto.getPackageCode());
                 abnormalPictureMq.setExcessPictureAddress(weightVolumeCollectDto.getPictureAddress());
                 abnormalPictureMq.setUploadTime(new Date().getTime());
-                this.logger.info("发送MQ[" + dmsAbnormalInfoMQToPanZe.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
-                dmsAbnormalInfoMQToPanZe.send("", JsonHelper.toJson(abnormalPictureMq));
+                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                dmsWeightVolumeAbnormal.send("", JsonHelper.toJson(abnormalPictureMq));
             }
         }
     }
+
 }

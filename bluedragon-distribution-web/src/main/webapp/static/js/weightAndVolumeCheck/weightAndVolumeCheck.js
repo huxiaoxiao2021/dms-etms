@@ -184,11 +184,15 @@ $(function () {
             align: 'center',
             formatter : function (value, row, index) {
                 var flage;
-                if(row.isHasPicture == 0){
-                    flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
-                        '<br/>'
+                if(row.isExcess == 0){
+                    flage = null;
                 }else{
-                    flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
+                    if(row.isHasPicture == 0){
+                        flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
+                            '<br/>'
+                    }else{
+                        flage = '<a class="search" href="javascript:void(0)" ><i class="glyphicon glyphicon-search"></i>&nbsp;查看&nbsp;</a>'
+                    }
                 }
                 return flage;
             },

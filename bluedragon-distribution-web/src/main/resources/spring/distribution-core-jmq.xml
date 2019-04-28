@@ -350,13 +350,13 @@
     </bean>
 
     <!-- 超标mq，提供给fxm系统 -->
-    <bean id="dmsAbnormalInfoMQToFXM" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.abnormal.dmsToFXM}"/>
+    <bean id="dmsWeightVolumeExcess" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
         <property name="timeout" value="1000"/>
     </bean>
     <!-- 超标mq，提供给判责系统 -->
-    <bean id="dmsAbnormalInfoMQToPanZe" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.abnormal.dmsToPanZe}"/>
+    <bean id="dmsWeightVolumeAbnormal" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
         <property name="timeout" value="1000"/>
     </bean>
 </beans>

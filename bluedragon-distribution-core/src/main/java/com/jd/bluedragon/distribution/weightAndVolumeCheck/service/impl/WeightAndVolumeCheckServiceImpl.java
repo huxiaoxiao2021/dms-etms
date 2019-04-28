@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolu
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
@@ -54,9 +55,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
     private final Logger logger = Logger.getLogger(this.getClass());
 
-    /** 系统标识 */
-    private static final String DMS = "dms";
-
     /** 对象存储 **/
     /**外部 访问域名 */
     private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
@@ -67,8 +65,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private ReportExternalService reportExternalService;
 
     @Autowired
-    @Qualifier("dmsAbnormalInfoMQToPanZe")
-    private DefaultJMQProducer dmsAbnormalInfoMQToPanZe;
+    @Qualifier("dmsWeightVolumeAbnormal")
+    private DefaultJMQProducer dmsWeightVolumeAbnormal;
 
 
     /**
@@ -199,23 +197,43 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
 
     /**
-     * 上传异常照片的同时给判责发消息
-     * @param abnormalPictureMq
+     * 发消息并更新es
+     * @param packageCode
+     * @param siteCode
+     * @param uploadTime
      * @param siteCode
      */
-    public void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq,Integer siteCode){
+    public void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime){
+        AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
         try{
-            abnormalPictureMq.setAbnormalId(DMS+"_"+abnormalPictureMq.getWaybillCode()+"|"+siteCode);
+            abnormalPictureMq.setAbnormalId(packageCode+"|"+siteCode);
+            abnormalPictureMq.setWaybillCode(packageCode);
+            abnormalPictureMq.setUploadTime(uploadTime);
             //查存储空间获取图片链接
+            String pictureAddress;
             InvokeResult<String> result = searchExcessPicture(abnormalPictureMq.getWaybillCode(),siteCode);
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-                abnormalPictureMq.setExcessPictureAddress(result.getData());
+                pictureAddress= result.getData();
             }else{
                 logger.error("获取图片链接失败!"+abnormalPictureMq.getWaybillCode()+"|"+siteCode);
                 return;
             }
-            this.logger.info("发送MQ[" + dmsAbnormalInfoMQToPanZe.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
-            dmsAbnormalInfoMQToPanZe.send(abnormalPictureMq.getWaybillCode(), JsonHelper.toJson(abnormalPictureMq));
+            if(!StringHelper.isEmpty(pictureAddress)){
+                abnormalPictureMq.setExcessPictureAddress(pictureAddress);
+                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getWaybillCode(), JsonHelper.toJson(abnormalPictureMq));
+                //更新es数据
+                WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
+                dto.setPackageCode(packageCode);
+                dto.setReviewSiteCode(siteCode);
+                dto.setPictureAddress(pictureAddress);
+                dto.setIsHasPicture(1);
+                BaseEntity<Boolean> entity = reportExternalService.updateForWeightVolume(dto);
+                if(entity != null){
+
+                }
+            }
+
         }catch (Exception e){
             logger.error("异常消息发送失败!"+abnormalPictureMq.getWaybillCode());
         }
@@ -284,7 +302,6 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("有无图片");
         heads.add("图片链接");
         resList.add(heads);
-        condition.setLimit(-1);
         WeightVolumeQueryCondition transform = transform(condition);
         BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){

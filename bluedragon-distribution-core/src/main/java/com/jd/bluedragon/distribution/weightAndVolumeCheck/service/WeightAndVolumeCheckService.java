@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -36,13 +35,6 @@ public interface WeightAndVolumeCheckService {
     InvokeResult<String> searchExcessPicture(String packageCode,Integer siteCode);
 
     /**
-     * 上传异常照片的同时给判责发消息
-     * @param abnormalPictureMq
-     * @param siteCode
-     */
-    void sendMqToPanZe(AbnormalPictureMq abnormalPictureMq,Integer siteCode);
-
-    /**
      * 根据条件查询
      * @param condition
      * @return
@@ -55,4 +47,12 @@ public interface WeightAndVolumeCheckService {
      * @return
      */
     List<List<Object>> getExportData(WeightAndVolumeCheckCondition condition);
+
+    /**
+     * 发消息并更新
+     * @param packageCode
+     * @param siteCode
+     * @param uploadTime
+     */
+    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime);
 }

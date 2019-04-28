@@ -177,8 +177,8 @@ public class WaybillResource {
 	private SiteService siteService;
 
     @Autowired
-    @Qualifier("dmsAbnormalInfoMQToFXM")
-    private DefaultJMQProducer dmsAbnormalInfoMQToFXM;
+    @Qualifier("dmsWeightVolumeExcess")
+    private DefaultJMQProducer dmsWeightVolumeExcess;
 
 	@Autowired
 	private ReportExternalService reportExternalService;
@@ -2085,8 +2085,8 @@ public class WaybillResource {
             abnormalResultMq.setOperateUser(weightVolumeCollectDto.getReviewErp());
             abnormalResultMq.setOperateTime(new Date());
 
-			this.logger.info("发送MQ[" + dmsAbnormalInfoMQToFXM.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
-            dmsAbnormalInfoMQToFXM.send(abnormalResultMq.getBillCode(),JsonHelper.toJson(abnormalResultMq));
+			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
+            dmsWeightVolumeExcess.send(abnormalResultMq.getBillCode(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
             this.logger.error("发送查表异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
         }
@@ -2106,9 +2106,14 @@ public class WaybillResource {
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
 			weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
             if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
+                //信任商家
 				weightVolumeCollectDto.setIsTrustBusi(1);
-            }else {
+            }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
+                //普通商家
 				weightVolumeCollectDto.setIsTrustBusi(0);
+            }else {
+                //其他
+                weightVolumeCollectDto.setIsTrustBusi(-1);
             }
         }
         BaseStaffSiteOrgDto baseOrgDto = siteService.getSite(packWeightVO.getOrganizationCode());

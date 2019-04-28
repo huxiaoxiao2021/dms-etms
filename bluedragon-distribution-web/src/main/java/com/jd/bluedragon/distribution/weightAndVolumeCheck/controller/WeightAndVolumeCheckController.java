@@ -143,8 +143,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//            String importErpCode = erpUser.getUserCode();
-        String importErpCode = "bjxings";
+            String importErpCode = erpUser.getUserCode();
+//        String importErpCode = "bjxings";
         Integer siteCode = -1;
         try{
             BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
@@ -195,11 +195,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             return result;
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-            //上传成功后给判责系统发消息
-            AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
-            abnormalPictureMq.setWaybillCode(packageCode);
-            abnormalPictureMq.setUploadTime(uploadTime);
-            weightAndVolumeCheckService.sendMqToPanZe(abnormalPictureMq,siteCode);
+            //上传成功后给判责系统发消息并更新es数据
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime);
         }
 
         return result;
