@@ -493,11 +493,15 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 var data = eval('('+data+')');
 
                 if(data.code==SERVER_SUCCESS_CODE){
+                    $("#waybill-weight-import-dialog").dialog('close');
                     $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
+                    showWarnData(data.data.warnList);
                 }else if(data.code==ERROR_HALF_RESULT_CODE){
                    //部分成功
-                   $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
-                   showFailData(data.data.errorList);
+                    $("#waybill-weight-import-dialog").dialog('close');
+                    $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
+                    showWarnData(data.data.warnList);
+                    showFailData(data.data.errorList);
                 }else{
                     $.messager.alert('导入异常',data.message);
                 }
@@ -515,23 +519,6 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         });
                     }
                 }
-                //提示转网运单数据
-                if(data.data.warnList && data.data.warnList.length >0){
-                    var warnMessage = "";
-                    var warnList = data.data.warnList;
-                    for(var i in warnList){
-                        warnMessage = warnMessage + warnList[i].codeStr + ",";
-                    }
-                    if(warnMessage.length > 0){
-                        warnMessage = warnMessage.substr(0,warnMessage.length-1);
-                        if(warnMessage.length > 0){
-                            warnMessage = "运单号" + warnMessage + INTERCEPT_MESSAGE;
-                            $.messager.alert('提示',warnMessage);
-                        }
-                    }
-                }
-                $("#waybill-weight-import-dialog").dialog('close');
-
             }
         });
     });
@@ -657,6 +644,37 @@ function removeFailDataFunc(key){
             errorData = data.slice(0);
         }
 
+    }
+
+/**
+ * 拦截提示
+ * @param data
+ */
+function showWarnData(warnList){
+        //提示转网运单数据
+        if(warnList && warnList.length >0){
+            var warnMessage = "";
+            var count = warnList.length;
+
+            if(count > 3){
+                count = 3;
+            }
+            for(var i= 0;i<count;i ++){
+                warnMessage = warnMessage + warnList[i].codeStr + ",";
+            }
+
+            if(warnMessage.length > 0){
+                warnMessage = warnMessage.substr(0,warnMessage.length-1);
+                if(warnMessage.length > 0){
+                    if(count>3){
+                        warnMessage = "运单号" + warnMessage +"……共" + warnList.length + "单" + INTERCEPT_MESSAGE;
+                    }else{
+                        warnMessage = "运单号" + warnMessage + INTERCEPT_MESSAGE;
+                    }
+                    $.messager.alert('提示',warnMessage);
+                }
+            }
+        }
     }
 
 

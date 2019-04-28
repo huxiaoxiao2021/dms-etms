@@ -20,4 +20,9 @@ public interface WaybillSignConstants {
 		4：B转C转B
 	 */
 	int POSITION_97 = 97;
+
+	/**
+	 * TC标识
+	 */
+	int POSITION_89 = 89;
 }

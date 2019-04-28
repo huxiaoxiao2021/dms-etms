@@ -6,7 +6,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.core.jmq.domain.DmsWaybillTransferInterceptMQDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
@@ -23,6 +22,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -30,10 +30,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.preseparate.util.BusinessTypeEnum;
-import com.jd.preseparate.util.OperationExpectEnum;
-import com.jd.preseparate.util.OperationNodeEnum;
-import com.jd.preseparate.util.TransferStatusEnum;
+import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -91,12 +88,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Autowired
     WaybillTraceManager waybillTraceManager;
 
-    //topic:dms_waybill_transfer_intercept
-    @Autowired
-    @Qualifier("dmsWaybillTransferInterceptMQ")
-    private DefaultJMQProducer dmsWaybillTransferInterceptMQ;
-
-
     @Autowired
     private BaseMajorManager baseMajorManager;
 
@@ -108,11 +99,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     @Autowired
     private TaskService taskService;
-
-
-    private static final Integer FEATURE_TYPE_C2B = 7;
-    private static final Integer FEATURE_TYPE_B2C = 8;
-    private static final String SYSTEM_CODE_DMS ="DMS";
 
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
@@ -399,7 +385,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             //如果是纯配外单，调用预分拣接口判断是否需要转网
             if(BusinessUtil.isForeignWaybill(waybillSign)
                     && BusinessUtil.isPureDeliveryWaybill(waybillSign)
-                    && (waybillSign.length() <= 90 || BusinessUtil.isSignChar(waybillSign,89,'0'))){
+                    && (waybillSign.length() <= WaybillSignConstants.POSITION_89 || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_89,'0'))){
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {
@@ -414,7 +400,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                     return false;
                 }
 
-                if(baseResponse.getData()!= null && baseResponse.getData().getTransferStatus().equals(TransferStatusEnum.already_transferred)){
+                if(baseResponse.getData()!= null && baseResponse.getData().getTransferStatus().equals(TransferStatusEnum.ALREADY_TRANSFERRED)){
                     flag = true;
                 }
             }
@@ -422,8 +408,6 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         //如果转网成功发送全称跟踪
         if(flag){
-
-            //发送全称跟踪
             sendWaybillTrace(vo);
         }
 
@@ -442,6 +426,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         Double volume = this.convertVolumeUnitToRequired(vo.getVolume());
         Integer operatorId = vo.getOperatorId();
         Integer operateSiteCode = vo.getOperatorSiteCode();
+        String operateSiteName = vo.getOperatorSiteName();
 
         //根据操作人编码获取操作人erp
         String userErp = "";
@@ -450,6 +435,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             logger.error("根据操作人id:" + operatorId + "获取操作人erp失败.返回值:" + JSON.toJSONString(staffdto));
         } else {
             userErp = staffdto.getErp();
+            if(operateSiteCode == null || operateSiteCode <= 0){
+                operateSiteCode = staffdto.getSiteCode();
+            }
+            if(StringUtils.isBlank(operateSiteName)){
+                operateSiteName = staffdto.getSiteName();
+            }
         }
 
         //组装参数
@@ -466,7 +457,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         batchTransferRequest.setOperationNode(OperationNodeEnum.SORTING_CENTER);
         batchTransferRequest.setBusinessType(BusinessTypeEnum.DELIVER_ORDER);
         batchTransferRequest.setOperationBranchId(operateSiteCode);
+        batchTransferRequest.setOperationBranchName(operateSiteName);
         batchTransferRequest.setOperationExpect(OperationExpectEnum.transfer_to_station);
+        batchTransferRequest.setHandleType(HandleTypeEnum.CHECK_AND_TRANSFER);
         batchTransferRequest.setOperatorErp(userErp);
         batchTransferRequest.setOperationTime(new Date());
         batchTransferRequest.setSystemCode(preseparateSystemCode);
@@ -474,7 +467,10 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         return batchTransferRequest;
     }
 
-
+    /**
+     * 生成全称跟踪任务
+     * @param vo
+     */
     private void sendWaybillTrace(WaybillWeightVO vo){
         try {
             WaybillStatus waybillStatus = this.getWaybillStatus(vo);
@@ -485,6 +481,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             logger.error("B网转C网全称跟踪发送失败.", e);
         }
     }
+
+    /**
+     * 组织全称跟踪参数
+     * @param vo
+     * @return
+     */
     private WaybillStatus getWaybillStatus(WaybillWeightVO vo) {
         WaybillStatus tWaybillStatus = new WaybillStatus();
         //设置站点相关属性
