@@ -670,6 +670,8 @@ public class BaseServiceImpl implements BaseService {
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
         reverseSendWms.setBusiOrderCode(bigWaybillDto.getWaybill().getBusiOrderCode());
 		reverseSendWms.setOrderId(bigWaybillDto.getWaybill().getVendorId());
+		reverseSendWms.setXniType(bigWaybillDto.getWaybill().getWaybillType());
+		reverseSendWms.setVenderId(bigWaybillDto.getWaybill().getShopCode());
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {

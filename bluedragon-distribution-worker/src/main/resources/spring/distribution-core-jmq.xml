@@ -25,17 +25,17 @@
 
     <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer， 适配JMQ分离组件-->
     <bean id="jmqProducerSpilt" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmqProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--dmsweb生产者配置，适配JMQ分离组件-->
     <bean id="dmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="dmsWebProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--dmsWorker生产者配置，适配JMQ分离组件-->
     <bean id="workerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="workerProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--下述BEAN用来去除DBS事务拦截-->
@@ -346,5 +346,10 @@
     <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
     <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
+    </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
     </bean>
 </beans>

@@ -25,17 +25,17 @@
 
     <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer， 适配JMQ分离组件-->
     <bean id="jmqProducerSpilt" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmqProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--dmsweb生产者配置，适配JMQ分离组件-->
     <bean id="dmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="dmsWebProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--dmsWorker生产者配置，适配JMQ分离组件-->
     <bean id="workerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="workerProducer">
-        <property name="uat" value="false"/>
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
     <!--下述BEAN用来去除DBS事务拦截-->
@@ -201,6 +201,18 @@
         <!---->
     </bean>
 
+    <!-- 空铁项目 - 发货登记 推送路由MQ -->
+    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
+        <property name="timeout" value="1000"/>
+        <!--已修改主题-->
+    </bean>
+
+    <!-- 空铁项目 - 发货登记 推送报表MQ -->
+    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
+    </bean>
+
     <!--在操作现场预分拣即返调度之后 发送mq 下发数据给自动分拣机 added by zhanglei-->
     <bean id="reassignWaybillMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bd.reassign.waybill}"/>
@@ -230,7 +242,7 @@
         <property name="topic" value="${jmq.topic.bd.dms.ems.mq}"/>
         <property name="timeout" value="1000"/>
     </bean>
-
+    
     <!-- 智配中心分拣给终端系统发送mq -->
     <bean id="zhipeiSortingMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.zhipei.sorting.client}"/>
@@ -240,37 +252,6 @@
     <!-- 第三方发货数据推财务发送mq -->
     <bean id="deliveryToFinanceMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.delivery.to.finance}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-
-    <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
-    <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.sortscheme.send.DTC}"/>
-        <property name="timeout" value="1000"/>
-    </bean>
-
-    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
-    <bean id="arAirWaybillStatusMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.air.waybill.status}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
-
-    <!-- 空铁项目 - 发货登记 推送路由MQ -->
-    <bean id="arSendRegisterMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.air.sendRegister}"/>
-        <property name="timeout" value="1000"/>
-        <!--已修改主题-->
-    </bean>
-
-    <!-- 空铁项目 - 发货登记 推送报表MQ -->
-    <bean id="arSendReportMQ" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.air.arSendReport}"/>
-    </bean>
-
-    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
-    <bean id="weighByWaybillProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dms.waybill.weight}"/>
         <property name="timeout" value="1000"/>
     </bean>
 
@@ -286,7 +267,22 @@
         <property name="timeout" value="1000"/>
     </bean>
 
-    <!--封车mq-->
+    <!--配送员接货，打印后发送mq信息给sms-->
+    <bean id="popPrintToSmsProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsSmsPopPrint}"/>
+    </bean>
+    <!--驻厂打印面单成功，打印后发送mq信息给终端-->
+    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
+    </bean>
+
+    <!-- 北京bcr实现粗分，将本地的分拣方案主表和明细表发送给DTC系统 created by wzx -->
+    <bean id="sortSchemeSendDtcMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="bd_sortscheme_send_DTC"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+     <!--封车mq-->
     <bean id="sealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sealCar}"/>
     </bean>
@@ -295,14 +291,19 @@
     <bean id="unsealCarProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.unsealCar}"/>
     </bean>
+
+    <!--运单称重mq 整单量方称重信息 发送给运单系统 added by luyue-->
+    <bean id="weighByWaybillProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsWaybillWeight}"/>
+    </bean>
     <!--纯外单 中小件 二次预分拣MQ 发送给运单系统 added by shipeilin-->
     <bean id="waybillSiteChangeProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsWaybillPrepareSiteChange}"/>
     </bean>
     <!-- 发货明细MQ，根据source 区分具体发货操作类型 -->
     <bean id="arSendDetailProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dmsArSendDetail}"/>
         <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.dmsArSendDetail}"/>
     </bean>
     <!-- 库房拒收 发送外呼-->
     <bean id="abnormalEclpSendProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -314,6 +315,7 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.abnormalUnknownSend}"/>
     </bean>
+
     <!--验货/发货提示语追踪mq，记录提示的分拣中心和提示环节-->
     <bean id="operateHintTrackMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.operateHint.track}"/>
@@ -324,27 +326,30 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.waybillConsumable}"/>
     </bean>
-    <!-- 签单返回合单mq，提供新单号和旧单号列表 -->
+
+    <!-- 签单返回合单mq，提供运单新单号和旧单号列表 -->
     <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
         <property name="timeout" value="1000"/>
     </bean>
-    <!--驻厂打印面单成功，打印后发送mq信息给终端-->
-    <bean id="zhuchangPrintToTerminalProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.zhuchangPrintFinish}"/>
-    </bean>
+
     <!--空铁转陆运 提报异常 -->
     <bean id="arAbnormalProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.arAbnormal}"/>
     </bean>
+
     <!-- ECLP退备件库-->
     <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.reverseSendSpareEclp}"/>
     </bean>
 
-    <!-- 空铁项目 - 航空起飞降落运单维度MQ 推送路由 -->
-    <bean id="arRailwayWaybillStatusMQ" parent="dmsWorkerDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.bd.ar.railway.waybill.status}"/>
+    <!-- 冷链发货 -->
+    <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
+    </bean>
+    <!--包裹补打发送mq消息 -->
+    <bean id="packageRePrintProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.packageRePrintProducer}"/>
     </bean>
 </beans>
