@@ -400,7 +400,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                     return false;
                 }
 
-                if(baseResponse.getData()!= null && baseResponse.getData().getTransferStatus().equals(TransferStatusEnum.ALREADY_TRANSFERRED)){
+                if(baseResponse.getData()!= null && baseResponse.getData().getTransferStatus().equals(BatchTransferResult.SUCCESS_TRANSFERRED)){
                     flag = true;
                 }
             }
@@ -454,12 +454,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         waybillList.add(transferRequestOrder);
 
         batchTransferRequest.setOrderList(waybillList);
-        batchTransferRequest.setOperationNode(OperationNodeEnum.SORTING_CENTER);
-        batchTransferRequest.setBusinessType(BusinessTypeEnum.DELIVER_ORDER);
+        batchTransferRequest.setOperationNode(BatchTransferRequest.SORTING_CENTER);
+        batchTransferRequest.setBusinessType(BatchTransferRequest.DELIVER_ORDER);
         batchTransferRequest.setOperationBranchId(operateSiteCode);
         batchTransferRequest.setOperationBranchName(operateSiteName);
-        batchTransferRequest.setOperationExpect(OperationExpectEnum.transfer_to_station);
-        batchTransferRequest.setHandleType(HandleTypeEnum.CHECK_AND_TRANSFER);
+        batchTransferRequest.setOperationExpect(BatchTransferRequest.TRANSFER_TO_STATION);
+        batchTransferRequest.setHandleType(BatchTransferRequest.CHECK_AND_TRANSFER);
         batchTransferRequest.setOperatorErp(userErp);
         batchTransferRequest.setOperationTime(new Date());
         batchTransferRequest.setSystemCode(preseparateSystemCode);
