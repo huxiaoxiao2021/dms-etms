@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
+import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -21,6 +22,7 @@ import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
 import com.jd.ql.dms.print.engine.toolkit.PrintPdfResponse;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -209,5 +211,18 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         }
         return true;
     }
+    /**
+     * 1、验证是否有访问jsf的权限（验证系统编码和密钥）
+     * 2、参数校验（waybillCode、templateGroupCode不能为空，templateGroupCode值为TemplateGroupEnum允许的编码）
+     * 3、调用ver系统jsf
+     */
+	@Override
+	public JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest) {
+		JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.toSuccess();
+		//TODO-wuyoude
+		jdResult.setData(new Random().nextBoolean());
+		return jdResult;
+	}
 
 }

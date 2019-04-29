@@ -294,6 +294,10 @@ public class BasePrintWaybill implements Serializable {
 	 * 使用新统一模板标识
 	 */
 	private Boolean useNewTemplate = Boolean.FALSE;
+	/**
+	 * 模板分组编码
+	 */
+	private String templateGroupCode;
 
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
@@ -1108,5 +1112,19 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setUseNewTemplate(Boolean useNewTemplate) {
 		this.useNewTemplate = useNewTemplate;
+	}
+
+	/**
+	 * @return the templateGroupCode
+	 */
+	public String getTemplateGroupCode() {
+		return templateGroupCode;
+	}
+
+	/**
+	 * @param templateGroupCode the templateGroupCode to set
+	 */
+	public void setTemplateGroupCode(String templateGroupCode) {
+		this.templateGroupCode = templateGroupCode;
 	}
 }

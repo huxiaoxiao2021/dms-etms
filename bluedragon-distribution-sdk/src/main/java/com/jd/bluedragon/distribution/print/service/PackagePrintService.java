@@ -6,7 +6,7 @@ import java.util.Map;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
-import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
+import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 
 /**
  * 
@@ -24,9 +24,17 @@ public interface PackagePrintService {
 	 */
 	JdResult<Map<String,Object>> getPrintInfo(JdCommand<String> printRequest);
 	/**
+	 * 不推荐使用，会有内存溢出风险
 	 * 生成包裹打印图片信息接口
 	 * @param printRequest
 	 * @return
 	 */
+	@Deprecated
 	JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest);
+	/**
+	 * 校验运单是否已操作补打
+	 * @param rePrintRecordRequest
+	 * @return
+	 */
+	JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest);
 }

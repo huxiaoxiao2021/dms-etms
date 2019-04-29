@@ -188,13 +188,16 @@ public class BusinessUtil {
     }
 
     /**
-     * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+     * 判断是否B网，转网到B+未转网（waybillSign第40位1、2、3、4、5）
      *
      * @param waybillSign
      * @return
      */
     public static boolean isB2b(String waybillSign) {
-        return isSignInChars(waybillSign, 40, '1', '2', '3', '4', '5');
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
+        						WaybillSignConstants.CHAR_97_1,WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3, WaybillSignConstants.CHAR_97_4));
     }
 
     /**
