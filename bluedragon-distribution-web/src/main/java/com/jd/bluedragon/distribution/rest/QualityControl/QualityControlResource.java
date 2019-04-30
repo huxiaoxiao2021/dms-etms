@@ -94,6 +94,12 @@ public class QualityControlResource {
         request.setUserERP(userDto.getAccountNumber());
         request.setOperateTime(new Date());
         for (String waybillCode:waybillCodeArr){
+            if(!WaybillCodeRuleValidateUtil.isEffectiveOperateCode(waybillCode)){
+                logger.error(MessageFormat.format("PDA调用异常配送接口插入质控任务表失败-参数错误[{0}]",JsonHelper.toJson(request)));
+                response.setCode(response.CODE_SERVICE_ERROR);
+                response.setMessage("请扫描运单号或者包裹号！");
+                return response;
+            }
             request.setQcValue(waybillCode);
             request.setTrackContent("订单扫描异常【"+waybillCode+"】。");
             try{
