@@ -143,8 +143,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//            String importErpCode = erpUser.getUserCode();
-        String importErpCode = "bjxings";
+        String importErpCode = erpUser.getUserCode();
+//        String importErpCode = "bjxings";
         Integer siteCode = -1;
         try{
             BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
