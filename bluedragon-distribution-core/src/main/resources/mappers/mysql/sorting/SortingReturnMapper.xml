@@ -51,12 +51,9 @@
 			shields_error = #{shieldsError,jdbcType=VARCHAR},
 			shields_type =  #{shieldsType,jdbcType=INTEGER}
 		WHERE yn=1	AND create_site_code = #{siteCode} AND ret_type = #{businessType}
-			<if test="packageCode != null">
 				AND package_code = #{packageCode}
-			</if>
-			<if test="waybillCode != null">
 				AND waybill_code = #{waybillCode}
-			</if>
+
 	</update>
 	
 	<update id="updateStatus" parameterType="sortingReturn" >
