@@ -1,37 +1,41 @@
 package com.jd.bluedragon.distribution.saf;
 
-import com.itextpdf.text.Document;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.itextpdf.text.pdf.codec.Base64;
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.SysConfig;
-import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.distribution.command.JdCommand;
-import com.jd.bluedragon.distribution.command.JdCommandService;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.PrintPackage;
-import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
-import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
-import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
-import com.jd.bluedragon.distribution.print.service.PackagePrintService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSONObject;
-import com.jd.ql.dms.print.engine.TemplateEngine;
-import com.jd.ql.dms.print.engine.TemplateFactory;
-import com.jd.ql.dms.print.engine.toolkit.IPrintPdfHelper;
-import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
-import com.jd.ql.dms.print.engine.toolkit.PrintPdfResponse;
+import java.awt.image.BufferedImage;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.text.MessageFormat;
-import java.util.*;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
+import com.jd.bluedragon.distribution.command.JdCommand;
+import com.jd.bluedragon.distribution.command.JdCommandService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
+import com.jd.bluedragon.distribution.print.domain.PrintPackage;
+import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
+import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
+import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
+import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.fastjson.JSONObject;
+import com.jd.ql.dms.print.engine.TemplateEngine;
+import com.jd.ql.dms.print.engine.TemplateFactory;
+import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 /**
  * B网营业厅打印JSF接口
@@ -40,10 +44,15 @@ import java.util.*;
  * @date 2019年01月24日 13时:43分
  */
 public class PackagePrintServiceImpl implements PackagePrintService {
-
+    private static final String TRANSFER_INTERCEPT_MESSAGE = "该运单已转网，请操作【包裹补打】更换面单!";
     @Autowired
     @Qualifier("jsonCommandService")
     private JdCommandService jdCommandService;
+    
+    @Autowired
+    @Qualifier("cancelWaybillJsfManager")
+    private CancelWaybillJsfManager cancelWaybillJsfManager;
+    
 
     @Autowired
     private TemplateFactory templateFactory;
@@ -60,9 +69,21 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      * 打印JSF接口系统来源前缀
      */
     private static final String PRINT_PREFIX = "PRINT_SOURCE_";
+    
+    private static final Integer FEATURE_TYPE_C2B = 7;
+    private static final Integer FEATURE_TYPE_B2C = 8;
+    /**
+     * 
+     */
+    private static final Map<TemplateGroupEnum,Integer> FEATURE_TYPES_MAP = new HashMap<>();
 
     private static Logger logger = Logger.getLogger(PackagePrintServiceImpl.class);
-
+    static{
+    	FEATURE_TYPES_MAP.put(TemplateGroupEnum.TEMPLATE_GROUP_B, FEATURE_TYPE_C2B);
+    	FEATURE_TYPES_MAP.put(TemplateGroupEnum.TEMPLATE_GROUP_C, FEATURE_TYPE_B2C);
+    }
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.getPrintInfo",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<Map<String, Object>> getPrintInfo(JdCommand<String> printRequest) {
         logger.info("查询包裹信息参数：" + JsonHelper.toJson(printRequest));
@@ -89,7 +110,8 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         result.setData(map);
         return result;
     }
-
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.generateImage",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest) {
         logger.info("获取图片列表参数：" + JsonHelper.toJson(printRequest));
@@ -216,13 +238,49 @@ public class PackagePrintServiceImpl implements PackagePrintService {
      * 2、参数校验（waybillCode、templateGroupCode不能为空，templateGroupCode值为TemplateGroupEnum允许的编码）
      * 3、调用ver系统jsf
      */
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.hasReprintAll",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest) {
 		JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.setData(Boolean.FALSE);
 		jdResult.toSuccess();
-		//TODO-wuyoude
-		jdResult.setData(new Random().nextBoolean());
-		return jdResult;
+		if(rePrintRecordRequest == null || rePrintRecordRequest.getData() == null){
+			jdResult.toFail("请求参数不能为空！");
+			return jdResult;
+		}else if(!checkToken(rePrintRecordRequest.getSystemCode(), rePrintRecordRequest.getSecretKey())){
+			jdResult.toFail("系统访问密钥校验失败，请使用正确的秘钥！");
+            return jdResult;
+        }else{
+        	String templateGroupCode = rePrintRecordRequest.getData().getTemplateGroupCode();
+        	TemplateGroupEnum templateGroupEnum = TemplateGroupEnum.valueOf(templateGroupCode);
+        	if(templateGroupEnum == null){
+        		jdResult.toFail("请求参数templateGroupCode无效！");
+        		return jdResult;
+        	}
+        	Integer featureType = FEATURE_TYPES_MAP.get(templateGroupEnum);
+        	String waybillCode = rePrintRecordRequest.getData().getWaybillCode();
+        	String packageCode = rePrintRecordRequest.getData().getPackageCode();
+        	BlockResponse blockResponse = null;
+        	if(StringHelper.isNotEmpty(packageCode)){
+        		blockResponse = cancelWaybillJsfManager.checkPackageBlock(packageCode, featureType);
+        	}else if(StringHelper.isNotEmpty(waybillCode)){
+        		blockResponse =cancelWaybillJsfManager.checkWaybillBlock(waybillCode, featureType);
+        	}else{
+        		jdResult.toFail("请求参数需要提供packageCode或waybillCode！");
+        		return jdResult;
+        	}
+            if (blockResponse != null && Boolean.TRUE.equals(blockResponse.getResult())) {
+            	jdResult.setData(Boolean.TRUE);
+            	jdResult.toSuccess();
+            }else if(blockResponse != null){
+            	jdResult.setData(Boolean.FALSE);
+            	jdResult.toSuccess(TRANSFER_INTERCEPT_MESSAGE);
+            }else{
+            	jdResult.toFail("调用接口失败！");
+            }
+        	return jdResult;
+        }
 	}
 
 }
