@@ -2050,7 +2050,7 @@ public class WaybillResource {
             	//仓发给下游质控
 				abnormalResultMq.setTo(SystemEnum.ZHIKONG.getName());
 			}else{
-				abnormalResultMq.setTo(SystemEnum.FXM.getName());
+				abnormalResultMq.setTo(null);
 			}
             abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
             abnormalResultMq.setReviewDate(new Date());
@@ -2077,9 +2077,9 @@ public class WaybillResource {
             abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
             abnormalResultMq.setVolumeDiff(Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
             abnormalResultMq.setIsExcess(weightVolumeCollectDto.getIsExcess());
-            abnormalResultMq.setPictureAddress("");
+            abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
             abnormalResultMq.setOperateUser(weightVolumeCollectDto.getReviewErp());
-            abnormalResultMq.setOperateTime(new Date());
+            abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
 
 			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
             dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
@@ -2128,6 +2128,9 @@ public class WaybillResource {
 		weightVolumeCollectDto.setReviewSiteName(packWeightVO.getOperatorSiteName());
 		weightVolumeCollectDto.setReviewErp(packWeightVO.getErpCode());
 		weightVolumeCollectDto.setIsExcess(0);
+		//设置无图片无图片链接
+		weightVolumeCollectDto.setIsHasPicture(0);
+		weightVolumeCollectDto.setPictureAddress("");
     }
 
     /**

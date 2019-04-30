@@ -85,7 +85,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 List<Object> body = Lists.newArrayList();
                 body.add(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_FORMAT));
                 body.add(reviewWeightSpotCheck.getReviewOrgName());
-                body.add(reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
+                body.add(reviewWeightSpotCheck.getReviewMechanismType()==null?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
                 body.add(reviewWeightSpotCheck.getReviewSiteName());
                 body.add(reviewWeightSpotCheck.getNormalPackageNum());
                 body.add(reviewWeightSpotCheck.getNormalPackageNumOfActual());

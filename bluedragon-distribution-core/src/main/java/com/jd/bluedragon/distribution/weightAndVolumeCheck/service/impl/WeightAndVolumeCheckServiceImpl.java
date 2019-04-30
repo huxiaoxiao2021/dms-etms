@@ -14,6 +14,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.alpha.jss.JssVersionService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
@@ -40,6 +41,8 @@ import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -159,7 +162,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     String operateTime = "";
                     if(packageCodeAndOperateTimes.length == 3){
                         String siteCodeFromOSS = packageCodeAndOperateTimes[1];
-                        if(siteCodeFromOSS.equals(siteCode)){
+                        if(siteCodeFromOSS.equals(siteCode.toString())){
                             operateTime = packageCodeAndOperateTimes[packageCodeAndOperateTimes.length - 1];
                         }
                     }else{
@@ -219,24 +222,116 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 return;
             }
             if(!StringHelper.isEmpty(pictureAddress)){
-                abnormalPictureMq.setExcessPictureAddress(pictureAddress);
-                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
-                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(), JsonHelper.toJson(abnormalPictureMq));
                 //更新es数据
                 WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
                 dto.setPackageCode(packageCode);
                 dto.setReviewSiteCode(siteCode);
                 dto.setPictureAddress(pictureAddress);
                 dto.setIsHasPicture(1);
-                BaseEntity<Boolean> entity = reportExternalService.updateForWeightVolume(dto);
-                if(entity != null){
-
-                }
+                reportExternalService.updateForWeightVolume(dto);
+                abnormalPictureMq.setExcessPictureAddress(pictureAddress);
+                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(), JsonHelper.toJson(abnormalPictureMq));
             }
 
         }catch (Exception e){
-            logger.error("异常消息发送失败!"+abnormalPictureMq.getWaybillCode());
+            logger.error("异常消息发送失败!"+abnormalPictureMq.getWaybillCode() + "失败原因:"+ e.getMessage());
         }
+    }
+
+    /**
+     * 执行task任务
+     * @param task
+     * @return
+     */
+    @Override
+    public boolean excuteWeightVolumeExcessTask(Task task) {
+
+        boolean isSuccess = true;
+        try {
+
+            WeightVolumeCollectDto dto = JsonHelper.fromJson(task.getBody(), WeightVolumeCollectDto.class);
+
+            sendMqAndUpdate(dto.getPackageCode(),dto.getReviewSiteCode(),new Date().getTime());
+        }catch (Exception e){
+            isSuccess =false;
+            logger.error("处理重量体积超标任务异常!");
+        }
+
+        return isSuccess;
+    }
+
+    /**
+     * 获取任务
+     * @param type
+     * @param ownSign
+     * @return
+     */
+    @Override
+    public List<Task> findLimitedTasks(Integer type, String ownSign) {
+        List<WeightVolumeCollectDto> totalList = Collections.EMPTY_LIST;
+        int PAGESIZE = 5000;
+        int total;
+        Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+        condition.setIsExcess(1);
+        pager.setSearchVo(condition);
+        pager.setPageNo(1);
+        pager.setPageSize(PAGESIZE);
+        BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
+        if(baseEntity != null && baseEntity.getData() != null
+                && baseEntity.getData().getData() != null && baseEntity.getData().getTotal() != null){
+            total = baseEntity.getData().getTotal().intValue();
+            List<WeightVolumeCollectDto> list = baseEntity.getData().getData();
+            totalList.addAll(list);
+        }else{
+            return Collections.EMPTY_LIST;
+        }
+        int count;
+        if(total > PAGESIZE){
+            if(total % PAGESIZE != 0){
+                count = total/PAGESIZE + 1;
+            }else {
+                count = total/PAGESIZE;
+            }
+            for (int i = 1; i < count; i++) {
+                int pageNo = i+1;
+                pager.setPageNo(pageNo);
+                BaseEntity<Pager<WeightVolumeCollectDto>> entity = reportExternalService.getPagerByConditionForWeightVolume(pager);
+                if(entity != null && entity.getData() != null && entity.getData().getData() != null){
+                    List<WeightVolumeCollectDto> list = entity.getData().getData();
+                    totalList.addAll(list);
+                }
+            }
+        }
+
+        /*Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+        condition.setIsExcess(1);
+        pager.setSearchVo(condition);
+        pager.setPageNo(1);
+        pager.setPageSize(100);
+        BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
+        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getData() != null){
+            List<WeightVolumeCollectDto> list = baseEntity.getData().getData();
+            totalList.addAll(list);
+        }*/
+
+
+        List<Task> tasks = convert(totalList);
+        return tasks;
+
+    }
+
+    private List<Task> convert(List<WeightVolumeCollectDto> totalList) {
+        List<Task> list = Collections.EMPTY_LIST;
+        for(WeightVolumeCollectDto dto : totalList){
+            String json = JsonHelper.toJson(dto);
+            Task task = new Task();
+            task.setBody(json);
+            list.add(task);
+        }
+        return list;
     }
 
     /**
@@ -313,10 +408,10 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getWaybillCode());
                 body.add(weightVolumeCollectDto.getPackageCode());
                 body.add(weightVolumeCollectDto.getBusiName());
-                body.add(weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
+                body.add(weightVolumeCollectDto.getIsTrustBusi()==null?"":weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
                 body.add(weightVolumeCollectDto.getReviewOrgName());
                 body.add(weightVolumeCollectDto.getReviewSiteName());
-                body.add(weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
+                body.add(weightVolumeCollectDto.getReviewSubType()==null?"":weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
                 body.add(weightVolumeCollectDto.getReviewErp());
                 body.add(weightVolumeCollectDto.getReviewWeight());
                 body.add(weightVolumeCollectDto.getReviewLWH());
@@ -329,9 +424,9 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getWeightDiff());
                 body.add(weightVolumeCollectDto.getVolumeWeightDiff());
                 body.add(weightVolumeCollectDto.getDiffStandard());
-                body.add(weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
-                body.add(weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
-                body.add(weightVolumeCollectDto.getPictureAddress()==null?"":weightVolumeCollectDto.getPictureAddress());
+                body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
+                body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
+                body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());
                 resList.add(body);
             }
         }

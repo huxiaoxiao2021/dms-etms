@@ -187,7 +187,7 @@ $(function () {
                 if(row.isExcess == 0){
                     flage = null;
                 }else{
-                    if(row.isHasPicture == 0){
+                    if(row.isHasPicture == null || row.isHasPicture == 0){
                         flage = '<a class="upLoad" href="javascript:void(0)" ><i class="glyphicon glyphicon-upload"></i>&nbsp;点击上传&nbsp;</a>' +
                             '<br/>'
                     }else{

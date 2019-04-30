@@ -132,4 +132,34 @@ public class WeightAndVolumeSpotCheckJob implements Job {
         }
     }
 
+
+
+    /*public List<WaybillStaticRoute> selectListByCondition(WaybillStaticRouteParamDto parameter) throws Exception {
+        BoolQueryBuilder queryParam = buildStaticRouteQuery(parameter);
+
+        SearchRequestBuilder searchRequestBuilder = this.prepareSearch().setSearchType(SearchType.DFS_QUERY_THEN_FETCH);
+        SearchResponse searchResponse = searchRequestBuilder.setScroll(new TimeValue(60000)).setQuery(queryParam).setSize(Constants.EXPORT_STATIC_PAGE_SIZE).setExplain(true)
+                .execute().actionGet();
+        SearchHits hits = searchResponse.getHits();
+        List<WaybillStaticRoute> list = new ArrayList(searchResponse.getTotalShards());
+        if (hits.getTotalHits() < 1) {
+            return list;
+        }
+        if(hits.getTotalHits()>Constants.EXPORT_STATIC_PAGE_SIZE){
+            throw new Exception("导出条数不能多于"+Constants.EXPORT_STATIC_PAGE_SIZE+"条！");
+        }
+        do{
+            for (SearchHit hit : searchResponse.getHits().getHits()) {
+                WaybillStaticRoute obj = WaybillStaticRoute.class.newInstance();
+                this.convertToBean(obj, hit);
+                list.add(obj);
+            }
+            searchResponse = super.getTransportClient().prepareSearchScroll(searchResponse.getScrollId()).setScroll(new TimeValue(60000)).execute()
+                    .actionGet();
+        }
+        while(searchResponse.getHits().getHits().length != 0);
+
+        return list;
+    }*/
+
 }
