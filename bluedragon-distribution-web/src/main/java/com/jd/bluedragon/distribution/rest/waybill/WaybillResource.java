@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -45,11 +46,9 @@ import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
@@ -87,6 +86,7 @@ import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -97,13 +97,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.MessageFormat;
+import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -177,6 +174,8 @@ public class WaybillResource {
 	@Autowired
 	private ReceiveWeightCheckService receiveWeightCheckService;
 
+	@Autowired
+	private SiteService siteService;
 	/**
 	 * 运单路由字段使用的分隔符
 	 */
@@ -193,6 +192,9 @@ public class WaybillResource {
 
 	@Autowired
 	private AreaDestJsfService areaDestJsfService;
+
+	@Autowired
+	private WaybillNoCollectionInfoService waybillNoCollectionInfoService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -2332,5 +2334,70 @@ public class WaybillResource {
         }
         result.setData(packNum);
         return result;
+	}
+
+	/**
+	 * 一车一单发货、组板、建箱差异查询
+	 * @param
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/collection/uneven")
+	public InvokeResult<WaybillNoCollectionResult> getWaybillNoCollectionInfo(WaybillNoCollectionRequest waybillNoCollectionRequest){
+
+		InvokeResult<WaybillNoCollectionResult> result = new InvokeResult<>();
+		result.success();
+		WaybillNoCollectionResult waybillNoCollectionResult = null;
+
+		String queryCode = waybillNoCollectionRequest.getQueryCode();
+		int queryType = waybillNoCollectionRequest.getQueryType();
+		Integer createSiteCode = waybillNoCollectionRequest.getSiteCode();
+		Integer receiveSiteCode = waybillNoCollectionRequest.getReceiveSiteCode();
+
+		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
+		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
+
+		//默认查全部
+		int queryRange = 1;
+		if (createSiteOrgDto == null || receiveSiteOrgDto == null) {
+			result.setCode(JdResponse.CODE_NO_SITE);
+			result.setMessage("获取始发或目的站点信息失败！");
+			return result;
+		} else {
+			//始发和目的都不是快运中心
+			if (createSiteOrgDto.getSubType() != Constants.B2B_SITE_TYPE && receiveSiteOrgDto.getSubType() != Constants.B2B_SITE_TYPE) {
+				//只看B网运单
+				queryRange = 2;
+			}
+		}
+
+		WaybillNoCollectionCondition waybillNoCollectionCondition = new WaybillNoCollectionCondition();
+		waybillNoCollectionCondition.setCreateSiteCode(createSiteCode);
+		waybillNoCollectionCondition.setQueryRange(queryRange);
+
+		try {
+			if (queryType == 2) {
+				waybillNoCollectionCondition.setBoardCode(queryCode);
+				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfoByBoardCode(waybillNoCollectionCondition);
+			} else {
+				if (queryType == 1) {
+					waybillNoCollectionCondition.setSendCode(queryCode);
+				} else if (queryType == 3) {
+					waybillNoCollectionCondition.setBoxCode(queryCode);
+				}
+				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfo(waybillNoCollectionCondition);
+			}
+		} catch (WaybillNoCollectionException waybillEx) {
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage(waybillEx.getMessage());
+			logger.error(waybillEx.getMessage());
+		} catch (DataAccessException e) {
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage("服务端数据库查询异常，请稍后再试！");
+			logger.error("获取包裹不齐信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest) + e);
+		}
+
+		result.setData(waybillNoCollectionResult);
+		return result;
 	}
 }

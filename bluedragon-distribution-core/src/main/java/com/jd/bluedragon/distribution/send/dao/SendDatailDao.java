@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.send.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -374,4 +376,19 @@ public class SendDatailDao extends BaseDao<SendDetail> {
              return new ArrayList<>();
         }
     }
+
+    public List<WaybillNoCollectionInfo> getWaybillNoCollectionInfo(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
+            return null;
+        }
+        return this.getSqlSession().selectList(namespace + ".getWaybillNoCollectionInfo", waybillNoCollectionCondition);
+    }
+
+    public List<String> getScannedInfoPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
+            return null;
+        }
+        return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
+    }
+
 }
