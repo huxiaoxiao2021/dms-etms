@@ -2044,15 +2044,13 @@ public class WaybillResource {
         try{
             AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
             abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
-            abnormalResultMq.setFrom(SystemEnum.DMS.getName());
+            abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
             if(dutyType == 2 || dutyType == 3){
 				//分拣、站点发给下游判责
-				abnormalResultMq.setTo(SystemEnum.PANZE.getName());
+				abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
 			}else if(dutyType==1){
             	//仓发给下游质控
-				abnormalResultMq.setTo(SystemEnum.ZHIKONG.getName());
-			}else{
-				abnormalResultMq.setTo(null);
+				abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
 			}
             abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
             abnormalResultMq.setReviewDate(new Date());
