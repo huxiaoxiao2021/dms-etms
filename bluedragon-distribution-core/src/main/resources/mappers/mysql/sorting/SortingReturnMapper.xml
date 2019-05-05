@@ -40,7 +40,9 @@
 		UPDATE sorting_ret
 		SET		
 			waybill_code = #{waybillCode,jdbcType=VARCHAR},
-			package_code = #{packageCode,jdbcType=VARCHAR},
+            <if test="packageCode != null">
+                package_code = #{packageCode,jdbcType=VARCHAR},
+            </if>
 			create_user_code = #{userCode,jdbcType=INTEGER},
 			create_user_name = #{userName,jdbcType=VARCHAR},
 			create_site_code = #{siteCode,jdbcType=INTEGER},
@@ -51,8 +53,10 @@
 			shields_error = #{shieldsError,jdbcType=VARCHAR},
 			shields_type =  #{shieldsType,jdbcType=INTEGER}
 		WHERE yn=1	AND create_site_code = #{siteCode} AND ret_type = #{businessType}
-				AND package_code = #{packageCode}
-				AND waybill_code = #{waybillCode}
+            AND waybill_code = #{waybillCode}
+        <if test="packageCode != null">
+            AND package_code = #{packageCode}
+        </if>
 
 	</update>
 	
