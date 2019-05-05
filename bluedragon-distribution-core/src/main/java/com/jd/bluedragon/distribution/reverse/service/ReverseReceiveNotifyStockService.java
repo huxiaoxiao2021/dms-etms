@@ -126,7 +126,7 @@ public class ReverseReceiveNotifyStockService {
         }
         String orderId = waybillQueryManager.getOrderCodeByWaybillCode(code,true);
         if(!NumberUtils.isDigits(orderId)){
-            logger.info(MessageFormat.format("根据运单号查询的订单号是非数字code[{}]orderId[{}]",code,orderId));
+            logger.info(MessageFormat.format("根据运单号查询的订单号是非数字code[{0}]orderId[{1}]",code,orderId));
             return -1L;
         }
         return Long.valueOf(orderId);
