@@ -1,23 +1,10 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
-
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.StockExportManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -43,6 +30,21 @@ import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
 import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
+
+import java.math.BigDecimal;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -88,6 +90,9 @@ public class ReverseReceiveNotifyStockService {
 	
 	@Autowired
 	private StockExportManager stockExportManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 	
 	public Long receive(String message) {
 		
@@ -99,13 +104,34 @@ public class ReverseReceiveNotifyStockService {
 				this.logger.warn("消息序列化出现异常, 消息：" + message);
 			} else if (ReverseReceive.RECEIVE_TYPE_SPWMS.toString().equals(request.getReceiveType())
 					&& ReverseReceive.RECEIVE.toString().equals(request.getCanReceive())) {
-				return new Long(request.getOrderId());
+				return getCompatibleOrderId(request.getOrderId());
 			} else {
 				this.logger.info("消息来源：" + request.getReceiveType());
 			}
 		}
 		return -1L;
 	}
+
+    /**
+     * 获取订单号，兼容 jd
+     * @param code
+     * @return
+     */
+    private Long getCompatibleOrderId(String code){
+        if(NumberUtils.isDigits(code)){
+            return Long.valueOf(code);
+        }
+        if(StringUtils.isEmpty(code)){
+            return -1L;
+        }
+        String orderId = waybillQueryManager.getOrderCodeByWaybillCode(code,true);
+        if(!NumberUtils.isDigits(orderId)){
+            logger.info(MessageFormat.format("根据运单号查询的订单号是非数字code[{}]orderId[{}]",code,orderId));
+            return -1L;
+        }
+        return Long.valueOf(orderId);
+    }
+
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
 		this.logger.info("运单号：" + waybillCode);

@@ -50,7 +50,7 @@ public class PickwareServiceImpl implements PickwareService {
         }
         
         if (StringHelper.isNotEmpty(pickupTask.getData().getOldWaybillCode())) {
-            pickware.setWaybillCode(Long.valueOf(pickupTask.getData().getOldWaybillCode()));
+            pickware.setWaybillCode(pickupTask.getData().getOldWaybillCode());
         }
         
         this.logger.info("取件单面单号：" + code + ", 商品详情：" + pickware.toString());
