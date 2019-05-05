@@ -1945,16 +1945,16 @@ public class WaybillResource {
             double billingVolume = 0;
             ResponseDTO<BizDutyDTO> responseDto = businessDetailQueryJsf.queryDutyInfo(waybillCode);
             if(responseDto != null && responseDto.getStatusCode() == 0 && responseDto.getData() != null){
-				weightVolumeCollectDto.setBillingOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()));
+				weightVolumeCollectDto.setBillingOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()==null?"-1":responseDto.getData().getFirstLevelId()));
 				weightVolumeCollectDto.setBillingOrgName(responseDto.getData().getFirstLevelName());
-				weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()));
+				weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()==null?"-1":responseDto.getData().getSecondLevelId()));
 				weightVolumeCollectDto.setBillingDeptName(responseDto.getData().getSecondLevelName());
 				weightVolumeCollectDto.setBillingErp(responseDto.getData().getDutyErp());
-				weightVolumeCollectDto.setBillingWeight(responseDto.getData().getWeight().doubleValue());
-				weightVolumeCollectDto.setBillingVolume(responseDto.getData().getVolume().doubleValue());
-                billingWeight = responseDto.getData().getWeight().doubleValue();
-                billingVolume = responseDto.getData().getVolume().doubleValue();
-				dutyType = responseDto.getData().getDutyType();
+				weightVolumeCollectDto.setBillingWeight(responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue());
+				weightVolumeCollectDto.setBillingVolume(responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue());
+                billingWeight = responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue();
+                billingVolume = responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue();
+				dutyType = responseDto.getData().getDutyType()==null?-1:responseDto.getData().getDutyType();
             }
 
             if(billingWeight == 0){
@@ -2025,7 +2025,9 @@ public class WaybillResource {
         //将重量体积实体存入es中
 		reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         //超标给fxm发消息
-        sendMqToFXM(weightVolumeCollectDto,dutyType,reviewLength,reviewWidth,reviewHigh);
+		if(weightVolumeCollectDto.getIsExcess() == 1){
+			sendMqToFXM(weightVolumeCollectDto,dutyType,reviewLength,reviewWidth,reviewHigh);
+		}
         return result;
     }
 
@@ -2084,7 +2086,7 @@ public class WaybillResource {
 			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
             dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
         }catch (Exception e){
-            this.logger.error("发送查表异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
+            this.logger.error("发送超标异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
         }
     }
 
