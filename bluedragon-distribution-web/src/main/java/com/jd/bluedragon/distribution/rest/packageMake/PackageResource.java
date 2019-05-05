@@ -133,7 +133,6 @@ public class PackageResource {
     @Path("/package/rePrintCallBack")
     public JdResult<Boolean> rePrintCallBack(RePrintCallBackRequest rePrintCallBackRequest){
     	JdResult<Boolean> result = new JdResult<Boolean>();
-    	result.toSuccess();
     	if(rePrintCallBackRequest != null){
     		RePrintRecordMq rePrintRecordMq = new RePrintRecordMq();
     		rePrintRecordMq.setOperateType(WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT_TYPE);
@@ -161,6 +160,11 @@ public class PackageResource {
     				rePrintCallBackRequest.getWaybillSign(),
     				rePrintCallBackRequest.getSiteCode(), 
     				rePrintCallBackRequest.getUserErp());
+    		result.setData(Boolean.TRUE);
+    		result.toSuccess();
+    	}else{
+    		result.setData(Boolean.FALSE);
+    		result.toFail("请求参数rePrintCallBackRequest不能为空！");
     	}
     	return result;
     }
