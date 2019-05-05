@@ -270,7 +270,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     @Override
     public List<Task> findLimitedTasks(Integer type, String ownSign) {
         List<WeightVolumeCollectDto> totalList = Collections.EMPTY_LIST;
-        int PAGESIZE = 5000;
+        /*int PAGESIZE = 5000;
         int total;
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
@@ -303,19 +303,20 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     totalList.addAll(list);
                 }
             }
-        }
+        }*/
 
-        /*Pager<WeightVolumeQueryCondition> pager = new Pager<>();
+        Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
         condition.setIsExcess(1);
+//        condition.setIsHasPicture(1);
         pager.setSearchVo(condition);
         pager.setPageNo(1);
-        pager.setPageSize(100);
+        pager.setPageSize(1000);
         BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
         if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getData() != null){
             List<WeightVolumeCollectDto> list = baseEntity.getData().getData();
             totalList.addAll(list);
-        }*/
+        }
 
 
         List<Task> tasks = convert(totalList);
@@ -328,6 +329,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         for(WeightVolumeCollectDto dto : totalList){
             String json = JsonHelper.toJson(dto);
             Task task = new Task();
+            task.setKeyword1(dto.getWaybillCode()+"|"+dto.getReviewSiteCode());
             task.setBody(json);
             list.add(task);
         }

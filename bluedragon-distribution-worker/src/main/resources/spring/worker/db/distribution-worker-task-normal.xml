@@ -274,7 +274,7 @@
         <property name="managerFactory" ref="managerFactory"/>
         <property name="taskType" value="weightVolumeExcessTask"/>
         <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="1330"/>
+        <property name="type" value="2000"/>
         <property name="desc" value="体积重量超标处理"/>
     </bean>
 

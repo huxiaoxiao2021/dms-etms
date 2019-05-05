@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class WeightVolumeExcessTask extends DBSingleScheduler {
@@ -33,7 +34,7 @@ public class WeightVolumeExcessTask extends DBSingleScheduler {
 
         List<Task> tasks = new ArrayList<Task>();
         try {
-
+            logger.info("查询体积重量超标数据开始-------");
             tasks = weightAndVolumeCheckService.findLimitedTasks(this.type, this.ownSign);
 
         } catch (Exception e) {
@@ -43,23 +44,19 @@ public class WeightVolumeExcessTask extends DBSingleScheduler {
         return tasks;
     }
 
-    public boolean updateTask(Long id, int executeCount, int status, int type) {
-        Task task = new Task();
-        task.setId(id);
-        task.setExecuteCount(executeCount);
-        task.setStatus(status);
-        task.setType(type);
-        this.taskService.updateBySelective(task);
-        return true;
-    }
+    @Override
+    public Comparator<Task> getComparator() {
+        return new Comparator<Task>() {
+            public int compare(Task o1, Task o2) {
+                if (null != o1 && null != o2
+                        && o1.getKeyword1()!=null&&o1.getKeyword1().equals(o2.getKeyword1())) {
+                    return 0;
+                } else {
+                    return 1;
+                }
+            }
 
-    public boolean updateTask(Long id, int status, int type) {
-        Task task = new Task();
-        task.setId(id);
-        task.setStatus(status);
-        task.setType(type);
-        this.taskService.updateBySelective(task);
-        return true;
+        };
     }
 
 
