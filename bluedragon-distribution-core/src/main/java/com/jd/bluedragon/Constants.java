@@ -632,6 +632,7 @@ public class Constants {
     public static final String DMS_WEB_CROSS_SORTING_R="DMS-WEB-CROSS-SORTING-R";   //跨区分拣校验GlobalTrade
     public static final String DMS_WEB_POP_ABNORMAL_R="DMS-WEB-POP-ABNORMAL-R";  //POP差异订单
     public static final String DMS_WEB_SORTING_MACHINE_EXCEPTION="DMS-WEB-SORTING-MACHINE-EXCEPTION"; //分拣机或者龙门架异常
+    public static final String DMS_WEB_NOTICE_MANAGE="DMS-WEB-NOTICE-MANAGE"; //通知栏管理
     public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
 
 

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>附件信息</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+#*引入公共样式和组件*#
+    #parse("system/common/baseImport.vm")
+
+    <script src="/static/js/notice/attachment.js"></script>
+    <style>
+        hr {
+            padding: 0;
+            margin: 4px;
+        }
+
+        #add-form input {
+            height: 30px;
+        }
+    </style>
+</head>
+<body>
+<div id="main" style="margin-left: 10px;margin-right: 10px;">
+    <div id="query-form-wrapper" style="margin-left: 20px; margin-top: 30px; display: none">
+        <form id="query-form" method="post">
+            <div class="form-group">
+                <input type="input" id="notice-id" class="form-control" name="noticeId" readonly="readonly"
+                       value=$!{noticeId}>
+            </div>
+        </form>
+    </div>
+    <table id="dataTable" data-classes="table table-no-border"></table>
+</div>
+</body>
+</html>
