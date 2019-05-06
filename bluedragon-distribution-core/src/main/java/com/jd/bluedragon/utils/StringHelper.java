@@ -7,12 +7,23 @@ import com.jd.common.util.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 public class StringHelper {
 
     private static Logger logger = Logger.getLogger(StringHelper.class);
+
+    public static final String  SMILE = "^_^";           //微笑符号
+    public static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
+    public static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
 
     public static String getRandomString() {
         Random random = new Random();
@@ -384,5 +395,31 @@ public class StringHelper {
             in=Integer.valueOf(s.substring(startIndex,startIndex+1));
         }
         return in;
+    }
+
+    /**
+     * 对电话号码 加微笑符合
+     * @param phone 手机号 电话号码
+     * @return 加密后的字符串
+     */
+    public static String phoneEncrypt(String phone){
+        if(org.apache.commons.lang.StringUtils.isBlank(phone)){
+            return phone;
+        }
+        //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
+        int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
+        //去除号码中间的空白字符
+        String newPhone = phone.replaceAll("\\s*", "");
+        if(newPhone.length() >= phoneLeastLength ){
+            return newPhone.substring(0,PHONE_FIRST_NUMBER) + SMILE + newPhone.substring(newPhone.length() - PHONE_HIGHLIGHT_NUMBER);
+        }
+        return newPhone;
+    }
+
+    public static final void main(String[] args) {
+        System.out.println(phoneEncrypt("18600399842"));
+        System.out.println(phoneEncrypt("1860039942  d"));
+        System.out.println(phoneEncrypt("0105095762 8  "));
+        System.out.println(phoneEncrypt(null));
     }
 }
