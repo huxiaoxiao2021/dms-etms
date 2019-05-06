@@ -1962,6 +1962,7 @@ public class WaybillResource {
 				abnormalResultMq.setWeight(responseDto.getData().getWeight());
 				abnormalResultMq.setVolume(responseDto.getData().getVolume());
 				abnormalResultMq.setDutyType(responseDto.getData().getDutyType());
+				abnormalResultMq.setReviewDutyType(responseDto.getData().getDutyType());
 				abnormalResultMq.setDutyErp(responseDto.getData().getDutyErp());
 				abnormalResultMq.setBusinessObjectId(responseDto.getData().getBusinessObjectId());
 				abnormalResultMq.setBusinessObject(responseDto.getData().getBusinessObject());

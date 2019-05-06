@@ -85,7 +85,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 List<Object> body = Lists.newArrayList();
                 body.add(reviewWeightSpotCheck.getReviewDate() == null ? null : DateHelper.formatDate(reviewWeightSpotCheck.getReviewDate(), Constants.DATE_FORMAT));
                 body.add(reviewWeightSpotCheck.getReviewOrgName());
-                body.add(reviewWeightSpotCheck.getReviewMechanismType()==null?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
+                body.add((reviewWeightSpotCheck.getReviewMechanismType()==null || reviewWeightSpotCheck.getReviewMechanismType()==-1)?"":reviewWeightSpotCheck.getReviewMechanismType()==1?"分拣中心":"转运中心");
                 body.add(reviewWeightSpotCheck.getReviewSiteName());
                 body.add(reviewWeightSpotCheck.getNormalPackageNum());
                 body.add(reviewWeightSpotCheck.getNormalPackageNumOfActual());
@@ -395,6 +395,9 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
      * @return
      */
     private String convertPercentage(int num1,int num2){
+        if(num2 == 0){
+            return "0";
+        }
         float num = (float)num1/num2;
         NumberFormat percentInstance = NumberFormat.getPercentInstance();
         percentInstance.setMinimumFractionDigits(2);

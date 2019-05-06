@@ -413,7 +413,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getIsTrustBusi()==null?"":weightVolumeCollectDto.getIsTrustBusi()==1?"是":"否");
                 body.add(weightVolumeCollectDto.getReviewOrgName());
                 body.add(weightVolumeCollectDto.getReviewSiteName());
-                body.add(weightVolumeCollectDto.getReviewSubType()==null?"":weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
+                body.add((weightVolumeCollectDto.getReviewSubType()==null || weightVolumeCollectDto.getReviewSubType()==-1)?"":weightVolumeCollectDto.getReviewSubType()==1?"分拣中心":"转运中心");
                 body.add(weightVolumeCollectDto.getReviewErp());
                 body.add(weightVolumeCollectDto.getReviewWeight());
                 body.add(weightVolumeCollectDto.getReviewLWH());
