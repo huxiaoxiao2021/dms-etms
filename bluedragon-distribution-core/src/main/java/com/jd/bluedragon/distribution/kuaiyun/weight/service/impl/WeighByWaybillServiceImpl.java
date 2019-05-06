@@ -402,8 +402,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {
+                    logger.info("调用预分拣批量转网接口参数：" + JSON.toJSONString(batchTransferRequest));
                     baseResponse= preseparateWaybillManager.batchTransfer(batchTransferRequest);
-                    logger.debug("调用预分拣批量转网接口返回值:" + JSON.toJSONString(baseResponse));
+                    logger.info("调用预分拣批量转网接口返回值:" + JSON.toJSONString(baseResponse));
                     if (baseResponse == null || !baseResponse.getCode().equals(BaseResponse.CODE_OK)) {
                         logger.error("调用预分拣批量转网接口失败,参数:" + JSON.toJSONString(batchTransferRequest) + ",返回值:" + baseResponse);
                         return false;
