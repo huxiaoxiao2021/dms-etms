@@ -336,7 +336,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             List<WeightVolumeCollectDto> weightVolumeCollectDto1 = mapOfDate.get(date);
             for(WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectDto1){
 
-//                if(!map.get(date).containsKey(weightVolumeCollectDto.getReviewSiteCode())){
                 if(!map.containsKey(date)){
 
                     Map<Integer, List<WeightVolumeCollectDto>> mapOfSite = new HashMap<>();
@@ -346,7 +345,15 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                     map.put(date,mapOfSite);
 
                 }else{
-                    map.get(date).get(weightVolumeCollectDto.getReviewSiteCode()).add(weightVolumeCollectDto);
+
+                    if(!map.get(date).containsKey(weightVolumeCollectDto.getReviewSiteCode())){
+
+                        List<WeightVolumeCollectDto> list = new ArrayList<>();
+                        list.add(weightVolumeCollectDto);
+                        map.get(date).put(weightVolumeCollectDto.getReviewSiteCode(),list);
+                    }else{
+                        map.get(date).get(weightVolumeCollectDto.getReviewSiteCode()).add(weightVolumeCollectDto);
+                    }
                 }
 
             }
