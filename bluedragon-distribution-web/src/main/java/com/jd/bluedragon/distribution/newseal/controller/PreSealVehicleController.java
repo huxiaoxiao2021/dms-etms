@@ -202,6 +202,20 @@ public class PreSealVehicleController extends DmsBaseController{
         }
         List<PreSealVehicle> result = new ArrayList<>(preMap.size());
         result.addAll(preMap.values());
+        //按发车时间排序
+        Collections.sort(result, new Comparator<PreSealVehicle>() {
+            @Override
+            public int compare(PreSealVehicle dto1, PreSealVehicle dto2) {
+                String sendCarTime1 = dto1.getSendCarTime();
+                String sendCarTime2 = dto2.getSendCarTime();
+                if(StringUtils.isEmpty(sendCarTime1) || StringUtils.isEmpty(sendCarTime2)){
+                    return 0;
+                }
+                String hhmm1 = sendCarTime1.substring(sendCarTime1.length()-5);
+                String hhmm2 = sendCarTime2.substring(sendCarTime2.length()-5);
+                return hhmm1.compareTo(hhmm2);
+            }
+        });
         return result;
     }
 
