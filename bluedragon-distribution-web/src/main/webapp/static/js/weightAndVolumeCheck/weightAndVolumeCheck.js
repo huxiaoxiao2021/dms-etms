@@ -84,7 +84,7 @@ $(function () {
             align: 'center'
         },{
             field: 'packageCode',
-            title: '包裹号',
+            title: '扫描条码',
             align: 'center'
         }, {
             field: 'busiName',

@@ -1963,6 +1963,8 @@ public class WaybillResource {
 				abnormalResultMq.setVolume(responseDto.getData().getVolume());
 				abnormalResultMq.setDutyType(responseDto.getData().getDutyType());
 				abnormalResultMq.setDutyErp(responseDto.getData().getDutyErp());
+				abnormalResultMq.setBusinessObjectId(responseDto.getData().getBusinessObjectId());
+				abnormalResultMq.setBusinessObject(responseDto.getData().getBusinessObject());
 
 				billingWeight = responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue();
 				billingVolume = responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue();
@@ -2051,6 +2053,7 @@ public class WaybillResource {
      */
     private void sendMqToFXM(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
         try{
+            abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
             abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
             abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
             if(abnormalResultMq.getDutyType() != null){
@@ -2065,7 +2068,13 @@ public class WaybillResource {
             abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
             abnormalResultMq.setReviewDate(weightVolumeCollectDto.getReviewDate());
             abnormalResultMq.setReviewMechanismType(weightVolumeCollectDto.getReviewSubType());
-            abnormalResultMq.setReviewDutyErp(weightVolumeCollectDto.getReviewErp());
+			abnormalResultMq.setReviewErp(weightVolumeCollectDto.getReviewErp());
+			abnormalResultMq.setReviewWeight(weightVolumeCollectDto.getReviewWeight());
+			abnormalResultMq.setReviewVolume(weightVolumeCollectDto.getReviewVolume());
+			abnormalResultMq.setReviewFirstLevelId(weightVolumeCollectDto.getReviewOrgCode());
+			abnormalResultMq.setReviewFirstLevelName(weightVolumeCollectDto.getReviewOrgName());
+			abnormalResultMq.setReviewSecondLevelId(weightVolumeCollectDto.getReviewSiteCode());
+			abnormalResultMq.setReviewSecondLevelName(weightVolumeCollectDto.getReviewSiteName());
 
             abnormalResultMq.setDiffStandard(weightVolumeCollectDto.getDiffStandard());
             abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
@@ -2076,7 +2085,6 @@ public class WaybillResource {
 			abnormalResultMq.setIsAccusation(0);
 			abnormalResultMq.setIsNeedBlame(1);
 
-            abnormalResultMq.setOperateUser(weightVolumeCollectDto.getReviewErp());
             abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
 
 			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
@@ -2110,7 +2118,7 @@ public class WaybillResource {
                 weightVolumeCollectDto.setIsTrustBusi(-1);
             }
         }
-        BaseStaffSiteOrgDto baseOrgDto = siteService.getSite(packWeightVO.getOrganizationCode());
+        BaseStaffSiteOrgDto baseOrgDto = siteService.getSite(packWeightVO.getOperatorSiteCode());
         if(baseOrgDto != null && baseOrgDto.getSiteType() == 64){
             if(BusinessUtil.isSortOrTransport(baseOrgDto.getSubType()) == 1){
 				weightVolumeCollectDto.setReviewSubType(1);

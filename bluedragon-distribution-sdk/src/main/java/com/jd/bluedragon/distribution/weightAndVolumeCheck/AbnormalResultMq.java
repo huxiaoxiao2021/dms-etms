@@ -30,7 +30,7 @@ public class AbnormalResultMq implements Serializable {
     /**
      * id
      */
-    private Long id;
+    private String id;
     /**
      * 数据来源
      */
@@ -265,6 +265,18 @@ public class AbnormalResultMq implements Serializable {
      * 目的县名称
      */
     private String reviewCountyName;
+    /**
+     * 复核人erp
+     * */
+    private String reviewErp;
+
+    public String getReviewErp() {
+        return reviewErp;
+    }
+
+    public void setReviewErp(String reviewErp) {
+        this.reviewErp = reviewErp;
+    }
 
     public String getFrom() {
         return from;
@@ -282,11 +294,11 @@ public class AbnormalResultMq implements Serializable {
         this.to = to;
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -40,7 +40,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <div class=" col-xs-12 ">
-                                        <p id="packageCodeStr" style="font-size: 17px">包裹号：$!{packageCode}</p>
+                                        <p id="packageCodeStr" style="font-size: 17px">扫描条码：$!{packageCode}</p>
                                     </div>
                                 </div>
                             </div>

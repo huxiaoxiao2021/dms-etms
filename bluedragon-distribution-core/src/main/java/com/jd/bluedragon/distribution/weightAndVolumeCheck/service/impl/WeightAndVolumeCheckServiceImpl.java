@@ -377,7 +377,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         //添加表头
         heads.add("复核日期");
         heads.add("运单号");
-        heads.add("包裹号");
+        heads.add("扫描条码");
         heads.add("商家名称");
         heads.add("信任商家");
         heads.add("复核区域");
