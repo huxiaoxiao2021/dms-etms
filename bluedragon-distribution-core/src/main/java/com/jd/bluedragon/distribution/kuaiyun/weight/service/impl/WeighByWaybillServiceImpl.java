@@ -385,7 +385,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             //如果是纯配外单，调用预分拣接口判断是否需要转网
             if(BusinessUtil.isForeignWaybill(waybillSign)
                     && BusinessUtil.isPureDeliveryWaybill(waybillSign)
-                    && (waybillSign.length() <= WaybillSignConstants.POSITION_89 || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_89,'0'))){
+                    && !BusinessUtil.isTc(waybillSign)){
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {

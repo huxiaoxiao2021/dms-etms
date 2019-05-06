@@ -188,7 +188,7 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否B网，转网到B+未转网（waybillSign第40位1、2、3、4、5）
+     * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
      *
      * @param waybillSign
      * @return
@@ -197,7 +197,7 @@ public class BusinessUtil {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
         		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
         				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
-        						WaybillSignConstants.CHAR_97_1,WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3, WaybillSignConstants.CHAR_97_4));
+        						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
 
     /**
@@ -643,5 +643,14 @@ public class BusinessUtil {
     public static Boolean isPureDeliveryWaybill(String waybillSign){
         return isSignInChars(waybillSign,53,'0', '2');
     }
-
+    /**
+     * 判断是否TC，waybillSign第89位为1和2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTc(String waybillSign) {
+    	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
+    			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
+    }
 }

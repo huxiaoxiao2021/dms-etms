@@ -24,7 +24,7 @@ public class RePrintCallBackRequest extends JdRequest{
 	 */
 	private String packageCode;
 	/**
-	 * 包裹号
+	 * waybillSign
 	 */
 	private String waybillSign;
 	
