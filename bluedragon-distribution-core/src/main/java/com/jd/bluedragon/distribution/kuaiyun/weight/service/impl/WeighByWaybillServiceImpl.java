@@ -30,6 +30,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -376,16 +377,28 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
         if(StringUtils.isNotBlank(waybillCode)){
             //调用运单接口获取waybillSign
-            BaseEntity<String> baseEntity = waybillQueryManager.getWaybillSignByWaybillCode(waybillCode);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
             if(baseEntity == null || baseEntity.getResultCode() != 1){
-                logger.error("获取waybillSign失败,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
+                logger.error("获取运单信息失败,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
                 return false;
             }
-            String waybillSign = baseEntity.getData();
-            //如果是纯配外单，调用预分拣接口判断是否需要转网
+            if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+                logger.error("获取运单信息为空,运单号:" + waybillCode + ".返回值:" + JSON.toJSONString(baseEntity));
+                return false;
+            }
+
+            BigWaybillDto bigWaybillDto = baseEntity.getData();
+            String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+
             if(BusinessUtil.isForeignWaybill(waybillSign)
                     && BusinessUtil.isPureDeliveryWaybill(waybillSign)
                     && (waybillSign.length() <= WaybillSignConstants.POSITION_89 || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_89,'0'))){
+
+                if(!BusinessHelper.hasSendFreightForB2b(bigWaybillDto)){
+                    logger.info("运单中寄付运费小于等于0,不能进行转网.运单号:" + waybillCode);
+                    return false;
+                }
+
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {

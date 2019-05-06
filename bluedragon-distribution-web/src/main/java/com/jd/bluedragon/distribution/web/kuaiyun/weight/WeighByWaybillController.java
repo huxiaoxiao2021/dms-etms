@@ -123,7 +123,7 @@ public class WeighByWaybillController {
                     if(erpUser==null || baseStaffSiteOrgDto==null){
                         erpUser = ErpUserClient.getCurrUser();
                         if (erpUser != null) {
-                            vo.setOperatorId(erpUser.getUserId());
+                            vo.setOperatorId(erpUser.getStaffNo());
                             vo.setOperatorName(erpUser.getUserName());
                             baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                             if (baseStaffSiteOrgDto != null) {
