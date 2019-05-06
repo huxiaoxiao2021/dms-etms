@@ -139,7 +139,7 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		for (ReturnsRequest request : returnsRequests) {
 			SortingReturn sorting = SortingReturn.parse(request);
 			if(StringUtils.isEmpty(sorting.getWaybillCode()) && StringUtils.isEmpty(sorting.getPackageCode())){
-                logger.error(MessageFormat.format("更新分拣退货运单号和包裹号为空[{0}]",JsonHelper.toJson(sorting)));
+                logger.error(MessageFormat.format("更新分拣退货运单号和包裹号为空sorting[{0}]request[{1}]",JsonHelper.toJson(sorting),JsonHelper.toJson(request)));
             }
             if(sorting.getBusinessType()==null || !sorting.getBusinessType().equals(INTERCEPT_RECORD_TYPE)){
 	          	/*拦截记录饿信息不回传运单*/
