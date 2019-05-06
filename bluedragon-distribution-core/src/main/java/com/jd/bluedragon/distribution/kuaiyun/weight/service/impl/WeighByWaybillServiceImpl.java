@@ -454,7 +454,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         waybillList.add(transferRequestOrder);
 
         batchTransferRequest.setOrderList(waybillList);
-        batchTransferRequest.setOperationNode(OperationNodeEnum.SORTING_CENTER.getNodeId());
+        batchTransferRequest.setOperationNode(OperationNodeEnum.TRANSFER_CENTER.getNodeId());
         batchTransferRequest.setBusinessType(BusinessTypeEnum.DELIVER_ORDER.getCode());
         batchTransferRequest.setOperationBranchId(operateSiteCode);
         batchTransferRequest.setOperationBranchName(operateSiteName);
