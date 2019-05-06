@@ -33,7 +33,12 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -42,8 +47,8 @@ import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +57,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 验货Service
@@ -445,8 +458,13 @@ public class InspectionServiceImpl implements InspectionService {
 	public void pushOEMToWMS(Inspection inspection) {
         DmsRouter dmsRouter = new DmsRouter();
         try {
-			Order order = orderWebService.getOrder(Long.parseLong(inspection
-					.getWaybillCode()));
+
+            String orderId = waybillQueryManager.getOrderCodeByWaybillCode(inspection.getWaybillCode(),true);
+            if(!NumberUtils.isDigits(orderId)){
+                logger.error(MessageFormat.format("pushOEMToWMS根据运单号查询的订单号是非数字code[{0}]orderId[{1}]",inspection.getWaybillCode(),orderId));
+                return;
+            }
+			Order order = orderWebService.getOrder(Long.parseLong(orderId));
 			StringBuffer fingerprint = new StringBuffer();
 			fingerprint.append(order.getIdCompanyBranch()).append("_")
 					.append(order.getDeliveryCenterID()).append("_")

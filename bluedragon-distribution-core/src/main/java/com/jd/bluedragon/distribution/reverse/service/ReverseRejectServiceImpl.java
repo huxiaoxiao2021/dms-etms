@@ -170,7 +170,7 @@ public class ReverseRejectServiceImpl implements ReverseRejectService {
     private void appentPickwareInfo(ReverseReject reverseReject, String code) {
         Pickware pickware = this.pickwareService.get(code);
         if (pickware != null) {
-            reverseReject.setOrderId(pickware.getWaybillCode().toString());
+            reverseReject.setOrderId(pickware.getWaybillCode());
             reverseReject.setPickwareCode(pickware.getCode());
         }
     }
