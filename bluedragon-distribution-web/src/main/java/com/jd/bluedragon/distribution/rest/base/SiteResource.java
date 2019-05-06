@@ -31,8 +31,6 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 
@@ -122,15 +120,18 @@ public class SiteResource {
      */
     @GET
     @Path("/site/siteWareHourceMerchantByPage/{category}/{pageNo}")
-    @JProfiler(jKey = "DMS.siteResource.getSiteByPageNo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Pager<List<SiteWareHouseMerchant>>> getSiteByPageNo(@PathParam("category") int category,@PathParam("pageNo") int pageNo){
-        InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
+		CallerInfo info = Profiler.registerInfo("DMS.siteResource.getSiteByPageNo", Constants.UMP_APP_NAME_DMSWEB,false, true);
+    	InvokeResult<Pager<List<SiteWareHouseMerchant>>> result=new InvokeResult<Pager<List<SiteWareHouseMerchant>>>();
         try{
             result.setData(this.siteService.getSitesByPage(category,pageNo));
         }catch (Throwable throwable){
+			Profiler.functionError(info);
             logger.error(MessageFormat.format("分页获取站点数据失败{0}-{1}",category,pageNo),throwable);
             result.error("获取站点出现异常，请联系IT运维！");
-        }
+        }finally {
+			Profiler.registerInfoEnd(info);
+		}
         return result;
     }
     /**

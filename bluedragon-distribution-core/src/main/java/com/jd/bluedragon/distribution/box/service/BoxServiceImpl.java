@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -466,6 +465,7 @@ public class BoxServiceImpl implements BoxService {
 					logger.warn(MessageFormat.format("箱号：{0}更新状态失败，操作站点编号：{1}, 状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(boxStatus)));
 				}
 			} catch (Exception e) {
+				Profiler.functionError(info);
 				logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，更新箱号状态缓存失败！", boxCode, operateSiteCode), e);
 			}
 			finally {
@@ -476,34 +476,35 @@ public class BoxServiceImpl implements BoxService {
 	}
 
 	@Override
-	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.getBoxStatusFromRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {
 		Integer result = null;
-		try {
-			if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
-				String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
-				String value = jimdbCacheService.get(redisKey);
-				if (StringHelper.isNotEmpty(value)) {
-					CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.getBoxStatusFromRedis.redis.exist",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.getBoxStatusFromRedis",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
+                String redisKey = CacheKeyConstants.CACHE_KEY_BOX_STATUS + Constants.SEPARATOR_HYPHEN + boxCode + Constants.SEPARATOR_HYPHEN + operateSiteCode;
+                String value = jimdbCacheService.get(redisKey);
+                if (StringHelper.isNotEmpty(value)) {
 					result = Integer.parseInt(value);
-					Profiler.registerInfoEnd(info);
 					logger.info(MessageFormat.format("箱号状态缓存命中，箱号：{0}，操作站点编号：{1}，状态为：{2}", boxCode, operateSiteCode, BoxStatusEnum.getEnumMap().get(result)));
 				} else {
 					logger.info(MessageFormat.format("箱号状态缓存未命中，箱号：{0}，操作站点编号：{1}，需查库确认！", boxCode, operateSiteCode));
 				}
 			}
 		} catch (Exception e) {
+            Profiler.functionError(info);
 			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号状态缓存失败！", boxCode, operateSiteCode), e);
-		}
+		}finally {
+            Profiler.registerInfoEnd(info);
+        }
 		return result;
 	}
 
 	@Override
-	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.checkBoxIsSent", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public Boolean checkBoxIsSent(String boxCode, Integer operateSiteCode) {
 		Boolean result = false;
 		Integer boxStatus = null;
-		try {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoxServiceImpl.checkBoxIsSent",Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
 			if ("1".equals(BOX_STATUS_REDIS_QUERY_SWITCH)) {
 				boxStatus = this.getBoxStatusFromRedis(boxCode, operateSiteCode);
 			}
@@ -531,9 +532,12 @@ public class BoxServiceImpl implements BoxService {
 				}
 			}
 		} catch (Exception e) {
+            Profiler.functionError(info);
 			result = null;
 			logger.error(MessageFormat.format("箱号：{0}，操作站点编号：{1}，获取箱号校验箱号是否发货失败！", boxCode, operateSiteCode), e);
-		}
+		}finally {
+            Profiler.registerInfoEnd(info);
+        }
 
 		return result;
 	}

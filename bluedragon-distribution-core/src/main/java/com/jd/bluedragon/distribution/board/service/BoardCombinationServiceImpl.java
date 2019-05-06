@@ -301,7 +301,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             } catch (Exception ex) {
                 Profiler.functionError(info1);
                 logger.error("调用总部VER验证JSF服务失败", ex);
-                return JdResponse.CODE_ERROR;
+                throw ex;
             } finally {
                 Profiler.registerInfoEnd(info1);
             }
@@ -605,15 +605,18 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @param request
      * @param operateType
      */
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardSendTrace", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     private void sendWaybillTrace(BoardCombinationRequest request, Integer operateType) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = this.getWaybillStatus(request, operateType);
             // 添加到task表
             taskService.add(toTask(waybillStatus));
 
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("组板操作发送全称跟踪失败.", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>未使用运力编码</title>
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/newseal/unusedtransport.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+        <ol class="breadcrumb">
+            <li><a href="#">一键封车</a></li>
+            <li class="active">未使用运力编码</li>
+        </ol>
+
+	<!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+        	<span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;刷新
+        </button>
+    </div>
+    <table id="dataTable" data-mobile-responsive="true" style="table-layout: fixed;width: 700px" ></table>
+</div>
+<!-- 编辑表单 -->
+</body>
+</html>

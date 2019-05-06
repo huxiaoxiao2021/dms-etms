@@ -1,0 +1,23 @@
+package com.jd.bluedragon.dms.utils;
+/**
+ * 
+ * @ClassName: WaybillSignConstants
+ * @Description: waybillSign相关的常量定义
+ * @author: wuyoude
+ * @date: 2019年4月23日 上午10:19:10
+ *
+ */
+public interface WaybillSignConstants {
+	/**
+	 * B网标识 1、2、3、4、5
+	 */
+	int POSITION_40 = 40;
+	/**
+	 * B与C转网模式说明: 0：未转网
+		1：C转B
+		2：B转C
+		3：C转B转C
+		4：B转C转B
+	 */
+	int POSITION_97 = 97;
+}

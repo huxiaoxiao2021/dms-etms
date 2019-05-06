@@ -42,6 +42,16 @@ public class ReverseSpareRequest extends JdRequest {
      * */
     private String trackContent;
 
+    /**
+     * 责任主体编号
+     * */
+    private String dutyCode;
+
+    /**
+     * 责任主体名称
+     * */
+    private String dutyName;
+
     public Integer getSpareCode() {
         return spareCode;
     }
@@ -112,5 +122,21 @@ public class ReverseSpareRequest extends JdRequest {
 
     public void setTrackContent(String trackContent) {
         this.trackContent = trackContent;
+    }
+
+    public String getDutyCode() {
+        return dutyCode;
+    }
+
+    public void setDutyCode(String dutyCode) {
+        this.dutyCode = dutyCode;
+    }
+
+    public String getDutyName() {
+        return dutyName;
+    }
+
+    public void setDutyName(String dutyName) {
+        this.dutyName = dutyName;
     }
 }

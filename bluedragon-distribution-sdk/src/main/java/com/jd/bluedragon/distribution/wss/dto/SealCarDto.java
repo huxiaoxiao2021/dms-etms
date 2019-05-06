@@ -26,7 +26,6 @@ public class SealCarDto implements Serializable {
     private String endSiteCode;
     private String endSiteName;
 
-
     private String sealCarTime;
 
     private Integer sealSiteId;
@@ -69,6 +68,7 @@ public class SealCarDto implements Serializable {
     private Double weight;
     private Double volume;
     private String transBookCode;
+    private String routeLineCode;
 
     public SealCarDto() {
     }
@@ -514,5 +514,13 @@ public class SealCarDto implements Serializable {
 
     public void setWeight(Double weight) {
         this.weight = weight;
+    }
+
+    public String getRouteLineCode() {
+        return routeLineCode;
+    }
+
+    public void setRouteLineCode(String routeLineCode) {
+        this.routeLineCode = routeLineCode;
     }
 }
