@@ -38,8 +38,7 @@
     
 	<update id="update" parameterType="sortingReturn" >
 		UPDATE sorting_ret
-		SET		
-			waybill_code = #{waybillCode,jdbcType=VARCHAR},
+		SET
             <if test="packageCode != null">
                 package_code = #{packageCode,jdbcType=VARCHAR},
             </if>

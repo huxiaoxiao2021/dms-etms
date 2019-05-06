@@ -190,6 +190,10 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	private Integer update(SortingReturn returns) {
+	    if(null == returns || StringUtils.isEmpty(returns.getWaybillCode())){
+            logger.error(MessageFormat.format("更新分拣退货运单号为空[{0}]",JsonHelper.toJson(returns)));
+            return 0;
+        }
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
 	}
 
