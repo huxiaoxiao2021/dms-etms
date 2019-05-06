@@ -11,4 +11,5 @@ import java.util.List;
  */
 public interface EclpItemManager {
     public List<ItemInfo> getltemBySoNo(String soNo);
+    public String getDeptBySettlementOuId(String ouId);
 }

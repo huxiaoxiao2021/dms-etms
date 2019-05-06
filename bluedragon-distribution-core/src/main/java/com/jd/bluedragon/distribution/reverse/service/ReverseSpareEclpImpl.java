@@ -19,9 +19,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.eclp.core.ApiResponse;
-import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
-import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrderTypeEnum;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundSourceEnum;
@@ -76,9 +73,6 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
 
     @Autowired
     private SendDatailDao sendDetailDao;
-
-    @Autowired
-    private DeptServiceApi deptServiceApi;
 
     @Override
     public BdInboundECLPDto makeEclpMessage(String waybillCode, SendDetail sendDetail) {
@@ -249,10 +243,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     }
                 }
             } else {
-                this.logger.error("通过运单号" + waybillCode + "获取运单商品明细失败!");
+                this.logger.warn("通过运单号" + waybillCode + "获取运单商品明细失败!");
             }
         }else {
-            this.logger.error("通过运单号" + waybillCode + "获取运单信息失败!");
+            this.logger.warn("通过运单号" + waybillCode + "获取运单信息失败!");
         }
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号
@@ -271,12 +265,10 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     compensationMoney = claimInfoRespDTO.getPaymentRealMoney()==null?null:claimInfoRespDTO.getPaymentRealMoney().toString();   //仓配运单理赔金额
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());  //结算主体
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());//结算主体名称
-                    ApiResponse<DeptDomain> apiResponse = deptServiceApi.getDeptBySettlementOuId(null, claimInfoRespDTO.getSettleSubjectCode());
-                    if(apiResponse != null && apiResponse.getCode() == 1 && apiResponse.getData() != null){
-                        inboundOrder.setTargetDeptNo(apiResponse.getData().getDeptNo());//目的事业部编码
-                    }
+                    String deptNo = eclpItemManager.getDeptBySettlementOuId(claimInfoRespDTO.getSettleSubjectCode());
+                    inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 } else {
-                    logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
+                    logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
                 }
                 if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
                     //仓配
@@ -305,7 +297,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                             list.add(goodsInfoItem);
                         }
                     } else {
-                        logger.error("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
+                        logger.warn("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
                     }
                 }
             }else if(oldWaybill2 == null || oldWaybill2.getData() == null) {
@@ -314,18 +306,16 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 if (claimInfoRespDTO != null) {
                     inboundOrder.setOuId(claimInfoRespDTO.getSettleSubjectCode());
                     inboundOrder.setOuName(claimInfoRespDTO.getSettleSubjectName());
-                    ApiResponse<DeptDomain> apiResponse = deptServiceApi.getDeptBySettlementOuId(null, claimInfoRespDTO.getSettleSubjectCode());
-                    if(apiResponse != null && apiResponse.getCode() == 1 && apiResponse.getData() != null){
-                        inboundOrder.setTargetDeptNo(apiResponse.getData().getDeptNo());//目的事业部编码
-                    }
+                    String deptNo = eclpItemManager.getDeptBySettlementOuId(claimInfoRespDTO.getSettleSubjectCode());
+                    inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 }else{
-                    logger.error("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
+                    logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
                 }
             }else {
-                logger.error("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
             }
         }else {
-            logger.error("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+            logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
         }
         return inboundOrder;
     }
