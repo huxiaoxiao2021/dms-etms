@@ -2351,11 +2351,20 @@ public class WaybillResource {
 		InvokeResult<WaybillNoCollectionResult> result = new InvokeResult<>();
 		result.success();
 		WaybillNoCollectionResult waybillNoCollectionResult = null;
-
+		if (waybillNoCollectionRequest == null) {
+			result.parameterError("请求内容为空，请检查请求体！");
+			return result;
+		}
 		String queryCode = waybillNoCollectionRequest.getQueryCode();
 		int queryType = waybillNoCollectionRequest.getQueryType();
 		Integer createSiteCode = waybillNoCollectionRequest.getSiteCode();
 		Integer receiveSiteCode = waybillNoCollectionRequest.getReceiveSiteCode();
+
+		if (StringHelper.isEmpty(queryCode) || ! WaybillNoCollectionQueryTypeEnum.isCorrectType(queryType) || createSiteCode == null || receiveSiteCode == null) {
+			logger.error("请求差异查询信息参数有误，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			result.parameterError("请求参数有误，请检查参数！");
+			return result;
+		}
 
 		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
 		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
@@ -2365,6 +2374,7 @@ public class WaybillResource {
 		if (createSiteOrgDto == null || receiveSiteOrgDto == null) {
 			result.setCode(JdResponse.CODE_NO_SITE);
 			result.setMessage("获取始发或目的站点信息失败！");
+			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
 			return result;
 		} else {
 			//始发和目的都不是快运中心或车队
@@ -2386,13 +2396,13 @@ public class WaybillResource {
 		waybillNoCollectionCondition.setQueryRange(queryRange);
 
 		try {
-			if (queryType == 2) {
+			if (queryType == WaybillNoCollectionQueryTypeEnum.BOARD_CODE_QUERY_TYPE.getType()) {
 				waybillNoCollectionCondition.setBoardCode(queryCode);
 				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfoByBoardCode(waybillNoCollectionCondition);
 			} else {
-				if (queryType == 1) {
+				if (queryType == WaybillNoCollectionQueryTypeEnum.SEND_CODE_QUERY_TYPE.getType()) {
 					waybillNoCollectionCondition.setSendCode(queryCode);
-				} else if (queryType == 3) {
+				} else if (queryType == WaybillNoCollectionQueryTypeEnum.BOX_CODE_QUERY_TYPE.getType()) {
 					waybillNoCollectionCondition.setBoxCode(queryCode);
 				}
 				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfo(waybillNoCollectionCondition);
@@ -2404,7 +2414,7 @@ public class WaybillResource {
 		} catch (DataAccessException e) {
 			result.setCode(JdResponse.CODE_SERVICE_ERROR);
 			result.setMessage("服务端数据库查询异常，请稍后再试！");
-			logger.error("获取包裹不齐信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest) + e);
+			logger.error("获取差异查询信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest) + e);
 		}
 
 		result.setData(waybillNoCollectionResult);

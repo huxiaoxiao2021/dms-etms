@@ -105,7 +105,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                         continue;
                     }
 
-                    int packageNum = WaybillUtil.getCurrentPackageNum(barCode);
+                    int packageNum = WaybillUtil.getPackNumByPackCode(barCode);
                     //剔除一单一件的包裹
                     if (packageNum > 1) {
                         scannedPackageMoreThanOneList.add(barCode);
