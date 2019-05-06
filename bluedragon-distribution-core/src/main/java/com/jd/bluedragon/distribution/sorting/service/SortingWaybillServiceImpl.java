@@ -10,6 +10,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -84,7 +85,7 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
     public boolean isNeedInspection(SortingVO sorting) {
         BaseStaffSiteOrgDto createSite = sorting.getCreateSite();
         //B网建箱自动触发验货全程跟踪
-        if (createSite==null || Constants.B2B_SITE_TYPE!=createSite.getSubType()){
+        if (createSite==null || Constants.B2B_SITE_TYPE!=createSite.getSubType() || StringUtils.isBlank(sorting.getWaybillCode())){
             return false;
         }
         Inspection inspectionQ=new Inspection();
