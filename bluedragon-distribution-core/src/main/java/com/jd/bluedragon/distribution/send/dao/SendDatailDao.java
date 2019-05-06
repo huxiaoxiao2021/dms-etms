@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
@@ -7,6 +8,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -377,6 +380,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         }
     }
 
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.getWaybillNoCollectionInfo", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<WaybillNoCollectionInfo> getWaybillNoCollectionInfo(WaybillNoCollectionCondition waybillNoCollectionCondition) {
         if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
             return null;
@@ -384,6 +388,7 @@ public class SendDatailDao extends BaseDao<SendDetail> {
         return this.getSqlSession().selectList(namespace + ".getWaybillNoCollectionInfo", waybillNoCollectionCondition);
     }
 
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.getScannedInfoPackageNumMoreThanOne", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public List<String> getScannedInfoPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition) {
         if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
             return null;

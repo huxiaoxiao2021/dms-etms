@@ -2360,17 +2360,24 @@ public class WaybillResource {
 		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
 		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
 
-		//默认查全部
-		int queryRange = 1;
+		//默认只看B网
+		int queryRange = WaybillNoCollectionRangeEnum.B_RANGE.getType();
 		if (createSiteOrgDto == null || receiveSiteOrgDto == null) {
 			result.setCode(JdResponse.CODE_NO_SITE);
 			result.setMessage("获取始发或目的站点信息失败！");
 			return result;
 		} else {
-			//始发和目的都不是快运中心
-			if (createSiteOrgDto.getSubType() != Constants.B2B_SITE_TYPE && receiveSiteOrgDto.getSubType() != Constants.B2B_SITE_TYPE) {
-				//只看B网运单
-				queryRange = 2;
+			//始发和目的都不是快运中心或车队
+			if (Constants.BASE_SITE_MOTORCADE.equals(createSiteOrgDto.getSiteType()) ||
+					Constants.BASE_SITE_MOTORCADE.equals(receiveSiteOrgDto.getSiteType())) {
+				//全部都看
+				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
+			}
+			//始发和目的有一个是快运中心
+			else if (createSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE ||
+					receiveSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+				//全部都看
+				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
 			}
 		}
 
