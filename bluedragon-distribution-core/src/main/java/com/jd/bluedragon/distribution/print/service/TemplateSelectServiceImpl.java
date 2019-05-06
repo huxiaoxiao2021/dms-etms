@@ -60,7 +60,9 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
-        if(BusinessUtil.isB2b(waybillSign)){
+        if(BusinessUtil.isTc(waybillSign)){
+        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC);
+        }else if(BusinessUtil.isB2b(waybillSign)){
         	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_B);
         }else{
         	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
@@ -84,7 +86,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
                         //冷链模板
                         templateName = TEMPlATE_NAME_B2B_COLD;
                     }
-                } else if (BusinessUtil.isSignChar(waybillSign, 89, '1')) {
+                } else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
                 } else {

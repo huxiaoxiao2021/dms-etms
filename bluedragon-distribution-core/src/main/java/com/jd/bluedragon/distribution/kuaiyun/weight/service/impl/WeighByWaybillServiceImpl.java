@@ -392,7 +392,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
             if(BusinessUtil.isForeignWaybill(waybillSign)
                     && BusinessUtil.isPureDeliveryWaybill(waybillSign)
-                    && (waybillSign.length() <= WaybillSignConstants.POSITION_89 || BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_89,'0'))){
+                    && !BusinessUtil.isTc(waybillSign)){
 
                 if(!BusinessHelper.hasSendFreightForB2b(bigWaybillDto)){
                     logger.info("运单中寄付运费小于等于0,不能进行转网.运单号:" + waybillCode);

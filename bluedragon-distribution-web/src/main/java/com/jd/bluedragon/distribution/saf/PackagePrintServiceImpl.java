@@ -243,7 +243,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 	@Override
 	public JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest) {
 		JdResult<Boolean> jdResult = new JdResult<Boolean>();
-		jdResult.setData(Boolean.FALSE);
+		jdResult.setData(Boolean.TRUE);
 		jdResult.toSuccess();
 		if(rePrintRecordRequest == null || rePrintRecordRequest.getData() == null){
 			jdResult.toFail("请求参数不能为空！");
@@ -259,6 +259,10 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         		return jdResult;
         	}
         	Integer featureType = FEATURE_TYPES_MAP.get(templateGroupEnum);
+        	if(featureType == null){
+        		jdResult.toSuccess("非B网和C网面单不拦截！");
+        		return jdResult; 
+        	}
         	String waybillCode = rePrintRecordRequest.getData().getWaybillCode();
         	String packageCode = rePrintRecordRequest.getData().getPackageCode();
         	BlockResponse blockResponse = null;
@@ -270,14 +274,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         		jdResult.toFail("请求参数需要提供packageCode或waybillCode！");
         		return jdResult;
         	}
-            if (blockResponse != null && Boolean.TRUE.equals(blockResponse.getResult())) {
-            	jdResult.setData(Boolean.TRUE);
-            	jdResult.toSuccess();
-            }else if(blockResponse != null){
+            if (blockResponse != null && Boolean.FALSE.equals(blockResponse.getResult())) {
             	jdResult.setData(Boolean.FALSE);
-            	jdResult.toSuccess(TRANSFER_INTERCEPT_MESSAGE);
+				jdResult.toSuccess(TRANSFER_INTERCEPT_MESSAGE);
+            }else if(blockResponse != null){
+            	jdResult.setData(Boolean.TRUE);
+            	jdResult.toSuccess();            	
             }else{
-            	jdResult.toFail("调用接口失败！");
+            	jdResult.toFail("调用拦截接口失败！");
             }
         	return jdResult;
         }
