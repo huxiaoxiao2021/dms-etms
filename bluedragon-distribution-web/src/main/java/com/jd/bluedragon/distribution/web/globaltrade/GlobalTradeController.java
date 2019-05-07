@@ -241,6 +241,8 @@ public class GlobalTradeController {
         return cdto;
     }
 
+    @Authorization(Constants.DMS_WEB_COMMON_R)
+    @JProfiler(jKey = "DMSWEB.GlobalTradeController.updateLoadBillStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = JProEnum.TP)
     @RequestMapping(value = "/loadBill/status", method = RequestMethod.POST)
     @ResponseBody
     public LoadBillReportResponse updateLoadBillStatus(LoadBillReportRequest request, Model model) {

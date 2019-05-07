@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.crossbox.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
@@ -16,8 +17,8 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -288,8 +289,8 @@ public class CrossBoxServiceImpl implements CrossBoxService {
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.BasicSafInterfaceManagerImpl.getCrossDmsBoxByOriAndDes", mState = {JProEnum.TP, JProEnum.FunctionError})
     public CrossBoxResult<CrossBox> getCrossDmsBoxByOriAndDes(Integer originalDmsId, Integer destinationDmsId) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BasicSafInterfaceManagerImpl.getCrossDmsBoxByOriAndDes", Constants.UMP_APP_NAME_DMSWEB,false, true);
         CrossBoxResult<CrossBox> result = new CrossBoxResult<CrossBox>();
         try {
             if (null == originalDmsId || null == destinationDmsId) {
@@ -310,9 +311,12 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 }
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             result.setResultCode(result.FAIL);
             result.setData(null);
             result.setMessage("调用接口异常：" + e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }
@@ -324,8 +328,8 @@ public class CrossBoxServiceImpl implements CrossBoxService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.CrossBoxServiceImpl.getCrossDmsBox", mState = {JProEnum.TP, JProEnum.FunctionError})
     public CrossBoxResult<String> getCrossDmsBox(Integer originalDmsId, Integer destinationDmsId) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.CrossBoxServiceImpl.getCrossDmsBox", Constants.UMP_APP_NAME_DMSWEB,false, true);
         CrossBoxResult<String> result = new CrossBoxResult<String>();
         try {
             if (originalDmsId == null || destinationDmsId == null) {
@@ -348,10 +352,13 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                result.setMessage("调用成功，但未查询到数据，请判断参数是否正确");
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             result.setData(null);
             result.setResultCode(result.FAIL);
             result.setMessage("调用接口异常：" + e);
             logger.error("根据始发和目的分拣中心ID获取路线信息:", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }
@@ -366,8 +373,8 @@ public class CrossBoxServiceImpl implements CrossBoxService {
      * @return String[0] 路由站点的名称 String[1] 路由站点的ID
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.CrossBoxServiceImpl.getBoxRouter", mState = {JProEnum.TP, JProEnum.FunctionError})
     public CrossBoxResult<String[]> getBoxRouter(Integer originalDmsId, Integer destinationDmsId, Date predictSendTime, Integer transportType) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.CrossBoxServiceImpl.getBoxRouter", Constants.UMP_APP_NAME_DMSWEB,false, true);
         CrossBoxResult<String[]> result = new CrossBoxResult<String[]>(CrossBoxResult.SUCCESS,null,"成功");
         try {
             if (originalDmsId == null || destinationDmsId == null) {
@@ -387,10 +394,13 @@ public class CrossBoxServiceImpl implements CrossBoxService {
                 getCrossRouter(originalDmsId, destinationDmsId, result);
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             result.setData(null);
             result.setResultCode(result.FAIL);
             result.setMessage("调用接口异常：" + e);
             logger.error("根据始发和目的分拣中心ID获取路线信息:", e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         return result;
     }

@@ -199,6 +199,61 @@ public class PrintWaybill extends BasePrintWaybill {
      */
     private Integer waybillStatus ;
 
+    /**
+     * 运单类型
+     * @description type字段的转换（打印需要）
+     * @see this.type
+     */
+    private Integer waybillType;
+
+    /**
+     * 包裹数量
+     * quantity 的字段转换
+     * @see this.quantity
+     */
+    private Integer packageCounter;
+
+    /**
+     * 商家ID
+     * @see this.popSupId
+     */
+    private Integer companyId;
+
+    /**
+     * 商家名称
+     * @see this.popSupName
+     */
+    private String companyName;
+
+    /**
+     * 是否已经打印发票
+     * @see this.isPrintInvoice
+     */
+    private boolean hasPrintInvoice;
+
+    /**
+     * @see this.busiId
+     */
+    private Integer bCustomerId;
+
+    /**
+     * @see this.busiName
+     */
+    private String bCustomerName;
+
+    /**
+     * @see this.prepareSiteCode
+     */
+    private Integer printSiteCode;
+
+    /**
+     * 代收金额
+     * @see this.packagePrice
+     */
+    private String receivable;
+
+
+
     public PrintWaybill(){
         this.isAir=false;
         this.isSelfService=false;
@@ -500,5 +555,77 @@ public class PrintWaybill extends BasePrintWaybill {
 
     public void setWaybillStatus(Integer waybillStatus) {
         this.waybillStatus = waybillStatus;
+    }
+
+    public Integer getWaybillType() {
+        return waybillType;
+    }
+
+    public void setWaybillType(Integer waybillType) {
+        this.waybillType = waybillType;
+    }
+
+    public Integer getPackageCounter() {
+        return packageCounter;
+    }
+
+    public void setPackageCounter(Integer packageCounter) {
+        this.packageCounter = packageCounter;
+    }
+
+    public Integer getCompanyId() {
+        return companyId;
+    }
+
+    public void setCompanyId(Integer companyId) {
+        this.companyId = companyId;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+    public boolean isHasPrintInvoice() {
+        return hasPrintInvoice;
+    }
+
+    public void setHasPrintInvoice(boolean hasPrintInvoice) {
+        this.hasPrintInvoice = hasPrintInvoice;
+    }
+
+    public Integer getbCustomerId() {
+        return bCustomerId;
+    }
+
+    public void setbCustomerId(Integer bCustomerId) {
+        this.bCustomerId = bCustomerId;
+    }
+
+    public String getbCustomerName() {
+        return bCustomerName;
+    }
+
+    public void setbCustomerName(String bCustomerName) {
+        this.bCustomerName = bCustomerName;
+    }
+
+    public Integer getPrintSiteCode() {
+        return printSiteCode;
+    }
+
+    public void setPrintSiteCode(Integer printSiteCode) {
+        this.printSiteCode = printSiteCode;
+    }
+
+    public String getReceivable() {
+        return receivable;
+    }
+
+    public void setReceivable(String receivable) {
+        this.receivable = receivable;
     }
 }

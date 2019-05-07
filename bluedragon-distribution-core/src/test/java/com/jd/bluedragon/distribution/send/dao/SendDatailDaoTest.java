@@ -51,15 +51,6 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.add(SendDatailDao.namespace, parameter);
     }
 
-
-	@Test
-    public void testGetSendSiteID() {
-        SendDetail parameter = new SendDetail();
-        parameter.setCreateSiteCode(420);
-        parameter.setReceiveSiteCode(266);
-        parameter.setPackageBarcode("James");
-        sendDatailDao.getSendSiteID(parameter);
-    }
 	
 	@Test
     public void testGetSendDatailsWithoutMeasures() {

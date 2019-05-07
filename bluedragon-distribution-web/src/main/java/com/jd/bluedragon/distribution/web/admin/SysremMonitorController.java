@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -38,7 +40,8 @@ public class SysremMonitorController {
 	
 	@Autowired
 	private RedisManager redisManager;
-	
+
+	@Authorization(Constants.DMS_WEB_DEVELOP_TASK_R)
 	@RequestMapping(value = "", method = RequestMethod.GET)
     public String index(Model model) {
 		try {
@@ -49,15 +52,16 @@ public class SysremMonitorController {
 		}
         return "admin/system-monitor/system-monitor-index";
     }
-	
-	/**
-	 * 查询RedisQueue个数
-	 * @param model
-	 * @param param
-	 * @param beginDate
-	 * @param endDate
-	 * @return
-	 */
+
+    /**
+     * 查询RedisQueue个数
+     * @param model
+     * @param qName
+     * @param qSign
+     * @param qSize
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_TASK_R)
     @RequestMapping(value = "/doQueryRedisQueueCount", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<List<Map<String,Object>>> doQueryRedisQueueCount(Model model, 
@@ -114,15 +118,16 @@ public class SysremMonitorController {
 		}
         return cdto;
     }
-    
+
     /**
-	 * 查询RedisQueue明细
-	 * @param model
-	 * @param param
-	 * @param beginDate
-	 * @param endDate
-	 * @return
-	 */
+     * 查询RedisQueue明细
+     * @param model
+     * @param queueKey
+     * @param currentPage
+     * @param pageSize
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_TASK_R)
     @RequestMapping(value = "/doQueryRedisQueueDetail", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<List<String>> doQueryRedisQueueDetail(Model model,
@@ -175,6 +180,7 @@ public class SysremMonitorController {
      * @param qSize 队列数量
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_TASK_R)
     @RequestMapping(value = "/doMove2DB", method = RequestMethod.POST)
     @ResponseBody
     public CommonDto<List<Map<String,Object>>> doMove2DB(Model model, 

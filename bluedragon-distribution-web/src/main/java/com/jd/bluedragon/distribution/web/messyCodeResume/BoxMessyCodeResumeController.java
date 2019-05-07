@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.web.messyCodeResume;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,6 +31,7 @@ public class BoxMessyCodeResumeController {
      * @param condition 条件:code  更改值:createSiteCode receiveSiteCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_DEVELOP_TOOLS_SUMMARY_R)
     @RequestMapping("/updateBoxMessyCode")
     @ResponseBody
     public InvokeResult<Integer> updateBoxMessyCode(Box condition) {

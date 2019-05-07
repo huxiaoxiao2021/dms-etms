@@ -1,20 +1,9 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
+import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -27,9 +16,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
-import com.jd.bluedragon.utils.AreaHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.vts.dto.CommonDto;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
@@ -38,6 +25,14 @@ import com.jd.etms.vts.ws.VtsQueryWS;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 @Service("siteService")
@@ -174,6 +169,7 @@ public class SiteServiceImpl implements SiteService {
                     domain.setSname(dto.getStartNodeName());
                     // 发车时间
                     domain.setSendTime(String.valueOf(dto.getSendCarTime()));
+                    domain.setSendTimeStr(dto.getSendCarTimeStr());
                     // 始发区域
                     domain.setSorgid(String.valueOf(dto.getStartOrgId()));
                     domain.setSorgName(dto.getStartOrgName());
@@ -381,5 +377,26 @@ public class SiteServiceImpl implements SiteService {
             }
         }
         return bjDmsSiteCodes;
+    }
+
+    @Override
+    public List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName) {
+        if (StringHelper.isEmpty(siteName)) {
+            return Collections.emptyList();
+        }
+        String url = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteFuzzyByName/" + siteName;
+        List<SiteEntity> siteEntities = RestHelper.jsonGetForEntity(url,new TypeToken<List<SiteEntity>>(){}.getType());
+        if (null == siteEntities || siteEntities.isEmpty()) {
+            return null;
+        }
+        List<BaseStaffSiteOrgDto> res = new ArrayList<>();
+        for (SiteEntity siteEntity : siteEntities) {
+            BaseStaffSiteOrgDto siteOrgDto = new BaseStaffSiteOrgDto();
+            siteOrgDto.setSiteCode(siteEntity.getCode());
+            siteOrgDto.setSiteName(siteEntity.getName());
+            siteOrgDto.setSiteType(siteEntity.getType());
+            res.add(siteOrgDto);
+        }
+        return res;
     }
 }

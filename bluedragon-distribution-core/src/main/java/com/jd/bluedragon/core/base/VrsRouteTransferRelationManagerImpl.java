@@ -19,8 +19,8 @@ import com.jd.etms.api.waybill.VrsWaybillQueryAPI;
 import com.jd.etms.sdk.compute.RouteComputeUtil;
 import com.jd.etms.sdk.util.PerformanceTimeUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,12 +63,9 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Value("${jsf.router.token}")
     private String vrsRouteTransferRelationApiToken;
 
-    /** 直辖市省id 1:北京市 2:上海市  3：天津市  4：重庆市 **/
-    private static final List<Integer> municipalityList = Arrays.asList(1,2,3,4);
-
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String queryRecommendRoute(String startNode, String endNodeCode, Date predictSendTime, RouteProductEnum routeProduct) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRecommendRoute", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(vrsRouteTransferRelationApiToken, startNode, endNodeCode, predictSendTime, routeProduct);
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null || StringHelper.isEmpty(commonDto.getData().getRecommendRouting())) {
@@ -80,8 +77,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return commonDto.getData().getRecommendRouting();
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("查询远程路由中转信息异常." , e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
     }
@@ -97,8 +97,8 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return 应履约时效
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRoutePredictDate", mState = {JProEnum.TP, JProEnum.FunctionError})
     public String queryRoutePredictDate(Integer configType, Integer bizzType, String startSiteNode, String toSiteNode, Date pickUpEndTime) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.VrsRouteTransferRelationManagerImpl.queryRoutePredictDate", Constants.UMP_APP_NAME_DMSWEB,false, true);
         String resultDate = "";
         try {
 
@@ -126,8 +126,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return resultDate;
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("查询订单路由时效失败：" + e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -139,10 +142,10 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorResp> getAbnormalTotal(PageDto<TransferWaveMonitorReq> page, TransferWaveMonitorReq parameter) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<PageDto<TransferWaveMonitorResp>> commonDto = transferWaveMonitorAPI.noSendAndArrivedButNoCheckSum(baseDto, page, parameter);
 //            CommonDto<PageDto<TransferWaveMonitorResp>> commonDto =testGetMain(baseDto, page, parameter);
@@ -155,8 +158,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return commonDto.getData();
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("批次清零异常统计失败：" + e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
     }
@@ -169,10 +175,10 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.getNoSendDetail", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorDetailResp> getNoSendDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.transferWaveMonitorAPI.getNoSendDetail", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getNoSendDetail(baseDto, page, waveBusinessId);
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
@@ -185,8 +191,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return commonDto.getData();
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("批次清零异常未发货明统计失败：" + e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -198,10 +207,10 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.transferWaveMonitorAPI.getArrivedButNoCheckDetail", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public PageDto<TransferWaveMonitorDetailResp> getArrivedButNoCheckDetail(PageDto<TransferWaveMonitorDetailResp> page, String waveBusinessId) {
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.transferWaveMonitorAPI.getArrivedButNoCheckDetail", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {//调用路由 查疑似未到的单子 说更准
             CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = transferWaveMonitorAPI.getMayNoArriveDetail(baseDto, page, waveBusinessId);
 //            CommonDto<PageDto<TransferWaveMonitorDetailResp>> commonDto = testGetInspection(baseDto, page, waveBusinessId);
@@ -214,8 +223,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 return commonDto.getData();
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("批次清零异常未验明细统计失败：" + e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -227,7 +239,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMS.BASE.vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     public String queryWaveInfoByWaybillCodeAndNodeCode(String waybillCode, Integer nodeCode) {
 
         //站点区域查出来
@@ -237,6 +248,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         }
         BaseDto baseDto = new BaseDto();
         baseDto.setToken(vrsRouteTransferRelationApiToken);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<Map<String, List<String>>> commonDto = vrsWaybillQueryAPI.queryWaveInfoByWaybillCodeAndNodeCode(baseDto, waybillCode, org.getDmsSiteCode());
             if (commonDto == null || commonDto.getCode() != 1 || commonDto.getData() == null) {
@@ -255,8 +267,11 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
                 }
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("查询班次失败" + e);
             return null;
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -324,63 +339,52 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      * @return
      */
     public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
-        List<String> cityNameList = new ArrayList<String>();
+        List<String> dmsSiteNameList = new ArrayList<String>();
 
         //校验参数
         if(originalDmsCode == null || destinationDmsCode == null || routeProduct == null || predictSendTime == null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         //获取始发和目的的七位编码
         BaseStaffSiteOrgDto originalDms=baseMajorManager.getBaseSiteBySiteId(originalDmsCode);
         if (originalDms==null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         BaseStaffSiteOrgDto destinationDms=baseMajorManager.getBaseSiteBySiteId(destinationDmsCode);
         if (destinationDms==null){
-            return cityNameList;
+            return dmsSiteNameList;
         }
 
         //调路由的接口获取路由节点
         String router=queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
 
         if (StringUtils.isEmpty(router)){
-            return cityNameList;
+            return dmsSiteNameList;
         }
         //拼接路由站点的名称
         String[] siteArr=router.split("\\|");
         //有路由节点的话，加上发出和接收节点，数量一定会>2个
         if (siteArr.length < 2){
-            return cityNameList;
+            return dmsSiteNameList;
         }
 
-        String preCityName = "";
+        String preDmsName = "";
         for(int i=0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
             if (baseStaffSiteOrgDto!=null){
-                Integer provinceId = baseStaffSiteOrgDto.getProvinceId();
-                String cityName = baseStaffSiteOrgDto.getCityName();
-                //直辖市的城市显示直辖市
-                if(isMunicipality(provinceId)){
-                    cityName = baseStaffSiteOrgDto.getProvinceName();
+                String dmsName = baseStaffSiteOrgDto.getDmsShortName();
+                if(StringUtils.isBlank(dmsName)){
+                    dmsName = baseStaffSiteOrgDto.getDmsName();
                 }
-                if(cityName.equals(preCityName)){
+                if(dmsName.equals(preDmsName)){
                     continue;
                 }else{
-                    preCityName = cityName;
-                    cityNameList.add(cityName);
+                    preDmsName = dmsName;
+                    dmsSiteNameList.add(dmsName);
                 }
             }
         }
-        return cityNameList;
-    }
-
-    /**
-     * 判断是否是直辖市 1:北京市  2：上海市  3：天津市 4：重庆市
-     * @param provinceId
-     * @return
-     */
-    private boolean isMunicipality(Integer provinceId){
-        return municipalityList.contains(provinceId);
+        return dmsSiteNameList;
     }
 }

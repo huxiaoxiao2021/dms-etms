@@ -50,7 +50,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_SENDDATA_GENERATED_EMPTY = "生成发货数据为空";
 
     public static final Integer CODE_THREEPL_SCHEDULE_ERROR = 20005;
-    public static final String MESSAGE_THREEPL_SCHEDULE_ERROR = "此运单对应商家基础资料设置不允许转三方快递派送";
+    public static final String MESSAGE_THREEPL_SCHEDULE_ERROR = "此单的商家不允许转三方快递派送，请调度到自营站点！";
 
     public static final Integer CODE_SITE_OFFLINE_ERROR = 20006;
     public static final String MESSAGE_SITE_OFFLINE_ERROR = "不能预分拣到已经线下运营的站点!";
@@ -114,6 +114,70 @@ public class JdResponse extends JdObject {
 
     public static final Integer CODE_RE_PRINT_IN_ONE_HOUR = 30100;
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";
+
+    public static final Integer CODE_RE_PRINT_NO_PACK_LIST = 30101;
+    public static final String MESSAGE_RE_PRINT_NO_PACK_LIST = "运单{0}没有包裹信息，无法打印包裹标签";
+
+    public static final Integer CODE_RE_PRINT_NO_THIS_PACK = 30102;
+    public static final String MESSAGE_RE_PRINT_NO_THIS_PACK = "运单{0}中不存在该包裹号！";
+
+    public static final Integer CODE_RE_PRINT_PACK_SIZE_TOO_LARGE = 30103;
+    public static final String MESSAGE_RE_PRINT_PACK_SIZE_TOO_LARGE = "该单包裹数为{0}，确定打印所有包裹";
+
+    public static final Integer CODE_RE_SCHEDULE_WAYBILL_NO_INFO = 30104;
+    public static final String MESSAGE_RE_SCHEDULE_WAYBILL_NO_INFO = "对不起，没有获取到您需要的运单";
+
+    public static final Integer CODE_RE_SCHEDULE_WAYBILL_NO_PACKAGE = 30105;
+    public static final String MESSAGE_RE_SCHEDULE_WAYBILL_NO_PACKAGE = "对不起，此运单没有包裹信息";
+
+    public static final Integer CODE_RE_SCHEDULE_WAYBILL_NO_THIS_PACKAGE = 30106;
+    public static final String MESSAGE_RE_SCHEDULE_WAYBILL_NO_THIS_PACKAGE = "对不起，运单中没有此包裹信息";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO = 30107;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_INFO = "输入的单号有误，请重新输入！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_INFO = 30108;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_INFO = "通过原单号未获得新单号！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE = 30109;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_NEW_WAYBILLCODE = "未触发逆向新运单";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS = 30110;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_OUT_15_DAYS = "已超15天，请核实录入是否正确！是否继续操作换单打印?";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME = 30111;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME = "换单新单无体积数据，请输入新单包裹长宽高！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT = 30112;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_WEIGHT = "换单新单无重量数据，请输入新单包裹重量！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT = 30113;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_WAYBILL_NO_VOLUME_WEIGHT = "换单新单无重量及体积数据，请输入新单包裹重量及长宽高！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME = 30114;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_VOLUME = "体积录入异常！此包裹为半收包裹，长宽高必须输入！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT = 30115;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_HALF_PACKAGE_NO_WEIGHT = "重量录入异常！此包裹为半收包裹，重量必须录入！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_NO_WEIGHT = 30116;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_NO_WEIGHT = "启用包裹称重，未录入包裹重量信息！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT = 30117;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT = "包裹重量为{0},是否确定称重打印？";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100 = 30118;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_100 = "包裹重量为{0},已经超过100KG,是否仍要确定称重打印？";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000 = 30119;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_CONFIRM_WEIGHT_OUT_1000 = "包裹重量为{0},已经超过1000KG,不允许操作！";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME = 30120;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_UNABLE_WEIGHT_VOLUME = "该包裹{0}属于半收业务必须启用称重，并进行量方";
+
+    public static final Integer CODE_REVERSE_CHANGE_PRINT_ALREADY = 30121;
+    public static final String MESSAGE_REVERSE_CHANGE_PRINT_ALREADY = "该单号{0}已打印";
+
     /** 请求服务URL */
     private String request;
     

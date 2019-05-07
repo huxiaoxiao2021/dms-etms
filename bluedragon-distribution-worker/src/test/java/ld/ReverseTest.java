@@ -69,24 +69,26 @@ public class ReverseTest {
         Task tTask = new Task();
 
         tTask.setBody("{\n" +
-                "  \"sendCode\" : \"910-11252-20190328135641090\",\n" +
-                "  \"waybillCode\" : \"JDVA00001757689\",\n" +
-                "  \"packageCode\" : \"JDVA00001757689\",\n" +
-                "  \"createSiteCode\" : 11252,\n" +
-                "  \"createSiteType\" : 903,\n" +
-                "  \"createSiteName\" : \"北京服装备件库\",\n" +
-                "  \"receiveSiteCode\" : 11252,\n" +
-                "  \"receiveSiteType\" : 903,\n" +
-                "  \"receiveSiteName\" : \"北京服装备件库\",\n" +
-                "  \"operatorId\" : -1,\n" +
-                "  \"operator\" : \"bjtc\",\n" +
-                "  \"operateType\" : 900,\n" +
-                "  \"operateTime\" : 1553753239000\n" +
+                "  \"boxCode\" : \"BC1001190403130000000202\",\n" +
+                "  \"waybillCode\" : \"JDVA00001832840\",\n" +
+                "  \"packageCode\" : \"JDVA00001832840\",\n" +
+                "  \"orgId\" : 6,\n" +
+                "  \"orgName\" : \"总公司\",\n" +
+                "  \"createSiteCode\" : 910,\n" +
+                "  \"createSiteType\" : 64,\n" +
+                "  \"createSiteName\" : \"北京马驹桥分拣中心\",\n" +
+                "  \"receiveSiteCode\" : 39,\n" +
+                "  \"receiveSiteType\" : 4,\n" +
+                "  \"receiveSiteName\" : \"石景山营业部\",\n" +
+                "  \"operatorId\" : 10053,\n" +
+                "  \"operator\" : \"邢松\",\n" +
+                "  \"operateType\" : 1,\n" +
+                "  \"operateTime\" : 1554274662000\n" +
                 "}");
 
 
         tTask.setOwnSign("LD");
-        tTask.setKeyword1("JDVA00001757689");
+        tTask.setKeyword1("JDVA00001832840");
 
         try {
             waybillService.doWaybillStatusTask(tTask);

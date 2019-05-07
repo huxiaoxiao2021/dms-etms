@@ -48,12 +48,14 @@ public class DmsBarCodeController extends DmsBaseController {
      * @param barCode
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_DMSBARCODE_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     List<DmsBarCode> listData(@RequestBody DmsBarCode barCode) {
         return barcodeService.query(barCode);
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_DMSBARCODE_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(DmsBarCode barCode, Model model) {
         try {

@@ -20,6 +20,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -136,6 +138,9 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		ArrayList<SortingReturn> resultList = new ArrayList<SortingReturn>();
 		for (ReturnsRequest request : returnsRequests) {
 			SortingReturn sorting = SortingReturn.parse(request);
+			if(StringUtils.isEmpty(sorting.getWaybillCode()) && StringUtils.isEmpty(sorting.getPackageCode())){
+                logger.error(MessageFormat.format("更新分拣退货运单号和包裹号为空sorting[{0}]request[{1}]",JsonHelper.toJson(sorting),JsonHelper.toJson(request)));
+            }
             if(sorting.getBusinessType()==null || !sorting.getBusinessType().equals(INTERCEPT_RECORD_TYPE)){
 	          	/*拦截记录饿信息不回传运单*/
             	resultList.add(sorting);
@@ -185,6 +190,10 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	private Integer update(SortingReturn returns) {
+	    if(null == returns || StringUtils.isEmpty(returns.getWaybillCode())){
+            logger.error(MessageFormat.format("更新分拣退货运单号为空[{0}]",JsonHelper.toJson(returns)));
+            return 0;
+        }
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
 	}
 

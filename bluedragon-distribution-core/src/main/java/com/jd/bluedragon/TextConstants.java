@@ -34,6 +34,11 @@ public class TextConstants {
     public static final String FREIGHT_MONTH = "月结";
 
     /**
+     * B网运费-临时欠款
+     */
+    public static final String FREIGHT_TEMPORARY_ARREARS="临欠";
+
+    /**
      * 货款-货到付款
      */
     public static final String GOODS_PAYMENT_COD = "货到付款";
@@ -81,13 +86,13 @@ public class TextConstants {
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
      * 此时，waybill_sign第80位等于1时，面单打印“特惠运”
      */
-    public static final String B2B_CHEAP_TRANSPORT ="特惠运";
+    public static final String B2B_CHEAP_TRANSPORT ="";
 
     /**
      * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
      * 此时，waybill_sign第80位等于2时，面单打标“特准运”
      */
-    public static final String B2B_TIMELY_TRANSPORT ="【特准运】";
+    public static final String B2B_TIMELY_TRANSPORT ="【准】";
     /**
      * 京准达快递到车
      */

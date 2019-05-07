@@ -234,7 +234,7 @@
     <!--封车解封车jsf接口  added by zhanglei 20170519 -->
     <!-- 封车解封车 jsf接口 隋红华 王显群-->
     <jsf:consumer id="vosBusinessWS" interface="com.jd.etms.vos.ws.VosBusinessWS"
-                  protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="2000" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 任务封车简码查询 jsf接口 郝雄山-->
     <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
@@ -364,6 +364,10 @@
     <!-- ECLP系统接口 -->
     <jsf:consumer id="inboundOrderService" interface="com.jd.eclp.spare.ext.api.inbound.InboundOrderService"
                   protocol="jsf" alias="${jsf.inboundOrderService.alias}" timeout="5000" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <jsf:consumer id="deptServiceApi" interface="com.jd.eclp.master.export.api.service.dept.DeptServiceApi"
+                  protocol="jsf" alias="${jsf.deptServiceApi.alias}" timeout="1000" retries="${jsf.retries}" >
     </jsf:consumer>
 
     <!-- automatic分拣自动化：获取发货方案配置的接口 -->

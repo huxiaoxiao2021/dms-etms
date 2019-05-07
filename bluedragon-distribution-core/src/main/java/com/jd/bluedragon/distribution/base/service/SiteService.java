@@ -99,4 +99,12 @@ public interface SiteService {
 	 * @return
 	 */
 	Set<Integer> getSiteCodesFromSysConfig(String sysConfigName);
+
+
+	/**
+	 * 根据站点名称进行模糊匹配查询
+	 * @param siteName 站点名称
+	 * @return
+	 */
+	public List<BaseStaffSiteOrgDto> fuzzyGetSiteBySiteName(String siteName);
 }

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通知栏</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/notice/list.js"></script>
+    <style>
+        th, td {
+            border: 1px solid transparent !important;
+        }
+    </style>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+    <ol class="breadcrumb">
+        <h3><b>通知栏</b></h3>
+    </ol>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>

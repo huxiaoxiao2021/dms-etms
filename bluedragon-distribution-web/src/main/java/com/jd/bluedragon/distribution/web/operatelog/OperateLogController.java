@@ -68,11 +68,13 @@ public class OperateLogController {
 		return "operateLog/operatelog";
 	}
 
+	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/goListPage1", method = RequestMethod.GET)
 	public String goListpage1(Model model) {
 		return "operateLog/operatelog1";
 	}
 
+	@Authorization("DMS-WEB-QUERY-OPERATE-LOG1")
 	@RequestMapping(value = "/list1", method = RequestMethod.GET)
 	public String queryOperateLog1(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {
@@ -118,7 +120,8 @@ public class OperateLogController {
 	public String goListpage2(Model model) {
 		return "operateLog/operatelog2";
 	}
-	
+
+    @Authorization(Constants.DMS_WEB_SORTING_OPERATELOG_R)
 	@RequestMapping(value = "/list2", method = RequestMethod.GET)
 	public String queryOperateLog2(OperationLog operationLog, Pager<OperationLog> pager, Model model) {
 		try {

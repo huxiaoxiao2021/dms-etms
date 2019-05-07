@@ -185,6 +185,7 @@ public class CrossBoxController {
 		return null;
 	}
 
+	@Authorization(Constants.DMS_WEB_SORTING_CROSSBOX_R)
 	@ResponseBody
 	@RequestMapping("/check")
 	public CrossBoxResponse<String> check(CrossBox crossBox) {

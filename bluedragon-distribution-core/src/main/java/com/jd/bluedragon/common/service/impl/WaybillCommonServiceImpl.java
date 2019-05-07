@@ -18,7 +18,6 @@ import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
-import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -115,15 +114,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
+    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/q/02ixD6QH52bQO100000074}")
+    private String popularizeMatrixCode;
+
     /**
      * 京东logo的文件路径
      */
     private final String LOGO_IMAGE_KEY_JD="JDLogo.gif";
 
-    /**
-     * 推广二维码内容
-     */
-    private final String POPULARIZE_MATRIX_CODE_CONTENT="https://logistics-mrd.jd.com/cmail";
 
     /**
      * 验视
@@ -266,11 +264,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.waybillCommonService.getReverseWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Waybill> getReverseWaybill(String oldWaybillCode) {
         InvokeResult<Waybill> result = new InvokeResult<Waybill>();
         Waybill waybill = null;
-
+        CallerInfo info = Profiler.registerInfo("DMSWEB.waybillCommonService.getReverseWaybill", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
@@ -291,8 +288,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 this.logger.info("运单号【 " + oldWaybillCode + "】调用运单JSF数据成功");
             }
         } catch (Throwable e) {
+            Profiler.functionError(info);
             this.logger.error("运单号【 " + oldWaybillCode + "】调用运单JSF异常：", e);
             result.error(e);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
         result.setData(waybill);
         return result;
@@ -610,8 +610,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 						res.put(key, newData);
 					}else{
 						if(oldData.getpWeight()==null||oldData.getpWeight()<=0){
-							newData.setpWeight(newData.getpWeight());
-							newData.setWeighTime(newData.getWeighTime());
+//							newData.setpWeight(newData.getpWeight());
+//							newData.setWeighTime(newData.getWeighTime());
 						}else if(newData.getpWeight()!=null&&newData.getpWeight()>0&&newData.getWeighTime().after(oldData.getWeighTime())){
 							oldData.setpWeight(newData.getpWeight());
 							oldData.setWeighTime(newData.getWeighTime());
@@ -665,7 +665,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             target.setAdditionalComment("");
         }else{
             target.setJdLogoImageKey(LOGO_IMAGE_KEY_JD);
-            target.setPopularizeMatrixCode(POPULARIZE_MATRIX_CODE_CONTENT);
+            target.setPopularizeMatrixCode(popularizeMatrixCode);
             target.setAdditionalComment(additionalComment);
         }
         //Waybillsign的15位打了3的取件单，并且订单号非“QWD”开头的单子getSpareColumn3  ----产品：luochengyi  2017年8月29日16:37:21
@@ -735,6 +735,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '3')){
                 freightText = TextConstants.FREIGHT_SEND;
+            }
+
+            //25位为4时【临欠】
+            if (BusinessUtil.isSignChar(waybill.getWaybillSign(), 25, '4')) {
+                freightText = TextConstants.FREIGHT_TEMPORARY_ARREARS;
             }
         	//货款字段金额等于0时，则货款位置不显示
         	//货款字段金额大于0时，则货款位置显示为【代收货款】
@@ -878,6 +883,15 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         //waybill_sign标识位，第三十五位为1，一体化面单显示"尊"
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(),35,'1')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_SENIOR);
+        }
+
+        //waybill_sign标识位，第九十二位为2，一体化面单显示"器"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(), Constants.WAYBILL_SIGN_POSITION_92, Constants.WAYBILL_SIGN_POSITION_92_2)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_UTENSIL);
+        }
+        //waybill_sign标识位，第九十二位为3，一体化面单显示"箱"
+        if(BusinessUtil.isSignChar(waybill.getWaybillSign(),Constants.WAYBILL_SIGN_POSITION_92,Constants.WAYBILL_SIGN_POSITION_92_3)){
+            target.appendSpecialMark(ComposeService.SPECIAL_MARK_BOX);
         }
         //拆包面单打印拆包员号码,拆包号不为空则路区号位置显示拆包号
         if(waybill.getWaybillExt() != null && StringUtils.isNotBlank(waybill.getWaybillExt().getUnpackClassifyNum())){
@@ -1098,17 +1112,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         RouteProductEnum routeProduct = null;
 
         /**
-         * 当waybill_sign第62位等于1时，确定为B网营业厅运单:
          * 1.waybill_sign第80位等于1时，产品类型为“特惠运”--TB1
          * 2.waybill_sign第80位等于2时，产品类型为“特准运”--TB2
          */
-        if(BusinessUtil.isSignChar(waybillSign,62,'1')){
-            if(BusinessUtil.isSignChar(waybillSign,80,'1')){
-                routeProduct = RouteProductEnum.TB1;
-            }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
-                routeProduct = RouteProductEnum.TB2;
-            }
+
+        if(BusinessUtil.isSignChar(waybillSign,80,'1')){
+            routeProduct = RouteProductEnum.TB1;
+        }else if(BusinessUtil.isSignChar(waybillSign,80,'2')){
+            routeProduct = RouteProductEnum.TB2;
         }
+
 
         List<String> routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
         logger.info("获取到的城市名列表为:" + routerNameList);

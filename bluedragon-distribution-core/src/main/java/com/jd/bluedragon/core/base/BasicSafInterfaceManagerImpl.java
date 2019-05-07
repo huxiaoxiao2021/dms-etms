@@ -56,9 +56,8 @@ public class BasicSafInterfaceManagerImpl implements BasicSafInterfaceManager {
      * @param storeId 库房ID
      * @return
      */
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.BASE.BasicSafInterfaceManagerImpl.getStoreBindDms", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseDmsStoreDto getStoreBindDms(String storeType,Integer cky2,Integer storeId){
-        CallerInfo info = Profiler.registerInfo("basicSafInterfaceManager.getStoreBindDms", false, true);
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.BasicSafInterfaceManagerImpl.getStoreBindDms", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try{
             return basicMixedWS.getStoreBindDms(storeType,cky2,storeId);
         } catch (Exception e){

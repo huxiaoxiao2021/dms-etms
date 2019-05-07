@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.transport.controller;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,6 +58,7 @@ public class ArBookingSpaceController {
      * @ id
      * @return
      */
+    @Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/toIndex")
     public String toIndex(Model model) {
 		ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
@@ -84,6 +87,7 @@ public class ArBookingSpaceController {
      * @param id
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/detail/{id}")
     public @ResponseBody JdResponse<ArBookingSpace> detail(@PathVariable("id") Long id) {
     	JdResponse<ArBookingSpace> rest = new JdResponse<ArBookingSpace>();
@@ -96,6 +100,7 @@ public class ArBookingSpaceController {
      * 保存数据
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/save")
     public @ResponseBody JdResponse<Boolean> save(ArBookingSpace arBookingSpace) {
     	convertDate(arBookingSpace,true);
@@ -130,6 +135,7 @@ public class ArBookingSpaceController {
      * 根据id删除一条数据
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/deleteByIds")
     public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
     	JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -145,6 +151,7 @@ public class ArBookingSpaceController {
      * 根据条件分页查询数据信息
      * @return
      */
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody PagerResult<ArBookingSpace> listData(@RequestBody ArBookingSpaceCondition arBookingSpaceCondition) {
     	JdResponse<PagerResult<ArBookingSpace>> rest = new JdResponse<PagerResult<ArBookingSpace>>();
@@ -157,6 +164,7 @@ public class ArBookingSpaceController {
     	return rest.getData();
     }
 
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
 	@RequestMapping(value = "/toExport")
 	public ModelAndView toExport(ArBookingSpaceCondition arBookingSpaceCondition, Model model) {
 		try {
@@ -175,6 +183,8 @@ public class ArBookingSpaceController {
 		}
 	}
 
+
+	@Authorization(Constants.DMS_WEB_TRANSPORT_ARBOOKINGSPACE_R)
 	@RequestMapping(value = "/uploadExcel", method = RequestMethod.POST)
 	public @ResponseBody JdResponse uploadExcel( @RequestParam("importExcelFile") MultipartFile file) {
 		logger.debug("uploadExcelFile begin...");

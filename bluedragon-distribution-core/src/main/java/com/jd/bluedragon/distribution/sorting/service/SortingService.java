@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import java.util.List;
@@ -13,8 +14,6 @@ public interface SortingService {
     Integer add(Sorting sorting);
 
     Integer update(Sorting sorting);
-
-    void addSortingAndSendDetail(Sorting sorting);
 
     /** 任务转分拣记录 
      * @return */
@@ -144,5 +143,22 @@ public interface SortingService {
      * @param task
      * @return 成功与否
      */
-    public boolean processTaskData(Task task);
+    boolean processTaskData(Task task);
+
+    SendDetail addSendDetail(Sorting sorting);
+
+    void fixSendDAndSendTrack(Sorting sorting, List<SendDetail> sendDs);
+
+    void fillSortingIfPickup(Sorting sorting);
+
+    boolean useNewSorting(Integer siteCode);
+
+    /**
+     * 根据箱号获取运单号列表
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getWaybillCodeListByBoxCode(String boxCode);
+
 }

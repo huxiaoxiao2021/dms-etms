@@ -140,10 +140,17 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Override
     public Boolean isConfirmed(String waybillCode) {
         WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
-        if(record != null && TREATED_STATE.equals(record.getConfirmStatus())){
-            return true;
+        if (record != null) {
+            logger.info("运单号" + waybillCode + "确认耗材服务结果【0：未确认，1：确认】：" + record.getConfirmStatus());
+            return TREATED_STATE.equals(record.getConfirmStatus());
         }
-        return false;
+        //added by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
+        else {
+            logger.warn("运单号" + waybillCode + "需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档");
+            return false;
+        }
+        //edited by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
+        //return true;
     }
 
     /**

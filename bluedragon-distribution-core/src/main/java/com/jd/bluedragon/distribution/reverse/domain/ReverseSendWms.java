@@ -40,7 +40,11 @@ public class ReverseSendWms {
 
     private String waybillSign;
 
-    private ExtInfos extInfos;
+    private String venderId;
+
+    private int xniType;
+
+	private ExtInfos extInfos;
 
 	/**
 	 * 逆向编码，标识是用户退货，还是返仓再生产
@@ -228,5 +232,21 @@ public class ReverseSendWms {
 
 	public void setOrderSource(String orderSource) {
 		this.orderSource = orderSource;
+	}
+
+	public String getVenderId() {
+		return venderId;
+	}
+
+	public void setVenderId(String venderId) {
+		this.venderId = venderId;
+	}
+
+	public int getXniType() {
+		return xniType;
+	}
+
+	public void setXniType(int xniType) {
+		this.xniType = xniType;
 	}
 }

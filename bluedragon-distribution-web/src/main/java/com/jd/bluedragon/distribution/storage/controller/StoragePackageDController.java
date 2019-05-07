@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.storage.controller;
 
 import java.util.List;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.Constants;
+import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,6 +41,7 @@ public class StoragePackageDController {
 	 * 返回主页面
 	 * @return
 	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/toIndex")
 	public String toIndex() {
 		return "/storage/storagePackageD";
@@ -49,6 +51,7 @@ public class StoragePackageDController {
 	 * @param id
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/detail/{id}")
 	public @ResponseBody JdResponse<StoragePackageD> detail(@PathVariable("id") Long id) {
 		JdResponse<StoragePackageD> rest = new JdResponse<StoragePackageD>();
@@ -60,6 +63,7 @@ public class StoragePackageDController {
 	 * @param storagePackageD
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/save")
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody StoragePackageD storagePackageD) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
@@ -76,6 +80,7 @@ public class StoragePackageDController {
 	 * @param ids
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/deleteByIds")
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody List<Long> ids) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
@@ -92,6 +97,7 @@ public class StoragePackageDController {
 	 * @param storagePackageDCondition
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<StoragePackageD> listData(@RequestBody StoragePackageDCondition storagePackageDCondition) {
 		JdResponse<PagerResult<StoragePackageD>> rest = new JdResponse<PagerResult<StoragePackageD>>();
@@ -105,6 +111,7 @@ public class StoragePackageDController {
 	 * @param waybillCode
 	 * @return
 	 */
+    @Authorization(Constants.DMS_WEB_EXPRESS_STORAGEPACKAGEM_R)
 	@RequestMapping(value = "/showViews/{waybillCode}")
 	public @ResponseBody JdResponse<List<StoragePackageD>> listData(@PathVariable("waybillCode") String waybillCode) {
 		JdResponse<List<StoragePackageD>> rest = new JdResponse<List<StoragePackageD>>();

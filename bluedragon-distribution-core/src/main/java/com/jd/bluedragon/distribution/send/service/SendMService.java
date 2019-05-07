@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.send.service;
 
 import com.jd.bluedragon.distribution.send.domain.SendM;
 
+import java.util.Date;
 import java.util.List;
 
 public interface SendMService {
@@ -14,5 +15,12 @@ public interface SendMService {
      */
     public List<SendM> findDeliveryRecord(Integer createSiteCode, String boxCode);
 
-
+    /**
+     * 根据起始时间查询所有发货批次信息
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param startDate
+     * @return
+     */
+    public List<SendM> findAllSendCodesWithStartTime(Integer createSiteCode, Integer receiveSiteCode, Date startDate);
 }

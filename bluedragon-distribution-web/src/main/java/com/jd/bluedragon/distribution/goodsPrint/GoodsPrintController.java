@@ -49,6 +49,7 @@ public class GoodsPrintController extends DmsBaseController {
      * @param goodsPrint
      * @return
      */
+    @Authorization(Constants.DMS_WEB_SORTING_GOODSPRINT_R)
     @RequestMapping(value = "/listData")
     public @ResponseBody
     JdResponse<List<GoodsPrintDto>> listData(@RequestBody GoodsPrintDto goodsPrint) {
@@ -63,6 +64,7 @@ public class GoodsPrintController extends DmsBaseController {
         }
     }
 
+    @Authorization(Constants.DMS_WEB_SORTING_GOODSPRINT_R)
     @RequestMapping(value = "/toExport")
     public ModelAndView toExport(GoodsPrintDto goodsPrint, Model model) {
         try {

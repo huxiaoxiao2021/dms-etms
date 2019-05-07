@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 
 /**
  * 
@@ -24,4 +26,10 @@ public interface UserService {
 	 * @return
 	 */
 	public BaseResponse jsfLogin(LoginRequest request);
+	/**
+	 * 通过jsf调用,获取当前登录账户信息
+	 * @param request
+	 * @return
+	 */
+	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request);
 }

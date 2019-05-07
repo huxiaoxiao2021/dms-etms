@@ -8,22 +8,14 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BaseMinorManager;
-import com.jd.bluedragon.core.base.LDOPManager;
-import com.jd.bluedragon.core.base.OBCSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.EditWeightRequest;
 import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
 import com.jd.bluedragon.distribution.api.request.PopAddPackStateRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.api.response.BaseResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.api.response.TaskResponse;
-import com.jd.bluedragon.distribution.api.response.WaybillResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -36,8 +28,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
-import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
+import com.jd.bluedragon.distribution.print.request.WaybillRescheduleRequest;
 import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
@@ -59,12 +50,7 @@ import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LableType;
-import com.jd.bluedragon.utils.OriginalType;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.api.WaybillTraceApi;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -81,30 +67,21 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.DoubleRange;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -112,7 +89,7 @@ import java.util.Set;
 @Produces({ MediaType.APPLICATION_JSON })
 public class WaybillResource {
 
-    private final Log logger = LogFactory.getLog(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
      * 揽收完成状态
@@ -515,7 +492,6 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}")
-	@JProfiler(jKey = "DMS.BASE.WaybillResource.getwaybillPackOld",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 													  @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless) {
@@ -528,7 +504,9 @@ public class WaybillResource {
 					JdResponse.MESSAGE_PARAM_ERROR);
 		}
 		// 转换运单号
-		String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillResource.getwaybillPackOld", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        String waybillCode = WaybillUtil.getWaybillCode(waybillCodeOrPackage);
+
 		// 调用服务
 		try {
 
@@ -548,11 +526,14 @@ public class WaybillResource {
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			// 调用服务异常
 			this.logger
 					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 
 	}
@@ -645,6 +626,7 @@ public class WaybillResource {
 	 */
 	@GET
 	@Path("waybill/waybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}")
+    @JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public WaybillResponse<Waybill> getwaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
 												   @PathParam("waybillCodeOrPackage") String waybillCodeOrPackage,@PathParam("localSchedule") Integer localSchedule
 			,@PathParam("paperless") Integer paperless,@PathParam("startSiteType") Integer startSiteType) {
@@ -660,7 +642,6 @@ public class WaybillResource {
 	 * @param packOpeFlowFlg - 是否获取称重流水信息
 	 * @return
 	 */
-	@JProfiler(jKey = "DMS.BASE.WaybillResource.getWaybillPack",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@GET
 	@Path("waybill/getWaybillPack/{startDmsCode}/{waybillCodeOrPackage}/{localSchedule}/{paperless}/{startSiteType}/{packOpeFlowFlg}")
 	public WaybillResponse<Waybill> getWaybillPack(@PathParam("startDmsCode") Integer startDmsCode,
@@ -744,13 +725,118 @@ public class WaybillResource {
 					JdResponse.MESSAGE_OK, waybill);
 
 		} catch (Exception e) {
-			// 调用服务异常
+            // 调用服务异常
 			this.logger
 					.error("根据运单号【" + waybillCode + "】 获取运单包裹信息接口 --> 异常", e);
 			return new WaybillResponse<Waybill>(JdResponse.CODE_SERVICE_ERROR,
 					JdResponse.MESSAGE_SERVICE_ERROR);
 		}
 
+	}
+
+	/**
+	 * <p>
+	 *     返调度获取打印信息
+	 * </p>
+	 * 1.waybillCancel进行拦截的验证
+	 * 2.调用waybill/waybillPack 获取包裹信息和调度站点的基础资料的信息
+	 */
+	@POST
+	@Path("/waybill/reSchedule")
+	public WaybillResponse<Waybill> PackageReschedule(WaybillRescheduleRequest request){
+		WaybillResponse<Waybill> response = new WaybillResponse<>();
+		if (null == request) {
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage(WaybillResponse.MESSAGE_PARAM_ERROR);
+			return response;
+		}
+        /* 校验单号是否正确 */
+		String barCode = request.getBarCode();/* 调度单号 */
+		if (StringHelper.isEmpty(barCode) || !WaybillUtil.isPackageCode(barCode) || !WaybillUtil.isWaybillCode(barCode)) {
+			logger.warn("WaybillResource.PackageReschedule-->输入的单号不正确：{}",request.toString());
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage(WaybillResponse.MESSAGE_PARAM_ERROR);
+			return response;
+		}
+
+        /* 校验基本参数是否确实 */
+		if (null == request.getStartDmsCode() || request.getStartDmsCode() <= 0) {
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage("调度分拣中心无效");
+			return response;
+		}
+		if (null == request.getRescheduleSiteCode() || request.getRescheduleSiteCode() <= 0) {
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage("调度站点无效");
+			return response;
+		}
+		if (null == request.getPaperless()) {
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage("是否无纸化参数错误");
+			return response;
+		}
+		if (null == request.getStartSiteType()) {
+			response.setCode(WaybillResponse.CODE_PARAM_ERROR);
+			response.setMessage("始发站点类型错误");
+			return response;
+		}
+
+		String waybillCode = WaybillUtil.getWaybillCode(barCode);
+		try {
+            /* 1.调用waybillCancel检查拦截信息 */
+			String waybillcancelCheckUrl =  PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS")
+					+ "/services/waybills/cancel" + "?packageCode=" + waybillCode;
+			JdResponse waybillCancelResponse = RestHelper.jsonGetForEntity(waybillcancelCheckUrl,JdResponse.class);
+			if (null != waybillCancelResponse && !JdResponse.CODE_OK.equals(waybillCancelResponse.getCode())) {
+				logger.warn("WaybillResource.PackageReschedule-->此单{}属于拦截订单,无法进行返调度",waybillCode);
+				response.setCode(waybillCancelResponse.getCode());
+				response.setMessage(waybillCancelResponse.getMessage());
+				return response;
+			}
+
+            /* 2.调用com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack */
+			response = this.getwaybillPack(request.getStartDmsCode(),barCode,
+					request.getRescheduleSiteCode(),request.getPaperless(),request.getStartSiteType());
+			if (null == response) {
+				logger.warn("WaybillResource.PackageReschedule-->获取调度打印信息失败:{}",request.toString());
+				response = new WaybillResponse<>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
+				return response;
+			}
+			/* 帮客户端校验返回结果 */
+			Waybill entity = response.getData();
+			if (null == entity) {
+				response.setCode(JdResponse.CODE_RE_SCHEDULE_WAYBILL_NO_INFO);
+				response.setMessage(JdResponse.MESSAGE_RE_SCHEDULE_WAYBILL_NO_INFO);
+				return response;
+			} else if (entity.getPackList().isEmpty()) {
+				response.setCode(JdResponse.CODE_RE_SCHEDULE_WAYBILL_NO_PACKAGE);
+				response.setMessage(JdResponse.MESSAGE_RE_SCHEDULE_WAYBILL_NO_PACKAGE);
+				return response;
+			}
+//			else if (22 == entity.getType() || 10000 == entity.getType()) {
+//				response.setCode(JdResponse.CODE_RE_SCHEDULE_WAYBILL_NO_THIS_PACKAGE);
+//				response.setMessage(JdResponse.MESSAGE_RE_SCHEDULE_WAYBILL_NO_THIS_PACKAGE);
+//				return response;
+//			}
+//			FIX: 2019/4/5 是否包含当前包裹
+			for (Pack packageItem : entity.getPackList() ) {
+				/* 设置重量 */
+				if (null == packageItem.getWeight()) {
+					packageItem.setWeight("0.00");
+				}
+				/* 设置包裹序列值 */
+				packageItem.setPackageIndex(packageItem.getPackSerial() + "/" + entity.getPackageNum());
+			}
+			/* 设置预分拣站点的值 */
+			entity.setSiteCode(request.getRescheduleSiteCode());
+			entity.setSiteName(request.getRescheduleSiteName());
+
+		} catch (Exception e) {
+			logger.error("WaybillResource.PackageReschedule-->返调度操作失败，发生异常",e);
+			response = new WaybillResponse<>(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
+		}
+
+		return response;
 	}
 
 	/**
@@ -2115,113 +2201,7 @@ public class WaybillResource {
 	@GET
 	@Path("/waybill/exchange/weightAndVolume/limit/{oldWaybillCode}/{newWaybillCode}")
 	public InvokeResult<Integer> waybillExchangeCheckWeightAndVolume(@PathParam("oldWaybillCode") String oldWaybillCode, @PathParam("newWaybillCode") String newWaybillCode ){
-		InvokeResult<Integer> result = new InvokeResult<>();
-		result.success();
-		//初始化不需要称重
-		result.setData(0);
-
-		if (StringHelper.isEmpty(oldWaybillCode) || StringHelper.isEmpty(newWaybillCode)) {
-			logger.error("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
-			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-			result.setMessage("参数错误，oldWaybillCode：" + oldWaybillCode + "，newWaybillCode：" + newWaybillCode);
-			result.setData(-1);
-			return result;
-		}
-		try{
-			boolean isNeedCheck = false;
-			//如果老单是取件单，则需要进行重量体积校验，如果不是需要判断老单是否是拒收状态的运单
-			if (WaybillUtil.isPickupCode(oldWaybillCode)) {
-				isNeedCheck = true;
-			} else {
-				String waybillCode = oldWaybillCode;
-				if (WaybillUtil.isPackageCode(oldWaybillCode)){
-					waybillCode = WaybillUtil.getWaybillCode(oldWaybillCode);
-				}
-				//判断老单是否是自营订单并且有拒收状态，拒收状态160
-				if (WaybillUtil.isJDWaybillCode(waybillCode) && waybillTraceManager.isWaybillRejected(waybillCode)) {
-					isNeedCheck = true;
-				}
-			}
-			//重量体积校验逻辑
-			if (isNeedCheck) {
-				//根据新单获取大运单对象
-				WChoice wChoice = new WChoice();
-				wChoice.setQueryWaybillC(true);
-				wChoice.setQueryWaybillE(true);
-				wChoice.setQueryWaybillM(true);
-				BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(newWaybillCode, wChoice);
-
-				boolean isNeedWeight = false;
-				boolean isNeedVolume = false;
-				//如果大运单对象存在，并且运单信息存在
-				if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
-					//运单对象中的复重重量
-					Double againWeight = baseEntity.getData().getWaybill().getAgainWeight();
-
-					//运单中的商品重量
-					Double goodWeight = baseEntity.getData().getWaybill().getGoodWeight();
-
-					//运单对象中的复核体积
-					String againVolumeStr = baseEntity.getData().getWaybill().getSpareColumn2();
-
-					//运单中的商品体积
-					Double goodVolume = baseEntity.getData().getWaybill().getGoodVolume();
-
-					//如果无重量，或者重量小于等于0，需要进行称重
-					if ((againWeight == null || againWeight.compareTo(0d) <= 0) && (goodWeight == null || goodWeight.compareTo(0d) <= 0)) {
-						isNeedWeight = true;
-					}
-					//体积转换为数值类型
-					Double againVolume = null;
-					if (againVolumeStr != null) {
-						try {
-							againVolume = Double.parseDouble(againVolumeStr);
-						} catch (Exception e) {
-							logger.error("体积数据转换异常，体积值为：" + againVolumeStr);
-						}
-					}
-					//如果体积不存在，或者体积小于等于0，需要进行量方
-					if ((againVolume == null || againVolume.compareTo(0d) <= 0) && (goodVolume == null || goodVolume.compareTo(0d) <= 0)) {
-						isNeedVolume = true;
-					}
-
-					//二进制
-					//00表示不需要称重，不需要量方，十进制为0
-					//01表示不需要称重，需要量方，十进制为1
-					//10表示需要称重，不需要量方，十进制为2
-					//11表示需要称重，需要量方，十进制为3
-					if (! isNeedWeight && ! isNeedVolume) {
-						result.setData(0);
-					}
-					else if (! isNeedWeight) {
-						result.setData(1);
-					}
-					else if (! isNeedVolume) {
-						result.setData(2);
-					}
-					else {
-						result.setData(3);
-					}
-
-					if (isNeedWeight || isNeedVolume) {
-						logger.warn("老单号:" + newWaybillCode + ",新单号：" + newWaybillCode + "，需要称重或量方！result：" + result.getData());
-					}
-				} else {
-					logger.error("调用运单接口获取换新单号的运单信息为空，waybillCode:" + newWaybillCode);
-					result.setCode(InvokeResult.RESULT_NULL_CODE);
-					result.setMessage("新单号:"+ newWaybillCode + "的运单信息为空，请联系IT人员处理");
-					result.setData(-1);
-					return result;
-				}
-			}
-
-		}catch (Exception e){
-			logger.error("判断新单是否必须称重量方服务异常，老单号:" + newWaybillCode + ",新单号：" + newWaybillCode, e);
-			result.setData(-1);
-			result.setCode(InvokeResult.SERVER_ERROR_CODE);
-			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-		}
-		return result;
+		return receiveWeightCheckService.waybillExchangeCheckWeightAndVolume(oldWaybillCode,newWaybillCode);
 	}
 
 	/**
@@ -2300,4 +2280,34 @@ public class WaybillResource {
             result.setData(4);
         }
     }
+
+	/**
+	 * 获取运单中包裹数量
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/waybill/getPackNum/{waybillCode}")
+	public InvokeResult<Integer> getPackNum(@PathParam("waybillCode") String waybillCode){
+
+        InvokeResult<Integer> result = new InvokeResult<Integer>();
+        Integer packNum = 0;
+        try{
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+                packNum = baseEntity.getData().getWaybill().getGoodNumber() == null?0:baseEntity.getData().getWaybill().getGoodNumber();
+                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+            }else{
+                this.logger.error("未获取到该运单"+waybillCode+"信息");
+                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+                result.setMessage("未获取到该运单"+waybillCode+"信息");
+            }
+        }catch(Exception e){
+            this.logger.error("通过运单号:"+waybillCode+"获取运单信息失败!");
+            result.setCode(InvokeResult.SERVER_ERROR_CODE);
+            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        result.setData(packNum);
+        return result;
+	}
 }
