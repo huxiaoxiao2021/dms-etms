@@ -2438,18 +2438,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         return true;
     }
 
-    @Override
-    public SendDetail getSendSiteID(String packbarCode, Integer sitecode) {
-        if (packbarCode == null || packbarCode.isEmpty() || sitecode == null) {
-            return null;
-        }
-        SendDetail sendDetail = new SendDetail();
-        sendDetail.setPackageBarcode(packbarCode);
-        sendDetail.setCreateSiteCode(sitecode);
-        sendDetail.setReceiveSiteCode(sitecode);
-        return getLastSendDetailDate(sendDatailDao.getSendSiteID(sendDetail));
-    }
-
     /**
      * 比较时间大小
      *
