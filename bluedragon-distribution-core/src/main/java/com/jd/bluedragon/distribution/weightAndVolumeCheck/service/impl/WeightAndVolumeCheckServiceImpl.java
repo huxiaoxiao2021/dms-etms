@@ -205,11 +205,12 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * @param siteCode
      * @param uploadTime
      * @param siteCode
+     * @param reviewDate
      */
-    public void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime){
+    public void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime,String reviewDate){
         AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
         try{
-            abnormalPictureMq.setAbnormalId(packageCode+"|"+siteCode);
+            abnormalPictureMq.setAbnormalId(packageCode+"_"+reviewDate);
             abnormalPictureMq.setWaybillCode(packageCode);
             abnormalPictureMq.setUploadTime(uploadTime);
             //查存储空间获取图片链接
@@ -252,7 +253,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
             WeightVolumeCollectDto dto = JsonHelper.fromJson(task.getBody(), WeightVolumeCollectDto.class);
 
-            sendMqAndUpdate(dto.getPackageCode(),dto.getReviewSiteCode(),new Date().getTime());
+            sendMqAndUpdate(dto.getPackageCode(),dto.getReviewSiteCode(),new Date().getTime(),Long.toString(dto.getReviewDate().getTime()));
         }catch (Exception e){
             isSuccess =false;
             logger.error("处理重量体积超标任务异常!");

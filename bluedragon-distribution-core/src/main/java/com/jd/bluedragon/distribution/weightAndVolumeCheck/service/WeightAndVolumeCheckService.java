@@ -54,8 +54,9 @@ public interface WeightAndVolumeCheckService {
      * @param packageCode
      * @param siteCode
      * @param uploadTime
+     * @param reviewDate
      */
-    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime);
+    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime,String reviewDate);
 
     /**
      * 执行task任务

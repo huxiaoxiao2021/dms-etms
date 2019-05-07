@@ -207,7 +207,7 @@ $(function () {
                         maxmin: true,
                         shadeClose: false,
                         area: ['1000px', '500px'],
-                        content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode,
+                        content: upExcessPictureUrl + "?waybillCode=" + row.waybillCode + "&packageCode=" + row.packageCode + "&reviewDate=" + row.reviewDate,
                         success: function(layero, index){
                         }
                     });

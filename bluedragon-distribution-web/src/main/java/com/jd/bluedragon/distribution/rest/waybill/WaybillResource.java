@@ -2054,8 +2054,8 @@ public class WaybillResource {
      */
     private void sendMqToFXM(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
         try{
-            abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
-            abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "|" +weightVolumeCollectDto.getReviewSiteCode());
+            abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
+            abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
             abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
             if(abnormalResultMq.getDutyType() != null){
 				if(abnormalResultMq.getDutyType() == 2 || abnormalResultMq.getDutyType() == 3){

@@ -124,9 +124,11 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping("/toUpload")
     public String toUpload(@QueryParam("waybillCode")String waybillCode,
-                           @QueryParam("packageCode")String packageCode,Model model) {
+                           @QueryParam("packageCode")String packageCode,
+                           @QueryParam("reviewDate")String reviewDate,Model model) {
         model.addAttribute("waybillCode",waybillCode);
         model.addAttribute("packageCode",packageCode);
+        model.addAttribute("reviewDate",reviewDate);
 
         return "weightAndVolumeCheck/excessPictureUpload";
     }
@@ -143,8 +145,8 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String importErpCode = erpUser.getUserCode();
-//        String importErpCode = "bjxings";
+//        String importErpCode = erpUser.getUserCode();
+        String importErpCode = "bjxings";
         Integer siteCode = -1;
         try{
             BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
@@ -183,6 +185,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         }
         Long uploadTime  = new Date().getTime();
         String packageCode = request.getParameter("packageCode");
+        String reviewDate = request.getParameter("reviewDate");
         try {
             String operateTimeForm = DateHelper.formatDate(new Date(),DateHelper.DATE_FORMAT_YYYYMMDDHHmmss);
             imageName = packageCode + "_" + siteCode + "_" + operateTimeForm + "." + suffixName;
@@ -196,7 +199,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
             //上传成功后给判责系统发消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime);
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate);
         }
 
         return result;
