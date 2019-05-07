@@ -321,7 +321,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
                 if(allForcedToSubmit == 0){
-                    $.messager.alert('运单录入结果',res.message,'info');
+                    $.messager.alert('运单录入结果',res.message);
                 }
                 $('#waybill-weight-btn').linkbutton('enable');
 
@@ -671,7 +671,7 @@ function showWarnData(warnList){
                     }else{
                         warnMessage = "运单号" + warnMessage + INTERCEPT_MESSAGE;
                     }
-                    $.messager.alert('提示',warnMessage);
+                    $.messager.alert('运单录入结果',warnMessage);
                 }
             }
         }
