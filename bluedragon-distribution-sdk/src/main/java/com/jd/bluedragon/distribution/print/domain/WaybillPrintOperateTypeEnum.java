@@ -13,7 +13,13 @@ public enum WaybillPrintOperateTypeEnum {
     FIELD_PRINT(100106, "驻场打印"),
     BATCH_SORT_WEIGH_PRINT(100107, "批量分拣称重"),
     FAST_TRANSPORT_PRINT(100108, "快运称重打印"),
-    BATCH_PACKAGE_AGAIN_PRINT(100109, "批量包裹补打");
+    BATCH_PACKAGE_AGAIN_PRINT(100109, "批量包裹补打"),
+
+    SITE_MASTER_PACKAGE_REPRINT(100501, "站长工作台：包裹补打"),
+    SITE_MASTER_REVERSE_CHANGE_PRINT(100502, "站长工作台：换单打印"),
+    SITE_MASTER_RESCHEDULE_PRINT(100503, "站长工作台：现场预分拣");
+
+
     private Integer type;//操作类型
     private String name;//操作名称
 

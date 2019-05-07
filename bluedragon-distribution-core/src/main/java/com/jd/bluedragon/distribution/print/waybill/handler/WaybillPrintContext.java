@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -11,6 +8,9 @@ import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -36,6 +36,11 @@ public class WaybillPrintContext implements Context{
 	 * 运单接口查询到的运单信息
 	 */
 	private BigWaybillDto bigWaybillDto;
+
+	/**
+	 * 运单接口查询到的旧单的运单信息，如果有旧单的话 使用前请判断NULL
+     */
+	private BigWaybillDto oldBigWaybillDto;
 	/**
 	 * 封装后的运单信息
 	 */
@@ -157,5 +162,13 @@ public class WaybillPrintContext implements Context{
 
 	public void setBasePrintWaybill(BasePrintWaybill basePrintWaybill) {
 		this.basePrintWaybill = basePrintWaybill;
+	}
+
+	public BigWaybillDto getOldBigWaybillDto() {
+		return oldBigWaybillDto;
+	}
+
+	public void setOldBigWaybillDto(BigWaybillDto oldBigWaybillDto) {
+		this.oldBigWaybillDto = oldBigWaybillDto;
 	}
 }

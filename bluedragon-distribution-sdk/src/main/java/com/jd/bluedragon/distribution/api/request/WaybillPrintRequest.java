@@ -62,7 +62,7 @@ public class WaybillPrintRequest extends JdRequest{
      * */
     private Integer startSiteType;
     /**
-     * 是否获取称重信息（temp）
+     * 是否获取称重信息（temp）0不称重 1称重
      */
     private Integer packOpeFlowFlg;
 	/**
@@ -88,6 +88,25 @@ public class WaybillPrintRequest extends JdRequest{
      * 纸张尺寸编码
      */
     private String paperSizeCode;
+
+	/**
+	 * 是否启用称重量方
+	 * 0不启用
+	 * 1启用称重
+	 * 2启用量方
+	 * 3启用称重量方
+     */
+	private Integer weightVolumeOperEnable;
+
+	/**
+	 * 包裹的index 第几件包裹 默认为-1
+     */
+	private Integer packageIndex = -1;
+
+	/**
+	 * 旧单号
+     */
+	private String oldBarCode;
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -281,4 +300,27 @@ public class WaybillPrintRequest extends JdRequest{
 		this.paperSizeCode = paperSizeCode;
 	}
 
+	public Integer getWeightVolumeOperEnable() {
+		return weightVolumeOperEnable;
+	}
+
+	public void setWeightVolumeOperEnable(Integer weightVolumeOperEnable) {
+		this.weightVolumeOperEnable = weightVolumeOperEnable;
+	}
+
+	public Integer getPackageIndex() {
+		return packageIndex;
+	}
+
+	public void setPackageIndex(Integer packageIndex) {
+		this.packageIndex = packageIndex;
+	}
+
+	public String getOldBarCode() {
+		return oldBarCode;
+	}
+
+	public void setOldBarCode(String oldBarCode) {
+		this.oldBarCode = oldBarCode;
+	}
 }
