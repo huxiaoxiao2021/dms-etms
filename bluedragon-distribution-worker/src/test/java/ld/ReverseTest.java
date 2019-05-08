@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
@@ -60,6 +61,15 @@ public class ReverseTest {
         }
 
 
+    }
+
+    @Autowired
+    private WeightAndVolumeCheckService weightAndVolumeCheckService;
+
+    @Test
+    public void getExcessPicture(){
+
+        weightAndVolumeCheckService.searchExcessPicture("JDVB00000516204",910);
     }
 
 

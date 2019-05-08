@@ -137,8 +137,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             result.setData(excessPictureUrl);
         }catch (Exception e){
-            logger.error("查看图片失败!"+packageCode);
-            result.parameterError("查看图片失败!"+packageCode);
+            logger.error(packageCode+"|"+siteCode + "查看图片失败!" + e);
+            result.parameterError(packageCode+"|"+siteCode + "查看图片失败!" + e.getMessage());
         }
         return result;
     }
@@ -219,7 +219,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
                 pictureAddress= result.getData();
             }else{
-                logger.error("获取图片链接失败!"+abnormalPictureMq.getWaybillCode()+"|"+siteCode);
+                logger.warn(result.getMessage() + abnormalPictureMq.getWaybillCode()+"|"+siteCode);
                 return;
             }
             if(!StringHelper.isEmpty(pictureAddress)){
