@@ -410,15 +410,21 @@ public class SortingReturnServiceImple implements SortingReturnService {
                         + ret.getPackageCode());
                 String shieldsError = ret.getShieldsError();
                 String[] datas = shieldsError.split(SortingReturnServiceImple.ERROR_CODE_MSG_SPLIT);
-                String[] packageMsg = ret.getPackageCode().split("-");
+                if(StringUtils.isEmpty(ret.getPackageCode())){
+                    continue;
+                }
+//                String[] packageMsg = ret.getPackageCode().split("-");
                 String shieldsType = datas.length >= 2 && checkIntegerValue(datas[0]) ? datas[0]
                         .trim() : null;
                 /*
 				 * 包裹号 xxxxx-数量序号-总数量-滑道号 只有数量序号为1的才发送MQ
 				 * （一单多件中的第一件：PDA只有在包裹齐全的时候才会推送数据）
 				 */
-                boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
-                        || packageMsg.length == 1 ? false : true;
+//                boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
+//                        || packageMsg.length == 1 ? false : true;
+
+                //不是运单号 并且不是包裹1
+                boolean isNotFirstPackage = !WaybillUtil.isWaybillCode(ret.getPackageCode()) && !WaybillUtil.isFirstPack(ret.getPackageCode());
                 if (isNotFirstPackage || isNotToPushBlockerMqQueue(shieldsType)) {
                     logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
                             + "] 包裹号排除:" + ret.getPackageCode());
