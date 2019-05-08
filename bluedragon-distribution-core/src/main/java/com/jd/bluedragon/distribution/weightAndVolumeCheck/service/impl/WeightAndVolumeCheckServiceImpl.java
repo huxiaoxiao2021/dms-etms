@@ -250,7 +250,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
 
         boolean isSuccess = true;
         try {
-
+            logger.info("超标定时任务开始执行.....");
             WeightVolumeCollectDto dto = JsonHelper.fromJson(task.getBody(), WeightVolumeCollectDto.class);
 
             sendMqAndUpdate(dto.getPackageCode(),dto.getReviewSiteCode(),new Date().getTime(),Long.toString(dto.getReviewDate().getTime()));
@@ -270,41 +270,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     @Override
     public List<Task> findLimitedTasks(Integer type, String ownSign) {
-        List<WeightVolumeCollectDto> totalList = Collections.EMPTY_LIST;
-        /*int PAGESIZE = 5000;
-        int total;
-        Pager<WeightVolumeQueryCondition> pager = new Pager<>();
-        WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-        condition.setIsExcess(1);
-        pager.setSearchVo(condition);
-        pager.setPageNo(1);
-        pager.setPageSize(PAGESIZE);
-        BaseEntity<Pager<WeightVolumeCollectDto>> baseEntity = reportExternalService.getPagerByConditionForWeightVolume(pager);
-        if(baseEntity != null && baseEntity.getData() != null
-                && baseEntity.getData().getData() != null && baseEntity.getData().getTotal() != null){
-            total = baseEntity.getData().getTotal().intValue();
-            List<WeightVolumeCollectDto> list = baseEntity.getData().getData();
-            totalList.addAll(list);
-        }else{
-            return Collections.EMPTY_LIST;
-        }
-        int count;
-        if(total > PAGESIZE){
-            if(total % PAGESIZE != 0){
-                count = total/PAGESIZE + 1;
-            }else {
-                count = total/PAGESIZE;
-            }
-            for (int i = 1; i < count; i++) {
-                int pageNo = i+1;
-                pager.setPageNo(pageNo);
-                BaseEntity<Pager<WeightVolumeCollectDto>> entity = reportExternalService.getPagerByConditionForWeightVolume(pager);
-                if(entity != null && entity.getData() != null && entity.getData().getData() != null){
-                    List<WeightVolumeCollectDto> list = entity.getData().getData();
-                    totalList.addAll(list);
-                }
-            }
-        }*/
+        List<WeightVolumeCollectDto> totalList = new ArrayList<>();
 
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
@@ -330,7 +296,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         for(WeightVolumeCollectDto dto : totalList){
             String json = JsonHelper.toJson(dto);
             Task task = new Task();
-            task.setKeyword1(dto.getWaybillCode()+"|"+dto.getReviewSiteCode());
+            task.setKeyword1(dto.getWaybillCode()+"_"+dto.getReviewDate().getTime());
             task.setBody(json);
             list.add(task);
         }
