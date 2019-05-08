@@ -292,7 +292,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     }
 
     private List<Task> convert(List<WeightVolumeCollectDto> totalList) {
-        List<Task> list = Collections.EMPTY_LIST;
+        List<Task> list = new ArrayList<>();
         for(WeightVolumeCollectDto dto : totalList){
             String json = JsonHelper.toJson(dto);
             Task task = new Task();
