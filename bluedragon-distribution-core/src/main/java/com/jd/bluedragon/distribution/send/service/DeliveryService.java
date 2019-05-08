@@ -172,13 +172,6 @@ public interface DeliveryService {
     boolean checkSend(SendDetail tSendDatail);
 
     /**
-     * 通过包裹号和分拣中心ID获得目的地站点ID
-     *
-     * @param
-     */
-    SendDetail getSendSiteID(String packbarCode, Integer sitecode);
-
-    /**
      * 根据包裹号、箱号、创建站点（分拣中心）、接收站点来判断
      * send_type=30表示三方
      * is_cancel=0表示未取消分拣或者发货

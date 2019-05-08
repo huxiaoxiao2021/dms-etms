@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -143,10 +144,10 @@ public class BaseServiceImpl implements BaseService {
                 // 调用人事接口验证用户
                 //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-            	UserInfo user = userVerifyManager.baseVerify(userid, password);
-                if (null == user) {
+				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password);
+                if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+                    basePdaUserDto.setMessage(result.getMessage());
                 // 人事接口验证通过，获取基础资料信息
                 } else {
 //                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));

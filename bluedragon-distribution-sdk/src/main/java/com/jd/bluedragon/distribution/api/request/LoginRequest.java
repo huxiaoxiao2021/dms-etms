@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.api.request;
 
-import java.util.Date;
-
 /**
  * 登录request对象
  * Created by shipeilin on 2018/1/16.

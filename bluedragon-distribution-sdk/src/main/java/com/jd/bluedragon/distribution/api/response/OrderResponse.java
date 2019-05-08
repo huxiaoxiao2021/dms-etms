@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.api.response;
 
-import java.util.ArrayList;
-
 import com.jd.bluedragon.distribution.api.JdResponse;
+
+import java.util.ArrayList;
 
 public class OrderResponse extends JdResponse {
 
@@ -32,8 +32,14 @@ public class OrderResponse extends JdResponse {
 	/** 支付方式 */
 	private Integer payment;
 
+	/** 支付方式文字 **/
+	private String paymentText;
+
 	/** 订单类型 */
 	private Integer waybillType;
+
+	/** 订单类型文字 **/
+	private String waybillTypeText;
 
 	/** 包裹数量 */
 	private Integer packageQuantity;
@@ -167,12 +173,28 @@ public class OrderResponse extends JdResponse {
 		this.payment = payment;
 	}
 
+	public String getPaymentText() {
+		return paymentText;
+	}
+
+	public void setPaymentText(String paymentText) {
+		this.paymentText = paymentText;
+	}
+
 	public Integer getWaybillType() {
 		return waybillType;
 	}
 
 	public void setWaybillType(Integer waybillType) {
 		this.waybillType = waybillType;
+	}
+
+	public String getWaybillTypeText() {
+		return waybillTypeText;
+	}
+
+	public void setWaybillTypeText(String waybillTypeText) {
+		this.waybillTypeText = waybillTypeText;
 	}
 
 	public Integer getPackageQuantity() {
