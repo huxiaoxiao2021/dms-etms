@@ -69,11 +69,11 @@
     <!--调用dmsver分拣拦截验证服务-->
     <jsf:consumer id="jsfSortingResourceService"
                   interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
-                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
+                  alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <jsf:consumer id="cancelWaybillJsfService"
                   interface="com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService"
-                  alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
+                  alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
