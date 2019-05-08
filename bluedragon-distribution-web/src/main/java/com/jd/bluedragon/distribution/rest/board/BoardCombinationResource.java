@@ -268,7 +268,7 @@ public class BoardCombinationResource {
 
         //箱号/包裹号是否合法
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
-                && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
+                && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode()) && ! WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
             this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
            return "箱号/包裹号不合法.";
         }
