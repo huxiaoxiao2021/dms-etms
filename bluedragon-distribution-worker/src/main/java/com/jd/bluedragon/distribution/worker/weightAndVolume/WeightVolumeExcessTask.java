@@ -44,6 +44,32 @@ public class WeightVolumeExcessTask extends DBSingleScheduler {
         return tasks;
     }
 
+    public boolean execute(Object[] taskArray, String ownSign) throws Exception {
+        List<Task> tasks = new ArrayList<Task>();
+        for (Object task : taskArray) {
+            if (task != null && task instanceof Task) {
+                tasks.add((Task) task);
+            }
+        }
+        logger.info("weightVolumeExcessTask" + "抓取到[" + tasks.size() + "]条任务待处理");
+
+        int dealDataFail = 0;
+        for (Task task : tasks) {
+            boolean result = executeSingleTask(task, ownSign);
+            if (!result) {
+                dealDataFail++;
+            }
+        }
+        if (dealDataFail > 0) {
+            logger.error("weightVolumeExcessTask:抓取" + tasks.size() + "条任务，"
+                    + dealDataFail + "条数据执行失败！");
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+
     @Override
     public Comparator<Task> getComparator() {
         return new Comparator<Task>() {
