@@ -102,7 +102,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             }
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             String importErpCode = erpUser.getUserCode();
-//            String importErpCode = "bjxings";
+
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
             List<SpotCheckInfo> dataList = dataResolver.resolver(file.getInputStream(), SpotCheckInfo.class, new PropertiesMetaDataFactory("/excel/reviewWeightSpotCheck.properties"));
             String errorMessage = reviewWeightSpotCheckService.checkExportData(dataList,importErpCode);

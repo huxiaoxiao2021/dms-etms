@@ -137,8 +137,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             result.setData(excessPictureUrl);
         }catch (Exception e){
-            logger.error(packageCode+"|"+siteCode + "查看图片失败!" + e);
-            result.parameterError(packageCode+"|"+siteCode + "查看图片失败!" + e.getMessage());
+            logger.error(packageCode+"|"+siteCode + "获取图片链接失败!" + e);
+            result.parameterError("查看图片失败!"+packageCode);
         }
         return result;
     }
@@ -275,7 +275,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         Pager<WeightVolumeQueryCondition> pager = new Pager<>();
         WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
         condition.setIsExcess(1);
-//        condition.setIsHasPicture(1);
+        condition.setIsHasPicture(0);
         pager.setSearchVo(condition);
         pager.setPageNo(1);
         pager.setPageSize(1000);

@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalPictureMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.DateHelper;
@@ -41,7 +40,7 @@ import java.util.List;
  * @ClassName: WeightAndVolumeCheckController
  * @Description: 重量体积抽验统计--Controller实现
  * @author: hujiping
- * @date: 2019/2/26 20:58
+ * @date: 2019/4/22 20:58
  */
 @Controller
 @RequestMapping("weightAndVolumeCheck")
@@ -92,7 +91,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
+        PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
 
@@ -145,8 +144,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         InvokeResult result = new InvokeResult();
 
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-//        String importErpCode = erpUser.getUserCode();
-        String importErpCode = "bjxings";
+        String importErpCode = erpUser.getUserCode();
         Integer siteCode = -1;
         try{
             BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
@@ -160,7 +158,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         long imageSize = image.getSize();
         String imageName = image.getOriginalFilename();
         String[] strArray = imageName.split("\\.");
-        String prefixName = strArray[0];
         String suffixName = strArray[strArray.length - 1];
         String[] defualtSuffixName = new String[] {"jpg","jpeg","gif","png","bmp"};
         try{
