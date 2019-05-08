@@ -340,7 +340,8 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
             int desireIndex = packageIndexMap.get(currWaybillCode);
             //判断并生成不齐的包裹号，返回更新后的索引值
             int currIndex = this.generateNoCollectionCommonPackage(packageCodeResultList, lexicalOrder, packageNum, desireIndex, currPackageCode);
-            //说明计算过程中存在问题，跳过该包裹号
+            //说明计算过程中存在问题，跳过该包裹号，该包裹号序号应该是大于包裹数会影响计算结果，如果这样的包裹恰好是最后一单或者连续包裹的最后一个，将丢失部分不齐包裹的数量
+            //概率太小，不因为此种情况增加算法复杂度，差异查询不会卡节点，有问题也是上游计算包裹号的问题
             if (currIndex < 0) {
                 continue;
             }

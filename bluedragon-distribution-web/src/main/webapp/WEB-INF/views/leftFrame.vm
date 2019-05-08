@@ -24,6 +24,7 @@
         <dd><a href="#springUrl('/popQueueManager/query')" target="mainFrame">平台排队号查询</a></dd>
         <dd><a href="#springUrl('/popReceive/getPopRecieveList')" target="mainFrame">平台实收查询</a></dd>
         <dt><a href="#" class="curr">分拣中心相关功能</a></dt>
+        <dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
         <dd><a href="#springUrl('/receive/toIndex')" target="mainFrame">揽收重量校验统计</a></dd>
         <dd><a href="#springUrl('/base/crossbox/index')" target="mainFrame">跨箱号中转</a></dd>
         <dd><a href="http://waybill.jd.com/waybill/trackInfo" target="mainFrame">青龙全程跟踪</a></dd>
@@ -62,10 +63,10 @@
         <dd><a href="#springUrl('/storage/storagePackageM/toIndex')" target="mainFrame">暂存管理</a></dd>
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>
         <dt><a href="#" class="curr">工具</a></dt>
+        <dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
         <dd><a href="#springUrl('/notice/manage')" target="mainFrame">通知栏管理</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/toIndex')" target="mainFrame">一键封车</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/unusedtransport')" target="mainFrame">未使用运力编码查询</a></dd>
-        <dd><a href="http://board.dms.jd.com" target="mainFrame">板标打印</a></dd>
         <dd><a href="#springUrl('/waybillCodeCheckForKA/toIndex')" target="mainFrame">金融客户运单号对比校验</a></dd>
         <dd><a href="#springUrl('/signReturn/toIndex')" target="mainFrame">签单返回合单打印交接单</a></dd>
         <dd><a href="#springUrl('/tips/repail_stock')" target="mainFrame">逆向物流重新推送库管</a></dd>

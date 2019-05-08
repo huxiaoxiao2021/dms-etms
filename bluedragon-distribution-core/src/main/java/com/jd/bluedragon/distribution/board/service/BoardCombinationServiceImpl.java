@@ -422,7 +422,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      * @throws Exception
      */
-    @JProfiler(jKey = "DMSWEB.sendBoardBindingsByWaybill.sendBoardBindings", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.sendBoardBindingsByWaybill.sendBoardBindings", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public Integer sendBoardBindingsByWaybill(BoardCombinationRequest request, BoardResponse boardResponse) {
         String waybillCode = request.getBoxOrPackageCode();
         boardResponse.setBoardCode(request.getBoardCode());
@@ -498,7 +498,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addBoardBox.setSiteName(request.getSiteName());
         addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
 
-        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoardByWaybill.TCJSF", false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoardByWaybill.TCJSF", Constants.UMP_APP_NAME_DMSWEB,false, true);
 
         for (DeliveryPackageD deliveryPackageD : deliveryPackageDList) {
             String packageCode = deliveryPackageD.getPackageBarcode();
@@ -547,7 +547,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                         boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
                         addSystemLog(request, logInfo);
 
-                        return JdResponse.CODE_FAIL;
+                        continue;
                     }
 
                     logInfo = "按运单组板转移成功.原板号:" + boardMoveResponse.getData() + ",新板号:" + boardCode + ",包裹号：" + packageCode +
@@ -556,17 +556,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
                     addSystemLog(request, logInfo);
                     addOperationLog(request, OperationLog.BOARD_COMBINATITON);
-                    return JdResponse.CODE_SUCCESS;
+                } else {
+                    logInfo = "按运单组板失败,板号：" + boardCode + ",包裹号：" + packageCode +
+                            ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
+
+                    logger.warn(logInfo);
+                    boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+                    addSystemLog(request, logInfo);
+                    continue;
                 }
-
-                logInfo = "按运单组板失败,板号：" + boardCode + ",包裹号：" + packageCode +
-                        ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
-
-                logger.warn(logInfo);
-                boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
-                addSystemLog(request, logInfo);
-
-                return JdResponse.CODE_FAIL;
             }
 
             logInfo = "按运单组板成功!板号：" + boardCode + ",运单号：" + waybillCode + ",站点：" + request.getSiteCode();
