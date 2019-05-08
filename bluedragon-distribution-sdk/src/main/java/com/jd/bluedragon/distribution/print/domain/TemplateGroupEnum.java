@@ -38,11 +38,11 @@ public enum TemplateGroupEnum {
 		this.name = name;
 	}
 	/**
-	 * 
+	 * 编码转换为枚举值
 	 * @param code
 	 * @return
 	 */
-	public static TemplateGroupEnum valueof(String code){
+	public static TemplateGroupEnum toEnum(String code){
 		if(TEMPLATE_GROUP_CODE_B.equals(code)){
 			return TEMPLATE_GROUP_B;
 		}else if (TEMPLATE_GROUP_CODE_C.equals(code)){

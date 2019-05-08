@@ -253,7 +253,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             return jdResult;
         }else{
         	String templateGroupCode = rePrintRecordRequest.getData().getTemplateGroupCode();
-        	TemplateGroupEnum templateGroupEnum = TemplateGroupEnum.valueOf(templateGroupCode);
+        	TemplateGroupEnum templateGroupEnum = TemplateGroupEnum.toEnum(templateGroupCode);
         	if(templateGroupEnum == null){
         		jdResult.toFail("请求参数templateGroupCode无效！");
         		return jdResult;
