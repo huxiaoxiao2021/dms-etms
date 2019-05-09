@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.exception.service;
 
-import com.jd.bluedragon.distribution.api.domain.SendCodeSummary;
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
-import com.jd.bluedragon.distribution.api.response.SendCodeExceptionResponse;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.GoodsPrintDto;
+import com.jd.ql.dms.report.domain.Pager;
+import com.jd.ql.dms.report.domain.SendCodeSummaryResponse;
 
 import java.util.List;
 
@@ -28,12 +30,12 @@ public interface SendCodeExceptionHandlerService {
      * @param request
      * @return
      */
-    SendCodeExceptionResponse summaryPackageBySendCodes(SendCodeExceptionRequest request);
+    BaseEntity<SendCodeSummaryResponse> summaryPackageBySendCodes(SendCodeExceptionRequest request);
 
     /**
      * 根据批次号和类型，查询批次明细
      * @param request
      * @return
      */
-    SendCodeSummary querySendCodeDetailByCondition(SendCodeExceptionRequest request);
+    BaseEntity<Pager<GoodsPrintDto>> querySendCodeDetailByCondition(SendCodeExceptionRequest request);
 }

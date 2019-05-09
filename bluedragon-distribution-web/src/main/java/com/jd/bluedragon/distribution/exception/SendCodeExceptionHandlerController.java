@@ -1,15 +1,15 @@
 package com.jd.bluedragon.distribution.exception;
 
-import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
-import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
-import com.jd.bluedragon.distribution.api.response.SendCodeExceptionResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.service.SendCodeExceptionHandlerService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.GoodsPrintDto;
+import com.jd.ql.dms.report.domain.SendCodeSummaryResponse;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -84,7 +85,7 @@ public class SendCodeExceptionHandlerController {
 
         BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
         if (null == staffSiteOrgDto) {
-            result.error("用户为维护基础资料信息");
+            result.error(MessageFormat.format("用户【{}】未维护基础资料信息",user.getUserCode()));
             return result;
         }
 
@@ -101,12 +102,23 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping(value = "/sendCodeHandler/summaryPackageNumBySendCodes", method = RequestMethod.POST)
-    public InvokeResult<SendCodeExceptionResponse> summaryPackageNumBySendCodes(SendCodeExceptionRequest request) {
-        InvokeResult<SendCodeExceptionResponse> result = new InvokeResult<>();
+    public InvokeResult<SendCodeSummaryResponse> summaryPackageNumBySendCodes(SendCodeExceptionRequest request) {
+        InvokeResult<SendCodeSummaryResponse> result = new InvokeResult<>();
         result.success();
 
-        result.setData(sendCodeExceptionHandlerService.summaryPackageBySendCodes(request));
+        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+        if (user == null) {
+            result.error("用户未登录");
+            return result;
+        }
 
+        BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+        if (null == staffSiteOrgDto) {
+            result.error(MessageFormat.format("用户【{}】未维护基础资料信息",user.getUserCode()));
+            return result;
+        }
+
+        result.setData(sendCodeExceptionHandlerService.summaryPackageBySendCodes(request).getData());
         return result;
     }
 
@@ -117,10 +129,14 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping(value = "/sendCodeHandler/querySendCodeDetails", method = RequestMethod.POST)
-    public PagerResult<List<SendBoxDetailResponse>> querySendCodeDetails(Pager<SendCodeExceptionRequest> request) {
-        PagerResult<List<SendBoxDetailResponse>> result = new PagerResult<>();
-
-//        result.setRows(sendCodeExceptionHandlerService.querySendCodeDetailByCondition(request.getData()).getSendCodeDetail());
+    public PagerResult<GoodsPrintDto> querySendCodeDetails(SendCodeExceptionRequest request) {
+        PagerResult<GoodsPrintDto> result = new PagerResult<>();
+        BaseEntity<com.jd.ql.dms.report.domain.Pager<GoodsPrintDto>> pagerBaseEntity = sendCodeExceptionHandlerService
+                .querySendCodeDetailByCondition(request);
+        if (pagerBaseEntity != null) {
+            result.setRows(pagerBaseEntity.getData().getData());
+            result.setTotal(pagerBaseEntity.getData().getTotal().intValue());
+        }
         return result;
     }
 

@@ -15,9 +15,18 @@ public class SendCodeExceptionRequest {
     private Integer type;
 
     /**
+     * 场地编号
+     */
+    private Integer siteCode;
+
+    /**
      * 批次号列表
      */
     private List<String> sendCodes;
+
+    private Integer pageNo;
+
+    private Integer pageSize;
 
     public String getBarCode() {
         return barCode;
@@ -35,11 +44,35 @@ public class SendCodeExceptionRequest {
         this.type = type;
     }
 
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
     public List<String> getSendCodes() {
         return sendCodes;
     }
 
     public void setSendCodes(List<String> sendCodes) {
         this.sendCodes = sendCodes;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
