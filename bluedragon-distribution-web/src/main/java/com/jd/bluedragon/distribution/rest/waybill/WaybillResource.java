@@ -1548,14 +1548,19 @@ public class WaybillResource {
 		jsfRequest.setDestinationSiteCode(destinationSiteCode);
 		jsfRequest.setOperateTime(operateTime);
 		BaseDmsAutoJsfResponse<List<AreaDestJsfVo>> jsfResponse;
+
+		CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.areaDestJsfService.findAreaDest", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
 				/* 调用发货配置jsf接口 */
 			jsfResponse = areaDestJsfService.findAreaDest(jsfRequest);
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			logger.error("WaybillResource.getBarCodeAllRouters-->配置接口调用异常,单号为：" + waybillCode,e);
 			result.setCode(InvokeResult.SERVER_ERROR_CODE);
 			result.setMessage("发货配置接口异常");
 			return result;
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 
 		if (null == jsfResponse || jsfResponse.getStatusCode() != BaseDmsAutoJsfResponse.SUCCESS_CODE

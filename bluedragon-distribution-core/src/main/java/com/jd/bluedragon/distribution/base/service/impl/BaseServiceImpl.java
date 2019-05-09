@@ -502,12 +502,16 @@ public class BaseServiceImpl implements BaseService {
 	@Cache(key = "BaseService.getAllOrg", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseOrg> getAllOrg() {
+		CallerInfo info = Profiler.registerInfo("dmsWeb.jsf.basicPrimaryWS.getBaseOrgAll", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
 			List<BaseOrg> orgal = basicPrimaryWS.getBaseOrgAll();
 			return orgal;
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			log.error("调用basicMajorServiceProxy.getBaseOrgAll()异常", e);
 			return null;
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 	}
 
@@ -817,6 +821,7 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	@Cache(key = "basicSafInterface.getSiteSelfDBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.basicMixedWS.getSiteSelfDBySiteCode",mState={JProEnum.TP,JProEnum.FunctionError})
 	public Integer getSiteSelfDBySiteCode(Integer sitecode){
 		BaseResult<BaseSelfDDto>  result = basicMixedWS.getSiteSelfDBySiteCode(sitecode);
 		if(result==null){
@@ -859,6 +864,7 @@ public class BaseServiceImpl implements BaseService {
 
 	@Override
 	@Cache(memoryEnable = false,key = "getOneAssortById@args0")
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.basicSecondaryWS.getAssortById",mState={JProEnum.TP,JProEnum.FunctionError})
 	public Assort getOneAssortById(int assId) {
 		return basicSecondaryWS.getAssortById(assId);
 	}

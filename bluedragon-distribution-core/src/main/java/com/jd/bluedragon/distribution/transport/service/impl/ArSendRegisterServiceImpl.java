@@ -38,6 +38,9 @@ import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -215,6 +218,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @param sendDate
      */
     private void createAirFlightRealTime(String transportName, Date sendDate) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.basicSyncWS.createAirFlightRealtime", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(transportName, sendDate);
             if (commonDto != null) {
@@ -223,7 +227,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 }
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！", e);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
