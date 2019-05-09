@@ -268,14 +268,4 @@
         <property name="desc" value="第三方发货数据推送财务批处理" />
     </bean>
 
-    <bean id="weightVolumeExcessTask" class="com.jd.bluedragon.distribution.worker.weightAndVolume.WeightVolumeExcessTask"
-          init-method="init" lazy-init="false" depends-on="managerFactory">
-        <property name="dataSource" ref="taskDataSource"/>
-        <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="weightVolumeExcessTask"/>
-        <property name="ownSign" value="${ownSign}"/>
-        <property name="type" value="2000"/>
-        <property name="desc" value="体积重量超标处理"/>
-    </bean>
-
 </beans>

@@ -446,13 +446,13 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             }
             weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
             weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/8000 - billingVolume/8000)));
+            //将重量体积实体存入es中
+            reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         }catch (Exception e){
             logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
-        //将重量体积实体存入es中
-        reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
         //超标给fxm发消息
         if(weightVolumeCollectDto.getIsExcess() == 1){
             sendMqToFXM(weightVolumeCollectDto,abnormalResultMq);
