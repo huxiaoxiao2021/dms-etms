@@ -20,7 +20,7 @@ public class MonitorManagerImpl implements MonitorManager {
     private VosScanCodeDifferenceQuery monitorJsfService;
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.monitorJsfService.query",mState={JProEnum.TP,JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.VosScanCodeDifferenceQuery.query",mState={JProEnum.TP,JProEnum.FunctionError})
     public ScanDto query(String sendCode,Integer Start,Integer Size) {
         return monitorJsfService.query(DifferenceType.SortingSendVosNotReceive,sendCode,Start,Size);
     }
