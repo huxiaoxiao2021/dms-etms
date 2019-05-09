@@ -20,7 +20,7 @@
 
     <!-- 计费接口 廖涛 -->
     <jsf:consumer id="businessDetailQueryJsf" interface="com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf"
-                  protocol="jsf" alias="${finance.businessDetail.jsf.alias}" timeout="2000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${finance.businessDetail.jsf.alias}" timeout="${finance.businessDetail.jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${finance.businessDetail.jsf.token}" hide="true"/>
     </jsf:consumer>
 
