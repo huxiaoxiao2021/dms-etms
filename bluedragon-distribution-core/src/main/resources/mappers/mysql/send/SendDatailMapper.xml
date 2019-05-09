@@ -918,8 +918,7 @@
 	</select>
 
 	<select id="getScannedInfoPackageNumMoreThanOne" parameterType="map" resultType="java.lang.String">
-
-		select distinct package_barcode from send_d
+		select package_barcode from send_d
 		where
 		yn = 1 and is_cancel = 0 and package_num <![CDATA[>]]> 1
 		<if test="sendCode != null">
@@ -935,6 +934,7 @@
 					 close=")" separator=","> #{items,jdbcType=VARCHAR}
 			</foreach>
 		</if>
+		group by package_barcode
 
 
 	</select>

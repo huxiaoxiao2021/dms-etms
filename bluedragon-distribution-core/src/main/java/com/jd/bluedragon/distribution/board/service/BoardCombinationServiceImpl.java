@@ -26,7 +26,6 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoServiceImpl;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -426,8 +425,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      * @throws Exception
      */
-    @JProfiler(jKey = "DMSWEB.sendBoardBindingsByWaybill.sendBoardBindings", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public Integer sendBoardBindingsByWaybill(BoardCombinationRequest request, BoardResponse boardResponse) {
+    private Integer sendBoardBindingsByWaybill(BoardCombinationRequest request, BoardResponse boardResponse) {
         String waybillCode = request.getBoxOrPackageCode();
         boardResponse.setBoardCode(request.getBoardCode());
         List<DeliveryPackageD> deliveryPackageDList = this.findWaybillPackList(waybillCode);

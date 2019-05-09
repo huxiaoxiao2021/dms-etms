@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -139,7 +140,14 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                                 //取一次数据库的包裹扫描列表
                                 List<String> scannedPackageList = this.getScannedInfoPackageNumMoreThanOne(waybillNoCollectionCondition, waybillCodeListTemp);
                                 if (scannedPackageList != null && scannedPackageList.size() > 0) {
-                                    scannedPackageMoreThanOneList.addAll(scannedPackageList);
+                                    if (scannedPackageList.size() + scannedPackageMoreThanOneList.size() <= DmsConstants.MAX_NUMBER) {
+                                        scannedPackageMoreThanOneList.addAll(scannedPackageList);
+                                    } else {
+                                        //查询失败
+                                        String message = "板号：" + barCode + "上的包裹以及箱内包裹总数大于2W，无法计算差异！";
+                                        logger.error(message);
+                                        throw new WaybillNoCollectionException(message);
+                                    }
                                 }
                                 waybillCodeListTemp.clear();
                             }
@@ -151,7 +159,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
                     logger.warn("遍历板号：" + barCode + "上的数据，" + barCode + "既不是包裹号，也不是箱号！");
                 }
             }
-        }else {
+        } else {
             //查询失败
             String message = "通过TC系统的接口获取板号【" + boardCode +"】的信息为空！";
             logger.error(message);
@@ -199,8 +207,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据不齐运单的运单信息计算包裹不齐的结果
      *
      * */
-    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getNoCollectionPackageResult", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public WaybillNoCollectionResult getNoCollectionPackageResult(List<WaybillNoCollectionInfo> waybillNoCollectionInfoList, WaybillNoCollectionCondition waybillNoCollectionCondition) {
+    private WaybillNoCollectionResult getNoCollectionPackageResult(List<WaybillNoCollectionInfo> waybillNoCollectionInfoList, WaybillNoCollectionCondition waybillNoCollectionCondition) {
         WaybillNoCollectionResult waybillNoCollectionResult = new WaybillNoCollectionResult();
 
         //存放缺少的包裹号
@@ -266,8 +273,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据运单号生成包裹并找出不齐运单的包裹信息
      *
      * */
-    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.generateNoCollectionPackageList", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public void generateNoCollectionPackageList(List<String> scannedPackageList, List<WaybillNoCollectionInfo> computeWaybillList, List<String> packageCodeResultList) {
+    private void generateNoCollectionPackageList(List<String> scannedPackageList, List<WaybillNoCollectionInfo> computeWaybillList, List<String> packageCodeResultList) {
         HashSet<String> scannedPackageSet = new HashSet<>(scannedPackageList);
 
         for (WaybillNoCollectionInfo waybillNoCollectionInfo : computeWaybillList) {
@@ -292,8 +298,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据扫描的包裹号列表计算不齐的订单，不适用于特殊包裹号（上海亚一带N和S的包裹号）
      *
      * */
-    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getNoCollectionPackageResultWithoutSpecial", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public WaybillNoCollectionResult getNoCollectionPackageResultWithoutSpecial(List<String> scannedPackageList, Map<String, String> specialWaybillMap, Set<String> specialPackageSet) {
+    private WaybillNoCollectionResult getNoCollectionPackageResultWithoutSpecial(List<String> scannedPackageList, Map<String, String> specialWaybillMap, Set<String> specialPackageSet) {
 
         WaybillNoCollectionResult waybillNoCollectionResult = new WaybillNoCollectionResult();
 
@@ -388,7 +393,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据字典序顺序，找出缺少的包裹号，针对JD000000000-1-2-2这种包裹号有效
      *
      * */
-    public int generateNoCollectionCommonPackage(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int desireIndex, String currPackageCode) {
+    private int generateNoCollectionCommonPackage(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int desireIndex, String currPackageCode) {
 
         //从字典序数组中取出真正的字典序下的值，是一个期望值
         int desireLexicalOrderIndex = lexicalOrder.get(desireIndex);
@@ -422,7 +427,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据字典序顺序，生成从开始索引一直到最后一个，针对JD000000000-1-2-2这种包裹号有效
      *
      * */
-    public void generateNoCollectionCommonPackageUntilEnd(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int startIndex, String lastPackageCode) {
+    private void generateNoCollectionCommonPackageUntilEnd(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int startIndex, String lastPackageCode) {
 
         //遍历直到当前值等于最大包裹数
         for (int i = startIndex; i < packageNum; i++) {
@@ -434,7 +439,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
         }
     }
 
-    public boolean queryAllWaybillType(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+    private boolean queryAllWaybillType(WaybillNoCollectionCondition waybillNoCollectionCondition) {
         int queryRange = waybillNoCollectionCondition.getQueryRange();
         return queryRange == WaybillNoCollectionRangeEnum.B_RANGE.getType();
     }
@@ -444,8 +449,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 判断是否是B网运单
      *
      * */
-    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.isBWaybill", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public boolean isBWaybill(String waybillCode) {
+    private boolean isBWaybill(String waybillCode) {
         BigWaybillDto bigWaybillDto = findWaybillAndPack(waybillCode);
         if (bigWaybillDto.getWaybill() != null && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
@@ -461,7 +465,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 批量查询运单下，扫描过的一单多件的包裹号信息
      *
      * */
-    public List<String> getScannedInfoPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition, List<String> waybillCodeList) {
+    private List<String> getScannedInfoPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition, List<String> waybillCodeList) {
         waybillNoCollectionCondition.setWaybillCodeList(waybillCodeList);
         return sendDatailDao.getScannedInfoPackageNumMoreThanOne(waybillNoCollectionCondition);
     }
@@ -471,7 +475,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
     * 查询运单接口，判断是否是B网面单
     *
     * */
-    public BigWaybillDto findWaybillAndPack(String waybillCode) {
+    private BigWaybillDto findWaybillAndPack(String waybillCode) {
         BigWaybillDto bigWaybillDto = null;
 
         try {
@@ -496,7 +500,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      *
      * */
     @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getLexicalOrder", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public List<Integer> getLexicalOrder(int n) {
+    private List<Integer> getLexicalOrder(int n) {
         List<Integer> res = new ArrayList<>();
         int cur = 1;
         for (int i = 1; i <= n; i++) {
@@ -520,8 +524,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * 根据一个包裹号模板，生产运单中第index个包裹号
      *
      * */
-    @JProfiler(jKey = "DMSWEB.WaybillNoCollectionInfoServiceImpl.getNewPackageByIndex", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public String getNewPackageByIndex(String packageCodeTemplate, int index) {
+    private String getNewPackageByIndex(String packageCodeTemplate, int index) {
 
         String newPackageCode = null;
         //上海亚一包裹号处理
