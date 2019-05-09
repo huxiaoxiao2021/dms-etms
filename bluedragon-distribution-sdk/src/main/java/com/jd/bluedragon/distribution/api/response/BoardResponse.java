@@ -40,6 +40,12 @@ public class BoardResponse implements Serializable{
     public static final Integer CODE_BOX_PACKAGECODE_ERROR = 20110;
     public static final String MESSAGE_BOX_PACKAGECODE_ERROR = "请扫描正确的包裹号或箱号!";
 
+    public static final Integer CODE_WAYBILL_PACKAGE_NUM_LIMIT = 20111;
+    public static final String MESSAGE_WAYBILL_PACKAGE_NUM_LIMIT = "板上剩余位置不足以装下该运单下所有包裹，不能组板!";
+
+    public static final Integer CODE_WAYBILL_NO_PACKAGE_INFO = 20112;
+    public static final String MESSAGE_WAYBILL_NO_PACKAGE_INFO = "该运单包裹信息不存在，不能组板!";
+
     public static final Integer CODE_BOARD_CHANGE = 39999;
     public static final String Message_BOARD_CHANGE = "  确定绑到新板上？";
 

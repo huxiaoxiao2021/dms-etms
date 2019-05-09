@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -38,11 +39,9 @@ import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.saf.WaybillSafService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
-import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.distribution.waybill.service.LabelPrinting;
+import com.jd.bluedragon.distribution.waybill.service.WaybillNoCollectionInfoService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillController;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
@@ -75,6 +74,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -155,6 +155,8 @@ public class WaybillResource {
 	@Autowired
 	private ReceiveWeightCheckService receiveWeightCheckService;
 
+	@Autowired
+	private SiteService siteService;
 	/**
 	 * 运单路由字段使用的分隔符
 	 */
@@ -171,6 +173,9 @@ public class WaybillResource {
 
 	@Autowired
 	private AreaDestJsfService areaDestJsfService;
+
+	@Autowired
+	private WaybillNoCollectionInfoService waybillNoCollectionInfoService;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -2314,5 +2319,87 @@ public class WaybillResource {
         }
         result.setData(packNum);
         return result;
+	}
+
+	/**
+	 * 一车一单发货、组板、建箱差异查询
+	 * @param
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/collection/uneven")
+	public InvokeResult<WaybillNoCollectionResult> getWaybillNoCollectionInfo(WaybillNoCollectionRequest waybillNoCollectionRequest){
+
+		InvokeResult<WaybillNoCollectionResult> result = new InvokeResult<>();
+		result.success();
+		WaybillNoCollectionResult waybillNoCollectionResult = null;
+		if (waybillNoCollectionRequest == null) {
+			result.parameterError("请求内容为空，请检查请求体！");
+			return result;
+		}
+		String queryCode = waybillNoCollectionRequest.getQueryCode();
+		int queryType = waybillNoCollectionRequest.getQueryType();
+		Integer createSiteCode = waybillNoCollectionRequest.getSiteCode();
+		Integer receiveSiteCode = waybillNoCollectionRequest.getReceiveSiteCode();
+
+		if (StringHelper.isEmpty(queryCode) || ! WaybillNoCollectionQueryTypeEnum.isCorrectType(queryType) || createSiteCode == null || receiveSiteCode == null) {
+			logger.error("请求差异查询信息参数有误，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			result.parameterError("请求参数有误，请检查参数！");
+			return result;
+		}
+
+		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
+		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
+
+		//默认只看B网
+		int queryRange = WaybillNoCollectionRangeEnum.B_RANGE.getType();
+		if (createSiteOrgDto == null || receiveSiteOrgDto == null) {
+			result.setCode(JdResponse.CODE_NO_SITE);
+			result.setMessage("获取始发或目的站点信息失败！");
+			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			return result;
+		} else {
+			//始发和目的都不是快运中心或车队
+			if (Constants.BASE_SITE_MOTORCADE.equals(createSiteOrgDto.getSiteType()) ||
+					Constants.BASE_SITE_MOTORCADE.equals(receiveSiteOrgDto.getSiteType())) {
+				//全部都看
+				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
+			}
+			//始发和目的有一个是快运中心
+			else if (createSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE ||
+					receiveSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+				//全部都看
+				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
+			}
+		}
+
+		WaybillNoCollectionCondition waybillNoCollectionCondition = new WaybillNoCollectionCondition();
+		waybillNoCollectionCondition.setCreateSiteCode(createSiteCode);
+		waybillNoCollectionCondition.setQueryRange(queryRange);
+
+		try {
+			if (queryType == WaybillNoCollectionQueryTypeEnum.BOARD_CODE_QUERY_TYPE.getType()) {
+				waybillNoCollectionCondition.setBoardCode(queryCode);
+				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfoByBoardCode(waybillNoCollectionCondition);
+			} else {
+				if (queryType == WaybillNoCollectionQueryTypeEnum.SEND_CODE_QUERY_TYPE.getType()) {
+					waybillNoCollectionCondition.setSendCode(queryCode);
+				} else if (queryType == WaybillNoCollectionQueryTypeEnum.BOX_CODE_QUERY_TYPE.getType()) {
+					waybillNoCollectionCondition.setBoxCode(queryCode);
+				}
+				waybillNoCollectionResult = waybillNoCollectionInfoService.getWaybillNoCollectionInfo(waybillNoCollectionCondition);
+			}
+		} catch (WaybillNoCollectionException waybillEx) {
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage(waybillEx.getMessage());
+			logger.error(waybillEx.getMessage());
+		} catch (DataAccessException e) {
+			result.setCode(JdResponse.CODE_SERVICE_ERROR);
+			result.setMessage("服务端数据库查询异常，请稍后再试！");
+			logger.error("获取差异查询信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest) + e);
+		}
+
+		result.setData(waybillNoCollectionResult);
+		return result;
 	}
 }
