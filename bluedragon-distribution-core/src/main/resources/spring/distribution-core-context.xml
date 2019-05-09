@@ -19,7 +19,7 @@
 <!-- 	<import resource="classpath:spring/distribution-core-wss.xml" /> -->
 	<import resource="classpath:spring/order_service_config.xml" />
 	<import resource="classpath:spring/distribution-core-redis.xml" />
-	<import resource="classpath:spring/distribution-core-jsf.xml" />
+	<import resource="classpath:spring/distribution-core-jsf-consumer.xml" />
     <import resource="classpath:spring/distribution-core-cassandra.xml" />
     <import resource="classpath:spring/distribution-core-manual-bean.xml"/>
 
