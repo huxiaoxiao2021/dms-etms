@@ -382,6 +382,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                         ",站点：" + request.getSiteCode();
                 logger.info(logInfo);
 
+                //原板号缓存-1
+                redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
+                //缓存+1
+                redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
                 addSystemLog(request, logInfo);
                 addOperationLog(request, OperationLog.BOARD_COMBINATITON);
                 return JdResponse.CODE_SUCCESS;
@@ -553,7 +557,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                     logInfo = "按运单组板转移成功.原板号:" + boardMoveResponse.getData() + ",新板号:" + boardCode + ",包裹号：" + packageCode +
                             ",站点：" + request.getSiteCode();
                     logger.info(logInfo);
-
+                    //原板号缓存-1
+                    redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
                     addSystemLog(request, logInfo);
                     addOperationLog(request, OperationLog.BOARD_COMBINATITON);
                 } else {
