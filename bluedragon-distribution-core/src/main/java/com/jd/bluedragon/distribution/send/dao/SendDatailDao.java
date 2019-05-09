@@ -153,12 +153,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
                 SendDatailDao.namespace + ".querySendCodesByWaybill", querySendDatail);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<SendDetail> getSendSiteID(SendDetail sendDetail) {
-        return this.getSqlSession().selectList(SendDatailDao.namespace + ".getSendSiteID",
-                sendDetail);
-    }
-
     public boolean checkSendByPackage(SendDetail sendDetail) {
         return (Integer) this.getSqlSession().selectOne(
                 SendDatailDao.namespace + ".checkSendByPackage", sendDetail) > 0;

@@ -68,6 +68,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     private static final String SWITCH_ON = "1";
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByReturnWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
     }
@@ -380,6 +381,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByPackCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByPackCode(String code) {
         return waybillQueryApi.getWaybillByPackCode(code);
     }
@@ -404,6 +406,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
     }

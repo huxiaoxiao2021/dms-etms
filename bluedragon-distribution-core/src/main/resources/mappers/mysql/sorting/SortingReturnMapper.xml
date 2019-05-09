@@ -38,9 +38,10 @@
     
 	<update id="update" parameterType="sortingReturn" >
 		UPDATE sorting_ret
-		SET		
-			waybill_code = #{waybillCode,jdbcType=VARCHAR},
-			package_code = #{packageCode,jdbcType=VARCHAR},
+		SET
+            <if test="packageCode != null">
+                package_code = #{packageCode,jdbcType=VARCHAR},
+            </if>
 			create_user_code = #{userCode,jdbcType=INTEGER},
 			create_user_name = #{userName,jdbcType=VARCHAR},
 			create_site_code = #{siteCode,jdbcType=INTEGER},
@@ -51,12 +52,11 @@
 			shields_error = #{shieldsError,jdbcType=VARCHAR},
 			shields_type =  #{shieldsType,jdbcType=INTEGER}
 		WHERE yn=1	AND create_site_code = #{siteCode} AND ret_type = #{businessType}
-			<if test="packageCode != null">
-				AND package_code = #{packageCode}
-			</if>
-			<if test="waybillCode != null">
-				AND waybill_code = #{waybillCode}
-			</if>
+            AND waybill_code = #{waybillCode}
+        <if test="packageCode != null">
+            AND package_code = #{packageCode}
+        </if>
+
 	</update>
 	
 	<update id="updateStatus" parameterType="sortingReturn" >

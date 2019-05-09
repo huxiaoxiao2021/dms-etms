@@ -547,17 +547,6 @@
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and waybill_code in (${waybillCode}) order by update_time
 	</select>
-	<select id="getSendSiteID" parameterType="SendDetail"
-		resultMap="SendDetail">
-		<![CDATA[SELECT 
-        sem.receive_site_code,sem.operate_time  
-		From send_d  sed  
-		Inner Join send_m sem  On sed.box_code = sem.box_code    
-		where sem.yn=1  and (sem.create_site_code = #{createSiteCode,jdbcType=INTEGER} or 
-		sem.receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}) 
-		and sed.package_barcode = #{packageBarcode,jdbcType=VARCHAR} 
-		]]>
-	</select>
 	
 	<select id="checkSendByPackage" parameterType="SendDetail" resultType="Integer">
 		SELECT COUNT(send_d_id)

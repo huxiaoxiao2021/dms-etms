@@ -595,7 +595,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * 回传板标的发货状态
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> closeBoard(String boardCode) {
         return groupBoardService.closeBoard(boardCode);
     }
@@ -618,7 +618,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
     }
@@ -631,7 +631,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode) {
         return groupBoardService.getBoardByBoxCode(boxCode, siteCode);
     }

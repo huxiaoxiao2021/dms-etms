@@ -48,6 +48,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillPackageApi.getPackListByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<List<DeliveryPackageD>> getPackListByWaybillCode(String waybillCode) {
         //增加一个开关，支持两万个包裹，需要单独调用运单的分页接口过渡期使用
         if (isGetPackageByPageOpen()) {
@@ -118,6 +119,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
      * @param packageCodes
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillPackageApi.queryPackageListForParcodes",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<List<DeliveryPackageD>> queryPackageListForParcodes(List<String> packageCodes){
         return waybillPackageApi.queryPackageListForParcodes(packageCodes);
     }
