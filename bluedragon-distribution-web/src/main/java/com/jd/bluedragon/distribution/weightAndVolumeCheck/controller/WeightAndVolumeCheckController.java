@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 import com.jcloud.jss.util.ValidateValue;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -11,14 +12,12 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckC
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -59,9 +58,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Autowired
     private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
-    @Autowired
-    @Qualifier("basicPrimaryWS")
-    private BasicPrimaryWS basicPrimaryWS;
 
     /**
      * 返回主页面
@@ -70,17 +66,12 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "";
-        Long createSiteCode = new Long(-1);
+        Integer createSiteCode = new Integer(-1);
         Integer orgId = new Integer(-1);
-        if(erpUser != null){
-            userCode = erpUser.getUserCode();
-            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-            if (bssod!=null && bssod.getSiteType() == 64) {
-                createSiteCode = new Long(bssod.getSiteCode());
-                orgId = bssod.getOrgId();
-            }
+        LoginUser loginUser = getLoginUser();
+        if(loginUser != null && loginUser.getSiteType() == 64){
+            createSiteCode = loginUser.getSiteCode();
+            orgId = loginUser.getOrgId();
         }
         model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
         return "/weightAndVolumeCheck/weightAndVolumeCheck";
@@ -147,7 +138,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         String importErpCode = erpUser.getUserCode();
         Integer siteCode = -1;
         try{
-            BaseStaffSiteOrgDto baseDto = basicPrimaryWS.getBaseStaffByErp(importErpCode);
+            BaseStaffSiteOrgDto baseDto = baseMajorManager.getBaseStaffByErpNoCache(importErpCode);
             if(baseDto != null){
                 siteCode = baseDto.getSiteCode();
             }
@@ -189,6 +180,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             //上传到jss
             weightAndVolumeCheckService.uploadExcessPicture(imageName,imageSize,image.getInputStream());
         }catch (Exception e){
+            e.printStackTrace();
             String formatMsg = MessageFormat.format("图片上传失败!该文件名称{0}",imageName );
             result.parameterError(formatMsg);
             logger.error(formatMsg,e);
@@ -196,7 +188,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
             //上传成功后给判责系统发消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate);
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate,null);
         }
 
         return result;

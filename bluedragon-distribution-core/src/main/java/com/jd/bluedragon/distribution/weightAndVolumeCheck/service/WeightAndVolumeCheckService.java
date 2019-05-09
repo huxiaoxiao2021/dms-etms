@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
@@ -55,8 +56,9 @@ public interface WeightAndVolumeCheckService {
      * @param siteCode
      * @param uploadTime
      * @param reviewDate
+     * @param executeTime
      */
-    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime,String reviewDate);
+    void sendMqAndUpdate(String packageCode, Integer siteCode, Long uploadTime,String reviewDate,Integer executeTime);
 
     /**
      * 执行task任务
@@ -69,7 +71,15 @@ public interface WeightAndVolumeCheckService {
      * 获取任务
      * @param type
      * @param ownSign
+     * @param fetchNum
      * @return
      */
-    List<Task> findLimitedTasks(Integer type, String ownSign);
+    List<Task> findLimitedTasks(Integer type, String ownSign,int fetchNum);
+
+    /**
+     * 称重体积数据处理
+     * @param packWeightVO
+     * @param result
+     */
+    InvokeResult<Boolean> insertAndSendMq(PackWeightVO packWeightVO,WeightVolumeCollectDto weightVolumeCollectDto, InvokeResult<Boolean> result);
 }

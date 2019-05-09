@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -12,7 +13,6 @@ import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.ReviewWeightSpotCheckService;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -56,17 +56,13 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R)
     @RequestMapping("/toIndex")
     public String toIndex(Model model){
-        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        String userCode = "";
-        Long createSiteCode = new Long(-1);
+
+        Integer createSiteCode = new Integer(-1);
         Integer orgId = new Integer(-1);
-        if(erpUser != null){
-            userCode = erpUser.getUserCode();
-            BaseStaffSiteOrgDto bssod = baseMajorManager.getBaseStaffByErpNoCache(userCode);
-            if (bssod!=null && bssod.getSiteType() == 64) {
-                createSiteCode = new Long(bssod.getSiteCode());
-                orgId = bssod.getOrgId();
-            }
+        LoginUser loginUser = getLoginUser();
+        if(loginUser != null && loginUser.getSiteType() == 64){
+            createSiteCode = loginUser.getSiteCode();
+            orgId = loginUser.getOrgId();
         }
         model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
         return "/weightAndVolumeCheck/reviewWeightSpotCheck";

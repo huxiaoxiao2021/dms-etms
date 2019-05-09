@@ -35,7 +35,7 @@ public class WeightVolumeExcessTask extends DBSingleScheduler {
         List<Task> tasks = new ArrayList<Task>();
         try {
             logger.info("查询体积重量超标数据开始-------");
-            tasks = weightAndVolumeCheckService.findLimitedTasks(this.type, this.ownSign);
+            tasks = weightAndVolumeCheckService.findLimitedTasks(this.type, this.ownSign,fetchNum);
 
         } catch (Exception e) {
             this.logger.error("出现异常， 异常信息为：" + e.getMessage(), e);

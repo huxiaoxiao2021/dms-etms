@@ -18,7 +18,6 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
-import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.cross.domain.CrossSortingDto;
 import com.jd.bluedragon.distribution.cross.service.CrossSortingService;
@@ -29,7 +28,6 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopAddPackStateTaskBody;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.request.WaybillRescheduleRequest;
-import com.jd.bluedragon.distribution.receive.domain.ReceiveWeightCheckResult;
 import com.jd.bluedragon.distribution.receive.service.ReceiveWeightCheckService;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
@@ -48,15 +46,11 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SystemEnum;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.logger.annotation.BusinessLog;
-import com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf;
-import com.jd.etms.finance.dto.BizDutyDTO;
-import com.jd.etms.finance.util.ResponseDTO;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -68,7 +62,6 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -85,7 +78,6 @@ import org.springframework.util.Assert;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.text.DecimalFormat;
 import java.util.*;
 
 @Component
@@ -150,17 +142,7 @@ public class WaybillResource {
     private ReceiveWeightCheckService receiveWeightCheckService;
 
 	@Autowired
-	private BusinessDetailQueryJsf businessDetailQueryJsf;
-
-	@Autowired
-	private SiteService siteService;
-
-    @Autowired
-    @Qualifier("dmsWeightVolumeExcess")
-    private DefaultJMQProducer dmsWeightVolumeExcess;
-
-	@Autowired
-	private ReportExternalService reportExternalService;
+	private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
 	/**
 	 * 运单路由字段使用的分隔符
@@ -1994,7 +1976,6 @@ public class WaybillResource {
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		WeightVolumeCollectDto weightVolumeCollectDto = new WeightVolumeCollectDto();
-		AbnormalResultMq abnormalResultMq = new AbnormalResultMq();
         //1.只针对一单一件
         if(WaybillUtil.isWaybillCode(packWeightVO.getCodeStr()) || WaybillUtil.isPackageCode(packWeightVO.getCodeStr())){
 			weightVolumeCollectDto.setWaybillCode(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()));
@@ -2004,227 +1985,19 @@ public class WaybillResource {
             result.setMessage("运单号/包裹号不符合规则!");
             return result;
         }
-        String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
+
+		String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
         InvokeResult<Integer> packNumResult = getPackNum(waybillCode);
         if(packNumResult != null && packNumResult.getData() > 1){
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("重量体积抽查只支持一单一件!");
             return result;
         }
-		assemble(packWeightVO, weightVolumeCollectDto);
-
-        //2.复核与计费比较
-		double reviewLength = packWeightVO.getLength();
-		double reviewWidth = packWeightVO.getWidth();
-		double reviewHigh = packWeightVO.getHigh();
-		double reviewWeight = packWeightVO.getWeight();
-		double reviewVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?reviewLength*reviewWidth*reviewHigh : packWeightVO.getVolume();
-		weightVolumeCollectDto.setReviewLWH(reviewLength+"*"+reviewWidth+"*"+reviewHigh);
-		weightVolumeCollectDto.setReviewWeight(reviewWeight);
-		weightVolumeCollectDto.setReviewVolume(reviewVolume);
-
-		abnormalResultMq.setReviewLength(reviewLength);
-		abnormalResultMq.setReviewWidth(reviewWidth);
-		abnormalResultMq.setReviewHeight(reviewHigh);
-
-        try{
-            //计费信息
-            double billingWeight = 0;
-            double billingVolume = 0;
-            ResponseDTO<BizDutyDTO> responseDto = businessDetailQueryJsf.queryDutyInfo(waybillCode);
-            if(responseDto != null && responseDto.getStatusCode() == 0 && responseDto.getData() != null){
-				weightVolumeCollectDto.setBillingOrgCode(Integer.parseInt(responseDto.getData().getFirstLevelId()==null?"-1":responseDto.getData().getFirstLevelId()));
-				weightVolumeCollectDto.setBillingOrgName(responseDto.getData().getFirstLevelName());
-				weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()==null?"-1":responseDto.getData().getSecondLevelId()));
-				weightVolumeCollectDto.setBillingDeptName(responseDto.getData().getSecondLevelName());
-				weightVolumeCollectDto.setBillingErp(responseDto.getData().getDutyErp());
-
-				abnormalResultMq.setFirstLevelId(responseDto.getData().getFirstLevelId());
-				abnormalResultMq.setFirstLevelName(responseDto.getData().getFirstLevelName());
-				abnormalResultMq.setSecondLevelId(responseDto.getData().getSecondLevelId());
-				abnormalResultMq.setSecondLevelName(responseDto.getData().getSecondLevelName());
-				abnormalResultMq.setThreeLevelId(responseDto.getData().getThreeLevelId());
-				abnormalResultMq.setThreeLevelName(responseDto.getData().getThreeLevelName());
-				abnormalResultMq.setWeight(responseDto.getData().getWeight());
-				abnormalResultMq.setVolume(responseDto.getData().getVolume());
-				abnormalResultMq.setDutyType(responseDto.getData().getDutyType());
-				abnormalResultMq.setReviewDutyType(responseDto.getData().getDutyType());
-				abnormalResultMq.setDutyErp(responseDto.getData().getDutyErp());
-				abnormalResultMq.setBusinessObjectId(responseDto.getData().getBusinessObjectId());
-				abnormalResultMq.setBusinessObject(responseDto.getData().getBusinessObject());
-
-				billingWeight = responseDto.getData().getWeight()==null?0:responseDto.getData().getWeight().doubleValue();
-				billingVolume = responseDto.getData().getVolume()==null?0:responseDto.getData().getVolume().doubleValue();
-				weightVolumeCollectDto.setBillingWeight(billingWeight);
-				weightVolumeCollectDto.setBillingVolume(billingVolume);
-            }
-
-            if(billingWeight == 0){
-                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                result.setData(false);
-                result.setMessage("计费重量为0或空，无法进行校验");
-				weightVolumeCollectDto.setIsExcess(1);
-            }else{
-                if((reviewWeight <= 5 && Math.abs(reviewWeight-billingWeight)> 0.3) || (reviewWeight > 5 && reviewWeight <= 20 && Math.abs(reviewWeight-billingWeight)> 0.5)
-                        || (reviewWeight > 20 && reviewWeight <= 50 && Math.abs(reviewWeight-billingWeight)> 1)
-                        || (reviewWeight > 50 && Math.abs(reviewWeight-billingWeight) > reviewWeight * 0.02)){
-                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                    result.setData(false);
-                    result.setMessage("此次操作重量为"+reviewWeight+"kg,计费重量为"+billingWeight+"kg，"
-                            +"经校验误差值"+Math.abs(reviewWeight-billingWeight)+"kg已超出规定"+ (reviewWeight <=5 ? "0.3":reviewWeight<=20 ? "0.5":reviewWeight<=50 ? "1" : reviewWeight * 0.02)+"kg！");
-					weightVolumeCollectDto.setIsExcess(1);
-				}
-			}
-			weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
-            StringBuilder diffStandardOfWeight = new StringBuilder("");
-			if(reviewVolume <= 5){
-				diffStandardOfWeight.append("重量:0.3");
-			}else if(reviewVolume > 5 && reviewVolume <= 20){
-				diffStandardOfWeight.append("重量:0.5");
-			}else if(reviewVolume > 20 && reviewVolume <= 50){
-				diffStandardOfWeight.append("重量:1");
-			}else if(reviewVolume > 50){
-				diffStandardOfWeight.append("重量:2%");
-			}
-            if(billingVolume == 0){
-                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                result.setData(false);
-                result.setMessage("计费体积为0或空，无法进行校验");
-				weightVolumeCollectDto.setIsExcess(1);
-            }else{
-                if((reviewVolume/8000 <= 5 && Math.abs(reviewVolume-billingVolume)/8000> 0.3)
-                        || (reviewVolume/8000 > 5 && reviewVolume/8000 <= 20  && Math.abs(reviewVolume-billingVolume)/8000 > 0.5)
-                        || (reviewVolume/8000 > 20 && reviewVolume/8000 <= 50  && Math.abs(reviewVolume-billingVolume)/8000 > 1)
-                        || (reviewVolume/8000 > 50 && Math.abs(reviewVolume-billingVolume)/8000 > reviewVolume*0.02/8000)){
-                    result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                    result.setData(false);
-                    String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", reviewVolume/8000)+"kg,计费体积重量（体积除以8000）为"+String.format("%.6f", billingVolume/8000)+"kg，"
-
-                            +"经校验误差值"+Math.abs(reviewVolume-billingVolume)/8000+"kg已超出规定"+ (reviewVolume/8000 <=5 ? "0.3":reviewVolume/8000<=20 ? "0.5":reviewVolume/8000<=50 ? "1" : reviewVolume/8000 * 0.02)+"kg！";
-                    if(!StringUtils.isBlank(result.getMessage())){
-                        message = result.getMessage()+"\r\n"+message;
-                    }
-                    result.setMessage(message);
-					weightVolumeCollectDto.setIsExcess(1);
-                }
-            }
-            if(reviewVolume/8000 <= 5){
-				diffStandardOfWeight.append("体积重量:0.3");
-			}else if(reviewVolume/8000 > 5 && reviewVolume/8000 <= 20){
-				diffStandardOfWeight.append("体积重量:0.5");
-			}else if(reviewVolume/8000 > 20 && reviewVolume/8000 <= 50){
-				diffStandardOfWeight.append("体积重量:1");
-			}else if(reviewVolume/8000 > 50){
-				diffStandardOfWeight.append("体积重量:2%");
-			}
-			weightVolumeCollectDto.setDiffStandard(diffStandardOfWeight.toString());
-			weightVolumeCollectDto.setVolumeWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewVolume/8000 - billingVolume/8000)));
-        }catch (Exception e){
-            logger.error("包裹称重提示警告信息异常"+JsonHelper.toJson(packWeightVO),e);
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
-            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-        }
-        //将重量体积实体存入es中
-		reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
-        //超标给fxm发消息
-		if(weightVolumeCollectDto.getIsExcess() == 1){
-			sendMqToFXM(weightVolumeCollectDto,abnormalResultMq);
-		}
+		result = weightAndVolumeCheckService.insertAndSendMq(packWeightVO,weightVolumeCollectDto,result);
         return result;
+
     }
 
-    /**
-     * 给fxm发超标消息
-     * @param weightVolumeCollectDto
-     * @param abnormalResultMq
-     */
-    private void sendMqToFXM(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {
-        try{
-            abnormalResultMq.setId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
-            abnormalResultMq.setAbnormalId(weightVolumeCollectDto.getPackageCode() + "_" +weightVolumeCollectDto.getReviewDate().getTime());
-            abnormalResultMq.setFrom(SystemEnum.DMS.getCode().toString());
-            if(abnormalResultMq.getDutyType() != null){
-				if(abnormalResultMq.getDutyType() == 2 || abnormalResultMq.getDutyType() == 3){
-					//分拣、站点发给下游判责
-					abnormalResultMq.setTo(SystemEnum.PANZE.getCode().toString());
-				}else if(abnormalResultMq.getDutyType()==1){
-					//仓发给下游质控
-					abnormalResultMq.setTo(SystemEnum.ZHIKONG.getCode().toString());
-				}
-			}
-            abnormalResultMq.setBillCode(weightVolumeCollectDto.getPackageCode());
-            abnormalResultMq.setReviewDate(weightVolumeCollectDto.getReviewDate());
-            abnormalResultMq.setReviewMechanismType(weightVolumeCollectDto.getReviewSubType());
-			abnormalResultMq.setReviewErp(weightVolumeCollectDto.getReviewErp());
-			abnormalResultMq.setReviewWeight(weightVolumeCollectDto.getReviewWeight());
-			abnormalResultMq.setReviewVolume(weightVolumeCollectDto.getReviewVolume());
-			abnormalResultMq.setReviewFirstLevelId(weightVolumeCollectDto.getReviewOrgCode());
-			abnormalResultMq.setReviewFirstLevelName(weightVolumeCollectDto.getReviewOrgName());
-			abnormalResultMq.setReviewSecondLevelId(weightVolumeCollectDto.getReviewSiteCode());
-			abnormalResultMq.setReviewSecondLevelName(weightVolumeCollectDto.getReviewSiteName());
-
-            abnormalResultMq.setDiffStandard(weightVolumeCollectDto.getDiffStandard());
-            abnormalResultMq.setWeightDiff(Double.parseDouble(weightVolumeCollectDto.getWeightDiff()));
-            abnormalResultMq.setVolumeDiff(Double.parseDouble(weightVolumeCollectDto.getVolumeWeightDiff()));
-            abnormalResultMq.setIsExcess(weightVolumeCollectDto.getIsExcess());
-            abnormalResultMq.setPictureAddress(weightVolumeCollectDto.getPictureAddress());
-			//默认值:认责不判责
-			abnormalResultMq.setIsAccusation(0);
-			abnormalResultMq.setIsNeedBlame(1);
-
-            abnormalResultMq.setOperateTime(weightVolumeCollectDto.getReviewDate());
-
-			this.logger.info("发送MQ[" + dmsWeightVolumeExcess.getTopic() + "],业务ID[" + abnormalResultMq.getBillCode() + "],消息主题: " + JsonHelper.toJson(abnormalResultMq));
-            dmsWeightVolumeExcess.send(abnormalResultMq.getAbnormalId(),JsonHelper.toJson(abnormalResultMq));
-        }catch (Exception e){
-            this.logger.error("发送超标异常mq给fxm失败" + weightVolumeCollectDto.getPackageCode() + "失败原因：" + e);
-        }
-    }
-
-    /**
-     * 组装称重计费实体
-     * @param packWeightVO
-     * @param weightVolumeCollectDto
-     */
-    private void assemble(PackWeightVO packWeightVO, WeightVolumeCollectDto weightVolumeCollectDto) {
-		weightVolumeCollectDto.setReviewDate(new Date());
-		weightVolumeCollectDto.setReviewLWH(packWeightVO.getLength()+"*"+packWeightVO.getWidth()+"*"+packWeightVO.getHigh());
-		weightVolumeCollectDto.setReviewWeight(packWeightVO.getWeight());
-        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(WaybillUtil.getWaybillCode(packWeightVO.getCodeStr()),
-                true, false, false, false);
-        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
-			weightVolumeCollectDto.setBusiName(baseEntity.getData().getWaybill().getBusiName());
-            if(BusinessUtil.isSignChar(baseEntity.getData().getWaybill().getWaybillSign(),56,'1')){
-                //信任商家
-				weightVolumeCollectDto.setIsTrustBusi(1);
-            }else if(BusinessUtil.isSignInChars(baseEntity.getData().getWaybill().getWaybillSign(),56,'0','2','3')) {
-                //普通商家
-				weightVolumeCollectDto.setIsTrustBusi(0);
-            }else {
-                //其他
-                weightVolumeCollectDto.setIsTrustBusi(-1);
-            }
-        }
-        BaseStaffSiteOrgDto baseOrgDto = siteService.getSite(packWeightVO.getOperatorSiteCode());
-        if(baseOrgDto != null && baseOrgDto.getSiteType() == 64){
-            if(BusinessUtil.isSortOrTransport(baseOrgDto.getSubType()) == 1){
-				weightVolumeCollectDto.setReviewSubType(1);
-            }else if(BusinessUtil.isSortOrTransport(baseOrgDto.getSubType()) == 0){
-				weightVolumeCollectDto.setReviewSubType(0);
-            }else{
-				weightVolumeCollectDto.setReviewSubType(-1);
-            }
-        }
-		weightVolumeCollectDto.setReviewOrgCode(packWeightVO.getOrganizationCode());
-		weightVolumeCollectDto.setReviewOrgName(packWeightVO.getOrganizationName());
-		weightVolumeCollectDto.setReviewSiteCode(packWeightVO.getOperatorSiteCode());
-		weightVolumeCollectDto.setReviewSiteName(packWeightVO.getOperatorSiteName());
-		weightVolumeCollectDto.setReviewErp(packWeightVO.getErpCode());
-		weightVolumeCollectDto.setIsExcess(0);
-		//设置无图片无图片链接
-		weightVolumeCollectDto.setIsHasPicture(0);
-		weightVolumeCollectDto.setPictureAddress("");
-    }
 
     /**
 	 * 判断运单是否存在是否妥投
@@ -2379,24 +2152,6 @@ public class WaybillResource {
 	@Path("/waybill/getPackNum/{waybillCode}")
 	public InvokeResult<Integer> getPackNum(@PathParam("waybillCode") String waybillCode){
 
-        InvokeResult<Integer> result = new InvokeResult<Integer>();
-        Integer packNum = 0;
-        try{
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
-                packNum = baseEntity.getData().getWaybill().getGoodNumber() == null?0:baseEntity.getData().getWaybill().getGoodNumber();
-                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-            }else{
-                this.logger.error("未获取到该运单"+waybillCode+"信息");
-                result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-                result.setMessage("未获取到该运单"+waybillCode+"信息");
-            }
-        }catch(Exception e){
-            this.logger.error("通过运单号:"+waybillCode+"获取运单信息失败!");
-            result.setCode(InvokeResult.SERVER_ERROR_CODE);
-            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-        }
-        result.setData(packNum);
-        return result;
+		return waybillCommonService.getPackNum(waybillCode);
 	}
 }
