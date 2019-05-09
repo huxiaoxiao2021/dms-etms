@@ -5,6 +5,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -31,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -451,5 +453,24 @@ public class SortingResource {
         sortingService.addSortingAdditionalTask(sorting);
         return res;
     }
+
+	/**
+	 * 根据箱号获取该箱号下的运单列表
+	 *
+	 * @param boxCode
+	 * @return
+	 */
+	@GET
+	@Path("/sorting/getWaybillCodes/{boxCode}")
+	public InvokeResult<List<String>> getWaybillCodes(@PathParam("boxCode") String boxCode) {
+		Assert.notNull(boxCode, "boxCode must not be null");
+		this.logger.info("box code's " + boxCode);
+		InvokeResult result = new InvokeResult();
+		List<String> waybillList = sortingService.getWaybillCodeListByBoxCode(boxCode);
+		if (waybillList == null) {
+			result.customMessage(BoxResponse.CODE_BOX_NOT_FOUND, BoxResponse.MESSAGE_BOX_NOT_FOUND);
+		}
+		return result;
+	}
 
 }

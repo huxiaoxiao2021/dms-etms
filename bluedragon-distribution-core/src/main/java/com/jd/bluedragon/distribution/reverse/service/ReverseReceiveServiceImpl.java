@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.reverse.service;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.api.request.ReverseReceiveRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
@@ -16,7 +15,6 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.Pickware;
 import com.jd.bluedragon.distribution.waybill.service.PickwareService;
@@ -294,7 +292,7 @@ public class ReverseReceiveServiceImpl implements ReverseReceiveService {
 	private void appentPickwareInfo(ReverseReceive reverseReceive, String code) {
         Pickware pickware = this.pickwareService.get(code);
         if (pickware != null) {
-            reverseReceive.setOrderId(pickware.getWaybillCode().toString());
+            reverseReceive.setOrderId(pickware.getWaybillCode());
             reverseReceive.setPickWareCode(pickware.getCode());
         }
     }

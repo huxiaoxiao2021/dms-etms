@@ -1,22 +1,7 @@
 package com.jd.bluedragon.distribution.rest.QualityControl;
 
-import java.util.Date;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.common.web.LoginContext;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -24,6 +9,21 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
+import java.util.Date;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -46,6 +46,12 @@ public class QualityControlResource {
     public QualityControlResponse exceptionInfo(QualityControlRequest request) {
         logger.warn("PDA调用异常配送接口开始，参数信息 " + JsonHelper.toJson(request));
         QualityControlResponse response = new QualityControlResponse();
+        if(StringUtils.isEmpty(request.getQcValue()) || !WaybillCodeRuleValidateUtil.isEffectiveOperateCode(request.getQcValue())){
+            logger.error(MessageFormat.format("PDA调用异常配送接口插入质控任务表失败-参数错误[{0}]",JsonHelper.toJson(request)));
+            response.setCode(response.CODE_SERVICE_ERROR);
+            response.setMessage("请扫描运单号或者包裹号！");
+            return response;
+        }
         try{
             convertThenAddTask(request);
         }catch(Exception ex){
@@ -88,6 +94,12 @@ public class QualityControlResource {
         request.setUserERP(userDto.getAccountNumber());
         request.setOperateTime(new Date());
         for (String waybillCode:waybillCodeArr){
+            if(!WaybillCodeRuleValidateUtil.isEffectiveOperateCode(waybillCode)){
+                logger.error(MessageFormat.format("PDA调用异常配送接口插入质控任务表失败-参数错误[{0}]",JsonHelper.toJson(request)));
+                response.setCode(response.CODE_SERVICE_ERROR);
+                response.setMessage("请扫描运单号或者包裹号！");
+                return response;
+            }
             request.setQcValue(waybillCode);
             request.setTrackContent("订单扫描异常【"+waybillCode+"】。");
             try{

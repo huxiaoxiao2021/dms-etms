@@ -21,7 +21,7 @@
 <import resource="classpath:spring/mysql/distribution-core-common.xml" />
 <import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 <import resource="classpath:spring/distribution-core-context.xml" />
-<import resource="classpath:spring/distribution-core-jmq-test.xml" />
+<import resource="classpath:spring/distribution-core-jmq.xml" />
 <import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 <import resource="classpath:spring/distribution-worker-jmq-test.xml" />
 <import resource="classpath:spring/worker/distribution-worker-execute-conf.xml" />

@@ -479,6 +479,27 @@ public class Constants {
      * 包裹称重流水-操作类型-仓储操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
+
+    /**
+     * 是否启用称重量方：未启用称重未启用量方
+     */
+    public static final Integer WEIGHT_VOLUME_UNABLE = 0;
+
+    /**
+     * 是否启用称重量方：启用称重
+     */
+    public static final Integer WEIGHT_ENABLE = 1;
+
+    /**
+     * 是否启用称重量方：启用量方
+     */
+    public static final Integer VOLUME_ENABLE = 2;
+
+    /**
+     * 是否启用称重量方：启用量方和量方
+     */
+    public static final Integer WEIGHT_VOLUME_ENABLE = 3;
+
     /**
      * Text-保价
      */
@@ -632,6 +653,7 @@ public class Constants {
     public static final String DMS_WEB_CROSS_SORTING_R="DMS-WEB-CROSS-SORTING-R";   //跨区分拣校验GlobalTrade
     public static final String DMS_WEB_POP_ABNORMAL_R="DMS-WEB-POP-ABNORMAL-R";  //POP差异订单
     public static final String DMS_WEB_SORTING_MACHINE_EXCEPTION="DMS-WEB-SORTING-MACHINE-EXCEPTION"; //分拣机或者龙门架异常
+    public static final String DMS_WEB_NOTICE_MANAGE="DMS-WEB-NOTICE-MANAGE"; //通知栏管理
     public static final String DMS_WEB_INDEX_R="DMS_WEB_INDEX_R";  //系统主页
 
 
@@ -888,5 +910,21 @@ public class Constants {
 
     /** 快运发货路由校验新接口标识 **/
     public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
+
+    public static final double CONFIRM_WEIGHT_25 = 25.00;
+
+    public static final double CONFIRM_WEIGHT_100 = 100.00;
+
+    public static final double ILLEGAL_WEIGHT_1000 = 1000.00;
+
+    /**
+     * 计量单位：kg
+     */
+    public static final String MEASURE_UNIT_NAME_KG = "kg";
+
+    /**
+     * 计量单位：cm
+     */
+    public static final String MEASURE_UNIT_NAME_CM = "cm";
 
 }

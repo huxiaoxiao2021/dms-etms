@@ -109,7 +109,7 @@
         <!-- 配置写数据源， 默认sqlId使用此数据源 -->
         <property name="dataSourceMajor" ref="dms_main"/>
         <!-- 配置从数据源， 在minorSqlIds中配置的sqlId会连此数据源查询数据 -->
-        <property name="dataSourceMinor" ref="jddlShardingDataSource"/>
+        <property name="dataSourceMinor" ref="dms_main"/>
         <!-- 配置那些sqlId走从数据源-->
         <property name="minorSqlIds">
             <set>
@@ -137,6 +137,8 @@
         <property name="url" value="${mysqlTaskDb.url}"/>
         <property name="username" value="${mysqlTaskDb.username}" />
         <property name="password" value="${mysqlTaskDb.password}" />
+        <property name="maxActive" value="${mysqlTaskDb.maxActive}"/>
+        <property name="defaultTransactionIsolation" value="${mysqlTaskDb.isolationLevel}"/>
     </bean>
 
     <bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

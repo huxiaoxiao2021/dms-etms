@@ -485,4 +485,23 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 备件库分拣记录 -->
+    <bean id="spareSortingRecordDao" class="com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 通知栏 -->
+    <bean id="noticeDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <bean id="noticeAttachmentDao" class="com.jd.bluedragon.distribution.notice.dao.NoticeAttachmentDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 冷链发货 -->
+    <bean id="coldChainSendDao" class="com.jd.bluedragon.distribution.coldchain.dao.ColdChainSendDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

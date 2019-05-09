@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通知栏</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    #parse("system/common/baseImport.vm")
+    <script src="/static/js/notice/manage.js"></script>
+</head>
+<body>
+<div id="dataTableDiv" class="main" style="margin-left: 20px;">
+    <ol class="breadcrumb">
+        <li><a href="#">工具</a></li>
+        <li class="active">通知栏管理</li>
+    </ol>
+    <!-- 查询条件 -->
+
+    <!-- 主页面操作按钮 -->
+    <div id="toolbar" class="btn-group">
+        <button id="btn_query" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询&nbsp;
+        </button>
+        <button id="btn_add" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;新增&nbsp;
+        </button>
+        <button id="btn_delete" type="button" class="btn btn-default">
+            <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>&nbsp;删除&nbsp;
+        </button>
+    </div>
+    <table id="dataTable"></table>
+</div>
+</body>
+</html>
