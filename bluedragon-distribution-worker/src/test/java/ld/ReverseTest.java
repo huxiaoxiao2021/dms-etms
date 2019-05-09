@@ -138,7 +138,16 @@ public class ReverseTest {
     @Test
     public void testMQ(){
         Message message = new Message();
-        message.setText("{\"waybillCode\":\"JDVA00001757689\",\"sendCode\":\"910-11252-20190328135641090\",\"receiveType\":8,\"canReceive\":2,\"operaterName\":\"bjtc\",\"operateTime\":\"2019-03-29 09:09:53\",\"detailList\":[{\"goodsNo\":\"EMG4398059875755\",\"goodsName\":\"商品1\",\"batchNo\":\"ISV-C-20190327112208-1508-1\",\"quantity\":0},{\"goodsNo\":\"EMG4398059875756\",\"goodsName\":\"商品1\",\"batchNo\":\"ISV-C-20190327111908-2532-1\",\"quantity\":1}]}\n");
+        message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<ReceiveRequest>\n" +
+                "  <sendCode>733578-25016-20190124091212015-T82885422432</sendCode>\n" +
+                "  <orderId>82885422432</orderId>\n" +
+                "  <operateTime>2019-01-25 13:21:18</operateTime>\n" +
+                "  <userCode>shilei7</userCode>\n" +
+                "  <userName>shilei7|</userName>\n" +
+                "  <receiveType>3</receiveType>\n" +
+                "  <canReceive>1</canReceive>\n" +
+                "</ReceiveRequest>");
         reverseReceiveConsumer.consume(message);
     }
 

@@ -1940,7 +1940,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //获取旧运单号
                 oldWaybillCode = oldWaybill.getData().getWaybillCode();
             }else{
-                logger.error("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                logger.warn("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
                 return;
             }
             if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){

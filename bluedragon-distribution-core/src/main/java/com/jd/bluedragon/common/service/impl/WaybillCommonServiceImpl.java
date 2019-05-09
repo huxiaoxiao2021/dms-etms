@@ -189,7 +189,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 if(waybill!=null && StringUtils.isNotBlank(waybill.getOrderId()) && SerialRuleUtil.isMatchNumeric(waybill.getOrderId())){
                     return Long.valueOf(waybill.getOrderId());
                 }else{
-                    logger.error("获取订单号失败，入参"+waybillCode);
+                    logger.warn("获取订单号失败，入参"+waybillCode);
                     return null;
                 }
             }else{
