@@ -42,12 +42,38 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
 	private static final Integer CODE_SUC = 200;
     @Autowired
     private PresortMediumStationAPI presortMediumStation;
-    
+
+
+	public PsOrderSeparateVo getPreSeparateOrderByOrderId(String waybillCode){
+		CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.CommonOrderServiceJSF.getPreSeparateOrderByOrderId",Constants.UMP_APP_NAME_DMSWEB,false,true);
+		try {
+			return preseparateOrderService.getPreSeparateOrderByOrderId(waybillCode);
+		}catch (Exception e){
+			Profiler.functionError(callerInfo);
+			throw e;
+		}finally {
+			Profiler.registerInfoEnd(callerInfo);
+		}
+	}
+
+	public ExternalOrderDto getPreSeparateExternalByOrderId(String waybillCode){
+		CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.CommonOrderServiceJSF.getPreSeparateExternalByOrderId",Constants.UMP_APP_NAME_DMSWEB,false,true);
+		try {
+			return preseparateOrderService.getPreSeparateExternalByOrderId(waybillCode);
+		}catch (Exception e){
+			Profiler.functionError(callerInfo);
+			throw e;
+		}finally {
+			Profiler.registerInfoEnd(callerInfo);
+		}
+	}
+
+
     @Override
     public Integer getPreseparateSiteId(String waybillCode) throws Exception {
         Integer siteId=null;
         if(WaybillUtil.isJDWaybillCode(waybillCode)){
-            PsOrderSeparateVo domain=preseparateOrderService.getPreSeparateOrderByOrderId(waybillCode.trim());
+            PsOrderSeparateVo domain= getPreSeparateOrderByOrderId(waybillCode.trim());
             if(null!=domain){
                 if(logger.isDebugEnabled()){
                     logger.debug(JsonHelper.toJson(domain));
@@ -55,8 +81,7 @@ public class PreseparateWaybillManagerImpl implements PreseparateWaybillManager 
                 siteId=domain.getPartnerId();
             }
         }else {
-
-            ExternalOrderDto domain = preseparateOrderService.getPreSeparateExternalByOrderId(waybillCode.trim());
+            ExternalOrderDto domain = getPreSeparateExternalByOrderId(waybillCode.trim());
             if(null!=domain){
                 if(logger.isDebugEnabled()){
                     logger.debug(JsonHelper.toJson(domain));
