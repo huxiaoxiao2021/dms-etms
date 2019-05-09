@@ -35,6 +35,8 @@
     var CBM_DIV_KG_CODE = 10001; //批量导入 重泡比 校验失败码值
 
     var allForcedToSubmit = 0; // 批量强制提交。 0 代表否 1代表是
+    var b2cCount = 0; //批量强制提交场景下需要转网的单的个数
+
 /**************************************************************************************/
 /*公共方法*/
 /**************************************************************************************/
@@ -322,6 +324,9 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
                 if(allForcedToSubmit == 0){
                     $.messager.alert('运单录入结果',res.message);
+                }
+                else if(allForcedToSubmit == 1){
+                    b2cCount=b2cCount+1;
                 }
                 $('#waybill-weight-btn').linkbutton('enable');
 
@@ -712,6 +717,9 @@ $("#waybill-weight-all-submit").click(function(){
                 allForcedToSubmit = 1; //控制提示语 执行的所有请求全部为同步 才可以这么做
                 allSubmitRemove();
                 allForcedToSubmit = 0;
+                if(b2cCount>0){
+                    $.messager.alert('运单录入结果',"共有"+b2cCount + "单" + INTERCEPT_MESSAGE);
+                }
             }
         }
     );
