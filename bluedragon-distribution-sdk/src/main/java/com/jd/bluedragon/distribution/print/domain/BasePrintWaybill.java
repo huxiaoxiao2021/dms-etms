@@ -315,6 +315,16 @@ public class BasePrintWaybill implements Serializable {
      */
 	private String consignerTelText;
 
+	/**
+	 * 包裹特殊标识1
+	 */
+	private String specialMark1 = "";
+
+	/**
+	 * 包裹特殊标识1-builder类型
+	 */
+	private StringBuilder specialMark1Builder = new StringBuilder();
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -1187,5 +1197,30 @@ public class BasePrintWaybill implements Serializable {
 
 	public void setOldWaybillCode(String oldWaybillCode) {
 		this.oldWaybillCode = oldWaybillCode;
+	}
+
+	public String getSpecialMark1() {
+		return specialMark1;
+	}
+
+	public void setSpecialMark1(String specialMark1) {
+		this.specialMark1 = specialMark1;
+		specialMark1Builder = new StringBuilder(specialMark1);
+	}
+
+	/**
+	 * 特殊标记字段追加标记，不包含时加入标记
+	 * @param markText
+	 */
+	public void appendSpecialMark1(String markText){
+		//标识不为空，并且不包含此标记时加入标记
+		if(markText!=null && markText.length()>0
+				&& specialMark1Builder.indexOf(markText) < 0){
+			if(specialMark1.length()>0){
+				specialMark1Builder.append(" ");
+			}
+			specialMark1Builder.append(markText);
+			this.specialMark1 = specialMark1Builder.toString();
+		}
 	}
 }

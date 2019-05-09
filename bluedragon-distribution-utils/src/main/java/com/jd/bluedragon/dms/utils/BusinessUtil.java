@@ -623,4 +623,31 @@ public class BusinessUtil {
         return isSignChar(waybillSign,62,'1') && isSignChar(waybillSign,25,'4');
     }
 
+
+    /**
+     * 判断是否是B网冷链运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdChainWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否是京仓运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isWareHouseJDWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_3);
+    }
+
+    /**
+     * 判断是否是非京仓运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isWareHouseNotJDWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_4);
+    }
 }
