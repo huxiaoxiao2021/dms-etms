@@ -397,6 +397,13 @@ public class StringHelper {
         return in;
     }
 
+    public static String longParseString(Long value){
+        if(value == null){
+            return null;
+        }
+        return String.valueOf(value);
+    }
+
     /**
      * 对电话号码 加微笑符合
      * @param phone 手机号 电话号码
