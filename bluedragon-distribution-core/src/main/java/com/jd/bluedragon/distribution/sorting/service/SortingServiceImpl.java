@@ -73,9 +73,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -154,7 +156,6 @@ public class SortingServiceImpl implements SortingService {
 	public Integer update(Sorting sorting) {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
-
 
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
@@ -1296,4 +1297,26 @@ public class SortingServiceImpl implements SortingService {
 		}
 		return false;
 	}
+
+
+    @Override
+    public List<String> getWaybillCodeListByBoxCode(String boxCode) {
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            return null;
+        }
+        Sorting queryParam = new Sorting();
+        queryParam.setCreateSiteCode(box.getCreateSiteCode());
+        queryParam.setBoxCode(boxCode);
+        List<Sorting> sortingList = this.findByBoxCode(queryParam);
+        if (sortingList.size() > 0) {
+            Set<String> waybillCodeSet = new HashSet<>();
+            for (Sorting sorting : sortingList) {
+                waybillCodeSet.add(sorting.getWaybillCode());
+            }
+            return new ArrayList<>(waybillCodeSet);
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
 }

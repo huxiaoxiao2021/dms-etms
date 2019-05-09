@@ -278,7 +278,7 @@ public class TaskResource {
             taskService.addInspectSortingTaskDirectly(packageDtos);
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.warn("智能分拣线插入交接、分拣任务失败，原因", e);
+            logger.warn("智能分拣线插入交接、分拣任务失败，原因"+JsonHelper.toJson(packageDtos), e);
             return new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }finally {
             Profiler.registerInfoEnd(info);

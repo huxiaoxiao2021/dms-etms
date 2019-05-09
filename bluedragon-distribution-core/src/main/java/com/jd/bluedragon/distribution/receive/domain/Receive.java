@@ -50,8 +50,11 @@ public class Receive implements Serializable{
 	private String sealBoxCode;
 	
 	 /**排队号*/
-    private String queueNo; 
-    private Long departureCarId;
+    private String queueNo;
+
+    /*没有调用的地方*/
+    @Deprecated
+    private String departureCarId;
 
 	public String getQueueNo() {
 		return queueNo;
@@ -221,13 +224,11 @@ public class Receive implements Serializable{
 		this.yn = yn;
 	}
 
-	public Long getDepartureCarId() {
-		return departureCarId;
-	}
+    public String getDepartureCarId() {
+        return departureCarId;
+    }
 
-	public void setDepartureCarId(Long departureCarId) {
-		this.departureCarId = departureCarId;
-	}
-	
-	
+    public void setDepartureCarId(String departureCarId) {
+        this.departureCarId = departureCarId;
+    }
 }

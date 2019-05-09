@@ -1,22 +1,5 @@
 package com.jd.bluedragon.distribution.rest.base;
 
-import java.text.MessageFormat;
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.jboss.resteasy.annotations.GZIP;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -29,10 +12,22 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.jboss.resteasy.annotations.GZIP;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 @Path(Constants.REST_URL)
@@ -210,4 +205,30 @@ public class SiteResource {
 
 		return result;
 	}
+
+	/**
+	 * 获取站点信息
+	 * 根据Code精确匹配和那么模糊匹配
+	 * 模糊做多返回20条
+	 * @return list
+     */
+	@GET
+	@Path("/bases/getSiteByCodeOrName/{siteCodeOrName}")
+	public InvokeResult<List<BaseStaffSiteOrgDto>> getSiteByCodeOrName(@PathParam("siteCodeOrName") String siteCodeOrName) {
+		InvokeResult<List<BaseStaffSiteOrgDto>> result = new InvokeResult<>();
+		if (StringHelper.isEmpty(siteCodeOrName)) {
+			return result;
+		}
+		List<BaseStaffSiteOrgDto> resList = new ArrayList<>();
+		if (NumberHelper.isNumber(siteCodeOrName)) {
+			/* 站点code精确匹配 */
+			resList.add(baseMajorManager.queryDmsBaseSiteByCodeDmsver(siteCodeOrName));
+		} else {
+			/* 站点名称模糊匹配 */
+			resList.addAll(siteService.fuzzyGetSiteBySiteName(siteCodeOrName));
+		}
+		result.setData(resList);
+		return result;
+	}
+
 }

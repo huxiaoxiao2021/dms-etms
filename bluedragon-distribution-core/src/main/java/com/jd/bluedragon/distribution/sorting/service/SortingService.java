@@ -15,7 +15,6 @@ public interface SortingService {
 
     Integer update(Sorting sorting);
 
-
     /** 任务转分拣记录 
      * @return */
     boolean doSorting(Task task);
@@ -153,5 +152,13 @@ public interface SortingService {
     void fillSortingIfPickup(Sorting sorting);
 
     boolean useNewSorting(Integer siteCode);
+
+    /**
+     * 根据箱号获取运单号列表
+     *
+     * @param boxCode
+     * @return
+     */
+    List<String> getWaybillCodeListByBoxCode(String boxCode);
 
 }

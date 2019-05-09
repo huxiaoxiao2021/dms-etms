@@ -8,6 +8,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
+
 /**
  * 逆向备件库收货推出管0, 21类型通过接口调用推送
  * 11, 13, 15, 16, 18, 19, 42, 56, 61通过mq发送
@@ -26,7 +28,7 @@ public class ReverseStockConsumer extends MessageBaseConsumer {
 		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message.getText());
 		Boolean result = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
 		
-		this.logger.info("Id:" + message.getBusinessId() + ", 处理结果：" + result);
+		this.logger.info(MessageFormat.format("逆向备件库收货推出管Id[{0}]waybillCode[{1}]处理结果[{2}]",message.getBusinessId(),waybillCode,result));
 		if(!result) throw new Exception(waybillCode+"推出管失败");
 	}
 }
