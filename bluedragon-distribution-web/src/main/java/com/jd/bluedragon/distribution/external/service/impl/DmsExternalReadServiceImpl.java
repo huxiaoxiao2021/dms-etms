@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.request.PackageSummaryRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
 import com.jd.bluedragon.distribution.wss.dto.*;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -111,7 +113,12 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 		return distributionService.getPackageSummary(code, type, siteCode);
 	}
 
-	@Override
+    @Override
+    public PageDto<List<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryRequest> pageDto) {
+        return null;
+    }
+
+    @Override
 	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findSealByCodeSummary", mState = {JProEnum.TP})
 	public SealVehicleSummaryDto findSealByCodeSummary(String sealCode) {
 		return distributionService.findSealByCodeSummary(sealCode);
