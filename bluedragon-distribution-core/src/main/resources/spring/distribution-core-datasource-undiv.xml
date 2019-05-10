@@ -15,19 +15,19 @@
         <property name="password" value="${db.mysql.undiv.password}"/>
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
-        <property name="initialSize" value="${db.initialSize}"/>
-        <property name="maxIdle" value="${db.maxIdle}"/>
-        <property name="minIdle" value="${db.minIdle}"/>
-        <property name="maxActive" value="${db.maxActive}"/>
-        <property name="maxWait" value="${db.maxWait}"/>
-        <property name="logAbandoned" value="${db.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${db.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${db.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${db.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${db.testOnBorrow}" />
-        <property name= "validationQuery" value="${db.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${db.minEvictableIdleTimeMillis}"/>
-        <property name="timeBetweenEvictionRunsMillis" value="${db.timeBetweenEvictionRunsMillis}"/>
+        <property name="initialSize" value="${db.mysql.undiv.initialSize}"/>
+        <property name="maxIdle" value="${db.mysql.undiv.maxIdle}"/>
+        <property name="minIdle" value="${db.mysql.undiv.minIdle}"/>
+        <property name="maxActive" value="${db.mysql.undiv.maxActive}"/>
+        <property name="maxWait" value="${db.mysql.undiv.maxWait}"/>
+        <property name="logAbandoned" value="${db.mysql.undiv.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${db.mysql.undiv.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${db.mysql.undiv.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${db.mysql.undiv.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${db.mysql.undiv.testOnBorrow}" />
+        <property name= "validationQuery" value="${db.mysql.undiv.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${db.mysql.undiv.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${db.mysql.undiv.timeBetweenEvictionRunsMillis}"/>
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
