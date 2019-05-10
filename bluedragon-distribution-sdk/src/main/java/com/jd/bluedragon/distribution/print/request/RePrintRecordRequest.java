@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.print.request;
 
-import com.jd.ql.dms.common.domain.JdRequest;
+import java.io.Serializable;
 
 /**
  * 
@@ -10,8 +10,29 @@ import com.jd.ql.dms.common.domain.JdRequest;
  * @date: 2019年4月22日 下午4:25:24
  *
  */
-public class RePrintRecordRequest extends JdRequest{
+public class RePrintRecordRequest implements Serializable{
 	private static final long serialVersionUID = 1L;
+    /**
+     * 访问验证
+     */
+    private String key;
+    
+    /** 操作人编号_ERP帐号 */
+    private Integer userCode;
+    
+    /** 操作人姓名 */
+    private String userName;
+    
+    /** 操作人所属站点编号 */
+    private Integer siteCode;
+    
+    /** 操作人所属站点编号 */
+    private String siteName;
+    
+    private Integer businessType;
+    
+	private Long id;
+	
 	/**
 	 * 运单号
 	 */
@@ -25,6 +46,104 @@ public class RePrintRecordRequest extends JdRequest{
 	 * 打印结果-模板分组(区分B网和C网),TemplateGroupEnum对应的code
 	 */
 	private String templateGroupCode;
+
+	/**
+	 * @return the key
+	 */
+	public String getKey() {
+		return key;
+	}
+
+	/**
+	 * @param key the key to set
+	 */
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	/**
+	 * @return the userCode
+	 */
+	public Integer getUserCode() {
+		return userCode;
+	}
+
+	/**
+	 * @param userCode the userCode to set
+	 */
+	public void setUserCode(Integer userCode) {
+		this.userCode = userCode;
+	}
+
+	/**
+	 * @return the userName
+	 */
+	public String getUserName() {
+		return userName;
+	}
+
+	/**
+	 * @param userName the userName to set
+	 */
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	/**
+	 * @return the siteCode
+	 */
+	public Integer getSiteCode() {
+		return siteCode;
+	}
+
+	/**
+	 * @param siteCode the siteCode to set
+	 */
+	public void setSiteCode(Integer siteCode) {
+		this.siteCode = siteCode;
+	}
+
+	/**
+	 * @return the siteName
+	 */
+	public String getSiteName() {
+		return siteName;
+	}
+
+	/**
+	 * @param siteName the siteName to set
+	 */
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+
+	/**
+	 * @return the businessType
+	 */
+	public Integer getBusinessType() {
+		return businessType;
+	}
+
+	/**
+	 * @param businessType the businessType to set
+	 */
+	public void setBusinessType(Integer businessType) {
+		this.businessType = businessType;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public Long getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(Long id) {
+		this.id = id;
+	}
 
 	/**
 	 * @return the waybillCode
