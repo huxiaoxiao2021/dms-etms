@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureRequest;
@@ -928,13 +929,15 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @see com.jd.bluedragon.distribution.departure.service.DepartureService#sendThirdDepartureInfoToTMS(com.jd.bluedragon.distribution.task.domain.Task)
 	 */
 	@Override
-	public boolean sendThirdDepartureInfoToTMS(Task task) {
+	public boolean sendThirdDepartureInfoToTMS(Task task,boolean isDBModal) {
 
 		logger.info("发车回传全称跟踪信息-----------task.getId()=" + task.getId()+"---"+task.getBody());
 		if (task == null || task.getBoxCode() == null || task.getBody() == null)
 			return true;
 		try {
-			this.taskService.doLock(task);
+			if(isDBModal){
+				this.taskService.doLock(task);
+			}
 			// 运力编码为空的批次不回传10/11
 			List<DepartureSend> sendList = getDepartureSendByCarId(Long
 					.parseLong(task.getBody()));
@@ -1014,16 +1017,27 @@ public class DepartureServiceImpl implements DepartureService {
 						logger.error(
 								"建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!",
 								e);
-						taskService.doError(task);
+						if(isDBModal){
+							taskService.doError(task);
+						}else{
+							throw new MessageException("支线发车三方任务异常",e);
+						}
 					}
 				}
 			}
 
 		} catch (Exception e) {
 			logger.error("建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!", e);
-			taskService.doError(task);
+			if(isDBModal){
+				taskService.doError(task);
+			}else{
+				throw new MessageException("支线发车三方任务异常",e);
+			}
+
 		}
-		taskService.doDone(task);
+		if(isDBModal){
+			taskService.doDone(task);
+		}
 
 		return true;
 
