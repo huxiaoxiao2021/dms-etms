@@ -28,34 +28,50 @@
     </bean>
 
     <!-- DMS主库（拆分库）数据源 -->
-    <bean id="dms_main" parent="parentDataSource">
-        <property name="url" value="${db.mysql.url}"/>
+    <bean id="dms_main" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="url" value="${jproxy.write.db.url}"/>
         <property name="username" value="${db.mysql.username}" />
         <property name="password" value="${db.mysql.password}" />
-        <property name="defaultTransactionIsolation" value="${db.mysql.isolationLevel}"/>
+        <property name="defaultTransactionIsolation" value="${jproxy.write.db.isolationLevel}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${jproxy.write.db.initialSize}"/>
+        <property name="maxIdle" value="${jproxy.write.db.maxIdle}"/>
+        <property name="minIdle" value="${jproxy.write.db.minIdle}"/>
+        <property name="maxActive" value="${jproxy.write.db.maxActive}"/>
+        <property name="maxWait" value="${jproxy.write.db.maxWait}"/>
+        <property name="logAbandoned" value="${jproxy.write.db.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${jproxy.write.db.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${jproxy.write.db.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${jproxy.write.db.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${jproxy.write.db.testOnBorrow}" />
+        <property name= "validationQuery" value="${jproxy.write.db.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${jproxy.write.db.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${jproxy.write.db.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
     </bean>
 
     <!-- DMS从库（拆分库）数据源 -->
     <bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
-        <property name="driverClassName" value="${dms.read.mysql.db.driverClassName}"/>
-        <property name="url" value="${dms.read.mysql.db.url}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="url" value="${jproxy.read.db.url}"/>
         <property name="username" value="${dms.read.mysql.db.username}"/>
         <property name="password" value="${dms.read.mysql.db.password}"/>
-        <property name="defaultAutoCommit" value="${dms.read.db.defaultAutoCommit}" />
-        <property name="maxActive" value="${dms.read.db.maxActive}" />
-        <property name="maxIdle" value="${dms.read.db.maxIdle}" />
-        <property name="maxWait" value="${dms.read.db.maxWait}" />
-        <property name="initialSize" value="${dms.read.db.initialSize}" />
-        <property name="minIdle" value="${dms.read.db.minIdle}" />
-        <property name="logAbandoned" value="${dms.read.db.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${dms.read.db.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${dms.read.db.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${dms.read.db.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${dms.read.db.testOnBorrow}" />
-		<property name= "validationQuery" value="${dms.read.db.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${dms.read.db.minEvictableIdleTimeMillis}" />
-        <property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
+        <property name="defaultAutoCommit" value="${jproxy.read.db.defaultAutoCommit}" />
+        <property name="maxActive" value="${jproxy.read.db.maxActive}" />
+        <property name="maxIdle" value="${jproxy.read.db.maxIdle}" />
+        <property name="maxWait" value="${jproxy.read.db.maxWait}" />
+        <property name="initialSize" value="${jproxy.read.db.initialSize}" />
+        <property name="minIdle" value="${jproxy.read.db.minIdle}" />
+        <property name="logAbandoned" value="${jproxy.read.db.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${jproxy.read.db.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${jproxy.read.db.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${jproxy.read.db.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${jproxy.read.db.testOnBorrow}" />
+        <property name= "validationQuery" value="${jproxy.read.db.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${jproxy.read.db.minEvictableIdleTimeMillis}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${jproxy.read.db.timeBetweenEvictionRunsMillis}" />
     </bean>
 
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
