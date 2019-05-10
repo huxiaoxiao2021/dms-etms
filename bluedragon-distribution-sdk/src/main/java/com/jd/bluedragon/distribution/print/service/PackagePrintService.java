@@ -37,4 +37,10 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest);
+	/**
+	 * 校验运单/包裹是否已操作补打
+	 * @param rePrintRecordRequest
+	 * @return
+	 */
+	JdResult<Boolean> hasReprinted(JdCommand<String> rePrintRecordRequest);
 }

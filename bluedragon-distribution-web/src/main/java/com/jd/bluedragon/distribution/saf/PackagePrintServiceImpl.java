@@ -298,5 +298,30 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         	return jdResult;
         }
 	}
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.hasReprinted",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    		mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JdResult<Boolean> hasReprinted(JdCommand<String> rePrintRecordRequest) {
+    	JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.setData(Boolean.TRUE);
+		jdResult.toSuccess();
+		if(rePrintRecordRequest == null || rePrintRecordRequest.getData() == null){
+			jdResult.toFail("请求参数不能为空！");
+			return jdResult;
+		}
+		RePrintRecordRequest requestData = JsonHelper.fromJson(rePrintRecordRequest.getData(), RePrintRecordRequest.class);
+		if(requestData != null){
+			JdCommand<RePrintRecordRequest> request = new JdCommand<RePrintRecordRequest>();
+			request.setSystemCode(rePrintRecordRequest.getSystemCode());
+			request.setSecretKey(rePrintRecordRequest.getSecretKey());
+			request.setBusinessType(rePrintRecordRequest.getBusinessType());
+			request.setOperateType(rePrintRecordRequest.getOperateType());
+			request.setData(requestData);
+			return this.hasReprintAll(request);
+		}else{
+			jdResult.toFail("请求参数中data值无效！");
+			return jdResult;
+		}
+	}
 
 }
