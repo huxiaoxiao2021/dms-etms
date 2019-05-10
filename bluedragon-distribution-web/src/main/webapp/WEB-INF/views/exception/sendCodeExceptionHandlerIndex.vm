@@ -20,45 +20,32 @@
     </ol>
 
     <div id="query-condition">
-        <form id="query-form" class="form-horizontal">
+        <form id="query-form" class="form-horizontal" onkeydown="if(event.keyCode==13){return false;}">
             <fieldset>
                 <div class="form-group">
-                    <label class="control-label col-xs-2 " for="barCode">运单号</label>
-                    <div class=" col-xs-4">
+                    <label class="control-label col-md-2 " for="barCode">运单号</label>
+                    <div class=" col-md-4">
                         <input type="text" id="barCode" class="form-control" placeholder="扫单号查询该单所在的批次">
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="control-label col-xs-2 " for="sendCode">批次号</label>
-                    <div class=" col-xs-4">
-                        <input type="text" id="sendCode" class="form-control" placeholder="扫描接受到的批次号">
+                <div class="form-group" >
+                    <label class="control-label col-md-2" for="box-code-input">批次号待查列表</label>
+                    <div class="col-md-4" id="sendCodes">
+##                        <div class="panel panel-primary form-control" title="1">1</div>
+                    </div>
+                    <div class="col-md-1">
+                        <input id="btn_query" type="button" class="btn btn-primary form-control" value="查询" />
                     </div>
                 </div>
 
                 <div class="form-group" >
-                    <label class="control-label col-xs-2" for="box-code-input">批次号待查列表</label>
-                    <div class="col-xs-4 ">
-                        <div class="panel panel-primary form-control" title="1">1</div>
-                        <div class="panel panel-default form-control" title="2">2</div>
-                        <div class="panel panel-default form-control" title="3">3</div>
-                        <div class="panel panel-default form-control" title="4">4</div>
-                        <div class="panel panel-default form-control" title="5">5</div>
-                    </div>
-                </div>
-
-                <div class="form-group" >
-                    <div class="col-xs-4 col-xs-offset-2">
+                    <div class="col-md-4 col-md-offset-2">
                         <span>提示：每行一个批次，最多5个批次</span>
                     </div>
                 </div>
             </fieldset>
         </form>
-    </div>
-    <div id="toolbar" class="btn-group">
-        <button id="btn_query" type="button" class="btn btn-primary">
-            <span class="glyphicon glyphicon-search" aria-hidden="true"></span>查询
-        </button>
     </div>
 
     <hr/>
@@ -72,13 +59,13 @@
                         <br/>
                         <div class="row">
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(1)" style="cursor:pointer"><span class="badge" id="boxSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(2)" style="cursor:pointer"><span class="badge"  id="packOutBoxSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(3)" style="cursor:pointer"><span class="badge" id="packSum">0</span></a>
                             </div>
                         </div>
                         <br/>
@@ -111,13 +98,13 @@
                         <br/>
                         <div class="row">
                             <div class="col-md-4">
-                                <a href="/exception/sendCodeHandler/detailPager"><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(4)" style="cursor:pointer"><span class="badge" id="boxOperSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(5)" style="cursor:pointer"><span class="badge" id="packOutBoxOperSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(6)" style="cursor:pointer"><span class="badge" id="packOperSum">0</span></a>
                             </div>
                         </div>
                         <br/>
@@ -150,13 +137,13 @@
                         <br/>
                         <div class="row">
                             <div class="col-md-4">
-                                <a href=""><span class="badge" style="color: red">0</span></a>
+                                <a onclick="goToDetailEvent(7)" style="cursor:pointer"><span class="badge" id="boxUnOperSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(8)" style="cursor:pointer"><span class="badge" id="packOutBoxUnOperSum">0</span></a>
                             </div>
                             <div class="col-md-4">
-                                <a href=""><span class="badge">0</span></a>
+                                <a onclick="goToDetailEvent(9)" style="cursor:pointer"><span class="badge" id="packUnOperSum">0</span></a>
                             </div>
                         </div>
                         <br/>

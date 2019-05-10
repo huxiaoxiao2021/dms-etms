@@ -20,10 +20,17 @@
         <li><a href="/exception/sendCodeHandler/detailPager">明细查询</a></li>
     </ol>
     <hr/>
+    <input type="text" hidden id="waybillAddress" value="$!{waybillAddress}">
+
+    <input type="text" hidden id="param" value=""></input>
+    <input type="text" hidden id="sendCodes" value=""></input>
+    <input type="text" hidden id="type" value=""></input>
+    <input type="button" hidden id="query_btn">
+
     <div id="toolbar">
-        <button id="btn_query" type="button" class="btn btn-primary">
-            导出<span class="glyphicon glyphicon-save" aria-hidden="true"/>
-        </button>
+##        <button id="btn_query" type="button" class="btn btn-primary">
+##            导出<span class="glyphicon glyphicon-save" aria-hidden="true"/>
+##        </button>
     </div>
     <table id="dataTable"></table>
 </body>

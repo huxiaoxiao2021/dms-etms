@@ -2,21 +2,27 @@ package com.jd.bluedragon.distribution.exception;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.service.SendCodeExceptionHandlerService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.GoodsPrintDto;
+import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.SendCodeSummaryResponse;
 import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -56,7 +62,8 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping("/sendCodeHandler/detailPager")
-    public String sendCodeHandlerDetailPager() {
+    public String sendCodeHandlerDetailPager(Model model) {
+        model.addAttribute("waybillAddress", PropertiesHelper.newInstance().getValue("WAYBILL_ADDRESS"));
         return "exception/sendCodeExceptionDetail";
     }
 
@@ -73,7 +80,8 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping(value = "/sendCodeHandler/querySendCodeByBarCode", method = RequestMethod.POST)
-    public InvokeResult<List<String>> querySendCodeByBarCode(SendCodeExceptionRequest request) {
+    @ResponseBody
+    public InvokeResult<List<String>> querySendCodeByBarCode(@RequestBody SendCodeExceptionRequest request) {
         InvokeResult<List<String>> result = new InvokeResult<>();
         result.success();
 
@@ -102,7 +110,8 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping(value = "/sendCodeHandler/summaryPackageNumBySendCodes", method = RequestMethod.POST)
-    public InvokeResult<SendCodeSummaryResponse> summaryPackageNumBySendCodes(SendCodeExceptionRequest request) {
+    @ResponseBody
+    public InvokeResult<SendCodeSummaryResponse> summaryPackageNumBySendCodes(@RequestBody SendCodeExceptionRequest request) {
         InvokeResult<SendCodeSummaryResponse> result = new InvokeResult<>();
         result.success();
 
@@ -117,6 +126,7 @@ public class SendCodeExceptionHandlerController {
             result.error(MessageFormat.format("用户【{}】未维护基础资料信息",user.getUserCode()));
             return result;
         }
+        request.setSiteCode(staffSiteOrgDto.getSiteCode());
 
         result.setData(sendCodeExceptionHandlerService.summaryPackageBySendCodes(request).getData());
         return result;
@@ -129,9 +139,24 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization
     @RequestMapping(value = "/sendCodeHandler/querySendCodeDetails", method = RequestMethod.POST)
-    public PagerResult<GoodsPrintDto> querySendCodeDetails(SendCodeExceptionRequest request) {
+    @ResponseBody
+    public PagerResult<GoodsPrintDto> querySendCodeDetails(@RequestBody SendCodeExceptionRequest request) {
         PagerResult<GoodsPrintDto> result = new PagerResult<>();
-        BaseEntity<com.jd.ql.dms.report.domain.Pager<GoodsPrintDto>> pagerBaseEntity = sendCodeExceptionHandlerService
+        LOGGER.debug(JsonHelper.toJson(request));
+        System.out.println(JsonHelper.toJson(request));
+        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+        if (user == null) {
+            return result;
+        }
+
+        BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+        if (null == staffSiteOrgDto) {
+            LOGGER.warn("用户【{}】未维护基础资料信息",user.getUserCode());
+            return result;
+        }
+        request.setSiteCode(staffSiteOrgDto.getSiteCode());
+
+        BaseEntity<Pager<GoodsPrintDto>> pagerBaseEntity = sendCodeExceptionHandlerService
                 .querySendCodeDetailByCondition(request);
         if (pagerBaseEntity != null) {
             result.setRows(pagerBaseEntity.getData().getData());

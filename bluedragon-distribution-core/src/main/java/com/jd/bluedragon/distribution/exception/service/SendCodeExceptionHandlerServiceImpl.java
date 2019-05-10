@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.exception.service;
 
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.report.ReportExternalService;
@@ -38,10 +39,14 @@ public class SendCodeExceptionHandlerServiceImpl implements SendCodeExceptionHan
             return Collections.emptyList();
         }
         List<String> result = new ArrayList<>();
-        /* 1.从分拣的报表中获取批次信息 */
-        BaseEntity<List<String>> listBaseEntity = reportExternalService.findUpSendCodeByBarCode(barCode,siteCode);
-        if (listBaseEntity != null && BaseEntity.CODE_SUCCESS.equals(listBaseEntity.getCode())) {
-            result.addAll(listBaseEntity.getData());
+        if (BusinessHelper.isSendCode(barCode)) {
+            result.add(barCode);
+        } else {
+            /* 1.从分拣的报表中获取批次信息 */
+            BaseEntity<List<String>> listBaseEntity = reportExternalService.findUpSendCodeByBarCode(barCode,siteCode);
+            if (listBaseEntity != null && BaseEntity.CODE_SUCCESS.equals(listBaseEntity.getCode())) {
+                result.addAll(listBaseEntity.getData());
+            }
         }
         return result;
     }

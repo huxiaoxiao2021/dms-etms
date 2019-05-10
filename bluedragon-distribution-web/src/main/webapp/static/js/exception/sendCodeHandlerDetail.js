@@ -1,12 +1,11 @@
-var detail_query_url = "";
+var query_sendCode_detail_url = "/exception/sendCodeHandler/querySendCodeDetails";
+var waybill_trance_url = "/waybill/trackInfo/";
 
 $(document).ready(function () {
-
     $('#dataTable').bootstrapTable({
-        url : detail_query_url, // 请求后台的URL（*）
+        url : query_sendCode_detail_url, // 请求后台的URL（*）
         method : 'post', // 请求方式（*）
         toolbar : '#toolbar', // 工具按钮用哪个容器
-        queryParams : null, // 查询参数（*）
         // height : 500, // 行高，如果没有设置height属性，表格自动根据记录条数觉得表格高度
         uniqueId : "ID", // 每一行的唯一标识，一般为主键列
         pagination : true, // 是否显示分页（*）
@@ -34,12 +33,41 @@ $(document).ready(function () {
         // showFooter:true,
         // paginationVAlign:'center',
         // singleSelect:true,
+        queryParams:function (params) {
+            var sendCodeStr = $("#sendCodes").val();
+            var type = $("#type").val();
+            var request = {
+                pageNo : params.offset + 1,
+                pageSize : params.limit,
+                type: type
+            };
+            if (sendCodeStr != null && sendCodeStr != "") {
+                request.sendCodes = JSON.parse(sendCodeStr);
+            }
+            return request;
+        },
+        onRefreshOptions:function () {
+            this.tableBlocker = $.pageBlocker.block();
+        },
+        onLoadSuccess:function (res) {
+            if(res.rows == null){
+                $('#data-table').bootstrapTable('removeAll');
+            }
+            $.pageBlocker.close(this.tableBlocker);
+        },
+        onLoadError:function (res) {
+            $('#data-table').bootstrapTable('removeAll');
+            $.pageBlocker.close(this.tableBlocker);
+        },
         columns : [
             {
                 field : "ID",
                 title : "序号",
                 align : "center",
-                halign : "center"
+                halign : "center",
+                format: function (value, row, index) {
+                    return index;
+                }
             },
             {
                 field : "packageCode",
@@ -60,19 +88,21 @@ $(document).ready(function () {
                 align : "center",
                 halign : "center"
             },
-            // {
-            //     field : "packageCode",
-            //     title : "商家名称",
-            //     align : "center",
-            //     halign : "center"
-            // },
             {
                 field : "NaN",
                 title : "查看全程跟踪",
                 align : "center",
-                halign : "center"
+                halign : "center",
+                formatter:function(value,row,index) {
+                    return '<a class="showTrance" style="cursor: pointer" >&nbsp;查看&nbsp;</a>';
+                },
+                events:{
+                    'click .showTrance':function (event,value, row, index) {
+                        var packageCode = row.packageCode;
+                        window.open($("#waybillAddress").val() + waybill_trance_url + packageCode, "target");
+                    }
+                }
             }
         ]
     });
-
 });

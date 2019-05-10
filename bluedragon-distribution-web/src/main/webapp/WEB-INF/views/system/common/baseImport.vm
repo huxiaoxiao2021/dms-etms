@@ -38,6 +38,7 @@
 ## 组件api封装
 ####################
 <script src="/static/js/common/plugin-helper.js"></script>
+<script src="/static/js/common/common-client.js"></script>
 #########
 ##兼容jq1.9之前的版本 判断浏览器版本的方法
 ########
