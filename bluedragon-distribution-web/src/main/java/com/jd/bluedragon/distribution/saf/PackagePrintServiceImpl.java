@@ -53,7 +53,6 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     @Qualifier("cancelWaybillJsfManager")
     private CancelWaybillJsfManager cancelWaybillJsfManager;
     
-
     @Autowired
     private TemplateFactory templateFactory;
 
@@ -72,6 +71,14 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     
     private static final Integer FEATURE_TYPE_C2B = 7;
     private static final Integer FEATURE_TYPE_B2C = 8;
+    /**
+     * 打印记录查询
+     */
+    private static final Integer BUSINESS_TYPE_1004 = 1004;
+    /**
+     * 补打打印记录查询
+     */
+    private static final Integer OPERATE_TYPE_100401 = 100401;
     /**
      * 
      */
@@ -248,7 +255,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 		if(rePrintRecordRequest == null || rePrintRecordRequest.getData() == null){
 			jdResult.toFail("请求参数不能为空！");
 			return jdResult;
-		}else if(!checkToken(rePrintRecordRequest.getSystemCode(), rePrintRecordRequest.getSecretKey())){
+		}
+		if(rePrintRecordRequest != null){
+			rePrintRecordRequest.setBusinessType(BUSINESS_TYPE_1004);
+			rePrintRecordRequest.setOperateType(OPERATE_TYPE_100401);
+		}
+		if(!checkToken(rePrintRecordRequest.getSystemCode(), rePrintRecordRequest.getSecretKey())){
 			jdResult.toFail("系统访问密钥校验失败，请使用正确的秘钥！");
             return jdResult;
         }else{
