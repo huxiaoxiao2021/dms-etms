@@ -1972,7 +1972,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 return;
             }
             if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){
-                logger.error("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                logger.warn("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
                 return;
             }
 

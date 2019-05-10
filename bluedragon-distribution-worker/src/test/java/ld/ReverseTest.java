@@ -3,10 +3,12 @@ package ld;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
+import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.domain.Waybill;
@@ -135,10 +137,13 @@ public class ReverseTest {
     @Qualifier("reverseReceiveConsumer")
     private ReverseReceiveConsumer reverseReceiveConsumer;
 
+    @Autowired
+    private DepartureService departureService;
+
     @Test
     public void testMQ(){
         Message message = new Message();
-        message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        /*message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<ReceiveRequest>\n" +
                 "  <sendCode>733578-25016-20190124091212015-T82885422432</sendCode>\n" +
                 "  <orderId>82885422432</orderId>\n" +
@@ -147,8 +152,11 @@ public class ReverseTest {
                 "  <userName>shilei7|</userName>\n" +
                 "  <receiveType>3</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +
-                "</ReceiveRequest>");
-        reverseReceiveConsumer.consume(message);
+                "</ReceiveRequest>");*/
+        //reverseReceiveConsumer.consume(message);
+        String json = "{\"body\":\"1126534117837021184\",\"boxCode\":\"2226-553831-20190510000522015\",\"createSiteCode\":2226,\"createTime\":1557421638339,\"executeTime\":1557421638347,\"fingerprint\":\"2226-553831-20190510000522015_5\",\"keyword1\":\"5\",\"keyword2\":\"10\",\"ownSign\":\"DMS\",\"sequenceName\":\"SEQ_TASK_SORTING\",\"tableName\":\"task_send\",\"type\":1400}";
+        Task t = JsonHelper.jsonToArray(json,Task.class);
+        departureService.sendThirdDepartureInfoToTMS(t,false);
     }
 
 
