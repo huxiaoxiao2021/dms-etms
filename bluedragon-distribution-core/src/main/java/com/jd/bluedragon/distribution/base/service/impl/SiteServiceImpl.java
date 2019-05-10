@@ -342,7 +342,7 @@ public class SiteServiceImpl implements SiteService {
         return null;
     }
 
-    @Cache(key = "SiteServiceImpl.getCityBindDmsCode@arg0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+    @Cache(key = "SiteServiceImpl.getCityBindDmsCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
     public Integer getCityBindDmsCode(Integer cityId){
         if (cityId != null && cityId > 0) {
@@ -362,7 +362,7 @@ public class SiteServiceImpl implements SiteService {
 	 * @param sysConfigName
 	 * @return
 	 */
-    @Cache(key = "SiteServiceImpl.getSiteCodesFromSysConfig@arg0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    @Cache(key = "SiteServiceImpl.getSiteCodesFromSysConfig@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
     @Override
     public Set<Integer> getSiteCodesFromSysConfig(String sysConfigName) {
         Set<Integer> bjDmsSiteCodes = new HashSet<Integer>();

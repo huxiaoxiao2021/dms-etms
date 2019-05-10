@@ -28,4 +28,22 @@
         <property name="secretKey" value="${jss.web.secretKey}"/>
         <property name="endpoint" value="${jss.endpoint}"/>
     </bean>
+
+
+    <bean id="dmsWebJssCredential" class="com.jcloud.jss.Credential">
+        <constructor-arg index="0" value="${jss.accessKey}"/>
+        <constructor-arg index="1" value="${jss.secretKey}"/>
+    </bean>
+
+    <bean id="dmsWebJingdongStorageService" class="com.jcloud.jss.JingdongStorageService" depends-on="dmsWebJssCredential,dmsWebJssClientConfig">
+        <constructor-arg index="0" ref="dmsWebJssCredential" />
+        <constructor-arg index="1" ref="dmsWebJssClientConfig" />
+    </bean>
+
+    <bean id="dmsWebJssClientConfig" class="com.jcloud.jss.client.ClientConfig">
+        <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
+        <property name="socketTimeout" value="${jss.socketTimeout}"/>
+        <property name="endpoint" value="${jss.endpoint}"/>
+    </bean>
+
 </beans>

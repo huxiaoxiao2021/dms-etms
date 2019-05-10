@@ -67,7 +67,7 @@ public interface DepartureService {
 	 * @param task
 	 * @return 成功返回true,失败返回false
 	 */
-	public boolean sendThirdDepartureInfoToTMS(Task task);
+	public boolean sendThirdDepartureInfoToTMS(Task task,boolean isDBModal);
 	
 	public List<DepartureSend> getDepartureSendByCarId(Long departureCarId);
 	public List<DepartureCar> findDepartureList(DeparturePrintRequest  departurPrintRequest);

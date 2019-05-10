@@ -18,6 +18,12 @@
                   protocol="jsf" alias="${finance.jsf.alias}" timeout="${finance.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!-- 计费接口 廖涛 -->
+    <jsf:consumer id="businessDetailQueryJsf" interface="com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf"
+                  protocol="jsf" alias="${finance.businessDetail.jsf.alias}" timeout="${finance.businessDetail.jsf.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${finance.businessDetail.jsf.token}" hide="true"/>
+    </jsf:consumer>
+
     <!-- 外单快速生产运单信息接口 王建磊 -->
     <jsf:consumer id="getOrderMsgServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf"
                   protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="${getOrderMsgServiceJsf.jsf.timeout}" retries="${jsf.retries}">

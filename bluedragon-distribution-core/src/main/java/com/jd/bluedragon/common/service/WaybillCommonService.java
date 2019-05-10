@@ -1,8 +1,5 @@
 package com.jd.bluedragon.common.service;
 
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
@@ -11,6 +8,9 @@ import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -191,4 +191,11 @@ public interface WaybillCommonService {
 	 * @param waybillSign
 	 */
 	void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign);
+
+	/**
+	 * 通过运单号获取包裹数量
+	 * @param waybillCode
+	 * @return
+	 */
+	InvokeResult<Integer> getPackNum(String waybillCode);
 }

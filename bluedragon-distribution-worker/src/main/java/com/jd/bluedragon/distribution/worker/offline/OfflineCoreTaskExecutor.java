@@ -214,8 +214,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 		offlineLog.setCreateUser(offlineLogRequest.getUserName());
 		offlineLog.setCreateUserCode(offlineLogRequest.getUserCode());
 		offlineLog.setExceptionType(offlineLogRequest.getExceptionType());
-		offlineLog.setOperateTime(DateHelper.parseDate(offlineLogRequest
-				.getOperateTime(), Constants.DATE_TIME_MS_FORMAT));
+		offlineLog.setOperateTime(DateHelper.parseDate(offlineLogRequest.getOperateTime(),
+                Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT));
 		offlineLog.setOperateType(offlineLogRequest.getOperateType());
 
 		offlineLog.setWaybillCode(offlineLogRequest.getWaybillCode());
