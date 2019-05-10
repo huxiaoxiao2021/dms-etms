@@ -121,12 +121,7 @@ public class PreSealVehicleController extends DmsBaseController{
                         unSealSendCodes.addAll(temp);
                     }
                 }
-                if(unSealSendCodes == null || unSealSendCodes.isEmpty()){
-                    rest.setCode(JdResponse.CODE_FAIL);
-                    rest.setMessage("未查询到待封车批次，请确认时间范围和预封车数据信息是否准确!");
-                }else{
-                    rest.setData(buildPreSealVehicle(preMap, unSealSendCodes));
-                }
+                rest.setData(buildPreSealVehicle(preMap, unSealSendCodes));
             }
         }catch (Exception e){
             Profiler.functionError(info);
@@ -175,30 +170,32 @@ public class PreSealVehicleController extends DmsBaseController{
 	private List<PreSealVehicle> buildPreSealVehicle(Map<Integer, PreSealVehicle> preMap, List<SealVehicles> unSealSendCodes){
 
         //组装批次信息
-        for(SealVehicles unSealVehiclesWithSendCodeTemp : unSealSendCodes){
-	        Integer receiveSiteCode = unSealVehiclesWithSendCodeTemp.getReceiveSiteCode();
-	        if(preMap.containsKey(receiveSiteCode)){
-                PreSealVehicle preSV = preMap.get(receiveSiteCode);
-                List<SealVehicles> preSealVehiclesWithSendCodeList = preSV.getSendCodes();
-                //批次去重
-                boolean isSealed = false;
-                for(SealVehicles sealVehicleTemp : preSealVehiclesWithSendCodeList){
-                    if(sealVehicleTemp.getSealDataCode().equals(unSealVehiclesWithSendCodeTemp.getSealDataCode())){
-                        isSealed = true;
-                        break;
+        if(unSealSendCodes != null || !unSealSendCodes.isEmpty()){
+            for(SealVehicles unSealVehiclesWithSendCodeTemp : unSealSendCodes){
+                Integer receiveSiteCode = unSealVehiclesWithSendCodeTemp.getReceiveSiteCode();
+                if(preMap.containsKey(receiveSiteCode)){
+                    PreSealVehicle preSV = preMap.get(receiveSiteCode);
+                    List<SealVehicles> preSealVehiclesWithSendCodeList = preSV.getSendCodes();
+                    //批次去重
+                    boolean isSealed = false;
+                    for(SealVehicles sealVehicleTemp : preSealVehiclesWithSendCodeList){
+                        if(sealVehicleTemp.getSealDataCode().equals(unSealVehiclesWithSendCodeTemp.getSealDataCode())){
+                            isSealed = true;
+                            break;
+                        }
+                    }
+                    if(!isSealed){
+                        //该目的地只有一个车牌号时默认设置为改车牌号
+                        List<String> vehicleNumbers = preSV.getVehicleNumbers();
+                        if(vehicleNumbers.size() == 1){
+                            unSealVehiclesWithSendCodeTemp.setVehicleNumber(vehicleNumbers.get(0));
+                            unSealVehiclesWithSendCodeTemp.setSealCodes(preSV.getVehicleSealCodeMap().get(unSealVehiclesWithSendCodeTemp.getVehicleNumber()));
+                        }
+                        preSealVehiclesWithSendCodeList.add(unSealVehiclesWithSendCodeTemp);
                     }
                 }
-                if(!isSealed){
-                    //该目的地只有一个车牌号时默认设置为改车牌号
-                    List<String> vehicleNumbers = preSV.getVehicleNumbers();
-                    if(vehicleNumbers.size() == 1){
-                        unSealVehiclesWithSendCodeTemp.setVehicleNumber(vehicleNumbers.get(0));
-                        unSealVehiclesWithSendCodeTemp.setSealCodes(preSV.getVehicleSealCodeMap().get(unSealVehiclesWithSendCodeTemp.getVehicleNumber()));
-                    }
-                    preSealVehiclesWithSendCodeList.add(unSealVehiclesWithSendCodeTemp);
-                }
-            }
 
+            }
         }
         List<PreSealVehicle> result = new ArrayList<>(preMap.size());
         result.addAll(preMap.values());
