@@ -73,6 +73,7 @@
 		<property name= "validationQuery" value="${jproxy.read.db.validationQuery}" />
         <property name="minEvictableIdleTimeMillis" value="${jproxy.read.db.minEvictableIdleTimeMillis}" />
         <property name="timeBetweenEvictionRunsMillis" value="${jproxy.read.db.timeBetweenEvictionRunsMillis}" />
+        <property name="defaultReadOnly" value="true" />
     </bean>
 
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
