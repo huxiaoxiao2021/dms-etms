@@ -10,24 +10,24 @@
 
     <!-- undiv 写-->
     <bean id="dms_main_undiv" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
-        <property name="url" value="${db.mysql.undiv.url}"/>
+        <property name="url" value="${dms.write.mysql.db.undiv.url}"/>
         <property name="username" value="${db.mysql.undiv.username}"/>
         <property name="password" value="${db.mysql.undiv.password}"/>
         <property name="driverClassName" value="${db.mysql.driverClassName}"/>
         <property name="defaultAutoCommit" value="true"/>
-        <property name="initialSize" value="${db.mysql.undiv.initialSize}"/>
-        <property name="maxIdle" value="${db.mysql.undiv.maxIdle}"/>
-        <property name="minIdle" value="${db.mysql.undiv.minIdle}"/>
-        <property name="maxActive" value="${db.mysql.undiv.maxActive}"/>
-        <property name="maxWait" value="${db.mysql.undiv.maxWait}"/>
-        <property name="logAbandoned" value="${db.mysql.undiv.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${db.mysql.undiv.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${db.mysql.undiv.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${db.mysql.undiv.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${db.mysql.undiv.testOnBorrow}" />
-        <property name= "validationQuery" value="${db.mysql.undiv.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${db.mysql.undiv.minEvictableIdleTimeMillis}"/>
-        <property name="timeBetweenEvictionRunsMillis" value="${db.mysql.undiv.timeBetweenEvictionRunsMillis}"/>
+        <property name="initialSize" value="${dms.write.mysql.db.undiv.initialSize}"/>
+        <property name="maxIdle" value="${dms.write.mysql.db.undiv.maxIdle}"/>
+        <property name="minIdle" value="${dms.write.mysql.db.undiv.minIdle}"/>
+        <property name="maxActive" value="${dms.write.mysql.db.undiv.maxActive}"/>
+        <property name="maxWait" value="${dms.write.mysql.db.undiv.maxWait}"/>
+        <property name="logAbandoned" value="${dms.write.mysql.db.undiv.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.write.mysql.db.undiv.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.write.mysql.db.undiv.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.write.mysql.db.undiv.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.write.mysql.db.undiv.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.write.mysql.db.undiv.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.undiv.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.undiv.timeBetweenEvictionRunsMillis}"/>
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
