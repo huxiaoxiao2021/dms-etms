@@ -123,6 +123,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	}
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.queryPagePackageSummaryByBatchCode", mState = {JProEnum.TP})
     public InvokeResult<PageDto<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode) {
         InvokeResult<PageDto<PackageSummaryDto>> invokeResult = new InvokeResult<>();
 	    if(StringUtils.isEmpty(batchCode)){
