@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.request.PackageSummaryRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
@@ -21,7 +20,11 @@ import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
-import com.jd.bluedragon.distribution.wss.dto.*;
+import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
+import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -33,7 +36,12 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("dmsExternalReadService")
 public class DmsExternalReadServiceImpl implements DmsExternalReadService {
@@ -114,7 +122,7 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	}
 
     @Override
-    public PageDto<List<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryRequest> pageDto) {
+    public PageDto<List<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode) {
         return null;
     }
 

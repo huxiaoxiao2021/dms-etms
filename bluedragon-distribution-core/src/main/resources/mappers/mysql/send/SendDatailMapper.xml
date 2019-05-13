@@ -250,29 +250,7 @@
         </if>
 	</select>
 
-    <select id="pageNum_queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
-        SELECT
-        <include refid="Base_Column_List" />
-        FROM send_d
-        <include refid="page_Condition_Sql"/>
-        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
-    </select>
-    
-	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
-		SELECT 
-		<include refid="Base_Column_List" />
-		FROM send_d
-        <include refid="page_Condition_Sql"/>
-        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
-	</select>
-
-    <sql id="page_Condition_Sql">
-         where yn=1 and
-		send_code=#{sendCode,jdbcType=VARCHAR}
-		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
-    </sql>
-
-    <select id="queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+    <select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
         SELECT
         <include refid="Base_Column_List" />
         FROM send_d where yn=1 and
@@ -280,6 +258,28 @@
         <if test = "null!=createSiteCode">
             and create_site_code=#{createSiteCode,jdbcType=INTEGER}
         </if>
+    </select>
+
+    <sql id="page_Condition_Sql">
+         where yn=1 and
+		send_code=#{sendCode,jdbcType=VARCHAR}
+		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+    </sql>
+
+    <select id="pageNum_queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d
+        <include refid="page_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d
+        <include refid="page_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 	
 	<select id="findSendDetails" parameterType="SendDetail" resultMap="SendDetail">

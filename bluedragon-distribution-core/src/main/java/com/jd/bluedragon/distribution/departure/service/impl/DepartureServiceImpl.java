@@ -779,7 +779,50 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
-	/**
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public List<SendBox> queryPageSendInfo(String sendCode) {
+        String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
+        List<SendBox> result = new ArrayList<SendBox>();
+
+        try {
+            List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
+            if (sendMs == null || sendMs.size() == 0) {
+                logger.warn(errMsg + "查询不到该批次号");
+                return result;
+            }
+
+            SendM oneSendM = sendMs.get(0);
+            String sendUser = oneSendM.getSendUser();
+            Date sendTime = oneSendM.getOperateTime();
+            Integer createSiteCode = oneSendM.getCreateSiteCode();
+            SendDetail queryDetail = new SendDetail();
+            queryDetail.setSendCode(sendCode);
+            queryDetail.setCreateSiteCode(createSiteCode);
+            List<SendDetail> sendDatails = sendDatailDao
+                    .queryBySiteCodeAndSendCode(queryDetail);
+            if (sendDatails != null) {
+                for (SendDetail sendDatail : sendDatails) {
+                    SendBox sendBoxInfo = new SendBox();
+                    sendBoxInfo.setBoxCode(sendDatail.getBoxCode());// 箱号
+                    sendBoxInfo.setSendCode(sendCode);// 交接单号
+                    sendBoxInfo.setSendTime(sendTime);// 发送时间
+                    sendBoxInfo.setSendUser(sendUser);// 司机
+                    sendBoxInfo.setWaybillCode(sendDatail.getWaybillCode());// 运单号
+                    sendBoxInfo.setPackageBarcode(sendDatail
+                            .getPackageBarcode()); // 包裹号
+                    result.add(sendBoxInfo);
+                }
+            } else {
+                logger.warn(errMsg + "无法获得发货明细数据");
+            }
+        } catch (Exception e) {
+            logger.error(errMsg + e.getMessage());
+        }
+        return result;
+    }
+
+
+    /**
 	 * 批次根据运单号获得交接单号
 	 * 
 	 * @param
