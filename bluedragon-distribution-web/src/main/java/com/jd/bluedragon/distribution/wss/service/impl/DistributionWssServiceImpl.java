@@ -142,7 +142,7 @@ public class DistributionWssServiceImpl implements DistributionWssService {
         if(CollectionUtils.isEmpty(list)){
             return resultPage;
         }
-        resultPage.setTotalRow(pageDto.getTotalRow());
+        resultPage.setTotalRow(pageDto2.getTotalRow());
         List<PackageSummaryDto> resultList = Lists.newArrayList();
         for(SendBox sendBox : list){
             PackageSummaryDto dto = new PackageSummaryDto();

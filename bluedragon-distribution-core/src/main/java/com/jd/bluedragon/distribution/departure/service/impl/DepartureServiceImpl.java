@@ -797,6 +797,7 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
+	@Override
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto,String batchCode) {
         PageDto<SendBox> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
