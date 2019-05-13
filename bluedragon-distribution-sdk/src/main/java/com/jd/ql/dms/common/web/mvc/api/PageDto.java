@@ -13,7 +13,6 @@ public class PageDto<T> implements Serializable {
     private int currentPage = 1;
     private int pageSize = 100;
     private int totalRow;
-    private int totalPage;
     private List<T> result;
 
     public PageDto() {
@@ -40,7 +39,9 @@ public class PageDto<T> implements Serializable {
     }
 
     public void setPageSize(int pageSize) {
-        this.pageSize = pageSize;
+        if (pageSize > 0) {
+            this.pageSize = pageSize;
+        }
     }
 
     public int getTotalRow() {
@@ -48,15 +49,26 @@ public class PageDto<T> implements Serializable {
     }
 
     public void setTotalRow(int totalRow) {
-        this.totalRow = totalRow;
+        if (totalRow > 0) {
+            this.totalRow = totalRow;
+        }
     }
 
     public int getTotalPage() {
-        return this.totalPage;
+        return (int) Math.ceil((double) getTotalRow() / (double) getPageSize());
     }
 
-    public void setTotalPage(int totalPage) {
-        this.totalPage = totalPage;
+    public int getOffset() {
+        int page_index = getCurrentPage() - 1;
+        page_index = page_index < 0 ? 0 : page_index;
+        return page_index * pageSize;
+    }
+
+    /**
+     * 是否还有下一页.
+     */
+    public boolean hasNextPage() {
+        return (getCurrentPage() < getTotalPage());
     }
 
     public List<T> getResult() {
