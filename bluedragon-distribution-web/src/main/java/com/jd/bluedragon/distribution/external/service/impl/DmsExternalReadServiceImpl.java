@@ -133,6 +133,14 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
             invokeResult.parameterError("分页参数不能为空");
             return invokeResult;
         }
+        if(pageDto.getPageSize() < 0){
+            invokeResult.parameterError("pageSize参数必须大于0");
+            return invokeResult;
+        }
+        if(pageDto.getCurrentPage() < 0){
+            invokeResult.parameterError("currentPage参数必须大于0");
+            return invokeResult;
+        }
         PageDto<PackageSummaryDto> resultPage = distributionService.queryPageSendInfoByBatchCode(pageDto,batchCode);
         invokeResult.success();
         invokeResult.setData(resultPage);
