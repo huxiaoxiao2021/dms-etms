@@ -1,9 +1,9 @@
 package com.jd.bluedragon.distribution.box.dao;
 
-import java.util.List;
-
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
+
+import java.util.List;
 
 public class BoxDao extends BaseDao<Box> {
 
@@ -31,15 +31,8 @@ public class BoxDao extends BaseDao<Box> {
         return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxes", box);
     }
 
-    public Integer updateStatusByCodes(Box box) {
-        return super.getSqlSession().update(BoxDao.namespace + ".updateStatusByCodes", box);
-    }
     public Integer updateVolumeByCode(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateVolumeByCode", box);
-    }
-
-    public Integer batchUpdateStatus(Box box) {
-        return super.getSqlSession().update(BoxDao.namespace + ".batchUpdateStatus", box);
     }
 
     /*根据boxCode 更新create_site_name，receive_site_name 用于还原因jproxy故障造成的箱号站点乱码 add by luyue*/

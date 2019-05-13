@@ -37,6 +37,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -57,6 +58,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -167,23 +169,22 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findSortingPackages(Sorting sorting) {
-		String boxCodes = this.getBoxCodes(sorting);
-		if (StringHelper.isEmpty(boxCodes)) {
+		List<String> boxCodelist = this.getBoxCodes(sorting);//方法对应的mapper 已经没有
+		if (CollectionUtils.isEmpty(boxCodelist)) {
 			return Collections.emptyList();
 		}
 
-		sorting.setBoxCodes(boxCodes);
+		sorting.setBoxCodeList(boxCodelist);
 		return this.sortingDao.findSortingPackages(sorting);
 	}
 
-	private String getBoxCodes(Sorting sorting) {
+	private List<String> getBoxCodes(Sorting sorting) {
 		Box box = new Box();
 		box.setType(Box.BOX_TYPE_FORWARD);
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
 		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
 		List<Box> boxes = this.boxService.findBoxes(box);
-
-		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
+		return CollectionHelper.joinToList(boxes,"getCode");
 	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {

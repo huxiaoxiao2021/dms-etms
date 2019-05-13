@@ -1,12 +1,10 @@
 package com.jd.bluedragon.distribution.departure.dao;
 
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.departure.domain.BoxMeasure;
+
+import java.util.List;
 
 public class BoxMeasureDao extends BaseDao<BoxMeasure> {
 
@@ -22,14 +20,6 @@ public class BoxMeasureDao extends BaseDao<BoxMeasure> {
 		int res = getSqlSession().update(namespace + ".updateBySelective",
 				boxMeasure);
 		return res > 0 ? true : false;
-	}
-	
-	@SuppressWarnings("unchecked")
-	public List<BoxMeasure> queryByBoxCodes(String boxCodeIn) {
-		Map<String, String> map = new HashMap<String, String>();
-		map.put("boxCodeIn", boxCodeIn);
-		return this.getSqlSession().selectList(namespace + ".queryByBoxCodes",
-				map);
 	}
 
 }

@@ -90,11 +90,6 @@ class FBarCodeServiceImpl implements FBarCodeService  {
         return FBarCode.class.getName();
     }
 
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Integer updateStatusByCodes(FBarCode fBarCode) {
-        return this.fBarCodeDao.updateStatusByCodes(fBarCode);
-    }
-
     @JProfiler(jKey= "DMSWEB.FBarCodeService.findFBarCodeByCode", mState = {JProEnum.TP})
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public FBarCode findFBarCodeByCode(String code) {

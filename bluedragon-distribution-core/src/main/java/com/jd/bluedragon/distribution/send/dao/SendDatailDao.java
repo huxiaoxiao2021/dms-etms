@@ -138,14 +138,6 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<SendDetail> querySendCodesByWaybills(String waybillCodeIn) {
-        SendDetail querySendDatail = new SendDetail();
-        querySendDatail.setWaybillCode(waybillCodeIn);
-        return this.getSqlSession().selectList(
-                SendDatailDao.namespace + ".querySendCodesByWaybills", querySendDatail);
-    }
-
-    @SuppressWarnings("unchecked")
     public List<SendDetail> querySendCodesByWaybill(String waybillCodeIn) {
         SendDetail querySendDatail = new SendDetail();
         querySendDatail.setWaybillCode(waybillCodeIn);
