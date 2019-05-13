@@ -250,15 +250,37 @@
         </if>
 	</select>
 
+    <select id="pageNum_queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d
+        <include refid="page_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+    
 	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
 		SELECT 
 		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and
-		send_code=#{sendCode,jdbcType=VARCHAR} 
-		<if test = "null!=createSiteCode">
-			and create_site_code=#{createSiteCode,jdbcType=INTEGER}
-		</if>
+		FROM send_d
+        <include refid="page_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
+
+    <sql id="page_Condition_Sql">
+         where yn=1 and
+		send_code=#{sendCode,jdbcType=VARCHAR}
+		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+    </sql>
+
+    <select id="queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d where yn=1 and
+        send_code=#{sendCode,jdbcType=VARCHAR}
+        <if test = "null!=createSiteCode">
+            and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+        </if>
+    </select>
 	
 	<select id="findSendDetails" parameterType="SendDetail" resultMap="SendDetail">
 		SELECT sm.send_code, sd.box_code, sd.package_barcode, sd.package_num, sd.waybill_code,

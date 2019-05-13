@@ -19,12 +19,20 @@ public class PageDto<T> implements Serializable {
     public PageDto() {
     }
 
+    public PageDto(int currentPage, int pageSize) {
+        this.currentPage = currentPage;
+        this.pageSize = pageSize;
+    }
+
     public int getCurrentPage() {
         return this.currentPage;
     }
 
     public void setCurrentPage(int currentPage) {
         this.currentPage = currentPage;
+        if (this.currentPage < 1) {
+            this.currentPage = 1;
+        }
     }
 
     public int getPageSize() {
