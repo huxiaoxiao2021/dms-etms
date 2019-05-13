@@ -1,17 +1,6 @@
 package com.jd.bluedragon.distribution.wss.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.distribution.departure.domain.SendBox;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
@@ -25,6 +14,19 @@ import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class DistributionWssServiceImpl implements DistributionWssService {
 
@@ -131,6 +133,30 @@ public class DistributionWssServiceImpl implements DistributionWssService {
 		}
 		return dtos;
 	}
+
+	@Override
+    public PageDto<PackageSummaryDto> queryPageSendInfoByBatchCode(PageDto pageDto, String batchCode){
+        PageDto<SendBox> pageDto2 = departureService.queryPageSendInfoByBatchCode(pageDto,batchCode);
+        List<SendBox> list = pageDto2.getResult();
+        PageDto<PackageSummaryDto> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
+        if(CollectionUtils.isEmpty(list)){
+            return resultPage;
+        }
+        resultPage.setTotalRow(pageDto.getTotalRow());
+        List<PackageSummaryDto> resultList = Lists.newArrayList();
+        for(SendBox sendBox : list){
+            PackageSummaryDto dto = new PackageSummaryDto();
+            dto.setSendCode(sendBox.getSendCode());
+            dto.setBoxCode(sendBox.getBoxCode());
+            dto.setWaybillCode(sendBox.getWaybillCode());
+            dto.setSendUser(sendBox.getSendUser());
+            dto.setSendTime(sendBox.getSendTime());
+            dto.setPackagebarcode(sendBox.getPackageBarcode());
+            resultList.add(dto);
+        }
+        resultPage.setResult(resultList);
+        return resultPage;
+    }
 	
 	/**
 	 * 1 按照发车号查询 2 按照三方运单号查询

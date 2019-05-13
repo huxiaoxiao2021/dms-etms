@@ -17,7 +17,11 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureSendDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.departure.domain.*;
+import com.jd.bluedragon.distribution.departure.domain.Departure;
+import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
+import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
+import com.jd.bluedragon.distribution.departure.domain.SendBox;
+import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
@@ -30,11 +34,17 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.CommonDto;
@@ -44,6 +54,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
@@ -54,7 +65,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -741,7 +760,6 @@ public class DepartureServiceImpl implements DepartureService {
 	public List<SendBox> getSendInfo(String sendCode) {
 		String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
 		List<SendBox> result = new ArrayList<SendBox>();
-
 		try {
 			List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
 			if (sendMs == null || sendMs.size() == 0) {
@@ -780,45 +798,45 @@ public class DepartureServiceImpl implements DepartureService {
 	}
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-    public List<SendBox> queryPageSendInfo(String sendCode) {
-        String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
-        List<SendBox> result = new ArrayList<SendBox>();
-
-        try {
-            List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
-            if (sendMs == null || sendMs.size() == 0) {
-                logger.warn(errMsg + "查询不到该批次号");
-                return result;
-            }
-
-            SendM oneSendM = sendMs.get(0);
-            String sendUser = oneSendM.getSendUser();
-            Date sendTime = oneSendM.getOperateTime();
-            Integer createSiteCode = oneSendM.getCreateSiteCode();
-            SendDetail queryDetail = new SendDetail();
-            queryDetail.setSendCode(sendCode);
-            queryDetail.setCreateSiteCode(createSiteCode);
-            List<SendDetail> sendDatails = sendDatailDao
-                    .queryBySiteCodeAndSendCode(queryDetail);
-            if (sendDatails != null) {
-                for (SendDetail sendDatail : sendDatails) {
-                    SendBox sendBoxInfo = new SendBox();
-                    sendBoxInfo.setBoxCode(sendDatail.getBoxCode());// 箱号
-                    sendBoxInfo.setSendCode(sendCode);// 交接单号
-                    sendBoxInfo.setSendTime(sendTime);// 发送时间
-                    sendBoxInfo.setSendUser(sendUser);// 司机
-                    sendBoxInfo.setWaybillCode(sendDatail.getWaybillCode());// 运单号
-                    sendBoxInfo.setPackageBarcode(sendDatail
-                            .getPackageBarcode()); // 包裹号
-                    result.add(sendBoxInfo);
-                }
-            } else {
-                logger.warn(errMsg + "无法获得发货明细数据");
-            }
-        } catch (Exception e) {
-            logger.error(errMsg + e.getMessage());
+    public PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto,String batchCode) {
+        PageDto<SendBox> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
+        List<SendM> sendMs = sendMDao.selectOneBySendCode(batchCode);
+        if (sendMs == null || sendMs.size() == 0) {
+            logger.warn(MessageFormat.format("查询批次信息为空[{0}]",batchCode));
+            return resultPage;
         }
-        return result;
+        SendM oneSendM = sendMs.get(0);
+        String sendUser = oneSendM.getSendUser();
+        Date sendTime = oneSendM.getOperateTime();
+        Integer createSiteCode = oneSendM.getCreateSiteCode();
+        SendDetailDto queryDetail = new SendDetailDto();
+        queryDetail.setSendCode(batchCode);
+        queryDetail.setCreateSiteCode(createSiteCode);
+        //查询总数
+        Integer count = sendDatailDao.queryCountBySiteCodeAndSendCode(queryDetail);
+        resultPage.setTotalRow(count);
+
+        //设置分页参数
+        queryDetail.setOffset(pageDto.getOffset());
+        queryDetail.setLimit(pageDto.getPageSize());
+        List<SendDetail> sendDatails = sendDatailDao.queryPageBySiteCodeAndSendCode(queryDetail);
+        List<SendBox> result = new ArrayList<SendBox>();
+        resultPage.setResult(result);
+        if (sendDatails != null) {
+            for (SendDetail sendDatail : sendDatails) {
+                SendBox sendBoxInfo = new SendBox();
+                sendBoxInfo.setBoxCode(sendDatail.getBoxCode());// 箱号
+                sendBoxInfo.setSendCode(batchCode);// 交接单号
+                sendBoxInfo.setSendTime(sendTime);// 发送时间
+                sendBoxInfo.setSendUser(sendUser);// 司机
+                sendBoxInfo.setWaybillCode(sendDatail.getWaybillCode());// 运单号
+                sendBoxInfo.setPackageBarcode(sendDatail.getPackageBarcode()); // 包裹号
+                result.add(sendBoxInfo);
+            }
+        } else {
+            logger.warn(MessageFormat.format("无法获得发货明细数据sendCode[{0}]createSiteCode[{1}]",batchCode,createSiteCode));
+        }
+        return resultPage;
     }
 
 

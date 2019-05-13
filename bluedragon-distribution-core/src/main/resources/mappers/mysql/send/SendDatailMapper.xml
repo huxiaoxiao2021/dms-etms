@@ -266,15 +266,14 @@
 		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
     </sql>
 
-    <select id="pageNum_queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+    <select id="queryCountBySiteCodeAndSendCode" resultType="Integer">
         SELECT
-        <include refid="Base_Column_List" />
+        count(*)
         FROM send_d
         <include refid="page_Condition_Sql"/>
-        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
-    <select id="queryPageBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+    <select id="queryPageBySiteCodeAndSendCode" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="SendDetail">
         SELECT
         <include refid="Base_Column_List" />
         FROM send_d

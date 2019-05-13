@@ -59,7 +59,7 @@ public interface DmsExternalReadService {
     /**
      * 根据批次获取发货包裹信息
      * */
-    public PageDto<List<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode);
+    public InvokeResult<PageDto<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode);
 
 	/**
 	 * 通过封车号查询封车信息

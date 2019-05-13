@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.departure.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
@@ -15,6 +13,9 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
+
+import java.util.List;
 
 public interface DepartureService {
 	
@@ -59,6 +60,13 @@ public interface DepartureService {
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails);
 	
 	public List<SendBox> getSendInfo(String sendCode);
+
+    /**
+     * 根据批次号查询 发货明细
+     * @param pageDto 分页参数
+     * @param batchCode 批次号
+     */
+    PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto, String batchCode);
 	
 	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes);
 

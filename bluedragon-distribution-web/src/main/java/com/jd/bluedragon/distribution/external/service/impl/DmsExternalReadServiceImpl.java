@@ -32,6 +32,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -122,8 +123,20 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 	}
 
     @Override
-    public PageDto<List<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode) {
-        return null;
+    public InvokeResult<PageDto<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode) {
+        InvokeResult<PageDto<PackageSummaryDto>> invokeResult = new InvokeResult<>();
+	    if(StringUtils.isEmpty(batchCode)){
+            invokeResult.parameterError("批次号不能为空");
+            return invokeResult;
+        }
+        if(pageDto == null){
+            invokeResult.parameterError("分页参数不能为空");
+            return invokeResult;
+        }
+        PageDto<PackageSummaryDto> resultPage = distributionService.queryPageSendInfoByBatchCode(pageDto,batchCode);
+        invokeResult.success();
+        invokeResult.setData(resultPage);
+        return invokeResult;
     }
 
     @Override
