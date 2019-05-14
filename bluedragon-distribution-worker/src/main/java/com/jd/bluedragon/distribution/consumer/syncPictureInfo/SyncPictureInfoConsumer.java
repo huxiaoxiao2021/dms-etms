@@ -55,59 +55,63 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
 
         SyncPictureInfoConsumer.PictureInfoMq pictureInfoMq = JsonHelper.fromJsonUseGson(message.getText(), SyncPictureInfoConsumer.PictureInfoMq.class);
 
-        if(pictureInfoMq!=null){
+        if(pictureInfoMq == null) {
+            logger.warn(MessageFormat.format("auto下发消息体转换失败，内容为【{0}】", message.getText()));
+            return;
+        }
 
-            //1.运单号/包裹号校验
-            String packageCode = pictureInfoMq.getWaybillOrPackCode();
-            if(!WaybillUtil.isWaybillCode(packageCode) && !WaybillUtil.isPackageCode(packageCode)){
-                logger.warn("运单号/包裹号"+packageCode+"不符合规则!");
+        //1.运单号/包裹号校验
+        String packageCode = pictureInfoMq.getWaybillOrPackCode();
+        if(!WaybillUtil.isWaybillCode(packageCode) && !WaybillUtil.isPackageCode(packageCode)){
+            logger.warn("运单号/包裹号"+packageCode+"不符合规则!");
+            return;
+        }
+        Integer siteCode = pictureInfoMq.getSiteCode();
+
+        try{
+            //2.判断es是否存在此数据（包裹号、站点）
+            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+            condition.setReviewSiteCode(siteCode);
+            condition.setIsExcess(1);
+            condition.setIsHasPicture(0);
+            condition.setPackageCode(packageCode);
+            BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
+
+            //3.存在则更新不存在则返回
+            if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().size() == 0){
                 return;
             }
-            Integer siteCode = pictureInfoMq.getSiteCode();
-
-            try{
-                //2.判断es是否存在此数据（包裹号、站点）
-                WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-                condition.setReviewSiteCode(siteCode);
-                condition.setIsExcess(1);
-                condition.setIsHasPicture(0);
-                condition.setPackageCode(packageCode);
-                BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
-
-                //3.存在则更新不存在则返回
-                if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().size() == 0){
-                    return;
-                }
-                WeightVolumeCollectDto weightVolumeCollectDto = baseEntity.getData().get(0);
-                //4.获取图片链接
-                String pictureAddress = weightVolumeCollectDto.getPictureAddress();
-                Date reviewDate = weightVolumeCollectDto.getReviewDate();
-                InvokeResult<String> result = weightAndVolumeCheckService.searchExcessPicture(packageCode, siteCode);
-                if(result != null && !StringHelper.isEmpty(result.getData())){
-                    pictureAddress = result.getData();
-                    AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
-                    abnormalPictureMq.setAbnormalId(packageCode+"_"+reviewDate.getTime());
-                    abnormalPictureMq.setWaybillCode(packageCode);
-                    abnormalPictureMq.setUploadTime(pictureInfoMq.getUpLoadTime());
-                    abnormalPictureMq.setExcessPictureAddress(pictureAddress);
-                    this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
-                    dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(),JsonHelper.toJson(abnormalPictureMq));
-                }
-
-                if(!StringHelper.isEmpty(pictureAddress)){
-                    //4.存在则更新es数据
-                    WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
-                    dto.setPackageCode(packageCode);
-                    dto.setReviewSiteCode(siteCode);
-                    dto.setIsHasPicture(1);
-                    dto.setPictureAddress(pictureAddress);
-                    reportExternalService.updateForWeightVolume(dto);
-                }
-            }catch (Exception e){
-                logger.error("服务异常! "+packageCode+"|"+siteCode,e);
+            WeightVolumeCollectDto weightVolumeCollectDto = baseEntity.getData().get(0);
+            //4.获取图片链接
+            String pictureAddress = weightVolumeCollectDto.getPictureAddress();
+            Date reviewDate = weightVolumeCollectDto.getReviewDate();
+            InvokeResult<String> result = weightAndVolumeCheckService.searchExcessPicture(packageCode, siteCode);
+            if(result != null && !StringHelper.isEmpty(result.getData())){
+                pictureAddress = result.getData();
             }
 
+            if(!StringHelper.isEmpty(pictureAddress)){
+                //4.存在则更新es数据
+                WeightVolumeCollectDto dto = new WeightVolumeCollectDto();
+                dto.setPackageCode(packageCode);
+                dto.setReviewSiteCode(siteCode);
+                dto.setIsHasPicture(1);
+                dto.setPictureAddress(pictureAddress);
+                reportExternalService.updateForWeightVolume(dto);
+
+                AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
+                abnormalPictureMq.setAbnormalId(packageCode+"_"+reviewDate.getTime());
+                abnormalPictureMq.setWaybillCode(packageCode);
+                abnormalPictureMq.setUploadTime(pictureInfoMq.getUpLoadTime());
+                abnormalPictureMq.setExcessPictureAddress(pictureAddress);
+                this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
+                dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(),JsonHelper.toJson(abnormalPictureMq));
+            }
+
+        }catch (Exception e){
+            logger.error("服务异常! "+packageCode+"|"+siteCode,e);
         }
+
     }
 
 
