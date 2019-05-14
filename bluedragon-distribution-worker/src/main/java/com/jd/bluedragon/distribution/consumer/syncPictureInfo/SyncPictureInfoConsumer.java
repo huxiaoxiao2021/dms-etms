@@ -71,7 +71,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
                 condition.setReviewSiteCode(siteCode);
                 condition.setIsExcess(1);
                 condition.setIsHasPicture(0);
-//                condition.setPackageCode(packageCode);
+                condition.setPackageCode(packageCode);
                 BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
 
                 //3.存在则更新不存在则返回
@@ -88,7 +88,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
                     AbnormalPictureMq abnormalPictureMq = new AbnormalPictureMq();
                     abnormalPictureMq.setAbnormalId(packageCode+"_"+reviewDate.getTime());
                     abnormalPictureMq.setWaybillCode(packageCode);
-                    abnormalPictureMq.setUploadTime(pictureInfoMq.getUpLoadTime().getTime());
+                    abnormalPictureMq.setUploadTime(pictureInfoMq.getUpLoadTime());
                     abnormalPictureMq.setExcessPictureAddress(pictureAddress);
                     this.logger.info("发送MQ[" + dmsWeightVolumeAbnormal.getTopic() + "],业务ID[" + abnormalPictureMq.getWaybillCode() + "],消息主题: " + JsonHelper.toJson(abnormalPictureMq));
                     dmsWeightVolumeAbnormal.send(abnormalPictureMq.getAbnormalId(),JsonHelper.toJson(abnormalPictureMq));
@@ -104,7 +104,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
                     reportExternalService.updateForWeightVolume(dto);
                 }
             }catch (Exception e){
-                logger.error("服务异常! "+packageCode+"|"+siteCode);
+                logger.error("服务异常! "+packageCode+"|"+siteCode,e);
             }
 
         }
@@ -137,7 +137,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
         /**
          * 上传时间
          * */
-        private Date upLoadTime;
+        private Long upLoadTime;
 
         public String getWaybillOrPackCode() {
             return waybillOrPackCode;
@@ -171,11 +171,11 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
             this.machineCode = machineCode;
         }
 
-        public Date getUpLoadTime() {
+        public Long getUpLoadTime() {
             return upLoadTime;
         }
 
-        public void setUpLoadTime(Date upLoadTime) {
+        public void setUpLoadTime(Long upLoadTime) {
             this.upLoadTime = upLoadTime;
         }
     }
