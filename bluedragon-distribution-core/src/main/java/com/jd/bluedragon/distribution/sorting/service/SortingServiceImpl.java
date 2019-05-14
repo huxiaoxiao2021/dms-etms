@@ -1254,7 +1254,7 @@ public class SortingServiceImpl implements SortingService {
 			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
 			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
 			if(!isSucdess){//说明有重复任务
-				this.logger.error("1200分拣任务重复："+task.getBody());
+				this.logger.warn("1200分拣任务重复："+task.getBody());
 				return false;
 			}
 		}catch(Exception e){

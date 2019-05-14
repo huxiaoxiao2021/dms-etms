@@ -168,7 +168,7 @@ public abstract class SortingCommonSerivce {
             // 立刻置失败，转到下一次执行。只使用key存不存在做防重
             Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
             if(!isSucdess){//说明有重复任务
-                this.logger.error("分拣任务重复："+JsonHelper.toJson(sorting));
+                this.logger.warn("分拣任务重复："+JsonHelper.toJson(sorting));
                 return false;
             }
         }catch(Exception e){
