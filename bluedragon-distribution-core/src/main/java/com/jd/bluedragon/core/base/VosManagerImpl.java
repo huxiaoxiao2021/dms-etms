@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
 import com.jd.etms.vos.dto.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -22,10 +23,12 @@ public class VosManagerImpl implements VosManager{
 	private VosQueryWS vosQueryWS;
 	
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.vosQueryWS.getSendCar",mState={JProEnum.TP,JProEnum.FunctionError})
 	public CommonDto<List<SendCarInfoDto>> getSendCar(SendCarParamDto dto){
 		return vosQueryWS.getSendCar(dto);
 	}
 	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.vosQueryWS.queryCarriagePlanDetails",mState={JProEnum.TP,JProEnum.FunctionError})
 	public CommonDto<CarriagePlanDto> queryCarriagePlanDetails(String carriagePlanCode){
 		return vosQueryWS.queryCarriagePlanDetails(carriagePlanCode);
 	}

@@ -306,5 +306,9 @@
 
         <!-- 冷链发货 -->
         <mapper resource="mappers/mysql/coldchain/ColdChainSendMapper.xml"/>
+
+        <!-- 分拣复重抽检任务统计 -->
+        <mapper resource="mappers/mysql/weightAndVolume/ReviewWeightSpotCheckMapper.xml"/>
+
     </mappers>
 </configuration>

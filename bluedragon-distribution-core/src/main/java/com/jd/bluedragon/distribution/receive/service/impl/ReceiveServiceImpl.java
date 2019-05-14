@@ -385,7 +385,7 @@ public class ReceiveServiceImpl implements ReceiveService {
 		receive.setCreateSiteName(receiveRequest.getSiteName());
 		receive.setTurnoverBoxCode(receiveRequest.getTurnoverBoxCode());
 		receive.setQueueNo(receiveRequest.getQueueNo());
-		receive.setDepartureCarId(receiveRequest.getDepartureCarId());
+		receive.setDepartureCarId(StringHelper.longParseString(receiveRequest.getDepartureCarId()));
 		return receive;
 	}
 

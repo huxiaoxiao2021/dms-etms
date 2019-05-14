@@ -84,7 +84,10 @@
 		FROM Sorting
 		WHERE yn=1 AND is_cancel = 0
 		    AND sorting_type = #{type}
-		    AND box_code IN (${boxCodes})
+		    AND box_code IN
+            <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=VARCHAR}
+            </foreach>
 		    AND create_site_code = #{createSiteCode}
 			<if test="packageCode != null">
 				AND package_code = #{packageCode}

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
 
@@ -16,7 +17,7 @@ public interface UserVerifyManager {
      * @param password
      * @return
      */
-    UserInfo baseVerify(String name, String password);
+    InvokeResult<UserInfo> baseVerify(String name, String password);
 
     /**
      * 三方校验

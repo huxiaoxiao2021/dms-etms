@@ -188,7 +188,7 @@ public class AsynBufferServiceImpl implements AsynBufferService {
 
     public boolean thirdDepartureTaskProcess(Task task)
             throws Exception {
-        return departureService.sendThirdDepartureInfoToTMS(task);
+        return departureService.sendThirdDepartureInfoToTMS(task,false);
     }
 
 
