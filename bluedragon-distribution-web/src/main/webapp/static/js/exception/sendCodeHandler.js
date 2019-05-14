@@ -44,9 +44,12 @@ function barCodeInterEvent(barCode) {
             return;
         }
         jQuery.each(sendCodes,function (index, sendCode) {
-            optionSendCodeItemHtml += "<div class='panel panel-primary form-control' title='" + sendCode + "'>" + sendCode + "</div>";
+            // optionSendCodeItemHtml += "<div class='panel panel-primary form-control' title='" + sendCode + "'>" +
+            //     sendCode + "</div>";//<span class='glyphicon glyphicon-remove'>
+            jQuery("#sendCodes").append("<div class='panel panel-primary form-control' title='" + sendCode + "'>" +
+                sendCode + "</div>")
         });
-        jQuery("#sendCodes").html(optionSendCodeItemHtml);
+        // jQuery("#sendCodes").html(optionSendCodeItemHtml);
     })
 }
 
