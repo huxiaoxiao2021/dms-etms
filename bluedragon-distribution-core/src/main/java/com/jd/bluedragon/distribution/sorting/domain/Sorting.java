@@ -9,6 +9,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
+import java.util.List;
 
 public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sorting> {
     
@@ -106,6 +107,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     
     /**亚一返仓标识 b1 c1*/
     private Integer whReverse;
+
+    private List<String> boxCodeList;
     
     public Sorting() {
         super();
@@ -327,7 +330,15 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 		this.whReverse = whReverse;
 	}
 
-	public Boolean isCancel() {
+    public List<String> getBoxCodeList() {
+        return boxCodeList;
+    }
+
+    public void setBoxCodeList(List<String> boxCodeList) {
+        this.boxCodeList = boxCodeList;
+    }
+
+    public Boolean isCancel() {
         if (this.isCancel == null) {
             return Boolean.FALSE;
         }

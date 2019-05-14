@@ -10,6 +10,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
@@ -22,6 +23,7 @@ public class SortingVO extends Sorting {
     /**
      * 分拣操作类型  1 包裹  2 运单  3运单转包裹
      */
+    public static int SORTING_TYPE_DEFAULT = 0;
     public static int SORTING_TYPE_PACK = 1;
     public static int SORTING_TYPE_WAYBILL = 2;
     public static int SORTING_TYPE_WAYBILL_SPLIT = 3;
@@ -36,7 +38,7 @@ public class SortingVO extends Sorting {
         if(sorting!=null){
             BeanUtils.copyProperties(sorting,this);
             //区分运单包裹
-            if(getSortingType()==0){
+            if(getSortingType()==SORTING_TYPE_DEFAULT){
                 //未指定分拣模式时根据以下判断
                 if (StringHelper.isEmpty(sorting.getPackageCode())) {
                     // 按运单分拣
@@ -166,16 +168,19 @@ public class SortingVO extends Sorting {
     }
 
     private SortingVO toSorting(Task task) {
-        String body = task.getBody().substring(1, task.getBody().length() - 1);
-        SortingRequest request = JsonHelper.jsonToArray(body, SortingRequest.class);
-        if (request != null) {
-            Sorting sorting = Sorting.toSorting(request);
-            sorting.setStatus(Sorting.STATUS_DONE);// 运单回传状态默认为1，以后可以去掉
-            SortingVO sortingVO = new SortingVO();
-            BeanUtils.copyProperties(sorting,sortingVO);
-            return sortingVO;
+        if(task.getBody().startsWith("[")) {
+            String body = task.getBody().substring(1, task.getBody().length() - 1);
+            //原分拣任务传入的Body为数组，但实际数组内容都是一个
+            SortingRequest request = JsonHelper.jsonToArray(body, SortingRequest.class);
+            if (request != null) {
+                Sorting sorting = Sorting.toSorting(request);
+                sorting.setStatus(Sorting.STATUS_DONE);// 运单回传状态默认为1，以后可以去掉
+                SortingVO sortingVO = new SortingVO();
+                BeanUtils.copyProperties(sorting, sortingVO);
+                return sortingVO;
+            }
         }else{
-            SortingVO sortingVO = JsonHelper.fromJson(task.getBody(), SortingVO.class);
+            SortingVO sortingVO = JsonHelper.jsonToArray(task.getBody(), SortingVO.class);
             if(sortingVO != null){
                 sortingVO.setStatus(Sorting.STATUS_DONE);
                 return sortingVO;

@@ -1,23 +1,21 @@
 package com.jd.bluedragon.distribution.test.reverse;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.junit.Test;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReceiveRequest;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendAsiaWms;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.utils.XmlHelper;
-
 import junit.framework.Assert;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.Test;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ReverseSendServiceImplTestCase {
 	
@@ -108,7 +106,7 @@ public class ReverseSendServiceImplTestCase {
 		sendAssert.setBusiOrderCode("45678");
 		String messageValue = XmlHelper.toXml(sendAssert, ReverseSendWms.class);
 		logger.info(messageValue);
-		
+		System.out.println(messageValue);
 		ReverseSendWms send = new ReverseSendWms();
 		send =  (ReverseSendWms) XmlHelper.toObject(messageValue, ReverseSendWms.class);
 

@@ -20,4 +20,19 @@ public interface WaybillSignConstants {
 		4：B转C转B
 	 */
 	int POSITION_97 = 97;
+
+	/**
+	 * B网冷链
+	 */
+	int POSITION_54 = 54;
+	char CHAR_54_2 = '2';
+
+	/**
+	 * 京仓/非京仓
+	 */
+	int POSITION_89 = 89;
+	char CHAR_89_3 = '3';
+	char CHAR_89_4 = '4';
+
+
 }

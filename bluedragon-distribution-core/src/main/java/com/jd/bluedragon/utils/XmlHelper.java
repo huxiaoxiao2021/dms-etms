@@ -38,7 +38,18 @@ public class XmlHelper {
     public static String toXml(Object request, Class<?> clazz) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
+
+            /* XXE（XMLExternal Entity）XML外部实体注入，通过构造恶意内容，可导致读取任意文件、执行系统命令、探测内网端口、攻击内网网站等危害;
+             安全原则通过禁用外部实体的方法防止XXE漏洞的产生。
+             修正方法：DocumentBuilderFactory禁用DTDS方法
+             https://cf.jd.com/pages/viewpage.action?pageId=110849207*/
+            dbf.setExpandEntityReferences(false);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setXIncludeAware(false);
             dbf.setNamespaceAware(true);
+
+
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.newDocument();
 
