@@ -84,7 +84,8 @@
     <!-- DMS主库（拆分库）事务管理器 -->
     <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dms_rw_split"/>
+        <property name="dataSource" ref="dms_main" />
+        <!--<property name="dataSource" ref="dms_rw_split" />-->
         <qualifier value="main"></qualifier>
     </bean>
 
