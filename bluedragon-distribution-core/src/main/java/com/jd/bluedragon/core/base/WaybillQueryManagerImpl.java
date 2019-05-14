@@ -262,7 +262,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 }
             } else {
                 this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
-                Profiler.functionError(info);
+                //Profiler.functionError(info);
                 return false;
             }
         } catch (Exception e) {

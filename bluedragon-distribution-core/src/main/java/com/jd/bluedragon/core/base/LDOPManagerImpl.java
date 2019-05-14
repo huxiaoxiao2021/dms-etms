@@ -195,7 +195,7 @@ public class LDOPManagerImpl implements LDOPManager {
             }else {
                 //失败
                 errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
-                logger.error("换单前获取外单信息失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
+                logger.info("换单前获取外单信息失败,入参："+ JsonHelper.toJson(waybillReverseDTO)+"  失败原因："+responseDTO.getStatusMessage());
             }
             return null;
         }catch (Exception e){
