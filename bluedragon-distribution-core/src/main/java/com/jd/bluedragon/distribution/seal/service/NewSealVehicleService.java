@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.seal.service;
 
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -15,6 +16,7 @@ public interface NewSealVehicleService {
 
     public static final String MESSAGE_OFFLINE_SEAL_SUCCESS = "离线封车成功!";
     public static final String MESSAGE_SEAL_SUCCESS = "封车成功!";
+    public static final String MESSAGE_CANCEL_SEAL_SUCCESS = "取消封车成功!";
     public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功!";
 
     /**
@@ -24,6 +26,14 @@ public interface NewSealVehicleService {
      * @return
      */
     public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
+
+    /**
+     * 取消封车
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    public CommonDto<String> cancelSeal(cancelSealRequest request) throws Exception;
 
     /**
      * 查询待解任务

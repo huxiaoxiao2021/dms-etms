@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.vos.dto.CancelSealCarDto;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -146,6 +148,34 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             addSystemLog(paramList, msg);
         }
         return sealCarInfo;
+    }
+
+    @Override
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.cancelSeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<String> cancelSeal(cancelSealRequest request) throws Exception{
+        CancelSealCarDto TMS_param = new CancelSealCarDto();
+        TMS_param.setBatchCode(request.getBatchCode());
+        TMS_param.setOperateType(request.getOperateType());
+        TMS_param.setOperateUserCode(request.getOperateUserCode());
+        TMS_param.setOperateTime(request.getOperateTime());
+
+        logger.info("取消封车参数："+ JsonHelper.toJson(TMS_param));
+        CommonDto<String> cancelSealInfo = null;
+        String msg = "";
+        try {
+            cancelSealInfo = vosBusinessWS.doCancelSealCar(TMS_param);
+            if(cancelSealInfo == null) {
+                msg = "取消封车JSF接口返回为空";
+            }else if(Constants.RESULT_SUCCESS == cancelSealInfo.getCode()){
+                msg = MESSAGE_CANCEL_SEAL_SUCCESS;
+            }else{
+                msg = "["+cancelSealInfo.getCode()+":"+cancelSealInfo.getMessage()+"]";
+            }
+        }catch (Exception e){
+            this.logger.error("取消封车-error", e);
+            throw e;
+        }
+        return cancelSealInfo;
     }
 
     /**
