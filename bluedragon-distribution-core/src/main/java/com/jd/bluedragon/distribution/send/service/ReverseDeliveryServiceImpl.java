@@ -473,7 +473,7 @@ public class ReverseDeliveryServiceImpl implements ReverseDeliveryService {
 					String body = "<PlaintextData><OrderShipList>"
 							+ buffer.toString()
 							+ "</OrderShipList></PlaintextData>";
-					this.logger.error("数据报文：" + body);
+					this.logger.info("数据报文：" + body);
 					String businessId = wlist.get(0);//改为逐条发送的话，只有一条运单数据
 					whSmsSendMq.sendOnFailPersistent(businessId,body);
 					resultBool = true;

@@ -30,7 +30,10 @@ public class SortingWaybillServiceImpl extends SortingCommonSerivce{
     @Override
     public boolean doSorting(SortingVO sorting) {
         if (sorting.getIsCancel().equals(getSortingService().SORTING_CANCEL_NORMAL)) {
-
+            if( StringUtils.isBlank(sorting.getWaybillCode())){
+                logger.warn("运单分拣运单号为空"+JsonHelper.toJson(sorting));
+                return true;
+            }
             //补验货 提前 防止拆分任务也去补验货任务
             if(isNeedInspection(sorting)){
                 b2bPushInspection(sorting);

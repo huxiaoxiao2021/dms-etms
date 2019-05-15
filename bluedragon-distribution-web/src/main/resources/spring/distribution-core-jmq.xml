@@ -348,4 +348,15 @@
     <bean id="dmsColdChainSendWaybill" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsColdChainSendWaybill}"/>
     </bean>
+
+    <!-- 超标mq，提供给fxm系统 -->
+    <bean id="dmsWeightVolumeExcess" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.excess}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 超标mq，提供给判责系统 -->
+    <bean id="dmsWeightVolumeAbnormal" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.weightVolume.abnormal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

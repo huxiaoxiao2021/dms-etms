@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <properties>
+        <!-- 日志路径 -->
+        <property name="LOG_HOME">d:/logs/dms.web</property>
+        <Property name="LOG.PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n</Property>
+    </properties>
+    <Appenders>
+        <!-- 输出控制台的配置 -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n"/>
+        </Console>
+        <!-- info -->
+        <RollingFile name="bluedragon" fileName="${LOG_HOME}/bluedragon-distribution-web.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web.%i.log"
+                     bufferSize="8192" immediateFlush="false" append="true">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG.PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="50"/>
+        </RollingFile>
+
+        <!-- error -->
+        <RollingFile name="bluedragon.error" fileName="${LOG_HOME}/bluedragon-distribution-web-error.log"
+                     filePattern="${LOG_HOME}/bluedragon-distribution-web-error.%i.log"
+                     bufferSize="1024" immediateFlush="false" append="true">
+            <Filters>
+                <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG.PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+
+
+        <!-- business log -->
+        <RollingFile name="business.log" fileName="${LOG_HOME}/dms-business.log"
+                     filePattern="${LOG_HOME}/dms-business.%i.log">
+            <Filters>
+                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+            <PatternLayout pattern="${LOG.PATTERN}" charset="UTF-8"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- sql  -->
+        <logger name="java.sql" level="DEBUG" additivity="true"/>
+        <!-- mybatis  -->
+        <logger name="org.mybatis" level="DEBUG" additivity="true"/>
+        <logger name="org.apache.ibatis" level="DEBUG" additivity="true"/>
+        <logger name="org.springframework" level="DEBUG" additivity="true"/>
+        <logger name="org.apache.commons" level="DEBUG" additivity="true"/>
+        <logger name="org.apache.cxf" level="DEBUG" additivity="true"/>
+
+        <logger name="com.jd.jsf" level="DEBUG" additivity="true"/>
+        <logger name="com.jd.jmq" level="ERROR" additivity="true"/>
+        <logger name="com.jd.common" level="ERROR" additivity="true"/>
+        <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
+        <Logger name="com.jd.dbs.transaction" level="DEBUG" additivity="true"/>
+        <Logger name="com.jd.etms.basic.cache" level="DEBUG" additivity="true"/>
+        <!-- 操作日志 -->
+        <logger name="com.jd.dms.logger.aop.BusinessLogWriter" level="INFO" additivity="false">
+            <appender-ref ref="business.log"/>
+        </logger>
+        <!-- 建立一个默认的root的Logger -->
+        <AsyncRoot level="DEBUG">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="bluedragon"/>
+            <AppenderRef ref="bluedragon.error"/>
+        </AsyncRoot>
+    </Loggers>
+
+</Configuration>
