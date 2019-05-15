@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
@@ -24,13 +26,16 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ql.dms.common.cache.CacheService;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -40,6 +45,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @Path(Constants.REST_URL)
@@ -67,6 +73,12 @@ public class SortingResource {
 	@Autowired
 	private SendMDao sendMDao;
 
+	@Autowired
+	private SortingDao sortingDao;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
 	/**
 	 * 取消分拣
 	 * 
@@ -77,7 +89,7 @@ public class SortingResource {
 	@Path("/sorting/cancel")
 	@BusinessLog(sourceSys = 1,bizType = 2002)
 	public SortingResponse cancelPackage(SortingRequest request) {
-		this.logger.info("取消分拣参数packageCode is " + request.getPackageCode());
+		this.logger.info("取消分拣参数：" + JsonHelper.toJson(request));
 		if (StringHelper.isEmpty(request.getPackageCode())) {
 			return this.paramIsNull();
 		}
@@ -93,15 +105,29 @@ public class SortingResource {
 			return this.waitingProcess();
 		}
 
-		Sorting sorting = Sorting.toSorting2(request);
+        String fingerPrintKey = "SORTING_CANCEL" + request.getSiteCode() +"|"+ request.getPackageCode();
+        try {
+            //判断是否重复取消分拣, 5分钟内如果同操作场地、同扫描号码只允许取消一次分拣。
+            boolean isSuccess = cacheService.setNx(fingerPrintKey, "1", 5*60*1000, TimeUnit.SECONDS);
+            //说明key存在
+            if (! isSuccess) {
+                this.logger.warn(request.getPackageCode() + "正在执行取消发货任务！");
+                return this.waitingCancelProcess();
+            }
+        } catch (Exception e) {
+            this.logger.error(request.getPackageCode() + "获取取消发货任务缓存失败！", e);
+        }
 
+		Sorting sorting = Sorting.toSorting2(request);
+        List<Sorting> sortingRecords = null;
+        //如果箱号不为null，说明按箱取消分拣
 		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
 			// 校验是否发货，如果已经发货，则提示不能取消分拣
 			SendM sendM = new SendM();
 			sendM.setBoxCode(sorting.getBoxCode());
 			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
 			List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
-			if (null != sendMList && !sendMList.isEmpty() && sendMList.size() > 0) {
+			if (null != sendMList && !sendMList.isEmpty()) {
 				return this.sortingSended();
 			}
 			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
@@ -109,72 +135,59 @@ public class SortingResource {
 				Inspection inspection = new Inspection.Builder(null, sorting.getCreateSiteCode())
 						.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
 				int inspectionCount = inspectionService.inspectionCount(inspection);
-				if (inspectionCount > 0)
-					return this.sortingInspected();
-			}
-
-			if (this.sortingService.canCancel2(sorting)) {
-				return this.ok();
-			} else {
-				return this.sortingNotFund();
-			}
-		}
-
-		try {
-			if (sorting.getPackageCode() != null && /* 表示已经判断过为包裹号 */
-			BusinessHelper.isNumeric(sorting.getPackageCode()) && sorting.getPackageCode().length() == 10) {
-				logger.info("SortingResource.cancelPackage 包裹号不为空，符合10位数字，查询数据库是否存在此包裹号");
-				if (!sortingService.existSortingByPackageCode(sorting)) {
-					logger.info("SortingResource.cancelPackage 包裹号不存在，重新设置为运单号");
-					sorting.setWaybillCode(sorting.getPackageCode());
-					sorting.setPackageCode(null);
-				}
-			}
-		} catch (Exception e) {
-			logger.error("SortingResource.cancelPackage 取消分拣 判断是否真实包裹号异常", e);
-			return this.paramIsError();
-		}
-
-		List<Sorting> sortingRecords = sortingService.queryByCode2(sorting);
-
-		if (sortingRecords.isEmpty() || sortingRecords.size() == 0) {
-			logger.warn("取消分拣--->包裹已经发货");
-			sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
-			return this.sortingSended();
-		}
-
-		if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
-			int unfilledOrdersCount = 0;
-			for (Sorting eachSorting : sortingRecords) {
-				// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
-				InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
-						eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
-						.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
-						.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
-						.yn(1).build();
-				Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
-
 				if (inspectionCount > 0) {
-					unfilledOrdersCount++;
-					sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理");
-				}
+                    cacheService.del(fingerPrintKey);
+                    return this.sortingInspected();
+                }
 			}
-			if (unfilledOrdersCount == sortingRecords.size())
-				return this.sortingInspected();
-		}
+
+            sortingRecords = sortingDao.findByBoxCode(sorting);
+
+		} else {
+            sortingRecords = sortingService.queryByCode2(sorting);
+
+            if (sortingRecords.isEmpty()) {
+                logger.warn("取消分拣--->包裹已经发货");
+                sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
+                cacheService.del(fingerPrintKey);
+                return this.sortingSended();
+            }
+
+            if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
+                int unfilledOrdersCount = 0;
+                for (Sorting eachSorting : sortingRecords) {
+                    // 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
+                    InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
+                            eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
+                            .boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
+                            .inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
+                            .yn(1).build();
+                    Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
+
+                    if (inspectionCount > 0) {
+                        unfilledOrdersCount++;
+                        sortingService.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理");
+                    }
+                }
+                if (unfilledOrdersCount == sortingRecords.size()) {
+                    cacheService.del(fingerPrintKey);
+                    return this.sortingInspected();
+                }
+            }
+        }
 
 		Boolean canCancel = false;
 		for (Sorting eachSorting : sortingRecords) {
-			eachSorting.setOperateTime(DateHelper.getSeverTime(request.getOperateTime()));
+			eachSorting.setOperateTime(sorting.getOperateTime());
 			eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
 			eachSorting.setUpdateUser(sorting.getUpdateUser());
 			canCancel |= this.sortingService.canCancel2(eachSorting);
 		}
+		cacheService.del(fingerPrintKey);
 
 		if (canCancel) {
 			return this.ok();
 		}
-
 		return this.sortingNotFund();
 	}
 
@@ -276,6 +289,10 @@ public class SortingResource {
 	private SortingResponse paramIsError() {
 		return new SortingResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 	}
+
+    private SortingResponse waitingCancelProcess() {
+        return new SortingResponse(SortingResponse.CODE_SORTING_CANCEL_PROCESS, SortingResponse.MESSAGE_SORTING_CANCEL_PROCESS);
+    }
 
 	@GET
 	@Path("/sorting/package")

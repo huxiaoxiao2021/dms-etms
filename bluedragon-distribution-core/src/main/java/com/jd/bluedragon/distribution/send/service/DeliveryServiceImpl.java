@@ -1916,6 +1916,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 					.updateUser(dSendDetail.getCreateUser())
 					.updateUserCode(dSendDetail.getCreateUserCode())
 					.updateTime(new Date()).build();
+			//如果按包裹取消发货，需取消分拣，更新取消分拣的操作时间晚取消分拣一秒
+            sorting.setOperateTime(new Date(tSendM.getUpdateTime().getTime() + 1000));
 			tSortingService.canCancel2(sorting);
 		}
 		return new ThreeDeliveryResponse(JdResponse.CODE_OK,
