@@ -178,7 +178,10 @@
 		parameterType="map">
 		SELECT task_id, task_type, box_code, execute_count, task_status
 		FROM ${tableName}
-		WHERE yn = 1 AND task_status in (${statuses})
+		WHERE yn = 1 AND task_status in
+        <foreach collection="statusesList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=INTEGER}
+        </foreach>
 		AND box_code = #{boxCode,jdbcType=VARCHAR}
 		AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 		 LIMIT

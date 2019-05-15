@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.test.inspection;
 
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import org.junit.Test;
 import org.w3c.dom.Document;
@@ -11,13 +10,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.events.Characters;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.BufferedReader;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.StringWriter;
@@ -50,6 +47,10 @@ public class CheckWayBillCodeTest {
     public static String toXml(Object request, Class<?> clazz) {
         try {
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            //京东安全 修改：禁用DOCTYPE https://cf.jd.com/pages/viewpage.action?pageId=110849207
+            dbf.setExpandEntityReferences(false);
+            dbf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbf.setXIncludeAware(false);
             dbf.setNamespaceAware(true);
             DocumentBuilder db = dbf.newDocumentBuilder();
             Document doc = db.newDocument();

@@ -21,8 +21,6 @@ public interface CustomerServiceService {
     Box findBoxByBoxCode(Box box);
 
     List<Box> findBoxesBySite(Box box);
-
-    Integer updateStatusByCodes(Box box);
     
     /**  
      * 查询缓存箱号
