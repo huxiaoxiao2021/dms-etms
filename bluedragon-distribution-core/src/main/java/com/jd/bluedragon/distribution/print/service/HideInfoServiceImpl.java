@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -11,9 +12,6 @@ public class HideInfoServiceImpl implements HideInfoService{
 
     private static final Log log = LogFactory.getLog(HideInfoServiceImpl.class);
 
-    private static final String  SMILE = "^_^";           //微笑符号
-    private static final int PHONE_FIRST_NUMBER = 3;//收件人联系方式前几位需要显示
-    private static final int PHONE_HIGHLIGHT_NUMBER = 4;//收件人联系方式需要突出显示的位数(即手机尾数要保留的位数)
     private static final int ADDRESS_SHOW_LENGTH = 9; //地址信息需要显示的前几位，超过部分用微笑符号替代
 
     public void setHideInfo(String waybillSign,BasePrintWaybill waybill){
@@ -132,7 +130,7 @@ public class HideInfoServiceImpl implements HideInfoService{
     private void hideConsignerName(BasePrintWaybill waybill){
         String consignerName = waybill.getConsigner();
         if(StringUtils.isNotBlank(consignerName)){
-            waybill.setConsigner(consignerName.substring(0,1) + SMILE);
+            waybill.setConsigner(consignerName.substring(0,1) + StringHelper.SMILE);
         }
     }
 
@@ -146,15 +144,15 @@ public class HideInfoServiceImpl implements HideInfoService{
         String consignerTel = waybill.getConsignerTel();
         String consignerMobile = waybill.getConsignerMobile();
         //进行隐藏要求tel/mobile至少有7位，<7位则不隐藏
-        int phoneLeastLength = PHONE_FIRST_NUMBER + PHONE_HIGHLIGHT_NUMBER;
+        int phoneLeastLength = StringHelper.PHONE_FIRST_NUMBER + StringHelper.PHONE_HIGHLIGHT_NUMBER;
 
         if(StringUtils.isNotBlank(consignerTel)){
             //去除号码中间的空白字符
             consignerTel = consignerTel.replaceAll("\\s*", "");
 
             if(consignerTel.length() >= phoneLeastLength ){
-                waybill.setConsignerTel(consignerTel.substring(0,PHONE_FIRST_NUMBER) + SMILE +
-                        consignerTel.substring(consignerTel.length() - PHONE_HIGHLIGHT_NUMBER));
+                waybill.setConsignerTel(consignerTel.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
+                        consignerTel.substring(consignerTel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else{
                 waybill.setConsignerTel(consignerTel);
             }
@@ -164,8 +162,8 @@ public class HideInfoServiceImpl implements HideInfoService{
             consignerMobile = consignerMobile.replaceAll("\\s*", "");
 
             if(consignerMobile.length() >= phoneLeastLength ){
-                waybill.setConsignerMobile(consignerMobile.substring(0,PHONE_FIRST_NUMBER) + SMILE +
-                        consignerMobile.substring(consignerMobile.length() - PHONE_HIGHLIGHT_NUMBER));
+                waybill.setConsignerMobile(consignerMobile.substring(0,StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE +
+                        consignerMobile.substring(consignerMobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
             }else{
                 waybill.setConsignerMobile(consignerMobile);
             }
@@ -182,7 +180,7 @@ public class HideInfoServiceImpl implements HideInfoService{
     private void hideConsignerAddress(BasePrintWaybill waybill){
         String consignerAddress = waybill.getConsignerAddress();
         if(StringUtils.isNotBlank(consignerAddress) && consignerAddress.length() >= ADDRESS_SHOW_LENGTH){
-            waybill.setConsignerAddress(consignerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
+            waybill.setConsignerAddress(consignerAddress.substring(0,ADDRESS_SHOW_LENGTH) + StringHelper.SMILE);
         }
     }
 
@@ -193,7 +191,7 @@ public class HideInfoServiceImpl implements HideInfoService{
     private void hideCustomerName(BasePrintWaybill waybill){
         String customerName = waybill.getCustomerName();
         if(StringUtils.isNotBlank(customerName)){
-            customerName = customerName.trim().substring(0, 1) + SMILE;
+            customerName = customerName.trim().substring(0, 1) + StringHelper.SMILE;
             waybill.setCustomerName(customerName);
         }
     }
@@ -224,24 +222,24 @@ public class HideInfoServiceImpl implements HideInfoService{
         //国内：手机 11位
         //电话大于等于7位，则显示为：前3位+^_^+后4位。
         if(StringUtils.isNotBlank(firstMobile)){
-            if(firstMobile.length() >= PHONE_FIRST_NUMBER){
-                customerContacts.append(firstMobile.substring(0, PHONE_FIRST_NUMBER) + SMILE + lastMobile);
-                waybill.setMobileFirst(firstMobile.substring(0, PHONE_FIRST_NUMBER) + SMILE );
+            if(firstMobile.length() >= StringHelper.PHONE_FIRST_NUMBER){
+                customerContacts.append(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastMobile);
+                waybill.setMobileFirst(firstMobile.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE );
             }else{
-                customerContacts.append(firstMobile + SMILE + lastMobile);
-                waybill.setMobileFirst(firstMobile + SMILE);
+                customerContacts.append(firstMobile + StringHelper.SMILE + lastMobile);
+                waybill.setMobileFirst(firstMobile + StringHelper.SMILE);
             }
         }
         if(StringUtils.isNotBlank(firstTel)){
             if(customerContacts.length() > 0){
                 customerContacts.append(",");
             }
-            if(firstTel.length() >= PHONE_FIRST_NUMBER){
-                customerContacts.append(firstTel.substring(0, PHONE_FIRST_NUMBER) + SMILE + lastTel);
-                waybill.setTelFirst(firstTel.substring(0, PHONE_FIRST_NUMBER) + SMILE);
+            if(firstTel.length() >= StringHelper.PHONE_FIRST_NUMBER){
+                customerContacts.append(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE + lastTel);
+                waybill.setTelFirst(firstTel.substring(0, StringHelper.PHONE_FIRST_NUMBER) + StringHelper.SMILE);
             }else{
-                customerContacts.append(firstTel + SMILE + lastTel);
-                waybill.setTelFirst(firstTel + SMILE);
+                customerContacts.append(firstTel + StringHelper.SMILE + lastTel);
+                waybill.setTelFirst(firstTel + StringHelper.SMILE);
             }
         }
         if(customerContacts.length() > 0){
@@ -258,7 +256,7 @@ public class HideInfoServiceImpl implements HideInfoService{
     private void hideCustomerAddress(BasePrintWaybill waybill){
         String customerAddress = waybill.getPrintAddress();
         if(StringUtils.isNotBlank(customerAddress) && customerAddress.length() >= ADDRESS_SHOW_LENGTH){
-            waybill.setPrintAddress(customerAddress.substring(0,ADDRESS_SHOW_LENGTH) + SMILE);
+            waybill.setPrintAddress(customerAddress.substring(0,ADDRESS_SHOW_LENGTH) + StringHelper.SMILE);
         }
     }
 
@@ -280,15 +278,15 @@ public class HideInfoServiceImpl implements HideInfoService{
         if(acontacts.length == 2){
             tel = acontacts[1];
         }
-        if (StringUtils.isNotBlank(mobile) && mobile.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            firstMobile = mobile.substring(0, mobile.length() - PHONE_HIGHLIGHT_NUMBER);
+        if (StringUtils.isNotBlank(mobile) && mobile.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            firstMobile = mobile.substring(0, mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
             waybill.setMobileFirst(firstMobile);
-            waybill.setMobileLast(mobile.substring(mobile.length() - PHONE_HIGHLIGHT_NUMBER));
+            waybill.setMobileLast(mobile.substring(mobile.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
         }
-        if (StringUtils.isNotBlank(tel) && tel.length() >= PHONE_HIGHLIGHT_NUMBER) {
-            firstTel = tel.substring(0, tel.length() - PHONE_HIGHLIGHT_NUMBER);
+        if (StringUtils.isNotBlank(tel) && tel.length() >= StringHelper.PHONE_HIGHLIGHT_NUMBER) {
+            firstTel = tel.substring(0, tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER);
             waybill.setTelFirst(firstTel);
-            waybill.setTelLast(tel.substring(tel.length() - PHONE_HIGHLIGHT_NUMBER));
+            waybill.setTelLast(tel.substring(tel.length() - StringHelper.PHONE_HIGHLIGHT_NUMBER));
         }
         if(StringUtils.isBlank(firstMobile) && StringUtils.isBlank(firstTel) ){
             return false;

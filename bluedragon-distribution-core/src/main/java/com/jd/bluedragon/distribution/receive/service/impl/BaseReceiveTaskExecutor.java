@@ -8,6 +8,8 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.common.util.StringUtils;
+import com.jd.fastjson.JSON;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -220,6 +222,10 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			return ;
 		}
 		for (CenConfirm cenConfirm:cenConfirmList) {
+			if(StringUtils.isBlank(cenConfirm.getWaybillCode()) || cenConfirm.getCreateSiteCode() == null || cenConfirm.getCreateSiteCode() <=0){
+				log.warn("没有有效的运单号或者操作站点，不发送验货消息" + "," + JSON.toJSONString(cenConfirm));
+				continue;
+			}
 			InspectionMQBody body = new InspectionMQBody();
 			body.setWaybillCode(cenConfirm.getWaybillCode());
 			body.setInspectionSiteCode(cenConfirm.getCreateSiteCode());

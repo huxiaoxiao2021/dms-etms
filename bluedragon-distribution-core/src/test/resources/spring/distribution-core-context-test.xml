@@ -22,7 +22,7 @@
     <import resource="classpath:spring/distribution-core-redis.xml" />
     <import resource="classpath:spring/distribution-core-jsf.xml"/>
     <context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
-    <context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
+    <context:component-scan base-package="com.jd.bluedragon.distribution.*.service" />
     <context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
     <context:component-scan base-package="com.jd.bluedragon.distribution.*.ws" />
     <context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />

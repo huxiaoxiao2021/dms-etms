@@ -1,18 +1,20 @@
 package com.jd.bluedragon.distribution.send.dao;
 
-import java.util.*;
-
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.base.dao.KvIndexDao;
-import com.jd.bluedragon.distribution.base.domain.KvIndex;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import junit.framework.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
 
@@ -51,15 +53,6 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
         sendDatailDao.add(SendDatailDao.namespace, parameter);
     }
 
-
-	@Test
-    public void testGetSendSiteID() {
-        SendDetail parameter = new SendDetail();
-        parameter.setCreateSiteCode(420);
-        parameter.setReceiveSiteCode(266);
-        parameter.setPackageBarcode("James");
-        sendDatailDao.getSendSiteID(parameter);
-    }
 	
 	@Test
     public void testGetSendDatailsWithoutMeasures() {
@@ -391,7 +384,7 @@ public class SendDatailDaoTest extends AbstractDaoIntegrationTest{
     public void testQuerySendCodesByWaybills() {
         SendDetail parameter = new SendDetail();
         parameter.setWaybillCode("Jax");
-        sendDatailDao.querySendCodesByWaybills("'Jax'");
+//        sendDatailDao.querySendCodesByWaybills("'Jax'");
     }
 	
 	@Test

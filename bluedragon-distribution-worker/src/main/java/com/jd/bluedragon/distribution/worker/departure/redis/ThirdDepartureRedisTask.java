@@ -13,7 +13,7 @@ public class ThirdDepartureRedisTask extends RedisSingleScheduler{
     
     public boolean executeSingleTask(Task task, String ownSign)
 			throws Exception{
-    	return departureService.sendThirdDepartureInfoToTMS(task);
+    	return departureService.sendThirdDepartureInfoToTMS(task,false);
     }
 		
 }

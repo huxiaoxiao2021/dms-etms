@@ -1,15 +1,5 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.distribution.api.request.ArReceiveRequest;
 import com.jd.bluedragon.distribution.receive.domain.ArReceive;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -21,10 +11,20 @@ import com.jd.bluedragon.distribution.transport.domain.ArSendRegister;
 import com.jd.bluedragon.distribution.transport.domain.ArSendStatusEnum;
 import com.jd.bluedragon.distribution.transport.service.ArSendRegisterService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @Service("arReceiveTaskExecutor")
 public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
@@ -90,7 +90,7 @@ public class ArReceiveTaskExecutor extends BaseReceiveTaskExecutor<ArReceive>{
 		arReceive.setCreateSiteName(arReceiveRequest.getSiteName());
 		arReceive.setTurnoverBoxCode(arReceiveRequest.getTurnoverBoxCode());
 		arReceive.setQueueNo(arReceiveRequest.getQueueNo());
-		arReceive.setDepartureCarId(arReceiveRequest.getDepartureCarId());
+		arReceive.setDepartureCarId(StringHelper.longParseString(arReceiveRequest.getDepartureCarId()));
 		arReceive.setShuttleBusType(arReceiveRequest.getShuttleBusType());
 		arReceive.setShuttleBusNum(arReceiveRequest.getShuttleBusNum());
 		arReceive.setRemark(arReceiveRequest.getRemark());
