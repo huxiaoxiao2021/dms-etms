@@ -130,9 +130,12 @@ public abstract class SortingCommonSerivce {
         String keyword = this.getClass().getSimpleName();
         CallerInfo sendMonitor = ProfilerHelper.registerInfo("DMSWORKER."+keyword+".execute",
                 Constants.UMP_APP_NAME_DMSWORKER);
+        String fingerPrintKey = "";
         try {
+            fingerPrintKey = TASK_SORTING_FINGERPRINT_SORTING_5S + sorting.getCreateSiteCode() +"|"+ sorting.getBoxCode()
+                    +"|"+sorting.getWaybillCode()+"|"+sorting.getPackageCode()+"|"+ sorting.getPageNo()+"|"+sorting.getPageSize();
             long startTime = System.currentTimeMillis();
-            if(check(sorting)){
+            if(check(sorting,fingerPrintKey)){
                 before(sorting);
                 if(doSorting(sorting)){
                     after(sorting);
@@ -148,6 +151,7 @@ public abstract class SortingCommonSerivce {
             Profiler.functionError(sendMonitor);
             return false;
         }finally {
+            cacheService.del(fingerPrintKey);
             Profiler.registerInfoEnd(sendMonitor);
         }
 
@@ -160,9 +164,8 @@ public abstract class SortingCommonSerivce {
      * @param sorting
      * @return
      */
-    private boolean check(SortingVO sorting){
-        String fingerPrintKey = TASK_SORTING_FINGERPRINT_SORTING_5S + sorting.getCreateSiteCode() +"|"+ sorting.getBoxCode()
-                +"|"+sorting.getWaybillCode()+"|"+sorting.getPackageCode()+"|"+ sorting.getPageNo()+"|"+sorting.getPageSize();
+    private boolean check(SortingVO sorting,String fingerPrintKey){
+
         try{
             //判断是否重复分拣, 5秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。
             // 立刻置失败，转到下一次执行。只使用key存不存在做防重
