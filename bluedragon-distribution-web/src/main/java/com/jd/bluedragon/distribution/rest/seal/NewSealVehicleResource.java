@@ -412,8 +412,7 @@ public class NewSealVehicleResource {
           sealVehicleResponse.setData(returnCommonDto.getData());
         } else {
           sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-          sealVehicleResponse.setMessage(
-              "[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
+          sealVehicleResponse.setMessage(returnCommonDto.getMessage());
           sealVehicleResponse.setData(returnCommonDto.getData());
         }
       }

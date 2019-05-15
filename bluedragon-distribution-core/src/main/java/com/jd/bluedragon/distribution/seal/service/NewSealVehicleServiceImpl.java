@@ -161,15 +161,10 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         logger.info("取消封车参数："+ JsonHelper.toJson(TMS_param));
         CommonDto<String> cancelSealInfo = null;
-        String msg = "";
         try {
             cancelSealInfo = vosBusinessWS.doCancelSealCar(TMS_param);
             if(cancelSealInfo == null) {
-                msg = "取消封车JSF接口返回为空";
-            }else if(Constants.RESULT_SUCCESS == cancelSealInfo.getCode()){
-                msg = MESSAGE_CANCEL_SEAL_SUCCESS;
-            }else{
-                msg = "["+cancelSealInfo.getCode()+":"+cancelSealInfo.getMessage()+"]";
+                logger.error("取消封车JSF接口返回为空.参数："+ JsonHelper.toJson(TMS_param));
             }
         }catch (Exception e){
             this.logger.error("取消封车-error", e);
