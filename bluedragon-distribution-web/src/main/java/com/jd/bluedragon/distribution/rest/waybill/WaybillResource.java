@@ -2193,14 +2193,14 @@ public class WaybillResource {
 			return result;
 		}
 
-		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
-		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
+		BaseStaffSiteOrgDto createSiteOrgDto = null;
+		BaseStaffSiteOrgDto receiveSiteOrgDto = null;
 
 		try {
 			createSiteOrgDto = siteService.getSite(createSiteCode);
 			receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
 		} catch (Exception e) {
-			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest));
+			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest), e);
 		}
 
 		//默认只看B网
