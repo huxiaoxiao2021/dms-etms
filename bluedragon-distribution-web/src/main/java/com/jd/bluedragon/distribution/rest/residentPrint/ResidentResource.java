@@ -51,7 +51,7 @@ public class ResidentResource {
             if(baseEntity != null && baseEntity.getResultCode() > 0) {
                 List<SendInfoDto> data = baseEntity.getData();
                 if(data != null && data.size() > 0){
-                    packageCode = data.get(0).getWaybillCode();
+                    packageCode = data.get(0).getPackageBarcode();
                 }
             }
             //根据包裹号判断是否操作发货
