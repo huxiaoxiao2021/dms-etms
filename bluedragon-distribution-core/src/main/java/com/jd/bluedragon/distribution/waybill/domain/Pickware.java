@@ -18,7 +18,7 @@ public class Pickware {
     private String code;
     
     /** 取件单对应运单编号 */
-    private Long waybillCode;
+    private String waybillCode;
     
     public String getProductName() {
         return this.productName;
@@ -59,15 +59,15 @@ public class Pickware {
     public void setCode(String code) {
         this.code = code;
     }
-    
-    public Long getWaybillCode() {
-        return this.waybillCode;
+
+    public String getWaybillCode() {
+        return waybillCode;
     }
-    
-    public void setWaybillCode(Long waybillCode) {
+
+    public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
     }
-    
+
     public String toString() {
         return "Pickware [productName=" + this.productName + ", productCode=" + this.productCode
                 + ", quantity=" + this.quantity + ", accessory=" + this.accessory + ", code="

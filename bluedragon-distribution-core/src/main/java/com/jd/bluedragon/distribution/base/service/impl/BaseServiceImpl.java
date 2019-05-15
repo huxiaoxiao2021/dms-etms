@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -143,10 +144,10 @@ public class BaseServiceImpl implements BaseService {
                 // 调用人事接口验证用户
                 //User user = userVerifyManager.baseVerify(userid, password);
             	//调用sso的SsoService验证用户
-            	UserInfo user = userVerifyManager.baseVerify(userid, password);
-                if (null == user) {
+				InvokeResult<UserInfo> result = userVerifyManager.baseVerify(userid, password);
+                if (result != null && result.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                     basePdaUserDto.setErrorCode(Constants.PDA_USER_LOGIN_FAILUE);
-                    basePdaUserDto.setMessage(Constants.PDA_USER_LOGIN_FAILUE_MSG);
+                    basePdaUserDto.setMessage(result.getMessage());
                 // 人事接口验证通过，获取基础资料信息
                 } else {
 //                    BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByStaffIdNoCache(Integer.parseInt(String.valueOf(user.getUserId())));
@@ -501,12 +502,16 @@ public class BaseServiceImpl implements BaseService {
 	@Cache(key = "BaseService.getAllOrg", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
 	public List<BaseOrg> getAllOrg() {
+		CallerInfo info = Profiler.registerInfo("dmsWeb.jsf.basicPrimaryWS.getBaseOrgAll", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try {
 			List<BaseOrg> orgal = basicPrimaryWS.getBaseOrgAll();
 			return orgal;
 		} catch (Exception e) {
+			Profiler.functionError(info);
 			log.error("调用basicMajorServiceProxy.getBaseOrgAll()异常", e);
 			return null;
+		}finally {
+			Profiler.registerInfoEnd(info);
 		}
 	}
 
@@ -670,6 +675,8 @@ public class BaseServiceImpl implements BaseService {
         reverseSendWms.setSourceCode(bigWaybillDto.getWaybill().getSourceCode());
         reverseSendWms.setBusiOrderCode(bigWaybillDto.getWaybill().getBusiOrderCode());
 		reverseSendWms.setOrderId(bigWaybillDto.getWaybill().getVendorId());
+		reverseSendWms.setXniType(bigWaybillDto.getWaybill().getWaybillType());
+		reverseSendWms.setVenderId(bigWaybillDto.getWaybill().getShopCode());
         /*
 		 * WaybillManageDomain manageDomain = bigWaybillDto.getWaybillState();
 		 * if (manageDomain == null) {
@@ -814,6 +821,7 @@ public class BaseServiceImpl implements BaseService {
 	@Override
 	@Cache(key = "basicSafInterface.getSiteSelfDBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, 
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.basicMixedWS.getSiteSelfDBySiteCode",mState={JProEnum.TP,JProEnum.FunctionError})
 	public Integer getSiteSelfDBySiteCode(Integer sitecode){
 		BaseResult<BaseSelfDDto>  result = basicMixedWS.getSiteSelfDBySiteCode(sitecode);
 		if(result==null){
@@ -856,6 +864,7 @@ public class BaseServiceImpl implements BaseService {
 
 	@Override
 	@Cache(memoryEnable = false,key = "getOneAssortById@args0")
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.basicSecondaryWS.getAssortById",mState={JProEnum.TP,JProEnum.FunctionError})
 	public Assort getOneAssortById(int assId) {
 		return basicSecondaryWS.getAssortById(assId);
 	}

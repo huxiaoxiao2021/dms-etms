@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
-       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
-    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
-    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
-    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+   http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 
     <!-- 调用云存储 -->
     <util:map id="jssMapb" map-class="java.util.HashMap">
@@ -27,4 +22,28 @@
         <property name="socketTimeout" value="${jss.socketTimeout}"/>
         <property name="storeTime" value="${jss.storeTime}"/>
     </bean>
+
+    <bean id="jssStorageClient" class="com.jd.bluedragon.distribution.jss.utils.JssStorageClient" init-method="init">
+        <property name="accessKey" value="${jss.web.accessKey}"/>
+        <property name="secretKey" value="${jss.web.secretKey}"/>
+        <property name="endpoint" value="${jss.endpoint}"/>
+    </bean>
+
+
+    <bean id="dmsWebJssCredential" class="com.jcloud.jss.Credential">
+        <constructor-arg index="0" value="${jss.accessKey}"/>
+        <constructor-arg index="1" value="${jss.secretKey}"/>
+    </bean>
+
+    <bean id="dmsWebJingdongStorageService" class="com.jcloud.jss.JingdongStorageService" depends-on="dmsWebJssCredential,dmsWebJssClientConfig">
+        <constructor-arg index="0" ref="dmsWebJssCredential" />
+        <constructor-arg index="1" ref="dmsWebJssClientConfig" />
+    </bean>
+
+    <bean id="dmsWebJssClientConfig" class="com.jcloud.jss.client.ClientConfig">
+        <property name="connectionTimeout" value="${jss.connectionTimeout}"/>
+        <property name="socketTimeout" value="${jss.socketTimeout}"/>
+        <property name="endpoint" value="${jss.endpoint}"/>
+    </bean>
+
 </beans>

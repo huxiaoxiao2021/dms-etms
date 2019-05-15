@@ -1,17 +1,11 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.util.List;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.LoginCheckConfig;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
@@ -26,8 +20,16 @@ import com.jd.bluedragon.distribution.sysloginlog.service.SysLoginLogService;
 import com.jd.bluedragon.distribution.version.domain.ClientConfig;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 
@@ -69,6 +71,8 @@ public class UserServiceImpl implements UserService{
 	private SysLoginLogService sysLoginLogService;
 	@Autowired
 	private ClientConfigService clientConfigService;
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	/**
 	 * 分拣客户端登录服务
 	 * @param request
@@ -258,5 +262,58 @@ public class UserServiceImpl implements UserService{
     		}
     	}
 		return checkResult;
+	}
+	@Override
+	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
+		JdResult<LoginUserResponse> loginResult = new JdResult<LoginUserResponse>();
+		loginResult.toSuccess("获取登录账户信息成功！");
+		if(request == null || StringHelper.isEmpty(request.getErpAccount())){
+			loginResult.toFail("登录账号不能为空！");
+		}else{
+			String userErp = request.getErpAccount();
+			BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
+	        if (null == basestaffDto) {
+	        	loginResult.toFail("账号"+userErp+"在青龙基础资料中未维护！");
+	        } else if(basestaffDto.getSiteCode() == null 
+	        		|| basestaffDto.getSiteCode() <= 0){
+	        	loginResult.toFail("账号"+userErp+"在青龙基础资料中未维护站点信息！");
+	        }else{	
+	        	LoginUserResponse loginUserResponse = new LoginUserResponse();
+	    		// 用户ID
+	        	loginUserResponse.setStaffId(basestaffDto.getStaffNo());
+	    		// 用户名称
+	        	loginUserResponse.setStaffName(basestaffDto.getStaffName());
+	        	//erp
+	        	loginUserResponse.setErpAccount(userErp);
+	    		// 分拣中心ID
+	        	BaseStaffSiteOrgDto siteInfo = this.baseMajorManager.getBaseSiteBySiteId(basestaffDto.getSiteCode());
+	        	if(siteInfo != null){
+	        		loginUserResponse.setSiteCode(siteInfo.getSiteCode());
+		    		// 分拣中心名称
+		        	loginUserResponse.setSiteName(siteInfo.getSiteName());
+		    		// 机构ID
+		        	loginUserResponse.setOrgId(siteInfo.getOrgId());
+		    		// 机构名称
+		        	loginUserResponse.setOrgName(siteInfo.getOrgName());
+		    		// DMS编码
+		        	loginUserResponse.setDmsCode(siteInfo.getDmsSiteCode());
+		    		// 站点类型
+		        	loginUserResponse.setSiteType(siteInfo.getSiteType());
+		            // 站点子类型
+		        	loginUserResponse.setSubType(siteInfo.getSubType());
+					loginUserResponse.setDmsSiteCode(siteInfo.getSiteCode());
+					loginUserResponse.setDmsSiteName(siteInfo.getSiteName());
+		        	//设置分拣中心信息(同打印客户端逻辑)
+		        	if(siteInfo.getDmsId() != null && siteInfo.getDmsId() > 0){
+		        		loginUserResponse.setDmsSiteCode(siteInfo.getDmsId());
+		        		loginUserResponse.setDmsSiteName(siteInfo.getDmsName());
+		        	}
+	        		loginResult.setData(loginUserResponse);
+	        	}else{
+	        		loginResult.toFail("账号"+userErp+"对应的站点"+basestaffDto.getSiteCode()+"无效！");
+	        	}
+	        }
+		}
+		return loginResult;
 	}
 }

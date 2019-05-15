@@ -295,6 +295,36 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private Boolean useNewTemplate = Boolean.FALSE;
 
+	/**
+	 * @see this.customerContacts
+     */
+	private String customerPhoneText;
+
+	/**
+	 * @see this.road
+     */
+	private String rodeCode;
+
+	/**
+	 * 寄件人信息前缀
+     */
+	private String consignerPrefixText;
+
+	/**
+	 * 寄件人号码信息
+     */
+	private String consignerTelText;
+
+	/**
+	 * 包裹特殊标识1
+	 */
+	private String specialMark1 = "";
+
+	/**
+	 * 包裹特殊标识1-builder类型
+	 */
+	private StringBuilder specialMark1Builder = new StringBuilder();
+
 	public BasePrintWaybill(String waybillCode){
 		this.waybillCode = waybillCode;
 	}
@@ -308,6 +338,17 @@ public class BasePrintWaybill implements Serializable {
 	 * 京东物流网址和客服电话
 	 * */
 	private String additionalComment;
+
+	/**
+	 * 传入运单时待打印的包裹列表的下标指引
+	 * 用于指引客户端需要打印哪一个包裹
+	 */
+	private Integer willPrintPackageIndex = 0;
+
+	/**
+	 * 旧单的运单号
+     */
+	private String oldWaybillCode;
 
 	public String getAdditionalComment() {
 		return additionalComment;
@@ -1108,5 +1149,78 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setUseNewTemplate(Boolean useNewTemplate) {
 		this.useNewTemplate = useNewTemplate;
+	}
+
+	public String getCustomerPhoneText() {
+		return customerPhoneText;
+	}
+
+	public void setCustomerPhoneText(String customerPhoneText) {
+		this.customerPhoneText = customerPhoneText;
+	}
+
+	public String getRodeCode() {
+		return rodeCode;
+	}
+
+	public void setRodeCode(String rodeCode) {
+		this.rodeCode = rodeCode;
+	}
+
+	public String getConsignerPrefixText() {
+		return consignerPrefixText;
+	}
+
+	public void setConsignerPrefixText(String consignerPrefixText) {
+		this.consignerPrefixText = consignerPrefixText;
+	}
+
+	public String getConsignerTelText() {
+		return consignerTelText;
+	}
+
+	public void setConsignerTelText(String consignerTelText) {
+		this.consignerTelText = consignerTelText;
+	}
+
+	public Integer getWillPrintPackageIndex() {
+		return willPrintPackageIndex;
+	}
+
+	public void setWillPrintPackageIndex(Integer willPrintPackageIndex) {
+		this.willPrintPackageIndex = willPrintPackageIndex;
+	}
+
+	public String getOldWaybillCode() {
+		return oldWaybillCode;
+	}
+
+	public void setOldWaybillCode(String oldWaybillCode) {
+		this.oldWaybillCode = oldWaybillCode;
+	}
+
+	public String getSpecialMark1() {
+		return specialMark1;
+	}
+
+	public void setSpecialMark1(String specialMark1) {
+		this.specialMark1 = specialMark1;
+		specialMark1Builder = new StringBuilder(specialMark1);
+	}
+
+	/**
+	 * 特殊标记字段追加标记，不包含时加入标记
+	 * @param markText
+	 */
+	public void appendSpecialMark1(String markText){
+		//标识不为空，并且不包含此标记时加入标记
+		if(markText!=null && markText.length()>0
+				&& specialMark1Builder.indexOf(markText) < 0){
+			if(specialMark1.length()>0){
+				specialMark1Builder.append(" ");
+			}
+			specialMark1Builder.append(markText);
+			this.specialMark1 = specialMark1Builder.toString();
+		}
 	}
 }

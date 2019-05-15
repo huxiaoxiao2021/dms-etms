@@ -16,7 +16,12 @@ import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BeanHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.RandomUtils;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -303,10 +308,6 @@ public class BoxServiceImpl implements BoxService {
         this.delboxCodeCache(box.getCode());
         return this.boxDao.updateVolumeByCode(box);
     }
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Integer updateStatusByCodes(Box box) {
-        return this.boxDao.updateStatusByCodes(box);
-    }
 
     @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Box findBoxByCode(String code) {
@@ -410,43 +411,6 @@ public class BoxServiceImpl implements BoxService {
 		}
 		return resulte;
 	}
-
-    @Transactional(propagation=Propagation.REQUIRED,readOnly = false)
-    @Override
-    public Integer batchUpdateStatus(List<String> boxCodes, Integer boxStatus) {
-        if (null == boxCodes || boxCodes.size() <= 0) {
-            return 0;
-        }
-        try {
-            return splitPerOneThousand(boxCodes, boxStatus);
-        } catch (Exception ex) {
-            logger.error("更新箱号状态失败", ex);
-            return 0;
-        }
-    }
-
-    private Integer splitPerOneThousand(List<String> boxCodes, Integer boxStatus) {
-        int totalSize = boxCodes.size();
-        int fromIndex = 0;
-        int perSize = 1000;
-        int effectSize = 0;
-        for (;;) {
-            if (fromIndex + perSize >= totalSize) {
-                Box box = new Box();
-                box.setCode("('" + StringHelper.join(boxCodes.subList(fromIndex, totalSize), "','") + "')");
-                box.setStatus(boxStatus);
-                effectSize += boxDao.batchUpdateStatus(box);
-                break;
-            } else {
-                Box box = new Box();
-                box.setCode("('" + StringHelper.join(boxCodes.subList(fromIndex, fromIndex + perSize), "','") + "')");
-                box.setStatus(boxStatus);
-                effectSize += boxDao.batchUpdateStatus(box);
-                fromIndex = fromIndex + perSize;
-            }
-        }
-        return effectSize;
-    }
 
     @Override
 	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatusRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)

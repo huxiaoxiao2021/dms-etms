@@ -4,11 +4,16 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
+import com.jd.bluedragon.distribution.send.domain.ColdChainSendMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
 import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
+import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -19,8 +24,9 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
@@ -61,6 +67,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private GantryExceptionService gantryExceptionService;
 
     @Autowired
+    @Qualifier("dmsColdChainSendWaybill")
+    private DefaultJMQProducer dmsColdChainSendWaybill;
+
+    @Autowired
+    private ColdChainSendService coldChainSendService;
+
+    @Autowired
     @Qualifier("redisClientCache")
     private Cluster redisClientCache;
 
@@ -99,7 +112,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 } else {
                     // 根据发货操作时间判断数据是否有效
                     if (operateTime > Long.valueOf(lastOperateTime)) {
-                        throw new RuntimeException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
+                        throw new MessageException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
                     } else {
                         // 无效
                         logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:" + message.getText());
@@ -109,7 +122,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             } else {
                 logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:" + message.getText());
             }
-        } catch (Exception e) {
+        }catch (MessageException e){
+            throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
+        }catch (Exception e) {
             logger.error("[dmsWorkSendDetail消费]消费异常" + "，MQ message body:" + message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         } finally {
@@ -163,7 +178,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      *
      * @param sendDetail
      */
-    private void doConsume(SendDetailMessage sendDetail) {
+    private void doConsume(SendDetailMessage sendDetail) throws JMQException {
         String packageBarCode = sendDetail.getPackageBarcode();
         if (SerialRuleUtil.isWaybillOrPackageNo(packageBarCode)) {
             String waybillCode = WaybillUtil.getWaybillCode(packageBarCode);
@@ -175,7 +190,11 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         throw new RuntimeException("[dmsWorkSendDetail消费]存储RMA订单数据失败，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
                     }
                 }
+                // 非城配运单，发车队通知调度系统发送MQ消息
                 this.dmsToVendorMQ(sendDetail, waybill);
+                // 构建并发送冷链发货MQ消息
+                this.sendColdChainSendMQ(sendDetail, waybillCode);
+                // 龙门架、分拣机发货更新发货异常状态
                 this.updateGantryExceptionStatus(sendDetail);
             } else {
                 logger.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:" + packageBarCode + ",boxCode:" + sendDetail.getBoxCode());
@@ -199,6 +218,12 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
     }
 
+    /**
+     * 非城配运单，发车队通知调度系统发送MQ
+     *
+     * @param sendDetail
+     * @param waybill
+     */
     private void dmsToVendorMQ(SendDetailMessage sendDetail, Waybill waybill) {
         BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
         // 发货目的地是车队，且是非城配运单，要通知调度系统
@@ -206,6 +231,42 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             Message message = parseSendDetailToMessageOfDispatch(sendDetail, waybill, receiveSiteDto, dmsToVendor.getTopic(), Constants.SEND_DETAIL_SOUCRE_NORMAL);
             this.logger.info("非城配运单，发车队通知调度系统发送MQ[" + message.getTopic() + "],业务ID[" + message.getBusinessId() + "],消息主题: " + message.getText());
             dmsToVendor.sendOnFailPersistent(message.getBusinessId(), message.getText());
+        }
+    }
+
+    /**
+     * 构建并发送冷链发货MQ消息
+     *
+     * @param sendDetail
+     * @param waybillCode
+     * @throws JMQException
+     */
+    private void sendColdChainSendMQ(SendDetailMessage sendDetail, String waybillCode) throws JMQException {
+        if (SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND) {
+            BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
+            BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
+            if (createSiteDto != null && receiveSiteDto != null) {
+                ColdChainSend coldChainSend = coldChainSendService.getBySendCode(waybillCode, sendDetail.getSendCode());
+                if (coldChainSend != null && StringUtils.isNotEmpty(coldChainSend.getTransPlanCode())) {
+                    ColdChainSendMessage message = new ColdChainSendMessage();
+                    message.setWaybillCode(waybillCode);
+                    message.setSendCode(sendDetail.getSendCode());
+                    // 发货
+                    message.setSendType(1);
+                    message.setTransPlanCode(coldChainSend.getTransPlanCode());
+                    message.setCreateSiteCode(createSiteDto.getDmsSiteCode());
+                    message.setReceiveSiteCode(receiveSiteDto.getDmsSiteCode());
+                    message.setOperateTime(sendDetail.getOperateTime());
+                    message.setOperateUserName(sendDetail.getCreateUser());
+                    if (sendDetail.getCreateUserCode() != null) {
+                        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByStaffId(sendDetail.getCreateUserCode());
+                        if (dto != null) {
+                            message.setOperateUserErp(dto.getErp());
+                        }
+                    }
+                    dmsColdChainSendWaybill.send(waybillCode, JSON.toJSONString(message));
+                }
+            }
         }
     }
 
@@ -225,6 +286,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     /**
      * 构建非城配运单发往车队通知调度系统MQ消息体
+     *
      * @param sendDetail
      * @param waybill
      * @param rbDto
@@ -266,7 +328,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
             try {
                 BaseStaffSiteOrgDto preSiteDto = this.baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
-                if(preSiteDto != null){
+                if (preSiteDto != null) {
                     dto.setPreSiteName(preSiteDto.getSiteName());
                 }
             } catch (Exception e) {
@@ -280,15 +342,17 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     }
 
     /**
-     * 更新发货状态
+     * 龙门架、分拣机发货更新发货异常状态
      *
      * @param sendDetail
      */
     private void updateGantryExceptionStatus(SendDetailMessage sendDetail) {
-        // TODO: 2019/3/1  此处逻辑需拆解出去 拆到消费sendDetail MQ里
         //added by hanjiaxing 2016.12.20 reason:update gantry_exception set send_status = 1
-        gantryExceptionService.updateSendStatus(sendDetail.getBoxCode(), Long.valueOf(sendDetail.getCreateSiteCode()));
-        this.logger.info("更新异常信息发货状态，箱号：" + sendDetail.getBoxCode());
+        SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendDetail.getBizSource());
+        if (bizSource == null || bizSource == SendBizSourceEnum.SCANNER_FRAME_SEND || bizSource == SendBizSourceEnum.SORT_MACHINE_SEND) {
+            gantryExceptionService.updateSendStatus(sendDetail.getBoxCode(), Long.valueOf(sendDetail.getCreateSiteCode()));
+            this.logger.info("更新异常信息发货状态，箱号：" + sendDetail.getBoxCode());
+        }
     }
 
 }

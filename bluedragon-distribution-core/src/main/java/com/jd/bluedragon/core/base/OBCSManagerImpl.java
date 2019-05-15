@@ -59,8 +59,6 @@ public class OBCSManagerImpl implements OBCSManager{
                            //物权
                            respDTO.setGoodOwner(claimInfoRespDTO.getGoodOwner());
                            respDTO.setGoodOwnerName(claimInfoRespDTO.getGoodOwnerName());
-                           //目的事业部编码
-                           respDTO.setDivisionNumber(claimInfoRespDTO.getDivisionNumber());
                        }else if(LocalClaimInfoRespDTO.LP_STATUS_DOING.equals(tempStatus)){
                             if(LocalClaimInfoRespDTO.LP_STATUS_NONE.equals(statusDesc)){
                                 statusDesc = tempStatus;

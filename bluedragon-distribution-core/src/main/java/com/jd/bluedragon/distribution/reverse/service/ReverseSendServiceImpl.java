@@ -33,7 +33,9 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.spare.dao.SpareSortingRecordDao;
 import com.jd.bluedragon.distribution.spare.domain.Spare;
+import com.jd.bluedragon.distribution.spare.domain.SpareSortingRecord;
 import com.jd.bluedragon.distribution.spare.service.SpareService;
 import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -57,7 +59,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -176,6 +178,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @Autowired
     private InboundOrderService inboundOrderService;
 
+    @Autowired
+    private SpareSortingRecordDao spareSortingRecordDao;
+
     // 自营
     public static final Integer businessTypeONE = 10;
     // 退货
@@ -194,6 +199,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     public static final Map<String, String> tempMap = new ConcurrentHashMap<String, String>();
 
     public static final List<Integer> ASION_NO_ONE_SITE_CODE_LIST = new ArrayList<Integer>();
+
+    //责任主体：终端编号151
+    public static final String DUTY_ZD = "151";
 
     static {
         ReverseSendServiceImpl.tempMap.put("101", "1");
@@ -1350,7 +1358,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
                 String jsonString = JsonHelper.toJson(order);
 
-                this.logger.info("处理备件库退货,生成的json串为：" + jsonString);
+                this.logger.warn("处理备件库退货,生成的json串为：" + jsonString);
 
                 //调用备货仓 jsf 接口 distributionReceiveJsfService
                 MessageResult msgResult = distributionReceiveJsfService.createIn(order);
@@ -1551,12 +1559,32 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         }catch (Exception e){
             logger.error("获取转运损标识异常"+JsonHelper.toJson(sendDetail),e);
         }
-        if (waybill != null && sendDetail != null && sendDetail.getFeatureType() != null) {
-            if (2 == NumberHelper.getIntegerValue(sendDetail.getFeatureType())) {
-                lossType = 13; // 三方打折
-            } else if (16 == NumberHelper.getIntegerValue(waybill.getShipmentType())) {
-                lossType = 9; // 三方包裹破损
+
+        if (waybill != null && sendDetail != null) {
+
+            SpareSortingRecord spareSortingRecord = null;
+
+            try {
+                spareSortingRecord = spareSortingRecordDao.getLastRecord(sendDetail.getCreateSiteCode(), waybill.getWaybillCode());
+            } catch (Exception e) {
+                logger.error(waybill.getWaybillCode() + "获取备件库分拣记录信息失败！", e);
             }
+
+            if (spareSortingRecord != null && StringHelper.isNotEmpty(spareSortingRecord.getDutyCode())) {
+                if (DUTY_ZD.equals(spareSortingRecord.getDutyCode())) {
+                    //终端损标识
+                    lossType = 16;
+                }
+            }
+
+            if (sendDetail.getFeatureType() != null) {
+                if (2 == NumberHelper.getIntegerValue(sendDetail.getFeatureType())) {
+                    lossType = 13; // 三方打折
+                } else if (16 == NumberHelper.getIntegerValue(waybill.getShipmentType())) {
+                    lossType = 9; // 三方包裹破损
+                }
+            }
+            logger.warn("运单号：" + waybill.getWaybillCode() + "退备件库损别编码为：" + lossType);
         }
 
         return lossType;
@@ -1940,11 +1968,11 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 //获取旧运单号
                 oldWaybillCode = oldWaybill.getData().getWaybillCode();
             }else{
-                logger.error("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                logger.warn("退ECLP增加拒收原因处理时，获取运单数据失败，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
                 return;
             }
             if(com.jd.common.util.StringUtils.isEmpty(oldWaybillCode)){
-                logger.error("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
+                logger.warn("退ECLP增加拒收原因处理时，旧运单号为空，sendCode = "+reverseSendMQToECLP.getSendCode()+" waybillCode="+waybillCode);
                 return;
             }
 

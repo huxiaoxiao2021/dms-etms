@@ -257,10 +257,10 @@
 				  AND (
 					  <foreach collection="waybillCodeList" item="item" index="index" open="" close="" separator="">
 						  <if test="index == 0">
-							  waybill_code IN (${item})
+							  waybill_code IN (#{item,jdbcType=VARCHAR})
 						  </if>
 						  <if test="index != 0">
-							  OR waybill_code IN (${item})
+							  OR waybill_code IN (#{item,jdbcType=VARCHAR})
 						  </if>
 					  </foreach>
 				  )

@@ -2,7 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.tms.boss.dto.CommonDto;
 import com.jd.tms.boss.dto.RecyclingBoxDto;
 import com.jd.tms.boss.ws.BossQueryWS;

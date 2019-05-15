@@ -37,6 +37,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -59,6 +60,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -75,9 +77,11 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Service("sortingService")
@@ -157,7 +161,6 @@ public class SortingServiceImpl implements SortingService {
 		return this.sortingDao.update(SortingDao.namespace, sorting);
 	}
 
-
 	public boolean existSortingByPackageCode(Sorting sorting) {
 		if (this.sortingDao.existSortingByPackageCode(sorting) > 0) {
 			return true;
@@ -168,16 +171,17 @@ public class SortingServiceImpl implements SortingService {
 
 	/*@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public List<Sorting> findSortingPackages(Sorting sorting) {
-		String boxCodes = this.getBoxCodes(sorting);
-		if (StringHelper.isEmpty(boxCodes)) {
+		List<String> boxCodelist = this.getBoxCodes(sorting);//方法对应的mapper 已经没有
+		if (CollectionUtils.isEmpty(boxCodelist)) {
 			return Collections.emptyList();
 		}
 
-		sorting.setBoxCodes(boxCodes);
+		sorting.setBoxCodeList(boxCodelist);
 		return this.sortingDao.findSortingPackages(sorting);
 	}*/
 
-	/*private String getBoxCodes(Sorting sorting) {
+	/*
+	private List<String> getBoxCodes(Sorting sorting) {
 		Box box = new Box();
 		box.setType(Box.BOX_TYPE_FORWARD);
 		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
@@ -186,6 +190,8 @@ public class SortingServiceImpl implements SortingService {
 
 		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
 	}*/
+		return CollectionHelper.joinToList(boxes,"getCode");
+	}
 
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
@@ -1299,4 +1305,26 @@ public class SortingServiceImpl implements SortingService {
 		}
 		return false;
 	}
+
+
+    @Override
+    public List<String> getWaybillCodeListByBoxCode(String boxCode) {
+        Box box = this.boxService.findBoxByCode(boxCode);
+        if (box == null) {
+            return null;
+        }
+        Sorting queryParam = new Sorting();
+        queryParam.setCreateSiteCode(box.getCreateSiteCode());
+        queryParam.setBoxCode(boxCode);
+        List<Sorting> sortingList = this.findByBoxCode(queryParam);
+        if (sortingList.size() > 0) {
+            Set<String> waybillCodeSet = new HashSet<>();
+            for (Sorting sorting : sortingList) {
+                waybillCodeSet.add(sorting.getWaybillCode());
+            }
+            return new ArrayList<>(waybillCodeSet);
+        } else {
+            return Collections.EMPTY_LIST;
+        }
+    }
 }

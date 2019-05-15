@@ -83,6 +83,28 @@ public class BoardCombinationResource {
             return result;
         }
 
+        return combinationNew(request);
+    }
+
+    /**
+     * 新组板功能，适配按运单组板，防止老版本PDA调用误操作运单号
+     *
+     */
+    @POST
+    @Path("/boardCombination/combination/new")
+    public JdResponse<BoardResponse> combinationNew(BoardCombinationRequest request) {
+        JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
+        result.setData(new BoardResponse());
+        BoardResponse boardResponse = result.getData();
+
+        //参数校验
+        String errStr = this.combinationVertifyNew(request);
+        if(StringHelper.isNotEmpty(errStr)){
+            result.toFail(errStr);
+            boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
+            return result;
+        }
+
         try {
             //操作组板，返回状态码
             Integer statusCode = boardCombinationService.sendBoardBindings(request,boardResponse);
@@ -266,11 +288,45 @@ public class BoardCombinationResource {
             return "参数操作人为空.";
         }
 
-        //箱号/包裹号是否合法
+        //箱号/运单号是否合法
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
                 && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
             this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
            return "箱号/包裹号不合法.";
+        }
+
+        return null;
+    }
+
+    /**
+     * 组板操作参数校验，增加了运单号的校验
+     * @param request
+     * @return
+     */
+    private String combinationVertifyNew(BoardCombinationRequest request){
+        //参数为空校验
+        if (request == null) {
+            return "参数为空.";
+        }
+
+        if(StringHelper.isEmpty(request.getBoardCode())){
+            return "板号为空.";
+        }
+        if(StringHelper.isEmpty(request.getBoxOrPackageCode())){
+            return "参数箱号/包裹号为空.";
+        }
+        if(request.getSiteCode() == null || request.getSiteCode() == 0){
+            return "参数操作站点为空.";
+        }
+        if(request.getUserCode() == null || request.getUserCode() == 0){
+            return "参数操作人为空.";
+        }
+
+        //箱号/包裹号/运单号是否合法
+        if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
+                && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode()) && ! WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
+            this.logger.error("箱号/包裹号正则校验不通过：" + request.getBoxOrPackageCode());
+            return "箱号/运单号/包裹号不合法.";
         }
 
         return null;

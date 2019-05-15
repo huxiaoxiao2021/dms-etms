@@ -1,20 +1,16 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URLDecoder;
-import java.net.UnknownHostException;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.common.hrm.UimHelper;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.ssa.exception.SsoException;
 import com.jd.ssa.service.SsoService;
-import com.jd.ssa.utils.SSOHelper;
-import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class NewDeptWebServiceImpl implements NewDeptWebService{
 	
@@ -27,17 +23,25 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 	 * @param username 用户名
 	 * @param password 密码
 	 */
-	public UserInfo verify(String username, String password) {
-		UserInfo userInfo = null;
+	public InvokeResult<UserInfo> verify(String username, String password) {
+        InvokeResult<UserInfo> result = new InvokeResult<>();
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
 		try {
 			String pwd = UimHelper.md5(password);
 			String remoteIp = InetAddress.getLocalHost().getHostAddress();
-			userInfo = ssoService.verify(username, pwd, remoteIp);
-		}catch(Exception e){
-			logger.error("SsoException verify error,认证失败");
+            UserInfo userInfo = ssoService.verify(username, pwd, remoteIp);
+            result.setData(userInfo);
+		}catch(SsoException e){
+            logger.error("SsoException verify error,认证失败",e);
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage(e.getMessage());
+		}catch (UnknownHostException e) {
+			logger.error("获取本地ip异常",e);
+			result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+			result.setMessage("验证失败!");
 		}
-		
-		return userInfo;
+
+		return result;
 		
 	}
 	
@@ -51,7 +55,7 @@ public class NewDeptWebServiceImpl implements NewDeptWebService{
 
 	public static void main(String args[]){
 		NewDeptWebServiceImpl impl = new NewDeptWebServiceImpl();
-		UserInfo userInfo = impl.verify("bjadmin","xinxibu456");
-		System.out.println(userInfo);
+        InvokeResult<UserInfo> result = impl.verify("bjadmin","xinxibu456");
+		System.out.println(result);
 	}
 }
