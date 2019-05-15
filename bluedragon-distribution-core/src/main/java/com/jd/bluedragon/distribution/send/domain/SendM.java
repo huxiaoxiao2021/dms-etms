@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.send.domain;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
-
+import java.util.List;
 
 public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM> {
 
@@ -141,6 +141,8 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
      * 发货业务来源
      */
     private Integer bizSource;
+
+    private List<String> boxCodeList;
 
     public Long getSendMId() {
         return sendMId;
@@ -348,6 +350,14 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public List<String> getBoxCodeList() {
+        return boxCodeList;
+    }
+
+    public void setBoxCodeList(List<String> boxCodeList) {
+        this.boxCodeList = boxCodeList;
     }
 
     @Override

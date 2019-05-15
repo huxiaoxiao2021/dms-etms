@@ -273,8 +273,10 @@ public class PreSealVehicleServiceImpl extends BaseService<PreSealVehicle> imple
                 SealTaskBody body = carMap.get(vo.getVehicleNumber());
                 body.setShieldsCarCode(vo.getSealCodes());
                 body.appendBatchCode(vo.getSealDataCode());
-                if(!taskBodyMap.containsKey(vo.getVehicleNumber())){
-                    taskBodyMap.put(vo.getVehicleNumber(), body);
+                //车和运力多对多
+                String key = pre.getTransportCode() + vo.getVehicleNumber();
+                if(!taskBodyMap.containsKey(key)){
+                    taskBodyMap.put(key, body);
                 }
             }
         }

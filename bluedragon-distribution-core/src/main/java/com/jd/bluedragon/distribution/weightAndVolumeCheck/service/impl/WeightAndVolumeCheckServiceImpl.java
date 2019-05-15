@@ -340,18 +340,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         assemble(packWeightVO, weightVolumeCollectDto);
 
         //2.复核与计费比较
-        Double reviewLength = packWeightVO.getLength();
-        Double reviewWidth = packWeightVO.getWidth();
-        Double reviewHigh = packWeightVO.getHigh();
-        Double reviewWeight = packWeightVO.getWeight();
-        Double reviewVolume = packWeightVO.getVolume()==null || packWeightVO.getVolume().equals(0.00)?reviewLength*reviewWidth*reviewHigh : packWeightVO.getVolume();
-        weightVolumeCollectDto.setReviewLWH(reviewLength+"*"+reviewWidth+"*"+reviewHigh);
-        weightVolumeCollectDto.setReviewWeight(reviewWeight);
+        Double reviewLengthStr = keeTwoDecimals(packWeightVO.getLength());
+        Double reviewWidthStr = keeTwoDecimals(packWeightVO.getWidth());
+        Double reviewHighStr = keeTwoDecimals(packWeightVO.getHigh());
+        Double reviewWeightStr = keeTwoDecimals(packWeightVO.getWeight());
+        Double reviewVolume = keeTwoDecimals(reviewLengthStr*reviewWidthStr*reviewHighStr);
+        weightVolumeCollectDto.setReviewLWH(reviewLengthStr+"*"+reviewWidthStr+"*"+reviewHighStr);
+        weightVolumeCollectDto.setReviewWeight(reviewWeightStr);
         weightVolumeCollectDto.setReviewVolume(reviewVolume);
 
-        abnormalResultMq.setReviewLength(reviewLength);
-        abnormalResultMq.setReviewWidth(reviewWidth);
-        abnormalResultMq.setReviewHeight(reviewHigh);
+        abnormalResultMq.setReviewLength(reviewLengthStr);
+        abnormalResultMq.setReviewWidth(reviewWidthStr);
+        abnormalResultMq.setReviewHeight(reviewHighStr);
 
         String waybillCode = WaybillUtil.getWaybillCode(packWeightVO.getCodeStr());
         try{
@@ -392,17 +392,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.setMessage("计费重量为0或空，无法进行校验");
                 weightVolumeCollectDto.setIsExcess(1);
             }else{
-                if((reviewWeight <= 5 && Math.abs(reviewWeight-billingWeight)> 0.3) || (reviewWeight > 5 && reviewWeight <= 20 && Math.abs(reviewWeight-billingWeight)> 0.5)
-                        || (reviewWeight > 20 && reviewWeight <= 50 && Math.abs(reviewWeight-billingWeight)> 1)
-                        || (reviewWeight > 50 && Math.abs(reviewWeight-billingWeight) > reviewWeight * 0.02)){
+                double diffOfWeight = Math.abs(keeTwoDecimals(reviewWeightStr - billingWeight));
+                if((reviewWeightStr <= 5 && diffOfWeight> 0.3) || (reviewWeightStr > 5 && reviewWeightStr <= 20 && diffOfWeight> 0.5)
+                        || (reviewWeightStr > 20 && reviewWeightStr <= 50 && diffOfWeight> 1)
+                        || (reviewWeightStr > 50 && diffOfWeight > reviewWeightStr * 0.02)){
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                     result.setData(false);
-                    result.setMessage("此次操作重量为"+reviewWeight+"kg,计费重量为"+billingWeight+"kg，"
-                            +"经校验误差值"+Math.abs(reviewWeight-billingWeight)+"kg已超出规定"+ (reviewWeight <=5 ? "0.3":reviewWeight<=20 ? "0.5":reviewWeight<=50 ? "1" : reviewWeight * 0.02)+"kg！");
+                    result.setMessage("此次操作重量为"+reviewWeightStr+"kg,计费重量为"+billingWeight+"kg，"
+                            +"经校验误差值"+diffOfWeight+"kg已超出规定"+ (reviewWeightStr <=5 ? "0.3":reviewWeightStr<=20 ? "0.5":reviewWeightStr<=50 ? "1" : reviewWeightStr * 0.02)+"kg！");
                     weightVolumeCollectDto.setIsExcess(1);
                 }
             }
-            weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeight - billingWeight)));
+            weightVolumeCollectDto.setWeightDiff(new DecimalFormat("#0.00").format(Math.abs(reviewWeightStr - billingWeight)));
             StringBuilder diffStandardOfWeight = new StringBuilder("");
             if(reviewVolume <= 5){
                 diffStandardOfWeight.append("重量:0.3");
@@ -419,15 +420,17 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 result.setMessage("计费体积为0或空，无法进行校验");
                 weightVolumeCollectDto.setIsExcess(1);
             }else{
-                if((reviewVolume/8000 <= 5 && Math.abs(reviewVolume-billingVolume)/8000> 0.3)
-                        || (reviewVolume/8000 > 5 && reviewVolume/8000 <= 20  && Math.abs(reviewVolume-billingVolume)/8000 > 0.5)
-                        || (reviewVolume/8000 > 20 && reviewVolume/8000 <= 50  && Math.abs(reviewVolume-billingVolume)/8000 > 1)
-                        || (reviewVolume/8000 > 50 && Math.abs(reviewVolume-billingVolume)/8000 > reviewVolume*0.02/8000)){
+                double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
+                double diffOfVolume = diff==0.00 ? 0.01 : diff;
+                if((reviewVolume/8000 <= 5 && diffOfVolume/8000> 0.3)
+                        || (reviewVolume/8000 > 5 && reviewVolume/8000 <= 20  && diffOfVolume/8000 > 0.5)
+                        || (reviewVolume/8000 > 20 && reviewVolume/8000 <= 50  && diffOfVolume/8000 > 1)
+                        || (reviewVolume/8000 > 50 && diffOfVolume/8000 > reviewVolume*0.02/8000)){
                     result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
                     result.setData(false);
                     String message = "此次操作体积重量（体积除以8000）为"+String.format("%.6f", reviewVolume/8000)+"kg,计费体积重量（体积除以8000）为"+String.format("%.6f", billingVolume/8000)+"kg，"
 
-                            +"经校验误差值"+Math.abs(reviewVolume-billingVolume)/8000+"kg已超出规定"+ (reviewVolume/8000 <=5 ? "0.3":reviewVolume/8000<=20 ? "0.5":reviewVolume/8000<=50 ? "1" : reviewVolume/8000 * 0.02)+"kg！";
+                            +"经校验误差值"+diffOfVolume/8000+"kg已超出规定"+ (reviewVolume/8000 <=5 ? "0.3":reviewVolume/8000<=20 ? "0.5":reviewVolume/8000<=50 ? "1" : reviewVolume/8000 * 0.02)+"kg！";
                     if(!StringUtils.isBlank(result.getMessage())){
                         message = result.getMessage()+"\r\n"+message;
                     }
@@ -459,6 +462,18 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         }
         return result;
 
+    }
+
+    /**
+     * 保留两位小数
+     * @param param
+     */
+    private Double keeTwoDecimals(Double param) {
+        if(param == null){
+            return 0.00;
+        }
+        param = (double)Math.round(param*100)/100;
+        return param;
     }
 
     /**

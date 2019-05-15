@@ -27,8 +27,6 @@ public interface  FBarCodeService {
 
     List<FBarCode> findFBarCodeesBySite(FBarCode fBarCode);
 
-    Integer updateStatusByCodes(FBarCode fBarCode);
-
     /**
      * 查询缓存箱号
      */
