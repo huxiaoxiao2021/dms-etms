@@ -18,13 +18,9 @@ public interface BoxService {
     /**重打*/
     Integer reprint(Box box);
     
-    List<Box> findBoxes(Box box);
-
     Box findBoxByCode(String boxCode);
     
     Box findBoxByBoxCode(Box box);
-
-    List<Box> findBoxesBySite(Box box);
 
     Integer updateVolumeByCode(Box box);
     /**  

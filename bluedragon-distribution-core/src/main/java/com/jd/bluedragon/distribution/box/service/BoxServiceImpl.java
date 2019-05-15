@@ -354,16 +354,6 @@ public class BoxServiceImpl implements BoxService {
         return this.boxDao.findBoxByBoxCode(box);
     }
 
-    public List<Box> findBoxesBySite(Box box) {
-        Assert.notNull(box, "box must not be null");
-        return this.boxDao.findBoxesBySite(box);
-    }
-
-    public List<Box> findBoxes(Box box) {
-        Assert.notNull(box, "box must not be null");
-        return this.boxDao.findBoxes(box);
-    }
-
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer reprint(Box box) {
         Assert.notNull(box.getUpdateUserCode(), "box updateUsercode must not be null");

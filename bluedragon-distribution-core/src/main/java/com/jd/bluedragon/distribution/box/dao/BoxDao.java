@@ -21,16 +21,6 @@ public class BoxDao extends BaseDao<Box> {
         return (Box) super.getSqlSession().selectOne(BoxDao.namespace + ".findBoxByBoxCode", box);
     }
 
-    @SuppressWarnings("unchecked")
-    public List<Box> findBoxesBySite(Box box) {
-        return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxesBySite", box);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Box> findBoxes(Box box) {
-        return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxes", box);
-    }
-
     public Integer updateVolumeByCode(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateVolumeByCode", box);
     }
