@@ -35,6 +35,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -72,6 +73,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 	@Autowired
 	private ReversePrintService reversePrintService;
+
+    @Value("${jsf.dmsExternal.pageLimit}")
+	private int pageLimit;
 
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
@@ -134,8 +138,8 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
             invokeResult.parameterError("分页参数不能为空");
             return invokeResult;
         }
-        if(pageDto.getPageSize() < 0){
-            invokeResult.parameterError("pageSize参数必须大于0");
+        if(pageDto.getPageSize() < 0 || pageDto.getPageSize() > pageLimit){
+            invokeResult.parameterError("pageSize参数必须大于0并且必须小于"+pageLimit);
             return invokeResult;
         }
         if(pageDto.getCurrentPage() < 0){
