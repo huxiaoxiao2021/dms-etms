@@ -40,7 +40,7 @@ public interface BoxService {
      * @param boxStatus 箱号状态
      * @return
      */
-    Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus);
+    Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp);
 
     /***
      * 获取箱号状态的缓存

@@ -704,6 +704,15 @@ public class Constants {
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+    /**
+     * 是否启用中台创建箱号开关key
+     */
+    public static final String CREATE_BOX_FROM_SSC_SWITCH = "CREATE_BOX_FROM_SSC_SWITCH";
+
+    /**
+     * 启用中台创建箱号的场地集合 key
+     */
+    public static final String CREATE_BOX_FROM_SSC_SITE = "CREATE_BOX_FROM_SSC_SITE";
 
     /**
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心

@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.box.service;
 
+import IceInternal.Ex;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.base.ContainerManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -42,6 +45,7 @@ import org.springframework.util.Assert;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -54,7 +58,7 @@ public class BoxServiceImpl implements BoxService {
 
     private static final int timeout = 86400;
 
-	private static final String BOX_STATUS_REDIS_QUERY_SWITCH = PropertiesHelper.newInstance().getValue("box.status.redis.query.switch");
+    private static final String BOX_STATUS_REDIS_QUERY_SWITCH = PropertiesHelper.newInstance().getValue("box.status.redis.query.switch");
 
     @Autowired
     private BoxDao boxDao;
@@ -84,6 +88,12 @@ public class BoxServiceImpl implements BoxService {
 
 	@Autowired
 	private SendMDao sendMDao;
+
+    @Autowired
+    private SiteService siteService;
+
+	@Autowired
+	private ContainerManager containerManager;
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public Integer add(Box box) {
@@ -141,7 +151,60 @@ public class BoxServiceImpl implements BoxService {
 	 */
 	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",mState = {JProEnum.TP})
 	public List<Box> batchAddNew(Box param,BoxSystemTypeEnum systemType) {
-		List<Box> boxes = Lists.newArrayList();
+		List<Box> boxes = null;
+
+		if(isCreateBoxFromSSC()){
+            CallerInfo callerInfoFromSSC = Profiler.registerInfo("DMSWEB.BoxService.batchAddNewFromSSC", Constants.UMP_APP_NAME_DMSWEB,false,true);
+            try{
+                Set<Integer> siteSet = siteService.getBoxFromSSCAllowedList();
+                //未配置站点列表时默认全部开启，否则取配置的列表
+                if(siteSet.isEmpty() || siteSet.contains(param.getCreateSiteCode())){
+                    //通过中台生产箱号
+                    boxes = batchAddNewFromSSC(param, systemType);
+                }
+            }catch (Exception e){
+                Profiler.functionError(callerInfoFromSSC);
+                logger.error("通过中台创建箱号失败" + JsonHelper.toJson(param), e);
+            }finally {
+                Profiler.registerInfoEnd(callerInfoFromSSC);
+            }
+        }
+		//原有分拣逻辑生产箱号作为兜底方案，当箱号集合为空时，有该逻辑重新生成
+        if(boxes == null || boxes.isEmpty()){
+            //通过原有分拣逻辑生产箱号
+            CallerInfo callerInfoFromDMS = Profiler.registerInfo("DMSWEB.BoxService.batchAddNewFromDMS", Constants.UMP_APP_NAME_DMSWEB,false,true);
+            boxes = batchAddNewFromDMS(param, systemType);
+            Profiler.registerInfoEnd(callerInfoFromDMS);
+        }
+		return boxes;
+	}
+
+    /**
+     * 是否启用中台创建箱号开关
+     * @return boolean
+     */
+	private boolean isCreateBoxFromSSC(){
+        boolean isCreateBoxFromSSC = false;
+        try{
+            SysConfig config = sysConfigService.findConfigContentByConfigName(Constants.CREATE_BOX_FROM_SSC_SWITCH);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+                isCreateBoxFromSSC = true;
+            }
+        }catch (Exception e){
+            logger.error("查询箱号创建是否使用中台异常", e);
+        }
+
+        return isCreateBoxFromSSC;
+    }
+
+    /**
+     * 使用中台生产箱号
+     * @param param 参数
+     * @param systemType 类型
+     * @return 箱号集合
+     */
+	private List<Box> batchAddNewFromDMS(Box param,BoxSystemTypeEnum systemType) {
+        List<Box> boxes = Lists.newArrayList();
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
@@ -179,6 +242,32 @@ public class BoxServiceImpl implements BoxService {
 
 		return boxes;
 	}
+
+    /**
+     * 使用中台生产箱号
+     * @param param 参数
+     * @param systemType 类型
+     * @return 箱号集合
+     */
+    private List<Box> batchAddNewFromSSC(Box param,BoxSystemTypeEnum systemType) {
+        List<Box> boxes = Lists.newArrayList();
+        try{
+            boxes = containerManager.createContainers(param, systemType);
+            for(Box box : boxes){
+                this.add(box);
+                try {
+                    //写入箱号之后添加缓存,key为箱号
+                    redisManager.setex(box.getCode(), timeout, JsonHelper.toJson(box));
+                } catch (Exception e) {
+                    this.logger.error("打印箱号写入缓存失败",e);
+                }
+            }
+        }catch (Exception e){
+            logger.error("通过中台生产箱号失败：" + JsonHelper.toJson(param), e);
+        }
+
+        return boxes;
+    }
 
 	/**
 	 * 新箱号开头规则
@@ -309,8 +398,29 @@ public class BoxServiceImpl implements BoxService {
         return this.boxDao.updateVolumeByCode(box);
     }
 
-    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
 	public Box findBoxByCode(String code) {
+		Assert.notNull(code, "code must not be null");
+
+		Box box = null;
+
+		//通过中台查询箱号
+        if(isCreateBoxFromSSC()){
+            try{
+                box = containerManager.findBoxByCode(code);
+            }catch (Exception e){
+                logger.error("通过中台查询箱号失败：" + code, e);
+            }
+        }
+
+        //当箱号为空时，从本系统再查一遍
+        if(box == null){
+            box = findBoxByCodeFromDMS(code);
+        }
+
+		return box;
+	}
+
+	private Box findBoxByCodeFromDMS(String code) {
 		Assert.notNull(code, "code must not be null");
 
 		try {
@@ -404,7 +514,7 @@ public class BoxServiceImpl implements BoxService {
 
     @Override
 	@JProfiler(jKey = "DMSWEB.BoxServiceImpl.updateBoxStatusRedis", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus) {
+	public Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp) {
 		Boolean result = false;
 		if (StringHelper.isNotEmpty(boxCode) && operateSiteCode != null && BusinessHelper.isBoxcode(boxCode)) {
 			CallerInfo info = null;
@@ -425,9 +535,45 @@ public class BoxServiceImpl implements BoxService {
 			finally {
 				Profiler.registerInfoEnd(info);
 			}
+
+			if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode() || boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
+                updateBoxStatusSSC(boxCode, operateSiteCode, boxStatus, userErp);
+            }
 		}
 		return result;
 	}
+
+    /**
+     * 更新容器状态
+     * @param boxCode 容器号
+     * @param operateSiteCode 操作场地ID
+     * @param boxStatus 状态
+     * @param userErp 更新人erp
+     */
+	private void updateBoxStatusSSC(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp){
+	    try{
+            if(isCreateBoxFromSSC()) {
+                Set<Integer> siteSet = siteService.getBoxFromSSCAllowedList();
+                //未配置站点列表时默认全部开启，否则取配置的列表
+                if (siteSet.isEmpty() || siteSet.contains(operateSiteCode)) {
+                    if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode()){
+                        containerManager.updateBoxSend(boxCode,userErp,userErp,operateSiteCode);
+                    }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
+						containerManager.updateBoxCancelSend(boxCode, userErp, userErp, operateSiteCode);
+                    }
+                }
+            }
+        }catch (Exception e){
+            String msg = "";
+	        if(boxStatus == BoxStatusEnum.SENT_STATUS.getCode()){
+	            msg = "发货";
+            }else if(boxStatus == BoxStatusEnum.CANCELED_STATUS.getCode()){
+                msg = "取消发货";
+            }
+            logger.error("更新中台容器状态为" + msg + "异常：" + boxCode, e);
+        }
+
+    }
 
 	@Override
 	public Integer getBoxStatusFromRedis(String boxCode, Integer operateSiteCode) {
@@ -477,12 +623,12 @@ public class BoxServiceImpl implements BoxService {
 				if (sendMList != null && ! sendMList.isEmpty()) {
 					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时已发货！", boxCode, operateSiteCode));
 					//更新箱号状态缓存为已发货
-					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendMList.get(0).getCreateUser());
 					result = true;
 				} else {
 					logger.info(MessageFormat.format("查询SendM表成功，箱号：{0} 在站点编号为：{1}时未发货！", boxCode, operateSiteCode));
 					//更新箱号状态缓存为初始状态
-					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode());
+					this.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.INIT_STATUS.getCode(), null);
 				}
 			}
 		} catch (Exception e) {

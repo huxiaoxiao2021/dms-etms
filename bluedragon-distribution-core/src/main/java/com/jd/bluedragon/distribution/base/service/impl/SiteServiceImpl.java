@@ -266,6 +266,24 @@ public class SiteServiceImpl implements SiteService {
         }
         return CRouterVerifyOpenDms;
     }
+    /**
+     * 从sysconfig表里查出来箱号需要由中台生产的分拣中心列表
+     *
+     * @return
+     */
+    @Cache(key = "SiteServiceImpl.getBoxFromSSCAllowedList", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    @Override
+    public Set<Integer> getBoxFromSSCAllowedList() {
+        Set<Integer> result = new TreeSet<>();
+        List<SysConfig> sysConfigList = sysConfigService.getListByConfigName(Constants.CREATE_BOX_FROM_SSC_SITE);
+        if (sysConfigList != null && !sysConfigList.isEmpty()) {
+            Set<String> sites = StringHelper.splitToSet(sysConfigList.get(0).getConfigContent(), Constants.SEPARATOR_COMMA);
+            for (String site : sites) {
+                result.add(Integer.valueOf(site));
+            }
+        }
+        return result;
+    }
 
     /**
      * 获取区域内的所有分拣中心

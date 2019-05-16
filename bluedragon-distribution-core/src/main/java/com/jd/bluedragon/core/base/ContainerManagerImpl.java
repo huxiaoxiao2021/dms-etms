@@ -12,6 +12,7 @@ import com.jd.ql.shared.services.sorting.api.ContainerService;
 import com.jd.ql.shared.services.sorting.api.dto.*;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,15 +45,22 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.createContainers", mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<Box> createContainers(Box param, BoxSystemTypeEnum systemType) throws Exception{
+        log.info("中台创建容器入参：" + JsonHelper.toJson(param));
+
         UserEnv userEnv = buildUserEnv(param.getCreateUser(), param.getCreateUser(), param.getCreateSiteCode());
         Flow flow = buildFlow(param);
+
         ContainerSource containerSource = ContainerSource.CLIENT;
         if(BoxSystemTypeEnum.AUTO_SORTING_MACHINE.equals(systemType)){
             containerSource = ContainerSource.MACHINE;
         }
+
         SortingAttributes attributes = buildSortingAttributes(param, containerSource);
         int count = param.getQuantity();
+
         ApiResult<List<Container>> apiResult = containerService.createContainers(flow, attributes, count, userEnv);
+        log.info("中台创建容器结果：" + JsonHelper.toJson(apiResult));
+
         if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
             log.warn("通过中台创建箱号失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台创建箱号失败：" + apiResult.getMessage());
@@ -64,6 +72,7 @@ public class ContainerManagerImpl implements ContainerManager{
                 Box box = new Box();
                 BeanHelper.copyProperties(box, param);
                 box.setCode(container.getCode());
+                box.setStatus(Box.STATUS_PRINT);
                 boxes.add(box);
             }
         }
@@ -90,7 +99,7 @@ public class ContainerManagerImpl implements ContainerManager{
             log.warn("箱号体积为0，不再更新中台容器体积：" + boxCode);
             return true;
         }
-
+        log.info("中台更新容器体积：" + boxCode);
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
 
         Volume volume = new Volume();
@@ -99,7 +108,10 @@ public class ContainerManagerImpl implements ContainerManager{
         volume.setHeight(BigDecimal.valueOf(height));
         volume.setUnit(VolumeUnit.CM3);
         volume.setVolume(BigDecimal.valueOf(length * width * height));
+
         ApiResult<Void> apiResult = containerService.measure(boxCode, volume, null, userEnv);
+        log.info("中台更新体积结果：" + JsonHelper.toJson(apiResult));
+
         if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
             log.warn("通过中台更新箱号体积失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台更新箱号体积失败：" + apiResult.getMessage());
@@ -110,8 +122,29 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean updateBoxSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
+        log.info("中台更新容器状态为发货：" + boxCode);
+
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
+
         ApiResult<Void> apiResult = containerService.send(userEnv, boxCode);
+        log.info("中台更新容器状态为发货结果：" + JsonHelper.toJson(apiResult));
+
+        if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+            log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
+            throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
+        }
+        return true;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Boolean updateBoxCancelSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
+        log.info("中台更新容器状态为取消发货：" + boxCode);
+
+        UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
+        ApiResult<Void> apiResult = containerService.reopenContainer(boxCode, userEnv);
+        log.info("中台更新容器状态为取消发货结果：" + JsonHelper.toJson(apiResult));
+
         if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
             log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
@@ -122,8 +155,12 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.findBoxByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Box findBoxByCode(String boxCode) throws Exception{
+        log.info("中台查询容器入参：" + boxCode);
+
         Box box = null;
         ApiResult<Container> apiResult = containerQueryService.getContainerByCode(tenantCode, boxCode);
+        log.info("中台查询容器结果：" + JsonHelper.toJson(apiResult));
+
         if(Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
             box = container2Box(apiResult.getData());
         }else{
@@ -153,6 +190,15 @@ public class ContainerManagerImpl implements ContainerManager{
             box.setCreateSiteName(fromSite.getSiteName());
             box.setReceiveSiteCode(flow.getToSiteId());
             box.setReceiveSiteName(toSite.getSiteName());
+
+            //设置箱子状态已打印、已发货（已打印为初始态）
+            if(ContainerStatus.OPEN.equals(container.getStatus())
+                    || ContainerStatus.PRINT.equals(container.getStatus())
+                    || ContainerStatus.RE_OPEN.equals(container.getStatus())){
+                box.setStatus(Box.STATUS_PRINT);
+            }else if(ContainerStatus.HAS_SENT.equals(container.getStatus())){
+                box.setStatus(Box.BOX_STATUS_SEND);
+            }
 
             //设置是否可以混装
             if(container.getAttributes().isMixContainer()){
@@ -189,6 +235,12 @@ public class ContainerManagerImpl implements ContainerManager{
      * @return UserEnv
      */
     private UserEnv buildUserEnv(String userErp, String userName, Integer createSiteCode){
+        if(StringUtils.isBlank(userErp)){
+            userErp = defaultUserErp;
+        }
+        if(StringUtils.isBlank(userName)){
+            userName = defaultUserName;
+        }
         UserEnv userEnv = new UserEnv();
         userEnv.setTenantCode(tenantCode);
         userEnv.setOperateSortingCenterId(createSiteCode);

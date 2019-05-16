@@ -19,8 +19,20 @@ public interface ContainerManager {
      */
     String tenantCode = "cn";
 
-    /** 预计发货时间*/
+    /**
+     * 预计发货时间
+     */
     String predictSendTimeKey = "predictSendTime";
+
+    /**
+     * 系统默认erp
+     */
+    String defaultUserErp = "systemErp";
+
+    /**
+     * 系统默认name
+     */
+    String defaultUserName = "systemName";
 
 
     /**
@@ -58,6 +70,17 @@ public interface ContainerManager {
      * @throws Exception
      */
     Boolean updateBoxSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception;
+
+    /**
+     * 更新箱子状态为已发货
+     * @param boxCode 箱号
+     * @param userErp 用户erp 不可为空
+     * @param userName 用户名称
+     * @param createSiteCode 所属场地
+     * @return 是否成功
+     * @throws Exception
+     */
+    Boolean updateBoxCancelSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception;
 
     /**
      * 根据箱号查询箱子信息
