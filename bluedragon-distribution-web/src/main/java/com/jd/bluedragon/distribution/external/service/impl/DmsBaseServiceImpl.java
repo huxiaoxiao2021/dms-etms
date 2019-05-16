@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 
@@ -50,4 +52,9 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     public List<BaseResponse> getRunNumber(String arg) {
         return baseResource.getRunNumber();
     }
+
+	@Override
+	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
+		return userService.getLoginUser(request);
+	}
 }

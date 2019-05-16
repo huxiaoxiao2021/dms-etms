@@ -15,18 +15,24 @@
     <!-- 共用 client 区 -->
     <!-- 财务接口 王建磊  -->
     <jsf:consumer id="waybillServiceJSF" interface="com.jd.etms.finance.wss.WaybillDataServiceWS"
-                  protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${finance.jsf.alias}" timeout="${finance.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- 计费接口 廖涛 -->
+    <jsf:consumer id="businessDetailQueryJsf" interface="com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf"
+                  protocol="jsf" alias="${finance.businessDetail.jsf.alias}" timeout="${finance.businessDetail.jsf.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${finance.businessDetail.jsf.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- 外单快速生产运单信息接口 王建磊 -->
     <jsf:consumer id="getOrderMsgServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.GetOrderMsgServiceJsf"
-                  protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${getOrderMsgServiceJsf.jsf.alias}" timeout="${getOrderMsgServiceJsf.jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${getOrderMsgServiceJsf.jsf.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- 返单业务接口 王建磊 -->
     <jsf:consumer id="grossReturnSafService" interface="com.jd.etms.receive.api.saf.GrossReturnSaf"
-                  protocol="jsf" alias="${finance.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${finance.jsf.alias}" timeout="${finance.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- erp接口 苗延超 杨庭柱 -->
@@ -36,7 +42,7 @@
         </jsf:consumer> -->
 
     <jsf:consumer id="supportServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
-                  protocol="jsf" alias="${erp.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!--     <jsf:consumer id="erpBizSafWS"  interface="com.jd.etms.erp.ws.ErpQuerySafWS"
@@ -45,7 +51,7 @@
 
     <!-- 仓储dtc接口 乔洪佥 -->
     <jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
-                  protocol="jsf" alias="${dtc.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${dtc.jsf.alias}" timeout="${dtc.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- -->
     <!-- Promise接口，获取分拣中心和配送中心对应关系 -->
@@ -77,12 +83,12 @@
     </jsf:consumer>
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
-                  protocol="jsf" alias="${3pl.jsf.alias}" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 运力编码Vts系统 李胜涛  -->
     <jsf:consumer id="vtsQueryWS" interface="com.jd.etms.vts.ws.VtsQueryWS" protocol="jsf"
-                  alias="${vst.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  alias="${vst.jsf.alias}" serialization="hessian" timeout="${vst.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <bean id="vtsQueryWSProxy" class="com.jd.etms.vts.proxy.impl.VtsQueryWSProxyImpl">
@@ -90,49 +96,49 @@
     </bean>
 
     <jsf:consumer id="basicQueryWS" interface="com.jd.tms.basic.ws.BasicQueryWS" protocol="jsf"
-                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 车辆管理系统 VMS 系统 李胜涛  -->
     <jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
-                  protocol="jsf" alias="${vms.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${vms.jsf.alias}" serialization="hessian" timeout="${vms.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!--  出管接口 潘文华 于凯 -->
     <jsf:consumer id="stockExportServiceJsf" interface="com.jd.stock.iwms.export.StockExportService" protocol="jsf"
-                  alias="${stock.jsf.alias}" timeout="3000" retries="${jsf.retries}">
+                  alias="${stock.jsf.alias}" timeout="${stock.jsf.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${stock.jsf.jdtoken}" hide="true"/>
     </jsf:consumer>
 
     <!-- 运单系统接口 开始 -->
     <jsf:consumer id="waybillQueryApiJsf" interface="com.jd.etms.waybill.api.WaybillQueryApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000"  serialization="hessian" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}"  serialization="hessian" retries="${jsf.retries}" check="false">
     </jsf:consumer>
 
     <jsf:consumer id="waybillPackageApiJsf" interface="com.jd.etms.waybill.api.WaybillPackageApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillAddApiJsf" interface="com.jd.etms.waybill.api.WaybillAddApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillSyncApiJsf" interface="com.jd.etms.waybill.api.WaybillSyncApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <!--<jsf:consumer id="waybillUpdateApiJsf" interface="com.jd.etms.waybill.api.WaybillUpdateApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>-->
     <jsf:consumer id="waybillPickupTaskApiJsf" interface="com.jd.etms.waybill.api.WaybillPickupTaskApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillTraceApiJsf" interface="com.jd.etms.waybill.api.WaybillTraceApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <jsf:consumer id="waybillExtendApiJsf" interface="com.jd.etms.waybill.api.WaybillExtendApi" protocol="jsf"
-                  alias="${jsf.waybill.group}" timeout="5000" retries="${jsf.retries}" check="false">
+                  alias="${jsf.waybill.group}" timeout="${jsf.waybill.timeout}" retries="${jsf.retries}" check="false">
     </jsf:consumer>
     <jsf:consumer id="josServiceJsf"
                   interface="com.jd.bluedragon.distribution.external.jos.service.JosService" protocol="jsf"
-                  alias="${dms.jsf.alias}" timeout="5000" retries="${jsf.retries}"
+                  alias="${dms.jsf.alias}" timeout="${dms.jsf.timeout}" retries="${jsf.retries}"
     >
     </jsf:consumer>
 
@@ -156,11 +162,11 @@
     </jsf:consumer>
 
     <jsf:consumer id="basicTraderAPI" interface="com.jd.ldop.basic.api.BasicTraderAPI" protocol="jsf"
-                  alias="${ldop.basic.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
+                  alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <jsf:consumer id="basicTraderReturnAPI" interface="com.jd.ldop.basic.api.BasicTraderReturnAPI" protocol="jsf"
-                  alias="${ldop.basic.return.jsf.alias}" timeout="${basic.jsf.timeout}" retries="${jsf.retries}">
+                  alias="${ldop.basic.return.jsf.alias}" timeout="${ldop.basic.return.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
@@ -237,40 +243,40 @@
     <!--封车解封车jsf接口  added by zhanglei 20170519 -->
     <!-- 封车解封车 jsf接口 隋红华 王显群-->
     <jsf:consumer id="vosBusinessWS" interface="com.jd.etms.vos.ws.VosBusinessWS"
-                  protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${vos.jsf.vosBusinessWS.alias}" serialization="hessian" timeout="${vos.jsf.vosBusinessWS.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 任务封车简码查询 jsf接口 郝雄山-->
     <jsf:consumer id="tfcQueryWS" interface="com.jd.tms.tfc.ws.TfcQueryWS"
-                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="${tfc.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!--  (TFC)运输流程中心系统 jsf接口  王京-->
     <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
-                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="${tfc.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 车辆电子围栏 VOS系统 隋红华 王显群 李胜涛  -->
     <jsf:consumer id="vosQueryWS" interface="com.jd.etms.vos.ws.VosQueryWS"
-                  protocol="jsf" alias="${vos.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${vos.jsf.vosQueryWS.alias}" serialization="hessian" timeout="${vos.jsf.vosQueryWS.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!--封车解封车jsf接口  added by zhanglei 20170519 -->
 
     <!-- 备件库配送入 新增jsf接口 author：zhongyicun 2017-08-29 -->
     <jsf:consumer id="distributionReceiveJsfService" interface="com.jd.rd.unpack.jsf.distributionReceive.service.DistributionReceiveJsfService"
-                  protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="10000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${unpack.jsf.alias}" serialization="hessian" timeout="${unpack.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 备件库扩展接口  -->
-	<jsf:consumer id="rdWmsStoreExtendService" interface="com.jd.rd.wms.jsf.bin.service.RdWmsStoreExtendService" 
-		protocol="jsf" alias="${jsf.rdWmsStoreExtendService.alias}" timeout="5000" retries="${jsf.retries}">
-	</jsf:consumer>
+    <jsf:consumer id="rdWmsStoreExtendService" interface="com.jd.rd.wms.jsf.bin.service.RdWmsStoreExtendService"
+                  protocol="jsf" alias="${jsf.rdWmsStoreExtendService.alias}" timeout="${jsf.rdWmsStoreExtendService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 二次预分拣中件站接口  -->
-	<jsf:consumer id="presortMediumStation" interface="com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI"
-		protocol="jsf" alias="${jsf.presortMediumStationAPI.alias}" timeout="5000" retries="${jsf.retries}">
-	</jsf:consumer>
-	<!-- 运输jsf接口 -->
-	<jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS"
-		protocol="jsf" alias="${jsf.basicSyncWS.alias}" timeout="5000" retries="${jsf.retries}">
-	</jsf:consumer>
+    <jsf:consumer id="presortMediumStation" interface="com.jd.bluedragon.preseparate.jsf.PresortMediumStationAPI"
+                  protocol="jsf" alias="${jsf.presortMediumStationAPI.alias}" timeout="${jsf.presortMediumStationAPI.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+    <!-- 运输jsf接口 -->
+    <jsf:consumer id="basicSyncWS" interface="com.jd.tms.basic.ws.BasicSyncWS"
+                  protocol="jsf" alias="${jsf.basicSyncWS.alias}" timeout="${jsf.basicSyncWS.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
 
     <!-- TC jsf 接口-->
     <jsf:consumer id="groupBoardService" interface="com.jd.transboard.api.service.GroupBoardService"
@@ -288,122 +294,126 @@
         <property name="redisCache" ref="vrsRedisCacheSdk"/>
     </bean>
     <jsf:consumer id="routeComputeQueryAPI" interface="com.jd.etms.api.recommendroute.RouteComputeQueryAPI"
-                  protocol="jsf" alias="${jsf.router.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.router.alias}" timeout="${jsf.router.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <jsf:consumer id="transferWaveMonitorAPI" interface="com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI"
-                  protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.router.transferWaveMonitorAPI.alias}" timeout="${jsf.router.transferWaveMonitorAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <jsf:consumer id="vrsBNetQueryApi" interface="com.jd.etms.api.bnet.VrsBNetQueryAPI"
-                  protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.router.vrsBNetQueryApi.alias}" timeout="${jsf.router.vrsBNetQueryApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <jsf:consumer id="vrsWaybillQueryAPI" interface="com.jd.etms.api.waybill.VrsWaybillQueryAPI"
-                  protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.router.vrsWaybillQueryAPI.alias}" timeout="${jsf.router.vrsWaybillQueryAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单逆向换单接口-->
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
-                  protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="${jsf.waybillReverseApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单签单返回合单接口-->
     <jsf:consumer id="waybillReturnSignatureApi" interface="com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi"
-                  protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="${jsf.WaybillReturnSignatureApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!--eclp查商品明细 -->
     <jsf:consumer id="orderExtendService" interface="com.jd.kom.ext.service.OrderExtendService"
-                  protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.eclpOrder.alias}" timeout="${jsf.eclpOrder.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- WMS查询接口    -->
-    <jsf:consumer id="omcGoodsService" interface="com.jd.omc.jsf.OmcGoodsService" protocol="jsf" alias="${jsf.wms.good.alias}" timeout="5000" retries="${jsf.retries}">
+    <jsf:consumer id="omcGoodsService" interface="com.jd.omc.jsf.OmcGoodsService" protocol="jsf" alias="${jsf.wms.good.alias}" timeout="${jsf.wms.good.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.wms.good.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- automatic分拣自动化 - 分拣中心本地服务器信息 -->
     <jsf:consumer id="dmsLocalServerInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalserverinfo.DmsLocalServerInfoJsfService"
-                  protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.dmsLocalServer.alias}" timeout="${jsf.dmsLocalServer.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.dmsLocalServer.token}" hide="true" />
     </jsf:consumer>
     <!--运单 全程跟踪 查询接口 邱一良 -->
     <jsf:consumer id="waybillTraceBusinessQueryApi" interface="com.jd.ql.trace.api.WaybillTraceBusinessQueryApi"
-                  protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.waybillTrace.alias}" timeout="${jsf.waybillTrace.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 外单打印接口 -->
     <jsf:consumer id="waybillPrintApi" interface="com.jd.ldop.center.api.print.WaybillPrintApi"
-                  protocol="jsf" alias="${jsf.waybillPrintApi.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.waybillPrintApi.alias}" timeout="${jsf.waybillPrintApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 商家基础资料接口-->
     <jsf:consumer id="basicTraderInfoQueryApi" interface="com.jd.ldop.middle.api.basic.BasicTraderInfoQueryApi" protocol="jsf"
-                  alias="${ldop.basic.jsf.middle.alias}" timeout="5000" retries="${jsf.retries}">
+                  alias="${ldop.basic.jsf.middle.alias}" timeout="${ldop.basic.jsf.middle.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 查询揽收未分配列表 负责人 wangfei32-->
     <jsf:consumer id="vendorOrderJsfService" interface="com.jd.ql.erp.jsf.VendorOrderJsfService" protocol="jsf"
-                  alias="${ql.erp.jsf.alias}" timeout="5000" retries="${jsf.retries}">
+                  alias="${ql.erp.jsf.alias}" timeout="${ql.erp.jsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!--基础资料新接口-->
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
-                  alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${jsf.timeout}" retries="${jsf.retries}">
+                  alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${basic.jsf.baseCrossPackageTagWS.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
     </jsf:consumer>
     <!-- 加履系统 查询接口 郭海瑞 -->
     <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
-                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="5000" check="false" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="${jsf.handoverBill.timeout}" check="false" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- automatic分拣自动化 -储位相关- 焦文强 -->
     <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
-                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="${jsf.storageComponent.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!--报表的接口 唐春青-->
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="60000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
     <jsf:consumer id="dmsLocalInstanceInfoJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dmslocalinstanceinfo.DmsLocalInstanceInfoJsfService"
-                  protocol="jsf" alias="${jsf.dmsLocalInstanceInfo.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.dmsLocalInstanceInfo.alias}" timeout="${jsf.dmsLocalInstanceInfo.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
     <!-- 理赔系统接口-->
     <jsf:consumer id="claimListByClueInfoQueryAPI" interface="com.jd.uad.api.claim.facade.claim.ClaimListByClueInfoQueryAPI"
-                  protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.claimListByClueInfoQueryAPI.alias}" timeout="${jsf.claimListByClueInfoQueryAPI.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- ECLP系统接口 -->
     <jsf:consumer id="inboundOrderService" interface="com.jd.eclp.spare.ext.api.inbound.InboundOrderService"
-                  protocol="jsf" alias="${jsf.inboundOrderService.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.inboundOrderService.alias}" timeout="${jsf.inboundOrderService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <jsf:consumer id="deptServiceApi" interface="com.jd.eclp.master.export.api.service.dept.DeptServiceApi"
+                  protocol="jsf" alias="${jsf.deptServiceApi.alias}" timeout="${jsf.deptServiceApi.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
 
     <!-- automatic分拣自动化：获取发货方案配置的接口 -->
     <jsf:consumer id="areaDestJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.areadest.AreaDestJsfService"
-                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
     <!-- 外单商家相关接口 -->
     <jsf:consumer id="orderInfoServiceJsf" interface="com.jd.ql.dms.receive.api.jsf.OrderInfoServiceJsf"
-                  protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.orderInfoServiceJsf.alias}" timeout="${jsf.orderInfoServiceJsf.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
 
     <!--预分拣 - 分拣中心查询商家是否可以走B网车队-->
     <jsf:consumer id="dmsToVendorDispatchService" interface="com.jd.ql.dispatch.api.DmsToVendorDispatchService"
-                  protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="8000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.dmsToVendor.alias}"  timeout="${jsf.dmsToVendor.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 运输系统系统-根据流水号获取青流箱箱号 haofeihu-->
     <jsf:consumer id="bossQueryWS" interface="com.jd.tms.boss.ws.BossQueryWS"
-                  protocol="jsf" alias="${jsf.tms.boss.alias}"  timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.tms.boss.alias}"  timeout="${jsf.tms.boss.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 物资系统-根据运单号获取青流箱明细 jiangbing17-->
     <jsf:consumer id="cycleBoxExternalService" interface="com.jd.ham.cb.service.CycleBoxExternalService"
-                  protocol="jsf" alias="${jsf.waybill.ham.alias}" timeout="5000" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.waybill.ham.alias}" timeout="${jsf.waybill.ham.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
     <!-- 分拣中心 dms-business系统-判断运单在当前操作单位是否需要录入检疫证票号-->
     <jsf:consumer id="coldChainQuarantineJsfService" interface="com.jd.bluedragon.sdk.modules.quarantine.ColdChainQuarantineJsfService"
-                  alias="${jsf.dms.business.alias}" timeout="1000" retries="${jsf.retries}">
+                  alias="${jsf.dms.business.alias}" timeout="${jsf.dms.business.timeout}" retries="${jsf.retries}">
 
     </jsf:consumer>
 
     <!-- 终端系统-移动仓内配调妥投接口 -->
     <jsf:consumer id="workTaskService" interface="com.jd.ql.erp.jsf.WorkTaskService"
-                  protocol="jsf" alias="${jsf.workTask.alias}" timeout="5000" check="false" retries="0">
+                  protocol="jsf" alias="${jsf.workTask.alias}" timeout="${jsf.workTask.timeout}" check="false" retries="0">
     </jsf:consumer>
 
     <!-- 预分拣系统-批量转网 -->

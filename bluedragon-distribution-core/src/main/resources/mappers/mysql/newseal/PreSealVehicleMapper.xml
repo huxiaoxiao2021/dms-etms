@@ -217,6 +217,7 @@
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 			#{item,jdbcType=BIGINT}
 		</foreach>
+        and status = 0
 		and is_delete = 0
 	</update>
 

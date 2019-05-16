@@ -25,8 +25,8 @@ import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
-import com.jd.fastjson.JSON;
-import com.jd.fastjson.JSONArray;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
@@ -740,6 +740,25 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
 					waybillQueryManager.sendBdTrace(bdTraceDto);
 
+				}
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:取消建箱
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL).equals(task.getKeyword2())) {
+				String packageCode = tWaybillStatus.getPackageCode();
+				String waybillCode = tWaybillStatus.getWaybillCode();
+				//包裹号不为空时发送取消建箱的全程跟踪
+				if (StringHelper.isNotEmpty(packageCode)) {
+					tWaybillStatus.setPackageCode(packageCode);
+					tWaybillStatus.setWaybillCode(waybillCode);
+					toWaybillStatus(tWaybillStatus, bdTraceDto);
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+					waybillQueryManager.sendBdTrace(bdTraceDto);
+				} else {
+					logger.error("取消分拣全程跟踪失败，包裹号没空！");
 				}
 				task.setYn(0);
 			}

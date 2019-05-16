@@ -60,8 +60,11 @@
 		SELECT batch_code, create_site_code, receive_site_code,send_code,create_time, update_time,send_status,yn,send_car_operate_time,send_car_state
 		FROM batch_send
 		WHERE  create_site_code = #{createSiteCode,jdbcType=INTEGER}
-		<if test="receiveCodes!=null">
-			and receive_site_code  in(${receiveCodes})
+		<if test="receiveCodeList!=null">
+			and receive_site_code  in
+            <foreach collection="receiveCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item,jdbcType=INTEGER}
+            </foreach>
 		</if>
 		<if test="batchCode!=null">
 			and batch_code = #{batchCode,jdbcType=VARCHAR}

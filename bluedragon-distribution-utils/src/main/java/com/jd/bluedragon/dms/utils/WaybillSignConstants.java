@@ -56,4 +56,19 @@ public interface WaybillSignConstants {
 	 * TC-2
 	 */
 	char CHAR_89_2 = '2';
+
+	/**
+	 * B网冷链
+	 */
+	int POSITION_54 = 54;
+	char CHAR_54_2 = '2';
+
+	/**
+	 * 京仓/非京仓
+	 */
+	int POSITION_89 = 89;
+	char CHAR_89_3 = '3';
+	char CHAR_89_4 = '4';
+
+
 }

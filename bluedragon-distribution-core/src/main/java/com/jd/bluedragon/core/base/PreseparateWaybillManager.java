@@ -2,12 +2,18 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.preseparate.vo.*;
+import com.jd.preseparate.vo.PsOrderSeparateVo;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import com.jd.preseparate.vo.external.ExternalOrderDto;
 
 /**
  * Created by wangtingwei on 2015/10/28.
  */
 public interface PreseparateWaybillManager {
+
+	PsOrderSeparateVo getPreSeparateOrderByOrderId(String waybillCode);
+
+	ExternalOrderDto getPreSeparateExternalByOrderId(String waybillCode);
 
     /**
      * 获取预分拣站编号

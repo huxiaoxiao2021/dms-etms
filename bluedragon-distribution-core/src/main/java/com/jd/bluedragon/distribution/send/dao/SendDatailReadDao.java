@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,14 +15,13 @@ public class SendDatailReadDao extends BaseDao<SendDetail> {
     public static final String namespace = SendDatailReadDao.class.getName();
 
     @SuppressWarnings("unchecked")
-    public List<SendDetail> findUpdatewaybillCodeMessage(List<String> queryCondition) {
+    public List<SendDetail> findUpdatewaybillCodeMessage(List<Long> queryCondition) {
 
-        if (queryCondition == null || queryCondition.isEmpty())
+        if (queryCondition == null || queryCondition.isEmpty()){
             return null;
-        String queueId = StringHelper.join(queryCondition, ",", "(", ")",
-                "'");
+        }
         Map<String, Object> paramMap = new HashMap<String, Object>();
-        paramMap.put("queueId", queueId);
+        paramMap.put("queueIds", queryCondition);
 
         return this.getSqlSessionRead().selectList(
                 SendDatailReadDao.namespace + ".findUpdatewaybillCodeMessage", paramMap);

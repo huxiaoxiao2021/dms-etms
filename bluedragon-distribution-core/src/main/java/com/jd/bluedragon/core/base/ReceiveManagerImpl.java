@@ -1,7 +1,12 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +24,13 @@ public class ReceiveManagerImpl implements ReceiveManager{
     private GrossReturnSaf receiveExchangeService;
 	
 	@Override
-	public GrossReturnResponse queryDeliveryIdByFcode(String fCode) throws Exception{
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.grossReturnSaf.queryDeliveryIdByFcode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public GrossReturnResponse queryDeliveryIdByFcode(String fCode) throws Exception{
 		return receiveExchangeService.queryDeliveryIdByFcode(fCode);
 	}
 
 	@Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.grossReturnSaf.generateGrossReturnWaybill",mState={JProEnum.TP,JProEnum.FunctionError})
 	public GrossReturnResponse generateGrossReturnWaybill(GrossReturnRequest grossReturnRequest) throws Exception{
 		return receiveExchangeService.generateGrossReturnWaybill(grossReturnRequest);
 	}
@@ -35,6 +42,7 @@ public class ReceiveManagerImpl implements ReceiveManager{
      */
     @Override
     public InvokeResult<String> queryDeliveryIdByOldDeliveryId(String oldWaybillCode){
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.grossReturnSaf.queryDeliveryIdByOldDeliveryId",Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<String> targetResult=new InvokeResult<String>();
         try {
             GrossReturnResponse result = receiveExchangeService.queryDeliveryIdByOldDeliveryId(oldWaybillCode);
@@ -46,7 +54,10 @@ public class ReceiveManagerImpl implements ReceiveManager{
                 targetResult.customMessage(InvokeResult.RESULT_NULL_CODE, InvokeResult.RESULT_NULL_MESSAGE);
             }
         }catch (Exception ex){
+            Profiler.functionError(callerInfo);
             targetResult.error(ex);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
         }
         return targetResult;
     }

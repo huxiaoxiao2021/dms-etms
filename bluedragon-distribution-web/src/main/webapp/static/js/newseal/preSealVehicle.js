@@ -77,9 +77,12 @@ $(function() {
                 responseHandler: function(data){
                     if(data.code == 200){
                         saveData(data.data);
+                        $('#pre_num').val(preData.size);
                         return data.data;
                     }else{
                         preData = new Map();
+                        $('#pre_num').val(0);
+                        $('#sel_num').val(0);
                         alert(data.message);
                         return [];
                     }
@@ -91,22 +94,26 @@ $(function() {
                 onPostBody :function (index, row, $detail) {
                     // oTableInit.InitSubTable(index, row, $detail);
                     $("#dataTable").bootstrapTable('expandAllRows');
+                    setSelNum();
                 },
                 columns : oTableInit.tableColums
 			}).on('check.bs.table', function (e, row){
 			    if(row.id != null){
                     $("#" + row.receiveSiteCode).bootstrapTable("checkAll");
                 }
+                setSelNum();
             }).on('uncheck.bs.table', function (e, row){
                 if(row.id != null){
                     $("#" + row.receiveSiteCode).bootstrapTable("uncheckAll");
                 }
+                setSelNum();
             }).on('check-all.bs.table', function (e, rows){
                 for(var i = 0; i < rows.length; i++){
                     if(rows[i].id != null){
                         $("#" + rows[i].receiveSiteCode).bootstrapTable("checkAll");
                     }
                 }
+                setSelNum();
 
             }).on('uncheck-all.bs.table', function (e, rows){
                 for(var i = 0; i < rows.length; i++){
@@ -114,6 +121,7 @@ $(function() {
                         $("#" + rows[i].receiveSiteCode).bootstrapTable("uncheckAll");
                     }
                 }
+                setSelNum();
             });
 		};
         //初始化子表格
@@ -367,10 +375,13 @@ $(function() {
                             var faileddata = data.data;
                             if(faileddata != null && faileddata.length > 0){
                                 saveData(faileddata);
+                                $('#pre_num').val(preData.size);
                                 $("#dataTable").bootstrapTable('load', faileddata);
                             }
                             Jd.alert(data.message);
                         }else{
+                            $('#pre_num').val(0);
+                            $('#sel_num').val(0);
                             Jd.alert(data.message);
                             return [];
                         }
@@ -393,6 +404,12 @@ $(function() {
                 preData.set(data[i].receiveSiteCode, data[i]);
             }
         }
+        $('#pre_num').val(preData.size);
+    }
+
+    var setSelNum = function () {
+        var params = $("#dataTable").bootstrapTable('getAllSelections');
+        $('#sel_num').val(params.length);
     }
 
 	tableInit().init();

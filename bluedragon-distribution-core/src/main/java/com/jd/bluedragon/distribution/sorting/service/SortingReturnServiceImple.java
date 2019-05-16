@@ -20,6 +20,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -136,6 +138,9 @@ public class SortingReturnServiceImple implements SortingReturnService {
 		ArrayList<SortingReturn> resultList = new ArrayList<SortingReturn>();
 		for (ReturnsRequest request : returnsRequests) {
 			SortingReturn sorting = SortingReturn.parse(request);
+			if(StringUtils.isEmpty(sorting.getWaybillCode()) && StringUtils.isEmpty(sorting.getPackageCode())){
+                logger.error(MessageFormat.format("更新分拣退货运单号和包裹号为空sorting[{0}]request[{1}]",JsonHelper.toJson(sorting),JsonHelper.toJson(request)));
+            }
             if(sorting.getBusinessType()==null || !sorting.getBusinessType().equals(INTERCEPT_RECORD_TYPE)){
 	          	/*拦截记录饿信息不回传运单*/
             	resultList.add(sorting);
@@ -185,6 +190,10 @@ public class SortingReturnServiceImple implements SortingReturnService {
 	 * @return
 	 */
 	private Integer update(SortingReturn returns) {
+	    if(null == returns || StringUtils.isEmpty(returns.getWaybillCode())){
+            logger.error(MessageFormat.format("更新分拣退货运单号为空[{0}]",JsonHelper.toJson(returns)));
+            return 0;
+        }
 		return this.sortingReturnDao.update(SortingReturnDao.namespace, returns);
 	}
 
@@ -401,15 +410,21 @@ public class SortingReturnServiceImple implements SortingReturnService {
                         + ret.getPackageCode());
                 String shieldsError = ret.getShieldsError();
                 String[] datas = shieldsError.split(SortingReturnServiceImple.ERROR_CODE_MSG_SPLIT);
-                String[] packageMsg = ret.getPackageCode().split("-");
+                if(StringUtils.isEmpty(ret.getPackageCode())){
+                    continue;
+                }
+//                String[] packageMsg = ret.getPackageCode().split("-");
                 String shieldsType = datas.length >= 2 && checkIntegerValue(datas[0]) ? datas[0]
                         .trim() : null;
                 /*
 				 * 包裹号 xxxxx-数量序号-总数量-滑道号 只有数量序号为1的才发送MQ
 				 * （一单多件中的第一件：PDA只有在包裹齐全的时候才会推送数据）
 				 */
-                boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
-                        || packageMsg.length == 1 ? false : true;
+//                boolean isNotFirstPackage = packageMsg.length >= 3 && packageMsg[1].equals("1")
+//                        || packageMsg.length == 1 ? false : true;
+
+                //不是运单号 并且不是包裹1
+                boolean isNotFirstPackage = !WaybillUtil.isWaybillCode(ret.getPackageCode()) && !WaybillUtil.isFirstPack(ret.getPackageCode());
                 if (isNotFirstPackage || isNotToPushBlockerMqQueue(shieldsType)) {
                     logger.info("SortingReturnServiceImple.pushBlockerMqQueue[" + timeId
                             + "] 包裹号排除:" + ret.getPackageCode());

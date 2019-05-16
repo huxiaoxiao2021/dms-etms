@@ -479,6 +479,27 @@ public class Constants {
      * 包裹称重流水-操作类型-仓储操作
      */
     public static final Integer PACK_OPE_FLOW_TYPE_CC_REC = 4;
+
+    /**
+     * 是否启用称重量方：未启用称重未启用量方
+     */
+    public static final Integer WEIGHT_VOLUME_UNABLE = 0;
+
+    /**
+     * 是否启用称重量方：启用称重
+     */
+    public static final Integer WEIGHT_ENABLE = 1;
+
+    /**
+     * 是否启用称重量方：启用量方
+     */
+    public static final Integer VOLUME_ENABLE = 2;
+
+    /**
+     * 是否启用称重量方：启用量方和量方
+     */
+    public static final Integer WEIGHT_VOLUME_ENABLE = 3;
+
     /**
      * Text-保价
      */
@@ -576,6 +597,8 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
+    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
     public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
     public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
@@ -889,5 +912,21 @@ public class Constants {
 
     /** 快运发货路由校验新接口标识 **/
     public static final Integer DELIVERY_ROUTER_VERIFICATION_NEW = 1;
+
+    public static final double CONFIRM_WEIGHT_25 = 25.00;
+
+    public static final double CONFIRM_WEIGHT_100 = 100.00;
+
+    public static final double ILLEGAL_WEIGHT_1000 = 1000.00;
+
+    /**
+     * 计量单位：kg
+     */
+    public static final String MEASURE_UNIT_NAME_KG = "kg";
+
+    /**
+     * 计量单位：cm
+     */
+    public static final String MEASURE_UNIT_NAME_CM = "cm";
 
 }
