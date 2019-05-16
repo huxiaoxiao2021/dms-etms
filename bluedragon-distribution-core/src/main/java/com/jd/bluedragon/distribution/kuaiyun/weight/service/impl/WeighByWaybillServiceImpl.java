@@ -27,6 +27,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.common.web.LoginContext;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
@@ -100,6 +101,13 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
 
     @Autowired
     private TaskService taskService;
+
+    @Value("${weight.transfer.b2c.min:5}")
+    private double weightTransferB2cMin;
+
+    @Value("${weight.transfer.b2c.max:30}")
+    private double weightTransferB2cMax;
+
 
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
@@ -390,15 +398,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             BigWaybillDto bigWaybillDto = baseEntity.getData();
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
 
-            if(BusinessUtil.isForeignWaybill(waybillSign)
-                    && BusinessUtil.isPureDeliveryWaybill(waybillSign)
-                    && !BusinessUtil.isTc(waybillSign)){
-
-                if(!BusinessHelper.hasSendFreightForB2b(bigWaybillDto)){
-                    logger.info("运单中寄付运费小于等于0,不能进行转网.运单号:" + waybillCode);
-                    return false;
-                }
-
+            if(canTrasnferB2C(bigWaybillDto,vo.getWeight())){
                 BatchTransferRequest batchTransferRequest = buildTransferRequest(vo,waybillCode,waybillSign);
                 BaseResponseIncidental<BatchTransferResult> baseResponse = new BaseResponseIncidental<BatchTransferResult>();
                 try {
@@ -545,4 +545,27 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         this.preseparateSystemCode = preseparateSystemCode;
     }
 
+    /**
+     * 判断是否能够满足转网范围
+     * @param bigWaybillDto
+     * @param weight
+     * @return
+     */
+    private boolean canTrasnferB2C(BigWaybillDto bigWaybillDto,Double weight){
+        String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
+        String waybillCode = bigWaybillDto.getWaybill().getWaybillCode();
+
+        //满足标位，&& 寄付运费>0 && 重量在转网范围之内才能转网
+        if(BusinessUtil.isForeignWaybill(waybillSign)
+                && BusinessUtil.isPureDeliveryWaybill(waybillSign)
+                && !BusinessUtil.isTc(waybillSign)){
+            if(BusinessHelper.hasSendFreightForB2b(bigWaybillDto) &&
+                    NumberHelper.gte(weight,weightTransferB2cMin) &&
+                    NumberHelper.lte(weight,weightTransferB2cMax)){
+                return true;
+            }
+        }
+        logger.info("不满足转网条件，不能进行转网.运单号:" + waybillCode + ",重量:" + weight);
+        return false;
+    }
 }
