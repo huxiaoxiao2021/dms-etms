@@ -418,7 +418,7 @@
 
     <!-- 预分拣系统-批量转网 -->
     <jsf:consumer id="batchExpressTransferHandleAPI" interface="com.jd.bluedragon.preseparate.jsf.BatchExpressTransferHandleAPI"
-                  protocol="jsf" alias="${jsf.presort.expressTransfer.alias}" timeout="5000" check="false" retries="0">
+                  protocol="jsf" alias="${jsf.presort.expressTransfer.alias}" timeout="${jsf.presort.expressTransfer.timeout}" check="false" retries="0">
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
 

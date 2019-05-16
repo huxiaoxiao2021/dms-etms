@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.saf;
 
-import com.alibaba.fastjson.JSONObject;
 import java.awt.image.BufferedImage;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -9,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,25 +31,12 @@ import com.jd.bluedragon.distribution.print.service.PackagePrintService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-
-import java.awt.image.BufferedImage;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * B网营业厅打印JSF接口
