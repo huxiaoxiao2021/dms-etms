@@ -183,6 +183,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD = 8701;
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW = 8702;
 
+    /**
+     * 全称跟踪-取消建箱
+     */
+    public static final Integer WAYBILL_TRACK_SORTING_CANCEL = 13400;
+
     private Long id;
 
     private String sendCode;
