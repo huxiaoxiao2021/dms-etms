@@ -412,13 +412,5 @@
     <jsf:consumer id="workTaskService" interface="com.jd.ql.erp.jsf.WorkTaskService"
                   protocol="jsf" alias="${jsf.workTask.alias}" timeout="${jsf.workTask.timeout}" check="false" retries="0">
     </jsf:consumer>
-    <!-- 转运中台-容器实操接口 -->
-    <jsf:consumer id="containerService" interface="com.jd.ql.shared.services.sorting.api.ContainerService"
-                  protocol="jsf" alias="${jsf.containerService.alias}" timeout="${jsf.containerService.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>
 
-    <!-- 转运中台-容器查询接口 -->
-    <jsf:consumer id="containerQueryService" interface="com.jd.ql.shared.services.sorting.api.ContainerQueryService"
-                  protocol="jsf" alias="${jsf.containerQueryService.alias}" timeout="${jsf.containerQueryService.timeout}" retries="${jsf.retries}">
-    </jsf:consumer>
 </beans>
