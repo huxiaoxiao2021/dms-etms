@@ -27,6 +27,12 @@
 
 	<dependencies>
 		<dependency>
+			<artifactId>sorting-api</artifactId>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
 			<version>1.0.4-SNAPSHOT</version>
