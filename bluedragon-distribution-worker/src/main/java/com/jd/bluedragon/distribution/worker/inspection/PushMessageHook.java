@@ -32,7 +32,7 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
         for (CenConfirm cenConfirm:context.getCenConfirmList()) {
             InspectionMQBody inspectionMQBody = new InspectionMQBody();
             inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
-            if(inspectionMQBody.getWaybillCode() != null && sendInspectionKey.contains(inspectionMQBody.getWaybillCode())){
+            if(inspectionMQBody.getWaybillCode() == null || sendInspectionKey.contains(inspectionMQBody.getWaybillCode())){
                 continue;
             }
             sendInspectionKey.add(inspectionMQBody.getWaybillCode()!=null?inspectionMQBody.getWaybillCode():"");
