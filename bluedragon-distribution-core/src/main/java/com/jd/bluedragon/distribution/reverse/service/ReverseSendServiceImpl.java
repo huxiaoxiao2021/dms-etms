@@ -713,6 +713,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     }
 
                     ReverseSendWms send = makeReverseSendWms(wayBillCode, operCodeMap.get(wayBillCode).getNewWaybillCode());
+                    logger.info("3:报丢订单构建ReverseSendWms对象结果:" + JSON.toJSONString(send));
                     if (send == null) {
                         continue;
                     }
@@ -784,6 +785,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         ReverseSendWms sendTwaybill = null;//T单信息
         boolean isSickWaybill = false;
         send = tBaseService.getWaybillByOrderCode(wayBillCode);
+        logger.info("1:构建ReverseSendWms对象结果:" + JSON.toJSONString(send));
+
         if (send == null) {
             this.logger.info("调用运单接口获得数据为空,运单号" + wayBillCode);
             return null;
@@ -853,7 +856,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
 
         }
-
+        logger.info("2:构建ReverseSendWms对象结果:" + JSON.toJSONString(send));
         return send;
     }
 
@@ -930,6 +933,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     @SuppressWarnings("rawtypes")
     public boolean sendWMS(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
                            BaseStaffSiteOrgDto bDto, String taskId) throws Exception {
+        logger.info("5:sendWMS send参数:" + JSON.toJSONString(send));
         Integer orgId = bDto.getOrgId();
         String dmdStoreId = bDto.getStoreCode();
 
@@ -1927,6 +1931,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
 
     public boolean sendWMSByType(ReverseSendWms send, String wallBillCode, SendM sendM, Map.Entry entry, int lossCount,
                                  BaseStaffSiteOrgDto bDto, String taskId,String wayBillCode) throws Exception{
+        logger.info("4:sendWMSByType send参数:" + JSON.toJSONString(send));
         boolean isBatchSendSuccess = true ;
         String packageCodes =  (String)entry.getValue();//从map中，按原单号获取包裹号串
         if(send.isSickWaybill()){//如是病单，则将应发的病单报文，拆分成包裹维度的报文
