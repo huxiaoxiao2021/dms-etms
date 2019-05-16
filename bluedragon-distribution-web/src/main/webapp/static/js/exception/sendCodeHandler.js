@@ -86,15 +86,15 @@ function queryClickEvent() {
             packOutBoxUnOperSum = unOperatedSummary != null && unOperatedSummary.packageOutBoxNum != null? summary.unOperatedSummary : 0;
             packUnOperSum = unOperatedSummary != null && unOperatedSummary.packageNum != null? summary.packageNum : 0;
         }
-        $("boxSum").text(boxSum);
-        $("packOutBoxSum").text(packOutBoxSum);
-        $("packSum").text(packSum);
-        $("boxOperSum").text(boxOperSum);
-        $("packOutBoxOperSum").text(packOutBoxOperSum);
-        $("packOperSum").text(packOperSum);
-        $("boxUnOperSum").text(boxUnOperSum);
-        $("packOutBoxUnOperSum").text(packOutBoxUnOperSum);
-        $("packUnOperSum").text(packUnOperSum);
+        $("#boxSum").text(boxSum);
+        $("#packOutBoxSum").text(packOutBoxSum);
+        $("#packSum").text(packSum);
+        $("#boxOperSum").text(boxOperSum);
+        $("#packOutBoxOperSum").text(packOutBoxOperSum);
+        $("#packOperSum").text(packOperSum);
+        $("#boxUnOperSum").text(boxUnOperSum);
+        $("#packOutBoxUnOperSum").text(packOutBoxUnOperSum);
+        $("#packUnOperSum").text(packUnOperSum);
     })
 }
 

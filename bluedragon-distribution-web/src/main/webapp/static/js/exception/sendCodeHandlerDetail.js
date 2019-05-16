@@ -61,10 +61,11 @@ $(document).ready(function () {
         },
         columns : [
             {
-                field : "ID",
+                field : "",
                 title : "序号",
                 align : "center",
                 halign : "center",
+                visible:false,
                 format: function (value, row, index) {
                     return index;
                 }
@@ -89,7 +90,7 @@ $(document).ready(function () {
                 halign : "center"
             },
             {
-                field : "NaN",
+                field : "",
                 title : "查看全程跟踪",
                 align : "center",
                 halign : "center",
