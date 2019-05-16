@@ -549,6 +549,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                     this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
                     continue;
                 }
+                newsend.setOrderId(send.getOrderId());
                 send.setSendCode(sendM.getSendCode());//设置批次号否则无法在ispecial的报文里添加批次号
                 //迷你仓、 ECLP单独处理
                 if (!isSpecial(send, wallBillCode,sendM,orderpackMap.get(wallBillCode))) {
@@ -617,6 +618,14 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 newsend.setOrderSum(orderSum);//加入总订单数及总的包裹数
                 newsend.setPackSum(packSum);
                 newsend.setBusiOrderCode(operCodeMap.get(wallBillCode).getNewWaybillCode());
+                //获得send对象,方便下方判断
+                ReverseSendWms send = null;
+                send = tBaseService.getWaybillByOrderCode(wallBillCode);
+                if (send == null) {
+                    this.logger.info("调用运单接口获得数据为空,运单号" + wallBillCode);
+                    continue;
+                }
+                newsend.setOrderId(send.getOrderId());
                 ifSendSuccess&=sendAsiaWMS(newsend, wallBillCode, sendM, entry, lossCount, bDto, orderpackMap);
             }
             return ifSendSuccess;
@@ -1048,7 +1057,6 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         send.setUserName(sendM.getCreateUser());
         send.setLossQuantity(lossCount);
         send.setSendCode(sendM.getSendCode());
-        send.setOrderId(wallBillCode);
         if (sendM.getSendCode().startsWith(Box.BOX_TYPE_WEARHOUSE)) {
             // 库内返
             send.setIsInStore(1);
