@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.command.JdCommand;
@@ -63,12 +64,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     /**
      * 打印JSF接口token校验开关
      */
-    private static final String PRINT_SWITCH = "print.switch";
+    private static final String PRINT_SWITCH = "dms.jsf.packagePrint.verifyConfig.switch";
 
     /**
      * 打印JSF接口系统来源前缀
      */
-    private static final String PRINT_PREFIX = "PRINT_SOURCE_";
+    private static final String PRINT_PREFIX = "dms.jsf.packagePrint.verifyConfig.";
     
     private static final Integer FEATURE_TYPE_C2B = 7;
     private static final Integer FEATURE_TYPE_B2C = 8;
@@ -97,8 +98,12 @@ public class PackagePrintServiceImpl implements PackagePrintService {
         logger.info("查询包裹信息参数：" + JsonHelper.toJson(printRequest));
         JdResult<Map<String, Object>> result = new JdResult<Map<String, Object>>();
         result.toSuccess();
-        if(!checkToken(printRequest.getSystemCode(), printRequest.getSecretKey())){
-            result.toFail("系统访问密钥校验失败，请维护并使用正确的秘钥！");
+        if(printRequest == null){
+            result.toFail("传入的参数不能为空！");
+            return result;
+        }
+        if(!this.checkVerify(printRequest)){
+            result.toFail("权限验证失败！请检查传入参数systemCode、secretKey、businessType、operateType的值！");
             return result;
         }
         String commandResult = jdCommandService.execute(JsonHelper.toJson(printRequest));
@@ -219,27 +224,48 @@ public class PackagePrintServiceImpl implements PackagePrintService {
             }
         }
     }
-
     /**
-     * 校验秘钥
-     * @param source
-     * @param secretKey
+     * 权限验证
+     * @param printRequest
      * @return
      */
-    private boolean checkToken(String source, String secretKey){
-
-        SysConfig printSwitch = sysConfigService.findConfigContentByConfigName(PRINT_SWITCH);
-        //未开启时不校验
-        if(printSwitch != null && Constants.STRING_FLG_TRUE.equals(printSwitch.getConfigContent())){
-            //校验source和secretKey是否一致
-            SysConfig content = sysConfigService.findConfigContentByConfigName(PRINT_PREFIX + source.toUpperCase());
-            if(content != null && StringUtils.isNotEmpty(secretKey) && secretKey.equals(content.getConfigContent())){
-                return true;
+    private boolean checkVerify(JdCommand<?> printRequest){
+    	//是否开启验证
+    	if(sysConfigService.getConfigByName(PRINT_SWITCH)){
+    		if(StringHelper.isEmpty(printRequest.getSystemCode())
+    				||StringHelper.isEmpty(printRequest.getSecretKey())
+    				||printRequest.getBusinessType() == null
+    				||printRequest.getOperateType() == null){
+    			return false;
+    		}
+            //验证密钥和操作码
+    		String configKey = PRINT_PREFIX + printRequest.getSystemCode();
+            SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(configKey);
+            if(sysConfig != null && StringHelper.isNotEmpty(sysConfig.getConfigContent())){
+            	JsfVerifyConfig jsfVerifyConfig = JsonHelper.fromJson(sysConfig.getConfigContent(), JsfVerifyConfig.class);
+                if(jsfVerifyConfig != null){
+                	if(!printRequest.getSecretKey().equals(jsfVerifyConfig.getSecretKey())){
+                		logger.warn(printRequest.getSystemCode() + "密钥验证失败！");
+                		return false;
+                	}
+                	//是否允许所有访问
+                	if(Boolean.TRUE.equals(jsfVerifyConfig.getAllowAll())){
+                		return true;
+                	}else{
+                		return jsfVerifyConfig.getBusinessTypes() != null 
+                				&& jsfVerifyConfig.getBusinessTypes().contains(printRequest.getBusinessType())
+                				&& jsfVerifyConfig.getOperateTypes() != null 
+                				&& jsfVerifyConfig.getOperateTypes().contains(printRequest.getOperateType());
+                	}
+                }else{
+                	logger.warn("jsf未获取到权限配置信息！key="+configKey);
+                }
+            	return false;
             }else{
                 return false;
             }
-        }
-        return true;
+    	}
+    	return true;
     }
     /**
      * 1、验证是否有访问jsf的权限（验证系统编码和密钥）
@@ -261,7 +287,7 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			rePrintRecordRequest.setBusinessType(BUSINESS_TYPE_1004);
 			rePrintRecordRequest.setOperateType(OPERATE_TYPE_100401);
 		}
-		if(!checkToken(rePrintRecordRequest.getSystemCode(), rePrintRecordRequest.getSecretKey())){
+		if(!checkVerify(rePrintRecordRequest)){
 			jdResult.toFail("系统访问密钥校验失败，请使用正确的秘钥！");
             return jdResult;
         }else{
