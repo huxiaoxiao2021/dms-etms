@@ -106,4 +106,20 @@ $(document).ready(function () {
             }
         ]
     });
+
+    $("#btn_query").click(function () {
+        var sendCodeStr = $("#sendCodes").val();
+        var type = $("#type").val();
+        var queryParams = {
+            pageNo : 1,
+            pageSize : 10,
+            type: type
+        };
+        if (sendCodeStr != null && sendCodeStr != "") {
+            queryParams.sendCodes = JSON.parse(sendCodeStr);
+        }
+
+        /*表格查询*/
+        $.bootGrid.refreshOptions('data-table',query_sendCode_detail_url,queryParams);
+    })
 });

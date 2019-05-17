@@ -1,7 +1,6 @@
 var query_sendCode_by_barCode_url = "/exception/sendCodeHandler/querySendCodeByBarCode";
 var summary_by_sendCodes_url = "/exception/sendCodeHandler/summaryPackageNumBySendCodes";
 var go_to_detail_pager = "/exception/sendCodeHandler/detailPager";
-var query_sendCode_detail_url = "/exception/sendCodeHandler/querySendCodeDetails";
 
 $(document).ready(function () {
 
@@ -16,16 +15,17 @@ $(document).ready(function () {
 
     /* 查询点击事件 */
     $("#btn_query").click(function () {
-        queryClickEvent();
+        barCodeInterEvent($("#barCode").val(),queryClickEvent());
     });
 
 });
 
 /**
  * 条码输入回车事件：根据单号查询上游批次，或者将批次设置到下面列表
- * @param barCode
+ * @param barCode   条码
+ * @param successFunc   成功回调函数
  */
-function barCodeInterEvent(barCode) {
+function barCodeInterEvent(barCode,successFunc) {
     barCode = barCode.trim();
     var param = {
         barCode:barCode
@@ -40,16 +40,17 @@ function barCodeInterEvent(barCode) {
 
         /* 将获取到的批次设置到下面的面板列表中 */
         var sendCodes = res.data;
-        if (null == sendCodes) {
+        if (null == sendCodes || sendCodes.length == 0) {
+            jQuery.msg.warn("该单号未在上游批次中发货");
             return;
         }
         jQuery.each(sendCodes,function (index, sendCode) {
-            // optionSendCodeItemHtml += "<div class='panel panel-primary form-control' title='" + sendCode + "'>" +
-            //     sendCode + "</div>";//<span class='glyphicon glyphicon-remove'>
-            jQuery("#sendCodes").append("<div class='panel panel-primary form-control' title='" + sendCode + "'>" +
-                sendCode + "</div>")
+            if (jQuery(".panel").size() < 5) {
+                jQuery("#sendCodes").append("<div class='panel panel-primary form-control' title='" + sendCode + "'>" +
+                    sendCode + "</div>")
+            }
         });
-        // jQuery("#sendCodes").html(optionSendCodeItemHtml);
+        successFunc;
     })
 }
 
@@ -78,13 +79,13 @@ function queryClickEvent() {
             packOutBoxSum = summary != null && summary.packageOutBoxNum != null? summary.packageOutBoxNum : 0;
             packSum = summary != null && summary.packageNum != null? summary.packageNum : 0;
 
-            boxOperSum = operatedSummary != null && operatedSummary.boxSum != null? summary.boxSum : 0;
-            packOutBoxOperSum = operatedSummary != null && operatedSummary.packageOutBoxNum != null? summary.packageOutBoxNum : 0;
-            packOperSum = operatedSummary != null && operatedSummary.packageNum != null? summary.packageNum : 0;
+            boxOperSum = operatedSummary != null && operatedSummary.boxSum != null? operatedSummary.boxSum : 0;
+            packOutBoxOperSum = operatedSummary != null && operatedSummary.packageOutBoxNum != null? operatedSummary.packageOutBoxNum : 0;
+            packOperSum = operatedSummary != null && operatedSummary.packageNum != null? operatedSummary.packageNum : 0;
 
-            boxUnOperSum = unOperatedSummary != null && unOperatedSummary.boxSum != null? summary.boxSum : 0;
-            packOutBoxUnOperSum = unOperatedSummary != null && unOperatedSummary.packageOutBoxNum != null? summary.unOperatedSummary : 0;
-            packUnOperSum = unOperatedSummary != null && unOperatedSummary.packageNum != null? summary.packageNum : 0;
+            boxUnOperSum = unOperatedSummary != null && unOperatedSummary.boxSum != null? unOperatedSummary.boxSum : 0;
+            packOutBoxUnOperSum = unOperatedSummary != null && unOperatedSummary.packageOutBoxNum != null? unOperatedSummary.unOperatedSummary : 0;
+            packUnOperSum = unOperatedSummary != null && unOperatedSummary.packageNum != null? unOperatedSummary.packageNum : 0;
         }
         $("#boxSum").text(boxSum);
         $("#packOutBoxSum").text(packOutBoxSum);
@@ -124,6 +125,7 @@ function goToDetailEvent(type) {
             frameWindow.$("#type").attr("value",JSON.stringify(param.type));
             param.pageSize = 10;
             param.pageNo = 1;
+            frameWindow.$("#btn_query").click();
         }
     })
 
