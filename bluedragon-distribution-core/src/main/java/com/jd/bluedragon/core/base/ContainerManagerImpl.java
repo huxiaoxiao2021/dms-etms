@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
+import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -61,7 +62,7 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<List<Container>> apiResult = containerService.createContainers(flow, attributes, count, userEnv);
         log.info("中台创建容器结果：" + JsonHelper.toJson(apiResult));
 
-        if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+        if(ApiResult.OK_CODE != apiResult.getCode()){
             log.warn("通过中台创建箱号失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台创建箱号失败：" + apiResult.getMessage());
         }
@@ -112,7 +113,7 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<Void> apiResult = containerService.measure(boxCode, volume, null, userEnv);
         log.info("中台更新体积结果：" + JsonHelper.toJson(apiResult));
 
-        if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+        if(ApiResult.OK_CODE != apiResult.getCode()){
             log.warn("通过中台更新箱号体积失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台更新箱号体积失败：" + apiResult.getMessage());
         }
@@ -129,7 +130,7 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<Void> apiResult = containerService.send(userEnv, boxCode);
         log.info("中台更新容器状态为发货结果：" + JsonHelper.toJson(apiResult));
 
-        if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+        if(ApiResult.OK_CODE != apiResult.getCode()){
             log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
@@ -145,7 +146,7 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<Void> apiResult = containerService.reopenContainer(boxCode, userEnv);
         log.info("中台更新容器状态为取消发货结果：" + JsonHelper.toJson(apiResult));
 
-        if(!Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+        if(ApiResult.OK_CODE != apiResult.getCode()){
             log.warn("通过中台更新箱号发货状态失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台更新箱号发货状态失败：" + apiResult.getMessage());
         }
@@ -161,7 +162,7 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<Container> apiResult = containerQueryService.getContainerByCode(tenantCode, boxCode);
         log.info("中台查询容器结果：" + JsonHelper.toJson(apiResult));
 
-        if(Constants.INTEGER_FLG_TRUE.equals(apiResult.getCode())){
+        if(ApiResult.OK_CODE != apiResult.getCode()){
             box = container2Box(apiResult.getData());
         }else{
             log.warn("通过中台查询箱号失败：" + JsonHelper.toJson(apiResult));
@@ -256,11 +257,24 @@ public class ContainerManagerImpl implements ContainerManager{
      * @return Flow
      */
     private Flow buildFlow(Box box){
+        BaseStaffSiteOrgDto fromSite = baseMajorManager.getBaseSiteBySiteId(box.getCreateSiteCode());
+        BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(box.getReceiveSiteCode());
         Flow flow = new Flow();
         flow.setFromSiteId(box.getCreateSiteCode());
-        flow.setFromSiteType(SiteType.SITE);
+        flow.setFromSiteCode(fromSite.getDmsSiteCode());
+        if(BaseContants.BASIC_B_TRADER_SITE_TYPE == fromSite.getSiteType()){
+            flow.setFromSiteType(SiteType.B_ENTERPRISE);
+        }else{
+            flow.setFromSiteType(SiteType.SITE);
+
+        }
         flow.setToSiteId(box.getReceiveSiteCode());
-        flow.setToSiteType(SiteType.SITE);
+        flow.setToSiteCode(toSite.getDmsSiteCode());
+        if(BaseContants.BASIC_B_TRADER_SITE_TYPE == toSite.getSiteType()){
+            flow.setToSiteType(SiteType.B_ENTERPRISE);
+        }else{
+            flow.setToSiteType(SiteType.SITE);
+        }
         flow.setSimpleRouteCodes(box.getRouter());
         flow.setSimpleRouteNames(box.getRouterName());
         return flow;
@@ -288,9 +302,11 @@ public class ContainerManagerImpl implements ContainerManager{
         }
         attributes.setTransportType(transportType );
         attributes.setMixContainer(Constants.INTEGER_FLG_TRUE.equals(box.getMixBoxType()));
-        Map<String, Object> customAttributes = new HashMap<>();
-        customAttributes.put(predictSendTimeKey, box.getPredictSendTime().getTime());
-        attributes.setCustomAttributes(customAttributes);
+        if(box.getPredictSendTime() != null){
+            Map<String, Object> customAttributes = new HashMap<>();
+            customAttributes.put(predictSendTimeKey, box.getPredictSendTime().getTime());
+            attributes.setCustomAttributes(customAttributes);
+        }
         return attributes;
     }
 
