@@ -520,7 +520,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
     }
 
     private ArSendRegister toDBDomain(ArPdaSendRegister pdaSendRegister) {
-        ArSendRegister sendRegister = new ArSendRegister();eiy
+        ArSendRegister sendRegister = new ArSendRegister();
         if (pdaSendRegister.getTransName() != null) {
             sendRegister.setTransportName(pdaSendRegister.getTransName().toUpperCase());
         }
