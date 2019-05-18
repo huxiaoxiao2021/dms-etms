@@ -1,9 +1,13 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.eclp.core.ApiResponse;
 import com.jd.eclp.master.export.api.service.dept.DeptServiceApi;
 import com.jd.eclp.master.export.api.service.dept.domain.DeptDomain;
+import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
+import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.kom.ext.service.OrderExtendService;
 import com.jd.kom.ext.service.domain.request.SoNoItemRequest;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
@@ -32,8 +36,11 @@ public class EclpItemManagerImpl implements EclpItemManager {
     @Autowired
     private DeptServiceApi deptServiceApi;
 
+    @Autowired
+    private InboundOrderService inboundOrderService;
+
     @Override
-    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.getltemBySoNo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.getltemBySoNo", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     public List<ItemInfo> getltemBySoNo(String soNo) {
         SoNoItemRequest soNoItemRequest = new SoNoItemRequest();
         soNoItemRequest.setSoNo(soNo);
@@ -53,7 +60,7 @@ public class EclpItemManagerImpl implements EclpItemManager {
     }
 
     @Override
-    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.getDeptBySettlementOuId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.getDeptBySettlementOuId", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
     public String getDeptBySettlementOuId(String ouId) {
 
         ApiResponse<DeptDomain> apiResponse;
@@ -66,6 +73,20 @@ public class EclpItemManagerImpl implements EclpItemManager {
             }
         }catch (Exception e){
             logger.error("EclpItemManagerImpl-getDeptBySettlementOuId 调用失败", e);
+        }
+        return null;
+    }
+
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.EclpItemManagerImpl.createInboundOrder", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWORKER)
+    public OrderResponse createInboundOrder(InboundOrder inboundOrder) {
+
+        try{
+            OrderResponse response = inboundOrderService.createInboundOrder(inboundOrder);
+            return response;
+        }catch (Exception e){
+            logger.error("EclpItemManagerImpl-createInboundOrder 调用失败", e);
         }
         return null;
     }
