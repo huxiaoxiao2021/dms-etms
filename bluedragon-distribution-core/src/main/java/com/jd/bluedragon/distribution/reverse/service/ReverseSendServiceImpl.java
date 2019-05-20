@@ -1935,7 +1935,9 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 }
                 doneWaybill.add(waybillCode);
             }
-            logger.error("eclp退备件库失败订单有:"+failWaybillCodes.toString());
+            if(!StringHelper.isEmpty(failWaybillCodes.toString())){
+                logger.error("eclp退备件库失败订单有:"+failWaybillCodes.toString());
+            }
         }catch (Exception e){
             logger.error("ECLP退备件库异常",e);
         }
