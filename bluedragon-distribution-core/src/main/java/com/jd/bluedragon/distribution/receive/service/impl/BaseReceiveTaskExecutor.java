@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
@@ -221,11 +219,14 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		if(cenConfirmList == null || cenConfirmList.size() < 1){
 			return ;
 		}
+		Set sendInspectionKey = new HashSet();
 		for (CenConfirm cenConfirm:cenConfirmList) {
-			if(StringUtils.isBlank(cenConfirm.getWaybillCode()) || cenConfirm.getCreateSiteCode() == null || cenConfirm.getCreateSiteCode() <=0){
-				log.warn("没有有效的运单号或者操作站点，不发送验货消息" + "," + JSON.toJSONString(cenConfirm));
+			if(StringUtils.isBlank(cenConfirm.getWaybillCode()) || cenConfirm.getCreateSiteCode() == null || cenConfirm.getCreateSiteCode() <=0
+					||sendInspectionKey.contains(cenConfirm.getWaybillCode())){
+				log.warn("没有有效的运单号或者操作站点或已发送，不发送验货消息" + "," + JSON.toJSONString(cenConfirm));
 				continue;
 			}
+			sendInspectionKey.add(cenConfirm.getWaybillCode());
 			InspectionMQBody body = new InspectionMQBody();
 			body.setWaybillCode(cenConfirm.getWaybillCode());
 			body.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
