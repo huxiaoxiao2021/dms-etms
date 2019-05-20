@@ -4,7 +4,6 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.OBCSManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -20,7 +19,6 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -33,7 +31,6 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
@@ -307,15 +304,67 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
                 targetResult.setData(repeatPrint);
+                isHasProductInfoOfPureMatch(targetResult);
                 return targetResult;
             }
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
-                return receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
-            }else{
-                return targetResult;
+                targetResult = receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+                isHasProductInfoOfPureMatch(targetResult);
             }
+            return targetResult;
         }
+    }
+
+    /**
+     * 纯配外单判断是否有商品信息
+     * @param targetResult
+     * @return
+     */
+    private void isHasProductInfoOfPureMatch(InvokeResult<RepeatPrint> targetResult) {
+        String errorMessage = null;
+        String newWaybillCode = targetResult.getData()==null?null:targetResult.getData().getNewWaybillCode();
+        //1.新单号不存在
+        if(StringHelper.isEmpty(targetResult.getData().getNewWaybillCode())){
+            return;
+        }
+        try{
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillExtend(true);
+            wChoice.setQueryGoodList(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(newWaybillCode,wChoice);
+
+            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+
+                com.jd.etms.waybill.domain.Waybill waybill = baseEntity.getData().getWaybill();
+                //2.非纯配外单直接返回
+                if(!StringHelper.isEmpty(waybill.getWaybillSign())
+                        && !BusinessUtil.isPurematch(waybill.getWaybillSign())){
+                    return;
+                }
+                //3.有商品信息直接返回
+                if(baseEntity.getData().getGoodsList() != null
+                        && baseEntity.getData().getGoodsList().size() > 0){
+                    return;
+                }else {
+                    errorMessage = "新单" + newWaybillCode + "没有商品信息，请登陆慧眼录入!";
+                }
+
+            }else{
+                errorMessage = "新单" + newWaybillCode + "无运单信息!";
+            }
+
+        }catch (Exception e){
+            logger.error("通过运单号"+newWaybillCode+"查询运单信息异常!",e);
+            errorMessage = InvokeResult.SERVER_ERROR_MESSAGE;
+        }
+
+        if(!StringHelper.isEmpty(errorMessage)){
+            targetResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            targetResult.setMessage(errorMessage);
+        }
+
     }
 
     /**
