@@ -225,6 +225,8 @@ public class SortingServiceImpl implements SortingService {
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if (result) {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+			//发送取消建箱全程跟踪，MQ
+			this.sendSortingCancelWaybillTrace(sorting);
 		}
 		return result;
 	}
@@ -1320,4 +1322,49 @@ public class SortingServiceImpl implements SortingService {
             return Collections.EMPTY_LIST;
         }
     }
+
+	/**
+	 * 发送全称跟踪
+	 *
+	 */
+	private void sendSortingCancelWaybillTrace(Sorting sorting) {
+		CallerInfo info = Profiler.registerInfo("DMSWEB.SortingServiceImpl.sendSortingCancelWaybillTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
+		try {
+			String boxCode = sorting.getBoxCode();
+			String packageCode = sorting.getPackageCode();
+			Integer createSiteCode = sorting.getCreateSiteCode();
+
+			WaybillStatus waybillStatus = new WaybillStatus();
+			//设置站点相关属性
+			waybillStatus.setPackageCode(packageCode);
+			waybillStatus.setWaybillCode(sorting.getWaybillCode());
+			waybillStatus.setBoxCode(boxCode);
+			waybillStatus.setCreateSiteCode(createSiteCode);
+			waybillStatus.setOperatorId(sorting.getUpdateUserCode());
+			waybillStatus.setOperator(sorting.getUpdateUser());
+			waybillStatus.setOperateTime(sorting.getOperateTime() == null ? new Date() : sorting.getOperateTime());
+			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
+			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
+
+			Task task = new Task();
+			task.setTableName(Task.TABLE_NAME_POP);
+			task.setSequenceName(Task.getSequenceName(task.getTableName()));
+			task.setKeyword1(packageCode);
+			task.setKeyword2(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL.toString());
+			task.setCreateSiteCode(createSiteCode);
+			task.setBody(JsonHelper.toJson(waybillStatus));
+			task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+			task.setOwnSign(BusinessHelper.getOwnSign());
+
+			// 添加到task表
+			taskService.add(task);
+
+		} catch (Exception e) {
+			Profiler.functionError(info);
+			logger.error("取消分拣发送全称跟踪失败.", e);
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+	}
+
 }

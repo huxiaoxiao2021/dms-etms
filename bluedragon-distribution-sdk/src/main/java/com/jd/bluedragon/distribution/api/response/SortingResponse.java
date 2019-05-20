@@ -27,6 +27,12 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_SORTING_INSPECTED = 22006;
     public static final String MESSAGE_SORTING_INSPECTED = "包裹已经验货，不能取消分拣";
 
+    public static final Integer CODE_SORTING_CANCEL_PROCESS = 22007;
+    public static final String MESSAGE_SORTING_CANCEL_PROCESS = "包裹/运单/箱子正在取消分拣，请稍后";
+
+    public static final Integer CODE_PACKAGE_NUM_LIMIT = 22008;
+    public static final String MESSAGE_PACKAGE_NUM_LIMIT = "运单/箱子的包裹数大于2万，请联系IT人员报备此操作";
+
     public static final Integer CODE_29212 = 29212;
 
     public static final Integer CODE_29300 = 29300;
