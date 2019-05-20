@@ -61,13 +61,12 @@ $(document).ready(function () {
         },
         columns : [
             {
-                field : "",
                 title : "序号",
                 align : "center",
                 halign : "center",
                 visible:false,
                 format: function (value, row, index) {
-                    return index;
+                    return index+1;
                 }
             },
             {
@@ -120,6 +119,6 @@ $(document).ready(function () {
         }
 
         /*表格查询*/
-        $.bootGrid.refreshOptions('data-table',query_sendCode_detail_url,queryParams);
+        $.bootGrid.refresh('dataTable',queryParams);
     })
 });

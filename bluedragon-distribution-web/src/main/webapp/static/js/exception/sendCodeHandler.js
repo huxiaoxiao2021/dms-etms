@@ -15,7 +15,15 @@ $(document).ready(function () {
 
     /* 查询点击事件 */
     $("#btn_query").click(function () {
-        barCodeInterEvent($("#barCode").val(),queryClickEvent());
+        var barCode = $("#barCode").val();
+        barCode = barCode.trim();
+        if (null == barCode || barCode == "") {
+            queryClickEvent();
+        } else {
+            barCodeInterEvent(barCode, function(){
+                queryClickEvent();
+            });
+        }
     });
 
 });
@@ -27,6 +35,9 @@ $(document).ready(function () {
  */
 function barCodeInterEvent(barCode,successFunc) {
     barCode = barCode.trim();
+    if (null == barCode || barCode == "") {
+        return;
+    }
     var param = {
         barCode:barCode
     };
@@ -50,7 +61,7 @@ function barCodeInterEvent(barCode,successFunc) {
                     sendCode + "</div>")
             }
         });
-        successFunc;
+        successFunc();
     })
 }
 
@@ -59,6 +70,9 @@ function barCodeInterEvent(barCode,successFunc) {
  */
 function queryClickEvent() {
     var sendCodeList = getSendCodeList();
+    if (null == sendCodeList || sendCodeList.length == 0) {
+        return;
+    }
     var param = {
         sendCodes : sendCodeList
     };
@@ -125,7 +139,7 @@ function goToDetailEvent(type) {
             frameWindow.$("#type").attr("value",JSON.stringify(param.type));
             param.pageSize = 10;
             param.pageNo = 1;
-            frameWindow.$("#btn_query").click();
+            // frameWindow.$("#btn_query").click();
         }
     })
 
