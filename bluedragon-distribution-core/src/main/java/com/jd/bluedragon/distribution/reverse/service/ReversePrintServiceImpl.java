@@ -348,7 +348,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                         && baseEntity.getData().getGoodsList().size() > 0){
                     return;
                 }else {
-                    errorMessage = "新单没有商品信息，请登陆慧眼录入!";
+                    errorMessage = "新单" + newWaybillCode + "没有商品信息，请登陆慧眼录入!";
                 }
 
             }else{
