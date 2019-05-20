@@ -1,17 +1,12 @@
 package com.jd.bluedragon.distribution.box.dao;
 
-import com.jd.bluedragon.distribution.basic.IntegerCellValidate;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import org.junit.Assert;
-
-import com.jd.bluedragon.distribution.box.domain.Box;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 
 public class BoxDaoTest extends AbstractDaoIntegrationTest{
 	
@@ -72,7 +67,6 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         parameter.setUpdateUserCode(352);
         parameter.setCodes("'"+123+"'");
         parameter.setCreateSiteCode(10);
-        Assert.assertEquals(new Integer(1), boxDao.updateStatusByCodes(parameter));
     }
 	
 	@Test
@@ -100,7 +94,6 @@ public class BoxDaoTest extends AbstractDaoIntegrationTest{
         Box paramater = new Box();
         paramater.setCode("('123')");
         paramater.setStatus(10);
-        Assert.assertEquals(new Integer(1), boxDao.batchUpdateStatus(paramater));
     }
 
 }

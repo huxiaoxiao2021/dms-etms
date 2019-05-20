@@ -502,5 +502,17 @@ public class BusinessHelper {
         }
         return siteType.equals(new Integer(WMS_SITE_TYPE));
     }
-
+    /**
+     * 判断eclp能否打印,40位为1或者40位为2并且80位为1和2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isEclpCanPrint(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 40, '1')
+        		||(BusinessUtil.isSignChar(waybillSign, 40, '2')
+        				&& BusinessUtil.isSignInChars(waybillSign, 80, '1' ,'2'));
+    }
 }

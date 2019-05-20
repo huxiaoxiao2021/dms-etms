@@ -13,11 +13,15 @@ public class WaybillWeightImportResponse implements Serializable {
 
     private int errorCount;
 
+    private int warnCount;
+
     private int count;
 
     private List<WaybillWeightVO> errorList;
 
     private List<WaybillWeightVO> successList;
+
+    private List<WaybillWeightVO> warnList;
 
     public int getSuccessCount() {
         return successCount;
@@ -57,5 +61,21 @@ public class WaybillWeightImportResponse implements Serializable {
 
     public void setSuccessList(List<WaybillWeightVO> successList) {
         this.successList = successList;
+    }
+
+    public int getWarnCount() {
+        return warnCount;
+    }
+
+    public void setWarnCount(int warnCount) {
+        this.warnCount = warnCount;
+    }
+
+    public List<WaybillWeightVO> getWarnList() {
+        return warnList;
+    }
+
+    public void setWarnList(List<WaybillWeightVO> warnList) {
+        this.warnList = warnList;
     }
 }

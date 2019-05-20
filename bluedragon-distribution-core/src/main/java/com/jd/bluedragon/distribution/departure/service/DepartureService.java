@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.departure.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
@@ -10,11 +8,12 @@ import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
 import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
 import com.jd.bluedragon.distribution.departure.domain.SendBox;
 import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
-import com.jd.bluedragon.distribution.receive.domain.SendCode;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.waybill.dto.BdTraceDto;
+
+import java.util.List;
 
 public interface DepartureService {
 	
@@ -59,8 +58,6 @@ public interface DepartureService {
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails);
 	
 	public List<SendBox> getSendInfo(String sendCode);
-	
-	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes);
 
 	/**
 	 * 根据任务中记录的批次号和运单号(三方运单),转换成订单与运单的对应信息推送给全程跟踪

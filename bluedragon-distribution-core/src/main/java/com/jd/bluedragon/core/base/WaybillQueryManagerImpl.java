@@ -262,7 +262,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                 }
             } else {
                 this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
-                Profiler.functionError(info);
+                //Profiler.functionError(info);
                 return false;
             }
         } catch (Exception e) {
@@ -600,5 +600,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Override
     public Boolean queryExist(String waybillCode){
         return waybillQueryApi.queryExist(waybillCode);
+    }
+
+
+    /**
+     * 根据运单号查询waybillSign
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.JSF.Waybill.waybillQueryApi.getWaybillSignByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
+        return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
     }
 }

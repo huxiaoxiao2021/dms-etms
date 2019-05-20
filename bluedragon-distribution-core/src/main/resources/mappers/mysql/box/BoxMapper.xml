@@ -74,14 +74,6 @@
 			 LIMIT #{quantity}
 	</select>
 
-	<update id="updateStatusByCodes"  parameterType="box" >
-		UPDATE Box
-		SET box_status = #{status}, update_time = NOW(),
-			update_user = #{updateUser,jdbcType=VARCHAR}, update_user_code = #{updateUserCode,jdbcType=VARCHAR}
-		WHERE yn = 1 AND box_code in (${codes})
-			AND box_status <![CDATA[<]]> #{status}
-	</update>
-
 	<update id="print"  parameterType="box">
 		UPDATE Box
 		SET times = (times + 1), update_user_code = #{updateUserCode,jdbcType=INTEGER},
@@ -94,12 +86,6 @@
 		    update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE box_code= #{code,jdbcType=VARCHAR}  
 	</update>
-
-    <update id="batchUpdateStatus"  parameterType="box" >
-        UPDATE Box
-        SET box_status = #{status,jdbcType=INTEGER}
-        WHERE box_code in ${code}
-    </update>
 
     <update id="updateVolumeByCode" parameterType="box" >
         UPDATE Box

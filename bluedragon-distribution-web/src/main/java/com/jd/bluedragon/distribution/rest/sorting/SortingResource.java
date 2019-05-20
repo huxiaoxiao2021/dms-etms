@@ -271,7 +271,10 @@ public class SortingResource {
 		task.setTableName(Task.TABLE_NAME_SORTING);
 		task.setCreateSiteCode(request.getSiteCode());
 		task.setBoxCode(request.getBoxCode());
-		task.setStatuses(Task.TASK_STATUS_UNHANDLED + Constants.SEPARATOR_COMMA + Task.TASK_STATUS_PROCESSING);
+		List<Integer> statusesList = new ArrayList<>(2);
+        statusesList.add(Task.TASK_STATUS_UNHANDLED);
+        statusesList.add(Task.TASK_STATUS_PROCESSING);
+        task.setStatusesList(statusesList);
 		return this.taskService.findTasks(task);
 	}
 
