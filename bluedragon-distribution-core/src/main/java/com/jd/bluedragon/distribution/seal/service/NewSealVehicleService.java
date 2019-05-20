@@ -33,7 +33,7 @@ public interface NewSealVehicleService {
      * @return
      * @throws Exception
      */
-    public CommonDto<String> cancelSeal(cancelSealRequest request) throws Exception;
+    public CommonDto<String> cancelSeal(cancelSealRequest request);
 
     /**
      * 查询待解任务

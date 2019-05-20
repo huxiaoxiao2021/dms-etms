@@ -53,22 +53,9 @@ public class cancelSealRequest {
         this.operateUserCode = operateUserCode;
     }
 
-    public Date getOperateTime() {
-        return getFormatDate(operateTime, "yyyy-MM-dd HH:mm:ss");
-    }
+    public String getOperateTime() {return operateTime;}
 
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
-    }
-
-    private Date getFormatDate(String date, String format) {
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        Date d = new Date();
-        try {
-            d = sdf.parse(date);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return d;
     }
 }

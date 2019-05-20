@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -151,24 +152,19 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     }
 
     @Override
-    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.cancelSeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public CommonDto<String> cancelSeal(cancelSealRequest request) throws Exception{
+    @JProfiler(jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCar",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<String> cancelSeal(cancelSealRequest request) {
         CancelSealCarDto TMS_param = new CancelSealCarDto();
         TMS_param.setBatchCode(request.getBatchCode());
         TMS_param.setOperateType(request.getOperateType());
         TMS_param.setOperateUserCode(request.getOperateUserCode());
-        TMS_param.setOperateTime(request.getOperateTime());
+        TMS_param.setOperateTime(DateHelper.parseDate(request.getOperateTime(),"yyyy-MM-dd HH:mm:ss"));
 
         logger.info("取消封车参数："+ JsonHelper.toJson(TMS_param));
-        CommonDto<String> cancelSealInfo = null;
-        try {
-            cancelSealInfo = vosBusinessWS.doCancelSealCar(TMS_param);
-            if(cancelSealInfo == null) {
-                logger.error("取消封车JSF接口返回为空.参数："+ JsonHelper.toJson(TMS_param));
-            }
-        }catch (Exception e){
-            this.logger.error("取消封车-error", e);
-            throw e;
+
+        CommonDto<String> cancelSealInfo = vosBusinessWS.doCancelSealCar(TMS_param);
+        if(cancelSealInfo == null) {
+                logger.warn("取消封车JSF接口返回为空.参数："+ JsonHelper.toJson(TMS_param));
         }
         return cancelSealInfo;
     }
