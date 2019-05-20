@@ -103,14 +103,9 @@ public class ContainerManagerImpl implements ContainerManager{
         log.info("中台更新容器体积：" + boxCode);
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
 
-        Volume volume = new Volume();
-        volume.setLength(BigDecimal.valueOf(length));
-        volume.setWidth(BigDecimal.valueOf(width));
-        volume.setHeight(BigDecimal.valueOf(height));
-        volume.setUnit(VolumeUnit.CM3);
-        volume.setVolume(BigDecimal.valueOf(length * width * height));
-
-        ApiResult<Void> apiResult = containerService.measure(boxCode, volume, null, userEnv);
+        Volume volume = Volume.builder().length(BigDecimal.valueOf(length)).width(BigDecimal.valueOf(width))
+                .height(BigDecimal.valueOf(height)).unit(VolumeUnit.CM3).volume(BigDecimal.valueOf(length * width * height)).build();
+        ApiResult<Void> apiResult = containerService.measure(volume, null, userEnv, boxCode);
         log.info("中台更新体积结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
@@ -162,13 +157,41 @@ public class ContainerManagerImpl implements ContainerManager{
         ApiResult<Container> apiResult = containerQueryService.getContainerByCode(tenantCode, boxCode);
         log.info("中台查询容器结果：" + JsonHelper.toJson(apiResult));
 
-        if(ApiResult.OK_CODE != apiResult.getCode()){
+        if(ApiResult.OK_CODE == apiResult.getCode()){
             box = container2Box(apiResult.getData());
         }else{
             log.warn("通过中台查询箱号失败：" + JsonHelper.toJson(apiResult));
             throw new Exception("通过中台查询箱号失败：" + apiResult.getMessage());
         }
         return box;
+    }
+
+    @Override
+    public Boolean upContainerGroup(List<Box> groupList) {
+        Boolean result = false;
+        log.info("中台查询容器入参：" + JsonHelper.toJson(groupList));
+        try{
+            String groupName = groupList.get(0).getGroupName();
+            String groupId = groupList.get(0).getGroupSendCode();
+            List<String> codes = new ArrayList<>();
+            for(Box box : groupList){
+                codes.add(box.getCode());
+            }
+            UserEnv userEnv = buildUserEnv(null, null, null);
+
+            //TODO 分组信息写入中台
+            ApiResult<Boolean> apiResult = containerService.upContainerGroup(codes, groupName, groupId, userEnv);
+            log.info("中台查询容器结果：" + JsonHelper.toJson(apiResult));
+            if(ApiResult.OK_CODE == apiResult.getCode() && Boolean.TRUE.equals(apiResult.getData())){
+                result = true;
+            }else{
+                log.warn("分组信息写入中台失败：" + JsonHelper.toJson(apiResult));
+            }
+        }catch (Exception e){
+            log.error("分组信息写入中台异常：" + JsonHelper.toJson(groupList), e);
+        }
+
+        return result;
     }
 
     /**

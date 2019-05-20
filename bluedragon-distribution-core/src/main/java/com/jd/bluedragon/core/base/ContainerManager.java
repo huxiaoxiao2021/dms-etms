@@ -90,4 +90,12 @@ public interface ContainerManager {
      */
     Box findBoxByCode(String boxCode) throws Exception;
 
+    /**
+     * 批量更新容器分组
+     *
+     * @param groupList 容器分组集合
+     * @return 结果
+     */
+    Boolean upContainerGroup(List<Box> groupList);
+
 }
