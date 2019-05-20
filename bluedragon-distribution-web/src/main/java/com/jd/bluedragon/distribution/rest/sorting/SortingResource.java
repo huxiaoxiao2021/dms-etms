@@ -109,15 +109,16 @@ public class SortingResource {
 			return this.waitingProcess();
 		}
 
+		boolean isSuccess = false;
         String fingerPrintKey = "SORTING_CANCEL" + request.getSiteCode() +"|"+ request.getPackageCode();
         try {
             //判断是否重复取消分拣, 5分钟内如果同操作场地、同扫描号码只允许取消一次分拣。
-            boolean isSuccess = cacheService.setNx(fingerPrintKey, "1", 5*60*1000, TimeUnit.SECONDS);
-            //说明key存在
-            if (! isSuccess) {
-                this.logger.warn(request.getPackageCode() + "正在执行取消发货任务！");
-                return this.waitingCancelProcess();
-            }
+            isSuccess = cacheService.setNx(fingerPrintKey, "1", 5*60*1000, TimeUnit.SECONDS);
+			//说明key存在
+			if (! isSuccess) {
+				this.logger.warn(request.getPackageCode() + "正在执行取消分拣任务！");
+				return this.waitingCancelProcess();
+			}
         } catch (Exception e) {
             this.logger.error(request.getPackageCode() + "获取取消发货任务缓存失败！", e);
         }
@@ -196,7 +197,9 @@ public class SortingResource {
 		} catch (Exception e) {
 			logger.error(request.getPackageCode() + "取消分拣服务异常", e);
 		} finally {
-			cacheService.del(fingerPrintKey);
+			if (isSuccess) {
+				cacheService.del(fingerPrintKey);
+			}
 		}
 
 		return this.sortingNotFund();
