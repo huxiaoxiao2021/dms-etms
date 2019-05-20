@@ -158,7 +158,7 @@ public class WaybillStatus {
      * POP打印
      */
     public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
-
+    public static final String WAYBILL_TRACK_POP_PRINT_STATE= "-250";
     /**
      * 妥投 操作码
      */
