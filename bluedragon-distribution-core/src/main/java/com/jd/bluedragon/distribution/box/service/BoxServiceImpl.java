@@ -33,6 +33,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -413,7 +414,7 @@ public class BoxServiceImpl implements BoxService {
         }
 
         //当箱号为空时，从本系统再查一遍
-        if(box == null){
+        if(box == null || StringUtils.isEmpty(box.getCode())){
             box = findBoxByCodeFromDMS(code);
         }
 
