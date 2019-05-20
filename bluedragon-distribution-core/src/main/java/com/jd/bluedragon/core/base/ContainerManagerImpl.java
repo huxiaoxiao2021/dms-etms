@@ -245,10 +245,25 @@ public class ContainerManagerImpl implements ContainerManager{
             box.setTransportType(container.getAttributes().getTransportType().type());
 
             //设置箱子类型
-            box.setType(container.getAttributes().getContainerBusinessType().type());
+            box.setType(getBoxType(container.getCode()));
         }
 
         return box;
+    }
+
+    /**
+     * 通过容器号获取箱号类型
+     * @param boxCode 容器号
+     * @return 箱号类型
+     */
+    private String getBoxType(String boxCode){
+        String type = "";
+        if(boxCode.startsWith(ContainerBusinessType.SIGNATURE_RETURN.type())){
+            type = ContainerBusinessType.SIGNATURE_RETURN.type();
+        }else{
+            type = boxCode.substring(0, 2);
+        }
+        return type;
     }
 
     /**
