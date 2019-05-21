@@ -58,7 +58,7 @@
 	<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml" />
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
-	<import resource="classpath:spring/distribution-core-jmq-test.xml"/>
+	<import resource="classpath:spring/distribution-core-jmq.xml"/>
 	<import resource="classpath:ql-dms-print-engine.xml"/>
 
 	<!-- ump monitor begin -->
