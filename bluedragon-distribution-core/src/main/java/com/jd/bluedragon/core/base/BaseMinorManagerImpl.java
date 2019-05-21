@@ -421,7 +421,7 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 		try {
 			if (targetSiteId != null && originalDmsId != null) {
 				BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(targetSiteId);
-				if (!Constants.DMS_SITE_TYPE.equals(receiveSiteDto.getSiteType()) || !Constants.FINANCIAL_SPECIAL_SITE_TYPE.equals(receiveSiteDto.getSiteType())) {
+				if (!Constants.DMS_SITE_TYPE.equals(receiveSiteDto.getSiteType()) && !Constants.FINANCIAL_SPECIAL_SITE_TYPE.equals(receiveSiteDto.getSiteType())) {
 					BaseDmsStore baseDmsStore = new BaseDmsStore();
 					JdResult<CrossPackageTagNew> result = queryCrossPackageTagForPrint(baseDmsStore, targetSiteId, originalDmsId, Constants.ORIGINAL_CROSS_TYPE_GENERAL);
 					if (result.isSucceed()) {
