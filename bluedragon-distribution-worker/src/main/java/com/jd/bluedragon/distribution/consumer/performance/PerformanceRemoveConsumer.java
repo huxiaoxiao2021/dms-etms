@@ -60,7 +60,7 @@ public class PerformanceRemoveConsumer  extends MessageBaseConsumer {
                     break;
                 }
                 if(StringUtils.isBlank(dto.getFulfillmentOrderId())){
-                    logger.error(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
+                    logger.warn(MessageFormat.format("[金鹏]消费履约单运单剔除-履约单号为空，内容为【{0}】", JsonHelper.toJson(dto)));
                     break;
                 }
                 storagePackageMService.removeWaybill(dto.getWaybillCode(),dto.getFulfillmentOrderId());

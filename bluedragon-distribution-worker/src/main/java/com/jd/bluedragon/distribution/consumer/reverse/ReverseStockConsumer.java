@@ -23,6 +23,7 @@ public class ReverseStockConsumer extends MessageBaseConsumer {
 	private ReverseReceiveNotifyStockService reverseReceiveNotifyStockService;
 	
 	public void consume(Message message) throws Exception {
+		//取的就是订单号 不是运单号 不要被参数名所迷惑
 		Long waybillCode = this.reverseReceiveNotifyStockService.receive(message.getText());
 		Boolean result = this.reverseReceiveNotifyStockService.nodifyStock(waybillCode);
 		

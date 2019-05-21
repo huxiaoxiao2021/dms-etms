@@ -147,12 +147,18 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_BOARD_COMBINATION_CANCEL = 7600;
 
+    /**
+     * 全称跟踪-转网
+     */
+    public static final Integer WAYBILL_TRACK_WAYBILL_TRANSFER = 13600;
+    public static final String WAYBILL_TRACK_MESSAGE_WAYBILL_TRANSFER_B2C = "已成功转成C网运单";
+
 
     /**
      * POP打印
      */
     public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
-
+    public static final String WAYBILL_TRACK_POP_PRINT_STATE= "-250";
     /**
      * 妥投 操作码
      */
@@ -182,6 +188,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN = 8700;
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD = 8701;
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW = 8702;
+
+    /**
+     * 全称跟踪-取消建箱
+     */
+    public static final Integer WAYBILL_TRACK_SORTING_CANCEL = 13400;
 
     private Long id;
 

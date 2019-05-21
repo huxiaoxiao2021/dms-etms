@@ -99,7 +99,7 @@
   
 	<select id="findByBoxCode" resultMap="sorting" parameterType="sorting">
 		SELECT sorting_id, box_code, package_code, waybill_code, create_site_code, receive_site_code,create_time,
-		    create_user_code, create_user, update_user_code, update_user, excute_count
+		    create_user_code, create_user, update_user_code, update_user, excute_count, sorting_type, spare_reason
 		FROM Sorting
 		WHERE yn=1 AND is_cancel = 0
 		    AND box_code = #{boxCode} 
