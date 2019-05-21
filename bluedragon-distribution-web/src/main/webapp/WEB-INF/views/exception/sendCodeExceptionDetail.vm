@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>批次异常单排查</title>
+    <meta http-equiv="pragma" content="no-cache"/>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+	#parse("system/common/baseImport.vm")
+    <script type="text/javascript">
+        document.write("<sc"+"ript type='text/javascript' src='/static/js/exception/sendCodeHandlerDetail.js?_t="
+                + new Date().valueOf() + "'></sc"+"ript>");
+    </script>
+
+</head>
+<body>
+    <ol class="breadcrumb">
+        <li><a href="#">异常处理</a></li>
+        <li><a href="/exception/sendCodeHandler/index">批次异常单排查</a></li>
+        <li><a href="/exception/sendCodeHandler/detailPager">明细查询</a></li>
+    </ol>
+    <hr/>
+    <input type="text" hidden id="waybillAddress" value="$!{waybillAddress}">
+
+    <input type="text" hidden id="param" value=""></input>
+    <input type="text" hidden id="sendCodes" value=""></input>
+    <input type="text" hidden id="type" value=""></input>
+    <input type="button" hidden id="query_btn">
+
+    <div id="toolbar">
+        <button id="btn_query" type="button" class="btn btn-default">
+            &nbsp;查询&nbsp;
+##            <span class="glyphicon glyphicon-search" aria-hidden="true"/>
+        </button>
+##        <button id="btn_query" type="button" class="btn btn-primary">
+##            导出<span class="glyphicon glyphicon-save" aria-hidden="true"/>
+##        </button>
+    </div>
+    <table id="dataTable"></table>
+</body>
+</html>

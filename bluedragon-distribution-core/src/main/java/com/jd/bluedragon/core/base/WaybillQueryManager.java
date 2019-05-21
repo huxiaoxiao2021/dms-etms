@@ -232,4 +232,11 @@ public interface WaybillQueryManager{
 	 */
 	Boolean queryExist(String waybillCode);
 
+	/**
+	 * 根据运单号查询waybillSign
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode);
+
 }

@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.MixedPackageConfigResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
@@ -28,4 +31,24 @@ public interface JsfSortingResourceService {
      * @return true 滑道号正确，false 不正确
      */
     public Boolean checkPackageCrossCode(String waybillCode, String packageCode);
+    /**
+     * 查询运单是否拦截完成
+     * @param waybillCode
+     * @param featureType
+     * @return
+     */
+    BlockResponse checkWaybillBlock(String waybillCode, Integer featureType);
+    /**
+     * 查询包裹是否拦截完成
+     * @param packageCode
+     * @param featureType
+     * @return
+     */
+    BlockResponse checkPackageBlock(String packageCode, Integer featureType);
+    /**
+     * 发货校验
+     * @param request
+     * @return
+     */
+    JdResult packageSendCheck(DeliveryRequest request);
 }

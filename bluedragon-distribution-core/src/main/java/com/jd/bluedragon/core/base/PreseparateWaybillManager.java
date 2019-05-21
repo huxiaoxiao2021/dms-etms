@@ -1,9 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.preseparate.vo.BaseResponseIncidental;
-import com.jd.preseparate.vo.MediumStationOrderInfo;
-import com.jd.preseparate.vo.OriginalOrderInfo;
+import com.jd.preseparate.vo.*;
 import com.jd.preseparate.vo.PsOrderSeparateVo;
 import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.preseparate.vo.external.ExternalOrderDto;
@@ -38,4 +36,11 @@ public interface PreseparateWaybillManager {
 	 * @return
 	 */
 	AnalysisAddressResult analysisAddress(String address);
+
+	/**
+	 * 批量转网
+	 * @param request
+	 * @return
+	 */
+	BaseResponseIncidental<BatchTransferResult> batchTransfer(BatchTransferRequest request);
 }

@@ -743,6 +743,36 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 				task.setYn(0);
 			}
+
+			/**
+			 * 全程跟踪:取消建箱
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL).equals(task.getKeyword2())) {
+				String packageCode = tWaybillStatus.getPackageCode();
+				String waybillCode = tWaybillStatus.getWaybillCode();
+				//包裹号不为空时发送取消建箱的全程跟踪
+				if (StringHelper.isNotEmpty(packageCode)) {
+					tWaybillStatus.setPackageCode(packageCode);
+					tWaybillStatus.setWaybillCode(waybillCode);
+					toWaybillStatus(tWaybillStatus, bdTraceDto);
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+					waybillQueryManager.sendBdTrace(bdTraceDto);
+				} else {
+					logger.error("取消分拣全程跟踪失败，包裹号没空！");
+				}
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:转网
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_TRANSFER).equals(task.getKeyword2()))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this

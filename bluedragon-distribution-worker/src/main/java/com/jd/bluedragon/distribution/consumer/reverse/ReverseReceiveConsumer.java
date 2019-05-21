@@ -169,18 +169,23 @@ public class ReverseReceiveConsumer extends MessageBaseConsumer {
 		SendDetail tsendDatail = new SendDetail();
 		tsendDatail.setSendCode(reverseReceive.getSendCode());
 		if (reverseReceive.getReceiveType() == 3) {//如果是备件库的,则找到其真正的send_code
-			List<ReverseSpare> tReverseSpareList = sparedao.queryBySpareTranCode(xrequest.getSendCode());
-			if (tReverseSpareList != null && tReverseSpareList.size()>0) {
-				String sendCode = tReverseSpareList.get(0).getSendCode();
-				tsendDatail.setSendCode(sendCode);
+			//备件库的运单号从备件库回传消息中直接截取
+			if(reverseReceive.getSendCode().indexOf("-")!=-1 && reverseReceive.getSendCode().split("-").length==4){
+				reverseReceive.setOrderId(reverseReceive.getSendCode().split("-")[3]);
+				reverseReceive.setPackageCode(reverseReceive.getOrderId());
+			}else{
+				logger.error("备件库回传收货消息格式不正确，未获取到对应运单号"+messageContent);
+				return;
+			}
+		}else{
+			tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
+			List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
+			if (sendDatailist != null && !sendDatailist.isEmpty()){
+				reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
 			}
 		}
-		
-		tsendDatail.setWaybillCode(Constants.T_WAYBILL + reverseReceive.getOrderId());
-		List<SendDetail> sendDatailist = this.sendDatailDao.querySendDatailsBySelective(tsendDatail);
-		if (sendDatailist != null && !sendDatailist.isEmpty()){
-			reverseReceive.setOrderId(Constants.T_WAYBILL + reverseReceive.getOrderId());
-		}
+
+
 		
 		if (reverseReceive.getReceiveType() == 5){//如果是开放平台订单
 			InvokeResult<String> newWaybilCode = reversePrintService.getNewWaybillCode(reverseReceive.getOrderId(), false);

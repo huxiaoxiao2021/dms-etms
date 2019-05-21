@@ -21,6 +21,8 @@
     var ERROR_PARAM_RESULT_CODE = 400;
     var ERROR_HALF_RESULT_CODE = 600; //部分成功
     var SERVER_SUCCESS_CODE = 200;
+    var INTERCEPT_CODE = 300;
+    var INTERCEPT_MESSAGE = "根据重量体积信息已经转至C网进行后续操作，请操作【包裹补打】更换面单，否则无法操作建箱及发货";
 
     var VALID_EXISTS_STATUS_CODE = 10;
     var VALID_NOT_EXISTS_STATUS_CODE = 20;
@@ -33,6 +35,8 @@
     var CBM_DIV_KG_CODE = 10001; //批量导入 重泡比 校验失败码值
 
     var allForcedToSubmit = 0; // 批量强制提交。 0 代表否 1代表是
+    var b2cCount = 0; //批量强制提交场景下需要转网的单的个数
+
 /**************************************************************************************/
 /*公共方法*/
 /**************************************************************************************/
@@ -152,7 +156,7 @@
             {field:'weight',title:'总重量/千克',width:200},
             {field:'volume',title:'总体积/立方米',width:200},
             {field:'statusText',title:'录入方式',width:200},
-            {field:'memo',title:'备注说明',width:500}
+            {field:'memo',title:'备注说明',width:800}
         ]]
     });
 
@@ -307,7 +311,28 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 /*为方便输入 清空输入内容*/
                 clearInputContentsFunc();
-            } else
+            } else if(res.code == INTERCEPT_CODE)
+            {
+                /*录入成功*/
+                insertParam.statusText = '在线录入';
+                insertParam.memo = res.message;
+
+                involkPostSync(waybill_weight_convert_url,{codeStr:insertParam.codeStr},function(res){
+                    insertParam.waybillCode = res.data;
+                });
+
+                $('#waybill-weight-success-datagrid').datagrid('appendRow',insertParam);
+                if(allForcedToSubmit == 0){
+                    $.messager.alert('运单录入结果',res.message);
+                }
+                else if(allForcedToSubmit == 1){
+                    b2cCount=b2cCount+1;
+                }
+                $('#waybill-weight-btn').linkbutton('enable');
+
+                /*为方便输入 清空输入内容*/
+                clearInputContentsFunc();
+            }else
             {
                 /*录入成功*/
                 insertParam.statusText = '在线录入';
@@ -472,13 +497,16 @@ function existSubmit(insertParam,removeFailData,removeIndex){
 
                 var data = eval('('+data+')');
 
-
                 if(data.code==SERVER_SUCCESS_CODE){
+                    $("#waybill-weight-import-dialog").dialog('close');
                     $.messager.alert('导入成功','全部导入成功,本次导入'+data.data.successCount+'条数据！');
+                    showWarnData(data.data.warnList);
                 }else if(data.code==ERROR_HALF_RESULT_CODE){
                    //部分成功
-                   $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
-                   showFailData(data.data.errorList);
+                    $("#waybill-weight-import-dialog").dialog('close');
+                    $("#waybill-weight-fail-message").html("部分导入成功，共导入"+data.data.count+"条数据，其中成功"+data.data.successCount+"条数据，失败"+data.data.errorCount+"条数据");
+                    showWarnData(data.data.warnList);
+                    showFailData(data.data.errorList);
                 }else{
                     $.messager.alert('导入异常',data.message);
                 }
@@ -491,10 +519,10 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                             waybillCode:successRows[i].codeStr,
                             weight:successRows[i].weight,
                             volume:successRows[i].volume,
-                            statusText:'批量导入'
+                            statusText:'批量导入',
+                            memo:successRows[i].errorMessage
                         });
                     }
-
                 }
             }
         });
@@ -623,6 +651,37 @@ function removeFailDataFunc(key){
 
     }
 
+/**
+ * 拦截提示
+ * @param data
+ */
+function showWarnData(warnList){
+        //提示转网运单数据
+        if(warnList && warnList.length >0){
+            var warnMessage = "";
+            var count = warnList.length;
+
+            if(count > 3){
+                count = 3;
+            }
+            for(var i= 0;i<count;i ++){
+                warnMessage = warnMessage + warnList[i].codeStr + ",";
+            }
+
+            if(warnMessage.length > 0){
+                warnMessage = warnMessage.substr(0,warnMessage.length-1);
+                if(warnMessage.length > 0){
+                    if(count>3){
+                        warnMessage = "运单号" + warnMessage +"……共" + warnList.length + "单" + INTERCEPT_MESSAGE;
+                    }else{
+                        warnMessage = "运单号" + warnMessage + INTERCEPT_MESSAGE;
+                    }
+                    $.messager.alert('运单录入结果',warnMessage);
+                }
+            }
+        }
+    }
+
 
     /**
      * 导出
@@ -658,6 +717,9 @@ $("#waybill-weight-all-submit").click(function(){
                 allForcedToSubmit = 1; //控制提示语 执行的所有请求全部为同步 才可以这么做
                 allSubmitRemove();
                 allForcedToSubmit = 0;
+                if(b2cCount>0){
+                    $.messager.alert('运单录入结果',"共有"+b2cCount + "单" + INTERCEPT_MESSAGE);
+                }
             }
         }
     );
