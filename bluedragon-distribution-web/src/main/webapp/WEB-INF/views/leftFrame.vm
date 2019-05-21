@@ -11,8 +11,8 @@
 <body id="leftframe">
 <div id="lsidebar" class="content">
     <dl>
-##        <dt><a href="#" class="curr">异常处理</a></dt>
-##        <dd><a href="#springUrl('/exception/sendCodeHandler/index')" target="mainFrame">批次异常单排查</a></dd>
+        <dt><a href="#" class="curr">异常处理</a></dt>
+        <dd><a href="#springUrl('/exception/sendCodeHandler/index')" target="mainFrame">批次异常单排查</a></dd>
 
         <dt><a href="#" class="curr">三无运单处理</a></dt>
         <dd><a href="http://exp.ql.jd.com/summary/main" target="mainFrame">三无商品录入</a></dd>
