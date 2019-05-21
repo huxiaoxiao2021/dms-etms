@@ -1181,6 +1181,8 @@ public class WaybillResource {
 	/**
 	 * 提交POP打印数据至运单
 	 *
+	 *  只支持state = -250
+	 *
 	 * 改造异步模式
 	 * 	预埋worker 至  task_pop 中 type 6666
 	 *
@@ -1196,8 +1198,14 @@ public class WaybillResource {
 
 
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		result.setData(true);
 		try{
-
+			if(!WaybillStatus.WAYBILL_TRACK_POP_PRINT_STATE.equals(req.getState()) || StringUtils.isBlank(req.getRemark())){
+				logger.warn("/waybill/addPackState warn context--> " +JsonHelper.toJson(req));
+				return result;
+			}
 			PopAddPackStateTaskBody popAddPackStateTaskBody = new PopAddPackStateTaskBody();
 
             popAddPackStateTaskBody.setPackageCode(req.getPackageBarcode());
@@ -1227,9 +1235,6 @@ public class WaybillResource {
 			taskService.add(task,true);  //直接创建task对象。因为taskService.toTask
 
 
-			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-			result.setData(true);
 			logger.info("/waybill/addPackState success context--> " +JsonHelper.toJson(req));
 		}catch (Exception e){
 
@@ -2193,8 +2198,15 @@ public class WaybillResource {
 			return result;
 		}
 
-		BaseStaffSiteOrgDto createSiteOrgDto = siteService.getSite(createSiteCode);
-		BaseStaffSiteOrgDto receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
+		BaseStaffSiteOrgDto createSiteOrgDto = null;
+		BaseStaffSiteOrgDto receiveSiteOrgDto = null;
+
+		try {
+			createSiteOrgDto = siteService.getSite(createSiteCode);
+			receiveSiteOrgDto = siteService.getSite(receiveSiteCode);
+		} catch (Exception e) {
+			logger.error("请求差异查询，获取站点信息失败，参数："+ JsonHelper.toJson(waybillNoCollectionRequest), e);
+		}
 
 		//默认只看B网
 		int queryRange = WaybillNoCollectionRangeEnum.B_RANGE.getType();
@@ -2211,8 +2223,8 @@ public class WaybillResource {
 				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
 			}
 			//始发和目的有一个是快运中心
-			else if (createSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE ||
-					receiveSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) {
+			else if ((createSiteOrgDto.getSubType() != null && createSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE) ||
+					(receiveSiteOrgDto.getSubType() != null && receiveSiteOrgDto.getSubType() == Constants.B2B_SITE_TYPE)) {
 				//全部都看
 				queryRange = WaybillNoCollectionRangeEnum.ALL_RANGE.getType();
 			}
