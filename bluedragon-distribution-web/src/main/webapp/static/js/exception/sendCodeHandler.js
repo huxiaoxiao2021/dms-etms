@@ -98,7 +98,7 @@ function queryClickEvent() {
             packOperSum = operatedSummary != null && operatedSummary.packageNum != null? operatedSummary.packageNum : 0;
 
             boxUnOperSum = unOperatedSummary != null && unOperatedSummary.boxSum != null? unOperatedSummary.boxSum : 0;
-            packOutBoxUnOperSum = unOperatedSummary != null && unOperatedSummary.packageOutBoxNum != null? unOperatedSummary.unOperatedSummary : 0;
+            packOutBoxUnOperSum = unOperatedSummary != null && unOperatedSummary.packageOutBoxNum != null? unOperatedSummary.packageOutBoxNum : 0;
             packUnOperSum = unOperatedSummary != null && unOperatedSummary.packageNum != null? unOperatedSummary.packageNum : 0;
         }
         $("#boxSum").text(boxSum);
@@ -139,7 +139,7 @@ function goToDetailEvent(type) {
             frameWindow.$("#type").attr("value",JSON.stringify(param.type));
             param.pageSize = 10;
             param.pageNo = 1;
-            // frameWindow.$("#btn_query").click();
+            frameWindow.$("#btn_query").click();
         }
     })
 
