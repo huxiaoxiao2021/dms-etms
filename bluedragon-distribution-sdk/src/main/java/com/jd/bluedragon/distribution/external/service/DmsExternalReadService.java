@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.service;
 
-
+import com.jd.bluedragon.distribution.api.request.PackageSummaryRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.DmsBaseResponse;
 import com.jd.bluedragon.distribution.api.response.SendBoxDetailResponse;
@@ -9,7 +9,12 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.saf.WaybillSafResponse;
 import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
-import com.jd.bluedragon.distribution.wss.dto.*;
+import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
+import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import java.util.Date;
 import java.util.List;
@@ -50,6 +55,11 @@ public interface DmsExternalReadService {
 	 * @param siteCode 如果code是包裹号，则sitecode是收货站点
 	 * */
 	public List<PackageSummaryDto> getPackageSummary(String code, Integer type, Integer siteCode);
+
+    /**
+     * 根据批次获取发货包裹信息
+     * */
+    public InvokeResult<PageDto<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode);
 
 	/**
 	 * 通过封车号查询封车信息

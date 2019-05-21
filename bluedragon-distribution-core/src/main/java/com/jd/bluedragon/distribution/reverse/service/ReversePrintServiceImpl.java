@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -28,6 +29,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -114,7 +116,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private PopPrintService popPrintService;
     @Autowired
     private ReverseSpareEclp reverseSpareEclp;
-
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -325,7 +328,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         String errorMessage = null;
         String newWaybillCode = targetResult.getData()==null?null:targetResult.getData().getNewWaybillCode();
         //1.新单号不存在
-        if(StringHelper.isEmpty(targetResult.getData().getNewWaybillCode())){
+        if(StringHelper.isEmpty(newWaybillCode)){
             return;
         }
         try{
@@ -348,7 +351,12 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                         && baseEntity.getData().getGoodsList().size() > 0){
                     return;
                 }else {
-                    errorMessage = "新单" + newWaybillCode + "没有商品信息，请登陆慧眼录入!";
+                    //纯配退备件库的才提示
+                    String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+                    BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+                    if(orgDto!=null && orgDto.getSiteType().equals(Integer.parseInt(spwms_type))){
+                        errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
+                    }
                 }
 
             }else{

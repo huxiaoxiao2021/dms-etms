@@ -1,19 +1,19 @@
 package com.jd.bluedragon.distribution.seal.dao;
 
+import com.jd.bluedragon.distribution.seal.domain.SealBox;
 import org.junit.Assert;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import com.jd.bluedragon.distribution.dao.common.AbstractDaoIntegrationTest;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.jd.bluedragon.distribution.seal.domain.SealBox;
-import com.jd.bluedragon.distribution.seal.domain.SealVehicle;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Date;
 
-public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:spring/distribution-core-dao.xml")
+public class SealBoxDaoTest{
 	
 	@Autowired
 	private SealBoxDao sealBoxDao;
@@ -46,7 +46,7 @@ public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
 	@Test
     public void testAddSealBox() {
         SealBox parameter = new SealBox();
-        parameter.setBoxCode("James");
+        parameter.setBoxCode("James11111111111");
         parameter.setCode("James");
         parameter.setCreateSiteCode(910);
         parameter.setReceiveSiteCode(910);
@@ -75,7 +75,7 @@ public class SealBoxDaoTest extends AbstractDaoIntegrationTest{
 	
 	@Test
     public void testFindByBoxCode() {
-        String boxCode = "James";
+        String boxCode = "BC010F002010Y10800002005";
         Assert.assertTrue(sealBoxDao.findByBoxCode(boxCode) != null);
     }
 
