@@ -169,7 +169,7 @@ public class ContainerManagerImpl implements ContainerManager{
     @Override
     public Boolean upContainerGroup(List<Box> groupList) {
         Boolean result = false;
-        log.info("中台查询容器入参：" + JsonHelper.toJson(groupList));
+        log.info("同步分拣分组信息到中台入参：" + JsonHelper.toJson(groupList));
         try{
             String groupName = groupList.get(0).getGroupName();
             String groupId = groupList.get(0).getGroupSendCode();
@@ -245,7 +245,8 @@ public class ContainerManagerImpl implements ContainerManager{
             box.setTransportType(container.getAttributes().getTransportType().type());
 
             //设置箱子类型
-            box.setType(getBoxType(container.getCode()));
+
+            box.setType(container.getAttributes().getContainerBusinessType().type());
         }
 
         return box;
