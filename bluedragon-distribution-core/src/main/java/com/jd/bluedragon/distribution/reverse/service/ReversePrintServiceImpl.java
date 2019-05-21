@@ -354,8 +354,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     //纯配退备件库的才提示
                     String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
                     BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
-                    if(orgDto!=null && orgDto.getSiteType() == Integer.parseInt(spwms_type)){
-                        errorMessage = "新单" + newWaybillCode + "没有商品信息，请登陆慧眼录入!";
+                    if(orgDto!=null && orgDto.getSiteType().equals(Integer.parseInt(spwms_type))){
+                        errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
                     }
                 }
 
