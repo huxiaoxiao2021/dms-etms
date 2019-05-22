@@ -50,9 +50,12 @@ public class PromiseComposeServiceImpl implements  ComposeService {
     @Autowired
     @Qualifier("waybillQueryManager")
     private WaybillQueryManager waybillQueryManager;
+    /**
+     * 传入参数dmsCode为null时，调用接口传值为0
+     */
+    private static final String STR_DMS_CODE_NULL = "0";
 
     @Override
-    //FIXME: 线上日志表明targetSiteCode传入为0
     public void handle(PrintWaybill waybill, Integer dmsCode, Integer targetSiteCode) {
         // 外单多时效打标
         if(StringHelper.isNotEmpty(waybill.getWaybillSign()) && waybill.getWaybillSign().length() > 15) {
@@ -112,9 +115,12 @@ public class PromiseComposeServiceImpl implements  ComposeService {
                 else
                     orderMarkingRequest.setOrderId(Long.parseLong(waybill.getOrderCode()));//订单号
                 orderMarkingRequest.setWaybillCode(waybill.getWaybillCode());//运单号
-                orderMarkingRequest.setOpeSiteId(dmsCode.toString());//分拣中心ID
-                orderMarkingRequest.setOpeSiteName(dmsCode.toString());//分拣中心名称
-
+                String dmsCodeStr = STR_DMS_CODE_NULL;
+                if(dmsCode != null){
+                	dmsCodeStr = dmsCode.toString();
+                }
+                orderMarkingRequest.setOpeSiteId(dmsCodeStr);//分拣中心ID
+                orderMarkingRequest.setOpeSiteName(dmsCodeStr);//分拣中心名称
                 orderMarkingRequest.setOpesiteType( Constants.PROMISE_DISTRIBUTION_CENTER);
                 orderMarkingRequest.setSource(Constants.DISTRIBUTION_SOURCE);
                 orderMarkingRequest.setProvinceId(Constants.DEFALUT_PROVINCE_CITY_COUNTRY_TOWN_VALUE);//省
