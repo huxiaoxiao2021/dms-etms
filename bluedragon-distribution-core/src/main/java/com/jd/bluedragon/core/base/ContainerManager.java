@@ -96,6 +96,6 @@ public interface ContainerManager {
      * @param groupList 容器分组集合
      * @return 结果
      */
-    Boolean upContainerGroup(List<Box> groupList);
+    Boolean updateContainerGroup(List<Box> groupList);
 
 }

@@ -42,7 +42,7 @@ public class GroupBoxServiceImpl implements GroupBoxService {
     public Integer batchAdd(List<Box> groupList) {
         Assert.notNull(groupList, "groupList must not be null");
         Integer result = this.groupBoxDao.batchAdd(groupList);
-        containerManager.upContainerGroup(groupList);
+        containerManager.updateContainerGroup(groupList);
         return result;
     }
 

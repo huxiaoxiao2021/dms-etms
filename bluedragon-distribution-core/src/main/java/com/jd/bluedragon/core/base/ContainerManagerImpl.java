@@ -166,8 +166,8 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.upContainerGroup", mState = {JProEnum.TP})
-    public Boolean upContainerGroup(List<Box> groupList) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateContainerGroup", mState = {JProEnum.TP})
+    public Boolean updateContainerGroup(List<Box> groupList) {
         Boolean result = false;
         log.info("同步分拣分组信息到中台入参：" + JsonHelper.toJson(groupList));
         try{
