@@ -44,7 +44,7 @@ public class ContainerManagerImpl implements ContainerManager{
 
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.createContainers", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.createContainers", mState = {JProEnum.TP})
     public List<Box> createContainers(Box param, BoxSystemTypeEnum systemType) throws Exception{
         log.info("中台创建容器入参：" + JsonHelper.toJson(param));
 
@@ -92,7 +92,7 @@ public class ContainerManagerImpl implements ContainerManager{
      * @throws Exception
      */
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateVolumeByContainerCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateVolumeByContainerCode", mState = {JProEnum.TP})
     public Boolean updateVolumeByContainerCode(String boxCode, String userErp, String userName, Integer createSiteCode,
                                                Double length, Double width, Double height) throws Exception{
         //体积为0不用更新直接返回成功
@@ -116,13 +116,14 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP})
     public Boolean updateBoxSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
         log.info("中台更新容器状态为发货：" + boxCode);
 
         UserEnv userEnv = buildUserEnv(userErp, userName, createSiteCode);
-
-        ApiResult<Void> apiResult = containerService.send(userEnv, boxCode);
+        List<String> boxCodes = new ArrayList<>();
+        boxCodes.add(boxCode);
+        ApiResult<Void> apiResult = containerService.send(userEnv, boxCodes);
         log.info("中台更新容器状态为发货结果：" + JsonHelper.toJson(apiResult));
 
         if(ApiResult.OK_CODE != apiResult.getCode()){
@@ -133,7 +134,7 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP})
     public Boolean updateBoxCancelSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
         log.info("中台更新容器状态为取消发货：" + boxCode);
 
@@ -149,7 +150,7 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.findBoxByCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.findBoxByCode", mState = {JProEnum.TP})
     public Box findBoxByCode(String boxCode) throws Exception{
         log.info("中台查询容器入参：" + boxCode);
 
@@ -167,6 +168,7 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.upContainerGroup", mState = {JProEnum.TP})
     public Boolean upContainerGroup(List<Box> groupList) {
         Boolean result = false;
         log.info("同步分拣分组信息到中台入参：" + JsonHelper.toJson(groupList));
