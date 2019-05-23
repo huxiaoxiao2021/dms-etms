@@ -929,4 +929,9 @@ public class Constants {
      */
     public static final String MEASURE_UNIT_NAME_CM = "cm";
 
+    /**
+     * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+
 }

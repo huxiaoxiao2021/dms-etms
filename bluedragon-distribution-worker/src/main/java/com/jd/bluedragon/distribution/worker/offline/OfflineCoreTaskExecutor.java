@@ -188,7 +188,12 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 } else {
                     offlineLog.setStatus(Constants.RESULT_FAIL);
                 }
-                this.offlineLogService.addOfflineLog(offlineLog);
+                if (offlineLog.getBoxCode() != null && offlineLog.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
+                    this.logger.warn("箱号超长，OfflineCoreTask插入日志失败：【" + body + "】：");
+                } else {
+                    this.offlineLogService.addOfflineLog(offlineLog);
+                }
+
             } catch (Exception e) {
                 this.logger.error("OfflineCoreTask--> 插入日志异常：【" + body + "】：", e);
             }
