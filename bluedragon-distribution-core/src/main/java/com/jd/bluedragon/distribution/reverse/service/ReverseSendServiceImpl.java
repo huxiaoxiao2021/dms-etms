@@ -456,12 +456,13 @@ public class ReverseSendServiceImpl implements ReverseSendService {
         List<SendDetail> details=new ArrayList<SendDetail>();
         if(null!=boxCodeList&&boxCodeList.size()>0){
             SendDetail detail=new SendDetail();
-
+            Integer createSiteCode = SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCodeForSendM);
             for (String item:boxCodeList){
                 if(org.apache.commons.lang.StringUtils.isBlank(item)){
                     continue;
                 }
                 detail.setBoxCode(item.trim());
+                detail.setCreateSiteCode(createSiteCode);
                 List<SendDetail> tempList= sendDatailDao.querySendDatailsByBoxCode(detail);
                 if(null!=tempList&&tempList.size()>0){
                     details.addAll(tempList);
