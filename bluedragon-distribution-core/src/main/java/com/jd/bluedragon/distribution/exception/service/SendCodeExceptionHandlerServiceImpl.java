@@ -39,7 +39,7 @@ public class SendCodeExceptionHandlerServiceImpl implements SendCodeExceptionHan
             return Collections.emptyList();
         }
         List<String> result = new ArrayList<>();
-        if (BusinessHelper.isSendCode(barCode)) {
+        if (BusinessHelper.isSendCode(barCode) || BusinessHelper.isTerminalBatchCode(barCode)) {
             result.add(barCode);
         } else {
             /* 1.从分拣的报表中获取批次信息 */

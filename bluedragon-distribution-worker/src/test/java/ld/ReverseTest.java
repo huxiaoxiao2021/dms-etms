@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
@@ -177,6 +178,9 @@ public class ReverseTest {
     private ReverseReceiveConsumer reverseReceiveConsumer;
 
     @Autowired
+    private ReversePopConsumer reversePopConsumer;
+
+    @Autowired
     private DepartureService departureService;
 
     @Test
@@ -192,7 +196,12 @@ public class ReverseTest {
                 "  <receiveType>3</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +
                 "</ReceiveRequest>");
-        reverseReceiveConsumer.consume(message);
+        //reverseReceiveConsumer.consume(message);
+        try {
+            reversePopConsumer.consume(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         /*String json = "{\"body\":\"1126534117837021184\",\"boxCode\":\"2226-553831-20190510000522015\",\"createSiteCode\":2226,\"createTime\":1557421638339,\"executeTime\":1557421638347,\"fingerprint\":\"2226-553831-20190510000522015_5\",\"keyword1\":\"5\",\"keyword2\":\"10\",\"ownSign\":\"DMS\",\"sequenceName\":\"SEQ_TASK_SORTING\",\"tableName\":\"task_send\",\"type\":1400}";
         Task t = JsonHelper.jsonToArray(json,Task.class);
         departureService.sendThirdDepartureInfoToTMS(t,false);*/

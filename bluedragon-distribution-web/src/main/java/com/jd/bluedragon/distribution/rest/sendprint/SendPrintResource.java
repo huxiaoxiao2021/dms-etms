@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.rest.sendprint;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -327,6 +329,27 @@ public class SendPrintResource {
 		}
 		return sendPrintService.selectBoxBySendCode(batchSends);
 	}
+
+    /**
+     * 获取批次号打印时需要信息
+     *
+     * @param criteria
+     * @return
+     */
+    @POST
+    @GZIP
+    @Path("/sendprint/getSendCodePrintInfo")
+    public InvokeResult<SendCodePrintEntity> getSendCodePrintInfo(PrintQueryCriteria criteria) {
+        InvokeResult<SendCodePrintEntity> result = new InvokeResult<>();
+        if (criteria != null && criteria.getSiteCode() != null && criteria.getReceiveSiteCode() != null) {
+            SendCodePrintEntity entity = sendPrintService.getSendCodePrintEntity(criteria);
+            result.setData(entity);
+        } else {
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+        }
+        return result;
+    }
 
     @POST
     @GZIP

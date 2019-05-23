@@ -12,6 +12,9 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.etms.waybill.dto.BdTraceDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
+
+import java.util.List;
 
 import java.util.List;
 
@@ -58,6 +61,13 @@ public interface DepartureService {
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails);
 	
 	public List<SendBox> getSendInfo(String sendCode);
+
+    /**
+     * 根据批次号查询 发货明细
+     * @param pageDto 分页参数
+     * @param batchCode 批次号
+     */
+    PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto, String batchCode);
 
 	/**
 	 * 根据任务中记录的批次号和运单号(三方运单),转换成订单与运单的对应信息推送给全程跟踪

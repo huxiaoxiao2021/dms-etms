@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.box;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.response.AutoSortingBoxResult;
@@ -17,6 +18,7 @@ import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -62,6 +64,9 @@ public class BoxResource {
     @Autowired
     private GroupBoxService groupBoxService;
 
+    @Autowired
+    private BaseMinorManager baseMinorManager;
+
     @GET
     @Path("/boxes/{boxCode}")
     public BoxResponse get(@PathParam("boxCode") String boxCode) {
@@ -75,28 +80,29 @@ public class BoxResource {
 
         BoxResponse response = this.toBoxResponse(box);
 
-        if(StringHelper.isNotEmpty(box.getRouter())){
+        if (StringHelper.isNotEmpty(box.getRouter())) {
             return response;
         }
         //箱子没有路由信息的话 查一遍
         //获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
         try {
             //  BaseResult<String> routInfoRes = this.basicSafInterfaceManager.getCrossDmsBox(box.getCreateSiteCode(), box.getReceiveSiteCode());
-            CrossBoxResult<String[]> routInfoRes = crossBoxService.getBoxRouter(box.getCreateSiteCode(),box.getReceiveSiteCode(),box.getPredictSendTime(),box.getTransportType());
+            CrossBoxResult<String[]> routInfoRes = crossBoxService.getBoxRouter(box.getCreateSiteCode(), box.getReceiveSiteCode(), box.getPredictSendTime(), box.getTransportType());
             this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
 
-            if (CrossBoxResult.SUCCESS==routInfoRes.getResultCode() && routInfoRes.getData()!=null && routInfoRes.getData().length==2) {
+            if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
                 //没超过5个站点，用这个选择模板打印
                 response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
                 //超过5个站点，打印系统直接用他打印
-                response.setRouterText(routInfoRes.getData()[0].replace("--","-"));
+                response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
             }
         } catch (Exception e) {
             this.logger.error("获得站点路由信息失败： ", e);
         }
+        this.buildBoxPrintInfo(box.getCreateSiteCode(), box.getReceiveSiteCode(), response);
         return response;
     }
-    
+
     /**
 	 * 根据boxCode得到box信息,供周转箱(笼车)发货使用
 	 * @param request
@@ -105,7 +111,7 @@ public class BoxResource {
 	@POST
     @Path("/boxes/getBoxByBoxCode")
     public BoxResponse getBoxByBoxCode(BoxRequest request) {
-		
+
 		Assert.notNull(request.getBoxCode(), "BoxRequest's code must not be null");
         this.logger.info("BoxRequest's " + request);
         String boxCode = request.getBoxCode();
@@ -113,9 +119,9 @@ public class BoxResource {
         if (box == null) {
             return this.boxNoFound();
         }
-        
+
         BoxResponse response = this.toBoxResponse(box);
-        
+
         return response;
     }
 
@@ -195,50 +201,65 @@ public class BoxResource {
         return add(request,BoxSystemTypeEnum.PRINT_CLIENT,true);
     }
 
-    private BoxResponse add(BoxRequest request, BoxSystemTypeEnum systemType,boolean isNew) {
+    private BoxResponse add(BoxRequest request, BoxSystemTypeEnum systemType, boolean isNew) {
         Assert.notNull(request, "request must not be null");
         Assert.notNull(request.getType(), "request type must not be null");
         Assert.notNull(request.getReceiveSiteCode(), "request receiveSiteCode must not be null");
         Assert.notNull(request.getCreateSiteCode(), "request createSiteCode must not be null");
         Assert.notNull(request.getQuantity(), "request quantity must not be null");
-        //Assert.notNull(request.getSiteType(), "request SiteType must not be null");
-        if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())){
+        if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
             Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
         }
         this.logger.info("BoxRequest's " + request.toString());
         BoxResponse response = this.ok();
-        //先生成路由信息
-        //获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
-        CrossBoxResult<String[]> routInfoRes=null;
+        // 先生成路由信息
+        // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
+        CrossBoxResult<String[]> routInfoRes = null;
         try {
-            routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(),request.getTransportType());
-            if(routInfoRes != null){
-                this.logger.info("BasicSaf getCrossDmsBox Routerinfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
+            routInfoRes = crossBoxService.getBoxRouter(request.getCreateSiteCode(), request.getReceiveSiteCode(), request.getPredictSendTime(), request.getTransportType());
+            if (routInfoRes != null) {
+                this.logger.info("BasicSaf getCrossDmsBox RouterInfo:" + routInfoRes.getData() + " ResultCode:" + routInfoRes.getResultCode() + " Message:" + routInfoRes.getMessage());
                 if (logger.isInfoEnabled()) {
                     this.logger.info("调用跨箱号中转获取箱号路由" + JsonHelper.toJson(routInfoRes));
                 }
-                if (CrossBoxResult.SUCCESS==routInfoRes.getResultCode() && routInfoRes.getData()!=null && routInfoRes.getData().length==2) {
-                    //没超过5个站点，用这个选择模板打印
+                if (CrossBoxResult.SUCCESS == routInfoRes.getResultCode() && routInfoRes.getData() != null && routInfoRes.getData().length == 2) {
+                    // 没超过5个站点，用这个选择模板打印
                     response.setRouterInfo(routInfoRes.getData()[0].split("\\-\\-"));
-                    //超过5个站点，打印系统直接用他打印
-                    response.setRouterText(routInfoRes.getData()[0].replace("--","-"));
+                    // 超过5个站点，打印系统直接用他打印
+                    response.setRouterText(routInfoRes.getData()[0].replace("--", "-"));
                 }
-            }else{
+            } else {
                 logger.warn("获得站点路由信息结果为空,参数信息：" + JsonHelper.toJson(request));
             }
         } catch (Exception e) {
             this.logger.error("获得站点路由信息失败： ", e);
         }
-        //生成箱号
+        // 生成箱号
         List<Box> availableBoxes;
-        if(isNew){
-            availableBoxes = this.boxService.batchAddNew(this.toBoxWithRouter(request,routInfoRes),systemType);
-        }else{
-            availableBoxes = this.boxService.batchAdd(this.toBoxWithRouter(request,routInfoRes));
+        if (isNew) {
+            availableBoxes = this.boxService.batchAddNew(this.toBoxWithRouter(request, routInfoRes), systemType);
+        } else {
+            availableBoxes = this.boxService.batchAdd(this.toBoxWithRouter(request, routInfoRes));
         }
-
         response.setBoxCodes(StringHelper.join(availableBoxes, "getCode", Constants.SEPARATOR_COMMA));
+
+        this.buildBoxPrintInfo(request.getCreateSiteCode(), request.getReceiveSiteCode(), response);
         return response;
+    }
+
+    /**
+     * 构建目的地打印属性
+     *
+     * @param createSiteCode
+     * @param receiveSiteCode
+     * @param response
+     */
+    private void buildBoxPrintInfo(Integer createSiteCode, Integer receiveSiteCode, BoxResponse response) {
+        CrossPackageTagNew crossPackageTag = baseMinorManager.queryNonDmsSiteCrossPackageTagForPrint(receiveSiteCode, createSiteCode);
+        if (crossPackageTag != null) {
+            response.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
+            response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+        }
     }
 
     /**

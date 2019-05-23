@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.DtcDataReceiverManager;
+import com.jd.bluedragon.core.base.EclpItemManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.MessageConstant;
@@ -52,14 +54,12 @@ import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogUtil;
 import com.jd.bluedragon.utils.XmlHelper;
-import com.jd.eclp.spare.ext.api.inbound.InboundOrderService;
 import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
 import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Goods;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.alibaba.fastjson.JSON;
 import com.jd.jmq.common.message.Message;
 import com.jd.loss.client.LossProduct;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -176,7 +176,8 @@ public class ReverseSendServiceImpl implements ReverseSendService {
     private com.jd.jmq.client.producer.MessageProducer workerProducer;
 
     @Autowired
-    private InboundOrderService inboundOrderService;
+    @Qualifier("eclpItemManager")
+    private EclpItemManager eclpItemManager;
 
     @Autowired
     private SpareSortingRecordDao spareSortingRecordDao;
@@ -1913,6 +1914,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
      */
     private void pushInboundOrderToSpwms(List<SendDetail> sendDetailList) {
         List<String> doneWaybill = new ArrayList<String>();
+        StringBuilder failWaybillCodes = new StringBuilder();
         try{
             for(SendDetail sendDetail : sendDetailList){
                 String waybillCode = sendDetail.getWaybillCode();
@@ -1923,15 +1925,19 @@ public class ReverseSendServiceImpl implements ReverseSendService {
                 InboundOrder inboundOrder =  reverseSpareEclp.createInboundOrder(waybillCode,sendDetail);
                 if(inboundOrder==null){
                     logger.error("ECLP退备件库失败"+waybillCode+"|"+sendDetail.getSendCode());
+                    failWaybillCodes.append(waybillCode).append("|").append(sendDetail.getSendCode()).append(",");
                     continue;
                 }
                 this.logger.info("eclp退备件库报文："+JsonHelper.toJson(inboundOrder));
-                OrderResponse orderResponse = inboundOrderService.createInboundOrder(inboundOrder);
+                OrderResponse orderResponse = eclpItemManager.createInboundOrder(inboundOrder);
                 if(orderResponse != null && orderResponse.getResCode() != 200){
-                    this.logger.error("ECLP退备件库失败,原因：" + orderResponse.getMessage());
+                    this.logger.error("ECLP退备件库失败,运单号:"+waybillCode+",原因：" + orderResponse.getMessage());
                 }
+                doneWaybill.add(waybillCode);
             }
-
+            if(!StringHelper.isEmpty(failWaybillCodes.toString())){
+                logger.error("eclp退备件库失败订单有:"+failWaybillCodes.toString());
+            }
         }catch (Exception e){
             logger.error("ECLP退备件库异常",e);
         }

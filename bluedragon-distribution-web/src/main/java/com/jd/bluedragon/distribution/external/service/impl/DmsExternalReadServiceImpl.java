@@ -20,18 +20,30 @@ import com.jd.bluedragon.distribution.send.domain.SendDSimple;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryServiceImpl;
 import com.jd.bluedragon.distribution.sorting.domain.OrderDetailEntityResponse;
-import com.jd.bluedragon.distribution.wss.dto.*;
+import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
+import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
+import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
 import com.jd.bluedragon.distribution.wss.service.DistributionWssService;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service("dmsExternalReadService")
 public class DmsExternalReadServiceImpl implements DmsExternalReadService {
@@ -61,6 +73,9 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 
 	@Autowired
 	private ReversePrintService reversePrintService;
+
+    @Value("${jsf.dmsExternal.pageLimit}")
+	private int pageLimit;
 
 	/* (non-Javadoc)
 	 * @see com.jd.bluedragon.distribution.external.service.DmsExternalService#findWaybillByBoxCode(java.lang.String)
@@ -111,7 +126,33 @@ public class DmsExternalReadServiceImpl implements DmsExternalReadService {
 		return distributionService.getPackageSummary(code, type, siteCode);
 	}
 
-	@Override
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.queryPagePackageSummaryByBatchCode", mState = {JProEnum.TP})
+    public InvokeResult<PageDto<PackageSummaryDto>> queryPagePackageSummaryByBatchCode(PageDto<PackageSummaryDto> pageDto,String batchCode) {
+        InvokeResult<PageDto<PackageSummaryDto>> invokeResult = new InvokeResult<>();
+	    if(StringUtils.isEmpty(batchCode)){
+            invokeResult.parameterError("批次号不能为空");
+            return invokeResult;
+        }
+        if(pageDto == null){
+            invokeResult.parameterError("分页参数不能为空");
+            return invokeResult;
+        }
+        if(pageDto.getPageSize() < 0 || pageDto.getPageSize() > pageLimit){
+            invokeResult.parameterError("pageSize参数必须大于0并且必须小于"+pageLimit);
+            return invokeResult;
+        }
+        if(pageDto.getCurrentPage() < 0){
+            invokeResult.parameterError("currentPage参数必须大于0");
+            return invokeResult;
+        }
+        PageDto<PackageSummaryDto> resultPage = distributionService.queryPageSendInfoByBatchCode(pageDto,batchCode);
+        invokeResult.success();
+        invokeResult.setData(resultPage);
+        return invokeResult;
+    }
+
+    @Override
 	@JProfiler(jKey = "DMSWEB.DmsExternalReadServiceImpl.findSealByCodeSummary", mState = {JProEnum.TP})
 	public SealVehicleSummaryDto findSealByCodeSummary(String sealCode) {
 		return distributionService.findSealByCodeSummary(sealCode);

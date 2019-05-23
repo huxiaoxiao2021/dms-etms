@@ -61,13 +61,12 @@ $(document).ready(function () {
         },
         columns : [
             {
-                field : "",
                 title : "序号",
                 align : "center",
                 halign : "center",
                 visible:false,
                 format: function (value, row, index) {
-                    return index;
+                    return index+1;
                 }
             },
             {
@@ -106,4 +105,20 @@ $(document).ready(function () {
             }
         ]
     });
+
+    $("#btn_query").click(function () {
+        var sendCodeStr = $("#sendCodes").val();
+        var type = $("#type").val();
+        var queryParams = {
+            pageNo : 1,
+            pageSize : 10,
+            type: type
+        };
+        if (sendCodeStr != null && sendCodeStr != "") {
+            queryParams.sendCodes = JSON.parse(sendCodeStr);
+        }
+
+        /*表格查询*/
+        $.bootGrid.refresh('dataTable',queryParams);
+    })
 });

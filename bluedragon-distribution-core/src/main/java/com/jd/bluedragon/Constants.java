@@ -222,6 +222,11 @@ public class Constants {
      * 基础资料默认分拣中心所属类型
      */
     public static final Integer DMS_SITE_TYPE = 64;
+
+    /**
+     * 财务专用
+     */
+    public static final Integer FINANCIAL_SPECIAL_SITE_TYPE = 98;
     
     /**
      * POP订单类型

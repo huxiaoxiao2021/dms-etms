@@ -20,6 +20,8 @@ public class BusinessHelper {
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+
+    public static final String TERMINAL_BATCH_CODE_REG = "^R\\d{19}$";//站点批次号正则
     /**
      * hash格式分页存储时，分页大小
      */
@@ -345,6 +347,18 @@ public class BusinessHelper {
             return false;
         }
         return sendCode.matches(SEND_CODE_REG);
+    }
+
+    /**
+     * 判断是否是终端的发货批次号
+     * @param batchCode 终端发货批次号 R1130842623972495360
+     * @return
+     */
+    public static boolean isTerminalBatchCode(String batchCode) {
+        if (StringHelper.isEmpty(batchCode)) {
+            return Boolean.FALSE;
+        }
+        return batchCode.matches(TERMINAL_BATCH_CODE_REG);
     }
 
     /**

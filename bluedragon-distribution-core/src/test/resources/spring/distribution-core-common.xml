@@ -6,7 +6,6 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- DMS数据源父类  -start-->
     <bean id="parentDataSource" class="org.apache.commons.dbcp.BasicDataSource" abstract="true">
@@ -29,51 +28,34 @@
     </bean>
 
     <!-- DMS主库（拆分库）数据源 -->
-    <bean id="dms_main" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-        <property name="url" value="${jproxy.write.db.url}"/>
+    <bean id="dms_main" parent="parentDataSource">
+        <property name="url" value="${db.mysql.url}"/>
         <property name="username" value="${db.mysql.username}" />
         <property name="password" value="${db.mysql.password}" />
-        <property name="defaultTransactionIsolation" value="${jproxy.write.db.isolationLevel}"/>
-        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
-        <property name="defaultAutoCommit" value="true"/>
-        <property name="initialSize" value="${jproxy.write.db.initialSize}"/>
-        <property name="maxIdle" value="${jproxy.write.db.maxIdle}"/>
-        <property name="minIdle" value="${jproxy.write.db.minIdle}"/>
-        <property name="maxActive" value="${jproxy.write.db.maxActive}"/>
-        <property name="maxWait" value="${jproxy.write.db.maxWait}"/>
-        <property name="logAbandoned" value="${jproxy.write.db.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${jproxy.write.db.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${jproxy.write.db.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${jproxy.write.db.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${jproxy.write.db.testOnBorrow}" />
-        <property name= "validationQuery" value="${jproxy.write.db.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${jproxy.write.db.minEvictableIdleTimeMillis}"/>
-        <property name="timeBetweenEvictionRunsMillis" value="${jproxy.write.db.timeBetweenEvictionRunsMillis}"/>
-        <property name="poolPreparedStatements" value="false" />
+        <property name="defaultTransactionIsolation" value="${db.mysql.isolationLevel}"/>
     </bean>
 
     <!-- DMS从库（拆分库）数据源 -->
     <bean id="dmsReadDataSource" class="org.apache.commons.dbcp.BasicDataSource"
           destroy-method="close">
-        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
-        <property name="url" value="${jproxy.read.db.url}"/>
+        <property name="driverClassName" value="${dms.read.mysql.db.driverClassName}"/>
+        <property name="url" value="${dms.read.mysql.db.url}"/>
         <property name="username" value="${dms.read.mysql.db.username}"/>
         <property name="password" value="${dms.read.mysql.db.password}"/>
-        <property name="defaultAutoCommit" value="${jproxy.read.db.defaultAutoCommit}" />
-        <property name="maxActive" value="${jproxy.read.db.maxActive}" />
-        <property name="maxIdle" value="${jproxy.read.db.maxIdle}" />
-        <property name="maxWait" value="${jproxy.read.db.maxWait}" />
-        <property name="initialSize" value="${jproxy.read.db.initialSize}" />
-        <property name="minIdle" value="${jproxy.read.db.minIdle}" />
-        <property name="logAbandoned" value="${jproxy.read.db.logAbandoned}"/>
-        <property name="removeAbandoned" value = "${jproxy.read.db.removeAbandoned}"/>
-        <property name="removeAbandonedTimeout" value="${jproxy.read.db.removeAbandonedTimeout}" />
-        <property name= "testWhileIdle" value="${jproxy.read.db.testWhileIdle}" />
-        <property name= "testOnBorrow" value="${jproxy.read.db.testOnBorrow}" />
-		<property name= "validationQuery" value="${jproxy.read.db.validationQuery}" />
-        <property name="minEvictableIdleTimeMillis" value="${jproxy.read.db.minEvictableIdleTimeMillis}" />
-        <property name="timeBetweenEvictionRunsMillis" value="${jproxy.read.db.timeBetweenEvictionRunsMillis}" />
-        <property name="defaultReadOnly" value="true" />
+        <property name="defaultAutoCommit" value="${dms.read.db.defaultAutoCommit}" />
+        <property name="maxActive" value="${dms.read.db.maxActive}" />
+        <property name="maxIdle" value="${dms.read.db.maxIdle}" />
+        <property name="maxWait" value="${dms.read.db.maxWait}" />
+        <property name="initialSize" value="${dms.read.db.initialSize}" />
+        <property name="minIdle" value="${dms.read.db.minIdle}" />
+        <property name="logAbandoned" value="${dms.read.db.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.read.db.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.read.db.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.read.db.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.read.db.testOnBorrow}" />
+		<property name= "validationQuery" value="${dms.read.db.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.read.db.minEvictableIdleTimeMillis}" />
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.read.db.timeBetweenEvictionRunsMillis}" />
     </bean>
 
     <!--<bean id="dmsWaybillDataSource" class="org.apache.commons.dbcp.BasicDataSource"-->
@@ -102,8 +84,7 @@
     <!-- DMS主库（拆分库）事务管理器 -->
     <bean id="transactionManager"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dms_main" />
-        <!--<property name="dataSource" ref="dms_rw_split" />-->
+        <property name="dataSource" ref="dms_rw_split"/>
         <qualifier value="main"></qualifier>
     </bean>
 
@@ -132,8 +113,8 @@
         <!-- 配置那些sqlId走从数据源-->
         <property name="minorSqlIds">
             <set>
-                <!--<value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByCode</value>-->
-                <!--<value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByBoxCode</value>-->
+                <value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByCode</value>
+                <value>com.jd.bluedragon.distribution.box.dao.BoxDao.findBoxByBoxCode</value>
                 <!--<value>com.jd.bluedragon.distribution.send.dao.SendMDao.findSendMByBoxCode</value>-->
                 <!--<value>com.jd.bluedragon.distribution.send.router.SendMRouter.findSendMByBoxCode</value>-->
             </set>
@@ -142,12 +123,12 @@
 
     <!-- 运单库 jproxy数据源 added by zhanglei 2016.12.15 start-->
     <!--<bean id="sqlSessionFactory_waybill" class="org.mybatis.spring.SqlSessionFactoryBean">-->
-        <!--<property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml" />-->
-        <!--<property name="dataSource" ref="dmsWaybillDataSource" />-->
+    <!--<property name="configLocation" value="classpath:config/mysql/mybatis-config-waybill.xml" />-->
+    <!--<property name="dataSource" ref="dmsWaybillDataSource" />-->
     <!--</bean>-->
 
     <!--<bean id="sessionTemplate_waybill" class="org.mybatis.spring.SqlSessionTemplate">-->
-        <!--<constructor-arg index="0" ref="sqlSessionFactory_waybill" />-->
+    <!--<constructor-arg index="0" ref="sqlSessionFactory_waybill" />-->
     <!--</bean>-->
 
     <!-- worker配置数据源    -start-->
@@ -156,6 +137,8 @@
         <property name="url" value="${mysqlTaskDb.url}"/>
         <property name="username" value="${mysqlTaskDb.username}" />
         <property name="password" value="${mysqlTaskDb.password}" />
+        <property name="maxActive" value="${mysqlTaskDb.maxActive}"/>
+        <property name="defaultTransactionIsolation" value="${mysqlTaskDb.isolationLevel}"/>
     </bean>
 
     <bean id="mysqlTaskDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -226,7 +209,7 @@
     </bean>
 
     <!-- = Lists.newArrayList("6,6,51", "6,6,80", "6,010,002","6,1,2") -->
-    <bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl">
+    <bean id="sortSchemeSyncService" class="com.jd.bluedragon.distribution.sortscheme.service.SortSchemeSyncServiceImpl" lazy-init="true">
         <property name="stores">
             <list>
                 <value>6,6,80</value>
