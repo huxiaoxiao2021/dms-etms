@@ -335,7 +335,7 @@ public class ContainerManagerImpl implements ContainerManager{
         }else if(TransportType.AIR.type().equals(box.getTransportType())){
             transportType = TransportType.AIR;
         }else if(TransportType.RAILWAY.type().equals(box.getTransportType())){
-            transportType = TransportType.AIR;
+            transportType = TransportType.RAILWAY;
         }else if(TransportType.CITY.type().equals(box.getTransportType())){
             transportType = TransportType.CITY;
         }
