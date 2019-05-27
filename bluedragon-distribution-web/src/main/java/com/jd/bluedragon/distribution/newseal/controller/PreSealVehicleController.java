@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.newseal.controller;
 
-import java.util.*;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.api.request.CapacityCodeRequest;
@@ -9,17 +7,22 @@ import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.domain.CapacityCodeResponse;
 import com.jd.bluedragon.distribution.departure.domain.CapacityDomain;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
+import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
+import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,10 +33,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicle;
-import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleCondition;
-import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
-import com.jd.ql.dms.common.domain.JdResponse;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -170,7 +179,7 @@ public class PreSealVehicleController extends DmsBaseController{
 	private List<PreSealVehicle> buildPreSealVehicle(Map<Integer, PreSealVehicle> preMap, List<SealVehicles> unSealSendCodes){
 
         //组装批次信息
-        if(unSealSendCodes != null || !unSealSendCodes.isEmpty()){
+        if(CollectionUtils.isNotEmpty(unSealSendCodes)){
             for(SealVehicles unSealVehiclesWithSendCodeTemp : unSealSendCodes){
                 Integer receiveSiteCode = unSealVehiclesWithSendCodeTemp.getReceiveSiteCode();
                 if(preMap.containsKey(receiveSiteCode)){
