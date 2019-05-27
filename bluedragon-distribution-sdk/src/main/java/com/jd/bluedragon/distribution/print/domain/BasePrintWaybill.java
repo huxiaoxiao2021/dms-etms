@@ -11,6 +11,12 @@ import java.io.Serializable;
  *
  */
 public class BasePrintWaybill implements Serializable {
+	private static final long serialVersionUID = 1L;
+	public BasePrintWaybill(){
+	}
+	public BasePrintWaybill(String waybillCode){
+		this.waybillCode = waybillCode;
+	}
 
 	/**运单号*/
 	private String waybillCode;
@@ -20,10 +26,6 @@ public class BasePrintWaybill implements Serializable {
 
     /**始发分拣中心名称*/
     private String originalDmsName;
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
     /**
      * B商家ID
      */
@@ -329,15 +331,6 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	private StringBuilder specialMark1Builder = new StringBuilder();
 
-	public BasePrintWaybill(String waybillCode){
-		this.waybillCode = waybillCode;
-	}
-
-	public BasePrintWaybill(){
-
-	}
-
-
 	/**
 	 * 京东物流网址和客服电话
 	 * */
@@ -353,6 +346,33 @@ public class BasePrintWaybill implements Serializable {
 	 * 旧单的运单号
      */
 	private String oldWaybillCode;
+    /**预分拣站点Code*/
+    private Integer prepareSiteCode;
+
+    /**预分拣站点名称*/
+    private String prepareSiteName;
+
+    /**目的分拣中心编码*/
+    private Integer purposefulDmsCode;
+
+    /**目的分拣中心名称*/
+    private String purposefulDmsName;
+
+    /**始发道口*/
+    private String originalCrossCode;
+
+    /**目的道口*/
+    private String purposefulCrossCode;
+
+    /**始发笼车号*/
+    private String originalTabletrolley;
+
+    /**目的笼车号*/
+    private String purposefulTableTrolley;
+	/**
+	 * 目的分拣中心-城市编码
+	 */
+	private String destinationCityDmsCode;
 
 	public String getAdditionalComment() {
 		return additionalComment;
@@ -1240,5 +1260,131 @@ public class BasePrintWaybill implements Serializable {
 	 */
 	public void setTemplateGroupCode(String templateGroupCode) {
 		this.templateGroupCode = templateGroupCode;
+	}
+
+	/**
+	 * @return the destinationCityDmsCode
+	 */
+	public String getDestinationCityDmsCode() {
+		return destinationCityDmsCode;
+	}
+
+	/**
+	 * @param destinationCityDmsCode the destinationCityDmsCode to set
+	 */
+	public void setDestinationCityDmsCode(String destinationCityDmsCode) {
+		this.destinationCityDmsCode = destinationCityDmsCode;
+	}
+
+	/**
+	 * @return the prepareSiteCode
+	 */
+	public Integer getPrepareSiteCode() {
+		return prepareSiteCode;
+	}
+
+	/**
+	 * @param prepareSiteCode the prepareSiteCode to set
+	 */
+	public void setPrepareSiteCode(Integer prepareSiteCode) {
+		this.prepareSiteCode = prepareSiteCode;
+	}
+
+	/**
+	 * @return the prepareSiteName
+	 */
+	public String getPrepareSiteName() {
+		return prepareSiteName;
+	}
+
+	/**
+	 * @param prepareSiteName the prepareSiteName to set
+	 */
+	public void setPrepareSiteName(String prepareSiteName) {
+		this.prepareSiteName = prepareSiteName;
+	}
+
+	/**
+	 * @return the purposefulDmsCode
+	 */
+	public Integer getPurposefulDmsCode() {
+		return purposefulDmsCode;
+	}
+
+	/**
+	 * @param purposefulDmsCode the purposefulDmsCode to set
+	 */
+	public void setPurposefulDmsCode(Integer purposefulDmsCode) {
+		this.purposefulDmsCode = purposefulDmsCode;
+	}
+
+	/**
+	 * @return the purposefulDmsName
+	 */
+	public String getPurposefulDmsName() {
+		return purposefulDmsName;
+	}
+
+	/**
+	 * @param purposefulDmsName the purposefulDmsName to set
+	 */
+	public void setPurposefulDmsName(String purposefulDmsName) {
+		this.purposefulDmsName = purposefulDmsName;
+	}
+
+	/**
+	 * @return the originalCrossCode
+	 */
+	public String getOriginalCrossCode() {
+		return originalCrossCode;
+	}
+
+	/**
+	 * @param originalCrossCode the originalCrossCode to set
+	 */
+	public void setOriginalCrossCode(String originalCrossCode) {
+		this.originalCrossCode = originalCrossCode;
+	}
+
+	/**
+	 * @return the purposefulCrossCode
+	 */
+	public String getPurposefulCrossCode() {
+		return purposefulCrossCode;
+	}
+
+	/**
+	 * @param purposefulCrossCode the purposefulCrossCode to set
+	 */
+	public void setPurposefulCrossCode(String purposefulCrossCode) {
+		this.purposefulCrossCode = purposefulCrossCode;
+	}
+
+	/**
+	 * @return the originalTabletrolley
+	 */
+	public String getOriginalTabletrolley() {
+		return originalTabletrolley;
+	}
+
+	/**
+	 * @param originalTabletrolley the originalTabletrolley to set
+	 */
+	public void setOriginalTabletrolley(String originalTabletrolley) {
+		this.originalTabletrolley = originalTabletrolley;
+	}
+
+	/**
+	 * @return the purposefulTableTrolley
+	 */
+	public String getPurposefulTableTrolley() {
+		return purposefulTableTrolley;
+	}
+
+	/**
+	 * @param purposefulTableTrolley the purposefulTableTrolley to set
+	 */
+	public void setPurposefulTableTrolley(String purposefulTableTrolley) {
+		this.purposefulTableTrolley = purposefulTableTrolley;
 	}
 }
