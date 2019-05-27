@@ -710,6 +710,11 @@ public class Constants {
     public static final String CREATE_BOX_FROM_SSC_SWITCH = "CREATE_BOX_FROM_SSC_SWITCH";
 
     /**
+     * 是否启用中台创建箱号开关key
+     */
+    public static final String FIND_BOX_FROM_SSC_SWITCH = "FIND_BOX_FROM_SSC_SWITCH";
+
+    /**
      * 启用中台创建箱号的场地集合 key
      */
     public static final String CREATE_BOX_FROM_SSC_SITE = "CREATE_BOX_FROM_SSC_SITE";

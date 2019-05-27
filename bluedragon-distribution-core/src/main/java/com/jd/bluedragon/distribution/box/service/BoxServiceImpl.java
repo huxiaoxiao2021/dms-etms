@@ -199,6 +199,24 @@ public class BoxServiceImpl implements BoxService {
     }
 
     /**
+     * 是否启用中台查询箱号开关
+     * @return boolean
+     */
+	private boolean isFindBoxFromSSC(){
+        boolean isFindBoxFromSSC = false;
+        try{
+            SysConfig config = sysConfigService.findConfigContentByConfigName(Constants.FIND_BOX_FROM_SSC_SWITCH);
+            if(config != null && Constants.STRING_FLG_TRUE.equals(config.getConfigContent())){
+				isFindBoxFromSSC = true;
+            }
+        }catch (Exception e){
+            logger.error("查询箱号查询是否使用中台异常", e);
+        }
+
+        return isFindBoxFromSSC;
+    }
+
+    /**
      * 使用中台生产箱号
      * @param param 参数
      * @param systemType 类型
@@ -405,7 +423,7 @@ public class BoxServiceImpl implements BoxService {
 		Box box = null;
 
 		//通过中台查询箱号
-        if(isCreateBoxFromSSC()){
+        if(isFindBoxFromSSC()){
             try{
                 box = containerManager.findBoxByCode(code);
             }catch (Exception e){
