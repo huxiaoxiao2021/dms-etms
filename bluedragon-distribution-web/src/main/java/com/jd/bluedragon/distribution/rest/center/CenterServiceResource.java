@@ -176,6 +176,11 @@ public class CenterServiceResource {
 		choice.setQueryWaybillExtend(true);
 		choice.setQueryPickupTask(true);
 		choice.setQueryServiceBillPay(true);
+		choice.setQueryQByNewCode(true);
+		choice.setQueryWaybillFinance(true);
+		choice.setQueryWaybillP(true);
+		choice.setQueryWaybillS(true);
+		choice.setQueryWaybillT(true);
 
 		BaseEntity<BigWaybillDto> result = null;
 		try {

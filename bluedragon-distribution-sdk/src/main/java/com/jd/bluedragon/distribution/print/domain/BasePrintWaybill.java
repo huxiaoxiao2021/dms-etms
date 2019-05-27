@@ -294,6 +294,10 @@ public class BasePrintWaybill implements Serializable {
 	 * 使用新统一模板标识
 	 */
 	private Boolean useNewTemplate = Boolean.FALSE;
+	/**
+	 * 模板分组编码
+	 */
+	private String templateGroupCode;
 
 	/**
 	 * @see this.customerContacts
@@ -1222,5 +1226,19 @@ public class BasePrintWaybill implements Serializable {
 			specialMark1Builder.append(markText);
 			this.specialMark1 = specialMark1Builder.toString();
 		}
+	}
+
+	/**
+	 * @return the templateGroupCode
+	 */
+	public String getTemplateGroupCode() {
+		return templateGroupCode;
+	}
+
+	/**
+	 * @param templateGroupCode the templateGroupCode to set
+	 */
+	public void setTemplateGroupCode(String templateGroupCode) {
+		this.templateGroupCode = templateGroupCode;
 	}
 }

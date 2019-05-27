@@ -27,6 +27,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
@@ -81,7 +82,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
     @Autowired
     protected TaskService taskService;
-
 
     @Override
     public Dao<ArSendRegister> getDao() {
@@ -741,9 +741,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      */
     private void sendArSendReportMQ(ArSendRegister arSendRegister, String[] sendCodes){
         try {
+
+            List<Integer> packCounts = new ArrayList<>();
             if(sendCodes.length>0){
                 arSendRegister.setSendCodes(Arrays.asList(sendCodes));
+                //取出每个批次的包裹总数
+                for(String sendCode : sendCodes){
+                    packCounts.add(sendDetailDao.querySendDCountBySendCode(sendCode));
+                }
+                arSendRegister.setPackCounts(packCounts);
             }
+
             arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
         } catch (JMQException e) {
             logger.error("空铁发货登记报表数据发送异常"+arSendRegister.getTransCompanyCode()+e.getMessage(),e);

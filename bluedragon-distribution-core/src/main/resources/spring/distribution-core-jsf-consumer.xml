@@ -77,7 +77,10 @@
                   interface="com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService"
                   alias="${dmsver.check.alias}" protocol="jsf" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
-
+    <jsf:consumer id="cancelWaybillJsfService"
+                  interface="com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService"
+                  alias="${dmsver.check.alias}" protocol="jsf" serialization="hessian" timeout="${dmsver.check.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 青龙三方路由JSF接口 陈全峰 -->
     <jsf:consumer id="orderShipsServiceJsf" interface="com.jd.etms.third.jsf.OrderShipsServiceJsf"
                   protocol="jsf" alias="${3pl.jsf.alias}" timeout="${3pl.jsf.timeout}" retries="${jsf.retries}">
@@ -411,6 +414,12 @@
     <!-- 终端系统-移动仓内配调妥投接口 -->
     <jsf:consumer id="workTaskService" interface="com.jd.ql.erp.jsf.WorkTaskService"
                   protocol="jsf" alias="${jsf.workTask.alias}" timeout="${jsf.workTask.timeout}" check="false" retries="0">
+    </jsf:consumer>
+
+    <!-- 预分拣系统-批量转网 -->
+    <jsf:consumer id="batchExpressTransferHandleAPI" interface="com.jd.bluedragon.preseparate.jsf.BatchExpressTransferHandleAPI"
+                  protocol="jsf" alias="${jsf.presort.expressTransfer.alias}" timeout="${jsf.presort.expressTransfer.timeout}" check="false" retries="0">
+        <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
     <!-- 转运中台-容器实操接口 -->
     <jsf:consumer id="containerService" interface="com.jd.ql.shared.services.sorting.api.ContainerService"

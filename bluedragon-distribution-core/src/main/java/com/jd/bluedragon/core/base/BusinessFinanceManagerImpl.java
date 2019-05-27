@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.etms.finance.api.jsf.BusinessDetailQueryJsf;
 import com.jd.etms.finance.dto.BizDutyDTO;
 import com.jd.etms.finance.util.ResponseDTO;
@@ -29,7 +30,7 @@ public class BusinessFinanceManagerImpl implements BusinessFinanceManager {
      * @param waybillCode
      * @return
      */
-    @JProfiler(jKey = "DMS.BASE.businessDetailQueryJsf.queryDutyInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMS.BASE.businessDetailQueryJsf.queryDutyInfo", mState = {JProEnum.TP, JProEnum.FunctionError},jAppName= Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public ResponseDTO<BizDutyDTO> queryDutyInfo(String waybillCode){
 

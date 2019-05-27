@@ -7,6 +7,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -55,9 +56,11 @@ public class SendDetailRouterDao extends SendDatailDao {
         List<SendDetail> mergeSendDetails = new ArrayList<SendDetail>();
         List<Integer> siteCodes = kvIndexDao.queryCreateSiteCodesByKey(tSendDatail.getBoxCode());
         if (null != siteCodes && siteCodes.size() > 0) {
+            SendDetail sendDetailCondition = new SendDetail();
+            BeanUtils.copyProperties(tSendDatail, sendDetailCondition);
             for (Integer siteCode : siteCodes) {
-                tSendDatail.setCreateSiteCode(siteCode);
-                List<SendDetail> sendDetails = super.querySendDatailsByBoxCode(tSendDatail);
+                sendDetailCondition.setCreateSiteCode(siteCode);
+                List<SendDetail> sendDetails = super.querySendDatailsByBoxCode(sendDetailCondition);
                 if (null != sendDetails && sendDetails.size() > 0) {
                     mergeSendDetails.addAll(sendDetails);
                 }

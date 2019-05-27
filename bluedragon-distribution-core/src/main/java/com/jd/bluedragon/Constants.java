@@ -222,6 +222,11 @@ public class Constants {
      * 基础资料默认分拣中心所属类型
      */
     public static final Integer DMS_SITE_TYPE = 64;
+
+    /**
+     * 财务专用
+     */
+    public static final Integer FINANCIAL_SPECIAL_SITE_TYPE = 98;
     
     /**
      * POP订单类型
@@ -942,5 +947,10 @@ public class Constants {
      * 计量单位：cm
      */
     public static final String MEASURE_UNIT_NAME_CM = "cm";
+
+    /**
+     * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
 
 }

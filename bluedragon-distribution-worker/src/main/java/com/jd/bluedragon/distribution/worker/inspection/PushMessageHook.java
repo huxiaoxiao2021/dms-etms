@@ -11,6 +11,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 推送验货MQ消息
@@ -26,9 +28,14 @@ public class PushMessageHook implements TaskHook<InspectionTaskExecuteContext> {
     @JProfiler( jKey = "dmsworker.PushMessageHook.hook")
     @Override
     public int hook(InspectionTaskExecuteContext context) {
+        Set sendInspectionKey = new HashSet();
         for (CenConfirm cenConfirm:context.getCenConfirmList()) {
             InspectionMQBody inspectionMQBody = new InspectionMQBody();
             inspectionMQBody.setWaybillCode(null != cenConfirm.getWaybillCode() ? cenConfirm.getWaybillCode() : SerialRuleUtil.getWaybillCode(cenConfirm.getPackageBarcode()));
+            if(inspectionMQBody.getWaybillCode() == null || sendInspectionKey.contains(inspectionMQBody.getWaybillCode())){
+                continue;
+            }
+            sendInspectionKey.add(inspectionMQBody.getWaybillCode()!=null?inspectionMQBody.getWaybillCode():"");
             inspectionMQBody.setInspectionSiteCode(cenConfirm.getCreateSiteCode());
             inspectionMQBody.setCreateUserCode(cenConfirm.getInspectionUserCode());
             inspectionMQBody.setCreateUserName(cenConfirm.getInspectionUser());

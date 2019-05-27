@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.send.dao;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -58,6 +60,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail> queryBySiteCodeAndSendCode(SendDetail query) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryBySiteCodeAndSendCode", query);
+    }
+
+    public Integer queryCountBySiteCodeAndSendCode(SendDetailDto query) {
+        return (Integer)this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".queryCountBySiteCodeAndSendCode", query);
+    }
+
+    public List<SendDetail> queryPageBySiteCodeAndSendCode(PagerCondition query) {
+        return this.getSqlSession().selectList(
+                SendDatailDao.namespace + ".queryPageBySiteCodeAndSendCode", query);
     }
 
     @SuppressWarnings("unchecked")

@@ -1,18 +1,22 @@
 package com.jd.bluedragon.distribution.wss.service;
 
-import java.util.Date;
-import java.util.List;
-
+import com.jd.bluedragon.distribution.departure.domain.SendBox;
 import com.jd.bluedragon.distribution.wss.dto.BoxSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.DepartureWaybillDto;
 import com.jd.bluedragon.distribution.wss.dto.PackageSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.SealVehicleSummaryDto;
 import com.jd.bluedragon.distribution.wss.dto.WaybillCodeSummatyDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
+
+import java.util.Date;
+import java.util.List;
 
 public interface DistributionWssService {
 
 	public List<BoxSummaryDto> getBoxSummary(String code, Integer type, Integer siteCode);
 	public List<PackageSummaryDto> getPackageSummary(String code, Integer type, Integer siteCode);
+
+    PageDto<PackageSummaryDto> queryPageSendInfoByBatchCode(PageDto pageDto, String batchCode);
 
 	/**
 	 * 通过封车号查询封车信息
@@ -26,7 +30,7 @@ public interface DistributionWssService {
 	 * @param 参数 （int siteid,Date startTime,Date endTime）
 	 * @return
 	 */
-	public List<WaybillCodeSummatyDto> findDeliveryPackageBySiteSummary(int siteid,Date startTime,Date endTime);
+	public List<WaybillCodeSummatyDto> findDeliveryPackageBySiteSummary(int siteid, Date startTime, Date endTime);
 	
 	/**
 	 * 根据运单号获取发货包裹数

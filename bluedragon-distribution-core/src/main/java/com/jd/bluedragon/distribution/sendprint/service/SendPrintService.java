@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
 
 import java.util.List;
@@ -25,4 +26,12 @@ public interface SendPrintService {
 	String getWaybillType(int waybillType);
 
 	String getSendPay(int payment);
+
+	/**
+	 * 获取批次号打印所需对象数据信息
+	 *
+	 * @param criteria
+	 * @return
+	 */
+	SendCodePrintEntity getSendCodePrintEntity(PrintQueryCriteria criteria);
 }
