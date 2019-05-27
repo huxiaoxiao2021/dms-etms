@@ -33,9 +33,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
     SiteService siteService;
 
     /**B网专用面单 **/
-    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-m";
-    /** B网营业厅面单 **/
-    private static final String TEMPlATE_NAME_B2B_BUSINESS_HALL = "dms-b2b-new";
+    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-new";
     /** B网冷链面单 **/
     private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
     /** TC面单 **/
@@ -72,23 +70,16 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (StringUtils.isBlank(templateName)) {
-                if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
-                    //B网模板
-                    if (!BusinessUtil.isSignChar(waybillSign, 54, '2')) {
-                        if (BusinessUtil.isSignChar(waybillSign, 62, '1')) {
-                            //B网营业厅面单
-                            templateName = TEMPlATE_NAME_B2B_BUSINESS_HALL;
-                        } else if (BusinessUtil.isSignChar(waybillSign, 62, '0')) {
-                            //B网专用面单
-                            templateName = TEMPlATE_NAME_B2B_MAIN;
-                        }
-                    } else {
-                        //冷链模板
-                        templateName = TEMPlATE_NAME_B2B_COLD;
-                    }
-                } else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
+                if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
+                }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
+                    if(BusinessUtil.isSignChar(waybillSign, 54, '2')){
+                        //冷链模板
+                        templateName = TEMPlATE_NAME_B2B_COLD;
+                    }else {
+                        templateName = TEMPlATE_NAME_B2B_MAIN;
+                    }
                 } else {
                     //C网面单
                     //一号店模板
