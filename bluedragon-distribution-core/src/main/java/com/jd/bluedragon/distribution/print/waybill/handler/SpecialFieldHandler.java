@@ -26,6 +26,14 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
     
     @Autowired
     private BaseMajorManager baseMajorManager;
+    /**
+     * 分拣中心标识-显示为滑道号的最大长度默认为2
+     */
+    private static final int CROSS_CODE_MAX_LENGTH = 2;
+    /**
+     * 分拣中心标识-显示为滑道号的最大长度
+     */
+    private int crossCodeMaxLength = CROSS_CODE_MAX_LENGTH;
     
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
@@ -34,22 +42,38 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
 		/**
 		 * 显示目的分拣中心标识destinationCityDmsCode
 		 * 1、始发分拣与目的分拣不一致，调用基础资料获取目的分拣中心对应的标识
-		 * 2、始发分拣与目的分拣一致，显示为目的滑道号
+		 * 2、始发分拣与目的分拣一致，显示为目的滑道号（滑道号长度小于等于2）
 		 */
 		if(basePrintWaybill.getPurposefulDmsCode() != null) {
 			if(!basePrintWaybill.getPurposefulDmsCode().equals(basePrintWaybill.getOriginalDmsCode())){
 				BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(basePrintWaybill.getPurposefulDmsCode());
 				if(baseSiteInfoDto != null && StringHelper.isNotEmpty(baseSiteInfoDto.getDistributeCode())){
 					basePrintWaybill.setDestinationCityDmsCode(baseSiteInfoDto.getDistributeCode());
+				}else{
+					logger.warn("打印-调用基础资料获取目的分拣中心对应的标识为空！siteCode:"+basePrintWaybill.getPurposefulDmsCode());
 				}
 			}else{
 				String destinationCrossCode = basePrintWaybill.getDestinationCrossCode();
 				if(StringHelper.isNotEmpty(destinationCrossCode) 
-						&& destinationCrossCode.length()<=2){
+						&& destinationCrossCode.length() <= crossCodeMaxLength){
 					basePrintWaybill.setDestinationCityDmsCode(destinationCrossCode);
 				}
 			}
 		}
 		return context.getResult();
+	}
+
+	/**
+	 * @return the crossCodeMaxLength
+	 */
+	public int getCrossCodeMaxLength() {
+		return crossCodeMaxLength;
+	}
+
+	/**
+	 * @param crossCodeMaxLength the crossCodeMaxLength to set
+	 */
+	public void setCrossCodeMaxLength(int crossCodeMaxLength) {
+		this.crossCodeMaxLength = crossCodeMaxLength;
 	}
 }
