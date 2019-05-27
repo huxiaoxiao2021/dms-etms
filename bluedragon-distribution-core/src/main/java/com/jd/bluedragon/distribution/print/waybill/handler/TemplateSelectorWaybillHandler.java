@@ -20,7 +20,7 @@ public class TemplateSelectorWaybillHandler implements Handler<WaybillPrintConte
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("获取包裹标签版本");
 		String templateName = templateSelectService.handle(context);
-		context.getResponse().setTemplateName(templateName);
+		context.getBasePrintWaybill().setTemplateName(templateName);
 		return context.getResult();
 	}
 }

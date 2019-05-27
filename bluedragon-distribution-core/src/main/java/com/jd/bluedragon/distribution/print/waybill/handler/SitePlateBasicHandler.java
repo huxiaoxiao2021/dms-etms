@@ -67,10 +67,6 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
     @Autowired
     private PreSortingSecondService preSortingSecondService;
 
-    /* MQ消息生产者： topic:bd_waybill_original_site_change*/
-    @Autowired
-    @Qualifier("waybillSiteChangeProducer")
-    private DefaultJMQProducer waybillSiteChangeProducer;
     @Autowired
     @Qualifier("thirdOverRunInterceptHandler")
     private InterceptHandler<WaybillPrintContext,String> thirdOverRunInterceptHandler;

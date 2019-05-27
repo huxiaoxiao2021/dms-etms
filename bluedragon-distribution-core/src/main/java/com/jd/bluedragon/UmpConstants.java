@@ -11,13 +11,13 @@ public interface UmpConstants {
     /**
      * UMP监控key
      */
-    public static final String UMP_KEY_BASE= "dmsWeb.";
+    String UMP_KEY_BASE= "dmsWeb.";
     /**
      * jsf客户端监控key前缀
      */
-    public static final String UMP_KEY_JSF_CLIENT= UMP_KEY_BASE + "jsf.client.";
+    String UMP_KEY_JSF_CLIENT= UMP_KEY_BASE + "jsf.client.";
     /**
      * jsf服务端监控key前缀
      */
-    public static final String UMP_KEY_JSF_SERVER= UMP_KEY_BASE + "jsf.server.";
+    String UMP_KEY_JSF_SERVER= UMP_KEY_BASE + "jsf.server.";
 }
