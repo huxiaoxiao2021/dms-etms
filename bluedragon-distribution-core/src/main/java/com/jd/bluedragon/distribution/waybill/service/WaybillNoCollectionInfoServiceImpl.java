@@ -436,6 +436,10 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * */
     private void generateNoCollectionCommonPackageUntilEnd(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int startIndex, String lastPackageCode) {
 
+        if(CollectionUtils.isEmpty(lexicalOrder)){
+            lexicalOrder = this.getLexicalOrder(packageNum);
+        }
+
         //遍历直到当前值等于最大包裹数
         for (int i = startIndex; i < packageNum; i++) {
             //如果当前结果大于返回的最大值，则返回true，外层跳出循环
