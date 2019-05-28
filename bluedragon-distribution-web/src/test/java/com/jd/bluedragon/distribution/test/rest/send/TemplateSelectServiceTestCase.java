@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
-import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
+import com.jd.bluedragon.distribution.print.waybill.handler.TemplateSelectorWaybillHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -24,7 +24,7 @@ public class TemplateSelectServiceTestCase {
 		testPackageTemplate();
 	}
     @Autowired
-    private TemplateSelectService templateSelectService;
+    private TemplateSelectorWaybillHandler templateSelectorWaybillHandler;
     @Test
     public void testUseNewTemplate() throws Exception{
     	//http://dmswebtest.360buy.com/sysconfig/list?pageNo=1&pageSize=10&configName=print.dmsSiteCodes.useNewTemplate
@@ -36,7 +36,7 @@ public class TemplateSelectServiceTestCase {
     	int sucNum = 0;
     	for(int i =0 ;i<dmsSiteCodes.length;i++){
     		context.getRequest().setDmsSiteCode(dmsSiteCodes[i]);
-    		templateSelectService.handle(context);
+    		templateSelectorWaybillHandler.handle(context);
     		if(useNewTemplates[i].equals(context.getBasePrintWaybill().getUseNewTemplate())){
     			System.out.println(i+":"+"suc");
     			sucNum ++;
@@ -70,7 +70,8 @@ public class TemplateSelectServiceTestCase {
     		context.getRequest().setPaperSizeCode(paperSizeCodes[i]);
 	    	for(int j =0 ;j<dmsBusiAliass.length;j++){
 	    		context.getBasePrintWaybill().setDmsBusiAlias(dmsBusiAliass[j]);
-	    		String templateName = templateSelectService.handle(context);
+	    		templateSelectorWaybillHandler.handle(context);
+	    		String templateName = context.getBasePrintWaybill().getTemplateName();
 	    		if(templateNames[i][j].equals(templateName)){
 	    			sucNum ++;
 	    			System.out.println(i+"-"+j+":"+"suc");
