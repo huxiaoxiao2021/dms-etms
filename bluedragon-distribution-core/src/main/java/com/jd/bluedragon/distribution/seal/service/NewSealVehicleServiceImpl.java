@@ -151,6 +151,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
     }
 
+    /**
+     * 取消封车
+     * @param request
+     * @return
+     */
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCar",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public CommonDto<String> cancelSeal(cancelSealRequest request) {
@@ -158,7 +163,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         TMS_param.setBatchCode(request.getBatchCode());
         TMS_param.setOperateType(request.getOperateType());
         TMS_param.setOperateUserCode(request.getOperateUserCode());
-        TMS_param.setOperateTime(DateHelper.parseDate(request.getOperateTime(),"yyyy-MM-dd HH:mm:ss"));
+        TMS_param.setOperateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
 
         logger.info("取消封车参数："+ JsonHelper.toJson(TMS_param));
 

@@ -406,7 +406,7 @@ public class NewSealVehicleResource {
 
       CommonDto<String> returnCommonDto = newsealVehicleService.cancelSeal(request);
       if (returnCommonDto != null) {
-        if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
+        if (CommonDto.CODE_SUCCESS == returnCommonDto.getCode()) {
           sealVehicleResponse.setCode(JdResponse.CODE_OK);
           sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
           sealVehicleResponse.setData(returnCommonDto.getData());
