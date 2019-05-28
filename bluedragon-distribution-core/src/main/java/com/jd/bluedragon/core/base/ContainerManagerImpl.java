@@ -179,7 +179,7 @@ public class ContainerManagerImpl implements ContainerManager{
             }
             UserEnv userEnv = buildUserEnv(null, null, null);
 
-            //TODO 分组信息写入中台
+            //组信息写入中台
             ApiResult<Boolean> apiResult = containerService.updateContainerGroup(codes, groupName, groupId, userEnv);
             log.info("中台查询容器结果：" + JsonHelper.toJson(apiResult));
             if(ApiResult.OK_CODE == apiResult.getCode() && Boolean.TRUE.equals(apiResult.getData())){
