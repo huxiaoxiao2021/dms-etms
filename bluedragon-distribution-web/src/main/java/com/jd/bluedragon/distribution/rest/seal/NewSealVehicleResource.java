@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
@@ -369,6 +370,57 @@ public class NewSealVehicleResource {
             this.logger.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    /**
+     * 取消封车
+     * @param request
+     * @return
+     */
+  @POST
+  @Path("/new/vehicle/cancelSeal")
+  @BusinessLog(
+    sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,
+    bizType = 11011,
+    operateType = 1101101
+  )
+  public NewSealVehicleResponse cancelSeal(cancelSealRequest request) {
+    NewSealVehicleResponse sealVehicleResponse =
+        new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+    try
+    {
+      if (null == request || StringHelper.isEmpty(request.getBatchCode())) {
+        logger.warn("NewSealVehicleResource cancelSeal --> 传入参数非法");
+        sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+        sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+        return sealVehicleResponse;
+      }
+
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());//获取批次号目的地
+        //1.批次号是否符合编码规范，不合规范直接返回参数错误
+        if (receiveSiteCode == null) {
+            sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
+            return sealVehicleResponse;
+        }
+
+      CommonDto<String> returnCommonDto = newsealVehicleService.cancelSeal(request);
+      if (returnCommonDto != null) {
+        if (CommonDto.CODE_SUCCESS == returnCommonDto.getCode()) {
+          sealVehicleResponse.setCode(JdResponse.CODE_OK);
+          sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
+          sealVehicleResponse.setData(returnCommonDto.getData());
+        } else {
+          sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+          sealVehicleResponse.setMessage(returnCommonDto.getMessage());
+          sealVehicleResponse.setData(returnCommonDto.getData());
+        }
+      }
+    }
+    catch (Exception e) {
+      this.logger.error("NewSealVehicleResource.cancelSeal-error", e);
+    }
+      return sealVehicleResponse;
     }
 
     /**

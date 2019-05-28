@@ -2,9 +2,11 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
@@ -16,6 +18,7 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.vos.dto.CancelSealCarDto;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -146,6 +149,29 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             addSystemLog(paramList, msg);
         }
         return sealCarInfo;
+    }
+
+    /**
+     * 取消封车
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCar",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto<String> cancelSeal(cancelSealRequest request) {
+        CancelSealCarDto TMS_param = new CancelSealCarDto();
+        TMS_param.setBatchCode(request.getBatchCode());
+        TMS_param.setOperateType(request.getOperateType());
+        TMS_param.setOperateUserCode(request.getOperateUserCode());
+        TMS_param.setOperateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+
+        logger.info("取消封车参数："+ JsonHelper.toJson(TMS_param));
+
+        CommonDto<String> cancelSealInfo = vosBusinessWS.doCancelSealCar(TMS_param);
+        if(cancelSealInfo == null) {
+                logger.warn("取消封车JSF接口返回为空.参数："+ JsonHelper.toJson(TMS_param));
+        }
+        return cancelSealInfo;
     }
 
     /**
