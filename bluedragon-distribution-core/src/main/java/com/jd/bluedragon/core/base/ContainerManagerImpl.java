@@ -253,21 +253,6 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     /**
-     * 通过容器号获取箱号类型
-     * @param boxCode 容器号
-     * @return 箱号类型
-     */
-    private String getBoxType(String boxCode){
-        String type = "";
-        if(boxCode.startsWith(ContainerBusinessType.SIGNATURE_RETURN.type())){
-            type = ContainerBusinessType.SIGNATURE_RETURN.type();
-        }else{
-            type = boxCode.substring(0, 2);
-        }
-        return type;
-    }
-
-    /**
      * 构建userEnv
      * @param userErp 用户erp
      * @param userName 用户名称
