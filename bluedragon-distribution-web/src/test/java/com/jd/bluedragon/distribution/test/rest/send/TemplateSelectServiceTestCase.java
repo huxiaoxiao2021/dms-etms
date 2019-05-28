@@ -9,14 +9,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.service.TemplateSelectService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.testCore.base.EntityUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)  //使用junit4进行测试
 @ContextConfiguration(locations = {"classpath:/distribution-web-context-test.xml"})
 public class TemplateSelectServiceTestCase {
+	
+	public static void main(String[] args) throws Exception{
+		testPackageTemplate();
+	}
     @Autowired
     private TemplateSelectService templateSelectService;
     @Test
@@ -39,6 +45,10 @@ public class TemplateSelectServiceTestCase {
     		}
     	}
     	Assert.assertEquals(dmsSiteCodes.length, sucNum);
+    }
+    public static void testPackageTemplate() throws Exception{
+    	PackageTemplate packageTemplate = EntityUtil.getInstance(PackageTemplate.class);
+    	System.err.println(JsonHelper.toJson(packageTemplate));
     }
     @Test
     public void testC() throws Exception{

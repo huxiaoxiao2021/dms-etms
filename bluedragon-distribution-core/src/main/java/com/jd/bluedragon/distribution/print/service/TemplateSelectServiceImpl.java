@@ -54,6 +54,10 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
     @Override
     public String handle(WaybillPrintContext context) {
         String templateName = context.getRequest().getTemplateName();
+        /**
+         * 标识是否需求匹配模板
+         */
+        boolean needMatchTemplate = StringUtils.isBlank(templateName);
         Integer siteCode = context.getRequest().getSiteCode();
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
@@ -69,7 +73,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
             templateName = TEMPLATE_NAME_10_5;
         }else{
-            if (StringUtils.isBlank(templateName)) {
+            if (needMatchTemplate) {
                 if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
@@ -107,14 +111,6 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         basePrintWaybill.setTemplatePaperSizeCode(paperSizeCode);
         //设置启用新模板标识--默认为启用
         basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
-        //查询总开关，1表示开，0表示关
-        if(!sysConfigService.getConfigByName(SysConfigService.SYS_CONFIG_NAME_USE_NEW_TEMPLATE_SWITCH)){
-            basePrintWaybill.setUseNewTemplate(Boolean.FALSE);
-            if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_USE_NEW_TEMPLATE)
-                    .contains(context.getRequest().getDmsSiteCode())){
-                basePrintWaybill.setUseNewTemplate(Boolean.TRUE);
-            }
-        }
         //查询在黑名单的分拣中心，设置为false
         if(siteService.getSiteCodesFromSysConfig(SysConfigService.SYS_CONFIG_NAME_DMS_SITE_CODES_NONUSE_NEW_TEMPLATE)
                 .contains(context.getRequest().getDmsSiteCode())){
@@ -122,7 +118,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         }
         //得到业务模板
         //根据key查config
-        if (siteCode != null) {
+        if (needMatchTemplate && siteCode != null) {
             String temporaryTemplateName = getMatchTemplate(templateName, siteCode);
             if (StringUtils.isNotBlank(temporaryTemplateName)) {
                 templateName = temporaryTemplateName;
@@ -143,8 +139,8 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
      * @param siteCode
      * @return
      */
-    @Cache(key = "TemplateSelectServiceImpl.getMatchTemplate@args0@args1", memoryEnable = false, memoryExpiredTime = 10 * 60 * 1000, redisEnable = true)
-    private String getMatchTemplate(String templateName, Integer siteCode) {
+    @Cache(key = "TemplateSelectServiceImpl.getMatchTemplate@args0@args1", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000, redisEnable = false)
+    public String getMatchTemplate(String templateName, Integer siteCode) {
         String matchTemplateName = null;
 
         //1.从sysConfig表中查出业务模板对应的配置

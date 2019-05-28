@@ -1,16 +1,17 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -70,6 +71,10 @@ public class WaybillPrintContext implements Context{
 	 * 运单打印--基础类型
 	 */
 	private BasePrintWaybill basePrintWaybill;
+	/**
+	 * 站点平台打印-打印结果数据
+	 */
+	private LabelPrintingResponse labelPrintingResponse;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -170,5 +175,19 @@ public class WaybillPrintContext implements Context{
 
 	public void setOldBigWaybillDto(BigWaybillDto oldBigWaybillDto) {
 		this.oldBigWaybillDto = oldBigWaybillDto;
+	}
+
+	/**
+	 * @return the labelPrintingResponse
+	 */
+	public LabelPrintingResponse getLabelPrintingResponse() {
+		return labelPrintingResponse;
+	}
+
+	/**
+	 * @param labelPrintingResponse the labelPrintingResponse to set
+	 */
+	public void setLabelPrintingResponse(LabelPrintingResponse labelPrintingResponse) {
+		this.labelPrintingResponse = labelPrintingResponse;
 	}
 }
