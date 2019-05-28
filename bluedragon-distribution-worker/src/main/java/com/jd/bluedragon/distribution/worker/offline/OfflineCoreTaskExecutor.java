@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.worker.offline;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
@@ -15,8 +17,6 @@ import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -124,7 +124,6 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
     private boolean offlineCore(String body){
         OfflineLogRequest[] offlineLogRequests = JsonHelper.jsonToArray(body, OfflineLogRequest[].class);
         for (OfflineLogRequest offlineLogRequest : offlineLogRequests) {
-
             int resultCode = 0;
             try {
                 if (Task.TASK_TYPE_RECEIVE.equals(offlineLogRequest.getTaskType())) {
@@ -171,8 +170,7 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                     offlineLogRequest.setOperateTime(DateHelper.formatDate(DateHelper.add(operateTime, Calendar.SECOND, delaySeconds), Constants.DATE_TIME_MS_FORMAT));
                     resultCode = this.offlineAcarAbillDeliveryService.parseToTask(offlineLogRequest);
                 }
-                if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())
-                        || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {
+                if ((Task.TASK_TYPE_SEND_DELIVERY.equals(offlineLogRequest.getTaskType()) || Task.TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(offlineLogRequest.getTaskType())) && resultCode > 0) {
                     // 日志已处理，无需再处理
                     continue;
                 }
@@ -183,7 +181,8 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
 
             try {
                 OfflineLog offlineLog = requestToOffline(offlineLogRequest);
-                if (resultCode > Constants.RESULT_FAIL) { // 正常
+                // 正常
+                if (resultCode > Constants.RESULT_FAIL) {
                     offlineLog.setStatus(Constants.RESULT_SUCCESS);
                 } else {
                     offlineLog.setStatus(Constants.RESULT_FAIL);
@@ -193,9 +192,11 @@ public class OfflineCoreTaskExecutor extends DmsTaskExecutor<Task> {
                 } else {
                     this.offlineLogService.addOfflineLog(offlineLog);
                 }
-
             } catch (Exception e) {
                 this.logger.error("OfflineCoreTask--> 插入日志异常：【" + body + "】：", e);
+            }
+            if (resultCode == Constants.RESULT_FAIL){
+                return false;
             }
         }
         return true;
