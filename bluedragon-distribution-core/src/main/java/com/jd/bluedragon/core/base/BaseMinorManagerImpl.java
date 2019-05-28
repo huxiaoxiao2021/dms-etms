@@ -18,6 +18,7 @@ import com.jd.ql.basic.domain.BaseSiteGoods;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BaseCrossPackageTagWS;
 import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
@@ -70,8 +71,9 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	 */
 	@Autowired
 	private BasicAirConfigWS basicAirConfigWS;
-	
-	
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
@@ -413,4 +415,28 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 	public ResponseDTO<List<BasicTraderReturnDTO>> getBaseTraderReturnListByTraderId(Integer busiId){
 		return basicTraderReturnAPI.getBaseTraderReturnListByTraderId(busiId);
 	}
+
+	@Override
+	public CrossPackageTagNew queryNonDmsSiteCrossPackageTagForPrint(Integer targetSiteId, Integer originalDmsId) {
+		try {
+			if (targetSiteId != null && originalDmsId != null) {
+				BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(targetSiteId);
+				if (!Constants.DMS_SITE_TYPE.equals(receiveSiteDto.getSiteType()) && !Constants.FINANCIAL_SPECIAL_SITE_TYPE.equals(receiveSiteDto.getSiteType())) {
+					BaseDmsStore baseDmsStore = new BaseDmsStore();
+					JdResult<CrossPackageTagNew> result = queryCrossPackageTagForPrint(baseDmsStore, targetSiteId, originalDmsId, Constants.ORIGINAL_CROSS_TYPE_GENERAL);
+					if (result.isSucceed()) {
+						return result.getData();
+					} else {
+						log.warn("[箱号/批次号打印]获取基础资料信息！Message:" + result.getMessage());
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			log.error("[箱号/批次号打印]获取基础资料信息", e);
+		}
+		return null;
+	}
+
+
 }

@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
+import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
@@ -177,25 +178,33 @@ public class ReverseTest {
     private ReverseReceiveConsumer reverseReceiveConsumer;
 
     @Autowired
+    private ReversePopConsumer reversePopConsumer;
+
+    @Autowired
     private DepartureService departureService;
 
     @Test
     public void testMQ(){
         Message message = new Message();
-        /*message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+        message.setText("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<ReceiveRequest>\n" +
-                "  <sendCode>733578-25016-20190124091212015-T82885422432</sendCode>\n" +
-                "  <orderId>82885422432</orderId>\n" +
-                "  <operateTime>2019-01-25 13:21:18</operateTime>\n" +
-                "  <userCode>shilei7</userCode>\n" +
-                "  <userName>shilei7|</userName>\n" +
+                "  <sendCode>910-25016-20190518121903014-JDT000000072283</sendCode>\n" +
+                "  <orderId>62341634627</orderId>\n" +
+                "  <operateTime>2019-05-18 12:25:18</operateTime>\n" +
+                "  <userCode>liuduo</userCode>\n" +
+                "  <userName>liuduo|</userName>\n" +
                 "  <receiveType>3</receiveType>\n" +
                 "  <canReceive>1</canReceive>\n" +
-                "</ReceiveRequest>");*/
+                "</ReceiveRequest>");
         //reverseReceiveConsumer.consume(message);
-        String json = "{\"body\":\"1126534117837021184\",\"boxCode\":\"2226-553831-20190510000522015\",\"createSiteCode\":2226,\"createTime\":1557421638339,\"executeTime\":1557421638347,\"fingerprint\":\"2226-553831-20190510000522015_5\",\"keyword1\":\"5\",\"keyword2\":\"10\",\"ownSign\":\"DMS\",\"sequenceName\":\"SEQ_TASK_SORTING\",\"tableName\":\"task_send\",\"type\":1400}";
+        try {
+            reversePopConsumer.consume(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        /*String json = "{\"body\":\"1126534117837021184\",\"boxCode\":\"2226-553831-20190510000522015\",\"createSiteCode\":2226,\"createTime\":1557421638339,\"executeTime\":1557421638347,\"fingerprint\":\"2226-553831-20190510000522015_5\",\"keyword1\":\"5\",\"keyword2\":\"10\",\"ownSign\":\"DMS\",\"sequenceName\":\"SEQ_TASK_SORTING\",\"tableName\":\"task_send\",\"type\":1400}";
         Task t = JsonHelper.jsonToArray(json,Task.class);
-        departureService.sendThirdDepartureInfoToTMS(t,false);
+        departureService.sendThirdDepartureInfoToTMS(t,false);*/
     }
 
 

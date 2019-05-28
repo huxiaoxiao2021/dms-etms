@@ -130,22 +130,28 @@ public class TaskResource {
                     String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                             + JsonHelper.toJson(reverseSpareMap)
                             + Constants.PUNCTUATION_CLOSE_BRACKET;
-                    logger.warn("[" + request.getType() + "]" + eachJson);
-                    this.taskService.add(
-                            this.taskService.toTask(request, eachJson), true);
+                    this.taskAssemblingAndSave(request, eachJson);
                 }
             } else {
                 String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                         + JsonHelper.toJson(element)
                         + Constants.PUNCTUATION_CLOSE_BRACKET;
-                logger.warn("[" + request.getType() + "]" + eachJson);
-                this.taskService.add(
-                        this.taskService.toTask(request, eachJson), true);
+                this.taskAssemblingAndSave(request, eachJson);
             }
         }
 
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
+    }
+
+    private void taskAssemblingAndSave(TaskRequest request, String jsonStr) {
+        logger.warn("[" + request.getType() + "]" + jsonStr);
+        Task task = this.taskService.toTask(request, jsonStr);
+        if (task.getBoxCode() != null && task.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
+            logger.warn("箱号超长，无法插入任务，参数：" + JsonHelper.toJson(task));
+        } else {
+            this.taskService.add(task, true);
+        }
     }
 
     private TaskResponse toTaskResponse(Task task) {

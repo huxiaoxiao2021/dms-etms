@@ -18,6 +18,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -394,7 +395,13 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      *
      * */
     private int generateNoCollectionCommonPackage(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int desireIndex, String currPackageCode) {
-
+        if(CollectionUtils.isEmpty(lexicalOrder)){
+            lexicalOrder = this.getLexicalOrder(packageNum);
+        }
+        if(lexicalOrder.size() <= desireIndex){
+            logger.warn("lexicalOrder.size() <= desireIndex；packageNum：【" + packageNum + "】，请检查包裹号【" + currPackageCode + "】是否有误！");
+            return -1;
+        }
         //从字典序数组中取出真正的字典序下的值，是一个期望值
         int desireLexicalOrderIndex = lexicalOrder.get(desireIndex);
         //当前包裹号的包裹数字，应该在字典序中找到该数字的位置
@@ -429,6 +436,10 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * */
     private void generateNoCollectionCommonPackageUntilEnd(List<String> packageCodeResultList, List<Integer> lexicalOrder, int packageNum, int startIndex, String lastPackageCode) {
 
+        if(CollectionUtils.isEmpty(lexicalOrder)){
+            lexicalOrder = this.getLexicalOrder(packageNum);
+        }
+
         //遍历直到当前值等于最大包裹数
         for (int i = startIndex; i < packageNum; i++) {
             //如果当前结果大于返回的最大值，则返回true，外层跳出循环
@@ -451,7 +462,7 @@ public class WaybillNoCollectionInfoServiceImpl implements WaybillNoCollectionIn
      * */
     private boolean isBWaybill(String waybillCode) {
         BigWaybillDto bigWaybillDto = findWaybillAndPack(waybillCode);
-        if (bigWaybillDto.getWaybill() != null && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
+        if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null && StringHelper.isNotEmpty(bigWaybillDto.getWaybill().getWaybillSign())) {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             return ! BusinessUtil.isSignInChars(waybillSign, 40, '2', '3') && ! BusinessUtil.isSignY(waybillSign, 36);
         } else {

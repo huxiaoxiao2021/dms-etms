@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
+import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -32,9 +33,7 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
     SiteService siteService;
 
     /**B网专用面单 **/
-    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-m";
-    /** B网营业厅面单 **/
-    private static final String TEMPlATE_NAME_B2B_BUSINESS_HALL = "dms-b2b-new";
+    private static final String TEMPlATE_NAME_B2B_MAIN = "dms-b2b-new";
     /** B网冷链面单 **/
     private static final String TEMPlATE_NAME_B2B_COLD = "dms-b2b-m";
     /** TC面单 **/
@@ -59,28 +58,28 @@ public class TemplateSelectServiceImpl implements TemplateSelectService {
         String waybillSign = context.getWaybill().getWaybillSign();
         String paperSizeCode = context.getRequest().getPaperSizeCode();
         BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+        if(BusinessUtil.isTc(waybillSign)){
+        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC);
+        }else if(BusinessUtil.isB2b(waybillSign)){
+        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_B);
+        }else{
+        	basePrintWaybill.setTemplateGroupCode(TemplateGroupEnum.TEMPLATE_GROUP_CODE_C);
+        }
         //只有无纸化标识为false，才返回小标签
         if(DmsPaperSize.PAPER_SIZE_CODE_1005.equals(paperSizeCode)){
             templateName = TEMPLATE_NAME_10_5;
         }else{
             if (StringUtils.isBlank(templateName)) {
-                if (BusinessUtil.isSignInChars(waybillSign, 40, '1', '2', '3')) {
-                    //B网模板
-                    if (!BusinessUtil.isSignChar(waybillSign, 54, '2')) {
-                        if (BusinessUtil.isSignChar(waybillSign, 62, '1')) {
-                            //B网营业厅面单
-                            templateName = TEMPlATE_NAME_B2B_BUSINESS_HALL;
-                        } else if (BusinessUtil.isSignChar(waybillSign, 62, '0')) {
-                            //B网专用面单
-                            templateName = TEMPlATE_NAME_B2B_MAIN;
-                        }
-                    } else {
-                        //冷链模板
-                        templateName = TEMPlATE_NAME_B2B_COLD;
-                    }
-                } else if (BusinessUtil.isSignChar(waybillSign, 89, '1')) {
+                if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_TC.equals(basePrintWaybill.getTemplateGroupCode())) {
                     //TC模板
                     templateName = TEMPlATE_NAME_TC;
+                }else if (TemplateGroupEnum.TEMPLATE_GROUP_CODE_B.equals(basePrintWaybill.getTemplateGroupCode())) {
+                    if(BusinessUtil.isSignChar(waybillSign, 54, '2')){
+                        //冷链模板
+                        templateName = TEMPlATE_NAME_B2B_COLD;
+                    }else {
+                        templateName = TEMPlATE_NAME_B2B_MAIN;
+                    }
                 } else {
                     //C网面单
                     //一号店模板

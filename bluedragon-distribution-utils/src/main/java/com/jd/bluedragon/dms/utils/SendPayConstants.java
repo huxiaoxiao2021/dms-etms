@@ -8,5 +8,8 @@ package com.jd.bluedragon.dms.utils;
  *
  */
 public interface SendPayConstants {
-	
+	/**
+	 * 默认打标-0
+	 */
+	char CHAR_0 = '0';
 }

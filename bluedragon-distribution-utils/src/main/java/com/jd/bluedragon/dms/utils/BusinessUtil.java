@@ -190,13 +190,16 @@ public class BusinessUtil {
     }
 
     /**
-     * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+     * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
      *
      * @param waybillSign
      * @return
      */
     public static boolean isB2b(String waybillSign) {
-        return isSignInChars(waybillSign, 40, '1', '2', '3', '4', '5');
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
+        						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
 
     /**
@@ -671,5 +674,32 @@ public class BusinessUtil {
      */
     public static Boolean isWareHouseNotJDWaybill(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_4);
+    }
+    /**
+     * 判断是否是纯外单 waybill_sign第1位等于 3或6或9或K或Y
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isForeignWaybill(String waybillSign){
+        return isSignInChars(waybillSign,1,'3','6','9','K','Y');
+    }
+
+    /**
+     * 判断是否是纯配运单 waybill_sign第53位等于0或2
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isPureDeliveryWaybill(String waybillSign){
+        return isSignInChars(waybillSign,53,'0', '2');
+    }
+    /**
+     * 判断是否TC，waybillSign第89位为1和2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTc(String waybillSign) {
+    	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
+    			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
     }
 }

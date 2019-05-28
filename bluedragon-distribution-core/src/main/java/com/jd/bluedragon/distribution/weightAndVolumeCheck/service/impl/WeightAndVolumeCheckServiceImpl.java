@@ -253,7 +253,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
             if(result != null && result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
                 pictureAddress= result.getData();
             }else{
-                logger.warn(result.getMessage() + abnormalPictureMq.getWaybillCode()+"|"+siteCode);
+                logger.warn((result != null ?result.getMessage() : "查看超标图片查询为空-") + abnormalPictureMq.getWaybillCode()+"|"+siteCode);
                 return;
             }
             //更新es数据

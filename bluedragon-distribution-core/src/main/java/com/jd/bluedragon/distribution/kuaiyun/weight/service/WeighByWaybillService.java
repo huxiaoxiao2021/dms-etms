@@ -25,4 +25,6 @@ public interface WeighByWaybillService
     public void errorLogForOperator(WaybillWeightVO dto,LoginContext loginContext,boolean isImport);
 
     boolean isOpenIntercept();
+
+    boolean waybillTransferB2C(WaybillWeightVO vo);
 }

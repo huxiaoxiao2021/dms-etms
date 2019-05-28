@@ -92,8 +92,8 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
                 return false;
             }
 
-            popMessage.setOrderId(waybillCode);
-            popMessage.setUuid(waybillCode);
+            popMessage.setOrderId(waybill.getVendorId());
+            popMessage.setUuid(waybill.getVendorId());
             popMessage.setBizType(20);
             popMessage.setBusinessTime(new Date());
 

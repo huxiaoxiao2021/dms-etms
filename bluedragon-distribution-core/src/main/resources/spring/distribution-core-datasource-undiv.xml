@@ -6,11 +6,29 @@
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
 
-    <!-- dms单库写库 数据源 start -->
-    <bean id="dms_main_undiv" parent="parentDataSource">
-        <property name="url" value="${db.mysql.undiv.url}"/>
+
+
+    <!-- undiv 写-->
+    <bean id="dms_main_undiv" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
+        <property name="url" value="${dms.write.mysql.db.undiv.url}"/>
         <property name="username" value="${db.mysql.undiv.username}"/>
         <property name="password" value="${db.mysql.undiv.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.write.mysql.db.undiv.initialSize}"/>
+        <property name="maxIdle" value="${dms.write.mysql.db.undiv.maxIdle}"/>
+        <property name="minIdle" value="${dms.write.mysql.db.undiv.minIdle}"/>
+        <property name="maxActive" value="${dms.write.mysql.db.undiv.maxActive}"/>
+        <property name="maxWait" value="${dms.write.mysql.db.undiv.maxWait}"/>
+        <property name="logAbandoned" value="${dms.write.mysql.db.undiv.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.write.mysql.db.undiv.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.write.mysql.db.undiv.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.write.mysql.db.undiv.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.write.mysql.db.undiv.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.write.mysql.db.undiv.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.write.mysql.db.undiv.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.write.mysql.db.undiv.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
     </bean>
 
     <bean id="transactionManager_unDiv"
@@ -33,10 +51,27 @@
 
 
     <!-- dms单库读库 数据源 start -->
-    <bean id="dms_main_read_undiv" parent="parentDataSource">
+    <bean id="dms_main_read_undiv" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.read.mysql.db.undiv.url}"/>
         <property name="username" value="${dms.read.mysql.db.undiv.username}"/>
         <property name="password" value="${dms.read.mysql.db.undiv.password}"/>
+        <property name="driverClassName" value="${db.mysql.driverClassName}"/>
+        <property name="defaultAutoCommit" value="true"/>
+        <property name="initialSize" value="${dms.read.mysql.db.undiv.initialSize}"/>
+        <property name="maxIdle" value="${dms.read.mysql.db.undiv.maxIdle}"/>
+        <property name="minIdle" value="${dms.read.mysql.db.undiv.minIdle}"/>
+        <property name="maxActive" value="${dms.read.mysql.db.undiv.maxActive}"/>
+        <property name="maxWait" value="${dms.read.mysql.db.undiv.maxWait}"/>
+        <property name="logAbandoned" value="${dms.read.mysql.db.undiv.logAbandoned}"/>
+        <property name="removeAbandoned" value = "${dms.read.mysql.db.undiv.removeAbandoned}"/>
+        <property name="removeAbandonedTimeout" value="${dms.read.mysql.db.undiv.removeAbandonedTimeout}" />
+        <property name= "testWhileIdle" value="${dms.read.mysql.db.undiv.testWhileIdle}" />
+        <property name= "testOnBorrow" value="${dms.read.mysql.db.undiv.testOnBorrow}" />
+        <property name= "validationQuery" value="${dms.read.mysql.db.undiv.validationQuery}" />
+        <property name="minEvictableIdleTimeMillis" value="${dms.read.mysql.db.undiv.minEvictableIdleTimeMillis}"/>
+        <property name="timeBetweenEvictionRunsMillis" value="${dms.read.mysql.db.undiv.timeBetweenEvictionRunsMillis}"/>
+        <property name="poolPreparedStatements" value="false" />
+        <property name="defaultReadOnly" value="true" />
     </bean>
 
     <bean id="readUnDivSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">

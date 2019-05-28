@@ -28,6 +28,10 @@
     <input type="button" hidden id="query_btn">
 
     <div id="toolbar">
+        <button id="btn_query" type="button" class="btn btn-default">
+            &nbsp;查询&nbsp;
+##            <span class="glyphicon glyphicon-search" aria-hidden="true"/>
+        </button>
 ##        <button id="btn_query" type="button" class="btn btn-primary">
 ##            导出<span class="glyphicon glyphicon-save" aria-hidden="true"/>
 ##        </button>
