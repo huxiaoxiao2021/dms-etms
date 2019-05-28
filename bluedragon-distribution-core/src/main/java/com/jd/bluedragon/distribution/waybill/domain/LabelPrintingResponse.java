@@ -32,29 +32,7 @@ public class LabelPrintingResponse extends BasePrintWaybill {
     /**客户订单地址*/
     private String orderAddress;
 
-    /**预分拣站点Code*/
-    private Integer prepareSiteCode;
 
-    /**预分拣站点名称*/
-    private String prepareSiteName;
-
-    /**目的分拣中心编码*/
-    private Integer purposefulDmsCode;
-
-    /**目的分拣中心名称*/
-    private String purposefulDmsName;
-
-    /**始发道口*/
-    private String originalCrossCode;
-
-    /**目的道口*/
-    private String purposefulCrossCode;
-
-    /**始发笼车号*/
-    private String originalTabletrolley;
-
-    /**目的笼车号*/
-    private String purposefulTableTrolley;
 
     /**是否自提柜*/
     private Integer arayacakCabinet;
@@ -96,70 +74,6 @@ public class LabelPrintingResponse extends BasePrintWaybill {
 
     public void setOrderAddress(String orderAddress) {
         this.orderAddress = orderAddress;
-    }
-
-    public Integer getPrepareSiteCode() {
-        return prepareSiteCode;
-    }
-
-    public void setPrepareSiteCode(Integer prepareSiteCode) {
-        this.prepareSiteCode = prepareSiteCode;
-    }
-
-    public String getPrepareSiteName() {
-        return prepareSiteName;
-    }
-
-    public void setPrepareSiteName(String prepareSiteName) {
-        this.prepareSiteName = prepareSiteName;
-    }
-
-    public Integer getPurposefulDmsCode() {
-        return purposefulDmsCode;
-    }
-
-    public void setPurposefulDmsCode(Integer purposefulDmsCode) {
-        this.purposefulDmsCode = purposefulDmsCode;
-    }
-
-    public String getPurposefulDmsName() {
-        return purposefulDmsName;
-    }
-
-    public void setPurposefulDmsName(String purposefulDmsName) {
-        this.purposefulDmsName = purposefulDmsName;
-    }
-
-    public String getOriginalCrossCode() {
-        return originalCrossCode;
-    }
-
-    public void setOriginalCrossCode(String originalCrossCode) {
-        this.originalCrossCode = originalCrossCode;
-    }
-
-    public String getPurposefulCrossCode() {
-        return purposefulCrossCode;
-    }
-
-    public void setPurposefulCrossCode(String purposefulCrossCode) {
-        this.purposefulCrossCode = purposefulCrossCode;
-    }
-
-    public String getOriginalTabletrolley() {
-        return originalTabletrolley;
-    }
-
-    public void setOriginalTabletrolley(String originalTabletrolley) {
-        this.originalTabletrolley = originalTabletrolley;
-    }
-
-    public String getPurposefulTableTrolley() {
-        return purposefulTableTrolley;
-    }
-
-    public void setPurposefulTableTrolley(String purposefulTableTrolley) {
-        this.purposefulTableTrolley = purposefulTableTrolley;
     }
 
     public Integer getArayacakCabinet() {
