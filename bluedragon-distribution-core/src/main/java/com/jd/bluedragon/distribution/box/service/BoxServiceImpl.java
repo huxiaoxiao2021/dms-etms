@@ -150,7 +150,7 @@ public class BoxServiceImpl implements BoxService {
 	 * @param systemType
 	 * @return
 	 */
-	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",mState = {JProEnum.TP})
+	@JProfiler(jKey = "DMSWEB.BoxService.batchAddNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public List<Box> batchAddNew(Box param,BoxSystemTypeEnum systemType) {
 		List<Box> boxes = null;
 
@@ -417,6 +417,7 @@ public class BoxServiceImpl implements BoxService {
         return this.boxDao.updateVolumeByCode(box);
     }
 
+	@JProfiler(jKey = "DMSWEB.BoxService.findBoxByCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
 	public Box findBoxByCode(String code) {
 		Assert.notNull(code, "code must not be null");
 
