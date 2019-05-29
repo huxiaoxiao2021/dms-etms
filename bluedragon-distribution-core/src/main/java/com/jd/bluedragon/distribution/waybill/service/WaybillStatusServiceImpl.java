@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -59,9 +60,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private static final String MERGE_WAYBILL_RETURN_COUNT = "mergeWaybillReturnCount";
 
 	@Autowired
-	private TaskService taskService;
-	
-	@Autowired
 	private WaybillSyncApi waybillSyncApi;
 
 	@Autowired
@@ -84,13 +82,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	@Autowired
 	private StoragePackageMService storagePackageMService;
 
+	@Autowired
+	private PackageStatusService packageStatusService;
+
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
 			return;
 		}
-
-		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(this
-				.parseWaybillSyncParameter(tasks));
+		List<WaybillSyncParameter> parameterList = this.parseWaybillSyncParameter(tasks);
+		logger.info(JSON.toJSONString(parameterList));
+		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
 
 		if (results == null || results.isEmpty()) {
             if(logger.isInfoEnabled()){
@@ -108,7 +109,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                     logger.info(MessageFormat.format("回传运单状态taskId:{0}->resultCode:{1}->resultMessage{2}",taskId,result.getCode(),result.getMessage()));
                 }
 				if (true == result.isFlag()) {
-//					this.taskService.doDone(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
+					try{
+						packageStatusService.recordPackageStatus(parameterList,null);
+					}catch (Exception e){
+						logger.error("包裹状态发送MQ消息异常." + com.jd.fastjson.JSON.toJSONString(parameterList)+".",e);
+					}
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
 						|| WaybillStatus.RESULT_CODE_REPEAT_TASK == result.getCode()) {
 					this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));

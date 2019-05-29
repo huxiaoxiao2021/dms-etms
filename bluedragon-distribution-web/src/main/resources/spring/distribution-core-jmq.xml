@@ -363,4 +363,10 @@
     <bean id="packageRePrintProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.packageRePrintProducer}"/>
     </bean>
+
+    <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
+    <bean id="dmsPackageStatusMQProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.package.status}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

@@ -3,6 +3,7 @@ package com.jd.bluedragon.core.base;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
@@ -20,6 +21,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderParentChildDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -59,6 +61,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Qualifier("waybillTraceBusinessQueryApi")
     @Autowired
     private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
+    @Autowired
+    private PackageStatusService packageStatusService;
 
     /**
      * 大包裹运单缓存开关
@@ -270,6 +275,11 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             Profiler.functionError(info);
         } finally {
             Profiler.registerInfoEnd(info);
+        }
+        try{
+            packageStatusService.recordPackageStatus(null,bdTraceDto);
+        }catch (Exception e){
+            logger.error("包裹状态发送MQ消息异常." + JSON.toJSONString(bdTraceDto)+".",e);
         }
         return true;
     }
