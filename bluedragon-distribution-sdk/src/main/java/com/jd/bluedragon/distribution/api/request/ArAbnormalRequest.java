@@ -15,6 +15,10 @@ public class ArAbnormalRequest extends JdRequest {
     public static final String TRANSPONDTYPE20_DESC= "航空转铁路";
     public static final Integer TRANSPONDTYPE30_CODE = 30;
     public static final String TRANSPONDTYPE30_DESC= "铁路转航空";
+    public static final Integer TRANSPONDTYPE40_CODE = 40;
+    public static final String TRANSPONDTYPE40_DESC= "航空转高铁";
+    public static final Integer TRANSPONDTYPE50_CODE = 50;
+    public static final String TRANSPONDTYPE50_DESC= "航空转普列";
 
     public static final Integer TRANSPONDREASON10_CODE = 10;
     public static final String TRANSPONDREASON10_DESC= "违禁品";
