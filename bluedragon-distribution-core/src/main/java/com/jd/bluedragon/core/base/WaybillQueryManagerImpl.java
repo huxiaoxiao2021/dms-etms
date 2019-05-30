@@ -68,6 +68,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     private static final String SWITCH_ON = "1";
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByReturnWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByReturnWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByReturnWaybillCode(waybillCode);
     }
@@ -256,12 +257,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     this.logger.warn(JsonHelper.toJson(bdTraceDto));
                     this.logger.warn(bdTraceDto.getWaybillCode());
                     this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常：" + baseEntity.getMessage());
-                    Profiler.functionError(info);
+                    //Profiler.functionError(info);
                     return false;
                 }
             } else {
                 this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
-                Profiler.functionError(info);
+                //Profiler.functionError(info);
                 return false;
             }
         } catch (Exception e) {
@@ -380,6 +381,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.waybillQueryApi.getWaybillByPackCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByPackCode(String code) {
         return waybillQueryApi.getWaybillByPackCode(code);
     }
@@ -404,6 +406,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
      * @return
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.WaybillQueryApi.getWaybillByWaybillCode",mState={JProEnum.TP,JProEnum.FunctionError})
     public BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode) {
         return waybillQueryApi.getWaybillByWaybillCode(waybillCode);
     }
@@ -597,5 +600,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Override
     public Boolean queryExist(String waybillCode){
         return waybillQueryApi.queryExist(waybillCode);
+    }
+
+
+    /**
+     * 根据运单号查询waybillSign
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.JSF.Waybill.waybillQueryApi.getWaybillSignByWaybillCode",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
+        return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
     }
 }

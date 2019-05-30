@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.handler.Context;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
@@ -36,6 +37,11 @@ public class WaybillPrintContext implements Context{
 	 * 运单接口查询到的运单信息
 	 */
 	private BigWaybillDto bigWaybillDto;
+
+	/**
+	 * 运单接口查询到的旧单的运单信息，如果有旧单的话 使用前请判断NULL
+     */
+	private BigWaybillDto oldBigWaybillDto;
 	/**
 	 * 封装后的运单信息
 	 */
@@ -65,6 +71,10 @@ public class WaybillPrintContext implements Context{
 	 * 运单打印--基础类型
 	 */
 	private BasePrintWaybill basePrintWaybill;
+	/**
+	 * 站点平台打印-打印结果数据
+	 */
+	private LabelPrintingResponse labelPrintingResponse;
 	
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
@@ -157,5 +167,27 @@ public class WaybillPrintContext implements Context{
 
 	public void setBasePrintWaybill(BasePrintWaybill basePrintWaybill) {
 		this.basePrintWaybill = basePrintWaybill;
+	}
+
+	public BigWaybillDto getOldBigWaybillDto() {
+		return oldBigWaybillDto;
+	}
+
+	public void setOldBigWaybillDto(BigWaybillDto oldBigWaybillDto) {
+		this.oldBigWaybillDto = oldBigWaybillDto;
+	}
+
+	/**
+	 * @return the labelPrintingResponse
+	 */
+	public LabelPrintingResponse getLabelPrintingResponse() {
+		return labelPrintingResponse;
+	}
+
+	/**
+	 * @param labelPrintingResponse the labelPrintingResponse to set
+	 */
+	public void setLabelPrintingResponse(LabelPrintingResponse labelPrintingResponse) {
+		this.labelPrintingResponse = labelPrintingResponse;
 	}
 }

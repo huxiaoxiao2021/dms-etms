@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.eclp.spare.ext.api.inbound.OrderResponse;
+import com.jd.eclp.spare.ext.api.inbound.domain.InboundOrder;
 import com.jd.kom.ext.service.domain.response.ItemInfo;
 
 import java.util.List;
@@ -11,4 +13,6 @@ import java.util.List;
  */
 public interface EclpItemManager {
     public List<ItemInfo> getltemBySoNo(String soNo);
+    public String getDeptBySettlementOuId(String ouId);
+    public OrderResponse createInboundOrder(InboundOrder inboundOrder);
 }

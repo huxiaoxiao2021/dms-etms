@@ -139,6 +139,10 @@ public class DateHelper {
     }
 
     public static void main(String[] args) {
+
+        Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
+        System.out.println(date);
+
         long source = 14738233921256L;
         long target = adjustTimestampToJava(source);
         System.out.println(MessageFormat.format("时间由{0}校正为{1},时间截由{2}校正为{3}", DateHelper.formatDateTimeMs(new Date(source)), DateHelper.formatDateTimeMs(new Date(target)), source, target));
@@ -210,6 +214,22 @@ public class DateHelper {
             LOGGER.error("该日期格式无法解析，the date: " + dateString + "，the format: " + format, e);
             return null;
         }
+    }
+    public static Date parseDate(String dateString, String... formats) {
+        if (dateString == null || formats == null) {
+            return null;
+        }
+        for(String format : formats){
+            try {
+                Date parseDate = new SimpleDateFormat(format).parse(dateString);
+                if(parseDate!=null){
+                    return parseDate;
+                }
+            } catch (Exception e) {
+                LOGGER.warn("该日期格式无法解析，the date: " + dateString + "，the format: " + format, e);
+            }
+        }
+        return null;
     }
 
     /**

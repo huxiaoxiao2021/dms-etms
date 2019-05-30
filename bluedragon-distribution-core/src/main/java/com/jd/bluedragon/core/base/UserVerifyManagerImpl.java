@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.NewDeptWebService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.ssa.domain.UserInfo;
@@ -64,10 +65,10 @@ public class UserVerifyManagerImpl implements UserVerifyManager {
      * @return
      */
     @Override
-    public UserInfo baseVerify(String name, String password) {
+    public InvokeResult<UserInfo> baseVerify(String name, String password) {
         try {
-            UserInfo userInfo = newDeptWebService.verify(name, password);
-            return userInfo;
+            InvokeResult<UserInfo> result = newDeptWebService.verify(name, password);
+            return result;
         } catch (Exception ex) {
             logger.error("deptWebService verify error", ex);
             return null;

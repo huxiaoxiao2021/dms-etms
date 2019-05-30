@@ -42,6 +42,7 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());//驻场打印
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.BATCH_SORT_WEIGH_PRINT.getType());//批量分拣称重
         needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.FAST_TRANSPORT_PRINT.getType());//快运称重打印
+        needCheckWaybillFinished.add(WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType());//站长工作台换单打印
     }
 
 
@@ -53,8 +54,9 @@ public class C2cInterceptHandler implements Handler<WaybillPrintContext, JdResul
         if ((WaybillPrintOperateTypeEnum.PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.BATCH_PACKAGE_AGAIN_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType()))
-                && BusinessHelper.isC2c(context.getWaybill().getWaybillSign())) {
+                || WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType().equals(context.getRequest().getOperateType())
+                || WaybillPrintOperateTypeEnum.SITE_MASTER_PACKAGE_REPRINT.getType().equals(context.getRequest().getOperateType()))
+                && BusinessHelper.isC2cForward(context.getWaybill().getWaybillSign())) {
             //查询揽收完成（-640）全程跟踪结果
             List<PackageState> collectCompleteResult = waybillTraceManager.getPkStateByWCodeAndState(context.getWaybill().getWaybillCode(), Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             //揽收交接完成（-1300）全程跟踪结果

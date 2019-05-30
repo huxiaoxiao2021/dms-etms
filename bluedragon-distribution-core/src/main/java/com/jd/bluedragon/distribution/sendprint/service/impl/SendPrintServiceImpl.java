@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.sendprint.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -19,18 +20,37 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.dao.SendMReadDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sendprint.domain.*;
+import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
+import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
+import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
+import com.jd.bluedragon.distribution.sendprint.domain.SendCodePrintEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintBoxEntity;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
+import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
 import com.jd.bluedragon.distribution.weightAndMeasure.domain.DmsOutWeightAndVolume;
 import com.jd.bluedragon.distribution.weightAndMeasure.service.DmsOutWeightAndVolumeService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.domain.*;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.PickupTask;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.BoardMeasureDto;
 import com.jd.ump.annotation.JProEnum;
@@ -44,7 +64,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
@@ -72,6 +98,9 @@ public class SendPrintServiceImpl implements SendPrintService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
     private final Logger logger = Logger.getLogger(SendPrintServiceImpl.class);
 
@@ -863,6 +892,16 @@ public class SendPrintServiceImpl implements SendPrintService {
         return "";
     }
 
+    @Override
+    public SendCodePrintEntity getSendCodePrintEntity(PrintQueryCriteria criteria) {
+        SendCodePrintEntity entity = new SendCodePrintEntity();
+        CrossPackageTagNew crossPackageTag = baseMinorManager.queryNonDmsSiteCrossPackageTagForPrint(criteria.getReceiveSiteCode(), criteria.getSiteCode());
+        if (crossPackageTag != null) {
+            entity.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
+            entity.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
+        }
+        return entity;
+    }
 
     /**
      * 基本查询

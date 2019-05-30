@@ -1,10 +1,17 @@
 package com.jd.bluedragon.distribution.send.dao;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionCondition;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.web.mvc.api.PagerCondition;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -53,6 +60,16 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     public List<SendDetail> queryBySiteCodeAndSendCode(SendDetail query) {
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".queryBySiteCodeAndSendCode", query);
+    }
+
+    public Integer queryCountBySiteCodeAndSendCode(SendDetailDto query) {
+        return (Integer)this.getSqlSession().selectOne(
+                SendDatailDao.namespace + ".queryCountBySiteCodeAndSendCode", query);
+    }
+
+    public List<SendDetail> queryPageBySiteCodeAndSendCode(PagerCondition query) {
+        return this.getSqlSession().selectList(
+                SendDatailDao.namespace + ".queryPageBySiteCodeAndSendCode", query);
     }
 
     @SuppressWarnings("unchecked")
@@ -133,25 +150,11 @@ public class SendDatailDao extends BaseDao<SendDetail> {
     }
 
     @SuppressWarnings("unchecked")
-    public List<SendDetail> querySendCodesByWaybills(String waybillCodeIn) {
-        SendDetail querySendDatail = new SendDetail();
-        querySendDatail.setWaybillCode(waybillCodeIn);
-        return this.getSqlSession().selectList(
-                SendDatailDao.namespace + ".querySendCodesByWaybills", querySendDatail);
-    }
-
-    @SuppressWarnings("unchecked")
     public List<SendDetail> querySendCodesByWaybill(String waybillCodeIn) {
         SendDetail querySendDatail = new SendDetail();
         querySendDatail.setWaybillCode(waybillCodeIn);
         return this.getSqlSession().selectList(
                 SendDatailDao.namespace + ".querySendCodesByWaybill", querySendDatail);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<SendDetail> getSendSiteID(SendDetail sendDetail) {
-        return this.getSqlSession().selectList(SendDatailDao.namespace + ".getSendSiteID",
-                sendDetail);
     }
 
     public boolean checkSendByPackage(SendDetail sendDetail) {
@@ -374,4 +377,21 @@ public class SendDatailDao extends BaseDao<SendDetail> {
              return new ArrayList<>();
         }
     }
+
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.getWaybillNoCollectionInfo", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<WaybillNoCollectionInfo> getWaybillNoCollectionInfo(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
+            return null;
+        }
+        return this.getSqlSession().selectList(namespace + ".getWaybillNoCollectionInfo", waybillNoCollectionCondition);
+    }
+
+    @JProfiler(jKey = "DMSWEB.SendDetailDao.getScannedInfoPackageNumMoreThanOne", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public List<String> getScannedInfoPackageNumMoreThanOne(WaybillNoCollectionCondition waybillNoCollectionCondition) {
+        if (waybillNoCollectionCondition.getCreateSiteCode() == null || (waybillNoCollectionCondition.getSendCode() == null && waybillNoCollectionCondition.getBoxCode() == null)) {
+            return null;
+        }
+        return this.getSqlSession().selectList(namespace + ".getScannedInfoPackageNumMoreThanOne", waybillNoCollectionCondition);
+    }
+
 }

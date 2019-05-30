@@ -19,12 +19,22 @@ public class WaybillPrintCommandHandler extends AbstractJsonCommandHandler<Waybi
 	 * 将json请求内容转换为WaybillPrintContext对象
 	 */
 	@Override
-	public WaybillPrintContext fromJson(String jsonData) {
+	public WaybillPrintContext fromJson(JdCommand<String> target) {
 		WaybillPrintContext context = new WaybillPrintContext();
 		//初始化请求信息和返回结果信息
 		InterceptResult<String> result = new InterceptResult<String>();
 		result.toSuccess();
-		context.setRequest(JsonHelper.fromJson(jsonData, WaybillPrintRequest.class));
+		WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(target.getData(), WaybillPrintRequest.class);
+		if(waybillPrintRequest != null){
+			//如果操作编码为空则设置为外层JdCommand的请求编码
+			if(waybillPrintRequest.getBusinessType() == null){
+				waybillPrintRequest.setBusinessType(target.getBusinessType());
+			}
+			if(waybillPrintRequest.getOperateType() == null){
+				waybillPrintRequest.setOperateType(target.getOperateType());
+			}
+		}
+		context.setRequest(waybillPrintRequest);
 		context.setResult(result);
 		return context;
 	}
