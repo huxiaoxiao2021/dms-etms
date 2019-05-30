@@ -422,4 +422,9 @@
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- 意见反馈系统 - 意见反馈提交接口 -->
+    <jsf:consumer id="mrdFeedbackRpcService" interface="com.jd.mrd.delivery.rpc.sdk.feedback.MrdFeedbackRpcService"
+                  protocol="jsf" alias="${jsf.mdrFeedback.alias}" timeout="${jsf.mdrFeedback.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>
