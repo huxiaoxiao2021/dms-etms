@@ -23,13 +23,13 @@ public class InventoryTask extends DbEntity {
      */
     private String createSiteName;
     /**
-     * 目的分拣中心id
+     * 卡位id
      */
-    private Integer receiveSiteCode;
+    private Integer directionCode;
     /**
-     * 目的分拣中心名称
+     * 卡位名称
      */
-    private String receiveSiteName;
+    private String directionName;
     /**
      * 操作人编码
      */
@@ -71,6 +71,8 @@ public class InventoryTask extends DbEntity {
      */
     private Integer exceptionSum;
 
+    private Integer inventoryScope;
+
     public String getInventoryTaskId() {
         return inventoryTaskId;
     }
@@ -95,20 +97,20 @@ public class InventoryTask extends DbEntity {
         this.createSiteName = createSiteName;
     }
 
-    public Integer getReceiveSiteCode() {
-        return receiveSiteCode;
+    public Integer getDirectionCode() {
+        return directionCode;
     }
 
-    public void setReceiveSiteCode(Integer receiveSiteCode) {
-        this.receiveSiteCode = receiveSiteCode;
+    public void setDirectionCode(Integer directionCode) {
+        this.directionCode = directionCode;
     }
 
-    public String getReceiveSiteName() {
-        return receiveSiteName;
+    public String getDirectionName() {
+        return directionName;
     }
 
-    public void setReceiveSiteName(String receiveSiteName) {
-        this.receiveSiteName = receiveSiteName;
+    public void setDirectionName(String directionName) {
+        this.directionName = directionName;
     }
 
     public Integer getCreateUserCode() {
@@ -191,5 +193,13 @@ public class InventoryTask extends DbEntity {
 
     public void setExceptionSum(Integer exceptionSum) {
         this.exceptionSum = exceptionSum;
+    }
+
+    public Integer getInventoryScope() {
+        return inventoryScope;
+    }
+
+    public void setInventoryScope(Integer inventoryScope) {
+        this.inventoryScope = inventoryScope;
     }
 }

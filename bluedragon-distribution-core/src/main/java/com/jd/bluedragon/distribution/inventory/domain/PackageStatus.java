@@ -46,13 +46,13 @@ public class PackageStatus {
      */
     private String receiveSiteName;
     /**
-     * 目的分拣中心类型
+     * 卡位id
      */
-    private Integer receiveSiteType;
+    private Integer directionCode;
     /**
-     * 目的分拣中心子类型
+     * 卡位名称
      */
-    private Integer receiveSiteSubType;
+    private String directionName;
     /**
      * 操作节点
      */
@@ -158,20 +158,20 @@ public class PackageStatus {
         this.receiveSiteName = receiveSiteName;
     }
 
-    public Integer getReceiveSiteType() {
-        return receiveSiteType;
+    public Integer getDirectionCode() {
+        return directionCode;
     }
 
-    public void setReceiveSiteType(Integer receiveSiteType) {
-        this.receiveSiteType = receiveSiteType;
+    public void setDirectionCode(Integer directionCode) {
+        this.directionCode = directionCode;
     }
 
-    public Integer getReceiveSiteSubType() {
-        return receiveSiteSubType;
+    public String getDirectionName() {
+        return directionName;
     }
 
-    public void setReceiveSiteSubType(Integer receiveSiteSubType) {
-        this.receiveSiteSubType = receiveSiteSubType;
+    public void setDirectionName(String directionName) {
+        this.directionName = directionName;
     }
 
     public Integer getOperateTypeNode() {

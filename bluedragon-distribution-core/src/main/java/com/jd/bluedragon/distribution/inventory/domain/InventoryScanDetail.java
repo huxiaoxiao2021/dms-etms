@@ -36,6 +36,14 @@ public class InventoryScanDetail extends DbEntity {
      */
     private String receiveSiteName;
     /**
+     * 卡位id
+     */
+    private Integer directionCode;
+    /**
+     * 卡位名称
+     */
+    private String directionName;
+    /**
      * 盘点人编码
      */
     private Integer operatorCode;
@@ -106,6 +114,22 @@ public class InventoryScanDetail extends DbEntity {
 
     public void setReceiveSiteName(String receiveSiteName) {
         this.receiveSiteName = receiveSiteName;
+    }
+
+    public Integer getDirectionCode() {
+        return directionCode;
+    }
+
+    public void setDirectionCode(Integer directionCode) {
+        this.directionCode = directionCode;
+    }
+
+    public String getDirectionName() {
+        return directionName;
+    }
+
+    public void setDirectionName(String directionName) {
+        this.directionName = directionName;
     }
 
     public Integer getOperatorCode() {

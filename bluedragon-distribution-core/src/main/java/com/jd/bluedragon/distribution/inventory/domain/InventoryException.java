@@ -44,13 +44,13 @@ public class InventoryException extends DbEntity {
      */
     private String inventorySiteName;
     /**
-     * 目的站点编码
+     * 卡位id
      */
-    private Integer destinationSiteCode;
+    private Integer directionCode;
     /**
-     * 目的站点名称
+     * 卡位名称
      */
-    private String destinationSiteName;
+    private String directionName;
     /**
      * 盘点人编码
      */
@@ -156,20 +156,20 @@ public class InventoryException extends DbEntity {
         this.inventorySiteName = inventorySiteName;
     }
 
-    public Integer getDestinationSiteCode() {
-        return destinationSiteCode;
+    public Integer getDirectionCode() {
+        return directionCode;
     }
 
-    public void setDestinationSiteCode(Integer destinationSiteCode) {
-        this.destinationSiteCode = destinationSiteCode;
+    public void setDirectionCode(Integer directionCode) {
+        this.directionCode = directionCode;
     }
 
-    public String getDestinationSiteName() {
-        return destinationSiteName;
+    public String getDirectionName() {
+        return directionName;
     }
 
-    public void setDestinationSiteName(String destinationSiteName) {
-        this.destinationSiteName = destinationSiteName;
+    public void setDirectionName(String directionName) {
+        this.directionName = directionName;
     }
 
     public Integer getInventoryUserCode() {

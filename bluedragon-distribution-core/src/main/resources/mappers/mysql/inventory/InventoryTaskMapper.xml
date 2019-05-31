@@ -1,7 +1,81 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao">
-	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
-	</resultMap>
+    <resultMap id="inventoryTask"
+               type="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
+        <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="direction_code" property="directionCode" javaType="java.lang.Integer"
+                jdbcType="INTEGER"/>
+        <result column="direction_name" property="directionName" javaType="java.lang.String"
+                jdbcType="VARCHAR"/>
+        <result column="create_user_code" property="createUserCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="end_time" property="endTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="cooperate_type" property="cooperateType" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="waybill_sum" property="waybillSum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="package_sum" property="packageSum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="exception_sum" property="exceptionSum" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="inventory_scope" property="inventoryScope" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+    </resultMap>
 
+    <sql id="Base_Column_List">
+        inventory_task_id,
+        create_site_code, create_site_name,
+        direction_code, direction_name,
+        create_user_code,create_user_erp,create_user_name,
+        create_time,end_time,
+        status,cooperate_type,
+        waybill_sum,package_sum,exception_sum,
+        inventory_scope,
+        update_time,is_delete
+    </sql>
+
+    <insert id="addBatch" parameterType="java.util.List">
+        INSERT INTO inventory_task(
+        <include refid="Base_Column_List"/>
+        )
+        VALUES
+        <foreach collection="list" item="inventoryTask" index="index" separator=",">
+            (
+            #{inventoryTask.inventoryTaskId,jdbcType=VARCHAR},
+            #{inventoryTask.createSiteCode,jdbcType=INTEGER},
+            #{inventoryTask.createSiteName,jdbcType=VARCHAR},
+            #{inventoryTask.directionCode,jdbcType=INTEGER},
+            #{inventoryTask.directionName,jdbcType=VARCHAR},
+            #{inventoryTask.createUserCode,jdbcType=INTEGER},
+            #{inventoryTask.createUserErp,jdbcType=VARCHAR},
+            #{inventoryTask.createUserName,jdbcType=INTEGER},
+            #{inventoryTask.createTime,jdbcType=TIMESTAMP},
+            #{inventoryTask.endTime,jdbcType=TIMESTAMP},
+            #{inventoryTask.status,jdbcType=TINYINT},
+            #{inventoryTask.cooperateType,jdbcType=TINYINT},
+            0,
+            0,
+            0,
+            #{inventoryTask.inventoryScope,jdbcType=TINYINT},
+            now(),
+            0
+            )
+        </foreach>
+    </insert>
+
+    <select id="getInventoryTaskBySiteAndUser" resultMap="inventoryTask" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_task
+        where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and create_user_code = #{createUserCode,jdbcType=INTEGER}
+        and cooperateType=0
+        and status=1
+        and is_delete = 0
+    </select>
 </mapper>

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -234,7 +235,14 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         //2.补充目的地信息
-        fullReceiveSite(packageStatus);
+        BaseStaffSiteOrgDto receiveSite = getReceiveSite(packageStatus.getWaybillCode(),createSiteCode);
+        if(receiveSite != null){
+            packageStatus.setReceiveSiteCode(receiveSite.getSiteCode());
+            packageStatus.setReceiveSiteName(receiveSite.getSiteName());
+            //todo 根据站点类型设置卡位
+            packageStatus.setDirectionCode(receiveSite.getSiteCode());
+            packageStatus.setDirectionName(receiveSite.getSiteName());
+        }
 
         //3.补充物流状态信息
         PackStatusEnum statusEnum = getStatusInfo(packageStatus.getOperateTypeNode());
@@ -280,28 +288,21 @@ public class PackageStatusServiceImpl implements PackageStatusService {
     }
 
     /**
-     * 补充目的地信息
+     * 根据运单号和始发获取目的分拣
      *
      * @param packageStatus
      */
-    private void fullReceiveSite(PackageStatus packageStatus) {
-        String waybillCode = packageStatus.getWaybillCode();
-        Integer createSiteCode = packageStatus.getCreateSiteCode();
-
-        //1.从全称跟踪消息中直接获取
-        Integer receiveSiteCode = packageStatus.getReceiveSiteCode();
-
-        //2.查send_d表
-        if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
-            if (createSiteCode != null && createSiteCode > 0) {
-                List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, null);
-                if (sendDetailList != null && sendDetailList.size() > 0) {
-                    receiveSiteCode = sendDetailList.get(0).getReceiveSiteCode();
-                }
+    public BaseStaffSiteOrgDto getReceiveSite(String waybillCode, Integer createSiteCode) {
+        Integer receiveSiteCode = null;
+        //1.查send_d表
+        if (createSiteCode != null && createSiteCode > 0) {
+            List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, waybillCode, null);
+            if (sendDetailList != null && sendDetailList.size() > 0) {
+                receiveSiteCode = sendDetailList.get(0).getReceiveSiteCode();
             }
         }
 
-        //3.查自己的表
+        //2.查自己的表
         if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
             String routerStr = jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
             if (StringUtils.isNotBlank(routerStr)) {
@@ -318,20 +319,15 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             }
         }
 
-        //4.查路由接口
+        //3.查路由接口
         if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
 
         }
 
         if (receiveSiteCode != null && receiveSiteCode > 0) {
-            BaseStaffSiteOrgDto receiveSite = siteService.getSite(receiveSiteCode);
-            if (receiveSite != null) {
-                packageStatus.setReceiveSiteCode(receiveSiteCode);
-                packageStatus.setReceiveSiteName(receiveSite.getSiteName());
-                packageStatus.setReceiveSiteType(receiveSite.getSiteType());
-                packageStatus.setReceiveSiteSubType(receiveSite.getSubType());
-            }
+            return siteService.getSite(receiveSiteCode);
         }
+        return null;
     }
 
     /**
