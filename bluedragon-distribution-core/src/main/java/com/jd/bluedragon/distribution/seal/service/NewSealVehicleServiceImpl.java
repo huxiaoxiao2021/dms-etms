@@ -191,7 +191,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     } else {
       logger.warn("取消封车JSF接口返回为空.参数：" + JsonHelper.toJson(TMS_param));
       sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-      sealVehicleResponse.setMessage(cancelSealInfo.getMessage());
+      sealVehicleResponse.setMessage(cancelSealInfo != null ? cancelSealInfo.getMessage():"运输取消封车返回空");
     }
     return sealVehicleResponse;
     }
