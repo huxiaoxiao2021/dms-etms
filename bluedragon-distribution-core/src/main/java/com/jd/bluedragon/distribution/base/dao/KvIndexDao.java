@@ -1,24 +1,26 @@
 package com.jd.bluedragon.distribution.base.dao;
 
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.KvIndex;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.jim.cli.redis.jedis.exceptions.JedisException;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class KvIndexDao extends BaseDao<KvIndex> {
 
@@ -150,14 +152,34 @@ public class KvIndexDao extends BaseDao<KvIndex> {
             }
             entity.setValue(entity.getValue().substring(0,50));
         }
-        
-        if(redisClientCache.exists(entity.toUniqueString())){
-			return 1;
-		}else{
-			Integer result = super.add(namespace, entity);
-			redisClientCache.setEx(entity.toUniqueString(),"1", 30 * 60, TimeUnit.SECONDS);
-			return result;
-		}
+        return this.repeatedFilter(entity);
+
+    }
+
+    /**
+     * 超时时间
+     */
+    private static final long REDIS_TIMEOUT = 30 * 60;
+
+    /**
+     * 缓存过滤数据重复
+     *
+     * @param entity
+     * @return
+     */
+    private Integer repeatedFilter(KvIndex entity){
+        try {
+            if (redisClientCache.exists(entity.toUniqueString())) {
+                return 1;
+            } else {
+                Integer result = super.add(namespace, entity);
+                redisClientCache.setEx(entity.toUniqueString(), "1", REDIS_TIMEOUT, TimeUnit.SECONDS);
+                return result;
+            }
+        } catch (JedisException e) {
+            LOGGER.error(MessageFormat.format("[kvIndex存储]访问redis时发生异常", e), e);
+        }
+        return super.add(namespace, entity);
     }
 
     public static void main(String[] args) {
