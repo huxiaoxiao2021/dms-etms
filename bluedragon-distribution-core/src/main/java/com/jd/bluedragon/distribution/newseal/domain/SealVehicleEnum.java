@@ -13,7 +13,8 @@ public enum SealVehicleEnum {
     CANCEL_PRE_SEAL(-1,"取消预封车"),
     PRE_SEAL(0,"预封车"),
     SEAL(1,"封车"),
-    DE_SEAL(2,"解封车");
+    DE_SEAL(2,"解封车"),
+    CANCEL_SEAL(3,"取消封车");
     private Integer code;
 
     private String name;

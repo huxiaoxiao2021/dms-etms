@@ -54,6 +54,15 @@ public class SealVehiclesServiceImpl extends BaseService<SealVehicles> implement
 	}
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SealVehiclesServiceImpl.updateBySealDataCode", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public boolean updateBySealDataCode(List<SealVehicles> sealVehiclesList) {
+        for (SealVehicles sealVehicles : sealVehiclesList){
+            sealVehiclesDao.updateBySealDataCode(sealVehicles);
+        }
+        return true;
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.SealVehiclesServiceImpl.findTodayUsedTransports", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
     public List<String> findTodayUsedTransports(Integer createSiteCode) {
         //获取当天零点时刻
