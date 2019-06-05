@@ -161,7 +161,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
    */
   @Override
   @JProfiler(
-    jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCar",
+    jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCarWithBatchCode",
     jAppName = Constants.UMP_APP_NAME_DMSWEB,
     mState = {JProEnum.TP, JProEnum.FunctionError}
   )
