@@ -702,4 +702,40 @@ public class BusinessUtil {
     	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
     			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
     }
+
+    /**
+     * 是否是营业厅
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHall(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1);
+    }
+
+    /**
+     * 是否寄付
+     */
+    public static boolean isFreightSend(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+    }
+
+    /**
+     * 是否正向 （外单）
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isForeignForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+    }
+
+    /**
+     * 外单
+     * 是否是 营业厅运单 并且 寄付 并且 是正向单
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHallFreightSendAndForward(String waybillSign) {
+        return isBusinessHall(waybillSign) && isFreightSend(waybillSign) && isForeignForward(waybillSign);
+    }
+
 }
