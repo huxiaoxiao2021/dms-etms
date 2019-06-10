@@ -9,6 +9,15 @@ public class SiteEntity {
 
     private Integer subType;
 
+    public SiteEntity(Integer code, String name){
+        this.code = code;
+        this.name = name;
+    }
+
+    public SiteEntity(){
+
+    }
+
     public String getName() {
         return name;
     }

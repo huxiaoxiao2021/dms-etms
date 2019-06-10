@@ -1,17 +1,20 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.inventory.domain.PackStatusEnum;
 import com.jd.bluedragon.distribution.inventory.domain.PackageStatus;
+import com.jd.bluedragon.distribution.inventory.domain.SiteWithDirection;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -235,13 +238,12 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         //2.补充目的地信息
-        BaseStaffSiteOrgDto receiveSite = getReceiveSite(packageStatus.getWaybillCode(),createSiteCode);
+        SiteWithDirection receiveSite = getReceiveSiteByWaybillCode(packageStatus.getWaybillCode(),createSiteCode);
         if(receiveSite != null){
             packageStatus.setReceiveSiteCode(receiveSite.getSiteCode());
             packageStatus.setReceiveSiteName(receiveSite.getSiteName());
-            //todo 根据站点类型设置卡位
-            packageStatus.setDirectionCode(receiveSite.getSiteCode());
-            packageStatus.setDirectionName(receiveSite.getSiteName());
+            packageStatus.setDirectionCode(receiveSite.getDirectionCode());
+            packageStatus.setDirectionName(receiveSite.getDirectionName());
         }
 
         //3.补充物流状态信息
@@ -261,7 +263,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
      */
     private boolean isB2bSite(Integer createSiteCode) {
         BaseStaffSiteOrgDto createSite = siteService.getSite(createSiteCode);
-        if (createSite != null && createSite.getSiteType().equals(6420)) {
+        if (createSite != null && createSite.getSiteType().equals(Constants.B2B_SITE_TYPE)) {
             return true;
         }
         return false;
@@ -292,7 +294,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
      *
      * @param packageStatus
      */
-    public BaseStaffSiteOrgDto getReceiveSite(String waybillCode, Integer createSiteCode) {
+    public SiteWithDirection getReceiveSiteByWaybillCode(String waybillCode, Integer createSiteCode) {
         Integer receiveSiteCode = null;
         //1.查send_d表
         if (createSiteCode != null && createSiteCode > 0) {
@@ -319,13 +321,24 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             }
         }
 
-        //3.查路由接口
-        if (receiveSiteCode == null || receiveSiteCode.equals(0)) {
-
-        }
-
         if (receiveSiteCode != null && receiveSiteCode > 0) {
-            return siteService.getSite(receiveSiteCode);
+            BaseStaffSiteOrgDto dto = siteService.getSite(receiveSiteCode);
+            if(dto!=null){
+                SiteWithDirection siteWithDirection = new SiteWithDirection();
+                siteWithDirection.setSiteCode(dto.getSiteCode());
+                siteWithDirection.setSiteName(dto.getSiteName());
+                siteWithDirection.setSiteType(dto.getSiteType());
+                siteWithDirection.setSiteSubType(dto.getSubType());
+                siteWithDirection.setDirectionCode(dto.getSiteCode());
+                siteWithDirection.setDirectionName(dto.getSiteName());
+                if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
+                    siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);
+                    siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_TERMINAL_SITE);
+                }else if(BusinessUtil.isConvey(dto.getSiteType())){
+                    siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_CONVEY);
+                    siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_CONVEY);
+                }
+            }
         }
         return null;
     }
@@ -350,6 +363,8 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             return PackStatusEnum.SORTING_CANCEL;
         } else if (WaybillStatus.WAYBILL_TRACK_SEND_CANCEL.equals(operateType)) {
             return PackStatusEnum.SEND_CANCEL;
+        } else if(WaybillStatus.WAYBILL_TRACK_QC.equals(operateType)){
+            return PackStatusEnum.EXCEPTION;
         }
 
         return null;
@@ -388,15 +403,15 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             logger.warn("没有有效的运单号和包裹号." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
             return false;
         }
-        //非B网的不记录
         if (createSiteCode == null || createSiteCode <= 0) {
             logger.warn("操作站点无效." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
             return false;
         }
-        if (!isB2bSite(createSiteCode)) {
-            logger.warn("非B网的分拣中心操作." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
-            return false;
-        }
+//        //todo 非B网的不记录
+//        if (!isB2bSite(createSiteCode)) {
+//            logger.warn("非B网的分拣中心操作." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+//            return false;
+//        }
 
         if (operateType == null) {
             logger.warn("没有全称跟踪节点." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));

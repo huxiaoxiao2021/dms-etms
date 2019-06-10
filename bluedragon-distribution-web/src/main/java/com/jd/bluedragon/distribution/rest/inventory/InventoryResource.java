@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.inventory;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.SiteEntity;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.inventory.InventoryTaskRequest;
 import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -49,6 +48,49 @@ public class InventoryResource {
     }
 
     /**
+     * 查询当前操作人是否有正在进行的任务
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/inventory/getUserDoingInventoryTask")
+    public JdResult<InventoryTaskResponse> getUserDoingInventoryTask(InventoryTaskRequest request) {
+        logger.info("查询当前操作人是否有正在进行的任务,参数:" + JSON.toJSONString(request));
+        JdResult result = new JdResult();
+        result.toSuccess();
+
+        try {
+            return inventoryTaskService.getUserDoingInventoryTask(request);
+        } catch (Exception e) {
+            logger.error("查询当前操作人是否有正在进行的任务异常.参数:"+JSON.toJSONString(request)+",异常原因:", e);
+            result.toError("查询当前操作人是否有正在进行的任务异常");
+        }
+        return result;
+    }
+
+    /**
+     * 验证所选流向是否有正在进行的任务
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/inventory/directionVerify")
+    public JdResult<InventoryTaskResponse> directionVerify(InventoryTaskRequest request) {
+        logger.info("流向验证,参数:" + JSON.toJSONString(request));
+        JdResult result = new JdResult();
+        result.toSuccess();
+
+        try {
+            return inventoryTaskService.directionVerify(request);
+        } catch (Exception e) {
+            logger.error("流向验证异常.参数:"+JSON.toJSONString(request)+",异常原因:", e);
+            result.toError("流向验证异常");
+        }
+        return result;
+    }
+
+
+    /**
      * 生成盘点任务
      * @param request
      * @return
@@ -68,4 +110,5 @@ public class InventoryResource {
         }
         return result;
     }
+
 }

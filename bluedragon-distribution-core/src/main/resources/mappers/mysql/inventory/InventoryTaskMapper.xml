@@ -39,6 +39,48 @@
         update_time,is_delete
     </sql>
 
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
+        insert into inventory_task
+        (
+        <include refid="Base_Column_List"/>
+        )
+        values
+        (
+        #{inventoryTaskId,jdbcType=VARCHAR},
+        #{createSiteCode,jdbcType=INTEGER},
+        #{createSiteName,jdbcType=VARCHAR},
+        #{directionCode,jdbcType=INTEGER},
+        #{directionName,jdbcType=VARCHAR},
+        #{createUserCode,jdbcType=INTEGER},
+        #{createUserErp,jdbcType=VARCHAR},
+        #{createUserName,jdbcType=INTEGER},
+        #{createTime,jdbcType=TIMESTAMP},
+        #{endTime,jdbcType=TIMESTAMP},
+        #{status,jdbcType=TINYINT},
+        #{cooperateType,jdbcType=TINYINT},
+        0,
+        0,
+        0,
+        #{inventoryScope,jdbcType=TINYINT},
+        now(),
+        0
+        )
+    </insert>
+
+    <update id="updateTime" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
+        UPDATE inventory_task
+        <set>
+           update_time = now()
+        </set>
+        where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and create_user_code = #{createUserCode,jdbcType=INTEGER}
+        and direction_code= #{directionCode,jdbcType=INTEGER}
+        and inventory_scope= #{inventoryScope,jdbcType=TINYINT}
+        and cooperate_type= 2
+        and status=1
+        and is_delete = 0
+    </update>
+
     <insert id="addBatch" parameterType="java.util.List">
         INSERT INTO inventory_task(
         <include refid="Base_Column_List"/>
@@ -74,7 +116,45 @@
         from inventory_task
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and create_user_code = #{createUserCode,jdbcType=INTEGER}
-        and cooperateType=0
+        and cooperate_type= 1
+        and status=1
+        and is_delete = 0
+    </select>
+
+    <select id="getInventoryTaskByTaskId" resultMap="inventoryTask" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_task
+        where inventory_task_id = #{inventoryTaskId,jdbcType=VARCHAR}
+        and cooperate_type= 1
+        and status=1
+        and is_delete = 0
+    </select>
+
+    <select id="getInventoryTaskByDirectionOrScope" resultMap="inventoryTask" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_task
+        where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and inventory_scope = #{inventoryScope,jdbcType=INTEGER}
+        <if test="directionCodeList != null">
+            AND direction_code in
+            <foreach collection="directionCodeList" item="directionCode" open="(" close=")" separator=",">
+                #{directionCode}
+            </foreach>
+        </if>
+        and cooperate_type= 1
+        and status=1
+        and is_delete = 0
+    </select>
+
+    <select id="getInventoryTaskByCreateUser" resultMap="inventoryTask" parameterType="java.util.Map">
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_task
+        where create_site_code = #{createSiteCode,jdbcType=INTEGER}
+        and create_user_code = #{createUserCode,jdbcType=INTEGER}
+        and cooperate_type= 1
         and status=1
         and is_delete = 0
     </select>

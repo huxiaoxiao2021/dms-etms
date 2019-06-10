@@ -10,7 +10,8 @@ public enum PackStatusEnum {
     SORTING(4, "分拣"),
     SORTING_CANCEL(5,"取消分拣"),
     SEND(6, "发货"),
-    SEND_CANCEL(7,"取消发货");
+    SEND_CANCEL(7,"取消发货"),
+    EXCEPTION(8,"异常外呼");
 
     private Integer code;
 

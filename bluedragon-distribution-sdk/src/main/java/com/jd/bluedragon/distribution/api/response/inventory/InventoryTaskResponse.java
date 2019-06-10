@@ -22,6 +22,12 @@ public class InventoryTaskResponse {
      */
     private Integer inventoryScope;
 
+
+    /**
+     * 提示类型 1：当前操作人有正在进行的任务 2：所选流向有正在进行的任务
+     */
+    private Integer warnType;
+
     public List<SiteEntity> getDirectionList() {
         return directionList;
     }
@@ -44,5 +50,13 @@ public class InventoryTaskResponse {
 
     public void setInventoryScope(Integer inventoryScope) {
         this.inventoryScope = inventoryScope;
+    }
+
+    public Integer getWarnType() {
+        return warnType;
+    }
+
+    public void setWarnType(Integer warnType) {
+        this.warnType = warnType;
     }
 }
