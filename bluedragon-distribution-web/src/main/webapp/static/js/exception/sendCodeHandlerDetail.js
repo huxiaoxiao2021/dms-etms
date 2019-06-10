@@ -124,14 +124,6 @@ $(document).ready(function () {
     });
 
     $("#btn_export").click(function () {
-        var sendCodeStr = $("#sendCodes").val();
-        var type = $("#type").val();
-        var queryParams = {
-            type : type
-        };
-        if (sendCodeStr != null && sendCodeStr != "") {
-            queryParams.sendCodes = JSON.parse(sendCodeStr);
-        }
         jQuery.msg.confirm("批次异常单排查项目最多允许导出五万条数据，是否继续？",function () {
             /* 导出 */
             $("form").submit();

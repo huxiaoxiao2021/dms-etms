@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.exception;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.service.SendCodeExceptionHandlerService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
@@ -27,11 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <P>
@@ -181,10 +183,21 @@ public class SendCodeExceptionHandlerController {
      */
     @Authorization()
     @RequestMapping(value = "/exportSendCodeDetail")
-    public void exportSendCodeDetail(SendCodeExceptionRequest request, HttpServletResponse response){
-        LOGGER.info("SendCodeExceptionHandlerController.toExport-->导出异常批次的明细数据：{}",JsonHelper.toJson(request));
+    public void exportSendCodeDetail(HttpServletRequest request, HttpServletResponse response){
+        Map paramMap = request.getParameterMap();//获取参数
+        SendCodeExceptionRequest request1 = new SendCodeExceptionRequest();
+        if (paramMap.containsKey("type")) {
+            String[] types = (String[]) paramMap.get("type");
+            request1.setType(Integer.valueOf(types[0]));
+        }
+        if (paramMap.containsKey("sendCodes")) {
+            String[] sendCodesStr = (String[]) paramMap.get("sendCodes");
+            List<String> sendCodes = JsonHelper.fromJson(sendCodesStr[0],List.class);
+            request1.setSendCodes(sendCodes);
+        }
+        LOGGER.debug("SendCodeExceptionHandlerController.toExport-->导出异常批次的明细数据：{}",JsonHelper.toJson(request));
 
-        if (null == request || request.getSendCodes() == null || request.getType() == 0) {
+        if (request1.getSendCodes() == null || request1.getType() == 0) {
             LOGGER.warn("导出异常批次明细数据时提交的参数不正确：{}", JsonHelper.toJson(request));
             return;
         }
@@ -199,10 +212,10 @@ public class SendCodeExceptionHandlerController {
             LOGGER.warn("用户【{}】未维护基础资料信息",user.getUserCode());
             return;
         }
-        request.setSiteCode(staffSiteOrgDto.getSiteCode());
+        request1.setSiteCode(staffSiteOrgDto.getSiteCode());
 
         try{
-            List<Object[]> rowData = sendCodeExceptionHandlerService.exportSendCodeDetail(request);
+            List<Object[]> rowData = sendCodeExceptionHandlerService.exportSendCodeDetail(request1);
 
             OutputStream out = response.getOutputStream();
             HSSFWorkbook workbook = new HSSFWorkbook();
