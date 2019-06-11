@@ -939,4 +939,9 @@ public class Constants {
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
 
+    /**
+     * EMG条码前缀
+     */
+    public static final String EMG_CODE_PREFIX = "EMG";
+
 }

@@ -422,4 +422,14 @@
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- ECLP获取新的 -->
+    <jsf:consumer id="goodsService" interface="com.jd.eclp.master.goods.service.GoodsService"
+                  alias="${jsf.eclp.goods.alias}"
+                  timeout="${jsf.eclp.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
+    <jsf:consumer id="downstreamGoodsService" interface="com.jd.eclp.master.goods.service.DownstreamGoodsService"
+                  alias="${jsf.eclp.downstream.goods.alias}" timeout="${jsf.eclp.downstream.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
 </beans>
