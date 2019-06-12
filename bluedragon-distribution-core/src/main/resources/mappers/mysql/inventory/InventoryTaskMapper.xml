@@ -77,8 +77,16 @@
         and direction_code= #{directionCode,jdbcType=INTEGER}
         and inventory_scope= #{inventoryScope,jdbcType=TINYINT}
         and cooperate_type= 2
-        and status=1
+        and status=0
         and is_delete = 0
+    </update>
+
+    <update id="updateStatus" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
+        UPDATE inventory_task
+        <set>
+            status= #{status,jdbcType=TINYINT}, update_time = now()
+        </set>
+            where inventory_task_id= #{inventoryTaskId,jdbcType=VARCHAR} and is_delete = 0
     </update>
 
     <insert id="addBatch" parameterType="java.util.List">
@@ -117,7 +125,7 @@
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and create_user_code = #{createUserCode,jdbcType=INTEGER}
         and cooperate_type= 1
-        and status=1
+        and status=0
         and is_delete = 0
     </select>
 
@@ -127,7 +135,7 @@
         from inventory_task
         where inventory_task_id = #{inventoryTaskId,jdbcType=VARCHAR}
         and cooperate_type= 1
-        and status=1
+        and status=0
         and is_delete = 0
     </select>
 
@@ -144,7 +152,7 @@
             </foreach>
         </if>
         and cooperate_type= 1
-        and status=1
+        and status=0
         and is_delete = 0
     </select>
 
@@ -155,7 +163,7 @@
         where create_site_code = #{createSiteCode,jdbcType=INTEGER}
         and create_user_code = #{createUserCode,jdbcType=INTEGER}
         and cooperate_type= 1
-        and status=1
+        and status=0
         and is_delete = 0
     </select>
 </mapper>

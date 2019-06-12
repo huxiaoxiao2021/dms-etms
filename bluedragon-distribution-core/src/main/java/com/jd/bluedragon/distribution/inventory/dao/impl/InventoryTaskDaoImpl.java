@@ -47,6 +47,9 @@ public class InventoryTaskDaoImpl extends BaseDao<InventoryTask> implements Inve
         return sqlSession.update(this.nameSpace+".updateTime", task) >0;
     }
 
+    public boolean updateStatus(InventoryTask task) {
+        return sqlSession.update(this.nameSpace+".updateStatus", task) > 0;
+    }
     /**
      * 根据流向/盘点范围获取盘点任务
      * @param createSiteCode
