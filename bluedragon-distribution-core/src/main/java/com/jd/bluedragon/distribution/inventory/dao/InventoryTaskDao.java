@@ -21,6 +21,12 @@ public interface InventoryTaskDao extends Dao<InventoryTask> {
     boolean updateTime(InventoryTask inventoryTask);
 
     /**
+     * 更新表里的status
+     * @param inventoryTask
+     * @return
+     */
+    boolean updateStatus(InventoryTask inventoryTask);
+    /**
      * 根据盘点任务id获取盘点任务
      * @param inventoryTaskId
      * @return

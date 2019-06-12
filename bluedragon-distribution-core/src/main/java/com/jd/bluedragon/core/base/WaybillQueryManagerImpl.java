@@ -623,4 +623,32 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
         return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
     }
+
+    /*
+     *
+     * 查询运单接口获取包裹列表
+     *
+     * */
+    @Override
+    public List<DeliveryPackageD> findWaybillPackList(String waybillCode) {
+        List<DeliveryPackageD> deliveryPackageDList = null;
+        CallerInfo info = null;
+        try {
+            info = ProfilerHelper.registerInfo("DMS.JSF.Waybill.waybillQueryApi.findWaybillPackList", Constants.UMP_APP_NAME_DMSWEB);
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryPackList(true);
+            BaseEntity<BigWaybillDto> baseEntity = this.getDataByChoice(waybillCode, wChoice);
+            if (baseEntity != null && baseEntity.getData() != null) {
+                deliveryPackageDList = baseEntity.getData().getPackageList();
+            }
+
+        } catch (Exception e) {
+            Profiler.functionError(info);
+            logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
+        } finally {
+            Profiler.registerInfoEnd(info);
+        }
+
+        return deliveryPackageDList;
+    }
 }

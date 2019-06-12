@@ -5,8 +5,9 @@ package com.jd.bluedragon.distribution.inventory.domain;
  */
 public enum InventoryTaskStatusEnum {
 
-    DOING(1, "进行中"),
-    DONE(2, "已结束");
+    DOING(0, "进行中"),
+    DONE(1, "已结束"),
+    CANCEL(2, "已取消");
 
     private Integer statusCode;
 
