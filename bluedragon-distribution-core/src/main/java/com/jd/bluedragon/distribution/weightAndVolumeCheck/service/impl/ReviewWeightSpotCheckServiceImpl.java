@@ -104,6 +104,38 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     /**
+     * 导出抽查任务
+     * @return
+     */
+    @Override
+    public List<List<Object>> exportSpotData() {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        List<Object> heads = new ArrayList<Object>();
+        //添加表头
+        heads.add("机构名称");
+        heads.add("机构编码");
+        heads.add("普通应抽查包裹数");
+        heads.add("信任商家应抽查包裹数");
+        heads.add("导入人ERP");
+        heads.add("导入时间");
+        resList.add(heads);
+        List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryAllSpotInfo(null);
+        //表格信息
+        for(SpotCheckInfo spotCheckInfo : list){
+            List<Object> body = Lists.newArrayList();
+            body.add(spotCheckInfo.getSiteName());
+            body.add(spotCheckInfo.getSiteCode());
+            body.add(spotCheckInfo.getNormalPackageNum());
+            body.add(spotCheckInfo.getTrustPackageNum());
+            body.add(spotCheckInfo.getImportErp());
+            body.add(DateHelper.formatDate(spotCheckInfo.getTs(), Constants.DATE_TIME_FORMAT));
+            resList.add(body);
+        }
+        return  resList;
+    }
+
+    /**
      * 查询条件转换
      * */
     private WeightVolumeQueryCondition transform(WeightAndVolumeCheckCondition condition) {
@@ -301,6 +333,32 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         return result;
     }
 
+    /**
+     * 根据条件查询
+     * @param condition
+     * @return
+     */
+    @Override
+    public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition) {
+
+        PagerResult<ReviewWeightSpotCheck> result = new PagerResult<>();
+
+        try {
+            WeightVolumeQueryCondition transform = transform(condition);
+            List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryAllSpotInfo(transform.getReviewSiteCode());
+            if(1==1){
+
+            }
+//            transform.setList(list);
+//            reportExternalService.
+        }catch (Exception e){
+            logger.error("查询失败!",e);
+            result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+            result.setTotal(0);
+        }
+
+        return result;
+    }
 
 
     /**

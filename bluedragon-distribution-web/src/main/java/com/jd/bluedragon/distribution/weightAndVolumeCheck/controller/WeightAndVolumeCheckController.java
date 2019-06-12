@@ -188,7 +188,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         }
         if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
             //上传成功后给判责系统发消息并更新es数据
-            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate,null);
+            weightAndVolumeCheckService.sendMqAndUpdate(packageCode,siteCode,uploadTime,reviewDate);
         }
 
         return result;

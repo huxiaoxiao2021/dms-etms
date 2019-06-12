@@ -80,6 +80,56 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">运单号：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="waybillCode" name="waybillCode" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">扫描条码：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="waybillOrPackCode" name="waybillOrPackCode" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">商家名称：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="busiName" name="busiName" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">复核人ERP：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="reviewErp" name="reviewErp" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xs-4">
+                                <div class="form-group">
+                                    <label class="control-label col-xs-4">计费操作人ERP：</label>
+                                    <div class="col-xs-6">
+                                        <input type="text" id="billingErp" name="billingErp" class="form-control search-param" >
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </fieldset>
             </form>
         </div>

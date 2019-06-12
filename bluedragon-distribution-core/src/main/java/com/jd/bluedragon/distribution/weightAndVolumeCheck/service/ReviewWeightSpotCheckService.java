@@ -62,4 +62,18 @@ public interface ReviewWeightSpotCheckService {
      * @return
      */
     PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition,int type);
+
+    /**
+     * 根据条件查询
+     * @param condition
+     * @return
+     */
+    PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition);
+
+    /**
+     * 导出抽查任务
+     * @return
+     */
+    List<List<Object>> exportSpotData();
+
 }

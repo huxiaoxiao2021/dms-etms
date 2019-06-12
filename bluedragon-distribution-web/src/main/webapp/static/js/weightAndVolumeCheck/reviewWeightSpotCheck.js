@@ -1,6 +1,7 @@
 var queryUrl = '/reviewWeightSpotCheck/listData';
 var importUrl = '/reviewWeightSpotCheck/toImport';
 var exportUrl = '/reviewWeightSpotCheck/toExport';
+var exportSpotUrl = '/reviewWeightSpotCheck/toExportSpot';
 $(function () {
 
     $('#fileField').hide();
@@ -182,6 +183,11 @@ $(function () {
                     Jd.alert("请选择指定的复核区域!");
                     return;
                 }
+                var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
+                if(days > 7){
+                    Jd.alert("查询时间不能超过7天!");
+                    return;
+                }
                 tableInit().refresh();
             });
 
@@ -201,7 +207,6 @@ $(function () {
             $('#btn_import').attr("disabled",false);
             return;
         }
-        debugger;
         if(suffixName != 'xlsx'){
             Jd.alert('请上传指定Excel文件!');
             $('#btn_import').attr("disabled",false);
@@ -240,10 +245,20 @@ $(function () {
         $('#improt_modal').modal('show');
     });
 
+    //导出抽查任务
+    $('#btn_export_spot').click(function () {
+
+        var form = $("<form method='post'></form>");
+        form.attr({"action": exportSpotUrl});
+        form.appendTo(document.body);
+        form.submit();
+        document.body.removeChild(form[0]);
+
+    });
+
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            debugger;
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;
@@ -277,6 +292,12 @@ function initDateQuery(){
     $("#endTime").val(v+" 23:59:59");
 }
 
+function  getDaysByDateString(dateString1,dateString2) {
+    var startDate = Date.parse(dateString1.replace('/-/g', '/'));
+    var endDate = Date.parse(dateString2.replace('/-/g', '/'));
+    var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
+    return days;
+}
 
 var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){

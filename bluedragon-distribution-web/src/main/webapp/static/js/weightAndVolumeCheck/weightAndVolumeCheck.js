@@ -129,8 +129,8 @@ $(function () {
             title: '复核长宽高cm',
             align: 'center'
         },{
-            field: 'reviewVolume',
-            title: '复核体积cm³',
+            field: 'reviewVolumeWeight',
+            title: '复核体积重量',
             align: 'center'
         },{
             field: 'billingOrgName',
@@ -147,6 +147,10 @@ $(function () {
         },{
             field: 'billingWeight',
             title: '计费重量',
+            align: 'center'
+        },{
+            field: 'billingVolumeWeight',
+            title: '计费体积重量',
             align: 'center'
         },{
             field: 'billingVolume',

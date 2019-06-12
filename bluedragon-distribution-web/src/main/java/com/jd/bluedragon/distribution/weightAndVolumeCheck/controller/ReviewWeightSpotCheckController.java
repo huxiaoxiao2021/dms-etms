@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -77,7 +78,8 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition,0);
+//        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition,0);
+        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition);
         return result;
     }
 
@@ -133,5 +135,29 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
         }
     }
 
+    /**
+     * 导出抽查任务表
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/toExportSpot", method = RequestMethod.POST)
+    public ModelAndView toExportSpot(Model model) {
+
+        this.logger.info("导出抽查任务表");
+        List<List<Object>> resultList;
+        try{
+            model.addAttribute("filename", "抽查任务表.xls");
+            model.addAttribute("sheetname", "抽查统计结果");
+            resultList = reviewWeightSpotCheckService.exportSpotData();
+        }catch (Exception e){
+            this.logger.error("导出抽查任务表失败:" + e.getMessage(), e);
+            List<Object> list = new ArrayList<>();
+            list.add("导出抽查任务表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
+        }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
+    }
 
 }
