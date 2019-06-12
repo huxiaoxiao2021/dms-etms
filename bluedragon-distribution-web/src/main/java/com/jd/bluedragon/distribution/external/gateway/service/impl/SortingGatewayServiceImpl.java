@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.external.gateway.dto.request.SortingCancelRequest;
-import com.jd.bluedragon.distribution.external.gateway.service.SortingService;
+import com.jd.bluedragon.distribution.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.util.DateUtil;
@@ -21,14 +21,14 @@ import java.util.Objects;
  * @author : xumigen
  * @date : 2019/6/12
  */
-public class SortingServiceImpl implements SortingService {
+public class SortingGatewayServiceImpl implements SortingGatewayService {
 
     @Autowired
     @Qualifier("sortingResource")
     private SortingResource sortingResource;
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingServiceImpl.sortingCancel", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingCancel", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse sortingCancel(SortingCancelRequest request) {
         JdResponse response = new JdResponse();
         response.toFail("操作失败请联系IT");

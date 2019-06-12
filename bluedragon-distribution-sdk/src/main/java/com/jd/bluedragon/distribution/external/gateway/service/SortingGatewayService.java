@@ -8,7 +8,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
  * @author : xumigen
  * @date : 2019/6/12
  */
-public interface SortingService {
+public interface SortingGatewayService {
 
     JdResponse sortingCancel(SortingCancelRequest request);
 }

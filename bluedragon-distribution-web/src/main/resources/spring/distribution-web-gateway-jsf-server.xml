@@ -5,11 +5,11 @@
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
     <!-- 分拣 -->
-    <bean id="gatewaySortingService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingServiceImpl"/>
+    <bean id="sortingGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SortingGatewayServiceImpl"/>
     <jsf:provider id="jsfSortingService"
-                  interface="com.jd.bluedragon.distribution.external.gateway.service.SortingService"
+                  interface="com.jd.bluedragon.distribution.external.gateway.service.SortingGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="gatewaySortingService" server="dmsjsf">
+                  ref="sortingGatewayService" server="dmsjsf">
     </jsf:provider>
 
 </beans>
