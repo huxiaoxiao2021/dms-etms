@@ -147,6 +147,7 @@ public class DefaultJMQProducer {
                 task.setTableName(Task.getTableName(task.getType()));
                 task.setSequenceName(Task.getSequenceName(task.getTableName()));
                 task.setCreateSiteCode(Integer.valueOf(0));
+                tasks.add(task);
             }
             taskService.addBatch(tasks, true);
         } catch (Throwable throwable) {

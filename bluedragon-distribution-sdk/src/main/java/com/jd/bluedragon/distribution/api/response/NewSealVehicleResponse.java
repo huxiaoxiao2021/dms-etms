@@ -10,6 +10,7 @@ public class NewSealVehicleResponse<T> extends JdResponse {
 	public static final String MESSAGE_EXCUTE_ERROR = "推送运输数据失败！";
 	public static final String MESSAGE_QUERY_ERROR = "获取待解封车数据失败！";
 	public static final String MESSAGE_SEAL_SUCCESS = "封车成功！";
+	public static final String MESSAGE_CANCEL_SEAL_SUCCESS = "取消封车成功！";
 	public static final String MESSAGE_UNSEAL_SUCCESS = "解封车成功！";
 
     public static final String TIPS_BATCHCODE_PARAM_ERROR = "请输入正确的批次号!";

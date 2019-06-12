@@ -3183,7 +3183,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
                 //edited by hanjiaxing3 2018.07.26
                 //40位非0（C网以外）并且66位为0（必须称重），需要称重量方拦截
-                if (! BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessUtil.isSignChar(waybill.getWaybillSign(), 66, '0')) {
+                if (! BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '0') && BusinessUtil.isSignChar(waybill.getWaybillSign(), 66, '0')
+                        && !WaybillUtil.isReturnCode(waybillCode)) {
                     //WaybillSign40=2时（只有外单快运纯配业务），需校验重量
                     //edited by hanjiaxing3 2019.04.10 临时欠款运单也需要称重拦截
                     if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 40, '2') || BusinessUtil.isTemporaryArrearsWaybill(waybill.getWaybillSign())){

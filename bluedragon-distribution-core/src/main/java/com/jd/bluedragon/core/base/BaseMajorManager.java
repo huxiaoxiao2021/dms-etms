@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.PsStoreInfo;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 
@@ -118,4 +119,11 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	public List<BaseDataDict> getAllCityBindDms();
+	/**
+	 * 根据站点Id获取站点信息
+	 * https://cf.jd.com/pages/viewpage.action?pageId=135891308
+	 * @param siteId 站点ID
+	 * @return
+	 */
+	BaseSiteInfoDto getBaseSiteInfoBySiteId(Integer siteId);
 }

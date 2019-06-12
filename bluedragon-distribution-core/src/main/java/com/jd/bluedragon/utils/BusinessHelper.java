@@ -474,6 +474,17 @@ public class BusinessHelper {
     }
 
     /**
+     * c2c 且为到付或寄付，且为正向
+     * waybill_sign第61位为0标记正向
+     */
+    public static boolean isC2cForward(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2c(waybillSign);
+    }
+
+    /**
      * 判断是否是B网分拣
      * @param siteType
      * @return
