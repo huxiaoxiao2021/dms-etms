@@ -31,6 +31,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.QueryParam;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -95,16 +96,20 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
         this.logger.info("导出重量体积抽验统计表");
+        List<List<Object>> resultList;
         try{
-            List<List<Object>> resultList = weightAndVolumeCheckService.getExportData(condition);
             model.addAttribute("filename", "重量体积抽验统计表.xls");
             model.addAttribute("sheetname", "重量体积抽验统计结果");
-            model.addAttribute("contents", resultList);
-            return new ModelAndView(new DefaultExcelView(), model.asMap());
+            resultList = weightAndVolumeCheckService.getExportData(condition);
         }catch (Exception e){
             this.logger.error("导出重量体积抽验统计表失败:" + e.getMessage(), e);
-            return null;
+            List<Object> list = new ArrayList<>();
+            list.add("导出重量体积抽验统计表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
         }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
     }
 
     /**

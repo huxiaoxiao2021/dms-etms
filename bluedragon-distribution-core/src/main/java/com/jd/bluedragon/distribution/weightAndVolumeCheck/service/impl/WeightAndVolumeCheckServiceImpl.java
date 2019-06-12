@@ -601,7 +601,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         resList.add(heads);
         WeightVolumeQueryCondition transform = transform(condition);
         BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(transform);
-        if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().size() > 0){
+        if(baseEntity.getData() != null && baseEntity.getData().size() > 0){
             List<WeightVolumeCollectDto> list = baseEntity.getData();
             //表格信息
             for(WeightVolumeCollectDto weightVolumeCollectDto : list){
@@ -632,6 +632,11 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(StringHelper.isEmpty(weightVolumeCollectDto.getPictureAddress())?"":weightVolumeCollectDto.getPictureAddress());
                 resList.add(body);
             }
+        }else{
+            List<Object> list = new ArrayList<>();
+            list.add(baseEntity.getMessage());
+            resList = new ArrayList<>();
+            resList.add(list);
         }
         return  resList;
     }

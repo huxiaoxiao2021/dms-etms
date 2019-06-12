@@ -185,7 +185,7 @@ $(function () {
                 }
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
                 if(days > 7){
-                    Jd.alert("查询时间不能超过7天!");
+                    Jd.alert("查询时间不能超过7天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();

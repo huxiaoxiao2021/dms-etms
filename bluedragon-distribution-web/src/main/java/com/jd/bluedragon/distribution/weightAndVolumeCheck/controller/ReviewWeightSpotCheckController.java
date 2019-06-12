@@ -123,16 +123,20 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
         this.logger.info("分拣复重抽查任务统计表");
+        List<List<Object>> resultList;
         try{
-            List<List<Object>> resultList = reviewWeightSpotCheckService.getExportData(condition);
             model.addAttribute("filename", "分拣复重抽检任务统计表.xls");
             model.addAttribute("sheetname", "分拣复重抽检任务统计结果");
-            model.addAttribute("contents", resultList);
-            return new ModelAndView(new DefaultExcelView(), model.asMap());
+            resultList = reviewWeightSpotCheckService.getExportData(condition);
         }catch (Exception e){
             this.logger.error("导出分拣复重抽检任务统计表失败:" + e.getMessage(), e);
-            return null;
+            List<Object> list = new ArrayList<>();
+            list.add("导出分拣复重抽检任务统计表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
         }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
     }
 
     /**
