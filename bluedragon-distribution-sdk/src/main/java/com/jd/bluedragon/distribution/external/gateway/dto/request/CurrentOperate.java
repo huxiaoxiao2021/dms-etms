@@ -17,6 +17,16 @@ public class CurrentOperate {
      */
     public Date operateTime;
 
+
+    public CurrentOperate() {
+    }
+
+    public CurrentOperate(int siteCode, String siteName, Date operateTime) {
+        this.siteCode = siteCode;
+        this.siteName = siteName;
+        this.operateTime = operateTime;
+    }
+
     public int getSiteCode() {
         return siteCode;
     }
@@ -41,9 +51,4 @@ public class CurrentOperate {
         this.operateTime = operateTime;
     }
 
-    public CurrentOperate(int siteCode, String siteName, Date operateTime) {
-        this.siteCode = siteCode;
-        this.siteName = siteName;
-        this.operateTime = operateTime;
-    }
 }

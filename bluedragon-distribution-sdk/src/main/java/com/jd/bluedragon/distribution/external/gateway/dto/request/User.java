@@ -10,6 +10,14 @@ public class User {
      */
     private String userName;
 
+    public User() {
+    }
+
+    public User(int userCode, String userName) {
+        this.userCode = userCode;
+        this.userName = userName;
+    }
+
     public int getUserCode() {
         return userCode;
     }
@@ -26,8 +34,4 @@ public class User {
         this.userName = userName;
     }
 
-    public User(int userCode, String userName) {
-        this.userCode = userCode;
-        this.userName = userName;
-    }
 }
