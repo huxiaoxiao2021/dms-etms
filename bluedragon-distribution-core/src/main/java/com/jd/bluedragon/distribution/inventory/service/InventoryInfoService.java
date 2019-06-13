@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.inventory.service;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryBaseRequest;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryWaybillDetail;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryWaybillResponse;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
 import com.jd.ql.dms.report.inventory.domain.InventoryWaybillSummary;
 

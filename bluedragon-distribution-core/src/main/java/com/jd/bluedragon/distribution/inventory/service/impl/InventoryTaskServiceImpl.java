@@ -13,8 +13,12 @@ import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskStatusEnum;
 import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.inventory.InventoryJsfService;
+import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +55,8 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
      */
     private static final Integer WARN_TYPE_TASK_COOPERATE = 2;
 
-
+    @Autowired
+    private InventoryJsfService inventoryJsfService;
 
     @Autowired
     @Qualifier("inventoryTaskDao")
@@ -60,6 +65,28 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     @Override
     public Dao<InventoryTask> getDao() {
         return this.inventoryTaskDao;
+    }
+
+
+    /**
+     * 获取当前分拣中心的盘点的流向
+     * @param createSiteCode
+     * @return
+     */
+    public List<SiteEntity>  getInventoryDirectionList(Integer createSiteCode){
+        List<SiteEntity> directionList = new ArrayList<>();
+        BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfService.queryInventoryDirectionList(createSiteCode);
+        logger.info("调用报表jsf接口获取盘点流向信息.参数：" + createSiteCode + ".返回值为:" + JSON.toJSONString(baseEntity));
+        if(baseEntity!= null && baseEntity.getData() != null){
+            for(InventoryDirection direction : baseEntity.getData()){
+                SiteEntity siteEntity = new SiteEntity();
+                siteEntity.setCode(direction.getDirectionCode());
+                siteEntity.setName(direction.getDirectionName());
+
+                directionList.add(siteEntity);
+            }
+        }
+        return directionList;
     }
 
     /**
