@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.inventory.domain;
 /**
  * 盘点异常类型枚举
  */
-public enum InventoryExceptTypeEnum {
+public enum InventoryExpTypeEnum {
     INVENTORY_EXCEPT_TYPE_MORE(1, "多货"),
     INVENTORY_EXCEPT_TYPE_LOSS(2, "少货");
 
@@ -11,7 +11,7 @@ public enum InventoryExceptTypeEnum {
 
     private String desc;
 
-    InventoryExceptTypeEnum(Integer code, String desc) {
+    InventoryExpTypeEnum(Integer code, String desc) {
         this.code = code;
         this.desc = desc;
     }

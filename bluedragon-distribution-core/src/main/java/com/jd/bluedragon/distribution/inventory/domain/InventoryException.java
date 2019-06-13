@@ -22,7 +22,7 @@ public class InventoryException extends DbEntity {
     /**
      * 包裹物流状态
      */
-    private Integer packStatus;
+    private String latestPackStatus;
     /**
      * 异常类型1：多货 2：少货
      */
@@ -30,7 +30,7 @@ public class InventoryException extends DbEntity {
     /**
      * 异常描述
      */
-    private Integer expDesc;
+    private String expDesc;
     /**
      * 异常状态0:未处理 1:已处理
      */
@@ -62,7 +62,7 @@ public class InventoryException extends DbEntity {
     /**
      * 盘点人姓名
      */
-    private String inventroyUserName;
+    private String inventoryUserName;
     /**
      * 盘点时间
      */
@@ -108,12 +108,12 @@ public class InventoryException extends DbEntity {
         this.inventoryTaskId = inventoryTaskId;
     }
 
-    public Integer getPackStatus() {
-        return packStatus;
+    public String getLatestPackStatus() {
+        return latestPackStatus;
     }
 
-    public void setPackStatus(Integer packStatus) {
-        this.packStatus = packStatus;
+    public void setLatestPackStatus(String latestPackStatus) {
+        this.latestPackStatus = latestPackStatus;
     }
 
     public Integer getExpType() {
@@ -124,11 +124,7 @@ public class InventoryException extends DbEntity {
         this.expType = expType;
     }
 
-    public Integer getExpDesc() {
-        return expDesc;
-    }
-
-    public void setExpDesc(Integer expDesc) {
+    public void setExpDesc(String expDesc) {
         this.expDesc = expDesc;
     }
 
@@ -188,12 +184,12 @@ public class InventoryException extends DbEntity {
         this.inventoryUserErp = inventoryUserErp;
     }
 
-    public String getInventroyUserName() {
-        return inventroyUserName;
+    public String getInventoryUserName() {
+        return inventoryUserName;
     }
 
-    public void setInventroyUserName(String inventroyUserName) {
-        this.inventroyUserName = inventroyUserName;
+    public void setInventoryUserName(String inventoryUserName) {
+        this.inventoryUserName = inventoryUserName;
     }
 
     public Date getInventoryTime() {

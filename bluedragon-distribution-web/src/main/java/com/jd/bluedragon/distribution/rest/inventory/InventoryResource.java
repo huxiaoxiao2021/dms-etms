@@ -271,6 +271,11 @@ public class InventoryResource {
 			return result;
 		}
 
+		//判断任务是否完成
+		if (inventoryInfoService.checkTaskIsComplete(inventoryBaseRequest.getInventoryTaskId())) {
+			result.toFail("当前盘点任务已结束，请退出！");
+			return result;
+		}
 		inventoryInfoService.completeInventoryTask(inventoryBaseRequest);
 		return result;
 	}
@@ -309,7 +314,7 @@ public class InventoryResource {
 			jdResult.toFail("请求类型值只允许为1、2或3，请检查参数inventoryScopeType！");
 			return false;
 		}
-		if (inventoryScope == 1) {
+		if (InventoryScopeEnum.CUSTOMIZE.getCode().equals(inventoryBaseRequest.getInventoryScope())) {
 			List<Integer> directionCodeList = inventoryBaseRequest.getDirectionCodeList();
 			if (directionCodeList == null || directionCodeList.isEmpty()) {
 				jdResult.toFail("自定义流向判断流向列表不能为空，请检查参数！");
