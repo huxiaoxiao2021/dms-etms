@@ -60,6 +60,7 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
             response.toSucceed("操作成功");
             return response;
         }
+        response.toFail(sortingResponse.getMessage());
         return response;
     }
 }
