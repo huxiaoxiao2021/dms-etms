@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryScanDetailDao;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
@@ -93,7 +94,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             String packageCode = inventoryPackage.getPackageCode();
             String waybillCode = inventoryPackage.getWaybillCode();
             if (StringHelper.isEmpty(packageCode) || StringHelper.isEmpty(waybillCode)) {
-                logger.error("包裹号或运单号为空，对象值：" + JsonHelper.toJson(inventoryPackage));
+                logger.error("【syncCurrInventoryWaybillInfo】包裹号或运单号为空，对象值：" + JsonHelper.toJson(inventoryPackage));
                 continue;
             }
             //更新待盘包裹号集合
@@ -126,7 +127,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                     InventoryWaybillInfo inventoryWaybillInfoTemp = inventoryWaybillInfoMap.get(waybillCode);
                     if (inventoryWaybillInfoTemp != null) {
                         //未盘数减1
-                        inventoryWaybillInfoTemp.setNoInventoryCount(-1);
+                        inventoryWaybillInfoTemp.setNoInventoryCountBaseCurr(-1);
                         //更新运单下包裹最新的扫描时间
                         inventoryWaybillInfoTemp.setOperateTimeNew(scanTime);
                     } else {
@@ -161,7 +162,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             }
             inventoryInfoList.add(inventoryWaybillInfo);
         }
-
+        Collections.sort(inventoryInfoList, Collections.<InventoryWaybillInfo>reverseOrder());
         inventoryWaybillResponse.setInventoryInfoList(inventoryInfoList);
         inventoryWaybillResponse.setWaybillSum(waybillSum);
         inventoryWaybillResponse.setPackageSum(packageSum);
@@ -175,27 +176,36 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
 
         List<InventoryWaybillSummary> inventoryWaybillSummaryList = new ArrayList<>();
         Pager<InventoryQueryRequest> pager = initPagerParam(inventoryBaseRequest, 1, this.pageSize);
-        //es中获取运单维度带盘信息统计
-        BaseEntity<Pager<InventoryWaybillSummary>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
-        if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
-            List<InventoryWaybillSummary> inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
-            inventoryWaybillSummaryList.addAll(inventoryWaybillSummaryListTemp);
-            long totalPageNum = (pagerBaseEntity.getData().getTotal() + this.pageSize - 1) / this.pageSize;
-
-            for (int i = 2; i <= totalPageNum; i++) {
-                pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
-                //es中获取运单维度带盘信息统计
-                pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
-                if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
-                    inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
+        try {
+            //es中获取运单维度带盘信息统计
+            BaseEntity<Pager<InventoryWaybillSummary>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
+            if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
+                List<InventoryWaybillSummary> inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
+                if (inventoryWaybillSummaryListTemp != null && ! inventoryWaybillSummaryListTemp.isEmpty()) {
                     inventoryWaybillSummaryList.addAll(inventoryWaybillSummaryListTemp);
+                    long totalPageNum = (pagerBaseEntity.getData().getTotal() + this.pageSize - 1) / this.pageSize;
+
+                    for (int i = 2; i <= totalPageNum; i++) {
+                        pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
+                        //es中获取运单维度带盘信息统计
+                        pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
+                        if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
+                            inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
+                            inventoryWaybillSummaryList.addAll(inventoryWaybillSummaryListTemp);
+                        } else {
+                            logger.warn("获取待盘运单统计数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryWaybillSummaryList】");
+                        }
+                    }
                 } else {
-                    logger.warn("获取待盘运单统计数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryWaybillSummaryList】");
+                    logger.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
                 }
+            } else {
+                logger.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
             }
-        } else {
-            logger.warn("获取待盘运单统计数据为空！JSF方法【queryNeedInventoryWaybillSummaryList】");
+        } catch (Exception e) {
+            logger.error("获取待盘运单统计数据失败！JSF方法【queryNeedInventoryWaybillSummaryList】", e);
         }
+
         return inventoryWaybillSummaryList;
     }
 
@@ -204,28 +214,57 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
 
         List<InventoryPackage> inventoryPackageList = new ArrayList<>();
         Pager<InventoryQueryRequest> pager = initPagerParam(inventoryBaseRequest, 1, this.pageSize);
-        //es中获取运单维度带盘信息统计
-        BaseEntity<Pager<InventoryPackage>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
+        try {
+            //es中获取运单维度带盘信息统计
+            BaseEntity<Pager<InventoryPackage>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
 
-        if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
-            List<InventoryPackage> InventoryPackageTemp = pagerBaseEntity.getData().getData();
-            inventoryPackageList.addAll(InventoryPackageTemp);
-            long totalPageNum = (pagerBaseEntity.getData().getTotal() + this.pageSize - 1) / this.pageSize;
-
-            for (int i = 2; i <= totalPageNum; i++) {
-                pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
-                //es中获取运单维度带盘信息统计
-                pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
-                if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
-                    InventoryPackageTemp = pagerBaseEntity.getData().getData();
+            if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
+                List<InventoryPackage> InventoryPackageTemp = pagerBaseEntity.getData().getData();
+                if (InventoryPackageTemp != null && ! InventoryPackageTemp.isEmpty()) {
                     inventoryPackageList.addAll(InventoryPackageTemp);
+                    long totalPageNum = (pagerBaseEntity.getData().getTotal() + this.pageSize - 1) / this.pageSize;
+
+                    for (int i = 2; i <= totalPageNum; i++) {
+                        pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
+                        //es中获取运单维度带盘信息统计
+                        pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
+                        if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
+                            InventoryPackageTemp = pagerBaseEntity.getData().getData();
+                            inventoryPackageList.addAll(InventoryPackageTemp);
+                        } else {
+                            logger.warn("获取待盘包裹明细数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryPackageList】");
+                        }
+                    }
                 } else {
-                    logger.warn("获取待盘包裹明细数据第【" + i + "】页数据为空，共【" + totalPageNum + "】页，JSF方法【queryNeedInventoryPackageList】");
+                    logger.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
                 }
+            } else {
+                logger.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
             }
-        } else {
-            logger.warn("获取待盘包裹明细数据为空！JSF方法【queryNeedInventoryPackageList】");
+        } catch (Exception e) {
+            logger.error("获取待盘包裹明细数据失败！JSF方法【queryNeedInventoryPackageList】", e);
         }
+
+        return inventoryPackageList;
+    }
+
+    @Override
+    public List<InventoryPackage> queryPackageStatusList(InventoryBaseRequest inventoryBaseRequest, List<String> packageCodeList) {
+        List<InventoryPackage> inventoryPackageList = new ArrayList<>();
+        InventoryQueryRequest inventoryQueryRequest = this.convert2InventoryQueryRequest(inventoryBaseRequest);
+        inventoryQueryRequest.setPackageCodeList(packageCodeList);
+        try {
+            //es中获取包裹列表中状态信息
+            BaseEntity<List<InventoryPackage>> baseEntity = inventoryJsfService.queryPackageStatusList(inventoryQueryRequest);
+            if (baseEntity != null && baseEntity.getCode() == 200 && baseEntity.getData() != null) {
+                inventoryPackageList = baseEntity.getData();
+            } else {
+                logger.warn("获取待盘包裹状态据为空！JSF方法【queryPackageStatusList】，参数：" + JsonHelper.toJson(inventoryQueryRequest));
+            }
+        } catch (Exception e) {
+            logger.error("获取待盘包裹状态据失败！JSF方法【queryPackageStatusList】，参数：" + JsonHelper.toJson(inventoryQueryRequest));
+        }
+
 
         return inventoryPackageList;
     }
@@ -306,7 +345,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
     public boolean checkTaskIsComplete(String inventoryTaskId) {
         //根据任务号取进行中的任务，取不到说明任务已结束
         List<InventoryTask> result = inventoryTaskDao.getInventoryTaskByTaskId(inventoryTaskId);
-        return result != null && ! result.isEmpty();
+        return result == null || result.isEmpty();
     }
 
     @Override
@@ -330,20 +369,35 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
     private Pager<InventoryQueryRequest> initPagerParam(InventoryBaseRequest inventoryBaseRequest, int pageNo, int pageSize) {
         //组装分页参数
         Pager<InventoryQueryRequest> pager = new Pager<>();
-        InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
-        inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
-        inventoryQueryRequest.setDirectionCodeList(inventoryBaseRequest.getDirectionCodeList());
-        inventoryQueryRequest.setWaybillCode(inventoryBaseRequest.getBarCode());
-        if (InventoryScopeEnum.EXCEPTION.getCode().equals(inventoryBaseRequest.getInventoryScope())) {
-            List<Integer> statusList = new ArrayList<>();
-            statusList.add(PackStatusEnum.EXCEPTION.getCode());
-            inventoryQueryRequest.setStatusCodeList(statusList);
-        }
-        pager.setSearchVo(inventoryQueryRequest);
+        pager.setSearchVo(this.convert2InventoryQueryRequest(inventoryBaseRequest));
         pager.setPageNo(pageNo);
         pager.setPageSize(pageSize);
         return pager;
     }
+
+    private InventoryQueryRequest convert2InventoryQueryRequest(InventoryBaseRequest inventoryBaseRequest) {
+
+        InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
+        inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
+        inventoryQueryRequest.setDirectionCodeList(inventoryBaseRequest.getDirectionCodeList());
+        List<Integer> statusList = new ArrayList<>();
+        if (InventoryScopeEnum.EXCEPTION.getCode().equals(inventoryBaseRequest.getInventoryScope())) {
+            //异常区赋值异常外呼状态
+            statusList.add(PackStatusEnum.EXCEPTION.getCode());
+        } else {
+            //自定义和全场区赋值初异常外呼状态和发货状态
+            statusList.add(PackStatusEnum.RECEIVE.getCode());
+            statusList.add(PackStatusEnum.INSPECTION.getCode());
+            statusList.add(PackStatusEnum.REPRINT.getCode());
+            statusList.add(PackStatusEnum.SORTING.getCode());
+            statusList.add(PackStatusEnum.SORTING_CANCEL.getCode());
+            statusList.add(PackStatusEnum.SEND_CANCEL.getCode());
+
+        }
+        inventoryQueryRequest.setStatusCodeList(statusList);
+        return inventoryQueryRequest;
+    }
+
 
     private String getSuffixByPackageCode(String packageCode) {
         String suffix = WaybillUtil.getPackageSuffix(packageCode);

@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.inventory.domain;
 import java.io.Serializable;
 import java.util.List;
 
-public class InventoryWaybillInfo implements Serializable {
+public class InventoryWaybillInfo implements Serializable, Comparable<InventoryWaybillInfo> {
 
     /*
     * 运单号
@@ -102,6 +102,19 @@ public class InventoryWaybillInfo implements Serializable {
     public void setOperateTimeNew(Long time) {
         if (this.operateTime == null || time > this.operateTime) {
             this.operateTime = time;
+        }
+    }
+
+    @Override
+    public int compareTo(InventoryWaybillInfo inventoryWaybillInfo) {
+        if(this.operateTime > inventoryWaybillInfo.getOperateTime()){
+            return 1;
+        }
+        else if(this.operateTime < inventoryWaybillInfo.getOperateTime()){
+            return -1;
+        }
+        else{
+            return 0;
         }
     }
 }

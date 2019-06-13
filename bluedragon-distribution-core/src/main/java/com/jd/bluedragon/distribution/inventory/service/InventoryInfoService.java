@@ -22,6 +22,10 @@ public interface InventoryInfoService {
     List<InventoryPackage> queryNeedInventoryPackageList(InventoryBaseRequest inventoryBaseRequest);
 
     /*
+    * 获取包裹状态
+    * */
+    List<InventoryPackage> queryPackageStatusList(InventoryBaseRequest inventoryBaseRequest, List<String> packageCodeList);
+    /*
      * 初始化待盘运单信息
      * */
     InventoryWaybillResponse initNeedInventoryWaybillInfo(InventoryBaseRequest inventoryBaseRequest);
