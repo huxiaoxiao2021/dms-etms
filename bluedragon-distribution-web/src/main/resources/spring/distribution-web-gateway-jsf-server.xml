@@ -12,4 +12,11 @@
                   ref="sortingGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <bean id="inspectionGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.InspectionGatewayServiceImpl"/>
+    <jsf:provider id="jsfInspectionGatewayService"
+                  interface="com.jd.bluedragon.distribution.external.gateway.service.InspectionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="inspectionGatewayService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
