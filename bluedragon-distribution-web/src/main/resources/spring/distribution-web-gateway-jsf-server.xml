@@ -19,4 +19,11 @@
                   ref="inspectionGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <bean id="recycleMaterialGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.RecycleMaterialGatewayServiceImpl"/>
+    <jsf:provider id="jsfRecycleMaterialGatewayService"
+                  interface="com.jd.bluedragon.distribution.external.gateway.service.RecycleMaterialGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="recycleMaterialGatewayService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
