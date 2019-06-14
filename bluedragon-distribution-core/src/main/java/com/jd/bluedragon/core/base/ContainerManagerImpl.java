@@ -269,7 +269,7 @@ public class ContainerManagerImpl implements ContainerManager{
         UserEnv userEnv = new UserEnv();
         userEnv.setTenantCode(tenantCode);
         userEnv.setOperateSortingCenterId(createSiteCode);
-        User user = new User(userErp, UserSource.JD_ERP);
+        User user = new User(userErp, UserSource.QINGLONG_SYSTEM_USER);
         user.setUserName(userName);
         userEnv.setUser(user);
         return userEnv;
