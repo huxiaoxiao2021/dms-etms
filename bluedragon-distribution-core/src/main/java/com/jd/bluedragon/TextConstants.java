@@ -101,4 +101,10 @@ public class TextConstants {
      * 常用字符串:‘无’
      */
     public static final String COMMON_TEXT_NOTHING ="无";
+
+    /**
+     * waybill_sign第54位等于4 且 第40位等于2或3
+     */
+    public static final String COMMON_TEXT_MEDICINE_SCATTERED ="医药零担";
+
 }

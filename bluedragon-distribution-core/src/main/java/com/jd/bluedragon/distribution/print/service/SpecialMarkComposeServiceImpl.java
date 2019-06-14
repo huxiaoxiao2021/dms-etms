@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -104,6 +106,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
         //城配标和运输产品互斥，如果显示【B】字标，那么在显示【特惠送】的位置显示为空
         if(StringHelper.isNotEmpty(waybill.getSpecialMark()) && waybill.getSpecialMark().contains(CITY_DISTRIBUTION_CHENG)){
             waybill.setTransportMode("");
+        }
+
+        //waybill_sign第54位等于4 且 第40位等于2或3时显示 【医药】，并且和B互斥--显示医药，则不显示B
+        if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
+            waybill.appendSpecialMark(SPECIAL_MARK_MEDICINE);
+            waybill.dealConflictSpecialMark(SPECIAL_MARK_MEDICINE,CITY_DISTRIBUTION_CHENG);
         }
 
         //“半”与“航”互斥，且“航”字为大

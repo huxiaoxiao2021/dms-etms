@@ -702,4 +702,13 @@ public class BusinessUtil {
     	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
     			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
     }
+
+    /**
+     * 判断是否是冷链医药运单   waybillSign第54位为4
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isBMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
+    }
 }
