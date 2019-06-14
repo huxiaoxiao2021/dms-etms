@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service;
 
-import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.distribution.external.gateway.dto.request.RecycleMaterialRequest;
 import com.jd.ql.dms.common.domain.JdResponse;
 
 /**
@@ -10,5 +10,5 @@ import com.jd.ql.dms.common.domain.JdResponse;
  */
 public interface RecycleMaterialGatewayService {
 
-    JdResponse<String> updateStatus(JSONObject vo);
+    JdResponse<String> updateStatus(RecycleMaterialRequest request);
 }

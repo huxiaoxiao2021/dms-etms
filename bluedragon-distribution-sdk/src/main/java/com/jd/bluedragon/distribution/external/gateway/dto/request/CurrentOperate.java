@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.dto.request;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class CurrentOperate {
+public class CurrentOperate implements Serializable {
+    private static final long serialVersionUID = -1L;
 
     /*
     操作单位编号
@@ -17,6 +19,15 @@ public class CurrentOperate {
      */
     public Date operateTime;
 
+    /*
+    所在区域编号
+     */
+    private Integer orgId;
+
+    /*
+    所在区域名称
+     */
+    private String orgName;
 
     public CurrentOperate() {
     }
@@ -51,4 +62,19 @@ public class CurrentOperate {
         this.operateTime = operateTime;
     }
 
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
 }
