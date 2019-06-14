@@ -197,7 +197,7 @@ public class InventoryResource {
 			return result;
 		}
 		//判断任务是否完成
-		if (!inventoryInfoService.checkTaskIsComplete(inventoryBaseRequest.getInventoryTaskId())) {
+		if (inventoryInfoService.checkTaskIsComplete(inventoryBaseRequest.getInventoryTaskId())) {
 			result.toFail("当前盘点任务已结束，请退出！");
 			return result;
 		}
