@@ -57,7 +57,7 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
         }
         SortingResponse sortingResponse = sortingResource.cancelPackage(params);
         if(Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_OK)){
-            response.toSucceed("操作成功");
+            response.toSucceed(sortingResponse.getMessage());
             return response;
         }
         response.toFail(sortingResponse.getMessage());
