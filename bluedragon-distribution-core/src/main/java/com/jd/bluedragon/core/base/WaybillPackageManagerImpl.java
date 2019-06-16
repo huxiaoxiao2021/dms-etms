@@ -1,21 +1,19 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.common.Page;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.DeliveryPackageDto;
-import com.jd.etms.waybill.dto.PackageUpdateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -23,10 +21,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service("waybillPackageManager")
 public class WaybillPackageManagerImpl implements WaybillPackageManager {
@@ -38,9 +36,6 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
     @Autowired
     private SysConfigService sysConfigService;
-
-    @Autowired
-    private WaybillUpdateApi waybillUpdateApi;
 
     /**
      * 调用运单的分页接口一次获取的包裹数量，分页大小定值1000，则获取数据为实时，其他则非实时
@@ -251,54 +246,5 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             }
         }
         return false;
-    }
-
-    /**
-     * 修改运单包裹数量
-     * @param waybillCode
-     * @param packNum
-     * @return
-     */
-    @JProfiler(jKey = "DMS.BASE.WaybillPackageManagerImpl.batchUpdatePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum){
-        logger.info(waybillCode + "调用运单接口batchUpdatePackageByWaybillCode,修改运单包裹数量:" + packNum);
-        InvokeResult result = new InvokeResult();
-        result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-
-        if(StringUtils.isEmpty(waybillCode) || packNum == null || packNum <= 0 || packNum > 99){
-            logger.error("参数不能为空!");
-            result.setMessage(InvokeResult.PARAM_ERROR);
-            return result;
-        }
-        if(!WaybillUtil.isWaybillCode(waybillCode) && !WaybillUtil.isPackageCode(waybillCode)){
-            logger.error("运单号/包裹号不符合规则!"+waybillCode);
-            result.setMessage("运单号/包裹号不符合规则!");
-            return result;
-        }
-        waybillCode = WaybillUtil.getWaybillCode(waybillCode);
-        try {
-            List<PackageUpdateDto> packageList = new ArrayList<>();
-            Date createTime = new Date();
-            for(int i = 1; i < packNum+1; i++){
-                PackageUpdateDto dto = new PackageUpdateDto();
-                dto.setWaybillCode(waybillCode);
-                dto.setPackageBarcode(waybillCode + "-" + i + "-" + packNum + "-");
-                dto.setCreateTime(createTime);
-                packageList.add(dto);
-            }
-            BaseEntity<Boolean> baseEntity = waybillUpdateApi.batchUpdatePackageByWaybillCode(waybillCode, packageList);
-            if(baseEntity.getResultCode() == 1){
-                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-            }else{
-                logger.error(waybillCode+"修改包裹数失败!"+baseEntity.getMessage());
-                result.setMessage(waybillCode+"修改包裹数失败!");
-            }
-        }catch (Exception e){
-            result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
-        }
-        return result;
     }
 }

@@ -9,6 +9,7 @@ import com.jd.bluedragon.utils.cache.BigWaybillPackageListCache;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.api.WaybillTraceApi;
+import com.jd.etms.waybill.api.WaybillUpdateApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.PackageState;
@@ -59,6 +60,9 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     @Qualifier("waybillTraceBusinessQueryApi")
     @Autowired
     private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
+    @Autowired
+    private WaybillUpdateApi waybillUpdateApi;
 
     /**
      * 大包裹运单缓存开关
@@ -612,5 +616,18 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
         return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
+    }
+
+    /**
+     * 修改包裹数量
+     * @param waybillCode
+     * @param list
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.waybillQueryApi.batchUpdatePackageByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list){
+        return waybillUpdateApi.batchUpdatePackageByWaybillCode(waybillCode, list);
     }
 }

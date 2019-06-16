@@ -166,9 +166,6 @@ public class WaybillResource {
 	@Autowired
 	private WaybillNoCollectionInfoService waybillNoCollectionInfoService;
 
-	@Autowired
-	private WaybillPackageManager waybillPackageManager;
-
     /**
      * 根据运单号获取运单包裹信息接口
      *
@@ -2264,7 +2261,7 @@ public class WaybillResource {
 	}
 
 	/**
-	 * 修改运单包裹数
+	 * 修改取件单换单后新单的包裹数
 	 * @param waybillCode
 	 * @param packNum
 	 * @return
@@ -2274,7 +2271,7 @@ public class WaybillResource {
 	public InvokeResult updatePackNum(@PathParam("waybillCode") String waybillCode,
                                       @PathParam("packNum") Integer packNum){
 		
-        return waybillPackageManager.batchUpdatePackageByWaybillCode(waybillCode, packNum);
+        return waybillCommonService.batchUpdatePackageByWaybillCode(waybillCode, packNum);
 	}
 
 }

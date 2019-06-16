@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 
@@ -59,12 +58,4 @@ public interface WaybillPackageManager {
      * @return
      */
     boolean isGetPackageByPageOpen();
-
-    /**
-     * 修改运单包裹数量
-     * @param waybillCode
-     * @param packNum
-     * @return
-     */
-    InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum);
 }

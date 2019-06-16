@@ -239,4 +239,11 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode);
 
+	/**
+	 * 修改包裹数量
+	 * @param waybillCode
+	 * @param list
+	 * @return
+	 */
+	BaseEntity<Boolean> batchUpdatePackageByWaybillCode(String waybillCode,List list);
 }
