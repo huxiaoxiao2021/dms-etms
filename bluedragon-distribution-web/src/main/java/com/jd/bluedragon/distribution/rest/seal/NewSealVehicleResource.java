@@ -404,18 +404,7 @@ public class NewSealVehicleResource {
             return sealVehicleResponse;
         }
 
-      CommonDto<String> returnCommonDto = newsealVehicleService.cancelSeal(request);
-      if (returnCommonDto != null) {
-        if (CommonDto.CODE_SUCCESS == returnCommonDto.getCode()) {
-          sealVehicleResponse.setCode(JdResponse.CODE_OK);
-          sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
-          sealVehicleResponse.setData(returnCommonDto.getData());
-        } else {
-          sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-          sealVehicleResponse.setMessage(returnCommonDto.getMessage());
-          sealVehicleResponse.setData(returnCommonDto.getData());
-        }
-      }
+        sealVehicleResponse = newsealVehicleService.cancelSeal(request);
     }
     catch (Exception e) {
       this.logger.error("NewSealVehicleResource.cancelSeal-error", e);

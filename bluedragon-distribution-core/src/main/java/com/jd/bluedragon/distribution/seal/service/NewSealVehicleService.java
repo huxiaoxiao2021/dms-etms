@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -33,7 +34,7 @@ public interface NewSealVehicleService {
      * @return
      * @throws Exception
      */
-    public CommonDto<String> cancelSeal(cancelSealRequest request);
+    public NewSealVehicleResponse cancelSeal(cancelSealRequest request);
 
     /**
      * 查询待解任务
