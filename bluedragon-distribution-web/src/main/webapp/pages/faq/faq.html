@@ -32,6 +32,13 @@ dt {
 	<div>
 		<h1 class="page-title" itemprop="name">FAQ</h1>
 		<div itemprop="articleBody">
+			<h2>异常提报</h2>
+			<ul>
+				<li>非紧急系统问题请提报IT，24h内会给出回复，提报方式请参考“IT事件操作手册”</li>
+				<li>紧急系统问题，可拨打24h值班电话</li>
+				<li>配送&快运 13716955852 </li>
+				<li>操作手册——<a href="#" onclick="downloadFile()">IT事件提报操作手册</a></li>
+			</ul>
 			<h2>分拣中心PDA问题</h2>
 			<ul>
 				<li><a href="#operateTimeout">1.1 操作提示“操作已超时”</a></li>
@@ -109,4 +116,11 @@ dt {
 		</div>
 	</div>
 </body>
+
+<script>
+    function downloadFile(){
+        var download = '/notice/attachment/download' + '?attachmentId=' + 16;
+        window.open(download);
+    }
+</script>
 </html>
