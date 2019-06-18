@@ -12,4 +12,12 @@
                   ref="sortingGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 批量一车一单发货校验 -->
+    <bean id="batchSingleSendService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BatchSingleSendServiceImpl"/>
+    <jsf:provider id="jsfBatchSingleSendService"
+                  interface="com.jd.bluedragon.distribution.external.gateway.service.BatchSingleSendGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="batchSingleSendService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
