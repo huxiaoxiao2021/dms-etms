@@ -5,13 +5,13 @@ import java.io.Serializable;
 /**
  * 只用于后台服务与android 相关业务交互使用
  * android 端使用gradle 依赖
- * @ClassName: JdResponse
+ * @ClassName: JdCResponse
  * @Description: 基础返回结果
  * @author wuyoude
  * @date 2017年6月1日 下午6:03:02
  *
  */
-public class JdResponse<E> implements Serializable {
+public class JdCResponse<E> implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
@@ -44,7 +44,7 @@ public class JdResponse<E> implements Serializable {
     /**
      * 构造方法，默认为成功
      */
-    public JdResponse() {
+    public JdCResponse() {
     	super();
     	init(CODE_SUCCESS,MESSAGE_SUCCESS);
     }
@@ -53,7 +53,7 @@ public class JdResponse<E> implements Serializable {
      * @param code
      * @param message
      */
-    public JdResponse(Integer code, String message) {
+    public JdCResponse(Integer code, String message) {
         super();
         this.init(code, message);
     }
@@ -63,7 +63,7 @@ public class JdResponse<E> implements Serializable {
      * @param message
      * @param data
      */
-	public JdResponse(Integer code, String message, E data) {
+	public JdCResponse(Integer code, String message, E data) {
 		super();
 		this.init(code, message, data);
 	}
