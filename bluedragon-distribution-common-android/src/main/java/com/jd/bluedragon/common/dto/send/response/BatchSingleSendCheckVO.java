@@ -20,6 +20,14 @@ public class BatchSingleSendCheckVO implements Serializable {
      */
     private Integer receiveSiteCode;
 
+    @Override
+    public String toString() {
+        return "BatchSingleSendCheckVO{" +
+                "sendCode='" + sendCode + '\'' +
+                ", receiveSiteCode=" + receiveSiteCode +
+                '}';
+    }
+
     public String getSendCode() {
         return sendCode;
     }
