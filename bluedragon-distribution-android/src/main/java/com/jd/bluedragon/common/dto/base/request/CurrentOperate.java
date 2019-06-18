@@ -1,8 +1,10 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.base.request;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class CurrentOperate {
+public class CurrentOperate implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /*
     操作单位编号

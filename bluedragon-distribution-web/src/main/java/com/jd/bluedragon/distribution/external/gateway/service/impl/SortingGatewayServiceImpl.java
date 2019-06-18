@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.SortingCancelRequest;
 import com.jd.bluedragon.distribution.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;

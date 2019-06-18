@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.dto.response;
+package com.jd.bluedragon.common.dto.base.response;
 
 import java.io.Serializable;
 

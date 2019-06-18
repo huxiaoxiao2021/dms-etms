@@ -1,4 +1,6 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.response;
+package com.jd.bluedragon.common.dto.send.response;
+
+import java.io.Serializable;
 
 /**
  * BatchSingleSendCheckVO
@@ -6,7 +8,8 @@ package com.jd.bluedragon.distribution.external.gateway.dto.response;
  * @author jiaowenqiang
  * @date 2019/6/14
  */
-public class BatchSingleSendCheckVO {
+public class BatchSingleSendCheckVO implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 批次号
      */

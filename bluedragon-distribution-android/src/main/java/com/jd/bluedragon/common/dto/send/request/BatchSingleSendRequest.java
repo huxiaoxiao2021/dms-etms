@@ -1,6 +1,10 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.send.request;
 
-import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+
+import java.io.Serializable;
 
 /**
  * BatchSingleSendRequest
@@ -8,7 +12,8 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
  * @author jiaowenqiang
  * @date 2019/6/11
  */
-public class BatchSingleSendRequest {
+public class BatchSingleSendRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 用户
@@ -40,25 +45,7 @@ public class BatchSingleSendRequest {
     /**
      * 是否强制取消发货
      */
-    private boolean isForceSend;
-
-
-    public static PackageSendRequest convertToPackageSendRequest(BatchSingleSendRequest request){
-        PackageSendRequest packageSendRequest=new PackageSendRequest();
-
-        packageSendRequest.setUserCode(request.getUser().getUserCode());
-        packageSendRequest.setUserName(request.getUser().getUserName());
-        packageSendRequest.setSiteCode(request.currentOperate.getSiteCode());
-        packageSendRequest.setSiteName(request.getCurrentOperate().getSiteName());
-
-        packageSendRequest.setIsForceSend(request.isForceSend);
-        packageSendRequest.setReceiveSiteCode(request.getReceiveSiteCode());
-        packageSendRequest.setSendCode(request.getSendCode());
-        packageSendRequest.setBoxCode(request.getBoxCode());
-        packageSendRequest.setBusinessType(request.getBusinessType());
-
-        return packageSendRequest;
-    }
+    private boolean forceSend;
 
     public User getUser() {
         return user;
@@ -109,10 +96,10 @@ public class BatchSingleSendRequest {
     }
 
     public boolean isForceSend() {
-        return isForceSend;
+        return forceSend;
     }
 
     public void setForceSend(boolean forceSend) {
-        isForceSend = forceSend;
+        this.forceSend = forceSend;
     }
 }

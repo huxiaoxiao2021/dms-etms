@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service;
 
-import com.jd.bluedragon.common.dto.response.JdCResponse;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.SortingCancelRequest;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 
 /**
  * 分拣相关物流网关调用

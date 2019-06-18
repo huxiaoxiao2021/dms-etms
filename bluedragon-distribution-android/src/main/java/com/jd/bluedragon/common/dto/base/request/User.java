@@ -1,6 +1,9 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.base.request;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
     /*
     操作人编号
      */

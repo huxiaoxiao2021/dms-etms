@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.external.gateway.service;
 
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendCheckRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.response.BatchSingleSendCheckVO;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckVO;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.ql.dms.common.domain.JdResponse;
 

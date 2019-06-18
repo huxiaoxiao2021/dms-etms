@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckVO;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendCheckRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.response.BatchSingleSendCheckVO;
 import com.jd.bluedragon.distribution.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
@@ -92,7 +92,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResponse<SendResult> batchSingleSend(BatchSingleSendRequest request) {
 
-        PackageSendRequest param = BatchSingleSendRequest.convertToPackageSendRequest(request);
+        PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
         JdResponse<SendResult> jdResponse = new JdResponse<>();
@@ -108,6 +108,23 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
 
         jdResponse.toFail(result.getData().getValue());
         return jdResponse;
+    }
+
+    private PackageSendRequest convertToPackageSendRequest(BatchSingleSendRequest request){
+        PackageSendRequest packageSendRequest=new PackageSendRequest();
+
+        packageSendRequest.setUserCode(request.getUser().getUserCode());
+        packageSendRequest.setUserName(request.getUser().getUserName());
+        packageSendRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        packageSendRequest.setSiteName(request.getCurrentOperate().getSiteName());
+
+        packageSendRequest.setIsForceSend(request.isForceSend());
+        packageSendRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        packageSendRequest.setSendCode(request.getSendCode());
+        packageSendRequest.setBoxCode(request.getBoxCode());
+        packageSendRequest.setBusinessType(request.getBusinessType());
+
+        return packageSendRequest;
     }
 
 

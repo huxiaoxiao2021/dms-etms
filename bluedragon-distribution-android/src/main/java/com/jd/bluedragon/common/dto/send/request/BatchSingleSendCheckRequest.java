@@ -1,5 +1,9 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.send.request;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -8,7 +12,8 @@ import java.util.List;
  * @author jiaowenqiang
  * @date 2019/6/14
  */
-public class BatchSingleSendCheckRequest {
+public class BatchSingleSendCheckRequest implements Serializable {
+    private static final long serialVersionUID = 1L;
     /**
      * 用户
      */
