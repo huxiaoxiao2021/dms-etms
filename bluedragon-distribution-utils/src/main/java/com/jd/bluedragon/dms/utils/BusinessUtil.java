@@ -702,4 +702,12 @@ public class BusinessUtil {
     	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
     			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
     }
+
+    /**
+     * 从批次号中获取目的地
+     */
+    public static String getBatchReceiveNO(String sendCode){
+        String [] str=sendCode.split("-");
+        return str[1];
+    }
 }
