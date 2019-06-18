@@ -19,6 +19,15 @@ public class CurrentOperate implements Serializable {
      */
     public Date operateTime;
 
+    /**
+     * 当前所在区域编号
+     */
+    private Integer orgId;
+
+    /**
+     * 当前所在区域名称
+     */
+    private String orgName;
 
     public CurrentOperate() {
     }
@@ -53,4 +62,19 @@ public class CurrentOperate implements Serializable {
         this.operateTime = operateTime;
     }
 
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
 }
