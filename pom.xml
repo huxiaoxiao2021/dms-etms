@@ -19,7 +19,7 @@
    		<module>bluedragon-distribution-proxy</module>
    		<module>bluedragon-distribution-saf</module>
         <module>bluedragon-distribution-utils</module>
-        <module>bluedragon-distribution-android</module>
+        <module>bluedragon-distribution-common-android</module>
     </modules>
 	
 	<properties>
