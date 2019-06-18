@@ -1,4 +1,7 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.sorting.request;
+
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
 

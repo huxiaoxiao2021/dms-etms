@@ -1,13 +1,14 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
+import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckVO;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendCheckRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.request.BatchSingleSendRequest;
-import com.jd.bluedragon.distribution.external.gateway.dto.response.BatchSingleSendCheckVO;
 import com.jd.bluedragon.distribution.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
@@ -59,9 +60,9 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdResponse<BatchSingleSendCheckVO> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
+    public JdCResponse<BatchSingleSendCheckVO> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
-        JdResponse<BatchSingleSendCheckVO> jdResponse = new JdResponse<>();
+        JdCResponse<BatchSingleSendCheckVO> jdResponse = new JdCResponse<>();
         jdResponse.toFail("操作失败请联系IT");
 
         BatchSingleSendCheckVO checkVO = new BatchSingleSendCheckVO();
@@ -90,12 +91,12 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdResponse<SendResult> batchSingleSend(BatchSingleSendRequest request) {
+    public JdCResponse<SendResult> batchSingleSend(BatchSingleSendRequest request) {
 
-        PackageSendRequest param = BatchSingleSendRequest.convertToPackageSendRequest(request);
+        PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdResponse<SendResult> jdResponse = new JdResponse<>();
+        JdCResponse<SendResult> jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
@@ -110,11 +111,28 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         return jdResponse;
     }
 
+    private PackageSendRequest convertToPackageSendRequest(BatchSingleSendRequest request){
+        PackageSendRequest packageSendRequest=new PackageSendRequest();
+
+        packageSendRequest.setUserCode(request.getUser().getUserCode());
+        packageSendRequest.setUserName(request.getUser().getUserName());
+        packageSendRequest.setSiteCode(request.getCurrentOperate().getSiteCode());
+        packageSendRequest.setSiteName(request.getCurrentOperate().getSiteName());
+
+        packageSendRequest.setIsForceSend(request.isForceSend());
+        packageSendRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        packageSendRequest.setSendCode(request.getSendCode());
+        packageSendRequest.setBoxCode(request.getBoxCode());
+        packageSendRequest.setBusinessType(request.getBusinessType());
+
+        return packageSendRequest;
+    }
+
 
     /**
      * 如果是箱号
      */
-    private JdResponse<BatchSingleSendCheckVO> dealBox(JdResponse<BatchSingleSendCheckVO> jdResponse,
+    private JdCResponse<BatchSingleSendCheckVO> dealBox(JdCResponse<BatchSingleSendCheckVO> jdResponse,
                                                        BatchSingleSendCheckRequest request,
                                                        BatchSingleSendCheckVO checkVO,
                                                        Map<Integer, String> batchCodeMap) {
@@ -146,7 +164,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     /**
      * 如果是包裹号
      */
-    private JdResponse<BatchSingleSendCheckVO> dealPackage(JdResponse<BatchSingleSendCheckVO> jdResponse,
+    private JdCResponse<BatchSingleSendCheckVO> dealPackage(JdCResponse<BatchSingleSendCheckVO> jdResponse,
                                                            BatchSingleSendCheckRequest request,
                                                            BatchSingleSendCheckVO checkVO,
                                                            Map<Integer, String> batchCodeMap) {
