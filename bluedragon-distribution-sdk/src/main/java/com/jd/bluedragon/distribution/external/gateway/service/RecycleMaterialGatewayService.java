@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service;
 
-import com.jd.bluedragon.distribution.external.gateway.dto.request.RecycleMaterialRequest;
-import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 
 /**
  * 循环物资实操装态更新 发布物流网关
@@ -10,5 +10,5 @@ import com.jd.ql.dms.common.domain.JdResponse;
  */
 public interface RecycleMaterialGatewayService {
 
-    JdResponse<String> updateStatus(RecycleMaterialRequest request);
+    JdCResponse<String> updateStatus(RecycleMaterialRequest request);
 }

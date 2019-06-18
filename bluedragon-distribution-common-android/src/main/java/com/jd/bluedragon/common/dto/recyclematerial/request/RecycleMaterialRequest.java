@@ -1,4 +1,6 @@
-package com.jd.bluedragon.distribution.external.gateway.dto.request;
+package com.jd.bluedragon.common.dto.recyclematerial.request;
+
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 
 import java.io.Serializable;
 
