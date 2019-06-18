@@ -3,12 +3,12 @@ package com.jd.bluedragon.common.dto.send.response;
 import java.io.Serializable;
 
 /**
- * SendResultVO
+ * SendResultDto
  * 批量一车一单发货返回
  * @author jiaowenqiang
  * @date 2019/6/18
  */
-public class SendResultVO implements Serializable {
+public class SendResultDto implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 操作结果【1：发货成功  2：发货失败  4：需要用户确认  6: 发货成功，但是有警告性提示信息展示】
@@ -23,14 +23,14 @@ public class SendResultVO implements Serializable {
     /**
      * 实体构造方法
      */
-    public SendResultVO (Integer key, String value) {
+    public SendResultDto(Integer key, String value) {
         this.key = key;
         this.value = value;
     }
 
     @Override
     public String toString() {
-        return "SendResultVO{" +
+        return "SendResultDto{" +
                 "key=" + key +
                 ", value='" + value + '\'' +
                 '}';

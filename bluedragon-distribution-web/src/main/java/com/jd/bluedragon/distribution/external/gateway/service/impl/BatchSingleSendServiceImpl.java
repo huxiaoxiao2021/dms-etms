@@ -4,8 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
-import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckVO;
-import com.jd.bluedragon.common.dto.send.response.SendResultVO;
+import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
+import com.jd.bluedragon.common.dto.send.response.SendResultDto;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -67,12 +67,12 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<BatchSingleSendCheckVO> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
+    public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
-        JdCResponse<BatchSingleSendCheckVO> jdResponse = new JdCResponse<>();
+        JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
         jdResponse.toFail("操作失败请联系IT");
 
-        BatchSingleSendCheckVO checkVO = new BatchSingleSendCheckVO();
+        BatchSingleSendCheckDto checkVO = new BatchSingleSendCheckDto();
         //对批次号的处理,map的key为目的站点，值为批次号
         Map<Integer, String> batchCodeMap = dealSendCodes(request.getBatchCodeList());
 
@@ -98,17 +98,17 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<SendResultVO> batchSingleSend(BatchSingleSendRequest request) {
+    public JdCResponse<SendResultDto> batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdCResponse<SendResultVO> jdResponse = new JdCResponse<>();
+        JdCResponse<SendResultDto> jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             jdResponse.setCode(result.getCode());
-            jdResponse.setData(new SendResultVO(result.getData().getKey(), result.getData().getValue()));
+            jdResponse.setData(new SendResultDto(result.getData().getKey(), result.getData().getValue()));
             jdResponse.setMessage(result.getMessage());
 
             return jdResponse;
@@ -142,10 +142,10 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     /**
      * 如果是箱号
      */
-    private JdCResponse<BatchSingleSendCheckVO> dealBox(JdCResponse<BatchSingleSendCheckVO> jdResponse,
-                                                        BatchSingleSendCheckRequest request,
-                                                        BatchSingleSendCheckVO checkVO,
-                                                        Map<Integer, String> batchCodeMap) {
+    private JdCResponse<BatchSingleSendCheckDto> dealBox(JdCResponse<BatchSingleSendCheckDto> jdResponse,
+                                                         BatchSingleSendCheckRequest request,
+                                                         BatchSingleSendCheckDto checkVO,
+                                                         Map<Integer, String> batchCodeMap) {
 
         BoxResponse boxResponse = boxResource.get(request.getPackageOrBoxCode());
         //未成功查出箱号,直接返回
@@ -174,10 +174,10 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     /**
      * 如果是包裹号
      */
-    private JdCResponse<BatchSingleSendCheckVO> dealPackage(JdCResponse<BatchSingleSendCheckVO> jdResponse,
-                                                            BatchSingleSendCheckRequest request,
-                                                            BatchSingleSendCheckVO checkVO,
-                                                            Map<Integer, String> batchCodeMap) {
+    private JdCResponse<BatchSingleSendCheckDto> dealPackage(JdCResponse<BatchSingleSendCheckDto> jdResponse,
+                                                             BatchSingleSendCheckRequest request,
+                                                             BatchSingleSendCheckDto checkVO,
+                                                             Map<Integer, String> batchCodeMap) {
 
         List<Integer> siteCodes;
         InvokeResult<List<Integer>> routerResult = getPackageRouter(request);

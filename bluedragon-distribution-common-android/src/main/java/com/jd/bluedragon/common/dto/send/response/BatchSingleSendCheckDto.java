@@ -3,12 +3,12 @@ package com.jd.bluedragon.common.dto.send.response;
 import java.io.Serializable;
 
 /**
- * BatchSingleSendCheckVO
+ * BatchSingleSendCheckDto
  * 批次校验返回
  * @author jiaowenqiang
  * @date 2019/6/14
  */
-public class BatchSingleSendCheckVO implements Serializable {
+public class BatchSingleSendCheckDto implements Serializable {
     private static final long serialVersionUID = 1L;
     /**
      * 批次号
@@ -22,7 +22,7 @@ public class BatchSingleSendCheckVO implements Serializable {
 
     @Override
     public String toString() {
-        return "BatchSingleSendCheckVO{" +
+        return "BatchSingleSendCheckDto{" +
                 "sendCode='" + sendCode + '\'' +
                 ", receiveSiteCode=" + receiveSiteCode +
                 '}';
