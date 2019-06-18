@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service;
 
-import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 
 /**
  * @author : xumigen
@@ -8,5 +8,5 @@ import com.jd.ql.dms.common.domain.JdResponse;
  */
 public interface InspectionGatewayService {
 
-    JdResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
+    JdCResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
 }

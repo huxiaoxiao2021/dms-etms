@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.external.gateway.service.InspectionGatewayService;
+import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.lang.StringUtils;
@@ -19,18 +21,21 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     private InspectionResource inspectionResource;
 
     @Override
-    public JdResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode) {
-        JdResponse jdResponse = new JdResponse();
-        jdResponse.toSucceed();
+    public JdCResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode) {
+        JdCResponse<InspectionResult> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
         if(StringUtils.isEmpty(packageBarOrWaybillCode)){
-            jdResponse.toFail("单号不能为空");
-            return jdResponse;
+            jdCResponse.toFail("单号不能为空");
+            return jdCResponse;
         }
         if(siteCode == null){
-            jdResponse.toFail("站点不能为空");
-            return jdResponse;
+            jdCResponse.toFail("站点不能为空");
+            return jdCResponse;
         }
-        jdResponse = inspectionResource.getStorageCode(packageBarOrWaybillCode,siteCode);
-        return jdResponse;
+        JdResponse<InspectionResult> response = inspectionResource.getStorageCode(packageBarOrWaybillCode,siteCode);
+        jdCResponse.setCode(response.getCode());
+        jdCResponse.setMessage(response.getMessage());
+        jdCResponse.setData(response.getData());
+        return jdCResponse;
     }
 }
