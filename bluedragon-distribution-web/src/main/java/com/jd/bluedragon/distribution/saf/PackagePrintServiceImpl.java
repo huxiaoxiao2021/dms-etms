@@ -8,14 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -35,7 +36,6 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
-
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -345,6 +345,24 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			request.setOperateType(rePrintRecordRequest.getOperateType());
 			request.setData(requestData);
 			return this.hasReprintAll(request);
+		}else{
+			jdResult.toFail("请求参数中data值无效！");
+			return jdResult;
+		}
+	}
+	@Override
+	public JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest) {
+    	JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.setData(Boolean.TRUE);
+		jdResult.toSuccess();
+		if(reversePrintAfterRequest == null || reversePrintAfterRequest.getData() == null){
+			jdResult.toFail("请求参数不能为空！");
+			return jdResult;
+		}
+		ReversePrintRequest requestData = JsonHelper.fromJson(reversePrintAfterRequest.getData(), ReversePrintRequest.class);
+		if(requestData != null){
+			jdResult.toFail("该接口暂未实现！");
+			return jdResult;
 		}else{
 			jdResult.toFail("请求参数中data值无效！");
 			return jdResult;
