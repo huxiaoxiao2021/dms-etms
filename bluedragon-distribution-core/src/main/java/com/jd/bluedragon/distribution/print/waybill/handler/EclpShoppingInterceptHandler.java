@@ -30,7 +30,7 @@ public class EclpShoppingInterceptHandler implements Handler<WaybillPrintContext
         String waybillBusinessCode = context.getBigWaybillDto().getWaybill().getMemberId();
         //商家BW码为空或者与运单不一致禁止打印
         if(StringHelper.isEmpty(businessCode)){
-        	interceptResult.toFail("传入参数中select* from商家编码标识不能为空！");
+        	interceptResult.toFail("传入参数中商家编码标识不能为空！");
         } else if(!businessCode.equals(waybillBusinessCode)){
         	interceptResult.toFail("商家编码标识与运单不一致，禁止打印！");
         }
