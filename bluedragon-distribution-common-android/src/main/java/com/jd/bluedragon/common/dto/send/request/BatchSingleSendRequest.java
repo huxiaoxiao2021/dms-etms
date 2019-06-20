@@ -47,6 +47,19 @@ public class BatchSingleSendRequest implements Serializable {
      */
     private boolean forceSend;
 
+    @Override
+    public String toString() {
+        return "BatchSingleSendRequest{" +
+                "user=" + user +
+                ", currentOperate=" + currentOperate +
+                ", sendCode='" + sendCode + '\'' +
+                ", boxCode='" + boxCode + '\'' +
+                ", businessType=" + businessType +
+                ", receiveSiteCode=" + receiveSiteCode +
+                ", forceSend=" + forceSend +
+                '}';
+    }
+
     public User getUser() {
         return user;
     }

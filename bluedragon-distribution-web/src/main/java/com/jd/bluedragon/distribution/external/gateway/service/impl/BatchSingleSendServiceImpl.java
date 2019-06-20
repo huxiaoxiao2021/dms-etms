@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
-import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckVO;
+import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
+import com.jd.bluedragon.common.dto.send.response.SendResultDto;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -13,7 +15,6 @@ import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.basic.util.DateUtil;
@@ -28,10 +29,11 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
+ * BatchSingleSendServiceImpl
  * 处理批量一车一单发货校验
- *
  * @author jiaowenqiang
  * @date 2019/6/11
  */
@@ -39,17 +41,23 @@ import java.util.Map;
 public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService {
 
 
+    /**
+     * 箱号resource
+     */
     @Autowired
     @Qualifier("boxResource")
     BoxResource boxResource;
 
-    @Autowired
-    DeliveryService deliveryService;
-
+    /**
+     * 运单resource
+     */
     @Autowired
     @Qualifier("waybillResource")
     WaybillResource waybillResource;
 
+    /**
+     * 发货resource
+     */
     @Autowired
     @Qualifier("deliveryResource")
     DeliveryResource deliveryResource;
@@ -59,12 +67,12 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdResponse<BatchSingleSendCheckVO> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
+    public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
-        JdResponse<BatchSingleSendCheckVO> jdResponse = new JdResponse<>();
+        JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
         jdResponse.toFail("操作失败请联系IT");
 
-        BatchSingleSendCheckVO checkVO = new BatchSingleSendCheckVO();
+        BatchSingleSendCheckDto checkVO = new BatchSingleSendCheckDto();
         //对批次号的处理,map的key为目的站点，值为批次号
         Map<Integer, String> batchCodeMap = dealSendCodes(request.getBatchCodeList());
 
@@ -90,17 +98,17 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdResponse<SendResult> batchSingleSend(BatchSingleSendRequest request) {
+    public JdCResponse<SendResultDto> batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdResponse<SendResult> jdResponse = new JdResponse<>();
+        JdCResponse<SendResultDto> jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             jdResponse.setCode(result.getCode());
-            jdResponse.setData(result.getData());
+            jdResponse.setData(new SendResultDto(result.getData().getKey(), result.getData().getValue()));
             jdResponse.setMessage(result.getMessage());
 
             return jdResponse;
@@ -110,8 +118,11 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         return jdResponse;
     }
 
-    private PackageSendRequest convertToPackageSendRequest(BatchSingleSendRequest request){
-        PackageSendRequest packageSendRequest=new PackageSendRequest();
+    /**
+     * 发货参数转化
+     */
+    private PackageSendRequest convertToPackageSendRequest(BatchSingleSendRequest request) {
+        PackageSendRequest packageSendRequest = new PackageSendRequest();
 
         packageSendRequest.setUserCode(request.getUser().getUserCode());
         packageSendRequest.setUserName(request.getUser().getUserName());
@@ -131,15 +142,15 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     /**
      * 如果是箱号
      */
-    private JdResponse<BatchSingleSendCheckVO> dealBox(JdResponse<BatchSingleSendCheckVO> jdResponse,
-                                                       BatchSingleSendCheckRequest request,
-                                                       BatchSingleSendCheckVO checkVO,
-                                                       Map<Integer, String> batchCodeMap) {
+    private JdCResponse<BatchSingleSendCheckDto> dealBox(JdCResponse<BatchSingleSendCheckDto> jdResponse,
+                                                         BatchSingleSendCheckRequest request,
+                                                         BatchSingleSendCheckDto checkVO,
+                                                         Map<Integer, String> batchCodeMap) {
 
         BoxResponse boxResponse = boxResource.get(request.getPackageOrBoxCode());
         //未成功查出箱号,直接返回
         if (boxResponse != null) {
-            if (boxResponse.getCode() == 200) {
+            if (Objects.equals(boxResponse.getCode(), JdCResponse.CODE_SUCCESS)) {
                 checkVO.setReceiveSiteCode(boxResponse.getReceiveSiteCode());
                 if (!batchCodeMap.containsKey(boxResponse.getReceiveSiteCode())) {
                     jdResponse.toFail(MessageFormat.format("没有单据{0}对应的批次，请先扫描批次！", boxResponse.getReceiveSiteCode()));
@@ -163,17 +174,17 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     /**
      * 如果是包裹号
      */
-    private JdResponse<BatchSingleSendCheckVO> dealPackage(JdResponse<BatchSingleSendCheckVO> jdResponse,
-                                                           BatchSingleSendCheckRequest request,
-                                                           BatchSingleSendCheckVO checkVO,
-                                                           Map<Integer, String> batchCodeMap) {
+    private JdCResponse<BatchSingleSendCheckDto> dealPackage(JdCResponse<BatchSingleSendCheckDto> jdResponse,
+                                                             BatchSingleSendCheckRequest request,
+                                                             BatchSingleSendCheckDto checkVO,
+                                                             Map<Integer, String> batchCodeMap) {
 
         List<Integer> siteCodes;
         InvokeResult<List<Integer>> routerResult = getPackageRouter(request);
         if (routerResult == null) {
             jdResponse.toFail("查询运单失败，没有该运单对应的站点");
             return jdResponse;
-        } else if (routerResult.getCode() != 200) {
+        } else if (routerResult.getCode() != JdCResponse.CODE_SUCCESS) {
             jdResponse.toFail(routerResult.getMessage());
             return jdResponse;
         } else {
@@ -206,7 +217,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     private Map<Integer, String> dealSendCodes(List<String> batchList) {
         //从批次号中获取目的站点,key为目的站点，value为批次号
-        Map<Integer, String> receiveCodeMap = new HashMap<>();
+        Map<Integer, String> receiveCodeMap = new HashMap<>(200);
         for (String s : batchList) {
             receiveCodeMap.put(Integer.parseInt(BusinessUtil.getBatchReceiveNO(s)), s);
         }

@@ -2,19 +2,19 @@ package com.jd.bluedragon.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
-import com.jd.bluedragon.distribution.api.response.SortSchemeResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.Type;
-import java.util.Map;
 
 
 /**
@@ -58,7 +58,7 @@ public class RestHelper {
             }
             logger.error("rest jsonPostForEntity  fail url:" + url + "result:" + JsonHelper.toJson(result));
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("jsonPostForEntity-error" + url + "result:" + JsonHelper.toJson(request),e);
         }
         return null;
     }
