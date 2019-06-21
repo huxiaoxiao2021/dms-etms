@@ -1648,6 +1648,49 @@ public class DeliveryServiceImpl implements DeliveryService {
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
+            } else if (BusinessHelper.isSendCode(tSendM.getSendCode())
+                    && StringHelper.isEmpty(tSendM.getBoxCode()) && tSendM.getCreateSiteCode() != null) {
+                CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
+                /* 请求参数中只有sendCode参数和createSiteCode参数有效 */
+                SendDetail sendDetailRequest = new SendDetail();
+                sendDetailRequest.setCreateSiteCode(tSendM.getCreateSiteCode());
+                sendDetailRequest.setSendCode(tSendM.getSendCode());
+                sendDetailRequest.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(sendDetailRequest);/* 根据批次号和始发地查询发货数据 */
+                if (tlist == null || tlist.isEmpty()) {
+                    return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
+                            DeliveryResponse.MESSAGE_DELIVERY_NO_SENDCODE, null);
+                }
+                /* 循环处理明细数据，分包裹和箱号两种，按批次号取消的场景大循环需要注意 */
+                for (SendDetail sendDetail : tlist) {
+                    SendM sendMr = new SendM();
+                    sendMr.setCreateSiteCode(tSendM.getCreateSiteCode());
+                    sendMr.setReceiveSiteCode(tSendM.getReceiveSiteCode());
+                    sendMr.setSendCode(tSendM.getSendCode());
+                    sendMr.setBoxCode(tSendM.getBoxCode());
+                    sendMr.setSendType(tSendM.getSendType());
+                    sendMr.setOperateTime(tSendM.getOperateTime());
+                    sendMr.setUpdaterUser(tSendM.getUpdaterUser());
+                    sendMr.setUpdateUserCode(tSendM.getUpdateUserCode());
+                    sendMr.setUpdateTime(tSendM.getUpdateTime());
+                    sendMr.setYn(tSendM.getYn());
+                    if (WaybillUtil.isWaybillCode(sendDetail.getBoxCode()) || WaybillUtil.isPackageCode(sendDetail.getBoxCode())) {
+                        /* 按包裹号和运单号的逻辑走 */
+                        ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMr, tlist);
+                        if (responsePack.getCode().equals(200)) {
+                            reversePartDetailService.cancelPartSend(tSendM);//同步取消半退明细
+                        }
+                        return responsePack;
+                    } else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+                        /* 按箱号的逻辑走 */
+                        boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());//更新箱号状态缓存
+                    } else {
+                        logger.info("该发货明细不属于按运单按包裹按箱号发货范畴：" + JsonHelper.toJson(sendDetail));
+                    }
+                    delDeliveryFromRedis(sendMr);      //取消发货成功，删除redis缓存的发货数据
+                }
+                sendMessage(tlist, tSendM, needSendMQ);
+                Profiler.registerInfoEnd(callerInfo);
             }
             // 改变箱子状态为分拣
         } catch (Exception e) {

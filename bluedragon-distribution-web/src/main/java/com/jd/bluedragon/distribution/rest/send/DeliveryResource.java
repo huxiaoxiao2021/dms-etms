@@ -867,18 +867,12 @@ public class DeliveryResource {
         sendM.setBoxCode(request.getBoxCode());
         sendM.setCreateSiteCode(request.getSiteCode());
         sendM.setUpdaterUser(request.getUserName());
-        if (request.getBusinessType() != 0) {
-            /* 此处加判断，是因为客户端历史原因，domain都是基本类型，修改是为了满足只按包裹运单箱号批次号取消发货的pda场景（kongtieChange.cs）*/
-            sendM.setSendType(request.getBusinessType());
-        }
+        sendM.setSendType(request.getBusinessType());
         sendM.setUpdateUserCode(request.getUserCode());
         sendM.setSendCode(request.getSendCode());
         Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
         sendM.setOperateTime(operateTime);
-        if (!BusinessHelper.isBoxcode(request.getBoxCode()) && request.getReceiveSiteCode() > 0) {
-            /* 此处加判断，是因为客户端历史原因，domain都是基本类型，修改是为了满足只按包裹运单箱号批次号取消发货的pda场景（kongtieChange.cs）*/
-            sendM.setReceiveSiteCode(request.getReceiveSiteCode());
-        }
+        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         sendM.setUpdateTime(new Date());
         sendM.setYn(0);
         return sendM;
