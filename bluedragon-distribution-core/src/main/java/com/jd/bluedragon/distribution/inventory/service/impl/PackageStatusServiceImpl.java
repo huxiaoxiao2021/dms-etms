@@ -238,7 +238,13 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         //2.补充目的地信息
-        SiteWithDirection receiveSite = getReceiveSiteByWaybillCode(packageStatus.getWaybillCode(),createSiteCode);
+        SiteWithDirection receiveSite = null;
+        if(packageStatus.getReceiveSiteCode() != null ){
+            receiveSite = getDirectionBySiteCode(packageStatus.getReceiveSiteCode());
+        }
+        if(receiveSite == null){
+            receiveSite = getReceiveSiteByWaybillCode(packageStatus.getWaybillCode(),createSiteCode);
+        }
         if(receiveSite != null){
             packageStatus.setReceiveSiteCode(receiveSite.getSiteCode());
             packageStatus.setReceiveSiteName(receiveSite.getSiteName());
@@ -292,7 +298,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
     /**
      * 根据运单号和始发获取目的分拣
      *
-     * @param packageStatus
+     * @param
      */
     public SiteWithDirection getReceiveSiteByWaybillCode(String waybillCode, Integer createSiteCode) {
         Integer receiveSiteCode = null;
@@ -322,23 +328,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         if (receiveSiteCode != null && receiveSiteCode > 0) {
-            BaseStaffSiteOrgDto dto = siteService.getSite(receiveSiteCode);
-            if(dto!=null){
-                SiteWithDirection siteWithDirection = new SiteWithDirection();
-                siteWithDirection.setSiteCode(dto.getSiteCode());
-                siteWithDirection.setSiteName(dto.getSiteName());
-                siteWithDirection.setSiteType(dto.getSiteType());
-                siteWithDirection.setSiteSubType(dto.getSubType());
-                siteWithDirection.setDirectionCode(dto.getSiteCode());
-                siteWithDirection.setDirectionName(dto.getSiteName());
-                if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
-                    siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);
-                    siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_TERMINAL_SITE);
-                }else if(BusinessUtil.isConvey(dto.getSiteType())){
-                    siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_CONVEY);
-                    siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_CONVEY);
-                }
-            }
+            return getDirectionBySiteCode(receiveSiteCode);
         }
         return null;
     }
@@ -425,5 +415,32 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         return true;
+    }
+
+    /**
+     * 根据站点编码获取流向信息
+     * @param siteCode
+     * @return
+     */
+    private SiteWithDirection getDirectionBySiteCode(Integer siteCode){
+        BaseStaffSiteOrgDto dto = siteService.getSite(siteCode);
+        if(dto!=null){
+            SiteWithDirection siteWithDirection = new SiteWithDirection();
+            siteWithDirection.setSiteCode(dto.getSiteCode());
+            siteWithDirection.setSiteName(dto.getSiteName());
+            siteWithDirection.setSiteType(dto.getSiteType());
+            siteWithDirection.setSiteSubType(dto.getSubType());
+            siteWithDirection.setDirectionCode(dto.getSiteCode());
+            siteWithDirection.setDirectionName(dto.getSiteName());
+            if(BusinessUtil.isTerminalSite(dto.getSiteType())) {
+                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_TERMINAL_SITE);
+                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_TERMINAL_SITE);
+            }else if(BusinessUtil.isConvey(dto.getSiteType())){
+                siteWithDirection.setDirectionCode(SiteWithDirection.DIRECTION_CODE_CONVEY);
+                siteWithDirection.setDirectionName(SiteWithDirection.DIRECTION_NAME_CONVEY);
+            }
+            return siteWithDirection;
+        }
+        return null;
     }
 }
