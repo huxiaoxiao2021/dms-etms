@@ -99,12 +99,36 @@ $(function () {
             title: '任务码',
             align: 'center'
         },{
+            field: 'inventoryScope',
+            title: '盘点范围',
+            align: 'center',
+            formatter: function (value, row, index) {
+                if (value == "1" )
+                    return "自定区域";
+                else if (value == "2")
+                    return "全场范围";
+                else if (value == "3")
+                    return "异常区";
+            }
+        },{
             field: 'waybillCode',
             title: '运单号',
             align: 'center'
         },{
             field: 'packageCode',
             title: '包裹号',
+            align: 'center',
+            formatter : function (value, row, index) {
+                return '<a class="trace" href="javascript:void(0)" >' + value + '</a>';
+            },
+            events: {
+                'click .trace': function(e, value, row, index) {
+                    window.open('http://waybill.test.jd.com/waybill/trackInfo/' + value);
+                }
+            }
+        },{
+            field: 'directionName',
+            title: '盘点卡位',
             align: 'center'
         },{
             field: 'expType',
@@ -117,6 +141,10 @@ $(function () {
                     return "少货";
             }
         },{
+            field: 'expDesc',
+            title: '异常描述',
+            align: 'center'
+        },{
             field: 'latestPackStatus',
             title: '最新物流状态',
             align: 'center',
@@ -126,21 +154,24 @@ $(function () {
             align: 'center',
             formatter: function (value, row, index) {
                 if (value == "0" )
-                    return "未处理";
+                    return '<span style="color: red;font-weight: bold;">未处理</span>';
                 else if (value == "1")
-                    return "已处理";
+                    return '<span style="color: green;font-weight: bold;">已处理</span>';
             }
         },{
-            field: 'expDesc',
-            title: '异常描述',
+            field: 'expUserErp',
+            title: '异常处理人',
             align: 'center'
+        },{
+            field: 'expOperateTime',
+            title: '异常处理时间',
+            align: 'center',
+            formatter : function(value,row,index){
+                return $.dateHelper.formateDateTimeOfTs(value);
+            }
         },{
             field: 'createUserErp',
             title: '盘点任务创建人',
-            align: 'center'
-        },{
-            field: 'inventoryUserErp',
-            title: '盘点扫描人',
             align: 'center'
         },{
             field: 'createTime',
@@ -150,18 +181,11 @@ $(function () {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         },{
-            field: 'inventoryTime',
-            title: '盘点扫描时间',
-            align: 'center',
-            formatter : function(value,row,index){
-                return $.dateHelper.formateDateTimeOfTs(value);
-            }
-        },{
-            field: 'expUserErp',
-            title: '盘点任务创建人',
+            field: 'inventoryUserErp',
+            title: '盘点扫描人',
             align: 'center'
         },{
-            field: 'expOperateTime',
+            field: 'inventoryTime',
             title: '盘点扫描时间',
             align: 'center',
             formatter : function(value,row,index){

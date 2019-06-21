@@ -26,6 +26,11 @@ public class InventoryExceptionDto extends InventoryException {
      */
     private String createUserErp;
 
+    /**
+     * 盘点范围
+     */
+    private Integer inventoryScope;
+
     public Integer getOrgId() {
         return orgId;
     }
@@ -64,5 +69,13 @@ public class InventoryExceptionDto extends InventoryException {
 
     public void setCreateUserErp(String createUserErp) {
         this.createUserErp = createUserErp;
+    }
+
+    public Integer getInventoryScope() {
+        return inventoryScope;
+    }
+
+    public void setInventoryScope(Integer inventoryScope) {
+        this.inventoryScope = inventoryScope;
     }
 }

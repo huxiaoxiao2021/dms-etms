@@ -29,5 +29,10 @@ public class InventoryExceptionDaoImpl extends BaseDao<InventoryException> imple
         return this.getSqlSession().selectList(nameSpace + ".getExportResultByCondition", condition);
     }
 
+    @Override
+    public List<InventoryException> getInventoryLossException(Integer createSiteCode) {
+        return this.getSqlSession().selectList(nameSpace + ".getInventoryLossException", createSiteCode);
+    }
+
 
 }

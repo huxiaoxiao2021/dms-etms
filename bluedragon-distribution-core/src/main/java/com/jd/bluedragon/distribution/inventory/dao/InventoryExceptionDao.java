@@ -19,4 +19,6 @@ public interface InventoryExceptionDao extends Dao<InventoryException> {
      * 查询导出结果
      */
     List<InventoryExceptionDto> getExportResultByCondition(InventoryExceptionCondition condition);
+
+    List<InventoryException> getInventoryLossException(Integer createSiteCode);
 }

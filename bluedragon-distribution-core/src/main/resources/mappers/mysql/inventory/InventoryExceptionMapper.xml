@@ -33,6 +33,7 @@
         <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="inventory_scope" property="inventoryScope" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -51,10 +52,16 @@
         <result column="direction_name" property="directionName" javaType="java.lang.String" jdbcType="VARCHAR"/>
     </resultMap>
 
+    <sql id="Base_Column_List">
+        id,waybill_code,package_code,inventory_task_id,latest_pack_status,exp_type,exp_status,exp_desc,inventory_site_code,inventory_site_name,
+        direction_code,direction_name,inventory_user_code,inventory_site_name,inventory_user_erp,inventory_time,exp_user_code,exp_user_name,exp_user_code,
+        exp_user_erp,exp_operate_time,create_time,update_time,is_delete
+    </sql>
+
     <sql id="Base_Condition_Column_List">
-        it.inventory_task_id,it.org_id,it.org_name,it.create_site_code,it.create_site_name,it.create_user_erp,it.create_time,
+        it.inventory_task_id,it.org_id,it.org_name,it.create_site_code,it.create_site_name,it.create_user_erp,it.create_time,it.inventory_scope,
         ie.id,ie.waybill_code,ie.package_code,ie.latest_pack_status,ie.exp_type,ie.exp_status,exp_desc,exp_user_erp,exp_operate_time,
-        ie.inventory_time,ie.inventory_user_erp
+        ie.inventory_time,ie.inventory_user_erp,ie.direction_code,ie.direction_name
     </sql>
 
     <sql id="Base_Condition_Sql">
@@ -246,6 +253,9 @@
         <set>
             exp_status= 1, exp_operate_time = now()
 
+            <if test="latestPackStatus != null">
+                , latest_pack_status = #{latestPackStatus,jdbcType=VARCHAR}
+            </if>
             <if test="expUserCode != null">
                 , exp_user_code = #{expUserCode,jdbcType=INTEGER}
             </if>
@@ -260,22 +270,6 @@
         <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=BIGINT}
         </foreach>
-    </update>
-
-    <update id="updateSum" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
-        UPDATE inventory_task
-        <set>
-            <if test="waybillSum != null">
-                waybill_sum = #{waybillSum,jdbcType=INTEGER},
-            </if>
-            <if test="packageSum != null">
-                package_sum = #{packageSum,jdbcType=INTEGER},
-            </if>
-            <if test="exceptionSum != null">
-                exception_sum = #{exceptionSum,jdbcType=INTEGER},
-            </if>
-        </set>
-        where inventory_task_id= #{inventoryTaskId,jdbcType=VARCHAR} and is_delete = 0
     </update>
 
     <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
@@ -307,5 +301,13 @@
         <if test="isRepeat > 0">
             <include refid="Base_Repeat_Condition_Sql" />
         </if>
+    </select>
+
+    <select id="getInventoryLossException" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_exception
+        where is_delete = 0 and exp_status = 0 and exp_type = 2
+        and create_site_code = #{createSiteCode, jdbcType=INTEGER}
     </select>
 </mapper>
