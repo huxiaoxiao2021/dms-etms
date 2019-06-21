@@ -5,6 +5,8 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
 
+import static com.jd.bluedragon.dms.utils.DmsConstants.AO_SEND_CODE_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
 
 /**
@@ -23,7 +25,65 @@ public class BusinessUtil {
         if (StringUtils.isBlank(sendCode)) {
             return false;
         }
-        return sendCode.matches(SEND_CODE_REG);
+        return sendCode.matches(SEND_CODE_REG) || sendCode.matches(AO_SEND_CODE_REG) || isSingleBatchNo(sendCode);
+    }
+
+  /**
+   * 是否为新批次号
+   * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
+   * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
+   * 必须是17位（时间14位+序号2位+模7余数1位）
+   * @param input
+   * @return
+   */
+  public static boolean isSingleBatchNo(String input) {
+    if (StringUtils.isBlank(input)) {
+      return false;
+    }
+    if (input.matches(SEND_CODE_NEW_REG)) {
+      String[] tempStr = input.split("-");
+      String startSiteCode = tempStr[0];
+      String desSiteCode = tempStr[1];
+      String timeString = tempStr[2];
+      long mod =
+          Long.valueOf(
+                  startSiteCode.substring(0, 1)
+                      + desSiteCode.substring(0, 1)
+                      + timeString.substring(0, timeString.length() - 1))
+              % 7;
+      long tail = Long.valueOf(timeString.substring(timeString.length() - 1, 1));
+      return mod == tail;
+    }
+    return false;
+    }
+
+  /**
+   * 根据批次号获取始发地ID
+   * @param batchNo
+   * @return 如果返回值为0，则批次号不合法
+   */
+  public static int getBatchCreatNo(String batchNo) {
+      int res = 0;
+      if (isSendCode(batchNo)) {
+        String[] str = batchNo.split("-");
+        str[0].replace("Y", "");
+        return Integer.valueOf(str[0]);
+      }
+      return res;
+    }
+
+    /**
+     * 根据批次号获取目的地ID
+     * @param batchNo
+     * @return 如果返回值为0，则批次号不合法
+     */
+    public static int getBatchReceiveNo(String batchNo){
+        int res=0;
+        if (isSendCode(batchNo)){
+            String[] str= batchNo.split("-");
+            return Integer.valueOf(str[1]);
+        }
+        return res;
     }
 
     /**
