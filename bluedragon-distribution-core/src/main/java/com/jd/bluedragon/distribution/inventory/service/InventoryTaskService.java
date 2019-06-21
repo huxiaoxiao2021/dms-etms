@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.inventory.service;
 
+import com.jd.bluedragon.distribution.api.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.request.inventory.InventoryTaskRequest;
 import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -15,6 +16,8 @@ public interface InventoryTaskService extends Service<InventoryTask> {
     PagerResult<InventoryTask> queryByPagerCondition(InventoryTaskCondition condition);
 
     List<List<Object>> getExportData(InventoryTaskCondition condition);
+
+    List<SiteEntity> getInventoryDirectionList(Integer createSiteCode);
 
     /**
      * 获取当前操作人正在进行的盘点任务
@@ -36,4 +39,6 @@ public interface InventoryTaskService extends Service<InventoryTask> {
      * @return
      */
     JdResult<InventoryTaskResponse> addInventoryTask(InventoryTaskRequest request);
+
+
 }

@@ -14,9 +14,13 @@ import com.jd.bluedragon.distribution.inventory.service.InventoryTaskService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.inventory.InventoryJsfService;
+import com.jd.ql.dms.report.inventory.domain.InventoryDirection;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,6 +57,8 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
      */
     private static final Integer WARN_TYPE_TASK_COOPERATE = 2;
 
+    @Autowired
+    private InventoryJsfService inventoryJsfService;
 
     @Autowired
     @Qualifier("inventoryTaskDao")
@@ -107,6 +114,28 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
             }
         }
         return resList;
+    }
+
+
+    /**
+     * 获取当前分拣中心的盘点的流向
+     * @param createSiteCode
+     * @return
+     */
+    public List<SiteEntity>  getInventoryDirectionList(Integer createSiteCode){
+        List<SiteEntity> directionList = new ArrayList<>();
+        BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfService.queryInventoryDirectionList(createSiteCode);
+        logger.info("调用报表jsf接口获取盘点流向信息.参数：" + createSiteCode + ".返回值为:" + JSON.toJSONString(baseEntity));
+        if(baseEntity!= null && baseEntity.getData() != null){
+            for(InventoryDirection direction : baseEntity.getData()){
+                SiteEntity siteEntity = new SiteEntity();
+                siteEntity.setCode(direction.getDirectionCode());
+                siteEntity.setName(direction.getDirectionName());
+
+                directionList.add(siteEntity);
+            }
+        }
+        return directionList;
     }
 
     /**
@@ -168,12 +197,16 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         List<InventoryTask> inventoryTaskList = inventoryTaskDao.getInventoryTaskByDirectionOrScope(request.getSiteCode(), directionCodeList, request.getInventoryScope());
 
         if (inventoryTaskList != null && inventoryTaskList.size() > 0) {
+            //根据任务号获取所有流向信息
+            String inventoryTaskId = inventoryTaskList.get(0).getInventoryTaskId();
+            List<InventoryTask> inventoryTaskDetail = inventoryTaskDao.getInventoryTaskByTaskId(inventoryTaskId);
+
             String createUserErp = inventoryTaskList.get(0).getCreateUserErp();
             InventoryTaskResponse response = new InventoryTaskResponse();
-            buildResponse(inventoryTaskList,response);
+            buildResponse(inventoryTaskDetail,response);
             response.setWarnType(WARN_TYPE_TASK_COOPERATE);
             result.setData(response);
-            result.toWarn(createUserErp + "正在对该进行盘点，是否协助加入？");
+            result.toWarn(createUserErp + "正在对该卡位进行盘点，是否协助加入？");
             return result;
         }
         return result;
@@ -204,9 +237,9 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         List<InventoryTask> inventoryTaskList = null;
         InventoryTaskResponse response = new InventoryTaskResponse();
 
-        //1.如果有任务号并且协作类型是协作者，在inventory_task表里插入协助数据
+        //1.如果有任务号:(1)继续自己之前的任务（2）协助别人完成盘点
         if (StringUtils.isNotBlank(request.getInventoryTaskId())) {
-            //先根据任务号查出正在进行的任务
+            //判断任务是否已经结束
             inventoryTaskList = inventoryTaskDao.getInventoryTaskByTaskId(request.getInventoryTaskId());
             if (inventoryTaskList == null || inventoryTaskList.size() < 1) {
                 //任务已经结束了
@@ -214,14 +247,15 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                 return result;
             }
 
-            List<SiteEntity> directionList = new ArrayList<>();
-
+            //有任务号并且协作类型是协作者，在inventory_task表里插入协助数据
             if (request.getCooperateType() == CooperateTypeEnum.COOPERATOR.getCode()) {
+                List<SiteEntity> directionList = new ArrayList<>();
                 for (InventoryTask task : inventoryTaskList) {
                     task.setCreateUserCode(request.getUserCode());
                     task.setCreateUserErp(request.getUserErp());
                     task.setCreateUserName(request.getUserName());
                     task.setCooperateType(request.getCooperateType());
+                    task.setCreateTime(new Date());
 
                     directionList.add(new SiteEntity(task.getDirectionCode(), task.getDirectionName()));
 
@@ -230,8 +264,13 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
                         inventoryTaskDao.insert(task);
                     }
                 }
+                response.setDirectionList(directionList);
             }
-            response.setDirectionList(directionList);
+            else{
+                //协作类型为创建者的直接返回成功
+                response.setDirectionList(request.getDirectionList());
+            }
+
             response.setInventoryScope(request.getInventoryScope());
             response.setInventoryTaskId(request.getInventoryTaskId());
 

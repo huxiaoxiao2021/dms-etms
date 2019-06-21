@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.rest.inventory;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.domain.SiteEntity;
+import com.jd.bluedragon.distribution.api.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.request.inventory.InventoryTaskRequest;
 import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -54,10 +54,14 @@ public class InventoryResource {
         if (siteCode == null || siteCode <= 0) {
             result.toError("操作站点不能为空.");
         }
-        List<SiteEntity> siteEntityList = new ArrayList<>();
-
-        //调service的接口获取列表
-        result.setData(siteEntityList);
+        try {
+			//调service的接口获取列表
+			List<SiteEntity> siteEntityList = inventoryTaskService.getInventoryDirectionList(siteCode);
+			result.setData(siteEntityList);
+		}catch (Exception e){
+			logger.error("获取盘点卡位列表异常.参数:"+ siteCode +",异常原因:", e);
+			result.toError("获取盘点卡位列表异常.");
+		}
         return result;
     }
 
