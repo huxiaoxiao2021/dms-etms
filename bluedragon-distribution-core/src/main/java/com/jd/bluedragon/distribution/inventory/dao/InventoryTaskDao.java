@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.inventory.dao;
 
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 
 import java.util.List;
@@ -26,6 +27,14 @@ public interface InventoryTaskDao extends Dao<InventoryTask> {
      * @return
      */
     boolean updateStatus(InventoryTask inventoryTask);
+
+    /**
+     * 更新表里的status
+     * @param inventoryTask
+     * @return
+     */
+    boolean updateSum(InventoryTask inventoryTask);
+
     /**
      * 根据盘点任务id获取盘点任务
      * @param inventoryTaskId
@@ -49,4 +58,14 @@ public interface InventoryTaskDao extends Dao<InventoryTask> {
      * @return
      */
     List<InventoryTask> getInventoryTaskByCreateUser(Integer createSiteCode,Integer createUserCode);
+
+    /**
+     * 查询导出数量
+     */
+    int getExportCountByCondition(InventoryTaskCondition pagerCondition);
+
+    /**
+     * 查询导出结果
+     */
+    List<InventoryTask> getExportResultByCondition(InventoryTaskCondition pagerCondition);
 }

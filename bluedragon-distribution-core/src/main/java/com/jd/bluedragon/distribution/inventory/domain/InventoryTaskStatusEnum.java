@@ -33,4 +33,13 @@ public enum InventoryTaskStatusEnum {
     public void setStatusDesc(String statusDesc) {
         this.statusDesc = statusDesc;
     }
+
+    public static String getDescByCode(Integer code) {
+        for (InventoryTaskStatusEnum status : InventoryTaskStatusEnum.values()) {
+            if (status.getStatusCode().equals(code)) {
+                return status.getStatusDesc();
+            }
+        }
+        return null;
+    }
 }

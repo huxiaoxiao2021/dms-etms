@@ -5,6 +5,8 @@
                type="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
         <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
         <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="orgName" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="direction_code" property="directionCode" javaType="java.lang.Integer"
@@ -28,7 +30,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        inventory_task_id,
+        inventory_task_id,org_id,org_name,
         create_site_code, create_site_name,
         direction_code, direction_name,
         create_user_code,create_user_erp,create_user_name,
@@ -39,6 +41,36 @@
         update_time,is_delete
     </sql>
 
+    <sql id="Base_Condition_Sql">
+        <where>
+            is_delete = 0 and cooperate_type = 1 and status > 0
+            <if test="orgId != null">
+                and org_id = #{orgId,jdbcType=INTEGER}
+            </if>
+            <if test="createSiteCode != null">
+                and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+            </if>
+            <if test="directionCode != null">
+                and direction_code = #{directionCode,jdbcType=INTEGER}
+            </if>
+            <if test="createUserErp != null">
+                and create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+            </if>
+            <if test="createStartTime != null">
+                AND create_time <![CDATA[>=]]> #{createStartTime, jdbcType=VARCHAR}
+            </if>
+            <if test="createEndTime != null">
+                AND create_time <![CDATA[<=]]> #{createEndTime, jdbcType=VARCHAR}
+            </if>
+            <if test="completeStartTime != null">
+                AND end_time <![CDATA[>=]]> #{completeStartTime, jdbcType=VARCHAR}
+            </if>
+            <if test="completeEndTime != null">
+                AND end_time <![CDATA[<=]]> #{completeEndTime, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </sql>
+
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
         insert into inventory_task
         (
@@ -47,6 +79,8 @@
         values
         (
         #{inventoryTaskId,jdbcType=VARCHAR},
+        #{orgId,jdbcType=INTEGER},
+        #{orgName,jdbcType=VARCHAR},
         #{createSiteCode,jdbcType=INTEGER},
         #{createSiteName,jdbcType=VARCHAR},
         #{directionCode,jdbcType=INTEGER},
@@ -67,6 +101,67 @@
         )
     </insert>
 
+    <update id="update" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryScanDetail">
+        update inventory_task
+        <set>
+            <if test="createSiteCode != null">
+                org_id = #{orgId,jdbcType=INTEGER},
+            </if>
+            <if test="createSiteName != null">
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode,jdbcType=INTEGER},
+            </if>
+            <if test="createSiteName != null">
+                create_site_name = #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="directionCode != null">
+                direction_code = #{directionCode,jdbcType=INTEGER},
+            </if>
+            <if test="directionName != null">
+                direction_name = #{directionName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserCode != null">
+                create_site_code = #{createUserCode,jdbcType=INTEGER},
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="endTime != null">
+                end_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=TINYINT},
+            </if>
+            <if test="cooperateType != null">
+                cooperate_type = #{cooperateType,jdbcType=TINYINT},
+            </if>
+            <if test="waybillSum != null">
+                waybill_sum = #{waybillSum,jdbcType=INTEGER},
+            </if>
+            <if test="packageSum != null">
+                package_sum = #{packageSum,jdbcType=INTEGER},
+            </if>
+            <if test="exceptionSum != null">
+                exception_sum = #{exceptionSum,jdbcType=INTEGER},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=TINYINT},
+            </if>
+        </set>
+        where inventory_task_id = #{inventoryTaskId, jdbcType=INTEGER}
+    </update>
+
     <update id="updateTime" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
         UPDATE inventory_task
         <set>
@@ -84,9 +179,25 @@
     <update id="updateStatus" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
         UPDATE inventory_task
         <set>
-            status= #{status,jdbcType=TINYINT}, update_time = now()
+            status= #{status,jdbcType=TINYINT}, update_time = now(), end_time = now()
         </set>
             where inventory_task_id= #{inventoryTaskId,jdbcType=VARCHAR} and is_delete = 0
+    </update>
+
+    <update id="updateSum" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
+        UPDATE inventory_task
+        <set>
+            <if test="waybillSum != null">
+                waybill_sum = #{waybillSum,jdbcType=INTEGER},
+            </if>
+            <if test="packageSum != null">
+                package_sum = #{packageSum,jdbcType=INTEGER},
+            </if>
+            <if test="exceptionSum != null">
+                exception_sum = #{exceptionSum,jdbcType=INTEGER},
+            </if>
+        </set>
+        where inventory_task_id= #{inventoryTaskId,jdbcType=VARCHAR} and is_delete = 0
     </update>
 
     <insert id="addBatch" parameterType="java.util.List">
@@ -97,6 +208,8 @@
         <foreach collection="list" item="inventoryTask" index="index" separator=",">
             (
             #{inventoryTask.inventoryTaskId,jdbcType=VARCHAR},
+            #{inventoryTask.orgId,jdbcType=INTEGER},
+            #{inventoryTask.orgName,jdbcType=VARCHAR},
             #{inventoryTask.createSiteCode,jdbcType=INTEGER},
             #{inventoryTask.createSiteName,jdbcType=VARCHAR},
             #{inventoryTask.directionCode,jdbcType=INTEGER},
@@ -165,5 +278,47 @@
         and cooperate_type= 1
         and status=0
         and is_delete = 0
+    </select>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+        select
+        count(distinct inventory_task_id) as num
+        from
+        inventory_task
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="inventoryTask">
+        select
+        inventory_task_id,org_id,org_name,
+        create_site_code, create_site_name,
+        concat(',',direction_code), concat(',',direction_name),
+        create_user_code,create_user_erp,create_user_name,
+        create_time,end_time,
+        status,cooperate_type,
+        waybill_sum,package_sum,exception_sum,
+        inventory_scope,
+        update_time,is_delete
+        from
+        inventory_task
+        <include refid="Base_Condition_Sql"/>
+        group by inventory_task_id limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
+
+    <select id="getExportResultByCondition" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition" resultMap="inventoryTask">
+        select
+        inventory_task_id,org_id,org_name,
+        create_site_code, create_site_name,
+        concat(',',direction_code), concat(',',direction_name),
+        create_user_code,create_user_erp,create_user_name,
+        create_time,end_time,
+        status,cooperate_type,
+        waybill_sum,package_sum,exception_sum,
+        inventory_scope,
+        update_time,is_delete
+        from
+        inventory_task
+        <include refid="Base_Condition_Sql"/>
+        group by inventory_task_id
     </select>
 </mapper>

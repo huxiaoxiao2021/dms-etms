@@ -31,4 +31,13 @@ public enum InventoryExpTypeEnum {
     public void setDesc(String desc) {
         this.desc = desc;
     }
+
+    public static String getDescByCode(Integer code) {
+        for (InventoryExpTypeEnum type : InventoryExpTypeEnum.values()) {
+            if (type.getCode().equals(code)) {
+                return type.getDesc();
+            }
+        }
+        return null;
+    }
 }

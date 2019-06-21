@@ -2,8 +2,13 @@ package com.jd.bluedragon.distribution.inventory.dao.impl;
 
 import com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryException;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionCondition;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionDto;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -13,4 +18,16 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("inventoryExceptionDao")
 public class InventoryExceptionDaoImpl extends BaseDao<InventoryException> implements InventoryExceptionDao {
+
+    @Override
+    public int updateExpStatus(Map<String, Object> params) {
+        return sqlSession.update(this.nameSpace+".updateExpStatus", params);
+    }
+
+    @Override
+    public List<InventoryExceptionDto> getExportResultByCondition(InventoryExceptionCondition condition) {
+        return this.getSqlSession().selectList(nameSpace + ".getExportResultByCondition", condition);
+    }
+
+
 }

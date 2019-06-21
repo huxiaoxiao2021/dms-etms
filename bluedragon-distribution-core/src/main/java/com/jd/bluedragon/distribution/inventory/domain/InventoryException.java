@@ -124,6 +124,10 @@ public class InventoryException extends DbEntity {
         this.expType = expType;
     }
 
+    public String getExpDesc() {
+        return expDesc;
+    }
+
     public void setExpDesc(String expDesc) {
         this.expDesc = expDesc;
     }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inventory.dao.impl;
 
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -50,6 +51,12 @@ public class InventoryTaskDaoImpl extends BaseDao<InventoryTask> implements Inve
     public boolean updateStatus(InventoryTask task) {
         return sqlSession.update(this.nameSpace+".updateStatus", task) > 0;
     }
+
+    @Override
+    public boolean updateSum(InventoryTask task) {
+        return sqlSession.update(this.nameSpace+".updateSum", task) > 0;
+    }
+
     /**
      * 根据流向/盘点范围获取盘点任务
      * @param createSiteCode
@@ -77,6 +84,16 @@ public class InventoryTaskDaoImpl extends BaseDao<InventoryTask> implements Inve
         param.put("createSiteCode",createSiteCode);
         param.put("createUserCode",createUserCode);
         return this.getSqlSession().selectList(nameSpace + ".getInventoryTaskByCreateUser", param);
+    }
+
+    @Override
+    public int getExportCountByCondition(InventoryTaskCondition condition) {
+        return this.getSqlSession().selectOne(nameSpace + ".pageNum_queryByPagerCondition", condition);
+    }
+
+    @Override
+    public List<InventoryTask> getExportResultByCondition(InventoryTaskCondition condition) {
+        return this.getSqlSession().selectList(nameSpace + ".getExportResultByCondition", condition);
     }
 
 }

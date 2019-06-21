@@ -1,15 +1,20 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryScanDetailDao;
+import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
 import com.jd.bluedragon.distribution.inventory.domain.*;
 import com.jd.bluedragon.distribution.inventory.service.InventoryExceptionService;
 import com.jd.bluedragon.distribution.inventory.service.InventoryInfoService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +39,78 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     @Autowired
     private InventoryScanDetailDao inventoryScanDetailDao;
 
+    @Autowired
+    private InventoryTaskDao inventoryTaskDao;
+
     @Override
     public Dao<InventoryException> getDao() {
         return this.inventoryExceptionDao;
     }
 
     @Override
+    public PagerResult<InventoryException> queryByPagerCondition(InventoryExceptionCondition condition) {
+        return inventoryExceptionDao.queryByPagerCondition(condition);
+    }
+
+    /**
+     * 导出
+     * @param condition
+     * @return
+     */
+    @Override
+    public List<List<Object>> getExportData(InventoryExceptionCondition condition) {
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        List<Object> heads = new ArrayList<>();
+        //添加表头
+        heads.add("区域");
+        heads.add("操作场地");
+        heads.add("任务码");
+        heads.add("运单号");
+        heads.add("包裹号");
+        heads.add("异常类型");
+        heads.add("最新物流状态");
+        heads.add("处理状态");
+        heads.add("异常描述");
+        heads.add("盘点任务创建人");
+        heads.add("盘点创建时间");
+        heads.add("盘点扫描人");
+        heads.add("盘点扫描时间");
+
+        resList.add(heads);
+        List<InventoryExceptionDto> list = inventoryExceptionDao.getExportResultByCondition(condition);
+        if (list != null && ! list.isEmpty()) {
+            //表格信息
+            for(InventoryExceptionDto inventoryExceptionDto : list){
+                List<Object> body = Lists.newArrayList();
+                body.add(inventoryExceptionDto.getOrgName());
+                body.add(inventoryExceptionDto.getCreateSiteName());
+                body.add(inventoryExceptionDto.getInventoryTaskId());
+                body.add(inventoryExceptionDto.getWaybillCode());
+                body.add(inventoryExceptionDto.getPackageCode());
+                body.add(InventoryExpTypeEnum.getDescByCode(inventoryExceptionDto.getExpType()));
+                body.add(inventoryExceptionDto.getLatestPackStatus());
+                body.add(inventoryExceptionDto.getExpStatus() == 0 ? "未处理" : "已处理");
+                body.add(inventoryExceptionDto.getExpDesc());
+                body.add(inventoryExceptionDto.getCreateUserErp() == null ? "" : inventoryExceptionDto.getCreateUserErp());
+                body.add(DateHelper.formatDate(inventoryExceptionDto.getCreateTime(), Constants.DATE_TIME_FORMAT));
+                body.add(inventoryExceptionDto.getInventoryUserErp() == null ? "" : inventoryExceptionDto.getInventoryUserErp());
+                body.add(DateHelper.formatDate(inventoryExceptionDto.getInventoryTime(), Constants.DATE_TIME_FORMAT));
+                resList.add(body);
+            }
+        }
+        return resList;
+    }
+
+    @Override
     public void generateInventoryException(InventoryBaseRequest inventoryBaseRequest) {
 
-        //暂存包裹状态
+        int exceptionCount = 0;
+
+        Integer type = inventoryBaseRequest.getType();
+
+        //完成盘点的包裹集合
         Set<String> competeInventoryPackageCodeSet = new HashSet<>();
+        //已扫包裹的包裹集合
         Set<String> scanPackageCodeSet = null;
         String inventoryTaskId = inventoryBaseRequest.getInventoryTaskId();
         //从数据库中取出当前任务号下，所有包裹扫描记录的包裹号
@@ -71,21 +138,26 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 //正常已盘
                 competeInventoryPackageCodeSet.add(packageCode);
             } else {
-                //少货，组装异常数据插入数据库
-                InventoryException inventoryException = this.convert2InventoryException(inventoryBaseRequest);
-                inventoryException.setPackageCode(packageCode);
-                inventoryException.setWaybillCode(inventoryPackage.getWaybillCode());
-                inventoryException.setDirectionCode(inventoryPackage.getDirectionCode());
-                inventoryException.setDirectionName(inventoryPackage.getDirectionName());
-                inventoryException.setLatestPackStatus(inventoryPackage.getStatusDesc());
-                inventoryException.setExpType(InventoryExpTypeEnum.INVENTORY_EXCEPT_TYPE_LOSS.getCode());
-                inventoryException.setExpDesc(this.getInventoryExpDesc(inventoryPackage.getStatusCode()));
-                try {
-                    this.inventoryExceptionDao.insert(inventoryException);
+                //正常结束时才插入少货
+                if (type != null && type == 1) {
+                    //少货，组装异常数据插入数据库
+                    InventoryException inventoryException = this.convert2InventoryException(inventoryBaseRequest);
+                    inventoryException.setPackageCode(packageCode);
+                    inventoryException.setWaybillCode(inventoryPackage.getWaybillCode());
+                    inventoryException.setDirectionCode(inventoryPackage.getDirectionCode());
+                    inventoryException.setDirectionName(inventoryPackage.getDirectionName());
+                    inventoryException.setLatestPackStatus(inventoryPackage.getStatusDesc());
+                    inventoryException.setExpType(InventoryExpTypeEnum.INVENTORY_EXCEPT_TYPE_LOSS.getCode());
+                    inventoryException.setExpDesc(this.getInventoryExpDesc(inventoryPackage.getStatusCode()));
+                    try {
+                        exceptionCount++;
+                        this.inventoryExceptionDao.insert(inventoryException);
 
-                } catch (Exception e) {
-                    logger.error("插入盘点异常表异常！",e);
+                    } catch (Exception e) {
+                        logger.error("插入盘点异常表异常！",e);
+                    }
                 }
+
             }
         }
 
@@ -105,6 +177,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 inventoryException.setInventoryUserCode(inventoryScanDetail.getOperatorCode());
                 inventoryException.setInventoryUserName(inventoryScanDetail.getOperatorName());
                 inventoryException.setInventoryUserErp(inventoryScanDetail.getOperatorErp());
+                inventoryException.setInventoryTime(inventoryScanDetail.getOperateTime());
                 inventoryException.setExpType(InventoryExpTypeEnum.INVENTORY_EXCEPT_TYPE_MORE.getCode());
 
                 List<String> packageCodeList = new ArrayList<>();
@@ -121,8 +194,11 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         if (PackStatusEnum.SEND.getCode().equals(statusCode)) {
                             //已发货有实物
                             inventoryException.setExpDesc(InventoryExpDescEnum.SEND_MORE.getDesc());
+                        } else if (PackStatusEnum.EXCEPTION.getCode().equals(statusCode)) {
+                            //异常外呼有实物
+                            inventoryException.setExpDesc(InventoryExpDescEnum.EXCEPTION_MORE.getDesc());
                         } else {
-                            logger.warn("包裹状态妈：" + statusCode.toString() + "，不是发货状态！");
+                            logger.warn("包裹状态妈：" + statusCode.toString() + "，不是发货货异常外呼状态！");
                         }
                     }
                 } else {
@@ -130,12 +206,29 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                     inventoryException.setExpDesc(InventoryExpDescEnum.NO_OPERATION_MORE.getDesc());
                 }
                 try {
+                    exceptionCount++;
                     this.inventoryExceptionDao.insert(inventoryException);
                 } catch (Exception e) {
-                    logger.error("插入盘点异常表异常！",e);
+                    logger.error("插入盘点异常表异常！", e);
                 }
             }
         }
+        //更新任务的异常数
+        InventoryTask inventoryTask = new InventoryTask();
+        inventoryTask.setInventoryTaskId(inventoryTaskId);
+        inventoryTask.setExceptionSum(exceptionCount);
+        inventoryTaskDao.update(inventoryTask);
+    }
+
+    @Override
+    public int handleException(List<Long> list, LoginUser loginUser) {
+        Map<String, Object> params = new HashMap<>();
+
+        params.put("list", list);
+        params.put("expUserCode", loginUser.getStaffNo());
+        params.put("expUserErp", loginUser.getUserErp());
+        params.put("expUserName", loginUser.getUserName());
+        return inventoryExceptionDao.updateExpStatus(params);
     }
 
     private InventoryException convert2InventoryException(InventoryBaseRequest inventoryBaseRequest) {

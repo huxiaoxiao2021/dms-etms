@@ -70,6 +70,14 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
             inventoryInfoList.add(inventoryWaybillInfo);
         }
 
+        InventoryTask inventoryTask = new InventoryTask();
+        inventoryTask.setInventoryTaskId(inventoryBaseRequest.getInventoryTaskId());
+        inventoryTask.setWaybillSum(waybillSum);
+        inventoryTask.setPackageSum(packageSum);
+        //更新任务的待盘运单总数和包裹数
+        inventoryTaskDao.updateSum(inventoryTask);
+
+
         inventoryWaybillResponse.setInventoryInfoList(inventoryInfoList);
         inventoryWaybillResponse.setWaybillSum(waybillSum);
         inventoryWaybillResponse.setPackageSum(packageSum);
@@ -126,6 +134,8 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                 if (noInventoryPackageSet.contains(scanPackageCode)) {
                     InventoryWaybillInfo inventoryWaybillInfoTemp = inventoryWaybillInfoMap.get(waybillCode);
                     if (inventoryWaybillInfoTemp != null) {
+                        //已盘数加1
+                        inventoryWaybillInfoTemp.setScannedCountBaseCurr(1);
                         //未盘数减1
                         inventoryWaybillInfoTemp.setNoInventoryCountBaseCurr(-1);
                         //更新运单下包裹最新的扫描时间
@@ -380,6 +390,10 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
         inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
         inventoryQueryRequest.setDirectionCodeList(inventoryBaseRequest.getDirectionCodeList());
+        String barCode = inventoryBaseRequest.getBarCode();
+        if (WaybillUtil.isWaybillCode(barCode)) {
+            inventoryQueryRequest.setWaybillCode(barCode);
+        }
         List<Integer> statusList = new ArrayList<>();
         if (InventoryScopeEnum.EXCEPTION.getCode().equals(inventoryBaseRequest.getInventoryScope())) {
             //异常区赋值异常外呼状态

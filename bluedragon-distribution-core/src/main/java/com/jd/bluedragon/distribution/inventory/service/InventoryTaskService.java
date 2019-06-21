@@ -4,9 +4,17 @@ import com.jd.bluedragon.distribution.api.request.inventory.InventoryTaskRequest
 import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryTask;
+import com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.common.web.mvc.api.Service;
 
+import java.util.List;
+
 public interface InventoryTaskService extends Service<InventoryTask> {
+
+    PagerResult<InventoryTask> queryByPagerCondition(InventoryTaskCondition condition);
+
+    List<List<Object>> getExportData(InventoryTaskCondition condition);
 
     /**
      * 获取当前操作人正在进行的盘点任务

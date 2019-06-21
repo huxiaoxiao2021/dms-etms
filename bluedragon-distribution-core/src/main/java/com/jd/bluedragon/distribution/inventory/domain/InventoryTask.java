@@ -14,6 +14,16 @@ public class InventoryTask extends DbEntity {
      * 盘点任务号
      */
     private String inventoryTaskId;
+
+    /**
+     * 机构编号
+     */
+    private Integer orgId;
+    /**
+     * 机构名称
+     */
+    private String orgName;
+
     /**
      * 始发分拣中心id
      */
@@ -79,6 +89,22 @@ public class InventoryTask extends DbEntity {
 
     public void setInventoryTaskId(String inventoryTaskId) {
         this.inventoryTaskId = inventoryTaskId;
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
     }
 
     public Integer getCreateSiteCode() {
