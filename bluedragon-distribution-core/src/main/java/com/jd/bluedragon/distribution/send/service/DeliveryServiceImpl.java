@@ -1678,12 +1678,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                         /* 按包裹号和运单号的逻辑走 */
                         ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMr, tlist);
                         if (responsePack.getCode().equals(200)) {
-                            reversePartDetailService.cancelPartSend(tSendM);//同步取消半退明细
+                            reversePartDetailService.cancelPartSend(sendMr);//同步取消半退明细
                         }
                         return responsePack;
-                    } else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+                    } else if (BusinessHelper.isBoxcode(sendMr.getBoxCode())) {
                         /* 按箱号的逻辑走 */
-                        boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());//更新箱号状态缓存
+                        boxService.updateBoxStatusRedis(sendMr.getBoxCode(), sendMr.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());//更新箱号状态缓存
                     } else {
                         logger.info("该发货明细不属于按运单按包裹按箱号发货范畴：" + JsonHelper.toJson(sendDetail));
                     }
