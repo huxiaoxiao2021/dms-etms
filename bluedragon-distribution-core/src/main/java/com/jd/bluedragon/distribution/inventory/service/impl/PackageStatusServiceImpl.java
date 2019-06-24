@@ -402,11 +402,10 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             logger.warn("操作站点无效." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
             return false;
         }
-//        //todo 非B网的不记录
-//        if (!isB2bSite(createSiteCode)) {
-//            logger.warn("非B网的分拣中心操作." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
-//            return false;
-//        }
+        if (!isB2bSite(createSiteCode)) {
+            logger.warn("非B网的分拣中心操作." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
+            return false;
+        }
 
         if (operateType == null) {
             logger.warn("没有全称跟踪节点." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
