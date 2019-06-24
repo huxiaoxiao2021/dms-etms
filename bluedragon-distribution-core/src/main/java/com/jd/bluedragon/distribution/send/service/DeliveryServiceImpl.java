@@ -1656,40 +1656,52 @@ public class DeliveryServiceImpl implements DeliveryService {
                 sendDetailRequest.setCreateSiteCode(tSendM.getCreateSiteCode());
                 sendDetailRequest.setSendCode(tSendM.getSendCode());
                 sendDetailRequest.setIsCancel(OPERATE_TYPE_CANCEL_L);
-                List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(sendDetailRequest);/* 根据批次号和始发地查询发货数据 */
-                if (tlist == null || tlist.isEmpty()) {
+                List<SendM> sendMList = this.sendMDao.selectBySiteAndSendCode(tSendM.getCreateSiteCode(),tSendM.getSendCode());
+                if (sendMList == null || sendMList.isEmpty()) {
                     return new ThreeDeliveryResponse(DeliveryResponse.CODE_Delivery_NO_MESAGE,
                             DeliveryResponse.MESSAGE_DELIVERY_NO_SENDCODE, null);
                 }
                 /* 循环处理明细数据，分包裹和箱号两种，按批次号取消的场景大循环需要注意 */
-                for (SendDetail sendDetail : tlist) {
-                    SendM sendMr = new SendM();
-                    sendMr.setCreateSiteCode(tSendM.getCreateSiteCode());
-                    sendMr.setReceiveSiteCode(tSendM.getReceiveSiteCode());
-                    sendMr.setSendCode(tSendM.getSendCode());
-                    sendMr.setBoxCode(tSendM.getBoxCode());
-                    sendMr.setSendType(tSendM.getSendType());
-                    sendMr.setOperateTime(tSendM.getOperateTime());
-                    sendMr.setUpdaterUser(tSendM.getUpdaterUser());
-                    sendMr.setUpdateUserCode(tSendM.getUpdateUserCode());
-                    sendMr.setUpdateTime(tSendM.getUpdateTime());
-                    sendMr.setYn(tSendM.getYn());
-                    if (WaybillUtil.isWaybillCode(sendDetail.getBoxCode()) || WaybillUtil.isPackageCode(sendDetail.getBoxCode())) {
+                for (SendM sendMItem : sendMList) {
+                    sendMItem.setOperateTime(tSendM.getOperateTime());
+                    sendMItem.setUpdateTime(tSendM.getUpdateTime());
+                    sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
+                    sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
+
+                    /* 根据sendM组装sendD请求条件 */
+                    SendDetail mSendDetail = new SendDetail();
+                    if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())) {
+                        mSendDetail.setWaybillCode(sendMItem.getBoxCode());
+                    } else if (WaybillUtil.isPackageCode(sendMItem.getBoxCode())){
+                        mSendDetail.setPackageBarcode(sendMItem.getBoxCode());
+                    } else {
+                        mSendDetail.setBoxCode(sendMItem.getBoxCode());
+                    }
+                    mSendDetail.setCreateSiteCode(sendMItem.getCreateSiteCode());
+                    mSendDetail.setReceiveSiteCode(sendMItem.getReceiveSiteCode());
+                    mSendDetail.setIsCancel(OPERATE_TYPE_CANCEL_L);
+                    List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);//查询sendD明细
+
+                    if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode()) || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
                         /* 按包裹号和运单号的逻辑走 */
-                        ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMr, tlist);
+                        ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
                         if (responsePack.getCode().equals(200)) {
-                            reversePartDetailService.cancelPartSend(sendMr);//同步取消半退明细
+                            reversePartDetailService.cancelPartSend(sendMItem);//同步取消半退明细
                         }
                         return responsePack;
-                    } else if (BusinessHelper.isBoxcode(sendMr.getBoxCode())) {
+                    } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
                         /* 按箱号的逻辑走 */
-                        boxService.updateBoxStatusRedis(sendMr.getBoxCode(), sendMr.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());//更新箱号状态缓存
+                        ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, Collections.singletonList(sendMItem));
+                        if (threeDeliveryResponse.getCode().equals(200)) {
+                            /* 更新箱号缓存状态 */
+                            boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
+                        }
                     } else {
-                        logger.info("该发货明细不属于按运单按包裹按箱号发货范畴：" + JsonHelper.toJson(sendDetail));
+                        logger.info("该发货明细不属于按运单按包裹按箱号发货范畴：" + JsonHelper.toJson(sendMItem));
                     }
-                    delDeliveryFromRedis(sendMr);      //取消发货成功，删除redis缓存的发货数据
+                    sendMessage(tlist, sendMItem, needSendMQ);
+                    delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
-                sendMessage(tlist, tSendM, needSendMQ);
                 Profiler.registerInfoEnd(callerInfo);
             }
             // 改变箱子状态为分拣
