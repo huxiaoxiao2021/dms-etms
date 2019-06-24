@@ -18,4 +18,6 @@ public interface InventoryExceptionService extends Service<InventoryException> {
     void generateInventoryException(InventoryBaseRequest inventoryBaseRequest);
 
     int handleException(List<Long> list, LoginUser loginUser);
+
+    void syncInventoryExceptionWaybillTrace(Integer createSiteCode);
 }

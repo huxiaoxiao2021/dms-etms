@@ -16,12 +16,17 @@ import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.inventory.domain.InventoryPackage;
+import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
+import com.jd.ql.trace.api.core.APIResultDTO;
+import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
+import com.jd.ql.trace.api.domain.BillBusinessTraceDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.text.MessageFormat;
 import java.util.*;
 
 @Service("inventoryExceptionService")
@@ -41,6 +46,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
 
     @Autowired
     private InventoryTaskDao inventoryTaskDao;
+
+    @Autowired
+    private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
 
     @Override
     public Dao<InventoryException> getDao() {
@@ -65,12 +73,16 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         heads.add("区域");
         heads.add("操作场地");
         heads.add("任务码");
+        heads.add("盘点范围");
         heads.add("运单号");
         heads.add("包裹号");
+        heads.add("盘点卡位");
         heads.add("异常类型");
+        heads.add("异常描述");
         heads.add("最新物流状态");
         heads.add("处理状态");
-        heads.add("异常描述");
+        heads.add("异常处理人");
+        heads.add("异常处理时间");
         heads.add("盘点任务创建人");
         heads.add("盘点创建时间");
         heads.add("盘点扫描人");
@@ -85,12 +97,16 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 body.add(inventoryExceptionDto.getOrgName());
                 body.add(inventoryExceptionDto.getCreateSiteName());
                 body.add(inventoryExceptionDto.getInventoryTaskId());
+                body.add(InventoryScopeEnum.getDescByCode(inventoryExceptionDto.getInventoryScope()));
                 body.add(inventoryExceptionDto.getWaybillCode());
                 body.add(inventoryExceptionDto.getPackageCode());
+                body.add(inventoryExceptionDto.getDirectionName());
                 body.add(InventoryExpTypeEnum.getDescByCode(inventoryExceptionDto.getExpType()));
                 body.add(inventoryExceptionDto.getLatestPackStatus());
                 body.add(inventoryExceptionDto.getExpStatus() == 0 ? "未处理" : "已处理");
                 body.add(inventoryExceptionDto.getExpDesc());
+                body.add(inventoryExceptionDto.getExpUserErp());
+                body.add(DateHelper.formatDate(inventoryExceptionDto.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
                 body.add(inventoryExceptionDto.getCreateUserErp() == null ? "" : inventoryExceptionDto.getCreateUserErp());
                 body.add(DateHelper.formatDate(inventoryExceptionDto.getCreateTime(), Constants.DATE_TIME_FORMAT));
                 body.add(inventoryExceptionDto.getInventoryUserErp() == null ? "" : inventoryExceptionDto.getInventoryUserErp());
@@ -189,6 +205,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                     if (InventoryScopeEnum.CUSTOMIZE.getCode().equals(inventoryBaseRequest.getInventoryScope()) && ! directionCodeList.contains(directionCode)) {
                         //流向异常有实物
                         inventoryException.setExpDesc(InventoryExpDescEnum.DIRECTION_EXCEPTION_MORE.getDesc());
+                        //流向异常默认已处理
+                        inventoryException.setExpStatus(1);
+                        inventoryException.setExpOperateTime(new Date());
                     } else {
                         Integer statusCode =  inventoryPackages.get(0).getStatusCode();
                         if (PackStatusEnum.SEND.getCode().equals(statusCode)) {
@@ -229,6 +248,55 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         params.put("expUserErp", loginUser.getUserErp());
         params.put("expUserName", loginUser.getUserName());
         return inventoryExceptionDao.updateExpStatus(params);
+    }
+
+    @Override
+    public void syncInventoryExceptionWaybillTrace(Integer createSiteCode) {
+        //盘点少货的包裹号需要查询全程跟踪状态
+        //获取该始发站点下的所有少货异常记录
+        List<InventoryException> inventoryExceptionList = inventoryExceptionDao.getInventoryLossException(createSiteCode);
+
+        for (InventoryException inventoryException : inventoryExceptionList) {
+            String packageCode = inventoryException.getPackageCode();
+            APIResultDTO<List<BillBusinessTraceDTO>> resultDTO = waybillTraceBusinessQueryApi.queryBillBTraceByOperatorCode(packageCode);
+
+            if (resultDTO != null && resultDTO.isSuccess()) {
+                boolean isCurrOperate = false;
+                String statusDesc = null;
+                List<BillBusinessTraceDTO> billBusinessTraceDTOList = resultDTO.getResult();
+                if (billBusinessTraceDTOList != null && ! billBusinessTraceDTOList.isEmpty()) {
+                    for (BillBusinessTraceDTO billBusinessTraceDTO : billBusinessTraceDTOList) {
+                        Integer operateSiteId = billBusinessTraceDTO.getOperateSiteId();
+                        if (createSiteCode.equals(operateSiteId)) {
+                            //确定当前操作单位有操作
+                            isCurrOperate = true;
+                        } else {
+                            //满足条件则认定当前单号在当前始发操作后，有了其他站点新的操作全程跟踪
+                            if (isCurrOperate) {
+                                //认为下游有操作，自动更新盘点异常表
+                                String operateTypeName = billBusinessTraceDTO.getOperateTypeName();
+                                String operateSiteName = billBusinessTraceDTO.getOperateSite();
+                                statusDesc = MessageFormat.format("{0}【{1}】", operateSiteName, operateTypeName);
+                                break;
+                            }
+                        }
+                    }
+                    if (isCurrOperate && statusDesc != null) {
+                        Map<String, Object> params = new HashMap<>();
+                        List<Long> list = new ArrayList<>(1);
+                        list.add(inventoryException.getId());
+                        params.put("list", list);
+                        params.put("latestPackStatus", statusDesc);
+                        inventoryExceptionDao.updateExpStatus(params);
+                    } else {
+                        logger.warn("包裹号【" + packageCode + "】的在下游无全程跟踪操作，无法对少货异常自动处理！");
+                    }
+                } else {
+                    logger.warn("获取包裹号【" + packageCode + "】的全程跟踪为空，无法对少货异常自动处理！");
+                }
+            }
+
+        }
     }
 
     private InventoryException convert2InventoryException(InventoryBaseRequest inventoryBaseRequest) {
