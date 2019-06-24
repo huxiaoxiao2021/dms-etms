@@ -1,4 +1,4 @@
-package com.jd.ql.dms.common.domain;
+package com.jd.bluedragon.common.dto.base.response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,7 +144,7 @@ public class JdVerifyResponse {
         this.msgBoxes = msgBoxes;
     }
 
-    class MsgBox {
+    public class MsgBox {
 
         /**
          * 校验结果类型 1-提示框 2-确认框 3-拦截框

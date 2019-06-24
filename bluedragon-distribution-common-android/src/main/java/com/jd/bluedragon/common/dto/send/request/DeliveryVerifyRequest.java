@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.send.domain;
+package com.jd.bluedragon.common.dto.send.request;
 
 /**
  * @author lixin39

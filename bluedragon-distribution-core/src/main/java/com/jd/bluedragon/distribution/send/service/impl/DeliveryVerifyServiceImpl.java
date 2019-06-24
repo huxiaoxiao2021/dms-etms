@@ -6,16 +6,17 @@ import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.distribution.send.domain.DeliveryVerifyRequest;
+import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.common.domain.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -25,6 +26,7 @@ import java.util.List;
  * @ClassName DeliveryVerifyServiceImpl
  * @date 2019/6/13
  */
+@Service("deliveryVerifyService")
 public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
 
     private final Log logger = LogFactory.getLog(this.getClass());
@@ -39,7 +41,7 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
     private SysConfigService sysConfigService;
 
     @Override
-    public JdVerifyResponse beforeSendByBoxCodeVerify(DeliveryVerifyRequest request) {
+    public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
         JdVerifyResponse response = new JdVerifyResponse();
         try {
             if (!this.check(request, response)) {

@@ -1,4 +1,4 @@
-package com.jd.ql.dms.common.domain;
+package com.jd.bluedragon.common.dto.base.response;
 
 /**
  * @author lixin39

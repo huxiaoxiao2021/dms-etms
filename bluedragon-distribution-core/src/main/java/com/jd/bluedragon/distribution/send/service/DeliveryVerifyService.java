@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.send.service;
 
-import com.jd.bluedragon.distribution.send.domain.DeliveryVerifyRequest;
-import com.jd.ql.dms.common.domain.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 
 /**
  * @author lixin39
@@ -16,6 +16,6 @@ public interface DeliveryVerifyService {
      *
      * @return
      */
-    JdVerifyResponse beforeSendByBoxCodeVerify(DeliveryVerifyRequest request);
+    JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request);
 
 }
