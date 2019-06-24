@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.InventoryJsfManager;
 import com.jd.bluedragon.distribution.api.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.request.inventory.InventoryTaskRequest;
 import com.jd.bluedragon.distribution.api.response.inventory.InventoryTaskResponse;
@@ -58,7 +59,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
     private static final Integer WARN_TYPE_TASK_COOPERATE = 2;
 
     @Autowired
-    private InventoryJsfService inventoryJsfService;
+    private InventoryJsfManager inventoryJsfManager;
 
     @Autowired
     @Qualifier("inventoryTaskDao")
@@ -124,7 +125,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
      */
     public List<SiteEntity>  getInventoryDirectionList(Integer createSiteCode){
         List<SiteEntity> directionList = new ArrayList<>();
-        BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfService.queryInventoryDirectionList(createSiteCode);
+        BaseEntity<List<InventoryDirection>> baseEntity= inventoryJsfManager.queryInventoryDirectionList(createSiteCode);
         logger.info("调用报表jsf接口获取盘点流向信息.参数：" + createSiteCode + ".返回值为:" + JSON.toJSONString(baseEntity));
         if(baseEntity!= null && baseEntity.getData() != null){
             for(InventoryDirection direction : baseEntity.getData()){
@@ -197,13 +198,9 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         List<InventoryTask> inventoryTaskList = inventoryTaskDao.getInventoryTaskByDirectionOrScope(request.getSiteCode(), directionCodeList, request.getInventoryScope());
 
         if (inventoryTaskList != null && inventoryTaskList.size() > 0) {
-            //根据任务号获取所有流向信息
-            String inventoryTaskId = inventoryTaskList.get(0).getInventoryTaskId();
-            List<InventoryTask> inventoryTaskDetail = inventoryTaskDao.getInventoryTaskByTaskId(inventoryTaskId);
-
             String createUserErp = inventoryTaskList.get(0).getCreateUserErp();
             InventoryTaskResponse response = new InventoryTaskResponse();
-            buildResponse(inventoryTaskDetail,response);
+            buildResponse(inventoryTaskList,response);
             response.setWarnType(WARN_TYPE_TASK_COOPERATE);
             result.setData(response);
             result.toWarn(createUserErp + "正在对该卡位进行盘点，是否协助加入？");
@@ -341,16 +338,19 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
 
     /**
      * 生成任务号
-     * IT+createSiteCode+ md5（目的地列表） +时间戳
+     * PD+createSiteCode+ md5（目的地列表） +时间戳
      *
      * @param createSiteCode
      * @return
      */
+    //改成大写
     private String generateInventoryTaskId(Integer createSiteCode) {
         UUID uuid = UUID.randomUUID();
         String taskId = uuid.toString().replaceAll(SPLIT_CHAR_STRING, "");
         //加上前缀和始发
         taskId = INVENTORY_TASK_ID_PREFIX + createSiteCode + SPLIT_CHAR_STRING + taskId;
+        //转换成大写
+        taskId = taskId.toUpperCase();
         return taskId;
     }
 
@@ -382,7 +382,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         Integer inventoryScope = inventoryTaskList.get(0).getInventoryScope();
 
         String doingDirectionStr = "";
-        if (inventoryScope == 1) {
+        if (inventoryScope == InventoryScopeEnum.CUSTOMIZE.getCode()) {
             doingDirectionStr = inventoryTaskList.get(0).getDirectionName();
             directionList.add(new SiteEntity(inventoryTaskList.get(0).getDirectionCode(), inventoryTaskList.get(0).getDirectionName()));
             if (inventoryTaskList.size() > 1) {

@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.inventory.service.impl;
 
-import IceInternal.Ex;
+import com.jd.bluedragon.core.base.InventoryJsfManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryScanDetailDao;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
@@ -33,7 +33,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
     private final int pageSize = 1000;
 
     @Autowired
-    private InventoryJsfService inventoryJsfService;
+    private InventoryJsfManager inventoryJsfManager;
 
     @Autowired
     private InventoryScanDetailDao inventoryScanDetailDao;
@@ -188,7 +188,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         Pager<InventoryQueryRequest> pager = initPagerParam(inventoryBaseRequest, 1, this.pageSize);
         try {
             //es中获取运单维度带盘信息统计
-            BaseEntity<Pager<InventoryWaybillSummary>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
+            BaseEntity<Pager<InventoryWaybillSummary>> pagerBaseEntity = inventoryJsfManager.queryNeedInventoryWaybillSummaryList(pager);
             if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
                 List<InventoryWaybillSummary> inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
                 if (inventoryWaybillSummaryListTemp != null && ! inventoryWaybillSummaryListTemp.isEmpty()) {
@@ -198,7 +198,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                     for (int i = 2; i <= totalPageNum; i++) {
                         pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
                         //es中获取运单维度带盘信息统计
-                        pagerBaseEntity = inventoryJsfService.queryNeedInventoryWaybillSummaryList(pager);
+                        pagerBaseEntity = inventoryJsfManager.queryNeedInventoryWaybillSummaryList(pager);
                         if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
                             inventoryWaybillSummaryListTemp = pagerBaseEntity.getData().getData();
                             inventoryWaybillSummaryList.addAll(inventoryWaybillSummaryListTemp);
@@ -226,7 +226,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         Pager<InventoryQueryRequest> pager = initPagerParam(inventoryBaseRequest, 1, this.pageSize);
         try {
             //es中获取运单维度带盘信息统计
-            BaseEntity<Pager<InventoryPackage>> pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
+            BaseEntity<Pager<InventoryPackage>> pagerBaseEntity = inventoryJsfManager.queryNeedInventoryPackageList(pager);
 
             if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
                 List<InventoryPackage> InventoryPackageTemp = pagerBaseEntity.getData().getData();
@@ -237,7 +237,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
                     for (int i = 2; i <= totalPageNum; i++) {
                         pager = initPagerParam(inventoryBaseRequest, i, this.pageSize);
                         //es中获取运单维度带盘信息统计
-                        pagerBaseEntity = inventoryJsfService.queryNeedInventoryPackageList(pager);
+                        pagerBaseEntity = inventoryJsfManager.queryNeedInventoryPackageList(pager);
                         if (pagerBaseEntity != null && pagerBaseEntity.getCode() == 200 && pagerBaseEntity.getData() != null) {
                             InventoryPackageTemp = pagerBaseEntity.getData().getData();
                             inventoryPackageList.addAll(InventoryPackageTemp);
@@ -265,7 +265,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         inventoryQueryRequest.setPackageCodeList(packageCodeList);
         try {
             //es中获取包裹列表中状态信息
-            BaseEntity<List<InventoryPackage>> baseEntity = inventoryJsfService.queryPackageStatusList(inventoryQueryRequest);
+            BaseEntity<List<InventoryPackage>> baseEntity = inventoryJsfManager.queryPackageStatusList(inventoryQueryRequest);
             if (baseEntity != null && baseEntity.getCode() == 200 && baseEntity.getData() != null) {
                 inventoryPackageList = baseEntity.getData();
             } else {

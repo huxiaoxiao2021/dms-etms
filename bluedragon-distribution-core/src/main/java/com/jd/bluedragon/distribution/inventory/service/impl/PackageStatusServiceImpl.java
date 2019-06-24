@@ -22,6 +22,7 @@ import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
+import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -97,12 +98,16 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         //包裹状态发送JMQ消息
+        List<Message> messageList = new ArrayList<>();
         for (PackageStatus packageStatus : packageStatusLis) {
             if (logger.isInfoEnabled()) {
                 logger.info("发送包裹状态消息-" + packageStatus.getPackageCode() + ":" + JsonHelper.toJson(packageStatus));
             }
-            dmsPackageStatusMQProducer.sendOnFailPersistent(packageStatus.getPackageCode(), JsonHelper.toJson(packageStatus));
+            messageList.add(new Message(dmsPackageStatusMQProducer.getTopic(),JSON.toJSONString(packageStatus),packageStatus.getPackageCode()));
+
         }
+        dmsPackageStatusMQProducer.batchSendOnFailPersistent(messageList);
+
     }
 
 
@@ -389,7 +394,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
         }
 
         //运单号包裹号至少有一个
-        if (StringUtils.isBlank(waybillCode) || StringUtils.isBlank(packageCode)) {
+        if (StringUtils.isBlank(waybillCode) && StringUtils.isBlank(packageCode)) {
             logger.warn("没有有效的运单号和包裹号." + JSON.toJSONString(parameter) + ";" + JSON.toJSONString(bdTraceDto));
             return false;
         }
