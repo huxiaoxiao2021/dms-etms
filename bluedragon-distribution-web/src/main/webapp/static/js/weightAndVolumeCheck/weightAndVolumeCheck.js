@@ -163,6 +163,13 @@ $(function () {
         },{
             field: 'volumeWeightDiff',
             title: '体积重量差异',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
+            }
+        },{
+            field: 'isExcessOfVolumeWeight',
+            title: '体积重量是否超标',
             align: 'center'
         },{
             field: 'diffStandard',
@@ -278,8 +285,8 @@ $(function () {
             //查询
             $('#btn_query').click(function () {
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
-                if(days > 7){
-                    Jd.alert("查询时间不能超过7天，请缩小时间范围!");
+                if(days > 30){
+                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();

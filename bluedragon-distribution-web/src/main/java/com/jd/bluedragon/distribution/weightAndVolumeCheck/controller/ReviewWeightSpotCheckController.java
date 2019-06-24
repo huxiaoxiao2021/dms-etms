@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -43,9 +42,6 @@ import java.util.List;
 public class ReviewWeightSpotCheckController extends DmsBaseController {
 
     private static final Log logger = LogFactory.getLog(ReviewWeightSpotCheckController.class);
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private ReviewWeightSpotCheckService reviewWeightSpotCheckService;

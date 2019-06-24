@@ -346,9 +346,14 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         try {
             WeightVolumeQueryCondition transform = transform(condition);
             List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryAllSpotInfo(transform.getReviewSiteCode());
-            if(1==1){
-
+            if(list.size() == 0){
+                logger.error("未导入抽查任务!");
+                result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+                result.setTotal(0);
+                return result;
             }
+            //TODO
+
 //            transform.setList(list);
 //            reportExternalService.
         }catch (Exception e){

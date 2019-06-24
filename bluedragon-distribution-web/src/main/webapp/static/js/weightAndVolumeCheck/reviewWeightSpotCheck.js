@@ -179,13 +179,13 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
-                if($('#site-group-select').val()==null){
+                /*if($('#site-group-select').val()==null){
                     Jd.alert("请选择指定的复核区域!");
                     return;
-                }
+                }*/
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
-                if(days > 7){
-                    Jd.alert("查询时间不能超过7天，请缩小时间范围!");
+                if(days > 30){
+                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();
@@ -195,49 +195,6 @@ $(function () {
 
         return oInit;
     };
-
-    //导入
-    $('#btn_import').click(function () {
-        var inputValue = $('#excelField').val().trim();
-        var index1 = inputValue.lastIndexOf(".");
-        var index2 = inputValue.length;
-        var suffixName = inputValue.substring(index1+1,index2);
-        if(inputValue == ''){
-            Jd.alert('请先浏览文件在上传!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-        if(suffixName != 'xlsx'){
-            Jd.alert('请上传指定Excel文件!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-
-        var form =  $("#query-form");
-        var options = {
-            url:importUrl,
-            type:'post',
-            success:function(data){
-                if(data.code == '200'){
-                    alert("导入成功！");
-                    $('#btn_import').attr("disabled",false);
-                }else{
-
-                    alert(data.message);
-                    $('#btn_import').attr("disabled",false);
-                }
-
-            },
-            error:function(XmlHttpRequest,textStatus,errorThrown){
-                console.log(XmlHttpRequest);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }
-        };
-        form.ajaxSubmit(options);
-
-
-    });
 
     //导入
     $('#btn_improt').click(function(){
