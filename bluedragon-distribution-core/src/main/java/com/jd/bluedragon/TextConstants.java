@@ -96,7 +96,7 @@ public class TextConstants {
     /**
      * 京准达快递到车
      */
-    public static final String	TEXT_TRANSPORT_KDDC="京准达\n快递到车";
+    public static final String	TEXT_TRANSPORT_KDDC="京准达 快递到车";
     /**
      * 常用字符串:‘无’
      */
