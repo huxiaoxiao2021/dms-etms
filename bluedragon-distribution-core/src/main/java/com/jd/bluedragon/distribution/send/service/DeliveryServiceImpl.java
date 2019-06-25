@@ -1648,8 +1648,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
-            } else if (BusinessHelper.isSendCode(tSendM.getSendCode())
-                    && StringHelper.isEmpty(tSendM.getBoxCode()) && tSendM.getCreateSiteCode() != null) {
+            } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
                 CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
                 /* 请求参数中只有sendCode参数和createSiteCode参数有效 */
                 SendDetail sendDetailRequest = new SendDetail();
@@ -1688,10 +1687,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if (responsePack.getCode().equals(200)) {
                             reversePartDetailService.cancelPartSend(sendMItem);//同步取消半退明细
                         }
-                        return responsePack;
                     } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
                         /* 按箱号的逻辑走 */
-                        ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, Collections.singletonList(sendMItem));
+                        List<SendM> sendMs = new ArrayList<>();
+                        sendMs.add(sendMItem);
+                        ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, sendMs);
                         if (threeDeliveryResponse.getCode().equals(200)) {
                             /* 更新箱号缓存状态 */
                             boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
@@ -1703,6 +1703,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
                 Profiler.registerInfoEnd(callerInfo);
+                return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             }
             // 改变箱子状态为分拣
         } catch (Exception e) {
