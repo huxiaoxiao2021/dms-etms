@@ -5,11 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 
 /**
@@ -31,14 +32,15 @@ public class RemarkFieldHandler implements Handler<WaybillPrintContext,JdResult<
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-备注字段处理");
 		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+		String waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
 		/**
 		 * 1、自营运单-备注展示订单号
 		 */
-		if(WaybillUtil.isJDWaybillCode(basePrintWaybill.getWaybillCode())){
+		if(BusinessUtil.isSelf(waybillSign)){
 			String orderCode = waybillQueryManager.getOrderCodeByWaybillCode(basePrintWaybill.getWaybillCode(), true);
 			if(StringHelper.isNotEmpty(orderCode)){
 				String oldRemark = basePrintWaybill.getRemark();
-				basePrintWaybill.setRemark(orderCode);
+				basePrintWaybill.setRemark(TextConstants.PRINT_TEXT_ORDER_CODE_PREFIX + orderCode);
 				basePrintWaybill.appendRemark(oldRemark);
 			}
 		}
