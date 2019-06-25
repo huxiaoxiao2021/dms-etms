@@ -51,6 +51,11 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
         /* 触发运输方式变更逻辑 */
         arAbnormalService.dealArAbnormal(arAbnormalRequest);
 
+        /* cancelType为pda升级期间的标识，cancel为1位新版本，需要进行取消发货，否则直接退出方法 */
+        if (arAbnormalRequest.getCancelType() == null || arAbnormalRequest.getCancelType() != 1) {
+            return;
+        }
+
         try {
             /* 补加取消发货的逻辑 */
             SendM sendMr = new SendM();

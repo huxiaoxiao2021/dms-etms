@@ -44,6 +44,11 @@ public class ArAbnormalRequest extends JdRequest {
      */
     private String packageCode;
 
+    /**
+     * 运输方式变更是否取消发货标识，此标志存在于pda新老版本升级期间，老版本为null,新版本为1;
+     */
+    private Integer cancelType;
+
     public Integer getTranspondType() {
         return transpondType;
     }
@@ -66,5 +71,13 @@ public class ArAbnormalRequest extends JdRequest {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public Integer getCancelType() {
+        return cancelType;
+    }
+
+    public void setCancelType(Integer cancelType) {
+        this.cancelType = cancelType;
     }
 }
