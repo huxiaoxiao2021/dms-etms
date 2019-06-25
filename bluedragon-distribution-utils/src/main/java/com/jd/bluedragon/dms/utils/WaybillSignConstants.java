@@ -69,5 +69,32 @@ public interface WaybillSignConstants {
 	char CHAR_89_3 = '3';
 	char CHAR_89_4 = '4';
 
+	/**
+	 * 是否代客下单(营业厅)
+     */
+	int REPLACE_ORDER_POSITION_62 = 62;
+    /**
+     * 代客下单
+     */
+	char REPLACE_ORDER_CHAR_62_1 = '1';
+
+	/**
+	 * C端收运费
+     */
+	int C_COLLECT_FEES_POSITION_25 = 25;
+    /**
+     *寄付运费
+     */
+	char C_COLLECT_FEES_CHAR_25_3 = '3';
+
+	/**
+	 * 逆向运单类型（外单）
+     */
+	int BACKWARD_TYPE_POSITION_61 = 61;
+    /**
+     * 正向
+     */
+	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
+
 
 }
