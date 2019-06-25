@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -20,15 +21,12 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
-import com.jd.etms.vos.dto.CancelSealCarDto;
-import com.jd.etms.vos.dto.CommonDto;
-import com.jd.etms.vos.dto.PageDto;
-import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vos.dto.SealCarInAreaDto;
+import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.etms.vts.ws.VtsQueryWS;
+import com.jd.fastjson.JSON;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.dto.TransWorkItemWsDto;
@@ -42,7 +40,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 @Service("newSealVehicleService")
@@ -82,6 +79,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private RedisManager redisManager;
 
+    @Autowired
+    private VosManager vosManager;
+
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
     private static final Integer IN_AREA_FLAG = 2;    //标识车辆不在围栏内(1：在围栏内 2：不在围栏内 3：坐标数据不存在 4：围栏数据不存在 5：其他)
@@ -118,6 +118,59 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
+
+    /**
+     * VOS封车业务同时生成车次任务
+     * @param sealCars
+     * @return
+     */
+    @JProfiler(jKey = "Bluedragon_dms_center.web.method.vos.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) {
+        List<SealCarDto> paramList = convertList(sealCars);
+        logger.info("VOS封车业务同时生成车次任务参数："+ JsonHelper.toJson(paramList));
+
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
+        String errorMsg = "封车成功";
+        List<SealCarDto> successSealCarList = new ArrayList<>(); //封车成功的
+
+        //循环调用运输封车同时生成车次任务的接口
+        for (SealCarDto param : paramList) {
+            String singleErrorMsg = "";
+            String transportCode = param.getTransportCode();
+
+            CommonDto<String> sealCarInfo = vosManager.doSealCarWithVehicleJob(param);
+            if (sealCarInfo == null) {
+                singleErrorMsg = "运力编码封车失败：" + transportCode + ".";
+                logger.warn("VOS封车业务同时生成车次任务接口返回为空.参数:" + JSON.toJSONString(param));
+            } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
+                successSealCarList.add(param);
+            } else {
+                singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
+                logger.warn("VOS封车业务同时生成车次任务失败.参数:" + JSON.toJSONString(param) + ",返回值:" + singleErrorMsg);
+
+            }
+            errorMsg += singleErrorMsg;
+        }
+
+        //封车成功的，写数据库，发送封车mq消息
+        if (successSealCarList.size() > 0) {
+            sealCarMQ(successSealCarList);
+            addRedisCache(successSealCarList);
+            saveSealData(successSealCarList);
+        }
+
+        addSystemLog(paramList, errorMsg);
+
+        if(successSealCarList.size() == paramList.size()){
+            sealVehicleResponse.setCode(JdResponse.CODE_OK);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_SEAL_SUCCESS);
+        }else{
+            sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+            sealVehicleResponse.setMessage(errorMsg);
+        }
+
+        return sealVehicleResponse;
+    }
 
     /**
      * 离线封车
@@ -313,6 +366,19 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @JProfiler(jKey = "Bluedragon_dms_center.web.method.vts.getTransBookBill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception {
         return tfcSelectWS.getTransBookBill(transBookBillQueryDto, pageDto);
+    }
+
+    /**
+     * 校验车牌号能否生成车次任务
+     * @param transportCode 运力编码
+     * @param vehicleNumber 车牌号
+     * @return
+     */
+    public CommonDto<String> verifyVehicleJobByVehicleNumber(String transportCode,String vehicleNumber){
+        VerifyVehicleJobDto dto = new VerifyVehicleJobDto();
+        dto.setTransportCode(transportCode);
+        dto.setVehicleNumber(vehicleNumber);
+        return vosManager.verifyVehicleJobByVehicleNumber(dto);
     }
 
     @Override
