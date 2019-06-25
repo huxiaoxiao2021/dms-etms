@@ -274,7 +274,7 @@ public class PackageStatusServiceImpl implements PackageStatusService {
      */
     private boolean isB2bSite(Integer createSiteCode) {
         BaseStaffSiteOrgDto createSite = siteService.getSite(createSiteCode);
-        if (createSite != null && createSite.getSiteType().equals(Constants.B2B_SITE_TYPE)) {
+        if (createSite != null && createSite.getSubType().equals(Constants.B2B_SITE_TYPE)) {
             return true;
         }
         return false;
