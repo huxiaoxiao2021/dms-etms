@@ -129,7 +129,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             body.add(spotCheckInfo.getNormalPackageNum());
             body.add(spotCheckInfo.getTrustPackageNum());
             body.add(spotCheckInfo.getImportErp());
-            body.add(DateHelper.formatDate(spotCheckInfo.getTs(), Constants.DATE_TIME_FORMAT));
+            body.add(DateHelper.formatDateTime(spotCheckInfo.getTs()));
             resList.add(body);
         }
         return  resList;

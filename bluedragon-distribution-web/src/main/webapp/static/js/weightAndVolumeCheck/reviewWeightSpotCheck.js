@@ -256,7 +256,6 @@ function  getDaysByDateString(dateString1,dateString2) {
     return days;
 }
 
-var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -284,14 +283,7 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
+            $(selectId).val(null).trigger('change');
         }
     });
 }

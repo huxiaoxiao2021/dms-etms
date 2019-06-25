@@ -149,12 +149,12 @@ $(function () {
             title: '计费重量',
             align: 'center'
         },{
-            field: 'billingVolumeWeight',
-            title: '计费体积重量',
-            align: 'center'
-        },{
             field: 'billingVolume',
             title: '计费体积',
+            align: 'center'
+        },{
+            field: 'billingVolumeWeight',
+            title: '计费体积重量',
             align: 'center'
         },{
             field: 'weightDiff',
@@ -352,7 +352,6 @@ function initSelect() {
     });
 }
 
-var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -387,15 +386,7 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
+            $(selectId).val(null).trigger('change');
 
         }
     });

@@ -74,7 +74,7 @@ public class SyncPictureInfoConsumer extends MessageBaseConsumer {
             condition.setReviewSiteCode(siteCode);
             condition.setIsExcess(1);
             condition.setIsHasPicture(0);
-            condition.setPackageCode(packageCode);
+            condition.setBarCode(packageCode);
             BaseEntity<List<WeightVolumeCollectDto>> baseEntity = reportExternalService.getByParamForWeightVolume(condition);
 
             //3.存在则更新不存在则返回
