@@ -38,4 +38,10 @@ public interface SendCodeExceptionHandlerService {
      * @return
      */
     BaseEntity<Pager<GoodsPrintDto>> querySendCodeDetailByCondition(SendCodeExceptionRequest request);
+
+    /**
+     * 根据条件进行数据的导出
+     * @param request 查询条件
+     */
+    List<Object[]> exportSendCodeDetail(SendCodeExceptionRequest request) ;
 }
