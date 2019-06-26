@@ -83,7 +83,7 @@ public class WaybillStatus {
      **/
     public static final Integer WAYBILL_TRACK_MSGTYPE_UPDATE = 2400;
     public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
-    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "您的订单因信息修改，正在重新中转";
+    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "温馨提示：您的订单因信息修改，正在重新中转";
 
     /**
      * 全程跟踪消息类型mstType-运单修改补打
