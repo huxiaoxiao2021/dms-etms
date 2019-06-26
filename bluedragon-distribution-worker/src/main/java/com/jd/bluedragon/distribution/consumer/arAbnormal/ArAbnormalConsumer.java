@@ -65,6 +65,9 @@ public class ArAbnormalConsumer extends MessageBaseConsumer {
                 sendMr.setBoxCode(arAbnormalRequest.getPackageCode());
             } else if (WaybillUtil.isWaybillCode(arAbnormalRequest.getPackageCode()) || WaybillUtil.isPackageCode(arAbnormalRequest.getPackageCode())) {
                 sendMr.setBoxCode(arAbnormalRequest.getPackageCode());
+            } else {
+                logger.warn("航空转陆运触发取消发货，单号{" + arAbnormalRequest.getPackageCode() + "}类型不正确，方法退出。");
+                return;
             }
             sendMr.setCreateSiteCode(arAbnormalRequest.getSiteCode());
             sendMr.setUpdaterUser(arAbnormalRequest.getUserName());

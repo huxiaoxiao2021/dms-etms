@@ -1686,6 +1686,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
                         if (responsePack.getCode().equals(200)) {
                             reversePartDetailService.cancelPartSend(sendMItem);//同步取消半退明细
+                        } else {
+                            continue;
                         }
                     } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
                         /* 按箱号的逻辑走 */
@@ -1695,9 +1697,12 @@ public class DeliveryServiceImpl implements DeliveryService {
                         if (threeDeliveryResponse.getCode().equals(200)) {
                             /* 更新箱号缓存状态 */
                             boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
+                        } else {
+                            continue;
                         }
                     } else {
                         logger.info("该发货明细不属于按运单按包裹按箱号发货范畴：" + JsonHelper.toJson(sendMItem));
+                        continue;
                     }
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
