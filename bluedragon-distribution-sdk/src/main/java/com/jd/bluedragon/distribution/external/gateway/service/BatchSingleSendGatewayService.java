@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
-import com.jd.bluedragon.common.dto.send.response.SendResultDto;
 
 /**
  * BatchSingleSendGatewayService
@@ -23,5 +22,5 @@ public interface BatchSingleSendGatewayService {
     /**
      * 批量一车一单发货
      */
-    JdCResponse<SendResultDto> batchSingleSend(BatchSingleSendRequest request);
+    JdCResponse batchSingleSend(BatchSingleSendRequest request);
 }

@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
-import com.jd.bluedragon.common.dto.send.response.SendResultDto;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -98,18 +97,24 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<SendResultDto> batchSingleSend(BatchSingleSendRequest request) {
+    public JdCResponse batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdCResponse<SendResultDto> jdResponse = new JdCResponse<>();
+        JdCResponse jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-            jdResponse.setCode(result.getCode());
-            jdResponse.setData(new SendResultDto(result.getData().getKey(), result.getData().getValue()));
-            jdResponse.setMessage(result.getMessage());
+            if (result.getData().getKey() == 1) {
+                jdResponse.init(JdCResponse.CODE_SUCCESS, result.getData().getValue());
+            }
+            if (result.getData().getKey() == 2) {
+                jdResponse.init(JdCResponse.CODE_FAIL, result.getData().getValue());
+            }
+            if (result.getData().getKey() == 4) {
+                jdResponse.init(JdCResponse.CODE_CONFIRM, result.getData().getValue());
+            }
 
             return jdResponse;
         }
