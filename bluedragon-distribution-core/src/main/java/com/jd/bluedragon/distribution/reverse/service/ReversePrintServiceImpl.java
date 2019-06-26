@@ -147,6 +147,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         status.setOperateTime(new Date(domain.getOperateUnixTime()));
         status.setOperator(domain.getStaffRealName());
         status.setOperatorId(domain.getStaffId());
+        status.setReturnWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，新运单号"+domain.getNewCode());
         status.setCreateSiteCode(domain.getSiteCode());
         status.setCreateSiteName(domain.getSiteName());
@@ -170,6 +171,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         status.setWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，原运单号"+domain.getOldCode());
+        status.setReturnWaybillCode(domain.getOldCode());
         tTask.setBody(JsonHelper.toJson(status));
         /**
          * 新外单添加全程跟踪
