@@ -228,6 +228,11 @@
         <jmq:listener topic="${jmq.topic.auto.syncPictureInfo}" listener="syncPictureInfoConsumer"/>
     </jmq:consumer>
 
+    <!--盘点任务完成-->
+    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
+    </jmq:consumer>
+
     <!--auto下发图片信息-->
     <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
