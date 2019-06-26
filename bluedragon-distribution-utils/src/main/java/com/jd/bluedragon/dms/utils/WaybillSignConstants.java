@@ -17,6 +17,19 @@ public interface WaybillSignConstants {
 	 */
 	char CHAR_1 = '1';
 	/**
+	 * 运单标识
+	 */
+	int POSITION_1 = 1;
+	/**
+	 * 第1位等于 1、4、5、7、8 、A，判断为【自营】运单
+	 */
+	char CHAR_1_1 = '1';
+	char CHAR_1_4 = '4';
+	char CHAR_1_5 = '5';
+	char CHAR_1_7 = '7';
+	char CHAR_1_8 = '8';
+	char CHAR_1_A = 'A';
+	/**
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;

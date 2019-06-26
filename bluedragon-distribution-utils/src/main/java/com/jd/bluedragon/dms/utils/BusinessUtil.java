@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
@@ -737,5 +738,17 @@ public class BusinessUtil {
     public static boolean isBusinessHallFreightSendAndForward(String waybillSign) {
         return isBusinessHall(waybillSign) && isFreightSend(waybillSign) && isForeignForward(waybillSign);
     }
+    /**
+     * 根据waybillSign判断是否自营单号,waybill_sign第1位等于 1、4、5、7、8 、A，判断为【自营】运单
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isSelf(String waybillSign) {
+		if(waybillSign!=null){
+			return isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,
+					WaybillSignConstants.CHAR_1_1,WaybillSignConstants.CHAR_1_4,WaybillSignConstants.CHAR_1_5,WaybillSignConstants.CHAR_1_7,WaybillSignConstants.CHAR_1_8,WaybillSignConstants.CHAR_1_A);
+		}
+		return false;
+	}
 
 }
