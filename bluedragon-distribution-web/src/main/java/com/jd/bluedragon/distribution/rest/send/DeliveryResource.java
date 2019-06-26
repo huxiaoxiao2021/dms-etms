@@ -872,9 +872,7 @@ public class DeliveryResource {
         sendM.setSendCode(request.getSendCode());
         Date operateTime = DateHelper.parseDate(request.getOperateTime(), Constants.DATE_TIME_FORMAT);
         sendM.setOperateTime(operateTime);
-        if (!BusinessHelper.isBoxcode(request.getBoxCode())) {
-            sendM.setReceiveSiteCode(request.getReceiveSiteCode());
-        }
+        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
         sendM.setUpdateTime(new Date());
         sendM.setYn(0);
         return sendM;
