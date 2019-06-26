@@ -6,7 +6,7 @@
         <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
         <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="orgName" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="direction_code" property="directionCode" javaType="java.lang.Integer"
@@ -104,10 +104,10 @@
     <update id="update" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryScanDetail">
         update inventory_task
         <set>
-            <if test="createSiteCode != null">
+            <if test="orgId != null">
                 org_id = #{orgId,jdbcType=INTEGER},
             </if>
-            <if test="createSiteName != null">
+            <if test="orgName != null">
                 org_name = #{orgName,jdbcType=VARCHAR},
             </if>
             <if test="createSiteCode != null">
@@ -291,8 +291,7 @@
     <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="inventoryTask">
         select
         inventory_task_id,org_id,org_name,
-        create_site_code, create_site_name,
-        concat(',',direction_code), concat(',',direction_name),
+        create_site_code, create_site_name, group_concat(direction_code) as direction_code, group_concat(direction_name) as direction_name,
         create_user_code,create_user_erp,create_user_name,
         create_time,end_time,
         status,cooperate_type,
@@ -308,8 +307,7 @@
     <select id="getExportResultByCondition" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition" resultMap="inventoryTask">
         select
         inventory_task_id,org_id,org_name,
-        create_site_code, create_site_name,
-        concat(',',direction_code), concat(',',direction_name),
+        create_site_code, create_site_name, group_concat(direction_code) as direction_code, group_concat(direction_name) as direction_name,
         create_user_code,create_user_erp,create_user_name,
         create_time,end_time,
         status,cooperate_type,

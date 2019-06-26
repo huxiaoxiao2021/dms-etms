@@ -86,11 +86,11 @@ $(function () {
             align: 'center',
             visible: false
         }, {
-            field: 'createSiteName',
+            field: 'inventorySiteName',
             title: '操作场地',
             align: 'center'
         },{
-            field: 'createSiteCode',
+            field: 'inventorySiteCode',
             title: '操作场地编号',
             align: 'center',
             visible: false
@@ -170,11 +170,11 @@ $(function () {
                 return $.dateHelper.formateDateTimeOfTs(value);
             }
         },{
-            field: 'createUserErp',
+            field: 'taskCreateUser',
             title: '盘点任务创建人',
             align: 'center'
         },{
-            field: 'createTime',
+            field: 'taskCreateTime',
             title: '盘点创建时间',
             align: 'center',
             formatter : function(value,row,index){

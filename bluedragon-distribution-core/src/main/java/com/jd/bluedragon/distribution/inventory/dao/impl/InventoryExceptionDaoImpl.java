@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.inventory.dao.impl;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryException;
 import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionCondition;
-import com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionDto;
 import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
 import org.springframework.stereotype.Repository;
 
@@ -25,13 +24,13 @@ public class InventoryExceptionDaoImpl extends BaseDao<InventoryException> imple
     }
 
     @Override
-    public List<InventoryExceptionDto> getExportResultByCondition(InventoryExceptionCondition condition) {
+    public List<InventoryException> getExportResultByCondition(InventoryExceptionCondition condition) {
         return this.getSqlSession().selectList(nameSpace + ".getExportResultByCondition", condition);
     }
 
     @Override
-    public List<InventoryException> getInventoryLossException(Integer createSiteCode) {
-        return this.getSqlSession().selectList(nameSpace + ".getInventoryLossException", createSiteCode);
+    public List<InventoryException> getInventoryLossException() {
+        return this.getSqlSession().selectList(nameSpace + ".getInventoryLossException");
     }
 
 

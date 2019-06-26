@@ -84,6 +84,16 @@ public class InventoryException extends DbEntity {
      */
     private Date expOperateTime;
 
+    private Integer orgId;
+
+    private String orgName;
+
+    private String taskCreateUser;
+
+    private Date taskCreateTime;
+
+    private Integer inventoryScope;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -234,5 +244,45 @@ public class InventoryException extends DbEntity {
 
     public void setExpOperateTime(Date expOperateTime) {
         this.expOperateTime = expOperateTime;
+    }
+
+    public Integer getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(Integer orgId) {
+        this.orgId = orgId;
+    }
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public String getTaskCreateUser() {
+        return taskCreateUser;
+    }
+
+    public void setTaskCreateUser(String taskCreateUser) {
+        this.taskCreateUser = taskCreateUser;
+    }
+
+    public Date getTaskCreateTime() {
+        return taskCreateTime;
+    }
+
+    public void setTaskCreateTime(Date taskCreateTime) {
+        this.taskCreateTime = taskCreateTime;
+    }
+
+    public Integer getInventoryScope() {
+        return inventoryScope;
+    }
+
+    public void setInventoryScope(Integer inventoryScope) {
+        this.inventoryScope = inventoryScope;
     }
 }

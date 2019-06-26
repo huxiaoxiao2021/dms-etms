@@ -3,9 +3,13 @@
 <mapper namespace="com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao">
     <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.inventory.domain.InventoryException">
         <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+        <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+        <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+        <result column="task_create_time" property="taskCreateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="task_create_user" property="taskCreateUser" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="latest_pack_status" property="latestPackStatus" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="exp_type" property="expType" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="exp_status" property="expStatus" javaType="java.lang.Integer" jdbcType="TINYINT"/>
@@ -18,6 +22,7 @@
         <result column="inventory_user_name" property="inventoryUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="inventory_user_erp" property="inventoryUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="inventory_time" property="inventoryTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+        <result column="inventory_scope" property="inventoryScope" javaType="java.lang.Integer" jdbcType="TINYINT"/>
         <result column="exp_user_code" property="expUserCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
         <result column="exp_user_name" property="expUserName" javaType="java.lang.String" jdbcType="VARCHAR"/>
         <result column="exp_user_erp" property="expUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
@@ -28,82 +33,51 @@
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
     </resultMap>
 
-    <resultMap id="inventoryExceptionDto" type="com.jd.bluedragon.distribution.inventory.domain.InventoryExceptionDto">
-        <result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
-        <result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="inventory_scope" property="inventoryScope" javaType="java.lang.Integer" jdbcType="TINYINT"/>
-        <result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="inventory_user_erp" property="inventoryUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
-        <result column="inventory_time" property="inventoryTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
-        <result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="latest_pack_status" property="latestPackStatus" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="exp_type" property="expType" javaType="java.lang.Integer" jdbcType="TINYINT"/>
-        <result column="exp_status" property="expStatus" javaType="java.lang.Integer" jdbcType="TINYINT"/>
-        <result column="exp_desc" property="expDesc" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="exp_user_erp" property="expUserErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
-        <result column="exp_operate_time" property="expOperateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
-        <result column="direction_code" property="directionCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
-        <result column="direction_name" property="directionName" javaType="java.lang.String" jdbcType="VARCHAR"/>
-    </resultMap>
-
     <sql id="Base_Column_List">
         id,waybill_code,package_code,inventory_task_id,latest_pack_status,exp_type,exp_status,exp_desc,inventory_site_code,inventory_site_name,
         direction_code,direction_name,inventory_user_code,inventory_site_name,inventory_user_erp,inventory_time,exp_user_code,exp_user_name,exp_user_code,
-        exp_user_erp,exp_operate_time,create_time,update_time,is_delete
+        exp_user_erp,exp_operate_time,create_time,update_time,is_delete,org_id,org_name,task_create_user,task_create_time,inventory_scope
     </sql>
 
-    <sql id="Base_Condition_Column_List">
-        it.inventory_task_id,it.org_id,it.org_name,it.create_site_code,it.create_site_name,it.create_user_erp,it.create_time,it.inventory_scope,
-        ie.id,ie.waybill_code,ie.package_code,ie.latest_pack_status,ie.exp_type,ie.exp_status,exp_desc,exp_user_erp,exp_operate_time,
-        ie.inventory_time,ie.inventory_user_erp,ie.direction_code,ie.direction_name
-    </sql>
 
     <sql id="Base_Condition_Sql">
-        from inventory_exception ie
-        inner join inventory_task it on ie.inventory_task_id = it.inventory_task_id
         <where>
-            it.is_delete = 0
+            is_delete = 0
             <if test="orgId != null">
-                and it.org_id = #{orgId,jdbcType=INTEGER}
+                and org_id = #{orgId,jdbcType=INTEGER}
             </if>
             <if test="createSiteCode != null">
-                and it.create_site_code = #{createSiteCode,jdbcType=INTEGER}
+                and inventory_site_code = #{createSiteCode,jdbcType=INTEGER}
             </if>
             <if test="createUserErp != null">
-                and it.create_user_erp = #{createUserErp,jdbcType=VARCHAR}
+                and task_create_user = #{createUserErp,jdbcType=VARCHAR}
             </if>
             <if test="createStartTime != null">
-                and it.create_time <![CDATA[>=]]> #{createStartTime, jdbcType=VARCHAR}
+                and task_create_time <![CDATA[>=]]> #{createStartTime, jdbcType=VARCHAR}
             </if>
             <if test="createEndTime != null">
-                and it.create_time <![CDATA[<=]]> #{createEndTime, jdbcType=VARCHAR}
+                and task_create_time <![CDATA[<=]]> #{createEndTime, jdbcType=VARCHAR}
             </if>
             <if test="waybillCode != null">
-                and ie.waybill_code = #{waybillCode, jdbcType=VARCHAR}
+                and waybill_code = #{waybillCode, jdbcType=VARCHAR}
             </if>
             <if test="packageCode != null">
-                and ie.package_code = #{packageCode, jdbcType=VARCHAR}
+                and package_code = #{packageCode, jdbcType=VARCHAR}
             </if>
             <if test="expType != null">
-                and ie.exp_type = #{expType, jdbcType=TINYINT}
+                and exp_type = #{expType, jdbcType=TINYINT}
             </if>
             <if test="expStatus != null">
-                and ie.exp_status = #{expStatus, jdbcType=TINYINT}
+                and exp_status = #{expStatus, jdbcType=TINYINT}
             </if>
         </where>
     </sql>
 
     <sql id="Base_Repeat_Condition_Sql">
-        and package_code in (select package_code
+        and package_code in (select package_code from inventory_exception
          <include refid="Base_Condition_Sql" />
           group by package_code having count(package_code) > 1)
-        order by package_code, it.create_time
+        order by package_code, create_time
 
     </sql>
     <insert id="insert" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryException">
@@ -111,6 +85,12 @@
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 id,
+            </if>
+            <if test="orgId != null">
+                org_id,
+            </if>
+            <if test="orgName != null">
+               org_name,
             </if>
             <if test="waybillCode != null">
                 waybill_code,
@@ -120,6 +100,12 @@
             </if>
             <if test="inventoryTaskId != null">
                 inventory_task_id,
+            </if>
+            <if test="taskCreateTime != null">
+                task_create_time,
+            </if>
+            <if test="taskCreateUser != null">
+                task_create_user,
             </if>
             <if test="latestPackStatus != null">
                 latest_pack_status,
@@ -157,6 +143,9 @@
             <if test="inventoryTime != null">
                 inventory_time,
             </if>
+            <if test="inventoryScope != null">
+                inventory_scope,
+            </if>
             <if test="expUserCode != null">
                 exp_user_code,
             </if>
@@ -181,6 +170,12 @@
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
             </if>
+            <if test="orgId != null">
+                #{orgId,jdbcType=INTEGER},
+            </if>
+            <if test="orgName != null">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
             <if test="waybillCode != null">
                 #{waybillCode,jdbcType=VARCHAR},
             </if>
@@ -189,6 +184,12 @@
             </if>
             <if test="inventoryTaskId != null">
                 #{inventoryTaskId,jdbcType=VARCHAR},
+            </if>
+            <if test="taskCreateTime != null">
+                #{taskCreateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskCreateUser != null">
+                #{taskCreateUser,jdbcType=VARCHAR},
             </if>
             <if test="latestPackStatus != null">
                 #{latestPackStatus,jdbcType=VARCHAR},
@@ -225,6 +226,9 @@
             </if>
             <if test="inventoryTime != null">
                 #{inventoryTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="inventoryScope != null">
+                #{inventoryScope,jdbcType=TINYINT},
             </if>
             <if test="expUserCode != null">
                 #{expUserCode,jdbcType=INTEGER},
@@ -275,17 +279,17 @@
     <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
         select
         count(1) as num
-
+        from inventory_exception
         <include refid="Base_Condition_Sql"/>
         <if test="isRepeat > 0">
             <include refid="Base_Repeat_Condition_Sql" />
         </if>
     </select>
 
-    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="inventoryExceptionDto">
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
         select
-        <include refid="Base_Condition_Column_List" />
-
+        <include refid="Base_Column_List" />
+        from inventory_exception
         <include refid="Base_Condition_Sql"/>
         <if test="isRepeat > 0">
             <include refid="Base_Repeat_Condition_Sql" />
@@ -293,21 +297,20 @@
         limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
-    <select id="getExportResultByCondition" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition" resultMap="inventoryExceptionDto">
+    <select id="getExportResultByCondition" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition" resultMap="BaseResultMap">
         select
-        <include refid="Base_Condition_Column_List" />
-
+        <include refid="Base_Column_List" />
+        from inventory_exception
         <include refid="Base_Condition_Sql"/>
         <if test="isRepeat > 0">
             <include refid="Base_Repeat_Condition_Sql" />
         </if>
     </select>
 
-    <select id="getInventoryLossException" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    <select id="getInventoryLossException" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>
         from inventory_exception
         where is_delete = 0 and exp_status = 0 and exp_type = 2
-        and create_site_code = #{createSiteCode, jdbcType=INTEGER}
     </select>
 </mapper>

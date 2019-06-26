@@ -89,28 +89,28 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         heads.add("盘点扫描时间");
 
         resList.add(heads);
-        List<InventoryExceptionDto> list = inventoryExceptionDao.getExportResultByCondition(condition);
+        List<InventoryException> list = inventoryExceptionDao.getExportResultByCondition(condition);
         if (list != null && ! list.isEmpty()) {
             //表格信息
-            for(InventoryExceptionDto inventoryExceptionDto : list){
+            for(InventoryException inventoryException : list){
                 List<Object> body = Lists.newArrayList();
-                body.add(inventoryExceptionDto.getOrgName());
-                body.add(inventoryExceptionDto.getCreateSiteName());
-                body.add(inventoryExceptionDto.getInventoryTaskId());
-                body.add(InventoryScopeEnum.getDescByCode(inventoryExceptionDto.getInventoryScope()));
-                body.add(inventoryExceptionDto.getWaybillCode());
-                body.add(inventoryExceptionDto.getPackageCode());
-                body.add(inventoryExceptionDto.getDirectionName());
-                body.add(InventoryExpTypeEnum.getDescByCode(inventoryExceptionDto.getExpType()));
-                body.add(inventoryExceptionDto.getLatestPackStatus());
-                body.add(inventoryExceptionDto.getExpStatus() == 0 ? "未处理" : "已处理");
-                body.add(inventoryExceptionDto.getExpDesc());
-                body.add(inventoryExceptionDto.getExpUserErp());
-                body.add(DateHelper.formatDate(inventoryExceptionDto.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
-                body.add(inventoryExceptionDto.getCreateUserErp() == null ? "" : inventoryExceptionDto.getCreateUserErp());
-                body.add(DateHelper.formatDate(inventoryExceptionDto.getCreateTime(), Constants.DATE_TIME_FORMAT));
-                body.add(inventoryExceptionDto.getInventoryUserErp() == null ? "" : inventoryExceptionDto.getInventoryUserErp());
-                body.add(DateHelper.formatDate(inventoryExceptionDto.getInventoryTime(), Constants.DATE_TIME_FORMAT));
+                body.add(inventoryException.getOrgName());
+                body.add(inventoryException.getInventorySiteName());
+                body.add(inventoryException.getInventoryTaskId());
+                body.add(InventoryScopeEnum.getDescByCode(inventoryException.getInventoryScope()));
+                body.add(inventoryException.getWaybillCode());
+                body.add(inventoryException.getPackageCode());
+                body.add(inventoryException.getDirectionName());
+                body.add(inventoryException.getLatestPackStatus());
+                body.add(InventoryExpTypeEnum.getDescByCode(inventoryException.getExpType()));
+                body.add(inventoryException.getExpDesc());
+                body.add(inventoryException.getExpStatus() == 0 ? "未处理" : "已处理");
+                body.add(inventoryException.getExpUserErp());
+                body.add(DateHelper.formatDate(inventoryException.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
+                body.add(inventoryException.getTaskCreateUser() == null ? "" : inventoryException.getTaskCreateUser());
+                body.add(DateHelper.formatDate(inventoryException.getTaskCreateTime(), Constants.DATE_TIME_FORMAT));
+                body.add(inventoryException.getInventoryUserErp() == null ? "" : inventoryException.getInventoryUserErp());
+                body.add(DateHelper.formatDate(inventoryException.getInventoryTime(), Constants.DATE_TIME_FORMAT));
                 resList.add(body);
             }
         }
@@ -251,13 +251,14 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     }
 
     @Override
-    public void syncInventoryExceptionWaybillTrace(Integer createSiteCode) {
+    public void syncInventoryExceptionWaybillTrace() {
         //盘点少货的包裹号需要查询全程跟踪状态
         //获取该始发站点下的所有少货异常记录
-        List<InventoryException> inventoryExceptionList = inventoryExceptionDao.getInventoryLossException(createSiteCode);
+        List<InventoryException> inventoryExceptionList = inventoryExceptionDao.getInventoryLossException();
 
         for (InventoryException inventoryException : inventoryExceptionList) {
             String packageCode = inventoryException.getPackageCode();
+            Integer inventorySiteCode = inventoryException.getInventorySiteCode();
             APIResultDTO<List<BillBusinessTraceDTO>> resultDTO = waybillTraceBusinessQueryApi.queryBillBTraceByOperatorCode(packageCode);
 
             if (resultDTO != null && resultDTO.isSuccess()) {
@@ -267,7 +268,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 if (billBusinessTraceDTOList != null && ! billBusinessTraceDTOList.isEmpty()) {
                     for (BillBusinessTraceDTO billBusinessTraceDTO : billBusinessTraceDTOList) {
                         Integer operateSiteId = billBusinessTraceDTO.getOperateSiteId();
-                        if (createSiteCode.equals(operateSiteId)) {
+                        if (inventorySiteCode.equals(operateSiteId)) {
                             //确定当前操作单位有操作
                             isCurrOperate = true;
                         } else {
@@ -300,10 +301,24 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     }
 
     private InventoryException convert2InventoryException(InventoryBaseRequest inventoryBaseRequest) {
+
         InventoryException inventoryException = new InventoryException();
-        inventoryException.setInventoryTaskId(inventoryBaseRequest.getInventoryTaskId());
-        inventoryException.setInventorySiteCode(inventoryBaseRequest.getCreateSiteCode());
-        inventoryException.setInventorySiteName(inventoryBaseRequest.getCreateSiteName());
+
+        List<InventoryTask> inventoryTaskList = inventoryTaskDao.getInventoryTaskByTaskId(inventoryBaseRequest.getInventoryTaskId());
+        if (inventoryTaskList != null && ! inventoryTaskList.isEmpty()) {
+            InventoryTask inventoryTask = inventoryTaskList.get(0);
+            inventoryException.setOrgId(inventoryTask.getOrgId());
+            inventoryException.setOrgName(inventoryTask.getOrgName());
+            inventoryException.setInventorySiteCode(inventoryTask.getCreateSiteCode());
+            inventoryException.setInventorySiteName(inventoryTask.getCreateSiteName());
+            inventoryException.setTaskCreateTime(inventoryTask.getCreateTime());
+            inventoryException.setTaskCreateUser(inventoryTask.getCreateUserErp());
+            inventoryException.setInventoryScope(inventoryTask.getInventoryScope());
+        } else {
+            inventoryException.setInventoryTaskId(inventoryBaseRequest.getInventoryTaskId());
+            inventoryException.setInventorySiteCode(inventoryBaseRequest.getCreateSiteCode());
+            inventoryException.setInventorySiteName(inventoryBaseRequest.getCreateSiteName());
+        }
         inventoryException.setCreateTime(new Date());
         return inventoryException;
     }
