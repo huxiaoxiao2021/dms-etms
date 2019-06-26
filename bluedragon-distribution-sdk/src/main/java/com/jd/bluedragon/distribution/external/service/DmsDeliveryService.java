@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -53,5 +55,13 @@ public interface DmsDeliveryService {
      * @return
      */
     InvokeResult cancelDeliveryInfo(DeliveryRequest request);
+
+    /**
+     * 新发货：按箱号发货校验
+     *
+     * @param request
+     * @return
+     */
+    JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request);
 
 }

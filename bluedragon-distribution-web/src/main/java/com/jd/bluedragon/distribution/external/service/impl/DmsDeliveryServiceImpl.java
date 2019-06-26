@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -8,6 +10,7 @@ import com.jd.bluedragon.distribution.external.service.DmsDeliveryService;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -25,6 +28,10 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService {
     @Autowired
     @Qualifier("deliveryResource")
     private DeliveryResource deliveryResource;
+
+    @Autowired
+    @Qualifier("deliveryVerifyService")
+    private DeliveryVerifyService deliveryVerifyService;
 
     @Override
     public InvokeResult<AbstractMap.Entry<Integer, String>> checkSendCodeStatus(String sendCode) {
@@ -54,5 +61,10 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService {
             return result;
         }
         return null;
+    }
+
+    @Override
+    public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
+        return deliveryVerifyService.packageSendVerifyForBoxCode(request);
     }
 }
