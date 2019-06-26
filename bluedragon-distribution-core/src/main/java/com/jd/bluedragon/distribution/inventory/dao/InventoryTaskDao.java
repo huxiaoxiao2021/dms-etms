@@ -36,11 +36,18 @@ public interface InventoryTaskDao extends Dao<InventoryTask> {
     boolean updateSum(InventoryTask inventoryTask);
 
     /**
-     * 根据盘点任务id获取盘点任务
+     * 根据盘点任务id获取盘点任务（未完成，主任务）
      * @param inventoryTaskId
      * @return
      */
     List<InventoryTask> getInventoryTaskByTaskId(String inventoryTaskId);
+
+    /**
+     * 根据盘点任务id获取盘点任务（未完成，主任务）
+     * @param inventoryTaskId
+     * @return
+     */
+    InventoryTask getInventoryTaskInfo(String inventoryTaskId);
 
     /**
      * 根据流向/盘点范围获取盘点任务

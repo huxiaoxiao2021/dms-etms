@@ -88,7 +88,7 @@
         #{createUserCode,jdbcType=INTEGER},
         #{createUserErp,jdbcType=VARCHAR},
         #{createUserName,jdbcType=INTEGER},
-        #{createTime,jdbcType=TIMESTAMP},
+        now(),
         #{endTime,jdbcType=TIMESTAMP},
         #{status,jdbcType=TINYINT},
         #{cooperateType,jdbcType=TINYINT},
@@ -250,6 +250,15 @@
         and cooperate_type= 1
         and status=0
         and is_delete = 0
+    </select>
+
+    <select id="getInventoryTaskInfo" resultMap="inventoryTask" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from inventory_task
+        where inventory_task_id = #{inventoryTaskId,jdbcType=VARCHAR}
+        and is_delete = 0
+        limit 1
     </select>
 
     <select id="getInventoryTaskByDirectionOrScope" resultMap="inventoryTask" parameterType="java.util.Map">

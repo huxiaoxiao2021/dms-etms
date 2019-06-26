@@ -303,10 +303,10 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     private InventoryException convert2InventoryException(InventoryBaseRequest inventoryBaseRequest) {
 
         InventoryException inventoryException = new InventoryException();
-
-        List<InventoryTask> inventoryTaskList = inventoryTaskDao.getInventoryTaskByTaskId(inventoryBaseRequest.getInventoryTaskId());
-        if (inventoryTaskList != null && ! inventoryTaskList.isEmpty()) {
-            InventoryTask inventoryTask = inventoryTaskList.get(0);
+        String inventoryTaskId = inventoryBaseRequest.getInventoryTaskId();
+        inventoryException.setInventoryTaskId(inventoryTaskId);
+        InventoryTask inventoryTask = inventoryTaskDao.getInventoryTaskInfo(inventoryTaskId);
+        if (inventoryTask != null) {
             inventoryException.setOrgId(inventoryTask.getOrgId());
             inventoryException.setOrgName(inventoryTask.getOrgName());
             inventoryException.setInventorySiteCode(inventoryTask.getCreateSiteCode());
@@ -319,7 +319,6 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
             inventoryException.setInventorySiteCode(inventoryBaseRequest.getCreateSiteCode());
             inventoryException.setInventorySiteName(inventoryBaseRequest.getCreateSiteName());
         }
-        inventoryException.setCreateTime(new Date());
         return inventoryException;
     }
 

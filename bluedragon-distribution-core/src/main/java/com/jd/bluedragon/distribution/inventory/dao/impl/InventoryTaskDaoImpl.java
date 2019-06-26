@@ -44,6 +44,14 @@ public class InventoryTaskDaoImpl extends BaseDao<InventoryTask> implements Inve
         return this.getSqlSession().selectList(nameSpace + ".getInventoryTaskByTaskId", inventoryTaskId);
     }
 
+    @Override
+    public InventoryTask getInventoryTaskInfo(String inventoryTaskId) {
+        if(StringUtils.isBlank(inventoryTaskId)){
+            return null;
+        }
+        return this.getSqlSession().selectOne(nameSpace + ".getInventoryTaskInfo", inventoryTaskId);
+    }
+
     public boolean updateTime(InventoryTask task) {
         return sqlSession.update(this.nameSpace+".updateTime", task) >0;
     }

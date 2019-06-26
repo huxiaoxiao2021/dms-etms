@@ -158,13 +158,9 @@
             <if test="expOperateTime != null">
                 exp_operate_time,
             </if>
-            <if test="createTime != null">
                 create_time,
-            </if>
-            <if test="updateTime != null">
                 update_time,
-            </if>
-            is_delete
+                is_delete
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
@@ -242,12 +238,8 @@
             <if test="expOperateTime != null">
                 #{expOperateTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="createTime != null">
-                #{createTime,jdbcType=TIMESTAMP},
-            </if>
-            <if test="updateTime != null">
-                #{updateTime,jdbcType=TIMESTAMP},
-            </if>
+            now(),
+            now(),
             0
         </trim>
     </insert>
