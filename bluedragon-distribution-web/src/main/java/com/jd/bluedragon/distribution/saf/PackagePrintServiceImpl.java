@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
 import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -30,6 +31,7 @@ import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.distribution.rest.reverse.ReversePrintResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -60,6 +62,9 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
     @Autowired
     private SysConfigService sysConfigService;
+    
+    @Autowired
+    ReversePrintResource reversePrintResource;
 
     /**
      * 打印JSF接口token校验开关
@@ -361,7 +366,13 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 		}
 		ReversePrintRequest requestData = JsonHelper.fromJson(reversePrintAfterRequest.getData(), ReversePrintRequest.class);
 		if(requestData != null){
-			jdResult.toFail("该接口暂未实现！");
+			InvokeResult<Boolean> result = reversePrintResource.reversePrintAfter(requestData);
+			if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
+				jdResult.toSuccess(result.getMessage());
+				jdResult.setData(result.getData());
+			}else{
+				jdResult.toFail(result.getCode(),result.getMessage());
+			}
 			return jdResult;
 		}else{
 			jdResult.toFail("请求参数中data值无效！");
