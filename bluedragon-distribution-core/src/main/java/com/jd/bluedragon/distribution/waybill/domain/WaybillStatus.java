@@ -222,6 +222,11 @@ public class WaybillStatus {
     private Integer returnFlag;
     private String remark;
 
+    /**
+     * 返单号
+     */
+    private String returnWaybillCode;
+
     public Long getId() {
         return this.id;
     }
@@ -380,5 +385,13 @@ public class WaybillStatus {
 
     public void setReturnFlag(Integer returnFlag) {
         this.returnFlag = returnFlag;
+    }
+
+    public String getReturnWaybillCode() {
+        return returnWaybillCode;
+    }
+
+    public void setReturnWaybillCode(String returnWaybillCode) {
+        this.returnWaybillCode = returnWaybillCode;
     }
 }
