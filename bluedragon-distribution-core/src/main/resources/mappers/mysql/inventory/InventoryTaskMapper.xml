@@ -301,7 +301,7 @@
         from
         inventory_task
         <include refid="Base_Condition_Sql"/>
-        group by inventory_task_id limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+        group by inventory_task_id order by create_time limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
     </select>
 
     <select id="getExportResultByCondition" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTaskCondition" resultMap="inventoryTask">
@@ -317,6 +317,6 @@
         from
         inventory_task
         <include refid="Base_Condition_Sql"/>
-        group by inventory_task_id
+        group by inventory_task_id order by create_time
     </select>
 </mapper>
