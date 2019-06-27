@@ -9,6 +9,8 @@ import com.jd.bluedragon.distribution.inventory.dao.InventoryTaskDao;
 import com.jd.bluedragon.distribution.inventory.domain.*;
 import com.jd.bluedragon.distribution.inventory.service.InventoryExceptionService;
 import com.jd.bluedragon.distribution.inventory.service.InventoryInfoService;
+import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -49,6 +51,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
 
     @Autowired
     private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+
+    @Autowired
+    private PackageStatusService packageStatusService;
 
     @Override
     public Dao<InventoryException> getDao() {
@@ -101,9 +106,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 body.add(inventoryException.getWaybillCode());
                 body.add(inventoryException.getPackageCode());
                 body.add(inventoryException.getDirectionName());
-                body.add(inventoryException.getLatestPackStatus());
                 body.add(InventoryExpTypeEnum.getDescByCode(inventoryException.getExpType()));
                 body.add(inventoryException.getExpDesc());
+                body.add(inventoryException.getLatestPackStatus());
                 body.add(inventoryException.getExpStatus() == 0 ? "未处理" : "已处理");
                 body.add(inventoryException.getExpUserErp());
                 body.add(DateHelper.formatDate(inventoryException.getExpOperateTime(), Constants.DATE_TIME_FORMAT));
@@ -196,19 +201,31 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                 inventoryException.setInventoryTime(inventoryScanDetail.getOperateTime());
                 inventoryException.setExpType(InventoryExpTypeEnum.INVENTORY_EXCEPT_TYPE_MORE.getCode());
 
-                List<String> packageCodeList = new ArrayList<>();
-                packageCodeList.add(packageCode);
-                List<InventoryPackage> inventoryPackages = inventoryInfoService.queryPackageStatusList(inventoryBaseRequest, packageCodeList);
-                if (inventoryPackages != null && ! inventoryPackages.isEmpty()) {
-                    Integer directionCode = inventoryPackages.get(0).getDirectionCode();
-                    List<Integer> directionCodeList = inventoryBaseRequest.getDirectionCodeList();
-                    if (InventoryScopeEnum.CUSTOMIZE.getCode().equals(inventoryBaseRequest.getInventoryScope()) && ! directionCodeList.contains(directionCode)) {
-                        //流向异常有实物
-                        inventoryException.setExpDesc(InventoryExpDescEnum.DIRECTION_EXCEPTION_MORE.getDesc());
-                        //流向异常默认已处理
-                        inventoryException.setExpStatus(1);
-                        inventoryException.setExpOperateTime(new Date());
-                    } else {
+                boolean isNotDirectionException = true;
+                //先判断是不是流向异常多货
+                //自定义需要判断是否是流向异常
+                if (inventoryBaseRequest.getInventoryScope() == 1) {
+                    SiteWithDirection receiveSite = packageStatusService.getReceiveSiteByWaybillCode(WaybillUtil.getWaybillCode(packageCode), inventoryBaseRequest.getCreateSiteCode());
+                    //获取运单或者包裹的流向，如果流向不在流向列表范围内，判定为流向异常
+                    if (receiveSite != null && receiveSite.getDirectionCode() != null) {
+                        List<Integer> directionCodeList = inventoryBaseRequest.getDirectionCodeList();
+                        //不在盘点流向内，流向异常多货
+                        if (! directionCodeList.contains(receiveSite.getDirectionCode())) {
+                            //流向异常有实物
+                            inventoryException.setExpDesc(InventoryExpDescEnum.DIRECTION_EXCEPTION_MORE.getDesc());
+                            //流向异常默认已处理
+                            inventoryException.setExpStatus(1);
+                            inventoryException.setExpOperateTime(new Date());
+                            isNotDirectionException = false;
+                        }
+                    }
+                }
+                //如果是流向异常，跳过后面异常判断
+                if (isNotDirectionException) {
+                    List<String> packageCodeList = new ArrayList<>();
+                    packageCodeList.add(packageCode);
+                    List<InventoryPackage> inventoryPackages = inventoryInfoService.queryPackageStatusList(inventoryBaseRequest, packageCodeList);
+                    if (inventoryPackages != null && ! inventoryPackages.isEmpty()) {
                         Integer statusCode =  inventoryPackages.get(0).getStatusCode();
                         if (PackStatusEnum.SEND.getCode().equals(statusCode)) {
                             //已发货有实物
@@ -219,11 +236,12 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         } else {
                             logger.warn("包裹状态妈：" + statusCode.toString() + "，不是发货货异常外呼状态！");
                         }
+                    } else {
+                        //无任何操作有实物
+                        inventoryException.setExpDesc(InventoryExpDescEnum.NO_OPERATION_MORE.getDesc());
                     }
-                } else {
-                    //无任何操作有实物
-                    inventoryException.setExpDesc(InventoryExpDescEnum.NO_OPERATION_MORE.getDesc());
                 }
+
                 try {
                     exceptionCount++;
                     this.inventoryExceptionDao.insert(inventoryException);
@@ -338,7 +356,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
             return InventoryExpDescEnum.SORTING_LOSS.getDesc();
         } else if (packStatus.equals(PackStatusEnum.SORTING_CANCEL.getCode())) {
             //取消分拣无实物
-            return InventoryExpDescEnum.SEND_CANCEL_LOSS.getDesc();
+            return InventoryExpDescEnum.SORTING_CANCEL_LOSS.getDesc();
         } else if (packStatus.equals(PackStatusEnum.SEND_CANCEL.getCode())) {
             //取消发货无实物
             return InventoryExpDescEnum.SEND_CANCEL_LOSS.getDesc();

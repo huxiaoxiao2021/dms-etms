@@ -123,7 +123,8 @@ $(function () {
             },
             events: {
                 'click .trace': function(e, value, row, index) {
-                    window.open('http://waybill.test.jd.com/waybill/trackInfo/' + value);
+                    var url = $("#url").val();
+                    window.open('http://' + url + '/waybill/trackInfo/' + value);
                 }
             }
         },{

@@ -12,6 +12,7 @@
 <body>
 <input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
 <input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+<input type="hidden" id="url" value="$!{url}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">转运中心</a></li>

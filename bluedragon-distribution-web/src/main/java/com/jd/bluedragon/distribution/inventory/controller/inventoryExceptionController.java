@@ -23,6 +23,7 @@ import com.jd.uim.annotation.Authorization;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -37,6 +38,9 @@ import java.util.List;
 public class inventoryExceptionController extends DmsBaseController {
 
     private static final Log logger = LogFactory.getLog(inventoryExceptionController.class);
+
+    @Value("${waybill.trace.url:waybill.test.jd.com}")
+    private String waybillTraceUrl;
 
     @Autowired
     private InventoryExceptionService inventoryExceptionService;
@@ -54,7 +58,7 @@ public class inventoryExceptionController extends DmsBaseController {
             createSiteCode = loginUser.getSiteCode();
             orgId = loginUser.getOrgId();
         }
-        model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode);
+        model.addAttribute("orgId",orgId).addAttribute("createSiteCode",createSiteCode).addAttribute("url",this.waybillTraceUrl);
         return "/inventory/inventoryException";
     }
 
