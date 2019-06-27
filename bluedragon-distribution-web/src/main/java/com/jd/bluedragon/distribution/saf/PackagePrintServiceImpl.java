@@ -364,8 +364,8 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			jdResult.toFail("请求参数不能为空！");
 			return jdResult;
 		}
-		if(!checkVerify(reversePrintAfterRequest)){
-			jdResult.toFail("系统访问密钥校验失败，请使用正确的秘钥！");
+        if(!this.checkVerify(reversePrintAfterRequest)){
+        	jdResult.toFail("权限验证失败！请检查传入参数systemCode、secretKey、businessType、operateType的值！");
             return jdResult;
         }
 		ReversePrintRequest requestData = JsonHelper.fromJson(reversePrintAfterRequest.getData(), ReversePrintRequest.class);
