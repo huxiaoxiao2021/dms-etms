@@ -358,19 +358,23 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 	@Override
 	public JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest) {
     	JdResult<Boolean> jdResult = new JdResult<Boolean>();
-		jdResult.setData(Boolean.TRUE);
-		jdResult.toSuccess();
+		jdResult.setData(Boolean.FALSE);
+		jdResult.toFail();
 		if(reversePrintAfterRequest == null || reversePrintAfterRequest.getData() == null){
 			jdResult.toFail("请求参数不能为空！");
 			return jdResult;
 		}
+		if(!checkVerify(reversePrintAfterRequest)){
+			jdResult.toFail("系统访问密钥校验失败，请使用正确的秘钥！");
+            return jdResult;
+        }
 		ReversePrintRequest requestData = JsonHelper.fromJson(reversePrintAfterRequest.getData(), ReversePrintRequest.class);
 		if(requestData != null){
 			InvokeResult<Boolean> result = reversePrintResource.reversePrintAfter(requestData);
 			if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
 				jdResult.toSuccess(result.getMessage());
 				jdResult.setData(result.getData());
-			}else{
+			}else if(result != null){
 				jdResult.toFail(result.getCode(),result.getMessage());
 			}
 			return jdResult;
