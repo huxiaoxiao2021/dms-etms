@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.distribution.external.gateway.service.SortingGatewayService;
+import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.basic.util.DateUtil;

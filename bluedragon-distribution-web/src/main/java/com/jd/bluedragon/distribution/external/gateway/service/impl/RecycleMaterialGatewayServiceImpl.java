@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
-import com.jd.bluedragon.distribution.external.gateway.service.RecycleMaterialGatewayService;
+import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
 import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResource;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
