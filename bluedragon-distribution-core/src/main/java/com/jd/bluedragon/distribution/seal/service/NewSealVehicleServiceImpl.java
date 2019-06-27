@@ -130,7 +130,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         logger.info("VOS封车业务同时生成车次任务参数："+ JsonHelper.toJson(paramList));
 
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
-        String errorMsg = "封车成功";
+        String errorMsg = "";
         List<SealCarDto> successSealCarList = new ArrayList<>(); //封车成功的
 
         //循环调用运输封车同时生成车次任务的接口
