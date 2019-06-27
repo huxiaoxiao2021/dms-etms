@@ -11,6 +11,7 @@ import java.util.TreeMap;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
@@ -141,6 +142,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_PACK="包装";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
+    private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+
+    /**
+     * B网医药冷链温层
+     */
+    private static final String DISTRIBUTE_TYPE_COLD = "冷藏";
+    private static final String DISTRIBUTE_TYPE_COOL = "阴凉";
+    private static final String DISTRIBUTE_TYPE_NORMAL = "常温";
+    private static final String DISTRIBUTE_TYPE_FREEZING ="冷冻";
+    private static final String DISTRIBUTE_TYPE_PRECISION_COLD = "精准冷藏";
 
     private static final String STORE_TYPE_WMS = "wms";
 
@@ -796,6 +807,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
+        /**
+         * waybill_sign第54位等于4 且 第40位等于2或3时:医药零担
+         */
+        if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_SCATTERED);
+        }
+
         //waybill_sign标识位，第七十九位为2，打提字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
@@ -912,9 +930,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         //设置特殊需求
-        loadSpecialRequirement(target,waybill.getWaybillSign());
+        loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
         //设置微笑
         hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
+
+        //处理特殊的distributTypeText
+        processSpecialDistributTypeText(target,waybill.getWaybillSign());
         return target;
     }
 
@@ -1169,9 +1190,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * 加载特殊要求信息
      * @param printWaybill
      */
-    public void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign){
+    public void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign,com.jd.etms.waybill.domain.Waybill waybill){
         String specialRequirement = "";
         if(StringUtils.isNotBlank(waybillSign)){
+            //保价
+            if(waybill != null && NumberHelper.gt0(waybill.getPriceProtectMoney())){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY + ",";
+            }
             //签单返还
             if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
@@ -1191,6 +1216,25 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         if(StringUtils.isNotBlank(specialRequirement)){
             printWaybill.setSpecialRequirement(specialRequirement.substring(0,specialRequirement.length()-1));
+        }
+    }
+
+    //处理特殊的distributTypeText
+    //当waybill_sign第54位等于4时，表示为冷链医药运单，面单显示医药温层，
+    //显示的字样读取waybill_sign第43位对应的枚举值，面单显示括号中的汉字：
+    private void processSpecialDistributTypeText(BasePrintWaybill printWaybill,String waybillSign){
+        if(BusinessUtil.isBMedicine(waybillSign)) {
+            if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_43, WaybillSignConstants.CHAR_43_1)) {
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
+            }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3,WaybillSignConstants.CHAR_43_4)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_PRECISION_COLD);
+            }
         }
     }
 }

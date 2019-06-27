@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
@@ -701,5 +702,62 @@ public class BusinessUtil {
     public static boolean isTc(String waybillSign) {
     	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
     			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
+    }
+
+    /**
+     * 是否是营业厅
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHall(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1);
+    }
+
+    /**
+     * 是否寄付
+     */
+    public static boolean isFreightSend(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+    }
+
+    /**
+     * 是否正向 （外单）
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isForeignForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+    }
+
+    /**
+     * 外单
+     * 是否是 营业厅运单 并且 寄付 并且 是正向单
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHallFreightSendAndForward(String waybillSign) {
+        return isBusinessHall(waybillSign) && isFreightSend(waybillSign) && isForeignForward(waybillSign);
+    }
+    /**
+     * 根据waybillSign判断是否自营单号,waybill_sign第1位等于 1、4、5、7、8 、A，判断为【自营】运单
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isSelf(String waybillSign) {
+		if(waybillSign!=null){
+			return isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,
+					WaybillSignConstants.CHAR_1_1,WaybillSignConstants.CHAR_1_4,WaybillSignConstants.CHAR_1_5,WaybillSignConstants.CHAR_1_7,WaybillSignConstants.CHAR_1_8,WaybillSignConstants.CHAR_1_A);
+		}
+		return false;
+	}
+
+
+    /**
+     * 判断是否是冷链医药运单   waybillSign第54位为4
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isBMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
     }
 }
