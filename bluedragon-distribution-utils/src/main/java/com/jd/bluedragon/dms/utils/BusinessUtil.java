@@ -751,4 +751,13 @@ public class BusinessUtil {
 		return false;
 	}
 
+
+    /**
+     * 判断是否是冷链医药运单   waybillSign第54位为4
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isBMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
+    }
 }

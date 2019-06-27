@@ -33,6 +33,8 @@ public interface WaybillSignConstants {
 	 * B网标识 1、2、3、4、5
 	 */
 	int POSITION_40 = 40;
+	char CHAR_40_2='2';
+	char CHAR_40_3='3';
 	/**
 	 * B与C转网模式说明: 0：未转网
 		1：C转B
@@ -75,6 +77,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_54 = 54;
 	char CHAR_54_2 = '2';
+	char CHAR_54_4 = '4';
 
 	/**
 	 * 京仓/非京仓
@@ -90,6 +93,16 @@ public interface WaybillSignConstants {
      * 代客下单
      */
 	char REPLACE_ORDER_CHAR_62_1 = '1';
+	/**
+	 * 医药冷链温层
+	 */
+	int POSITION_43=43;
+	char CHAR_43_1 = '1';
+	char CHAR_43_2 = '2';
+	char CHAR_43_3 = '3';
+	char CHAR_43_4 = '4';
+	char CHAR_43_5 = '5';
+	char CHAR_43_6 = '6';
 
 	/**
 	 * C端收运费

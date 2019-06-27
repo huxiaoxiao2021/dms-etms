@@ -105,4 +105,10 @@ public class TextConstants {
      * 订单号前缀-订单号
      */
     public static final String PRINT_TEXT_ORDER_CODE_PREFIX ="订单号";
+
+    /**
+     * waybill_sign第54位等于4 且 第40位等于2或3
+     */
+    public static final String COMMON_TEXT_MEDICINE_SCATTERED ="医药零担";
+
 }
