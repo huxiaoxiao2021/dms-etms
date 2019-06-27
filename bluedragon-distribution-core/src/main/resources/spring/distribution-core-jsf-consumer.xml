@@ -424,6 +424,8 @@
     <!-- 转运中台-容器实操接口 -->
     <jsf:consumer id="containerService" interface="com.jd.ql.shared.services.sorting.api.ContainerService"
                   protocol="jsf" alias="${jsf.containerService.alias}" timeout="${jsf.containerService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
     </jsf:consumer>
 
     <!-- 转运中台-容器查询接口 -->
