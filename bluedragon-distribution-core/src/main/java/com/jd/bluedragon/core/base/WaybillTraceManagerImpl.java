@@ -93,8 +93,12 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      */
     @Override
     public BaseEntity<List<PackageState>> getAllOperations(String packageCode) {
-
-        return waybillTraceApi.getAllOperations(packageCode);
+        try {
+            return waybillTraceApi.getAllOperations(packageCode);
+        } catch (Exception e) {
+            logger.error("获取包裹号" + packageCode + "全程跟踪列表失败", e);
+        }
+        return null;
     }
 
 }

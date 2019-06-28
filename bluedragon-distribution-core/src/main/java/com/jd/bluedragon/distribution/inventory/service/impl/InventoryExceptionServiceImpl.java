@@ -270,6 +270,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         params.put("expUserCode", loginUser.getStaffNo());
         params.put("expUserErp", loginUser.getUserErp());
         params.put("expUserName", loginUser.getUserName());
+        params.put("expOperateTime", new Date());
         return inventoryExceptionDao.updateExpStatus(params);
     }
 
@@ -300,7 +301,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                             //满足条件则认定当前单号在当前始发操作后，有了其他站点新的操作全程跟踪
                             if (isCurrOperate) {
                                 //认为下游有操作，自动更新盘点异常表
-                                String operateTypeName = packageState.getState();
+                                String operateTypeName = packageState.getRemark();
                                 String operateSiteName = packageState.getOperatorSite();
                                 statusDesc = MessageFormat.format("{0}【{1}】", operateSiteName, operateTypeName);
                                 break;
@@ -313,6 +314,8 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         list.add(inventoryException.getId());
                         params.put("list", list);
                         params.put("latestPackStatus", statusDesc);
+                        params.put("expOperateTime", new Date());
+                        params.put("expUserErp", "系统自动处理");
                         inventoryExceptionDao.updateExpStatus(params);
                         count++;
                     } else {

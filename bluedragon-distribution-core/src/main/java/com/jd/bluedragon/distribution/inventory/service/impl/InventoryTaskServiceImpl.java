@@ -306,7 +306,7 @@ public class InventoryTaskServiceImpl extends BaseService<InventoryTask> impleme
         inventoryTaskBasic.setCreateUserCode(request.getUserCode());
         inventoryTaskBasic.setCreateUserErp(request.getUserErp());
         inventoryTaskBasic.setCreateUserName(request.getUserName());
-        inventoryTaskBasic.setCreateTime(DateHelper.getSeverTime(request.getOperateTime()));
+        inventoryTaskBasic.setCreateTime(new Date());
         inventoryTaskBasic.setUpdateTime(inventoryTaskBasic.getCreateTime());
         inventoryTaskBasic.setCooperateType(request.getCooperateType());
         inventoryTaskBasic.setInventoryScope(request.getInventoryScope());

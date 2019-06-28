@@ -365,6 +365,7 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
         InventoryTask inventoryTask = new InventoryTask();
         inventoryTask.setInventoryTaskId(inventoryBaseRequest.getInventoryTaskId());
         inventoryTask.setStatus(inventoryBaseRequest.getType());
+        inventoryTask.setEndTime(new Date());
         if (inventoryTaskDao.updateStatus(inventoryTask)) {
             //更新成功，发送mq消息
             String body = JsonHelper.toJson(inventoryBaseRequest);

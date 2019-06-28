@@ -247,7 +247,7 @@
     <update id="updateExpStatus" parameterType="java.util.Map">
         UPDATE inventory_exception
         <set>
-            exp_status= 1, exp_operate_time = now()
+            exp_status= 1, exp_operate_time = #{expOperateTime,jdbcType=TIMESTAMP}
 
             <if test="latestPackStatus != null">
                 , latest_pack_status = #{latestPackStatus,jdbcType=VARCHAR}

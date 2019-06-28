@@ -179,7 +179,7 @@
     <update id="updateStatus" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryTask">
         UPDATE inventory_task
         <set>
-            status= #{status,jdbcType=TINYINT}, update_time = now(), end_time = now()
+            status= #{status,jdbcType=TINYINT}, update_time = now(), end_time = #{endTime,jdbcType=TIMESTAMP}
         </set>
             where inventory_task_id= #{inventoryTaskId,jdbcType=VARCHAR} and is_delete = 0
     </update>
