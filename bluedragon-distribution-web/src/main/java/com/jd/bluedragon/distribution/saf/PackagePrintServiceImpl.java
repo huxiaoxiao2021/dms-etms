@@ -8,14 +8,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JsfVerifyConfig;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -29,13 +31,13 @@ import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
 import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintService;
+import com.jd.bluedragon.distribution.rest.reverse.ReversePrintResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
 import com.jd.ql.dms.print.engine.toolkit.JPGBase64Encoder;
-
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -60,6 +62,9 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 
     @Autowired
     private SysConfigService sysConfigService;
+    
+    @Autowired
+    ReversePrintResource reversePrintResource;
 
     /**
      * 打印JSF接口token校验开关
@@ -345,6 +350,34 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			request.setOperateType(rePrintRecordRequest.getOperateType());
 			request.setData(requestData);
 			return this.hasReprintAll(request);
+		}else{
+			jdResult.toFail("请求参数中data值无效！");
+			return jdResult;
+		}
+	}
+	@Override
+	public JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest) {
+    	JdResult<Boolean> jdResult = new JdResult<Boolean>();
+		jdResult.setData(Boolean.FALSE);
+		jdResult.toFail();
+		if(reversePrintAfterRequest == null || reversePrintAfterRequest.getData() == null){
+			jdResult.toFail("请求参数不能为空！");
+			return jdResult;
+		}
+        if(!this.checkVerify(reversePrintAfterRequest)){
+        	jdResult.toFail("权限验证失败！请检查传入参数systemCode、secretKey、businessType、operateType的值！");
+            return jdResult;
+        }
+		ReversePrintRequest requestData = JsonHelper.fromJson(reversePrintAfterRequest.getData(), ReversePrintRequest.class);
+		if(requestData != null){
+			InvokeResult<Boolean> result = reversePrintResource.reversePrintAfter(requestData);
+			if(result != null && InvokeResult.RESULT_SUCCESS_CODE == result.getCode()){
+				jdResult.toSuccess(result.getMessage());
+				jdResult.setData(result.getData());
+			}else if(result != null){
+				jdResult.toFail(result.getCode(),result.getMessage());
+			}
+			return jdResult;
 		}else{
 			jdResult.toFail("请求参数中data值无效！");
 			return jdResult;

@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.print.service;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
@@ -43,4 +45,10 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<Boolean> hasReprinted(JdCommand<String> rePrintRecordRequest);
+	/**
+	 * 换单打印回调处理
+	 * @param reversePrintAfterRequest
+	 * @return
+	 */
+	JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest);
 }
