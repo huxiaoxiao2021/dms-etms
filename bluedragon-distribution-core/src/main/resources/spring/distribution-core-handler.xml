@@ -46,6 +46,7 @@
 			<map key-type="java.lang.Integer" value-type="com.jd.bluedragon.distribution.handler.Handler">
 				<entry key="100301"  value-ref="jsfBasicPrint"/>
 				<entry key="100302"  value-ref="eclpPackagePrint"/>
+				<entry key="100303"  value-ref="eclpShoppingPackagePrint"/>
 			</map>
 		</property>
 	</bean>
@@ -136,7 +137,24 @@
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
 		</property>
-	</bean>	
+	</bean>
+	<!-- 包裹标签打印-eclp商城打印逻辑处理 -->
+	<bean id="eclpShoppingPackagePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+		<property name="handlers">
+			<list>
+				<ref bean="basicWaybillPrintHandler"/>
+				<ref bean="eclpShoppingInterceptHandler"/>
+				<ref bean="c2cInterceptHandler"/>
+				<ref bean="interceptWaybillHandler"/>
+				<ref bean="scheduleWaybillHandler"/>
+				<ref bean="specialMarkWaybillHandler"/>
+				<ref bean="specialTextWaybillHandler"/>
+				<ref bean="promiseWaybillHandler"/>
+				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="templateSelectorWaybillHandler"/>
+			</list>
+		</property>
+	</bean>		
 	<!-- 包裹标签打印-站点平台打印 -->
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler">
 		<property name="handlers">
