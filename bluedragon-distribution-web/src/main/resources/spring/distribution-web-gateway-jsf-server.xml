@@ -39,6 +39,6 @@
     <jsf:provider id="jsfSealCarGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.SealCarGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="batchSingleSendService" server="dmsjsf">
+                  ref="searCarService" server="dmsjsf">
     </jsf:provider>
 </beans>
