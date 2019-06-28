@@ -93,6 +93,12 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.jmq</groupId>
+			<artifactId>jmq-client-json</artifactId>
+			<version>1.2.44</version>
+		</dependency>
+
         <dependency>
 			<groupId>org.apache.santuario</groupId>
 			<artifactId>xmlsec</artifactId>
