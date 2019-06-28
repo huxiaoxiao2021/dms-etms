@@ -19,5 +19,5 @@ public interface InventoryExceptionService extends Service<InventoryException> {
 
     int handleException(List<Long> list, LoginUser loginUser);
 
-    void syncInventoryExceptionWaybillTrace();
+    int syncInventoryExceptionWaybillTrace();
 }

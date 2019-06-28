@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.inventory.service.impl;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryExceptionDao;
 import com.jd.bluedragon.distribution.inventory.dao.InventoryScanDetailDao;
@@ -14,6 +15,8 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -50,7 +53,7 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     private InventoryTaskDao inventoryTaskDao;
 
     @Autowired
-    private WaybillTraceBusinessQueryApi waybillTraceBusinessQueryApi;
+    private WaybillTraceManager waybillTraceManager;
 
     @Autowired
     private PackageStatusService packageStatusService;
@@ -230,9 +233,11 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         if (PackStatusEnum.SEND.getCode().equals(statusCode)) {
                             //已发货有实物
                             inventoryException.setExpDesc(InventoryExpDescEnum.SEND_MORE.getDesc());
+                            inventoryException.setLatestPackStatus(PackStatusEnum.SEND.getDesc());
                         } else if (PackStatusEnum.EXCEPTION.getCode().equals(statusCode)) {
                             //异常外呼有实物
                             inventoryException.setExpDesc(InventoryExpDescEnum.EXCEPTION_MORE.getDesc());
+                            inventoryException.setLatestPackStatus(PackStatusEnum.EXCEPTION.getDesc());
                         } else {
                             logger.warn("包裹状态妈：" + statusCode.toString() + "，不是发货货异常外呼状态！");
                         }
@@ -269,7 +274,9 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
     }
 
     @Override
-    public void syncInventoryExceptionWaybillTrace() {
+    public int syncInventoryExceptionWaybillTrace() {
+
+        int count = 0;
         //盘点少货的包裹号需要查询全程跟踪状态
         //获取该始发站点下的所有少货异常记录
         List<InventoryException> inventoryExceptionList = inventoryExceptionDao.getInventoryLossException();
@@ -277,15 +284,15 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
         for (InventoryException inventoryException : inventoryExceptionList) {
             String packageCode = inventoryException.getPackageCode();
             Integer inventorySiteCode = inventoryException.getInventorySiteCode();
-            APIResultDTO<List<BillBusinessTraceDTO>> resultDTO = waybillTraceBusinessQueryApi.queryBillBTraceByOperatorCode(packageCode);
+            BaseEntity<List<PackageState>> resultDTO = waybillTraceManager.getAllOperations(packageCode);
 
-            if (resultDTO != null && resultDTO.isSuccess()) {
+            if (resultDTO != null && resultDTO.getData() != null) {
                 boolean isCurrOperate = false;
                 String statusDesc = null;
-                List<BillBusinessTraceDTO> billBusinessTraceDTOList = resultDTO.getResult();
-                if (billBusinessTraceDTOList != null && ! billBusinessTraceDTOList.isEmpty()) {
-                    for (BillBusinessTraceDTO billBusinessTraceDTO : billBusinessTraceDTOList) {
-                        Integer operateSiteId = billBusinessTraceDTO.getOperateSiteId();
+                List<PackageState> packageStateList = resultDTO.getData();
+                if (packageStateList != null && ! packageStateList.isEmpty()) {
+                    for (PackageState packageState : packageStateList) {
+                        Integer operateSiteId = packageState.getOperatorSiteId();
                         if (inventorySiteCode.equals(operateSiteId)) {
                             //确定当前操作单位有操作
                             isCurrOperate = true;
@@ -293,8 +300,8 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                             //满足条件则认定当前单号在当前始发操作后，有了其他站点新的操作全程跟踪
                             if (isCurrOperate) {
                                 //认为下游有操作，自动更新盘点异常表
-                                String operateTypeName = billBusinessTraceDTO.getOperateTypeName();
-                                String operateSiteName = billBusinessTraceDTO.getOperateSite();
+                                String operateTypeName = packageState.getState();
+                                String operateSiteName = packageState.getOperatorSite();
                                 statusDesc = MessageFormat.format("{0}【{1}】", operateSiteName, operateTypeName);
                                 break;
                             }
@@ -307,15 +314,19 @@ public class InventoryExceptionServiceImpl extends BaseService<InventoryExceptio
                         params.put("list", list);
                         params.put("latestPackStatus", statusDesc);
                         inventoryExceptionDao.updateExpStatus(params);
+                        count++;
                     } else {
                         logger.warn("包裹号【" + packageCode + "】的在下游无全程跟踪操作，无法对少货异常自动处理！");
                     }
                 } else {
-                    logger.warn("获取包裹号【" + packageCode + "】的全程跟踪为空，无法对少货异常自动处理！");
+                    logger.warn("获取包裹号【" + packageCode + "】无全程跟踪记录，无法对少货异常自动处理！");
                 }
+            } else {
+                logger.warn("获取包裹号【" + packageCode + "】的全程跟踪结果为空，无法对少货异常自动处理！");
             }
 
         }
+        return count;
     }
 
     private InventoryException convert2InventoryException(InventoryBaseRequest inventoryBaseRequest) {

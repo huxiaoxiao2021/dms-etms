@@ -261,8 +261,10 @@ public class InventoryInfoServiceImpl implements InventoryInfoService {
     @Override
     public List<InventoryPackage> queryPackageStatusList(InventoryBaseRequest inventoryBaseRequest, List<String> packageCodeList) {
         List<InventoryPackage> inventoryPackageList = new ArrayList<>();
-        InventoryQueryRequest inventoryQueryRequest = this.convert2InventoryQueryRequest(inventoryBaseRequest);
+        InventoryQueryRequest inventoryQueryRequest = new InventoryQueryRequest();
         inventoryQueryRequest.setPackageCodeList(packageCodeList);
+        inventoryQueryRequest.setCreateSiteCode(inventoryBaseRequest.getCreateSiteCode());
+        logger.info("queryPackageStatusList请求参数：" + JsonHelper.toJson(inventoryQueryRequest));
         try {
             //es中获取包裹列表中状态信息
             BaseEntity<List<InventoryPackage>> baseEntity = inventoryJsfManager.queryPackageStatusList(inventoryQueryRequest);
