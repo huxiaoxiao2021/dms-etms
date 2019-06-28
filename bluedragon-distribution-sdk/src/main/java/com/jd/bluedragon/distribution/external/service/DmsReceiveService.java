@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.response.ContainerRelationResponse;
 import com.jd.bluedragon.distribution.api.response.DeparturePrintResponse;
 
 /**
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/11/9.
  */

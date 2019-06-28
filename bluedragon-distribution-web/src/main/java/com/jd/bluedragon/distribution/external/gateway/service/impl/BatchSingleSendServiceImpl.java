@@ -9,7 +9,7 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.external.gateway.service.BatchSingleSendGatewayService;
+import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
@@ -205,7 +205,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         // 2.3校验包裹的预分拣站点是否在属于扫描的批次中的任何一个
         String sendCode = checkSiteCodeInBatch(siteCodes, batchCodeMap);
         if (sendCode != null) {
-            checkVO.setReceiveSiteCode(Integer.parseInt(BusinessUtil.getBatchReceiveNO(sendCode)));
+            checkVO.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
             checkVO.setSendCode(sendCode);
             jdResponse.setData(checkVO);
             jdResponse.toSucceed(JdResponse.MESSAGE_SUCCESS);
@@ -224,7 +224,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         //从批次号中获取目的站点,key为目的站点，value为批次号
         Map<Integer, String> receiveCodeMap = new HashMap<>(200);
         for (String s : batchList) {
-            receiveCodeMap.put(Integer.parseInt(BusinessUtil.getBatchReceiveNO(s)), s);
+            receiveCodeMap.put(BusinessUtil.getReceiveSiteCodeFromSendCode(s), s);
         }
         return receiveCodeMap;
     }

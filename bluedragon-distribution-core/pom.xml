@@ -143,7 +143,11 @@
 			<artifactId>bluedragon-distribution-saf</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.bluedragon</groupId>
+            <artifactId>bluedragon-distribution-common-android</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
 			<artifactId>etms-waybill-agent</artifactId>

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.gateway.service;
+package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
