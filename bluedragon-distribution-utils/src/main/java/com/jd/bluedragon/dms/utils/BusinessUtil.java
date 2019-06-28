@@ -4,6 +4,8 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.AO_SEND_CODE_REG;
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
@@ -15,6 +17,12 @@ import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
  * @date 2018年10月12日 18时:15分
  */
 public class BusinessUtil {
+
+    /**
+     * 提取发货批次号中站点正则
+     */
+    private static final Pattern RULE_SEND_CODE_SITE_CODE_REGEX = Pattern.compile(AO_SEND_CODE_REG);
+
     /**
      * 是不是发货批次号
      *
@@ -37,54 +45,21 @@ public class BusinessUtil {
    * @return
    */
   public static boolean isSingleBatchNo(String input) {
-    if (StringUtils.isBlank(input)) {
-      return false;
-    }
-    if (input.matches(SEND_CODE_NEW_REG)) {
-      String[] tempStr = input.split("-");
-      String startSiteCode = tempStr[0];
-      String desSiteCode = tempStr[1];
-      String timeString = tempStr[2];
-      long mod =
-          Long.valueOf(
-                  startSiteCode.substring(0, 1)
-                      + desSiteCode.substring(0, 1)
-                      + timeString.substring(0, timeString.length() - 1))
-              % 7;
-      long tail = Long.valueOf(timeString.substring(timeString.length() - 1, 1));
-      return mod == tail;
-    }
-    return false;
-    }
-
-  /**
-   * 根据批次号获取始发地ID
-   * @param batchNo
-   * @return 如果返回值为0，则批次号不合法
-   */
-  public static int getBatchCreatNo(String batchNo) {
-      int res = 0;
-      if (isSendCode(batchNo)) {
-        String[] str = batchNo.split("-");
-        str[0].replace("Y", "");
-        return Integer.valueOf(str[0]);
+      if (StringUtils.isBlank(input)) {
+          return false;
       }
-      return res;
-    }
+      if (input.matches(SEND_CODE_NEW_REG)) {
+          String[] tempStr = input.split("-");
+          String startSiteCode = tempStr[0];
+          String desSiteCode = tempStr[1];
+          String timeString = tempStr[2];
+          long mod = Long.valueOf(startSiteCode.substring(0, 1) + desSiteCode.substring(0, 1) + timeString.substring(0, timeString.length() - 1)) % 7L;
+          long tail = Long.valueOf(timeString.substring(timeString.length() - 1));
+          return mod == tail;
+      }
 
-    /**
-     * 根据批次号获取目的地ID
-     * @param batchNo
-     * @return 如果返回值为0，则批次号不合法
-     */
-    public static int getBatchReceiveNo(String batchNo){
-        int res=0;
-        if (isSendCode(batchNo)){
-            String[] str= batchNo.split("-");
-            return Integer.valueOf(str[1]);
-        }
-        return res;
-    }
+      return false;
+  }
 
     /**
      * 判断输入字符串是否为箱号. 箱号规则： 箱号： B(T,G) C(S) 010F001 010F002 12345678 。
@@ -764,10 +739,36 @@ public class BusinessUtil {
     }
 
     /**
-     * 从批次号中获取目的地
+     * 通过批次号获取目的站点
+     *
+     * @param sendCode 发货批次号
+     * @return
      */
-    public static String getBatchReceiveNO(String sendCode){
-        String [] str=sendCode.split("-");
-        return str[1];
+    public static Integer getReceiveSiteCodeFromSendCode(String sendCode) {
+        if(!isSendCode(sendCode)){
+            return null;
+        }
+        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(2));
+        }
+        return null;
+    }
+
+    /**
+     * 通过批次号获取始发站点
+     *
+     * @param sendCode 发货批次号
+     * @return
+     */
+    public static Integer getCreateSiteCodeFromSendCode(String sendCode) {
+        if(!isSendCode(sendCode)){
+            return null;
+        }
+        Matcher matcher = RULE_SEND_CODE_SITE_CODE_REGEX.matcher(sendCode.trim());
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(1));
+        }
+        return null;
     }
 }

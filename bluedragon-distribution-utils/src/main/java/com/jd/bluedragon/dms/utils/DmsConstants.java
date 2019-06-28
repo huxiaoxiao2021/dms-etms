@@ -125,21 +125,23 @@ public class DmsConstants {
      */
     public static final Pattern RULE_REVERSE_BOXCODE_REGEX = Pattern.compile("^[T|G][C|S|X|W]10[0-9]{18}[0-3][0-9]$");
 
-
     /**
      * 批次号正则
      */
-    public static final String SEND_CODE_REG = "^\\d+-\\d+-\\d{15,17}$"; //批次号正则
+    public static final String SEND_CODE_REG = "^(\\d+)-(\\d+)-(\\d{15,17})$"; //批次号正则
 
     /**
      * 亚一批次号正则
      */
-    public static final String AO_SEND_CODE_REG = "^Y{0,1}\\d+[-]\\d+[-]\\d{15,17}$";
+    public static final String AO_SEND_CODE_REG = "^[Y|y]?(\\d+)-(\\d+)-(\\d{15,17})$";
 
     /**
-     * 新批次号正则
+     * 新批次号正则;
+     * 批次号判断批次号是否是：站点（数字）+站点（数字）+时间串（14位数字）+序号（2位数字）+模7余数
+     * 模7余数：对 站点第一位+站点第一位+时间串+序列号 取模
+     * 必须是17位（时间14位+序号2位+模7余数1位）
      */
-    public static final String SEND_CODE_NEW_REG = "\\d+[-]\\d+[-]\\d{17}$";
+    public static final String SEND_CODE_NEW_REG = "^(\\d+)-(\\d+)-(\\d{17})$";
 
     /**
      * 滑道号正则表达式
