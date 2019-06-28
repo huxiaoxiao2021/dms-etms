@@ -7,9 +7,9 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
-import com.jd.bluedragon.distribution.external.gateway.service.SealCarGatewayService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
+import com.jd.bluedragon.external.gateway.service.SealCarGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import java.util.List;
  * @author jiaowenqiang
  * @date 2019/6/25
  */
-@Service("blockCarService")
+@Service("searCarService")
 public class SearCarServiceImpl implements SealCarGatewayService {
 
     @Autowired

@@ -35,9 +35,9 @@
     </jsf:provider>
 
     <!-- 封车 -->
-    <bean id="blockCarService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SearCarServiceImpl"/>
+    <bean id="searCarService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SearCarServiceImpl"/>
     <jsf:provider id="jsfSealCarGatewayService"
-                  interface="com.jd.bluedragon.distribution.external.gateway.service.SealCarGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SealCarGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="batchSingleSendService" server="dmsjsf">
     </jsf:provider>
