@@ -117,7 +117,7 @@
 		from POP_ABNORMAL
 		<include refid="Pop_Abnormal_Where_List"/>
 		<if test="orderByString != null">
-			ORDER BY ${orderByString} desc
+			ORDER BY #{orderByString} desc
 		</if>
 		<if test="startIndex != null">
 		 LIMIT #{startIndex},#{pageSize}
