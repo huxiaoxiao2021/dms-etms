@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.stash.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.stash.domain.EMGGoodsInfoDto;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.eclp.common.util.EclpNoUtil;
@@ -108,7 +107,7 @@ public class PackageStashServiceImpl implements PackageStashService{
                     && null != waybillEntity.getData()) {
                 SkuPackRelationDto skuPackRelationDto = waybillEntity.getData();
                 resultDto.setPackageCode(skuPackRelationDto.getPackageCode());//包裹号
-                resultDto.setWaybillCode(WaybillUtil.getWaybillCode(skuPackRelationDto.getSku()));//运单号
+                resultDto.setWaybillCode(skuPackRelationDto.getWaybillCode());//运单号
             } else {
                 LOGGER.warn("根据EMG码获取SKU与包裹号的关系失败，入参：{}，出参：{}",emgCode, JsonHelper.toJson(waybillEntity));
             }
