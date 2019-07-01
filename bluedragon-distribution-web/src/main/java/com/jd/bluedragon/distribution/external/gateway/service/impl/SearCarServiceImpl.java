@@ -109,7 +109,7 @@ public class SearCarServiceImpl implements SealCarGatewayService {
     }
 
     /**
-     * 校验任务简码与运力编号是否匹配
+     * 检查运力编码和批次号目的地是否一致
      */
     @Override
     public JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType) {
