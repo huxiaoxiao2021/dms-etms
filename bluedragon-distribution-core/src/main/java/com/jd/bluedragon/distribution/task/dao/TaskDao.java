@@ -112,13 +112,15 @@ public class TaskDao extends BaseDao<Task> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key, List<String> queueIds) {
+	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key, List<String> queueIds,String ownSign, List<String> ownSigns) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
 		request.put("fetchNum", fetchNum);
 		request.put("key", key);
 		request.put("queueIds",queueIds);
+		request.put("ownSign",ownSign);
+		request.put("ownSigns",ownSigns);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findSendTasks", request);
 	}
 
