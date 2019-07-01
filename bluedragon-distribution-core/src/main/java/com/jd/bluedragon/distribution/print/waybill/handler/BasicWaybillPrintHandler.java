@@ -344,6 +344,15 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
                     pack.setPackageWeight(item.getGoodWeight() + Constants.MEASURE_UNIT_NAME_KG);
+                    //毕业寄订单，98位1或2
+                    if (BusinessUtil.isGraduationExpress(commonWaybill.getWaybillSign())) {
+                        Double againWeight = item.getAgainWeight();
+                        //如果复重大于0，面单显示复重
+                        if (NumberHelper.gt0(againWeight)) {
+                            pack.setWeight(againWeight);
+                            pack.setPackageWeight(againWeight + Constants.MEASURE_UNIT_NAME_KG);
+                        }
+                    }
                     packageList.add(pack);
                 }
             }

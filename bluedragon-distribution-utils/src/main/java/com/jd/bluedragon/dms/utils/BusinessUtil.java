@@ -760,4 +760,13 @@ public class BusinessUtil {
     public static boolean isBMedicine(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
     }
+
+    /**
+     * 判断是否是毕业寄   waybillSign第98位为1或2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isGraduationExpress(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
+    }
 }
