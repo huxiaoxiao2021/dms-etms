@@ -79,4 +79,30 @@ public class SendCodeExceptionHandlerServiceImpl implements SendCodeExceptionHan
         LOGGER.debug("获取明细数据为：{},参数为：{}",JsonHelper.toJson(pagerBaseEntity), JsonHelper.toJson(request));
         return pagerBaseEntity;
     }
+
+    @Override
+    public List<Object[]> exportSendCodeDetail(SendCodeExceptionRequest request) {
+        if (null == request || request.getSendCodes() == null || request.getSiteCode() == null || request.getType() == null) {
+            LOGGER.warn("导出批次号明细参数不全；{}",JsonHelper.toJson(request));
+            return null;
+        }
+        BaseEntity<List<GoodsPrintDto>> res = reportExternalService
+                .exportSendCodeExceptionDetail(request.getSendCodes(), request.getSiteCode(), request.getType());
+
+        if (null == res ||res.getCode() != BaseEntity.CODE_SUCCESS || res.getData() == null) {
+            LOGGER.warn("导出批次号明细失败，参数为：{}，获取结果为：{}", JsonHelper.toJson(request), JsonHelper.toJson(res));
+            return null;
+        }
+        List<Object[]> resultData = new ArrayList<>(res.getData().size());
+        for (GoodsPrintDto item : res.getData()) {
+            String packageCode = StringHelper.isEmpty(item.getPackageCode())? "" : item.getPackageCode();
+            String waybillCode = StringHelper.isEmpty(item.getWaybillCode())? "" : item.getWaybillCode();
+            String boxCode = StringHelper.isEmpty(item.getBoxCode())? "" : item.getBoxCode();
+            String sendCode = StringHelper.isEmpty(item.getSendCode())? "" : item.getSendCode();
+
+            String[] rowItem = new String[]{packageCode, waybillCode, boxCode, sendCode};
+            resultData.add(rowItem);
+        }
+        return resultData;
+    }
 }

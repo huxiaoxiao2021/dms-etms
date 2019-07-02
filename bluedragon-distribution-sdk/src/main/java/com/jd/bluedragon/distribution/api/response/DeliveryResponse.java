@@ -35,7 +35,7 @@ public class DeliveryResponse extends JdResponse {
     public static final String MESSAGE_Delivery_NO_PACKAGE= "无该包裹的发货记录";
     public static final String MESSAGE_Delivery_NO_REQUEST= "输入参数错误";
     public static final String MESSAGE_Delivery_NO_BATCH = "无该波次的发货明细";
-    
+    public static final String MESSAGE_DELIVERY_NO_SENDCODE = "无该批次号的发货记录";
     
     public static final Integer CODE_Delivery_NO_DEPART = 40004;
     public static final String MESSAGE_Delivery_NO_DEPART = "该箱号已经发车";

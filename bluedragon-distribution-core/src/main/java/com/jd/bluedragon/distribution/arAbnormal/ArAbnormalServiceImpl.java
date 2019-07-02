@@ -288,6 +288,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             return ArAbnormalRequest.TRANSPONDTYPE20_DESC;
         } else if (ArAbnormalRequest.TRANSPONDTYPE30_CODE.equals(transpondType)) {
             return ArAbnormalRequest.TRANSPONDTYPE30_DESC;
+        } else if (ArAbnormalRequest.TRANSPONDTYPE40_CODE.equals(transpondType)){
+            return ArAbnormalRequest.TRANSPONDTYPE40_DESC;
+        } else if (ArAbnormalRequest.TRANSPONDTYPE50_CODE.equals(transpondType)) {
+            return ArAbnormalRequest.TRANSPONDTYPE50_DESC;
         } else {
             return transpondType.toString();
         }

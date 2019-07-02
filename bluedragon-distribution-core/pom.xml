@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.0.8-test-SNAPSHOT</version>
+			<version>1.0.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
@@ -85,7 +85,19 @@
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jmq-client-json</artifactId>
+					<groupId>com.jd.jmq</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.jmq</groupId>
+			<artifactId>jmq-client-json</artifactId>
+			<version>1.2.44</version>
+		</dependency>
 
         <dependency>
 			<groupId>org.apache.santuario</groupId>
@@ -124,12 +136,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.2.21-SNAPSHOT</version>
+			<version>1.2.23-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>1.1.3-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -396,7 +408,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.18-SNAPSHOT</version>
+			<version>1.2.22-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.basic</groupId>
@@ -808,7 +820,7 @@
 		<dependency>
 			<groupId>com.jd.etms.vrs</groupId>
 			<artifactId>etms-vrs-sdk</artifactId>
-			<version>1.1.18-SNAPSHOT</version>
+			<version>1.1.56-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

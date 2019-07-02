@@ -40,6 +40,9 @@ public class BusinessHelper {
      * Y开头的也认为是箱号（上海亚一用）
      */
     public static Boolean isBoxcode(String s) {
+        if (StringHelper.isEmpty(s)) {
+            return false;
+        }
         return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
 
@@ -471,6 +474,17 @@ public class BusinessHelper {
         } else {
             return false;
         }
+    }
+
+    /**
+     * c2c 且为到付或寄付，且为正向
+     * waybill_sign第61位为0标记正向
+     */
+    public static boolean isC2cForward(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2c(waybillSign);
     }
 
     /**

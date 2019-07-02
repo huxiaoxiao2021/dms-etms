@@ -262,7 +262,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
                     this.logger.warn(JsonHelper.toJson(bdTraceDto));
                     this.logger.warn(bdTraceDto.getWaybillCode());
                     this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常：" + baseEntity.getMessage());
-                    Profiler.functionError(info);
+                    //Profiler.functionError(info);
                     return false;
                 }
             } else {

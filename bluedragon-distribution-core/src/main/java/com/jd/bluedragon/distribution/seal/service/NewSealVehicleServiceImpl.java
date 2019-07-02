@@ -2,9 +2,13 @@ package com.jd.bluedragon.distribution.seal.service;
 
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.core.jmq.domain.SealCarMqDto;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicleEnum;
 import com.jd.bluedragon.distribution.newseal.domain.SealVehicles;
@@ -16,6 +20,7 @@ import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
 import com.jd.bluedragon.utils.SystemLogUtil;
+import com.jd.etms.vos.dto.CancelSealCarDto;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
@@ -146,6 +151,49 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             addSystemLog(paramList, msg);
         }
         return sealCarInfo;
+    }
+
+  /**
+   * 取消封车
+   *
+   * @param request
+   * @return
+   */
+  @Override
+  @JProfiler(
+    jKey = UmpConstants.UMP_KEY_JSF_CLIENT + "vos.vosBusinessWS.doCancelSealCarWithBatchCode",
+    jAppName = Constants.UMP_APP_NAME_DMSWEB,
+    mState = {JProEnum.TP, JProEnum.FunctionError}
+  )
+  public NewSealVehicleResponse cancelSeal(cancelSealRequest request) {
+    NewSealVehicleResponse sealVehicleResponse =
+        new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+
+    CancelSealCarDto TMS_param = new CancelSealCarDto();
+    TMS_param.setBatchCode(request.getBatchCode());
+    TMS_param.setOperateType(request.getOperateType());
+    TMS_param.setOperateUserCode(request.getOperateUserCode());
+    TMS_param.setOperateTime(DateHelper.parseAllFormatDateTime(request.getOperateTime()));
+
+    logger.info("取消封车参数：" + JsonHelper.toJson(TMS_param));
+
+    CommonDto<List<String>> cancelSealInfo = vosBusinessWS.doCancelSealCarWithBatchCode(TMS_param);
+    if (cancelSealInfo != null
+        && cancelSealInfo.getCode() == CommonDto.CODE_SUCCESS
+        && cancelSealInfo.getData().isEmpty() == false) {
+      List<String> batchList = cancelSealInfo.getData();
+
+      removeRedisCache(batchList);
+      cancelSealData(batchList, TMS_param.getOperateUserCode());
+
+      sealVehicleResponse.setCode(JdResponse.CODE_OK);
+      sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
+    } else {
+      logger.warn("取消封车JSF接口返回为空.参数：" + JsonHelper.toJson(TMS_param));
+      sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+      sealVehicleResponse.setMessage(cancelSealInfo != null ? cancelSealInfo.getMessage():"运输取消封车返回空");
+    }
+    return sealVehicleResponse;
     }
 
     /**
@@ -314,6 +362,25 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 }
             }
         }
+    }
+
+  /**
+   * 将封车的批次号从Redis里删除
+   *
+   * @param paramList
+   */
+  private void removeRedisCache(List<String> paramList) {
+    if (paramList == null || paramList.size() == 0) {
+      return;
+    }
+    for (String sendCode : paramList) {
+      try {
+        redisManager.del(Constants.CACHE_KEY_PRE_SEAL_SENDCODE + sendCode);
+        logger.info("已封车批次号刪除缓存成功:" + sendCode);
+      } catch (Throwable e) {
+        logger.warn("已封车批次号刪除缓存失败:" + sendCode + ";异常：" + e.getMessage());
+      }
+    }
     }
 
     /**
@@ -580,6 +647,32 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         }catch (Exception e){
             logger.error("保存解封车业务数据异常，解封车数据：" + JsonHelper.toJson(sealist), e);
         }
+    }
+
+    /**
+     * 取消封车更改业务数据状态
+     * @param sendCodeList
+     */
+  private void cancelSealData(List<String> sendCodeList, String operateUserErp) {
+    logger.info("取消封车业务数据：" + JsonHelper.toJson(sendCodeList));
+    if (sendCodeList == null || sendCodeList.isEmpty()) {
+      return;
+    }
+    try {
+        List<SealVehicles> sealVehiclesList = new ArrayList<>();
+        for (String sendCode :sendCodeList){
+            SealVehicles temp = new SealVehicles();
+            temp.setSealDataCode(sendCode);
+            temp.setStatus(SealVehicleEnum.CANCEL_SEAL.getCode());
+            temp.setUpdateUserErp(operateUserErp);
+            temp.setUpdateTime(new Date());
+
+            sealVehiclesList.add(temp);
+        }
+      sealVehiclesService.updateBySealDataCode(sealVehiclesList);
+    } catch (Exception e) {
+      logger.error("取消封车业务数据异常，取消封车数据：" + JsonHelper.toJson(sendCodeList), e);
+    }
     }
 
     private List<SealVehicles> convert2SealVehicles(List<SealCarDto> sealist){

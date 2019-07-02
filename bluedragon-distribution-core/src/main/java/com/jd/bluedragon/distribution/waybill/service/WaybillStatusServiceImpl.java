@@ -30,6 +30,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -522,15 +523,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                   * @Param: tasks
                  * @return
                  */
-				InvokeResult<RepeatPrint> target=reversePrintService.getNewWaybillCode1(tWaybillStatus.getWaybillCode(),true);
-				if(target.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=target.getData()){
-					String newWaybillCode =target.getData().getNewWaybillCode();
+				if(StringUtils.isNotBlank(tWaybillStatus.getReturnWaybillCode())){
 					Map<String,Object> map=new HashMap<String, Object>();
-					map.put("returnWaybillCode",newWaybillCode);
+					map.put("returnWaybillCode",tWaybillStatus.getReturnWaybillCode());
 					bdTraceDto.setExtendParameter(map);
-				}
-				else{
-					logger.warn("根据旧运单号"+tWaybillStatus.getWaybillCode()+"获取新运单号失败");
 				}
 
                 this.logger.info("向运单系统回传全程跟踪，逆向换单打印调用：" );

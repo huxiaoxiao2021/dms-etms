@@ -15,6 +15,10 @@ public class ArAbnormalRequest extends JdRequest {
     public static final String TRANSPONDTYPE20_DESC= "航空转铁路";
     public static final Integer TRANSPONDTYPE30_CODE = 30;
     public static final String TRANSPONDTYPE30_DESC= "铁路转航空";
+    public static final Integer TRANSPONDTYPE40_CODE = 40;
+    public static final String TRANSPONDTYPE40_DESC= "航空转高铁";
+    public static final Integer TRANSPONDTYPE50_CODE = 50;
+    public static final String TRANSPONDTYPE50_DESC= "航空转普列";
 
     public static final Integer TRANSPONDREASON10_CODE = 10;
     public static final String TRANSPONDREASON10_DESC= "违禁品";
@@ -40,6 +44,11 @@ public class ArAbnormalRequest extends JdRequest {
      */
     private String packageCode;
 
+    /**
+     * 运输方式变更是否取消发货标识，此标志存在于pda新老版本升级期间，老版本为null,新版本为1;
+     */
+    private Integer cancelType;
+
     public Integer getTranspondType() {
         return transpondType;
     }
@@ -62,5 +71,13 @@ public class ArAbnormalRequest extends JdRequest {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public Integer getCancelType() {
+        return cancelType;
+    }
+
+    public void setCancelType(Integer cancelType) {
+        this.cancelType = cancelType;
     }
 }

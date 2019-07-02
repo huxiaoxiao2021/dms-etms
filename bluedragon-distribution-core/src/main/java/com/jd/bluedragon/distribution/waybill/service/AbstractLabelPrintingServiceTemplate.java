@@ -278,6 +278,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         LabelPrintingResponse labelPrinting = new LabelPrintingResponse(request.getWaybillCode());
         if(context != null){
         	context.setBasePrintWaybill(labelPrinting);
+        	context.setLabelPrintingResponse(labelPrinting);
         }
         //B网面单要求将运单号后四位突出显示
         String waybillCode = request.getWaybillCode();
