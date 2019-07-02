@@ -100,7 +100,24 @@
 			AND yn = 1
 		</where>
 		<if test="orderByString != null">
-			ORDER BY #{orderByString} ASC
+			<if test="orderByString=='id' or orderByString=='ID'">
+				ORDER BY id ASC
+			</if>
+			<if test="orderByString=='pop_sup_no' or orderByString=='POP_SUP_NO'">
+				ORDER BY pop_sup_no ASC
+			</if>
+			<if test="orderByString=='abnormal_state' or orderByString=='ABNORMAL_STATE'">
+				ORDER BY abnormal_state ASC
+			</if>
+			<if test="orderByString=='create_time' or orderByString=='CREATE_TIME'">
+				ORDER BY create_time ASC
+			</if>
+			<if test="orderByString=='waybill_code' or orderByString=='WAYBILL_CODE'">
+				ORDER BY waybill_code ASC
+			</if>
+			<if test="orderByString=='operator_code' or orderByString=='OPERATOR_CODE'">
+				ORDER BY operator_code ASC
+			</if>
 		</if>
 		<if test="startIndex != null">
 			  LIMIT #{startIndex},#{pageSize}

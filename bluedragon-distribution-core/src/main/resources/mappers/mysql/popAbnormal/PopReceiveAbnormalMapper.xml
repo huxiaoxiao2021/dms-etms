@@ -117,7 +117,30 @@
 		from POP_ABNORMAL
 		<include refid="Pop_Abnormal_Where_List"/>
 		<if test="orderByString != null">
-			ORDER BY #{orderByString} desc
+			<if test="orderByString=='create_time' or orderByString=='CREATE_TIME'">
+				ORDER BY create_time desc
+			</if>
+			<if test="orderByString=='main_type' or orderByString=='MAIN_TYPE'">
+				ORDER BY main_type desc
+			</if>
+			<if test="orderByString=='sub_type' or orderByString=='SUB_TYPE'">
+				ORDER BY sub_type desc
+			</if>
+			<if test="orderByString=='waybill_code' or orderByString=='WAYBILL_CODE'">
+				ORDER BY waybill_code desc
+			</if>
+			<if test="orderByString=='order_code' or orderByString=='ORDER_CODE'">
+				ORDER BY order_code desc
+			</if>
+			<if test="orderByString=='pop_sup_no' or orderByString=='POP_SUP_NO'">
+				ORDER BY pop_sup_no desc
+			</if>
+			<if test="orderByString=='abnormal_statue' or orderByString=='ABNORMAL_STATUE'">
+				ORDER BY abnormal_statue desc
+			</if>
+			<if test="orderByString=='operator_name' or orderByString=='OPERATOR_NAME'">
+				ORDER BY operator_name desc
+			</if>
 		</if>
 		<if test="startIndex != null">
 		 LIMIT #{startIndex},#{pageSize}
