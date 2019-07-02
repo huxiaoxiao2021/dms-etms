@@ -85,7 +85,19 @@
             <groupId>com.jd.jmq</groupId>
             <artifactId>jmq-client-spring</artifactId>
             <version>${jmq.version}</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>jmq-client-json</artifactId>
+					<groupId>com.jd.jmq</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.jmq</groupId>
+			<artifactId>jmq-client-json</artifactId>
+			<version>1.2.44</version>
+		</dependency>
 
         <dependency>
 			<groupId>org.apache.santuario</groupId>
