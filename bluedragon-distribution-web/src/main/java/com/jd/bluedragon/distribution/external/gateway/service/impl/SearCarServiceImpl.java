@@ -31,7 +31,7 @@ public class SearCarServiceImpl implements SealCarGatewayService {
     private NewSealVehicleResource newSealVehicleResource;
 
     /**
-     * 根据任务简码等参数获取任务信息
+     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
      */
     @Override
     public JdCResponse<SealCarTaskInfoDto> getTaskInfo(SearCarTaskInfoRequest request) {
