@@ -41,6 +41,7 @@ public class SearCarServiceImpl implements SealCarGatewayService {
 
         NewSealVehicleRequest param = new NewSealVehicleRequest();
         param.setTransWorkItemCode(request.getTransWorkItemCode());
+        param.setVehicleNumber(request.getVehicleNumber());
         param.setUserErp(request.getErp());
         param.setDmsCode(request.getDmsCode());
 
