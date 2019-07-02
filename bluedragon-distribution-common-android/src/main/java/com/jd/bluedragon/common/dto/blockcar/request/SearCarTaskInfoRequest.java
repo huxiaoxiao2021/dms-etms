@@ -12,6 +12,11 @@ public class SearCarTaskInfoRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 车牌号
+     */
+    private String vehicleNumber;
+
+    /**
      * 任务编码
      */
     private String transWorkItemCode;
@@ -25,6 +30,24 @@ public class SearCarTaskInfoRequest implements Serializable {
      * 分拣中心编号
      */
     private String dmsCode;
+
+    @Override
+    public String toString() {
+        return "SearCarTaskInfoRequest{" +
+                "vehicleNumber='" + vehicleNumber + '\'' +
+                ", transWorkItemCode='" + transWorkItemCode + '\'' +
+                ", erp='" + erp + '\'' +
+                ", dmsCode='" + dmsCode + '\'' +
+                '}';
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 
     public String getTransWorkItemCode() {
         return transWorkItemCode;

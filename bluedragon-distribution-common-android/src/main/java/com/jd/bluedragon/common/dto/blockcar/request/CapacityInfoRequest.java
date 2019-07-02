@@ -34,6 +34,16 @@ public class CapacityInfoRequest implements Serializable {
      */
     private String transWorkItemCode;
 
+    @Override
+    public String toString() {
+        return "CapacityInfoRequest{" +
+                "user=" + user +
+                ", currentOperate=" + currentOperate +
+                ", transportCode='" + transportCode + '\'' +
+                ", transWorkItemCode='" + transWorkItemCode + '\'' +
+                '}';
+    }
+
     public User getUser() {
         return user;
     }

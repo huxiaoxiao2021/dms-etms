@@ -21,6 +21,14 @@ public class CheckTransportCodeRequest implements Serializable {
      */
     private String transportCode;
 
+    @Override
+    public String toString() {
+        return "CheckTransportCodeRequest{" +
+                "transWorkItemCode='" + transWorkItemCode + '\'' +
+                ", transportCode='" + transportCode + '\'' +
+                '}';
+    }
+
     public String getTransWorkItemCode() {
         return transWorkItemCode;
     }
