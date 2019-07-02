@@ -1534,7 +1534,7 @@ public class BaseResource {
 			}
 		}
 		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
-		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(token, startNode, endNodeCode, predictSendTime, routeProduct);
+		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
 		return commonDto;
 	}
 }

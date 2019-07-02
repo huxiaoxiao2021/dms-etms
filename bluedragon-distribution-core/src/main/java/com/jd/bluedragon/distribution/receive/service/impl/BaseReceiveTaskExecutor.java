@@ -2,12 +2,12 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 
 import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
-import com.jd.fastjson.JSON;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
