@@ -113,7 +113,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 					try{
 						packageStatusService.recordPackageStatus(parameterList,null);
 					}catch (Exception e){
-						logger.error("包裹状态发送MQ消息异常." + com.jd.fastjson.JSON.toJSONString(parameterList)+".",e);
+						logger.error("包裹状态发送MQ消息异常." + JSON.toJSONString(parameterList)+".",e);
 					}
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
 						|| WaybillStatus.RESULT_CODE_REPEAT_TASK == result.getCode()) {

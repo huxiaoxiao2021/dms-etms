@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -21,7 +22,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.OrderParentChildDto;
 import com.jd.etms.waybill.dto.OrderTraceDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
