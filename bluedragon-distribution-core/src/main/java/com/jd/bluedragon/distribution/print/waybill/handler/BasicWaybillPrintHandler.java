@@ -486,8 +486,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         //换单打印、毕业寄订单，取复重
         if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
                 || WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
-        || BusinessUtil.isGraduationExpress(commonWaybill.getWaybillSign())){
-            BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
+                || WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
+                || WaybillPrintOperateTypeEnum.SMS_REVERSE_CHANGE_REPRINT.getType().equals(context.getRequest().getOperateType())
+				|| BusinessUtil.isGraduationExpress(commonWaybill.getWaybillSign())){
+        	BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             if (bigWaybillDto != null && bigWaybillDto.getPackageList() != null && !bigWaybillDto.getPackageList().isEmpty()) {
                 Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
                 for(PrintPackage pack : commonWaybill.getPackList()){
