@@ -344,15 +344,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     pack.setPackageIndex(WaybillUtil.getPackageIndex(item.getPackageBarcode()));
                     pack.setPackageSuffix(WaybillUtil.getPackageSuffix(item.getPackageBarcode()));
                     pack.setPackageWeight(item.getGoodWeight() + Constants.MEASURE_UNIT_NAME_KG);
-                    //毕业寄订单，98位1或2
-                    if (BusinessUtil.isGraduationExpress(commonWaybill.getWaybillSign())) {
-                        Double againWeight = item.getAgainWeight();
-                        //如果复重大于0，面单显示复重
-                        if (NumberHelper.gt0(againWeight)) {
-                            pack.setWeight(againWeight);
-                            pack.setPackageWeight(againWeight + Constants.MEASURE_UNIT_NAME_KG);
-                        }
-                    }
                     packageList.add(pack);
                 }
             }
@@ -492,8 +483,10 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
      * @param commonWaybill
      */
     private void loadWaybillPackageWeight(WaybillPrintContext context, PrintWaybill commonWaybill){
+        //换单打印、毕业寄订单，取复重
         if(SWITCH_BILL_PRINT.getType().equals(context.getRequest().getOperateType())
-                || WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())){
+                || WaybillPrintOperateTypeEnum.SITE_MASTER_REVERSE_CHANGE_PRINT.getType().equals(context.getRequest().getOperateType())
+        || BusinessUtil.isGraduationExpress(commonWaybill.getWaybillSign())){
             BigWaybillDto bigWaybillDto = context.getBigWaybillDto();
             if (bigWaybillDto != null && bigWaybillDto.getPackageList() != null && !bigWaybillDto.getPackageList().isEmpty()) {
                 Map<String, DeliveryPackageD> againWeightMap = getAgainWeightMap(bigWaybillDto.getPackageList());
@@ -503,6 +496,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     	//设置包裹重量，优先使用AgainWeight，前面已经默认设置为GoodWeight
                     	if(NumberHelper.gt0(deliveryPackageD.getAgainWeight())){
                             pack.setWeight(deliveryPackageD.getAgainWeight());
+                            pack.setPackageWeight(deliveryPackageD.getAgainWeight() + Constants.MEASURE_UNIT_NAME_KG);
                         }
                     }
                 }
