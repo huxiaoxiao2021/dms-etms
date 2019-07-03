@@ -15,7 +15,7 @@ public class SealCarTaskInfoDto implements Serializable {
     /**
      * 运输方式
      */
-    private int transType;
+    private Integer transType;
 
     /**
      * 车牌号
@@ -42,11 +42,23 @@ public class SealCarTaskInfoDto implements Serializable {
      */
     private String sendCode;
 
-    public int getTransType() {
+    @Override
+    public String toString() {
+        return "SealCarTaskInfoDto{" +
+                "transType=" + transType +
+                ", vehicleNumber='" + vehicleNumber + '\'' +
+                ", transWorkItemCode='" + transWorkItemCode + '\'' +
+                ", routeLineCode='" + routeLineCode + '\'' +
+                ", routeLineName='" + routeLineName + '\'' +
+                ", sendCode='" + sendCode + '\'' +
+                '}';
+    }
+
+    public Integer getTransType() {
         return transType;
     }
 
-    public void setTransType(int transType) {
+    public void setTransType(Integer transType) {
         this.transType = transType;
     }
 
