@@ -82,7 +82,7 @@ public class SearCarServiceImpl implements SealCarGatewayService {
             jdCResponse.setCode(JdCResponse.CODE_CONFIRM);
             jdCResponse.setMessage(routeTypeResponse.getMessage());
         } else {
-            jdCResponse.setCode(jdCResponse.getCode());
+            jdCResponse.setCode(routeTypeResponse.getCode());
             jdCResponse.setMessage(routeTypeResponse.getMessage());
             jdCResponse.setData(routeTypeResponse.getTransWay());
         }
