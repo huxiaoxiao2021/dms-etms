@@ -46,7 +46,6 @@ public class JdCResponse<E> implements Serializable {
      */
     public JdCResponse() {
     	super();
-    	init(CODE_SUCCESS,MESSAGE_SUCCESS);
     }
     /**
      * 指定code和message的构造方法

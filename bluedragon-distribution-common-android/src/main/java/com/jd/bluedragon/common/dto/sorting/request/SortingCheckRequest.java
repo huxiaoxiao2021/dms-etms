@@ -1,8 +1,12 @@
 package com.jd.bluedragon.common.dto.sorting.request;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+
 import java.io.Serializable;
 
 /**
+ * 当前操作信息封装
  * @author : xumigen
  * @date : 2019/6/22
  */
@@ -10,50 +14,51 @@ public class SortingCheckRequest implements Serializable {
 
     private static final long serialVersionUID = -1L;
 
+
+    private CurrentOperate currentOperate;
+
+    private User user;
+
     /**
      * 操作类型
      */
-    Integer operateType = 1;
+    private Integer operateType;
     /**
      * 包裹号
      */
-    String packageCode;
-    /**
-     * 分拣中心编码
-     */
-    Integer createSiteCode;
-    /**
-     * 分拣中心名称
-     */
-    String createSiteName;
-    /**
-     * 操作人编码
-     */
-    Integer operateUserCode;
-    /**
-     * 操作人名称
-     */
-    String operateUserName;
-    /**
-     * 操作时间
-     */
-    String operateTime;
+    private String packageCode;
     /**
      * 收货站点
      */
-    Integer receiveSiteCode;
+    private Integer receiveSiteCode;
     /**
      * 业务类型
      */
-    Integer businessType;
+    private Integer businessType;
     /**
      * 箱号
      */
-    String boxCode;
+    private String boxCode;
     /**
      * 是否报丢 1报丢
      */
-    Integer isLoss;
+    private Integer isLoss;
+
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
+    }
+
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     public Integer getOperateType() {
         return operateType;
@@ -69,46 +74,6 @@ public class SortingCheckRequest implements Serializable {
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
-    }
-
-    public Integer getCreateSiteCode() {
-        return createSiteCode;
-    }
-
-    public void setCreateSiteCode(Integer createSiteCode) {
-        this.createSiteCode = createSiteCode;
-    }
-
-    public String getCreateSiteName() {
-        return createSiteName;
-    }
-
-    public void setCreateSiteName(String createSiteName) {
-        this.createSiteName = createSiteName;
-    }
-
-    public Integer getOperateUserCode() {
-        return operateUserCode;
-    }
-
-    public void setOperateUserCode(Integer operateUserCode) {
-        this.operateUserCode = operateUserCode;
-    }
-
-    public String getOperateUserName() {
-        return operateUserName;
-    }
-
-    public void setOperateUserName(String operateUserName) {
-        this.operateUserName = operateUserName;
-    }
-
-    public String getOperateTime() {
-        return operateTime;
-    }
-
-    public void setOperateTime(String operateTime) {
-        this.operateTime = operateTime;
     }
 
     public Integer getReceiveSiteCode() {

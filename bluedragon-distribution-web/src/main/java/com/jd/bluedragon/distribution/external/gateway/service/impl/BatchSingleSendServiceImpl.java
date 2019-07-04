@@ -238,7 +238,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setPackageCode(request.getPackageOrBoxCode());
         pdaOperateRequest.setOperateType(request.getOperateType());
-        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().siteCode);
+        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());

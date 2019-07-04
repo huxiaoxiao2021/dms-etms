@@ -33,5 +33,11 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="batchSingleSendService" server="dmsjsf">
     </jsf:provider>
+    <bean id="boxGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BoxGatewayServiceImpl"/>
+    <jsf:provider id="jsfBoxGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.BoxGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="boxGatewayService" server="dmsjsf">
+    </jsf:provider>
 
 </beans>
