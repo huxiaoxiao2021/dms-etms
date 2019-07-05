@@ -78,7 +78,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -98,7 +98,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -116,7 +116,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
@@ -134,7 +134,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
@@ -152,7 +152,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
@@ -163,6 +163,7 @@
 		<property name="handlers">
 			<list>
 				<ref bean="sitePlateBasicHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="specialFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
 			</list>
@@ -187,7 +188,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -208,7 +209,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="packageWeightHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
@@ -231,7 +232,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>
@@ -250,7 +251,7 @@
 				<ref bean="specialMarkWaybillHandler"/>
 				<ref bean="specialTextWaybillHandler"/>
 				<ref bean="promiseWaybillHandler"/>
-				<ref bean="hideInfoWaybillHandler"/>
+				<ref bean="customerAndConsignerInfoHandler"/>
 				<ref bean="mappedBasicPrintWaybillHandler"/>
 				<ref bean="remarkFieldHandler"/>
 				<ref bean="templateSelectorWaybillHandler"/>

@@ -769,4 +769,13 @@ public class BusinessUtil {
     public static boolean isGraduationExpress(String waybillSign){
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
     }
+
+    /**
+     * 判断是否是国际配送运单
+     * Sendpay 第124位等于7时，表示为自营国际配送运单
+     * @param sendPay
+     */
+    public static boolean isInternationalWaybill(String sendPay){
+        return isSignChar(sendPay,SendPayConstants.POSITION_124,SendPayConstants.CHAR_124_7);
+    }
 }
