@@ -3326,14 +3326,6 @@ public class DeliveryServiceImpl implements DeliveryService {
         getAllList(sendMList, allList);
         if (businessType.equals(20)) {
             tDeliveryResponse = reverseComputer.compute(allList, false);
-            //退仓时 增加 支持半退逻辑
-            if(!sysConfigService.getConfigByName("reverse.part.not.check.switch")){
-                ThreeDeliveryResponse response = checkReversePartSend(tDeliveryResponse,allList);
-                if(response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND_ERROR) || response.getCode().equals(DeliveryResponse.CODE_Delivery_PART_SEND) ){
-                    return response;
-                }
-            }
-
         } else {
             tDeliveryResponse = forwardComputer.compute(allList, false);
         }
@@ -4418,6 +4410,9 @@ public class DeliveryServiceImpl implements DeliveryService {
                 List<String> geneList = null;
                 if (null != waybill && null != waybill.getPackList() && waybill.getPackList().size() > 0) {
                     if(BusinessUtil.isSick(waybill.getWaybillSign())){//病单则直接返回0 不验证包裹是否集齐
+                        return 0;
+                    }
+                    if(BusinessUtil.isPartReverse(waybill.getWaybillSign())){//半退 不验证包裹是否集齐
                         return 0;
                     }
                     logger.info("运单中包裹数量为" + waybill.getPackList().size());
