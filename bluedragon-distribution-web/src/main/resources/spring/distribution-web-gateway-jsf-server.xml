@@ -34,4 +34,12 @@
                   ref="batchSingleSendService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 差异查询 -->
+    <bean id="differentialQueryService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DifferentialQueryServiceImpl"/>
+    <jsf:provider id="jsfDifferentialQueryService"
+                  interface="com.jd.bluedragon.external.gateway.service.DifferentialQueryGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="differentialQueryService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
