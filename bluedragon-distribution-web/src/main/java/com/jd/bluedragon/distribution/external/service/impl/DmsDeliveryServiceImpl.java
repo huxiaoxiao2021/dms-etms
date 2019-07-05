@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
+import com.jd.bluedragon.external.gateway.service.DmsDeliveryGatewayService;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -23,7 +24,7 @@ import java.util.AbstractMap;
  * Created by lixin39 on 2018/11/9.
  */
 @Service("dmsDeliveryService")
-public class DmsDeliveryServiceImpl implements DmsDeliveryService {
+public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGatewayService {
 
     @Autowired
     @Qualifier("deliveryResource")

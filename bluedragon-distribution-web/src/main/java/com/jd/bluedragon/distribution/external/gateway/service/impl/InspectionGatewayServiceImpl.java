@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.distribution.external.gateway.service.InspectionGatewayService;
+import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.ql.dms.common.domain.JdResponse;

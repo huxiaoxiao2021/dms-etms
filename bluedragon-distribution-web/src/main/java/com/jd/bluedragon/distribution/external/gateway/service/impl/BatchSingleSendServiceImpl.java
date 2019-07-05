@@ -5,12 +5,11 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
-import com.jd.bluedragon.common.dto.send.response.SendResultDto;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.external.gateway.service.BatchSingleSendGatewayService;
+import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
@@ -98,18 +97,24 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
-    public JdCResponse<SendResultDto> batchSingleSend(BatchSingleSendRequest request) {
+    public JdCResponse batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);
         param.setOperateTime(DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME));
 
-        JdCResponse<SendResultDto> jdResponse = new JdCResponse<>();
+        JdCResponse jdResponse = new JdCResponse<>();
         InvokeResult<SendResult> result = deliveryResource.newPackageSend(param);
 
         if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
-            jdResponse.setCode(result.getCode());
-            jdResponse.setData(new SendResultDto(result.getData().getKey(), result.getData().getValue()));
-            jdResponse.setMessage(result.getMessage());
+            if (result.getData().getKey() == 1) {
+                jdResponse.init(JdCResponse.CODE_SUCCESS, result.getData().getValue());
+            }
+            if (result.getData().getKey() == 2) {
+                jdResponse.init(JdCResponse.CODE_FAIL, result.getData().getValue());
+            }
+            if (result.getData().getKey() == 4) {
+                jdResponse.init(JdCResponse.CODE_CONFIRM, result.getData().getValue());
+            }
 
             return jdResponse;
         }
@@ -200,7 +205,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         // 2.3校验包裹的预分拣站点是否在属于扫描的批次中的任何一个
         String sendCode = checkSiteCodeInBatch(siteCodes, batchCodeMap);
         if (sendCode != null) {
-            checkVO.setReceiveSiteCode(Integer.parseInt(BusinessUtil.getBatchReceiveNO(sendCode)));
+            checkVO.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
             checkVO.setSendCode(sendCode);
             jdResponse.setData(checkVO);
             jdResponse.toSucceed(JdResponse.MESSAGE_SUCCESS);
@@ -219,7 +224,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         //从批次号中获取目的站点,key为目的站点，value为批次号
         Map<Integer, String> receiveCodeMap = new HashMap<>(200);
         for (String s : batchList) {
-            receiveCodeMap.put(Integer.parseInt(BusinessUtil.getBatchReceiveNO(s)), s);
+            receiveCodeMap.put(BusinessUtil.getReceiveSiteCodeFromSendCode(s), s);
         }
         return receiveCodeMap;
     }
@@ -233,7 +238,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
         pdaOperateRequest.setPackageCode(request.getPackageOrBoxCode());
         pdaOperateRequest.setOperateType(request.getOperateType());
-        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().siteCode);
+        pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
         pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
         pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
         pdaOperateRequest.setOperateUserName(request.getUser().getUserName());

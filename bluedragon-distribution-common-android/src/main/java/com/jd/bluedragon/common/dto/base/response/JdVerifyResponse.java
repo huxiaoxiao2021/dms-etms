@@ -36,7 +36,6 @@ public class JdVerifyResponse {
     private List<MsgBox> msgBoxes;
 
     public JdVerifyResponse() {
-        this.init(CODE_SUCCESS, MESSAGE_SUCCESS);
     }
 
     public JdVerifyResponse(int code, String message) {
@@ -144,7 +143,7 @@ public class JdVerifyResponse {
         this.msgBoxes = msgBoxes;
     }
 
-    public class MsgBox {
+    public static class MsgBox {
 
         /**
          * 校验结果类型 1-提示框 2-确认框 3-拦截框

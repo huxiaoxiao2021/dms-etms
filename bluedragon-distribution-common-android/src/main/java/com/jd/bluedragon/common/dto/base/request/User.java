@@ -2,6 +2,9 @@ package com.jd.bluedragon.common.dto.base.request;
 
 import java.io.Serializable;
 
+/**
+ * 操作用户信息
+ */
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     /*

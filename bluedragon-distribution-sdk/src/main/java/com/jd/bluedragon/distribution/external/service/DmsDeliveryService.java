@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -11,6 +9,7 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import java.util.AbstractMap;
 
 /**
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
@@ -55,13 +54,5 @@ public interface DmsDeliveryService {
      * @return
      */
     InvokeResult cancelDeliveryInfo(DeliveryRequest request);
-
-    /**
-     * 新发货：按箱号发货校验
-     *
-     * @param request
-     * @return
-     */
-    JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request);
 
 }

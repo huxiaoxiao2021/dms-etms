@@ -9,15 +9,15 @@ public class CurrentOperate implements Serializable {
     /*
     操作单位编号
      */
-    public int siteCode;
+    private int siteCode;
     /*
     操作单位名称
      */
-    public String siteName;
+    private String siteName;
     /*
     操作时间
      */
-    public Date operateTime;
+    private Date operateTime;
 
     /**
      * 当前所在区域编号
