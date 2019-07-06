@@ -35,7 +35,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
             jdResponse.toSucceed();
             jdResponse.setData(boxDto);
         }else{
-            jdResponse.toError(jdResponse.getMessage());
+            jdResponse.toError(boxResponse.getMessage());
         }
 
         return jdResponse;
