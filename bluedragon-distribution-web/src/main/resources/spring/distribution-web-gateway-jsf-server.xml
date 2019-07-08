@@ -33,6 +33,26 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="batchSingleSendService" server="dmsjsf">
     </jsf:provider>
+    <bean id="boxGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BoxGatewayServiceImpl"/>
+    <jsf:provider id="jsfBoxGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.BoxGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="boxGatewayService" server="dmsjsf">
+    </jsf:provider>
+    <bean id="taskGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TaskGatewayServiceImpl"/>
+    <jsf:provider id="jsfTaskGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.TaskGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="taskGatewayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 封车 -->
+    <bean id="newSealVehicleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.NewSealVehicleGatewayServiceImpl"/>
+    <jsf:provider id="jsfNewSealVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="newSealVehicleGatewayService" server="dmsjsf">
+    </jsf:provider>
 
     <!-- 封车 -->
     <bean id="searCarService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SearCarServiceImpl"/>

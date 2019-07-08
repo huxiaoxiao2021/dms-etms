@@ -28,6 +28,16 @@ public class RecycleMaterialRequest implements Serializable{
     private int businessType;
 
     /**
+     * 目的分拣中心编号
+     */
+    private Integer destSiteCode;
+
+    /**
+     * 目的分拣中心名称
+     */
+    private String destSiteName;
+
+    /**
      * 操作人ERP
      */
     private String operatorErp;
@@ -62,6 +72,22 @@ public class RecycleMaterialRequest implements Serializable{
 
     public void setBusinessType(int businessType) {
         this.businessType = businessType;
+    }
+
+    public Integer getDestSiteCode() {
+        return destSiteCode;
+    }
+
+    public void setDestSiteCode(Integer destSiteCode) {
+        this.destSiteCode = destSiteCode;
+    }
+
+    public String getDestSiteName() {
+        return destSiteName;
+    }
+
+    public void setDestSiteName(String destSiteName) {
+        this.destSiteName = destSiteName;
     }
 
     public String getOperatorErp() {

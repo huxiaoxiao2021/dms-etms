@@ -23,16 +23,19 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     @Override
     public JdCResponse<String> updateStatus(RecycleMaterialRequest request) {
         JSONObject vo = new JSONObject();
-        vo.put("materialCode",request.getMaterialCode());
-        vo.put("operateType",request.getOperateType());
-        vo.put("businessType",request.getBusinessType());
-        vo.put("operatorErp",request.getOperatorErp());
-        vo.put("siteCode",request.getCurrentOperate() != null?request.getCurrentOperate().getSiteCode():null);
-        vo.put("siteName",request.getCurrentOperate() != null?request.getCurrentOperate().getSiteName():null);
-        vo.put("operateTime",request.getCurrentOperate() != null?
-                DateUtil.format(request.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME):null);
-        vo.put("orgId",request.getCurrentOperate() != null?request.getCurrentOperate().getOrgId():null);
-        vo.put("orgName",request.getCurrentOperate() != null?request.getCurrentOperate().getOrgName():null);
+        vo.put("materialCode", request.getMaterialCode());
+        vo.put("operateType", request.getOperateType());
+        vo.put("businessType", request.getBusinessType());
+        vo.put("operatorErp", request.getOperatorErp());
+        vo.put("siteCode", request.getCurrentOperate() != null ? request.getCurrentOperate().getSiteCode() : null);
+        vo.put("siteName", request.getCurrentOperate() != null ? request.getCurrentOperate().getSiteName() : null);
+        vo.put("operateTime", request.getCurrentOperate() != null ?
+                DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME) : null);
+        vo.put("orgId", request.getCurrentOperate() != null ? request.getCurrentOperate().getOrgId() : null);
+        vo.put("orgName", request.getCurrentOperate() != null ? request.getCurrentOperate().getOrgName() : null);
+        vo.put("destSiteCode", request.getDestSiteCode() != null ? request.getDestSiteCode() : null);
+        vo.put("destSiteName", request.getDestSiteName() != null ? request.getDestSiteName() : null);
+
         JdCResponse<String> jdCResponse = new JdCResponse<>();
         JdResponse<String> response = recycleMaterialResource.updateStatus(vo);
         jdCResponse.setCode(response.getCode());
