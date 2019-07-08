@@ -46,4 +46,12 @@
                   ref="taskGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <!-- 封车 -->
+    <bean id="newSealVehicleGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.NewSealVehicleGatewayServiceImpl"/>
+    <jsf:provider id="jsfNewSealVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="newSealVehicleGatewayService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
