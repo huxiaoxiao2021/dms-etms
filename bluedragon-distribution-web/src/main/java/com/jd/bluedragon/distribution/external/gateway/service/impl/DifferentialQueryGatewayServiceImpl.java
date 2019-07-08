@@ -13,14 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * DifferentialQueryServiceImpl
+ * DifferentialQueryGatewayServiceImpl
  * 一车一单发货、组板、建箱差异查询服务
  *
  * @author jiaowenqiang
  * @date 2019/7/5
  */
-@Service("differentialQueryService")
-public class DifferentialQueryServiceImpl implements DifferentialQueryGatewayService {
+@Service("differentialQueryGatewayService")
+public class DifferentialQueryGatewayServiceImpl implements DifferentialQueryGatewayService {
 
     @Autowired
     WaybillResource waybillResource;
