@@ -39,7 +39,7 @@
     <jsf:provider id="jsfDifferentialQueryService"
                   interface="com.jd.bluedragon.external.gateway.service.DifferentialQueryGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="differentialQueryService" server="dmsjsf">
+                  ref="differentialQueryGatewayService" server="dmsjsf">
     </jsf:provider>
 
 </beans>
