@@ -600,7 +600,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("计费体积重量");
         heads.add("重量差异");
         heads.add("体积重量差异");
-//        heads.add("体积重量是否超标");
+        heads.add("体积重量是否超标");
         heads.add("误差标准值");
         heads.add("是否超标");
         heads.add("有无图片");
@@ -633,7 +633,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getBillingVolumeWeight());
                 body.add(weightVolumeCollectDto.getWeightDiff());
                 body.add(weightVolumeCollectDto.getVolumeWeightDiff());
-//                body.add(weightVolumeCollectDto.getIsExcessOfVolumeWeight());
+                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess());
                 body.add(weightVolumeCollectDto.getDiffStandard());
                 body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
                 body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");

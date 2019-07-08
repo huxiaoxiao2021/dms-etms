@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,17 +62,10 @@ public class ReviewWeightSpotCheckDao extends BaseDao<SpotCheckInfo> {
     }
 
     /**
-     * 查询抽查任务
+     * 查询所有抽查任务
      * @return
      */
-    public List<SpotCheckInfo> queryAllSpotInfo(Integer siteCode) {
-        List<SpotCheckInfo> list = new ArrayList<>();
-        if(siteCode != null){
-            SpotCheckInfo spotCheckInfo = this.getSqlSession().selectOne(namespace + ".queryBySiteCode", siteCode);
-            list.add(spotCheckInfo);
-        }else{
-            list = this.getSqlSession().selectList(namespace + ".queryAllSpotInfo");
-        }
-        return list;
+    public List<SpotCheckInfo> queryAllSpotInfo() {
+        return this.getSqlSession().selectList(namespace + ".queryAllSpotInfo");
     }
 }
