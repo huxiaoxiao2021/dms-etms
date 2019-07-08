@@ -165,7 +165,7 @@ $(function () {
             title: '体积重量差异',
             align: 'center'
         },{
-            field: 'isExcessOfVolumeWeight',
+            field: 'volumeWeightIsExcess',
             title: '体积重量是否超标',
             align: 'center',
             formatter: function (value, row, index) {

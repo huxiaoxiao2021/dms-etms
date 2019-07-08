@@ -356,6 +356,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                     result.setData(false);
                     result.setMessage("计费体积为0或空，无法进行校验");
                     weightVolumeCollectDto.setIsExcess(1);
+                    weightVolumeCollectDto.setVolumeWeightIsExcess(1);
                 }else{
                     double diff = Math.abs(keeTwoDecimals(reviewVolume - billingVolume));
                     double diffOfVolume = diff==0.00 ? 0.01 : diff;
@@ -390,8 +391,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 diffStandardOfWeight.append("重量:2%");
             }
 
-            weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/8000));    //复核体积重量
-            weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/8000));    //计费体积重量
+            weightVolumeCollectDto.setReviewVolumeWeight(getVolumeAndWeight(reviewVolume/8000));
+            weightVolumeCollectDto.setBillingVolumeWeight(getVolumeAndWeight(billingVolume/8000));
             if(reviewVolume/8000 <= 5){
                 diffStandardOfWeight.append("体积重量:0.3");
             }else if(reviewVolume/8000 > 5 && reviewVolume/8000 <= 20){
