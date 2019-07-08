@@ -23,7 +23,7 @@
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
 		<!--<etms.waybill.agent.version>4.2.57</etms.waybill.agent.version>-->
-		<etms.waybill.agent.version>4.2-test-SNAPSHOT</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.86</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -967,7 +967,7 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-goods-api</artifactId>
-			<version>0.0.1-TEST-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<!--预分拣-->
