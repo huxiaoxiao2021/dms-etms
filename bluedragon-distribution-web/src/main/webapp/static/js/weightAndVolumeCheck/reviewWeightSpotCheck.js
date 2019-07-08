@@ -179,10 +179,6 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
-                /*if($('#site-group-select').val()==null){
-                    Jd.alert("请选择指定的复核区域!");
-                    return;
-                }*/
                 var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
                 if(days > 30){
                     Jd.alert("查询时间不能超过30天，请缩小时间范围!");

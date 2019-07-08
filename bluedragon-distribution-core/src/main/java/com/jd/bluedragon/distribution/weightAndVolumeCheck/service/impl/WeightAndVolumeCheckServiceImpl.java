@@ -372,8 +372,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                             message = result.getMessage()+"\r\n"+message;
                         }
                         result.setMessage(message);
-//                        weightVolumeCollectDto.setIsExcessOfVolumeWeight(1);    //体积重量是否超标
                         weightVolumeCollectDto.setIsExcess(1);
+                        weightVolumeCollectDto.setVolumeWeightIsExcess(1);
                     }
                 }
             }
@@ -484,7 +484,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         weightVolumeCollectDto.setReviewSiteName(packWeightVO.getOperatorSiteName());
         weightVolumeCollectDto.setReviewErp(packWeightVO.getErpCode());
         weightVolumeCollectDto.setIsExcess(0);
-//        weightVolumeCollectDto.setIsExcess(0);    //体积重量是否超标
+        weightVolumeCollectDto.setVolumeWeightIsExcess(0);
         //设置无图片无图片链接
         weightVolumeCollectDto.setIsHasPicture(0);
         weightVolumeCollectDto.setPictureAddress("");

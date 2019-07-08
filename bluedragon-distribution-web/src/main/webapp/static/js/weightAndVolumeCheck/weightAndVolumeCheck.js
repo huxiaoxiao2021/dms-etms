@@ -163,14 +163,14 @@ $(function () {
         },{
             field: 'volumeWeightDiff',
             title: '体积重量差异',
-            align: 'center',
-            formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
-            }
+            align: 'center'
         },{
             field: 'isExcessOfVolumeWeight',
             title: '体积重量是否超标',
-            align: 'center'
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
+            }
         },{
             field: 'diffStandard',
             title: '误差标准值',
@@ -180,7 +180,7 @@ $(function () {
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
             }
         },{
             field: 'isHasPicture',
