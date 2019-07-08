@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -160,5 +161,11 @@ public interface SortingService {
      * @return
      */
     List<String> getWaybillCodeListByBoxCode(String boxCode);
+
+    void saveOrUpdate(Sorting sorting);
+
+    void notifyBlocker(Sorting sorting);
+
+    void backwardSendMQ(Sorting sorting);
 
 }

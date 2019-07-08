@@ -606,7 +606,7 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
-	private void saveOrUpdate(Sorting sorting) {
+	public void saveOrUpdate(Sorting sorting) {
 		if (Constants.NO_MATCH_DATA == this.update(sorting).intValue()) {
 			this.add(sorting);
 		}
