@@ -22,6 +22,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     @Qualifier("newSealVehicleResource")
     private NewSealVehicleResource newSealVehicleResource;
 
+    @Override
     public JdCResponse cancelSeal(CancelSealRequest gatewayRequest){
         cancelSealRequest request = new cancelSealRequest();
         request.setBatchCode(gatewayRequest.getBatchCode());
