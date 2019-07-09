@@ -132,7 +132,7 @@ public class ContainerManagerImpl implements ContainerManager{
     }
 
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxSend", mState = {JProEnum.TP})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.ContainerManagerImpl.updateBoxCancelSend", mState = {JProEnum.TP})
     public Boolean updateBoxCancelSend(String boxCode, String userErp, String userName, Integer createSiteCode) throws Exception{
         log.info("中台更新容器状态为取消发货：" + boxCode);
 
