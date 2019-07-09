@@ -5,10 +5,12 @@ package com.jd.bluedragon.distribution.waybill.service;
  */
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -102,6 +104,12 @@ public class DmsLablePrintingServiceImpl extends AbstractLabelPrintingServiceTem
             }else if(BusinessUtil.isWareHouseNotJDWaybill(waybill.getWaybillSign())){
                 labelPrinting.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_NOT_JD);
             }
+        }
+
+        //waybill_sign第54位等于4 且 第40位等于2或3时显示 【医药】，并且和B互斥--显示医药，则不显示B
+        if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
+            labelPrinting.appendSpecialMark(SPECIAL_MARK_MEDICINE);
+            labelPrinting.dealConflictSpecialMark(SPECIAL_MARK_MEDICINE,CITY_DISTRIBUTION_CHENG);
         }
 
         // 外单多时效打标

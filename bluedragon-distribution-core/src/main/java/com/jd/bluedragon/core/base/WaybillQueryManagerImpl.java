@@ -253,21 +253,23 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         try {
             BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
             if (baseEntity != null) {
-                if (baseEntity.getResultCode() != 1) {
+                if (baseEntity.getResultCode() == -1) {
+                    //此种情况为运单数据库或redis异常，系统异常级别，非业务级别
+                    throw new RuntimeException(baseEntity.getMessage());
+                }else if (baseEntity.getResultCode() != 1) {
                     this.logger.warn(JsonHelper.toJson(bdTraceDto));
                     this.logger.warn(bdTraceDto.getWaybillCode());
                     this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常：" + baseEntity.getMessage());
-                    //Profiler.functionError(info);
                     return false;
                 }
             } else {
                 this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
-                //Profiler.functionError(info);
                 return false;
             }
         } catch (Exception e) {
             logger.error("分拣数据回传全程跟踪sendBdTrace异常：" + bdTraceDto.getWaybillCode(), e);
             Profiler.functionError(info);
+            throw new RuntimeException(e.getMessage(),e);
         } finally {
             Profiler.registerInfoEnd(info);
         }

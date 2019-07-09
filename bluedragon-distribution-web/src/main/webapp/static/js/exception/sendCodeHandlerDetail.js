@@ -1,5 +1,6 @@
 var query_sendCode_detail_url = "/exception/sendCodeHandler/querySendCodeDetails";
 var waybill_trance_url = "/waybill/trackInfo/";
+var export_detail_url = "/exception/exportSendCodeDetail";
 
 $(document).ready(function () {
     $('#dataTable').bootstrapTable({
@@ -120,5 +121,12 @@ $(document).ready(function () {
 
         /*表格查询*/
         $.bootGrid.refresh('dataTable',queryParams);
+    });
+
+    $("#btn_export").click(function () {
+        jQuery.msg.confirm("批次异常单排查项目最多允许导出五万条数据，是否继续？",function () {
+            /* 导出 */
+            $("form").submit();
+        })
     })
 });
