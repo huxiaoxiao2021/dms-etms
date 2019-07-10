@@ -179,9 +179,8 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
-                var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
-                if(days > 30){
-                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
+                if($('#site-group-select').val()==null){
+                    Jd.alert("请选择指定的复核区域!");
                     return;
                 }
                 tableInit().refresh();
@@ -252,6 +251,7 @@ function  getDaysByDateString(dateString1,dateString2) {
     return days;
 }
 
+var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -279,7 +279,14 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-            $(selectId).val(null).trigger('change');
+            if(initLogin){
+                //第一次登录 初始化登录人分拣中心
+                if($("#loginUserCreateSiteCode").val() != -1){
+                    //登录人大区
+                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
+                }
+            }
+            initLogin = false;
         }
     });
 }

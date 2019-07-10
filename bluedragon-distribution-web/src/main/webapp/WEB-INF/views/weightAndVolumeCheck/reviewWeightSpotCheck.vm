@@ -10,8 +10,8 @@
     <script src="/static/js/weightAndVolumeCheck/reviewWeightSpotCheck.js"></script>
 </head>
 <body>
-##<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
-##<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
+<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
