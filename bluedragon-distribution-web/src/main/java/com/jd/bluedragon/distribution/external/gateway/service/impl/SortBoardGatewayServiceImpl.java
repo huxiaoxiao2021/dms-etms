@@ -113,12 +113,14 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         JdCResponse<BoardDetailDto> jdCResponse = new JdCResponse<>();
         JdResponse<BoardResponse> response = boardCombinationResource.getBoxCodesByBoardCode(boardCode);
 
-        BoardDetailDto boardDetailDto = new BoardDetailDto();
-        boardDetailDto.setBoardDetails(response.getData().getBoardDetails());
-        boardDetailDto.setBoxNum(response.getData().getBoxNum());
-        boardDetailDto.setPackageNum(response.getData().getPackageNum());
+        if (response.getCode() == 200) {
+            BoardDetailDto boardDetailDto = new BoardDetailDto();
+            boardDetailDto.setBoardDetails(response.getData().getBoardDetails());
+            boardDetailDto.setBoxNum(response.getData().getBoxNum());
+            boardDetailDto.setPackageNum(response.getData().getPackageNum());
+            jdCResponse.setData(boardDetailDto);
+        }
 
-        jdCResponse.setData(boardDetailDto);
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
 
@@ -134,11 +136,13 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         JdCResponse<BoardInfoDto> jdCResponse = new JdCResponse<>();
         JdResponse<Board> response = boardCombinationResource.getBoardByBoxCode(siteCode, packageOrBoxCode);
 
-        BoardInfoDto boardInfoDto = new BoardInfoDto();
-        boardInfoDto.setCode(response.getData().getCode());
-        boardInfoDto.setDestination(response.getData().getDestination());
+        if (response.getCode() == 200) {
+            BoardInfoDto boardInfoDto = new BoardInfoDto();
+            boardInfoDto.setCode(response.getData().getCode());
+            boardInfoDto.setDestination(response.getData().getDestination());
+            jdCResponse.setData(boardInfoDto);
+        }
 
-        jdCResponse.setData(boardInfoDto);
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
 
