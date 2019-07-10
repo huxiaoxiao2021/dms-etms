@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.alliance.dao.AllianceBusiDeliveryDetailDao">
+
+	<resultMap id="AllianceBusiDeliveryDetail" type="com.jd.bluedragon.distribution.alliance.domain.AllianceBusiDeliveryDetail" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="sys_source" property="sysSource" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,package_code,sys_source,operate_time,is_delete,
+		ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.alliance.domain.AllianceBusiDeliveryDetail">
+		insert into alliance_busi_delivery_detail
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="waybillCode != null">
+					waybill_code,
+				</if>
+				<if test="packageCode != null">
+					package_code,
+				</if>
+				<if test="sysSource != null">
+					sys_source,
+				</if>
+				<if test="operateTime != null">
+					operate_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null">
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					#{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sysSource != null">
+					#{sysSource,jdbcType=TINYINT},
+				</if>
+				<if test="operateTime != null">
+					#{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into alliance_busi_delivery_detail
+			(
+				waybill_code,package_code,sys_source,operate_time,
+				is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.waybillCode,jdbcType=VARCHAR},
+					#{item.packageCode,jdbcType=VARCHAR},
+					#{item.sysSource,jdbcType=TINYINT},
+					#{item.operateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.alliance.domain.AllianceBusiDeliveryDetail">
+		update alliance_busi_delivery_detail
+			<set>
+				<if test="waybillCode != null">
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="packageCode != null">
+					package_code = #{packageCode,jdbcType=VARCHAR},
+				</if>
+				<if test="sysSource != null">
+					sys_source = #{sysSource,jdbcType=TINYINT},
+				</if>
+				<if test="operateTime != null">
+					operate_time = #{operateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update alliance_busi_delivery_detail
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update alliance_busi_delivery_detail
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="AllianceBusiDeliveryDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  alliance_busi_delivery_detail 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.alliance.domain.AllianceBusiDeliveryDetail" resultMap="AllianceBusiDeliveryDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  alliance_busi_delivery_detail 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  alliance_busi_delivery_detail 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="AllianceBusiDeliveryDetail">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  alliance_busi_delivery_detail 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
