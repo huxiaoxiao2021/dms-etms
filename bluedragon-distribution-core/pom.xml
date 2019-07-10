@@ -21,7 +21,7 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
-		<jmq.version>2.1.4</jmq.version>
+		<jmq.version>2.2.0</jmq.version>
 		<etms.waybill.agent.version>4.2.57</etms.waybill.agent.version>
 	</properties>
 
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.46</version>
+            <version>1.2.58</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -494,12 +494,12 @@
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-jedis</artifactId>
-            <version>1.4.5-SNAPSHOT</version>
+            <version>1.4.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-api</artifactId>
-            <version>1.4.5-SNAPSHOT</version>
+            <version>1.4.7-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
