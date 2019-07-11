@@ -104,6 +104,40 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
     }
 
     /**
+     * 导出抽查任务
+     * @return
+     */
+    @Override
+    public List<List<Object>> exportSpotData() {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        List<Object> heads = new ArrayList<Object>();
+        //添加表头
+        heads.add("区域编码");
+        heads.add("机构编码");
+        heads.add("机构名称");
+        heads.add("普通应抽查包裹数");
+        heads.add("信任商家应抽查包裹数");
+        heads.add("导入人ERP");
+        heads.add("导入时间");
+        resList.add(heads);
+        List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryAllSpotInfo();
+        //表格信息
+        for(SpotCheckInfo spotCheckInfo : list){
+            List<Object> body = Lists.newArrayList();
+            body.add(spotCheckInfo.getOrgCode());
+            body.add(spotCheckInfo.getSiteCode());
+            body.add(spotCheckInfo.getSiteName());
+            body.add(spotCheckInfo.getNormalPackageNum());
+            body.add(spotCheckInfo.getTrustPackageNum());
+            body.add(spotCheckInfo.getImportErp());
+            body.add(DateHelper.formatDateTime(spotCheckInfo.getTs()));
+            resList.add(body);
+        }
+        return  resList;
+    }
+
+    /**
      * 查询条件转换
      * */
     private WeightVolumeQueryCondition transform(WeightAndVolumeCheckCondition condition) {

@@ -1,6 +1,7 @@
 var queryUrl = '/reviewWeightSpotCheck/listData';
 var importUrl = '/reviewWeightSpotCheck/toImport';
 var exportUrl = '/reviewWeightSpotCheck/toExport';
+var exportSpotUrl = '/reviewWeightSpotCheck/toExportSpot';
 $(function () {
 
     $('#fileField').hide();
@@ -191,59 +192,25 @@ $(function () {
     };
 
     //导入
-    $('#btn_import').click(function () {
-        var inputValue = $('#excelField').val().trim();
-        var index1 = inputValue.lastIndexOf(".");
-        var index2 = inputValue.length;
-        var suffixName = inputValue.substring(index1+1,index2);
-        if(inputValue == ''){
-            Jd.alert('请先浏览文件在上传!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-        debugger;
-        if(suffixName != 'xlsx'){
-            Jd.alert('请上传指定Excel文件!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-
-        var form =  $("#query-form");
-        var options = {
-            url:importUrl,
-            type:'post',
-            success:function(data){
-                if(data.code == '200'){
-                    alert("导入成功！");
-                    $('#btn_import').attr("disabled",false);
-                }else{
-
-                    alert(data.message);
-                    $('#btn_import').attr("disabled",false);
-                }
-
-            },
-            error:function(XmlHttpRequest,textStatus,errorThrown){
-                console.log(XmlHttpRequest);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }
-        };
-        form.ajaxSubmit(options);
-
-
-    });
-
-    //导入
     $('#btn_improt').click(function(){
         $('#importExcelFile').val(null);
         $('#improt_modal').modal('show');
     });
 
+    //导出抽查任务
+    $('#btn_export_spot').click(function () {
+
+        var form = $("<form method='post'></form>");
+        form.attr({"action": exportSpotUrl});
+        form.appendTo(document.body);
+        form.submit();
+        document.body.removeChild(form[0]);
+
+    });
+
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            debugger;
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;
@@ -277,6 +244,12 @@ function initDateQuery(){
     $("#endTime").val(v+" 23:59:59");
 }
 
+function  getDaysByDateString(dateString1,dateString2) {
+    var startDate = Date.parse(dateString1.replace('/-/g', '/'));
+    var endDate = Date.parse(dateString2.replace('/-/g', '/'));
+    var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
+    return days;
+}
 
 var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){

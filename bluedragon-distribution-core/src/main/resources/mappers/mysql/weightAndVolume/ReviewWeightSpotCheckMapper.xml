@@ -4,6 +4,7 @@
 
 	<resultMap id="spotCheckInfo" type="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="normal_package_num" property="normalPackageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
@@ -13,10 +14,13 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
+		id,org_code,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
 	</sql>
 
 	<sql id="Query_Params_Condition_Sql">
+		<if test="reviewOrgCode != null">
+			and org_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
 		<if test="createSiteCode != null">
 			and site_code = #{createSiteCode,jdbcType=BIGINT}
 		</if>
@@ -28,6 +32,9 @@
 		<trim suffixOverrides=",">
 			<if test="id != null">
 				id,
+			</if>
+			<if test="orgCode != null">
+				org_code,
 			</if>
 			<if test="siteCode != null">
 				site_code,
@@ -54,6 +61,9 @@
 			<if test="id != null">
 				#{id,jdbcType=BIGINT},
 			</if>
+			<if test="orgCode != null">
+				#{orgCode,jdbcType=BIGINT},
+			</if>
 			<if test="siteCode != null">
 				#{siteCode,jdbcType=BIGINT},
 			</if>
@@ -74,6 +84,16 @@
 		</trim>
 		)
 	</insert>
+
+	<select id="queryAllSpotInfo" resultMap="spotCheckInfo">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		spot_check_info
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+		limit 5000
+	</select>
 
 	<select id="queryBySiteCode" parameterType="Integer" resultMap="spotCheckInfo">
 		select
@@ -130,11 +150,12 @@
 	<insert id="batchInsert" parameterType="List">
 		insert into spot_check_info
 		(
-			site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
+			org_code,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
 		)
 		values
 		<foreach collection="list" item="item" index="index" separator=",">
 			(
+			#{item.orgCode,jdbcType=TINYINT},
 			#{item.siteCode,jdbcType=TINYINT},
 			#{item.siteName,jdbcType=VARCHAR},
 			#{item.normalPackageNum,jdbcType=TINYINT},

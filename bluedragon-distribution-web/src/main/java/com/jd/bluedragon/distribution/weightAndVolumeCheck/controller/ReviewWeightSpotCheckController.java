@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.controller;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -29,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,9 +42,6 @@ import java.util.List;
 public class ReviewWeightSpotCheckController extends DmsBaseController {
 
     private static final Log logger = LogFactory.getLog(ReviewWeightSpotCheckController.class);
-
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private ReviewWeightSpotCheckService reviewWeightSpotCheckService;
@@ -121,17 +118,45 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     public ModelAndView toExport(WeightAndVolumeCheckCondition condition, Model model) {
 
         this.logger.info("分拣复重抽查任务统计表");
+        List<List<Object>> resultList;
         try{
-            List<List<Object>> resultList = reviewWeightSpotCheckService.getExportData(condition);
             model.addAttribute("filename", "分拣复重抽检任务统计表.xls");
             model.addAttribute("sheetname", "分拣复重抽检任务统计结果");
-            model.addAttribute("contents", resultList);
-            return new ModelAndView(new DefaultExcelView(), model.asMap());
+            resultList = reviewWeightSpotCheckService.getExportData(condition);
         }catch (Exception e){
             this.logger.error("导出分拣复重抽检任务统计表失败:" + e.getMessage(), e);
-            return null;
+            List<Object> list = new ArrayList<>();
+            list.add("导出分拣复重抽检任务统计表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
         }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
     }
 
+    /**
+     * 导出抽查任务表
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
+    @RequestMapping(value = "/toExportSpot", method = RequestMethod.POST)
+    public ModelAndView toExportSpot(Model model) {
+
+        this.logger.info("导出抽查任务表");
+        List<List<Object>> resultList;
+        try{
+            model.addAttribute("filename", "抽查任务表.xls");
+            model.addAttribute("sheetname", "抽查统计结果");
+            resultList = reviewWeightSpotCheckService.exportSpotData();
+        }catch (Exception e){
+            this.logger.error("导出抽查任务表失败:" + e.getMessage(), e);
+            List<Object> list = new ArrayList<>();
+            list.add("导出抽查任务表失败!");
+            resultList = new ArrayList<>();
+            resultList.add(list);
+        }
+        model.addAttribute("contents", resultList);
+        return new ModelAndView(new DefaultExcelView(), model.asMap());
+    }
 
 }
