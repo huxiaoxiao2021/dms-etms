@@ -358,7 +358,7 @@
     </jsf:consumer>
     <!--报表的接口 唐春青-->
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 
     <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
