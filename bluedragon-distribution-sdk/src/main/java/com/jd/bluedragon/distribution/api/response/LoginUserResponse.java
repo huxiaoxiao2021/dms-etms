@@ -18,6 +18,10 @@ public class LoginUserResponse extends BaseResponse{
 	 */
 	private String dmsSiteName;
 	/**
+	 * 运行环境
+	 */
+	private String runningMode;
+	/**
 	 * @return the dmsSiteCode
 	 */
 	public Integer getDmsSiteCode() {
@@ -40,5 +44,17 @@ public class LoginUserResponse extends BaseResponse{
 	 */
 	public void setDmsSiteName(String dmsSiteName) {
 		this.dmsSiteName = dmsSiteName;
+	}
+	/**
+	 * @return the runningMode
+	 */
+	public String getRunningMode() {
+		return runningMode;
+	}
+	/**
+	 * @param runningMode the runningMode to set
+	 */
+	public void setRunningMode(String runningMode) {
+		this.runningMode = runningMode;
 	}
 }
