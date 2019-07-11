@@ -1611,7 +1611,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态缓存 added by hanjiaxing3 2018.10.20
-                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
+                    boxService.updateBoxStatusRedis(tSendM.getBoxCode(), tSendM.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode(), tSendM.getUpdaterUser());
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
                 return threeDeliveryResponse;
@@ -1696,7 +1696,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                         ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, mSendDetail, sendMs);
                         if (threeDeliveryResponse.getCode().equals(200)) {
                             /* 更新箱号缓存状态 */
-                            boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode(), BoxStatusEnum.CANCELED_STATUS.getCode());
+                            boxService.updateBoxStatusRedis(sendMItem.getBoxCode(), sendMItem.getCreateSiteCode()
+                                    , BoxStatusEnum.CANCELED_STATUS.getCode(),sendMItem.getUpdaterUser());
                         } else {
                             continue;
                         }
