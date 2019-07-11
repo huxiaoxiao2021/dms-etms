@@ -6,9 +6,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -33,6 +36,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * 
@@ -65,7 +70,11 @@ public class UserServiceImpl implements UserService{
 	 *  默认版本名称-jsf登录接口
 	 */
 	private static final String JSF_LOGIN_DEFAULT_VERSION_NAME = "Jsf_Login";
-	
+	/**
+	 * 当前应用的环境（prod-全国 pre-华中 uat-UAT test-测试）
+	 */
+	@Value("${app.config.runningMode:prod}")
+	private String runningMode;
 	@Autowired
 	private BaseService baseService;
 	@Autowired
@@ -336,6 +345,9 @@ public class UserServiceImpl implements UserService{
 			}
 		}
 		if(programType != null){
+			//监控
+			CallerInfo callerInfo = ProfilerHelper.registerInfo(String.format(UmpConstants.UMP_KEY_FORMAT_REST_CLIENT_GET_RUNNING_MODE,programType,this.runningMode));
+			Profiler.registerInfoEnd(callerInfo);
 	    	//1、查询客户端环境配置信息
 	    	SysConfig checkConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_CLIENT_RUNNING_MODE_PRE+programType);
 	    	if(checkConfig!=null && StringHelper.isNotEmpty(checkConfig.getConfigContent())){
