@@ -422,4 +422,9 @@
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
 
+    <!-- 中台-理货 -->
+    <jsf:consumer id="sharedSortingService" interface="com.jd.ql.shared.services.sorting.api.SortingService"
+                  protocol="jsf" alias="${jsf.middleEnd.sorting.alias}" timeout="${jsf.middleEnd.sorting.timeout}" check="false" retries="${jsf.retries}">
+    </jsf:consumer>
+
 </beans>

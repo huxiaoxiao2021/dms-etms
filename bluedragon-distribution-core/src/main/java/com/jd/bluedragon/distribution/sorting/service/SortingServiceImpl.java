@@ -11,6 +11,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -21,6 +22,8 @@ import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionECDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
+import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -35,6 +38,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
@@ -124,12 +128,6 @@ public class SortingServiceImpl implements SortingService {
 	private InspectionECDao inspectionECDao;
 
 	@Autowired
-	private SendMDao sendMDao;
-
-	@Autowired
-	private SendMReadDao sendMReadDao;
-
-	@Autowired
 	private RedisManager redisManager;
 
 	@Autowired
@@ -143,6 +141,17 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	FastRefundService fastRefundService;
+
+
+	@Autowired
+	private InspectionExceptionService inspectionExcpetionService;
+
+	@Autowired
+	private InspectionService inspectionService;
+
+	@Autowired
+	private SendMDao sendMDao;
+
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
      */
@@ -221,6 +230,7 @@ public class SortingServiceImpl implements SortingService {
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean canCancelSorting2(Sorting sorting) {
+		//fixme sorting send_d 分布式事务问题
 		boolean result = this.sortingDao.canCancel2(sorting)
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if (result) {
@@ -617,7 +627,7 @@ public class SortingServiceImpl implements SortingService {
 	 *
 	 * @param sorting
 	 */
-	private void saveOrUpdateInspectionEC(Sorting sorting) {//FIXME:包装构建方法
+	public void saveOrUpdateInspectionEC(Sorting sorting) {//FIXME:包装构建方法
 
 		if (Constants.BUSSINESS_TYPE_THIRD_PARTY != sorting.getType()) {
 			return;
@@ -857,7 +867,7 @@ public class SortingServiceImpl implements SortingService {
 	 * 推验货任务
 	 * @param sorting
 	 */
-	private void b2bPushInspection(Sorting sorting) {
+	public void b2bPushInspection(Sorting sorting) {
 		BaseStaffSiteOrgDto createSite = null;
 		try {
 			createSite = this.baseMajorManager.getBaseSiteBySiteId(sorting.getCreateSiteCode());
@@ -1367,4 +1377,86 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
+	public SortingResponse doCancelSorting(Sorting sorting){
+		List<Sorting> sortingRecords = new ArrayList<Sorting>();
+
+		SortingResponse response = getSortingRecords(sorting,sortingRecords);
+		if(!response.getCode().equals(SortingResponse.CODE_OK)){
+			return response;
+		}
+
+		Boolean canCancel = false;
+		if (sortingRecords != null) {
+			for (Sorting eachSorting : sortingRecords) {
+				eachSorting.setOperateTime(sorting.getOperateTime());
+				eachSorting.setUpdateUserCode(sorting.getUpdateUserCode());
+				eachSorting.setUpdateUser(sorting.getUpdateUser());
+				canCancel |= canCancel2(eachSorting);
+			}
+		}
+
+		if(canCancel){
+			return SortingResponse.ok();
+		}
+		return SortingResponse.sortingNotFund();
+	}
+
+	public SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords){
+		if (StringUtils.isNotBlank(sorting.getBoxCode())) {
+			// 校验是否发货，如果已经发货，则提示不能取消分拣
+			SendM sendM = new SendM();
+			sendM.setBoxCode(sorting.getBoxCode());
+			sendM.setCreateSiteCode(sorting.getCreateSiteCode());
+			List<SendM> sendMList = sendMDao.findSendMByBoxCode2(sendM);
+			if (null != sendMList && !sendMList.isEmpty()) {
+				return SortingResponse.sortingSended();
+			}
+			// 若三方分拣，校验是否验货，若已经验货，则提示不能取消
+			if (sorting.getType() == Constants.BUSSINESS_TYPE_THIRD_PARTY) {
+				Inspection inspection = new Inspection.Builder(null, sorting.getCreateSiteCode())
+						.boxCode(sorting.getBoxCode()).inspectionType(sorting.getType()).build();
+				int inspectionCount = inspectionService.inspectionCount(inspection);
+				if (inspectionCount > 0) {
+					return SortingResponse.sortingInspected();
+				}
+			}
+			sortingRecords = sortingDao.findByBoxCode(sorting);
+			if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+				logger.warn(sorting.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
+				return SortingResponse.packageNumLimit();
+			}
+		} else {
+			sortingRecords = queryByCode2(sorting);
+			if (sortingRecords == null || sortingRecords.isEmpty()) {
+				logger.warn("取消分拣--->包裹已经发货");
+				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
+				return SortingResponse.sortingSended();
+			} else if (sortingRecords.size() > DmsConstants.MAX_NUMBER) {
+				logger.warn(sorting.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
+				return SortingResponse.packageNumLimit();
+			}
+
+			if (Constants.BUSSINESS_TYPE_THIRD_PARTY == sorting.getType()) {
+				int unfilledOrdersCount = 0;
+				for (Sorting eachSorting : sortingRecords) {
+					// 如果已经验货，则exception_status为0，则不能取消分拣，需要在异常处理里进行少验取消的操作
+					InspectionEC inspectionEC = new InspectionEC.Builder(eachSorting.getPackageCode(),
+							eachSorting.getCreateSiteCode()).waybillCode(eachSorting.getWaybillCode())
+							.boxCode(eachSorting.getBoxCode()).receiveSiteCode(eachSorting.getReceiveSiteCode())
+							.inspectionType(eachSorting.getType()).inspectionECType(InspectionEC.INSPECTIONEC_TYPE_MORE)
+							.yn(1).build();
+					Integer inspectionCount = inspectionExcpetionService.inspectionCount(inspectionEC);
+
+					if (inspectionCount > 0) {
+						unfilledOrdersCount++;
+						addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "已经三方验货或者差异处理");
+					}
+				}
+				if (unfilledOrdersCount == sortingRecords.size()) {
+					return SortingResponse.sortingInspected();
+				}
+			}
+		}
+		return SortingResponse.ok();
+	}
 }
