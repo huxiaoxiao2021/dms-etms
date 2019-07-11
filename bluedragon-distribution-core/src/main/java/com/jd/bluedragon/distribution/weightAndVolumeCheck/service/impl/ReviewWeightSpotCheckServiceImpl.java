@@ -335,38 +335,6 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         return result;
     }
 
-    /**
-     * 根据条件查询
-     * @param condition
-     * @return
-     */
-    @Override
-    public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition) {
-
-        PagerResult<ReviewWeightSpotCheck> result = new PagerResult<>();
-
-        try {
-            List<SpotCheckInfo> spotCheckInfos = reviewWeightSpotCheckDao.queryByCondition(condition);
-            if(spotCheckInfos.size() == 0){
-                logger.warn("未导入抽查任务!");
-                result.setRows(new ArrayList<ReviewWeightSpotCheck>());
-                result.setTotal(0);
-                return result;
-            }
-            //TODO 查询es获取数据
-            List<ReviewWeightSpotCheck> list = new ArrayList<>();
-            result.setRows(list);
-            result.setTotal(list.size());
-
-        }catch (Exception e){
-            logger.error("查询失败!",e);
-            result.setRows(new ArrayList<ReviewWeightSpotCheck>());
-            result.setTotal(0);
-        }
-
-        return result;
-    }
-
 
 
     /**
