@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.board.response;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -9,7 +10,9 @@ import java.util.List;
  * @author jiaowenqiang
  * @date 2019/7/8
  */
-public class BoardDetailDto {
+public class BoardDetailDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 包裹/箱号明细

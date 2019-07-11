@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.board.response;
 
+import java.io.Serializable;
+
 /**
  * BoardInfoDto
  * 组板信息
@@ -7,7 +9,9 @@ package com.jd.bluedragon.common.dto.board.response;
  * @author jiaowenqiang
  * @date 2019/7/8
  */
-public class BoardInfoDto {
+public class BoardInfoDto implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 板号

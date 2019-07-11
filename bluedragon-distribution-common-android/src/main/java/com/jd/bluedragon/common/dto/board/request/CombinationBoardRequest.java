@@ -4,6 +4,8 @@ package com.jd.bluedragon.common.dto.board.request;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
+import java.io.Serializable;
+
 /**
  * CombinationBoardRequest
  * 组板请求信息
@@ -11,7 +13,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
  * @author jiaowenqiang
  * @date 2019/7/8
  */
-public class CombinationBoardRequest {
+public class CombinationBoardRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

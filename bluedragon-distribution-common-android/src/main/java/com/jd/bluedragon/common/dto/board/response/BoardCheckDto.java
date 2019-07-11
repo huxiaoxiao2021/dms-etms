@@ -11,6 +11,7 @@ import java.io.Serializable;
  * @date 2019/7/8
  */
 public class BoardCheckDto implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     /**
      * 接收站点编号
