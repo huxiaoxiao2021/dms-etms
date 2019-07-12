@@ -28,9 +28,9 @@ public class ScheduleWaybillHandler implements Handler<WaybillPrintContext,JdRes
 	@Override
 	public JdResult<String> handle(WaybillPrintContext context) {
 		logger.info("包裹标签打印-重新调度处理");
-		Integer dmsCode = context.getRequest().getDmsSiteCode();
-		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
-		scheduleComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
+//		Integer dmsCode = context.getRequest().getDmsSiteCode();
+//		Integer targetSiteCode = context.getRequest().getTargetSiteCode();
+//		scheduleComposeService.handle(context.getResponse(), dmsCode, targetSiteCode);
 		return context.getResult();
 	}
 }

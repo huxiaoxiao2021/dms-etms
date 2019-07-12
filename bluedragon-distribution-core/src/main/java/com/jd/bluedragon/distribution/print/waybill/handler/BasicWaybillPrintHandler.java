@@ -381,7 +381,14 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                    }
                }
            }
-
+           //targetSiteCode>0时，设置返调度信息
+           Integer targetSiteCode = context.getRequest().getTargetSiteCode();
+           if(null!=targetSiteCode && targetSiteCode>0){
+        	   commonWaybill.setPrepareSiteCode(targetSiteCode);
+               if(StringHelper.isNotEmpty(commonWaybill.getNewAddress())){
+            	   commonWaybill.setPrintAddress(commonWaybill.getNewAddress());
+               }
+           }
         //加载始发站点信息
         waybillCommonService.loadOriginalDmsInfo(commonWaybill,bigWaybillDto);
         waybillCommonService.setBasePrintInfoByWaybill(commonWaybill, tmsWaybill);
