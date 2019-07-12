@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.BatchForwardRequest;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.batchForward.BatchForwardResource;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.external.gateway.service.BatchForwardGatewayService;
 import com.jd.etms.sdk.util.DateUtil;
 
@@ -50,8 +51,6 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
         BatchForwardRequest request = new BatchForwardRequest();
         request.setOldSendCode(retransRequest.getOldSendCode());
         request.setNewSendCode(retransRequest.getNewSendCode());
-//        request.setKey(""); todo C# 没传值 后端用不用
-//        request.setId(0);
         request.setUserCode(retransRequest.getUser().getUserCode());
         request.setUserName(retransRequest.getUser().getUserName());
         request.setSiteCode(retransRequest.getCurrentOperate().getSiteCode());
@@ -60,7 +59,7 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
         request.setOperateTime(DateUtil.format(retransRequest.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));
         InvokeResult invokeResult = batchForwardResource.batchForwardSend(request);
         JdCResponse<String> jdCResponse = new JdCResponse<>();
-        if(Objects.equals(invokeResult.getCode(),InvokeResult.RESULT_SUCCESS_CODE)){
+        if(Objects.equals(invokeResult.getCode(), SendResult.CODE_OK)){
             jdCResponse.toSucceed(invokeResult.getMessage());
             return jdCResponse;
         }

@@ -56,7 +56,7 @@ public class BatchForwardServiceImpl implements BatchForwardService {
         }
         //插入批次转发的任务
         insertBatchForwardTask(request);
-        result.customMessage(InvokeResult.RESULT_SUCCESS_CODE, SendResult.MESSAGE_OK);
+        result.customMessage(SendResult.CODE_SENDED, SendResult.MESSAGE_OK);
         return result;
     }
 
