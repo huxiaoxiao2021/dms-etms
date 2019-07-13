@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -39,5 +41,18 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         }
 
         return jdResponse;
+    }
+
+    @Override
+    public JdCResponse<List<String>> getAllGroupBoxesBySendCode(String boxCode){
+        InvokeResult<List<String>> invokeResult = boxResource.getAllGroupBoxes(boxCode);
+        JdCResponse<List<String>> jdCResponse = new JdCResponse<>();
+        if(invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
+            jdCResponse.toSucceed(invokeResult.getMessage());
+            jdCResponse.setData(invokeResult.getData());
+            return jdCResponse;
+        }
+        jdCResponse.toError(invokeResult.getMessage());
+        return jdCResponse;
     }
 }
