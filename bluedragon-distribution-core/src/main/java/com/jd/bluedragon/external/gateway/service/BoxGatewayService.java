@@ -13,5 +13,5 @@ public interface BoxGatewayService {
 
     JdCResponse<BoxDto> boxValidation(String boxCode, Integer operateType);
 
-    JdCResponse<List<String>> getAllGroupBoxesBySendCode(String boxCode);
+    JdCResponse<List<String>> getAllGroupBoxes(String boxCode);
 }

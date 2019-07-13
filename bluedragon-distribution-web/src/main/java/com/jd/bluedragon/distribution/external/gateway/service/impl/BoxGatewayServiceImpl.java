@@ -44,7 +44,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     }
 
     @Override
-    public JdCResponse<List<String>> getAllGroupBoxesBySendCode(String boxCode){
+    public JdCResponse<List<String>> getAllGroupBoxes(String boxCode){
         InvokeResult<List<String>> invokeResult = boxResource.getAllGroupBoxes(boxCode);
         JdCResponse<List<String>> jdCResponse = new JdCResponse<>();
         if(invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
