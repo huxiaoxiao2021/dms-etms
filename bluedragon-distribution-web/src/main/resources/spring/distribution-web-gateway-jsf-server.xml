@@ -46,4 +46,11 @@
                   ref="taskGatewayService" server="dmsjsf">
     </jsf:provider>
 
+    <bean id="batchForwardGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.BatchForwardGatewayServiceImpl"/>
+    <jsf:provider id="jsfBatchForwardGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.BatchForwardGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="batchForwardGatewayService" server="dmsjsf">
+    </jsf:provider>
+
 </beans>
