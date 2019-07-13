@@ -10,5 +10,10 @@ import com.jd.bluedragon.common.dto.task.request.TaskPdaRequest;
  */
 public interface TaskGatewayService {
 
-    JdCResponse<String> addTasks(TaskPdaRequest pdaRequest);
+    /**
+     * 通用的上传任务方法
+     * @param pdaRequest
+     * @return
+     */
+    JdCResponse<String> addTasksCommonly(TaskPdaRequest pdaRequest);
 }

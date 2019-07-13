@@ -20,7 +20,7 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
     private TaskResource taskResource;
 
     @Override
-    public JdCResponse<String> addTasks(TaskPdaRequest pdaRequest) {
+    public JdCResponse<String> addTasksCommonly(TaskPdaRequest pdaRequest) {
         TaskRequest taskRequest = new TaskRequest();
         taskRequest.setBoxCode(pdaRequest.getBoxCode());
         taskRequest.setReceiveSiteCode(pdaRequest.getReceiveSiteCode());
