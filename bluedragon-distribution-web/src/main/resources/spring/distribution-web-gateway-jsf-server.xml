@@ -45,5 +45,11 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="taskGatewayService" server="dmsjsf">
     </jsf:provider>
+    <bean id="waybillGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.WaybillGateWayServiceImpl"/>
+    <jsf:provider id="jsfWaybillGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.WaybillGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="waybillGateWayService" server="dmsjsf">
+    </jsf:provider>
 
 </beans>
