@@ -11,7 +11,6 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
-import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +30,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     private NewSealVehicleResource newSealVehicleResource;
 
     @Override
-    public JdCResponse cancelSeal(CancelSealRequest gatewayRequest){
+    public JdCResponse cancelSeal(CancelSealRequest gatewayRequest) {
         cancelSealRequest request = new cancelSealRequest();
         request.setBatchCode(gatewayRequest.getBatchCode());
         request.setOperateTime(gatewayRequest.getOperateTime());
@@ -39,7 +38,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         request.setOperateUserCode(gatewayRequest.getOperateUserCode());
         NewSealVehicleResponse vehicleResponse = newSealVehicleResource.cancelSeal(request);
         JdCResponse jdCResponse = new JdCResponse();
-        if(Objects.equals(vehicleResponse.getCode(), JdResponse.CODE_OK)){
+        if (Objects.equals(vehicleResponse.getCode(), JdResponse.CODE_OK)) {
             jdCResponse.toSucceed(vehicleResponse.getMessage());
             return jdCResponse;
         }
@@ -52,7 +51,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
      */
     @Override
-    public JdCResponse<SealCarTaskInfoDto> getTaskInfo(SearCarTaskInfoRequest request) {
+    public JdCResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request) {
 
         JdCResponse<SealCarTaskInfoDto> response = new JdCResponse<>();
         SealCarTaskInfoDto sealCarTaskInfoDto = new SealCarTaskInfoDto();
@@ -96,7 +95,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
         RouteTypeResponse routeTypeResponse = newSealVehicleResource.getTransportCode(param);
 
-        if (routeTypeResponse.getCode() == 30001 || routeTypeResponse.getCode() == 30002 || routeTypeResponse.getCode() == 30003) {
+        if (routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK)
+                || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR)) {
             jdCResponse.setCode(JdCResponse.CODE_CONFIRM);
             jdCResponse.setMessage(routeTypeResponse.getMessage());
         } else {
@@ -153,12 +153,12 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 封车
      */
     @Override
-    public JdCResponse sear(SearCarRequest searCarRequest) {
-        JdCResponse jdCResponse=new JdCResponse();
+    public JdCResponse sealCar(SealCarRequest sealCarRequest) {
+        JdCResponse jdCResponse = new JdCResponse();
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
-        List<SearCarDto> list = searCarRequest.getSearCarDtoList();
+        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
         newSealVehicleRequest.setData(convert(list));
-        NewSealVehicleResponse newSealVehicleResponse=newSealVehicleResource.seal(newSealVehicleRequest);
+        NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.seal(newSealVehicleRequest);
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
         jdCResponse.setMessage(newSealVehicleResponse.getMessage());
@@ -168,11 +168,11 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
 
     //参数转化
-    private List<SealCarDto> convert(List<SearCarDto> list) {
-        List<SealCarDto> sealCarDtos = new ArrayList<>();
-        SealCarDto param;
-        for (SearCarDto sc : list) {
-            param = new SealCarDto();
+    private List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> convert(List<SealCarDto> list) {
+        List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCarDtos = new ArrayList<>();
+        com.jd.bluedragon.distribution.wss.dto.SealCarDto param;
+        for (SealCarDto sc : list) {
+            param = new com.jd.bluedragon.distribution.wss.dto.SealCarDto();
             param.setSealCarType(sc.getSealCarType());
             param.setItemSimpleCode(sc.getItemSimpleCode());
             param.setTransportCode(sc.getTransportCode());
