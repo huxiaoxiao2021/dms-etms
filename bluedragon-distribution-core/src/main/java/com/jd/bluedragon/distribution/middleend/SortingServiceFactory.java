@@ -52,6 +52,6 @@ public class SortingServiceFactory {
             return failOverSortingService;
         }
 
-        return new DmsSortingServiceImpl();
+        return dmsSortingService;
     }
 }
