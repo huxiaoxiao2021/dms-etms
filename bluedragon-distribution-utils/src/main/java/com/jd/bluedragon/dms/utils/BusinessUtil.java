@@ -769,4 +769,13 @@ public class BusinessUtil {
     public static boolean isGraduationExpress(String waybillSign){
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
     }
+
+    /**
+     * 判断是否是爱回收订单 sendpay133位=9
+     * @param sendPay
+     * @return
+     */
+    public static boolean isRecoveryOrder(String sendPay){
+        return isSignChar(sendPay,SendPayConstants.POSITION_133,SendPayConstants.CHAR_133_9);
+    }
 }

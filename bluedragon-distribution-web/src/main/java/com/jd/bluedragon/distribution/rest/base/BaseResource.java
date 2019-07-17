@@ -967,7 +967,8 @@ public class BaseResource {
 					siteCodes.add(perSiteCode);
 					//根据三方-合作站点获取三方-合作站点所属自营站点
 					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())){
+							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())
+							|| BusinessUtil.isRecoveryOrder(waybill.getSendPay())){
 						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 						if(PartnerSite!=null){
 							//记录大站

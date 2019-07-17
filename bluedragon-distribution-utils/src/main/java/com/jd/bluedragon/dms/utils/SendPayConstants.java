@@ -12,4 +12,10 @@ public interface SendPayConstants {
 	 * 默认打标-0
 	 */
 	char CHAR_0 = '0';
+
+	/**
+	 * 爱回收订单
+	 */
+	int POSITION_133 = 133;
+	char CHAR_133_9 = '9';
 }
