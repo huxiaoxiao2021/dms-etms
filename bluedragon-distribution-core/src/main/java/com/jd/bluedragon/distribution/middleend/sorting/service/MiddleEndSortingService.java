@@ -13,35 +13,6 @@ public interface MiddleEndSortingService {
     boolean coreSorting(SortingObjectExtend sorting);
 
     /**
-     * 分拣补验货
-     * 1.补验货差异表inspection_ec
-     * @param sorting
-     */
-    void sortingAddInspection(SortingObjectExtend sorting);
-
-    /**
-     * 分拣补发货
-     * 1.补send_d表
-     * 2.补发货全称跟踪
-     * @param sorting
-     */
-    void sortingAddSend(SortingObjectExtend sorting);
-
-    /**
-     * 分拣写操作日志
-     * cassandra日志
-     * @param sorting
-     */
-    void sortingAddOperationLog(SortingObjectExtend sorting);
-
-    /**
-     * 取件单处理
-     * @param sorting
-     */
-    void fillSortingIfPickup(SortingObjectExtend sorting);
-
-
-    /**
      * 取消分拣
      * @param sorting
      */

@@ -57,6 +57,6 @@ public class MiddleEndSortingManagerImpl implements MiddleEndSortingManager {
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.WORKER.MiddleEndSortingManagerImpl.cancelSorting",mState = {JProEnum.TP,JProEnum.FunctionError})
     public ApiResult<Void> cancelSorting(String barCode, SortingCancelObjectType type, Integer operateSiteId, UserEnv operator, Date operateTime){
-        return cancelSorting(barCode,type,operateSiteId,operator,operateTime);
+        return sharedSortingService.cancelSorting(barCode,type,operator,operateTime);
     }
 }

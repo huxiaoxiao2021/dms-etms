@@ -181,4 +181,12 @@ public interface SortingService {
     SortingResponse getSortingRecords(Sorting sorting,List<Sorting> sortingRecords);
 
     Boolean canCancelInspectionEC(Sorting sorting);
+
+    /**
+     * 分拣核心操作成功后的补充操作
+     *
+     * @param task
+     * @return
+     */
+    boolean executeSortingSuccess(Task task);
 }

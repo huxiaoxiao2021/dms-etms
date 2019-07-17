@@ -50,11 +50,12 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
 
             ApiResult<Void> result = null;
 
-            logger.info("中台理货接口调用参数:isHaveContainer:" + isHaveContainer + ",containerCode：" + dmsSorting.getBoxCode() + ",SortingObject: " + JSON.toJSONString(sorting) + ",operator:" + JSON.toJSONString(operator) + ",operateTime:" + dmsSorting.getOperateTime());
+            SortingObject sortingObject = sorting.getMiddleEndSorting();
+            logger.info("中台理货接口调用参数:isHaveContainer:" + isHaveContainer + ",containerCode：" + dmsSorting.getBoxCode() + ",SortingObject: " + JSON.toJSONString(sortingObject) + ",operator:" + JSON.toJSONString(operator) + ",operateTime:" + dmsSorting.getOperateTime());
             if (isHaveContainer) {
-                result = middleEndSortingManager.sortWithoutContainer(sorting, operator, dmsSorting.getOperateTime());
+                result = middleEndSortingManager.sort(dmsSorting.getBoxCode(), sortingObject, operator, dmsSorting.getOperateTime());
             } else {
-                result = middleEndSortingManager.sort(dmsSorting.getBoxCode(), sorting, operator, dmsSorting.getOperateTime());
+                result = middleEndSortingManager.sortWithoutContainer(sortingObject, operator, dmsSorting.getOperateTime());
             }
             logger.info("中台理货接口调用结果:" + JSON.toJSONString(result));
             return result.getCode() == ApiResult.OK_CODE;
@@ -63,47 +64,6 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
             return false;
         }
     }
-
-    /**
-     * 分拣补验货
-     * 1.补验货差异表inspection_ec
-     * @param sorting
-     */
-    public void sortingAddInspection(SortingObjectExtend sorting) {
-        dmsSortingService.saveOrUpdateInspectionEC(sorting.getDmsSorting());
-    }
-
-    /**
-     * 分拣补发货
-     * 1.补send_d表
-     * 2.补发货全称跟踪
-     * @param sorting
-     */
-    public void sortingAddSend(SortingObjectExtend sorting) {
-        List<SendDetail> sendDList = new ArrayList<>();
-
-        sendDList.add(dmsSortingService.addSendDetail(sorting.getDmsSorting()));
-        //补发货
-        dmsSortingService.fixSendDAndSendTrack(sorting.getDmsSorting(), sendDList);
-    }
-
-    /**
-     * 分拣写操作日志
-     * cassandra日志
-     * @param sorting
-     */
-    public void sortingAddOperationLog(SortingObjectExtend sorting) {
-        dmsSortingService.addOpetationLog(sorting.getDmsSorting(), OperationLog.LOG_TYPE_SORTING);
-    }
-
-    /**
-     * 取件单处理
-     * @param sorting
-     */
-    public void fillSortingIfPickup(SortingObjectExtend sorting) {
-        dmsSortingService.fillSortingIfPickup(sorting.getDmsSorting());
-    }
-
 
     /**
      * 取消分拣
@@ -213,10 +173,16 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
         if(dmsSorting == null){
             return null;
         }
+        Integer userCode = dmsSorting.getCreateUserCode();
+        String  userName = dmsSorting.getCreateUser();
+        if(userCode == null || userCode <=0){
+            userCode = dmsSorting.getUpdateUserCode();
+            userName = dmsSorting.getUpdateUser();
+        }
         //构建User对象
         User user = User.builder()
-                .userIdentity(dmsSorting.getCreateUserCode().toString())
-                .userName(dmsSorting.getCreateUser())
+                .userIdentity(String.valueOf(userCode))
+                .userName(userName)
                 .userSource(UserSource.QINGLONG_SYSTEM_USER)
                 .build();
 
@@ -224,5 +190,4 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
 
         return operator;
     }
-
 }

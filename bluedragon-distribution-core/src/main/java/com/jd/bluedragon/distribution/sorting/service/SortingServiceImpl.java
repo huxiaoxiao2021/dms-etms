@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.MonitorAlarm;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
@@ -24,6 +26,7 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.SortingObjectExtend;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -58,6 +61,7 @@ import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.profiler.CallerInfo;
@@ -151,6 +155,9 @@ public class SortingServiceImpl implements SortingService {
 
 	@Autowired
 	private SendMDao sendMDao;
+
+	@Autowired
+	private WaybillPackageManager waybillPackageManager;
 
     /**
      * sorting任务处理告警时间，单位:ms，默认值100
@@ -1458,5 +1465,69 @@ public class SortingServiceImpl implements SortingService {
 			}
 		}
 		return SortingResponse.ok();
+	}
+
+	/**
+	 * 分拣核心操作成功后的补充操作
+	 *
+	 * @param task
+	 * @return
+	 */
+	public boolean executeSortingSuccess(Task task) {
+		try {
+			SortingObjectExtend sorting = JSONObject.parseObject(task.getBody(), SortingObjectExtend.class);
+
+			if (sorting.getPackagePageIndex() == 0 || com.jd.common.util.StringUtils.isNotBlank(sorting.getDmsSorting().getPackageCode())) {
+				doSortingAfter(sorting.getDmsSorting());
+
+			} else {
+				//分批后的任务需要调用运单接口获取包裹数据
+				BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(sorting.getDmsSorting().getWaybillCode(), sorting.getPackagePageIndex(), sorting.getPackagePageSize());
+
+				List<DeliveryPackageD> packageDList = baseEntity.getData();
+
+				for (DeliveryPackageD packageD : packageDList) {
+					sorting.getDmsSorting().setPackageCode(packageD.getPackageBarcode());
+					doSortingAfter(sorting.getDmsSorting());
+				}
+			}
+
+			return true;
+		} catch (Exception e) {
+			logger.error("执行executeSortingSuccess任务异常.参数：" + JSON.toJSONString(task), e);
+			return false;
+		}
+	}
+
+	private void doSortingAfter(Sorting sorting) {
+		fillSortingIfPickup(sorting);
+		sortingAddInspection(sorting);
+		sortingAddSend(sorting);
+		addOpetationLog(sorting,OperationLog.LOG_TYPE_SORTING);
+	}
+
+	/**
+	 * 分拣补验货
+	 * 1.B网发验货任务
+	 * 2.补验货差异表inspection_ec
+	 * @param sorting
+	 */
+	private void sortingAddInspection(Sorting sorting){
+		b2bPushInspection(sorting);
+		saveOrUpdateInspectionEC(sorting);
+	}
+
+	/**
+	 * 分拣补发货
+	 * 1.补send_d表
+	 * 2.补发货全称跟踪
+	 * @param sorting
+	 */
+	private void sortingAddSend(Sorting sorting) {
+		List<SendDetail> sendDList = new ArrayList<>();
+
+		sendDList.add(addSendDetail(sorting));
+		//补发货
+		fixSendDAndSendTrack(sorting, sendDList);
 	}
 }

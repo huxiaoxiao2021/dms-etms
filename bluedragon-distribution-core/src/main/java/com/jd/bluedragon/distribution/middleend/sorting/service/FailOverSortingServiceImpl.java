@@ -11,6 +11,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -61,25 +62,29 @@ public class FailOverSortingServiceImpl extends BaseSortingService implements IS
      * @param dmsSorting
      */
     private void saveOrUpdate(Sorting dmsSorting) {
-        if (StringUtils.isNotBlank(dmsSorting.getPackageCode())) {
-            dmsSortingService.fillSortingIfPickup(dmsSorting);
-            dmsSortingService.saveOrUpdate(dmsSorting);
+        Sorting dmsSortingCopy = new Sorting();
+        BeanUtils.copyProperties(dmsSorting,dmsSortingCopy);
+
+        if (StringUtils.isNotBlank(dmsSortingCopy.getPackageCode())) {
+            dmsSortingService.fillSortingIfPickup(dmsSortingCopy);
+            dmsSortingService.saveOrUpdate(dmsSortingCopy);
         } else {
             //调运单接口获取包裹信息，转换成包裹维度
-            String waybillCode = dmsSorting.getWaybillCode();
+             String waybillCode = dmsSortingCopy.getWaybillCode();
             WChoice wChoice = new WChoice();
             wChoice.setQueryWaybillC(true);
             wChoice.setQueryWaybillE(false);
             wChoice.setQueryWaybillM(false);
             wChoice.setQueryPackList(true);
 
+
             BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
             if (baseEntity != null && baseEntity.getData() != null) {
                 List<DeliveryPackageD> packageList = baseEntity.getData().getPackageList();
                 for (DeliveryPackageD deliveryPackageD : packageList) {
-                    dmsSorting.setPackageCode(deliveryPackageD.getPackageBarcode());
-                    dmsSortingService.fillSortingIfPickup(dmsSorting);
-                    dmsSortingService.saveOrUpdate(dmsSorting);
+                    dmsSortingCopy.setPackageCode(deliveryPackageD.getPackageBarcode());
+                    dmsSortingService.fillSortingIfPickup(dmsSortingCopy);
+                    dmsSortingService.saveOrUpdate(dmsSortingCopy);
                 }
             }
         }

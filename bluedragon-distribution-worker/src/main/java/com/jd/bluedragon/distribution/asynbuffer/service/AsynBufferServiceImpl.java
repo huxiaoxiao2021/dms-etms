@@ -230,6 +230,16 @@ public class AsynBufferServiceImpl implements AsynBufferService {
         return sortingFactory.bulid(sortingVO).execute(sortingVO);
     }
 
+    /**
+     * 分拣核心操作成功后的补充操作
+     *
+     * @param task
+     * @return
+     */
+    public boolean executeSortingSuccess(Task task){
+       return sortingService.executeSortingSuccess(task);
+    }
+
     //称重信息回传运单中心
     @Autowired
     private WeightService weightService;

@@ -23,10 +23,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.fastjson.JSON;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.shared.services.sorting.api.dto.Flow;
-import com.jd.ql.shared.services.sorting.api.dto.SiteType;
-import com.jd.ql.shared.services.sorting.api.dto.SortingObjectStatus;
-import com.jd.ql.shared.services.sorting.api.dto.SortingObjectType;
+import com.jd.ql.shared.services.sorting.api.dto.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -203,24 +200,29 @@ public abstract class BaseSortingService {
      */
     private void buildMiddleEndSorting(SortingObjectExtend object) {
         Sorting dmsSorting = object.getDmsSorting();
+        SortingObject middleEndSorting = new SortingObject();
+        object.setMiddleEndSorting(middleEndSorting);
 
         //IS_LOSS FEATURE_TYPE 合并
         if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_0) {
-            object.setStatus(SortingObjectStatus.NORMAL);
+            middleEndSorting.setStatus(SortingObjectStatus.NORMAL);
         } else if (dmsSorting.getIsLoss() == SORTING_STATUS_IS_LOSS_1) {
-            object.setStatus(SortingObjectStatus.LOST);
+            middleEndSorting.setStatus(SortingObjectStatus.LOST);
         } else if (dmsSorting.getFeatureType() == SORTING_STATUS_FEATURE_TYPE_2) {
-            object.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
+            middleEndSorting.setStatus(SortingObjectStatus.TRIPARTITE_RETURN_SPARE_WAREHOUSE);
         }
 
         //分拣类型
         if (StringUtils.isBlank(dmsSorting.getPackageCode())) {
-            object.setObjectType(SortingObjectType.WAYBILL);
-            object.setObjectCode(dmsSorting.getWaybillCode());  //运单号/包裹号
+            middleEndSorting.setObjectType(SortingObjectType.WAYBILL);
+            middleEndSorting.setObjectCode(dmsSorting.getWaybillCode());  //运单号/包裹号
         } else {
-            object.setObjectType(SortingObjectType.PACKAGE);
-            object.setObjectCode(dmsSorting.getPackageCode());  //运单号/包裹号
+            middleEndSorting.setObjectType(SortingObjectType.PACKAGE);
+            middleEndSorting.setObjectCode(dmsSorting.getPackageCode());  //运单号/包裹号
         }
+
+        //分拣类型 正向/逆向/三方
+        middleEndSorting.setSortingDirection(SortingDirection.getEunmByType(dmsSorting.getType()));
 
         //分拣流向
         Flow flow = new Flow();
@@ -234,16 +236,16 @@ public abstract class BaseSortingService {
             flow.setToSiteCode(object.getReceiveSite().getSiteCode());
             flow.setToSiteType(SiteType.getEunmByType(object.getReceiveSite().getCustomSiteType()));
         }
-        object.setFlow(flow);
+        middleEndSorting.setFlow(flow);
 
-        object.setWaybillCode(WaybillUtil.getWaybillCode(object.getObjectCode())); //必填
-        object.setBatchCode(dmsSorting.getBsendCode());   //理货批次号 BSEND_CODE
+        middleEndSorting.setWaybillCode(WaybillUtil.getWaybillCode(middleEndSorting.getObjectCode())); //必填
+        middleEndSorting.setBatchCode(dmsSorting.getBsendCode());   //理货批次号 BSEND_CODE
 
         dmsSortingService.fillSortingIfPickup(dmsSorting);
-        object.setRelatedCode(dmsSorting.getPickupCode()); //取件单号
+        middleEndSorting.setRelatedCode(dmsSorting.getPickupCode()); //取件单号
 
-        object.setComment(dmsSorting.getSpareReason()); //SPARE_REASON
-        object.setIsCancel(dmsSorting.getIsCancel() == 0 ? false : true);
+        middleEndSorting.setComment(dmsSorting.getSpareReason()); //SPARE_REASON
+        middleEndSorting.setIsCancel(dmsSorting.getIsCancel() == 0 ? false : true);
     }
 
 
@@ -263,8 +265,6 @@ public abstract class BaseSortingService {
      * @param sorting
      */
     public void doSortingSuccess(SortingObjectExtend sorting) {
-        // fixme 包裹验货  运单分拣  重复补验货记录
-        dmsSortingService.b2bPushInspection(sorting.getDmsSorting());
         addSortingSuccessTask(sorting);
     }
 
@@ -274,7 +274,7 @@ public abstract class BaseSortingService {
      * @param sorting
      */
     public void addSortingSuccessTask(SortingObjectExtend sorting) {
-        String waybillCode = sorting.getWaybillCode();
+        String waybillCode = sorting.getDmsSorting().getWaybillCode();
         WChoice wChoice = new WChoice();
         wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillE(false);
