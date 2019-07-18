@@ -769,4 +769,13 @@ public class BusinessUtil {
     public static boolean isGraduationExpress(String waybillSign){
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
     }
+
+    /**
+     * 判断是否是加盟商运单 106=2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllianceBusi(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
+    }
 }

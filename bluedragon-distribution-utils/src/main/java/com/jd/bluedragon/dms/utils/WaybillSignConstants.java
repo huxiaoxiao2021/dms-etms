@@ -129,4 +129,10 @@ public interface WaybillSignConstants {
 	char CHAR_98_1 = '1';
 	char CHAR_98_2 = '2';
 
+	/**
+	 * 加盟商
+	 * 106等于2代表加盟商运单
+	 */
+	int POSITION_106 = 106;
+	char CHAR_106_2 = '2';
 }

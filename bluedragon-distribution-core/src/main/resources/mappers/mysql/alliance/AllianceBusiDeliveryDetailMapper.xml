@@ -21,9 +21,7 @@
 		insert into alliance_busi_delivery_detail
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					id,
-				</if>
+
 				<if test="waybillCode != null">
 					waybill_code,
 				</if>
@@ -36,20 +34,17 @@
 				<if test="operateTime != null">
 					operate_time,
 				</if>
-				<if test="isDelete != null">
+
 					is_delete,
-				</if>
-				<if test="ts != null">
+
 					ts
-				</if>
+
 			</trim>
 			)
 			values
 			(
 			<trim suffixOverrides=",">
-				<if test="id != null">
-					#{id,jdbcType=BIGINT},
-				</if>
+
 				<if test="waybillCode != null">
 					#{waybillCode,jdbcType=VARCHAR},
 				</if>
@@ -62,12 +57,9 @@
 				<if test="operateTime != null">
 					#{operateTime,jdbcType=TIMESTAMP},
 				</if>
-				<if test="isDelete != null">
-					#{isDelete,jdbcType=TINYINT},
-				</if>
-				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
-				</if>
+				0,
+				now()
+
 			</trim>
 			)
 	</insert>
@@ -85,8 +77,8 @@
 					#{item.packageCode,jdbcType=VARCHAR},
 					#{item.sysSource,jdbcType=TINYINT},
 					#{item.operateTime,jdbcType=TIMESTAMP},
-					#{item.isDelete,jdbcType=TINYINT},
-					#{item.ts,jdbcType=TIMESTAMP}
+					0,
+					now()
 				)
 			</foreach>
 	</insert>
@@ -170,6 +162,15 @@
 		where 1=1 
 		 <include refid="Base_Condition_Sql"/>
 		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+
+	<select id="checkExist" parameterType="String" resultType="Integer">
+		select
+		count(1)
+		from
+		alliance_busi_delivery_detail
+		where waybill_code = #{waybillCode,jdbcType=BIGINT} and is_delete = 0
 	</select>
 
 </mapper>

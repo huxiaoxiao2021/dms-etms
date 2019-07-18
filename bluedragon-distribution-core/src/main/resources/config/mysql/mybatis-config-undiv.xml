@@ -310,5 +310,8 @@
         <!-- 分拣复重抽检任务统计 -->
         <mapper resource="mappers/mysql/weightAndVolume/ReviewWeightSpotCheckMapper.xml"/>
 
+        <!-- 分拣复重抽检任务统计 -->
+        <mapper resource="mappers/mysql/alliance/AllianceBusiDeliveryDetailMapper.xml"/>
+
     </mappers>
 </configuration>

@@ -14,8 +14,12 @@ import com.jd.ql.dms.common.web.mvc.mybatis.BaseDao;
  * @date 2019年07月10日 15:35:36
  *
  */
-@Repository("allianceBusiDeliveryDetailDao")
+
 public class AllianceBusiDeliveryDetailDaoImpl extends BaseDao<AllianceBusiDeliveryDetail> implements AllianceBusiDeliveryDetailDao {
 
 
+    @Override
+    public int checkExist(String waybillCode) {
+        return sqlSession.selectOne(this.nameSpace+".checkExist", waybillCode);
+    }
 }

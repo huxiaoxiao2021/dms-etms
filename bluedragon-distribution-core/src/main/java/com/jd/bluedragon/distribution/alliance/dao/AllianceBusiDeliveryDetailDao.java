@@ -13,5 +13,5 @@ import com.jd.ql.dms.common.web.mvc.api.Dao;
  */
 public interface AllianceBusiDeliveryDetailDao extends Dao<AllianceBusiDeliveryDetail> {
 
-
+    int checkExist(String waybillCode);
 }
