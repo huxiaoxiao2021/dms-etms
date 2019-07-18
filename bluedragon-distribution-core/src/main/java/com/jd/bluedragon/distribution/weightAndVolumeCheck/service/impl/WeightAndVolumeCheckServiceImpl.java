@@ -309,6 +309,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingDeptCode(Integer.parseInt(responseDto.getData().getSecondLevelId()==null?"-1":responseDto.getData().getSecondLevelId()));
                 weightVolumeCollectDto.setBillingDeptName(responseDto.getData().getSecondLevelName());
                 weightVolumeCollectDto.setBillingErp(responseDto.getData().getDutyErp());
+                BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(responseDto.getData().getDutyErp());
+                weightVolumeCollectDto.setBillingCompany(dto.getSiteName());
 
                 abnormalResultMq.setFirstLevelId(responseDto.getData().getFirstLevelId());
                 abnormalResultMq.setFirstLevelName(responseDto.getData().getFirstLevelName());
@@ -595,6 +597,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         heads.add("复核体积重量");
         heads.add("计费操作区域");
         heads.add("计费操作机构");
+//        heads.add("计费操作单位");
         heads.add("计费操作人ERP");
         heads.add("计费重量kg");
         heads.add("计费体积cm³");
@@ -628,13 +631,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 body.add(weightVolumeCollectDto.getReviewVolumeWeight());
                 body.add(weightVolumeCollectDto.getBillingOrgName());
                 body.add(weightVolumeCollectDto.getBillingDeptName());
+//                body.add(weightVolumeCollectDto.getBillingCompany());
                 body.add(weightVolumeCollectDto.getBillingErp());
                 body.add(weightVolumeCollectDto.getBillingWeight());
                 body.add(weightVolumeCollectDto.getBillingVolume());
                 body.add(weightVolumeCollectDto.getBillingVolumeWeight());
                 body.add(weightVolumeCollectDto.getWeightDiff());
                 body.add(weightVolumeCollectDto.getVolumeWeightDiff());
-                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess());
+                body.add(weightVolumeCollectDto.getVolumeWeightIsExcess()==null?"":weightVolumeCollectDto.getVolumeWeightIsExcess()==1?"超标":"未超标");
                 body.add(weightVolumeCollectDto.getDiffStandard());
                 body.add(weightVolumeCollectDto.getIsExcess()==null?"":weightVolumeCollectDto.getIsExcess()==1?"超标":"未超标");
                 body.add(weightVolumeCollectDto.getIsHasPicture()==null?"":weightVolumeCollectDto.getIsHasPicture()==1?"有":"无");
