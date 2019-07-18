@@ -19,7 +19,7 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
     private BaseResource baseResource;
 
     @Override
-    public JdCResponse<List<Integer>> getPerAndSelfSiteByWaybillCode(String waybillCode){
+    public JdCResponse<List<Integer>> getPerAndSfSiteByWaybill(String waybillCode){
         InvokeResult<List<Integer>> invokeResult = baseResource.perAndSelfSite(waybillCode);
         JdCResponse<List<Integer>> jdCResponse = new JdCResponse<>();
         if(InvokeResult.RESULT_SUCCESS_CODE == invokeResult.getCode()){
