@@ -359,45 +359,44 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 result.setTotal(0);
                 return result;
             }
-            SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos);
+            Map<Integer,SpotCheckInfo> map = new HashMap<>();
+            SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos,map);
             BaseEntity<List<ReviewSpotCheckDto>> entity = reportExternalService.getAllBySpotCheckCondition(spotCondition);
             List<ReviewSpotCheckDto> data = entity.getData();
             for(ReviewSpotCheckDto dto : data){
 
-                for(SpotCheckInfo info : spotCheckInfos){
-                    if(dto.getReviewSiteCode().equals(info.getSiteCode())){
+                SpotCheckInfo info = map.get(dto.getReviewSiteCode());
+                if(info != null){
+                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
 
-                        ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+                    Integer trustNumOfActual = dto.getTrustPackageNumOfActual();    //信任商家实际抽查包裹数量
+                    Integer normalNumOfActual = dto.getNormalPackageNumOfActual();  //普通商家实际抽查包裹数量
+                    Integer trustNumOfShould = info.getTrustPackageNum();           //信任商家应抽查包裹数
+                    Integer normalNumOfShould = info.getNormalPackageNum();         //普通应抽查包裹数
+                    Integer trustNumOfExcess = dto.getTrustPackageNumOfDiff();      //信任商家超标数
+                    Integer normalNumOfExcess = dto.getNormalPackageNumOfDiff();    //普通商家超标数
 
-                        Integer trustNumOfActual = dto.getTrustPackageNumOfActual();    //信任商家实际抽查包裹数量
-                        Integer normalNumOfActual = dto.getNormalPackageNumOfActual();  //普通商家实际抽查包裹数量
-                        Integer trustNumOfShould = info.getTrustPackageNum();           //信任商家应抽查包裹数
-                        Integer normalNumOfShould = info.getNormalPackageNum();         //普通应抽查包裹数
-                        Integer trustNumOfExcess = dto.getTrustPackageNumOfDiff();      //信任商家超标数
-                        Integer normalNumOfExcess = dto.getNormalPackageNumOfDiff();    //普通商家超标数
+                    reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
+                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
+                    reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
+                    reviewWeightSpotCheck.setReviewMechanismType(1);
+                    reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
+                    reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
 
-                        reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
-                        BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
-                        reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
-                        reviewWeightSpotCheck.setReviewMechanismType(1);
-                        reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
-                        reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
+                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);
+                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);
+                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));
+                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);
+                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));
 
-                        reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);
-                        reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);
-                        reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));
-                        reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);
-                        reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));
+                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);
+                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);
+                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));
+                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);
+                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));
+                    reviewWeightSpotCheck.setTotalCheckRate(convertPercentage((trustNumOfActual+normalNumOfActual),(trustNumOfShould+normalNumOfShould)));
 
-                        reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);
-                        reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);
-                        reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));
-                        reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);
-                        reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));
-                        reviewWeightSpotCheck.setTotalCheckRate(convertPercentage((trustNumOfActual+normalNumOfActual),(trustNumOfShould+normalNumOfShould)));
-
-                        list.add(reviewWeightSpotCheck);
-                    }
+                    list.add(reviewWeightSpotCheck);
                 }
             }
 
@@ -413,10 +412,12 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         return result;
     }
 
-    private SpotCheckQueryCondition convert2queryCondition(WeightAndVolumeCheckCondition weightAndVolumeCheckCondition, List<SpotCheckInfo> spotCheckInfos) {
+    private SpotCheckQueryCondition convert2queryCondition(WeightAndVolumeCheckCondition weightAndVolumeCheckCondition,
+                                                           List<SpotCheckInfo> spotCheckInfos, Map<Integer, SpotCheckInfo> map) {
         List<Integer> siteCodes = new ArrayList<>();
         for(SpotCheckInfo spotCheckInfo : spotCheckInfos){
             siteCodes.add(spotCheckInfo.getSiteCode());
+            map.put(spotCheckInfo.getSiteCode(),spotCheckInfo);
         }
         SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
         condition.setStartTime(weightAndVolumeCheckCondition.getReviewStartTime());
