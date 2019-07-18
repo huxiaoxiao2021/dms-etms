@@ -967,7 +967,7 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-goods-api</artifactId>
-			<version>eclp-storage-gray-SNAPSHOT</version>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<!--预分拣-->
