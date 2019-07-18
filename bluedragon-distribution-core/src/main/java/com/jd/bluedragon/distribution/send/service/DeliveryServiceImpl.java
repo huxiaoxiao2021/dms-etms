@@ -2381,6 +2381,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             newSendDetail.setBoxCode(sendDetail.getBoxCode());
             newSendDetail.setBoardCode(sendDetail.getBoardCode());
             newSendDetail.setBizSource(sendDetail.getBizSource());
+            newSendDetail.setCreateTime(sendDetail.getCreateTime());
             message.setTopic(topic);
             message.setText(JSON.toJSONString(newSendDetail));
             message.setBusinessId(sendDetail.getPackageBarcode());

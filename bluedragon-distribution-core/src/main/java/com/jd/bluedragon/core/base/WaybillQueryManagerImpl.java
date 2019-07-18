@@ -15,11 +15,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.OrderTraceDto;
-import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -614,5 +610,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
         return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuPackRelation" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku) {
+        return waybillQueryApi.getSkuPackRelation(sku);
     }
 }

@@ -707,6 +707,10 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+    /**
+	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
+	  */
+    public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";    
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
     /**
@@ -952,5 +956,10 @@ public class Constants {
      * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+
+    /**
+     * EMG条码前缀
+     */
+    public static final String EMG_CODE_PREFIX = "EMG";
 
 }
