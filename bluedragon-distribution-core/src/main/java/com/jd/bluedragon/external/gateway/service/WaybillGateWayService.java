@@ -11,5 +11,5 @@ import java.util.List;
  */
 public interface WaybillGateWayService {
 
-    JdCResponse<List<Integer>> getPerAndSelfSiteByWaybillCode(String waybillCode);
+    JdCResponse<List<Integer>> getPerAndSfSiteByWaybill(String waybillCode);
 }
