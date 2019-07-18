@@ -138,7 +138,11 @@ $(function () {
             align: 'center'
         },{
             field: 'billingDeptName',
-            title: '计费操作机构',
+            title: '计费操作片区',
+            align: 'center'
+        },{
+            field: 'billingCompany',
+            title: '计费操作单位',
             align: 'center'
         },{
             field: 'billingErp',

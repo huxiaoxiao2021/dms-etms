@@ -74,7 +74,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
     @ResponseBody
     public PagerResult<ReviewWeightSpotCheck> listData(@RequestBody WeightAndVolumeCheckCondition condition){
 
-        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition,0);
+        PagerResult<ReviewWeightSpotCheck> result = reviewWeightSpotCheckService.listData(condition);
         return result;
     }
 
