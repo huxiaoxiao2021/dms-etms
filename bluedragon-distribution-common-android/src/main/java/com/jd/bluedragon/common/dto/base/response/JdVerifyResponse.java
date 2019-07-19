@@ -143,7 +143,7 @@ public class JdVerifyResponse {
         this.msgBoxes = msgBoxes;
     }
 
-    public static class MsgBox {
+    public static class MsgBox<T> {
 
         /**
          * 校验结果类型 1-提示框 2-确认框 3-拦截框
@@ -159,6 +159,8 @@ public class JdVerifyResponse {
          * 提示语
          */
         private String msg;
+
+        protected Object data;
 
         public MsgBox() {
         }
@@ -191,6 +193,14 @@ public class JdVerifyResponse {
 
         public void setMsg(String msg) {
             this.msg = msg;
+        }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
         }
     }
 }

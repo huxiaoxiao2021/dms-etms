@@ -43,6 +43,7 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
     @Override
     public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
         JdVerifyResponse response = new JdVerifyResponse();
+        response.toSuccess();
         try {
             if (!this.check(request, response)) {
                 return response;
