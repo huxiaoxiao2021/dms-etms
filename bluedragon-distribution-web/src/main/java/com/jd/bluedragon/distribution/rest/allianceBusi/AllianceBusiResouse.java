@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetai
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -89,7 +90,15 @@ public class AllianceBusiResouse {
         BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
         result.setData(Boolean.TRUE);
         try{
-            result.setData(allianceBusiDeliveryDetailService.checkMoney(waybillCode));
+            if(WaybillUtil.isPackageCode(waybillCode)){
+                waybillCode = WaybillUtil.getWaybillCode(waybillCode);
+            }
+            if(allianceBusiDeliveryDetailService.checkExist(waybillCode)){
+                return result;
+            }else{
+                result.setData(allianceBusiDeliveryDetailService.checkMoney(waybillCode));
+            }
+
         }catch (Exception e){
             logger.error("加盟商校验余额异常Rest"+ waybillCode,e);
             result.setCode(BaseEntity.CODE_SERVICE_ERROR);
