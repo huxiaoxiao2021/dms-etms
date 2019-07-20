@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
+import com.jd.bluedragon.common.dto.send.request.PackageSendCRequest;
 
 /**
  * @author : xumigen
@@ -15,4 +16,6 @@ public interface DmsDeliveryGatewayService {
      * @return
      */
     JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request);
+
+    JdVerifyResponse newPackageSend(PackageSendCRequest request);
 }

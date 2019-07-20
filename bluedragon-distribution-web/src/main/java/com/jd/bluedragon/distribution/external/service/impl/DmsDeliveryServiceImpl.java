@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
+import com.jd.bluedragon.common.dto.send.request.PackageSendCRequest;
 import com.jd.bluedragon.external.gateway.service.DmsDeliveryGatewayService;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -23,6 +24,7 @@ import java.util.AbstractMap;
  * <p>
  * Created by lixin39 on 2018/11/9.
  */
+@Deprecated
 @Service("dmsDeliveryService")
 public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGatewayService {
 
@@ -67,5 +69,10 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGat
     @Override
     public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
         return deliveryVerifyService.packageSendVerifyForBoxCode(request);
+    }
+
+    @Override
+    public JdVerifyResponse newPackageSend(PackageSendCRequest request) {
+        return null;
     }
 }
