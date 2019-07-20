@@ -9,7 +9,7 @@ import java.util.List;
  * @ClassName JdVerifyResponse
  * @date 2019/6/17
  */
-public class JdVerifyResponse {
+public class JdVerifyResponse<T> {
 
     public static final Integer CODE_SUCCESS = 200;
     public static final String MESSAGE_SUCCESS = "调用";
@@ -29,6 +29,8 @@ public class JdVerifyResponse {
      * 状态描述
      */
     private String message;
+
+    private T Data;
 
     /**
      * 消息盒子
@@ -143,7 +145,7 @@ public class JdVerifyResponse {
         this.msgBoxes = msgBoxes;
     }
 
-    public static class MsgBox<T> {
+    public static class MsgBox {
 
         /**
          * 校验结果类型 1-提示框 2-确认框 3-拦截框
@@ -202,5 +204,13 @@ public class JdVerifyResponse {
         public void setData(Object data) {
             this.data = data;
         }
+    }
+
+    public T getData() {
+        return Data;
+    }
+
+    public void setData(T data) {
+        Data = data;
     }
 }
