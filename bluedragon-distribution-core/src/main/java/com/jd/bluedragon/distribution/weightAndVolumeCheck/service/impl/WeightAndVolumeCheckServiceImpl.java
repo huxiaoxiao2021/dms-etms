@@ -310,7 +310,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
                 weightVolumeCollectDto.setBillingDeptName(responseDto.getData().getSecondLevelName());
                 weightVolumeCollectDto.setBillingErp(responseDto.getData().getDutyErp());
                 BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(responseDto.getData().getDutyErp());
-                weightVolumeCollectDto.setBillingCompany(dto.getSiteName());
+                weightVolumeCollectDto.setBillingCompany(dto==null?null:dto.getSiteName());
 
                 abnormalResultMq.setFirstLevelId(responseDto.getData().getFirstLevelId());
                 abnormalResultMq.setFirstLevelName(responseDto.getData().getFirstLevelName());

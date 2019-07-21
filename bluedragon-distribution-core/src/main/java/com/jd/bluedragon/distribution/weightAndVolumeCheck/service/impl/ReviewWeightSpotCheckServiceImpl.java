@@ -362,6 +362,11 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
             Map<Integer,SpotCheckInfo> map = new HashMap<>();
             SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos,map);
             BaseEntity<List<ReviewSpotCheckDto>> entity = reportExternalService.getAllBySpotCheckCondition(spotCondition);
+            if(entity == null || entity.getData() == null){
+                result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+                result.setTotal(0);
+                return result;
+            }
             List<ReviewSpotCheckDto> data = entity.getData();
             for(ReviewSpotCheckDto dto : data){
 
