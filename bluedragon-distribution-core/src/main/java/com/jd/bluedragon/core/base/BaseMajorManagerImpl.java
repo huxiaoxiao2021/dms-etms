@@ -666,7 +666,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.allianceBusiMoneyEnough", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean allianceBusiMoneyEnough(String allianceBusiId) {
         ResultData resultData = allianceWaybillManagerApi.checkReceiveOrder(allianceBusiId,Constants.UMP_APP_NAME_DMSWEB);
-        if(resultData!=null && String.valueOf(ResultData.SUCCESS_CODE).equals(resultData.getResultCode())){
+        if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
             return true;
         }else{
             logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+resultData.getResultMsg());
