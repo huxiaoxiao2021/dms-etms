@@ -109,7 +109,7 @@ public class AllianceBusiResouse {
 
 
     /**
-     * 运单是否为加盟商运单
+     * 运单是否为加盟商运单 只处理正向单
      *
      * 默认返回否
      * @param waybillCode
@@ -126,7 +126,7 @@ public class AllianceBusiResouse {
             wChoice.setQueryWaybillExtend(true);
             com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
             if(baseEntity.getResultCode() == 1 && baseEntity.getData().getWaybill()!=null) {
-                result.setData(BusinessUtil.isAllianceBusi(baseEntity.getData().getWaybill().getWaybillSign()));
+                result.setData(BusinessUtil.isForeignForward(baseEntity.getData().getWaybill().getWaybillSign()) && BusinessUtil.isAllianceBusi(baseEntity.getData().getWaybill().getWaybillSign()));
             }
         }catch (Exception e){
             logger.error("运单是否为加盟商运单异常Rest"+ waybillCode,e);

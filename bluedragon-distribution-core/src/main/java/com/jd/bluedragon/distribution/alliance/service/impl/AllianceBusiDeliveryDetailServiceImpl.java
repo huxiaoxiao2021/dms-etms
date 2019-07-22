@@ -463,7 +463,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 		wChoice.setQueryWaybillExtend(true);
 		com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
 		if(baseEntity.getResultCode() == 1 && baseEntity.getData().getWaybill()!=null &&baseEntity.getData().getWaybill().getWaybillExt()!=null){
-			if(BusinessUtil.isAllianceBusi(baseEntity.getData().getWaybill().getWaybillSign())){
+			if(BusinessUtil.isForeignForward(baseEntity.getData().getWaybill().getWaybillSign()) && BusinessUtil.isAllianceBusi(baseEntity.getData().getWaybill().getWaybillSign())){
 				return baseEntity.getData().getWaybill().getWaybillExt().getPartnerId();
 			}
 		}else{
