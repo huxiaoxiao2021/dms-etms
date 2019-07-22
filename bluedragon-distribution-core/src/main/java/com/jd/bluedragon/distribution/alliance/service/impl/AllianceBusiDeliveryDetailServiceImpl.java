@@ -358,8 +358,8 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
                 handOverWeightDto.setWaybillCode(detailDto.getOpeCode());
             }else{
                 handOverWeightDto.setWaybillCode(WaybillUtil.getWaybillCode(detailDto.getOpeCode()));
+                handOverWeightDto.setPackageCode(detailDto.getOpeCode());
             }
-            handOverWeightDto.setPackageCode(detailDto.getOpeCode());
             handOverWeightDto.setAgainOperatorId(dto.getOperatorId());
             handOverWeightDto.setAgainOperatorName(dto.getOperatorName());
             handOverWeightDto.setAgainOperatorTime(new Date(detailDto.getOperateTimeMillis()));
