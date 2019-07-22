@@ -10,7 +10,7 @@ import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
-import com.jd.bluedragon.external.gateway.service.DmsDeliveryGatewayService;
+import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.ql.basic.util.DateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,7 +21,7 @@ import java.util.Objects;
  * @author : xumigen
  * @date : 2019/7/20
  */
-public class DmsDeliveryGatewayServiceImpl implements DmsDeliveryGatewayService {
+public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Autowired
     @Qualifier("deliveryResource")

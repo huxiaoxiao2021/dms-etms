@@ -5,10 +5,11 @@ import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 
 /**
+ * 发货相关
  * @author : xumigen
  * @date : 2019/6/27
  */
-public interface DmsDeliveryGatewayService {
+public interface SendGatewayService {
     /**
      * 新发货：按箱号发货校验
      *
