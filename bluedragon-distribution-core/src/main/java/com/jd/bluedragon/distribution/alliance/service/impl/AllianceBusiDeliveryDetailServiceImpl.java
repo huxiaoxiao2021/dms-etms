@@ -307,11 +307,11 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 	private List<Message> convertWeightOpeDto(AllianceBusiDeliveryDto dto){
 
 		List<Message> messages = new ArrayList<>();
-		Integer weightOpeType = Integer.valueOf(0); //揽收 9  派送10
+		Integer weightOpeType = Integer.valueOf(0); //揽收 4  派送5
 		if(AllianceBusiOpeTypeEnum.SITE_RECEIVE.getCode() == dto.getOpeType() || AllianceBusiOpeTypeEnum.SORTING_RECEIVE.getCode() == dto.getOpeType()){
-			weightOpeType = 9;
+			weightOpeType = 4;
 		}else if(AllianceBusiOpeTypeEnum.SITE_SEND.getCode() == dto.getOpeType() || AllianceBusiOpeTypeEnum.SORTING_SEND.getCode() == dto.getOpeType()){
-			weightOpeType = 10;
+			weightOpeType = 5;
 		}
 		for(AllianceBusiDeliveryDetailDto detailDto : dto.getDatas()){
 			WeightOpeDto weightOpeDto = new WeightOpeDto();
