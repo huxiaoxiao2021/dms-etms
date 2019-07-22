@@ -1,6 +1,7 @@
 var queryUrl = '/reviewWeightSpotCheck/listData';
 var importUrl = '/reviewWeightSpotCheck/toImport';
 var exportUrl = '/reviewWeightSpotCheck/toExport';
+var exportSpotUrl = '/reviewWeightSpotCheck/toExportSpot';
 $(function () {
 
     $('#fileField').hide();
@@ -21,8 +22,8 @@ $(function () {
                 uniqueId: "ID", // 每一行的唯一标识，一般为主键列
                 pagination: true, // 是否显示分页（*）
                 pageNumber: 1, // 初始化加载第一页，默认第一页
-                pageSize: 10, // 每页的记录行数（*）
-                pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
+                pageSize: 500, // 每页的记录行数（*）
+                pageList: [200, 500], // 可供选择的每页的行数（*）
                 cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
                 sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
                 striped: true, // 是否显示行间隔色
@@ -178,8 +179,9 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
-                if($('#site-group-select').val()==null){
-                    Jd.alert("请选择指定的复核区域!");
+                var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
+                if(days > 30){
+                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();
@@ -191,59 +193,25 @@ $(function () {
     };
 
     //导入
-    $('#btn_import').click(function () {
-        var inputValue = $('#excelField').val().trim();
-        var index1 = inputValue.lastIndexOf(".");
-        var index2 = inputValue.length;
-        var suffixName = inputValue.substring(index1+1,index2);
-        if(inputValue == ''){
-            Jd.alert('请先浏览文件在上传!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-        debugger;
-        if(suffixName != 'xlsx'){
-            Jd.alert('请上传指定Excel文件!');
-            $('#btn_import').attr("disabled",false);
-            return;
-        }
-
-        var form =  $("#query-form");
-        var options = {
-            url:importUrl,
-            type:'post',
-            success:function(data){
-                if(data.code == '200'){
-                    alert("导入成功！");
-                    $('#btn_import').attr("disabled",false);
-                }else{
-
-                    alert(data.message);
-                    $('#btn_import').attr("disabled",false);
-                }
-
-            },
-            error:function(XmlHttpRequest,textStatus,errorThrown){
-                console.log(XmlHttpRequest);
-                console.log(textStatus);
-                console.log(errorThrown);
-            }
-        };
-        form.ajaxSubmit(options);
-
-
-    });
-
-    //导入
     $('#btn_improt').click(function(){
         $('#importExcelFile').val(null);
         $('#improt_modal').modal('show');
     });
 
+    //导出抽查任务
+    $('#btn_export_spot').click(function () {
+
+        var form = $("<form method='post'></form>");
+        form.attr({"action": exportSpotUrl});
+        form.appendTo(document.body);
+        form.submit();
+        document.body.removeChild(form[0]);
+
+    });
+
     //导出
     function initExport(tableInit) {
         $('#btn_export').click(function () {
-            debugger;
             var params = tableInit.getSearchCondition();
             var form = $("<form method='post'></form>"),
                 input;
@@ -277,8 +245,13 @@ function initDateQuery(){
     $("#endTime").val(v+" 23:59:59");
 }
 
+function  getDaysByDateString(dateString1,dateString2) {
+    var startDate = Date.parse(dateString1.replace('/-/g', '/'));
+    var endDate = Date.parse(dateString2.replace('/-/g', '/'));
+    var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
+    return days;
+}
 
-var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -306,14 +279,7 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
+            $(selectId).val(null).trigger('change');
         }
     });
 }

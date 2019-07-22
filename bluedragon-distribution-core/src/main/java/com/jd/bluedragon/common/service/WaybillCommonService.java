@@ -174,7 +174,7 @@ public interface WaybillCommonService {
 	 * @param printWaybill
 	 * @param waybillSign
 	 */
-	void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign);
+	void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign,com.jd.etms.waybill.domain.Waybill waybill);
 
 	/**
 	 * 	加载始发站点信息

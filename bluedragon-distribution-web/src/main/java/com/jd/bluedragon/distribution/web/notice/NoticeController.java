@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.notice;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -16,7 +17,6 @@ import com.jd.bluedragon.distribution.notice.utils.NoticeTypeEnum;
 import com.jd.bluedragon.distribution.notice.utils.TopDisplayEnum;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSONObject;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;

@@ -1,15 +1,36 @@
 package com.jd.bluedragon.common.service.impl;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.print.service.HideInfoService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
+import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.domain.*;
+
+import com.jd.preseparate.vo.external.AnalysisAddressResult;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
-import com.jd.bluedragon.core.base.PreseparateWaybillManager;
-import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -22,50 +43,16 @@ import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.product.domain.Product;
 import com.jd.bluedragon.distribution.product.service.ProductService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BigDecimalHelper;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.etms.api.common.enums.RouteProductEnum;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillUpdateApi;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.domain.DeliveryPackageD;
-import com.jd.etms.waybill.domain.Goods;
-import com.jd.etms.waybill.domain.PackageWeigh;
-import com.jd.etms.waybill.domain.PickupTask;
-import com.jd.etms.waybill.domain.WaybillExt;
-import com.jd.etms.waybill.domain.WaybillManageDomain;
-import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.PackageUpdateDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.preseparate.vo.external.AnalysisAddressResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 
 @Service("waybillCommonService")
@@ -145,6 +132,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String SPECIAL_REQUIRMENT_PACK="包装";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_UPSTAIRS="重货上楼";
     private static final String SPECIAL_REQUIRMENT_DELIVERY_WAREHOUSE="送货入仓";
+    private static final String SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY = "保价";
+
+    /**
+     * B网医药冷链温层
+     */
+    private static final String DISTRIBUTE_TYPE_COLD = "冷藏";
+    private static final String DISTRIBUTE_TYPE_COOL = "阴凉";
+    private static final String DISTRIBUTE_TYPE_CONTROL_TEMP = "控温";
+    private static final String DISTRIBUTE_TYPE_NORMAL = "常温";
+    private static final String DISTRIBUTE_TYPE_FREEZING ="冷冻";
+    private static final String DISTRIBUTE_TYPE_PRECISION_COLD = "精准冷藏";
 
     private static final String STORE_TYPE_WMS = "wms";
 
@@ -805,6 +803,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setjZDFlag(TextConstants.B2B_FRESH_WAREHOUSE);
             }
         }
+        /**
+         * waybill_sign第54位等于4 且 第40位等于2或3时:医药零担
+         */
+        if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_SCATTERED);
+        }
+
         //waybill_sign标识位，第七十九位为2，打提字标
         if(BusinessUtil.isSignChar(waybill.getWaybillSign(), 79,'2')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_ARAYACAK_SITE);
@@ -921,9 +926,12 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         //设置特殊需求
-        loadSpecialRequirement(target,waybill.getWaybillSign());
+        loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
         //设置微笑
         hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
+
+        //处理特殊的distributTypeText
+        processSpecialDistributTypeText(target,waybill.getWaybillSign());
         return target;
     }
 
@@ -1178,9 +1186,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      * 加载特殊要求信息
      * @param printWaybill
      */
-    public void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign){
+    public void loadSpecialRequirement(BasePrintWaybill printWaybill,String waybillSign,com.jd.etms.waybill.domain.Waybill waybill){
         String specialRequirement = "";
         if(StringUtils.isNotBlank(waybillSign)){
+            //保价
+            if(waybill != null && NumberHelper.gt0(waybill.getPriceProtectMoney())){
+                specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_PRICE_PROTECT_MONEY + ",";
+            }
             //签单返还
             if(BusinessUtil.isSignInChars(waybillSign,4,'1','2','3','4','9')){
                 specialRequirement = specialRequirement + SPECIAL_REQUIRMENT_SIGNBACK + ",";
@@ -1274,5 +1286,26 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
+    }
+
+    //处理特殊的distributTypeText
+    //当waybill_sign第54位等于4时，表示为冷链医药运单，面单显示医药温层，
+    //显示的字样读取waybill_sign第43位对应的枚举值，面单显示括号中的汉字：
+    private void processSpecialDistributTypeText(BasePrintWaybill printWaybill,String waybillSign){
+        if(BusinessUtil.isBMedicine(waybillSign)) {
+            if (BusinessUtil.isSignChar(waybillSign, WaybillSignConstants.POSITION_43, WaybillSignConstants.CHAR_43_1)) {
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
+            }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
+            }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_CONTROL_TEMP);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_6)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_PRECISION_COLD);
+            }
+        }
     }
 }

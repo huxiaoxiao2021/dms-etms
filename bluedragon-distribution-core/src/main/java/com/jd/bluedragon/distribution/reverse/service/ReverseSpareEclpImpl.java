@@ -244,11 +244,9 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                 }
             } else {
                 this.logger.warn("通过运单号" + waybillCode + "获取运单商品明细失败!");
-                return null;
             }
         }else {
             this.logger.warn("通过运单号" + waybillCode + "获取运单信息失败!");
-            return null;
         }
         String oldWaybillCodeV1 = null; //一次换单原单号
         String oldWaybillCodeV2 = null; //二次换单原单号

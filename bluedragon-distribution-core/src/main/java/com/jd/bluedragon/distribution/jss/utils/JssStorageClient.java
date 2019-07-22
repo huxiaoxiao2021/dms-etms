@@ -87,6 +87,10 @@ public class JssStorageClient {
         this.endpoint = endpoint;
     }
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+
     public void setAccessKey(String accessKey) {
         this.accessKey = accessKey;
     }

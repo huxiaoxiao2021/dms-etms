@@ -31,7 +31,7 @@ public class SendMManagerImpl implements SendMManager {
         Integer result = sendMDao.add(namespace, sendM);
         if (result > 0) {
             //更新箱号状态缓存
-            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendM.getCreateUser());
         }
         return result;
     }
@@ -42,7 +42,7 @@ public class SendMManagerImpl implements SendMManager {
         boolean result = sendMDao.insertSendM(sendM);
         if (result) {
             //更新箱号状态缓存
-            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode());
+            boxService.updateBoxStatusRedis(sendM.getBoxCode(), sendM.getCreateSiteCode(), BoxStatusEnum.SENT_STATUS.getCode(), sendM.getCreateUser());
         }
         return result;
     }

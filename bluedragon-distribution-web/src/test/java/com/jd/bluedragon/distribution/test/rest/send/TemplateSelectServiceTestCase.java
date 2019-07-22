@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.domain.PackageTemplate;
+import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig;
 import com.jd.bluedragon.distribution.print.domain.DmsPaperSize;
 import com.jd.bluedragon.distribution.print.waybill.handler.TemplateSelectorWaybillHandler;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
@@ -49,6 +50,8 @@ public class TemplateSelectServiceTestCase {
     public static void testPackageTemplate() throws Exception{
     	PackageTemplate packageTemplate = EntityUtil.getInstance(PackageTemplate.class);
     	System.err.println(JsonHelper.toJson(packageTemplate));
+    	ClientRunningModeConfig clientRunningModeConfig = EntityUtil.getInstance(ClientRunningModeConfig.class);
+    	System.err.println(JsonHelper.toJson(clientRunningModeConfig));
     }
     @Test
     public void testC() throws Exception{

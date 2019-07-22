@@ -6,6 +6,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.SkuPackRelationDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
 
@@ -238,6 +239,13 @@ public interface WaybillQueryManager{
 	 * @return
 	 */
 	BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode);
+
+	/**
+	 * 查询SKU与包裹的关系
+	 * @param sku 商品sku：自营是sku；ECLP是EMG码
+	 * @return
+     */
+	BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku);
 
 	/**
 	 * 修改包裹数量

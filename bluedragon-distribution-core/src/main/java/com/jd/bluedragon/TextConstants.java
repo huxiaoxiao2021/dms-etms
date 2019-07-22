@@ -96,9 +96,19 @@ public class TextConstants {
     /**
      * 京准达快递到车
      */
-    public static final String	TEXT_TRANSPORT_KDDC="京准达\n快递到车";
+    public static final String	TEXT_TRANSPORT_KDDC="京准达 快递到车";
     /**
      * 常用字符串:‘无’
      */
     public static final String COMMON_TEXT_NOTHING ="无";
+    /**
+     * 订单号前缀-订单号
+     */
+    public static final String PRINT_TEXT_ORDER_CODE_PREFIX ="订单号";
+
+    /**
+     * waybill_sign第54位等于4 且 第40位等于2或3
+     */
+    public static final String COMMON_TEXT_MEDICINE_SCATTERED ="医药零担";
+
 }

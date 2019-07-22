@@ -129,8 +129,8 @@ $(function () {
             title: '复核长宽高cm',
             align: 'center'
         },{
-            field: 'reviewVolume',
-            title: '复核体积cm³',
+            field: 'reviewVolumeWeight',
+            title: '复核体积重量',
             align: 'center'
         },{
             field: 'billingOrgName',
@@ -138,7 +138,11 @@ $(function () {
             align: 'center'
         },{
             field: 'billingDeptName',
-            title: '计费操作机构',
+            title: '计费操作片区',
+            align: 'center'
+        },{
+            field: 'billingCompany',
+            title: '计费操作单位',
             align: 'center'
         },{
             field: 'billingErp',
@@ -153,6 +157,10 @@ $(function () {
             title: '计费体积',
             align: 'center'
         },{
+            field: 'billingVolumeWeight',
+            title: '计费体积重量',
+            align: 'center'
+        },{
             field: 'weightDiff',
             title: '重量差异',
             align: 'center'
@@ -160,6 +168,13 @@ $(function () {
             field: 'volumeWeightDiff',
             title: '体积重量差异',
             align: 'center'
+        },{
+            field: 'volumeWeightIsExcess',
+            title: '体积重量是否超标',
+            align: 'center',
+            formatter: function (value, row, index) {
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
+            }
         },{
             field: 'diffStandard',
             title: '误差标准值',
@@ -169,7 +184,7 @@ $(function () {
             title: '是否超标',
             align: 'center',
             formatter: function (value, row, index) {
-                return value == "1" ? "超标" : value == "0" ? "未超标" : "未知状态";
+                return value == "1" ? "超标" : value == "0" ? "未超标" : "-";
             }
         },{
             field: 'isHasPicture',
@@ -273,6 +288,11 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
+                var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
+                if(days > 30){
+                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
+                    return;
+                }
                 tableInit().refresh();
             });
 
@@ -310,6 +330,12 @@ $(function () {
 
 });
 
+function  getDaysByDateString(dateString1,dateString2) {
+    var startDate = Date.parse(dateString1.replace('/-/g', '/'));
+    var endDate = Date.parse(dateString2.replace('/-/g', '/'));
+    var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
+    return days;
+}
 
 function initDateQuery(){
     var v = $.dateHelper.formatDate(new Date());
@@ -330,7 +356,6 @@ function initSelect() {
     });
 }
 
-var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -365,15 +390,7 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
+            $(selectId).val(null).trigger('change');
 
         }
     });
