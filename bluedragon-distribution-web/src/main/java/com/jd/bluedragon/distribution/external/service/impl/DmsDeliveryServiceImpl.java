@@ -67,11 +67,13 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewaySer
     }
 
     @Override
+    @Deprecated
     public JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request) {
         return deliveryVerifyService.packageSendVerifyForBoxCode(request);
     }
 
     @Override
+    @Deprecated
     public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest request) {
         return null;
     }
