@@ -156,8 +156,8 @@ public class AllianceBusiResouse {
             wChoice.setQueryWaybillP(true);
             com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,wChoice);
             if(baseEntity.getResultCode() == 1 && baseEntity.getData().getWaybill()!=null) {
-                if(siteId.equals(baseEntity.getData().getWaybill().getOldSiteId()) ||
-                        (baseEntity.getData().getWaybillPickup()!=null && siteId.equals(baseEntity.getData().getWaybillPickup().getPickupSiteId()))){
+                if(Integer.valueOf(siteId).equals(baseEntity.getData().getWaybill().getOldSiteId()) ||
+                        (baseEntity.getData().getWaybillPickup()!=null && Integer.valueOf(siteId).equals(baseEntity.getData().getWaybillPickup().getPickupSiteId()))){
                     result.setData(Boolean.TRUE);
                 }
             }
