@@ -449,7 +449,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.6.5-HOTFIX-T3</version>
+			<version>1.6.6-HOTFIX-T1</version>
 		</dependency>
 
 		<dependency>
