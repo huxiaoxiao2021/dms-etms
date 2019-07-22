@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
-import com.jd.bluedragon.common.dto.send.request.PackageSendCRequest;
+import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
@@ -37,7 +37,7 @@ public class DmsDeliveryGatewayServiceImpl implements DmsDeliveryGatewayService 
     }
 
     @Override
-    public JdVerifyResponse newPackageSend(PackageSendCRequest cRequest) {
+    public JdVerifyResponse newPackageSend(SinglePackageSendRequest cRequest) {
         // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());

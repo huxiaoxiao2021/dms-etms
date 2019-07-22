@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @author : xumigen
  * @date : 2019/7/20
  */
-public class PackageSendCRequest implements Serializable {
+public class SinglePackageSendRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,6 +29,10 @@ public class PackageSendCRequest implements Serializable {
     private boolean forceSend;
     private boolean cancelLastSend;
     private String bizSource;
+    /*
+    调用次数;前端有递归调用的场景
+     */
+    private Integer callTimes;
 
     public User getUser() {
         return user;
@@ -108,5 +112,13 @@ public class PackageSendCRequest implements Serializable {
 
     public void setBizSource(String bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getCallTimes() {
+        return callTimes;
+    }
+
+    public void setCallTimes(Integer callTimes) {
+        this.callTimes = callTimes;
     }
 }

@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
-import com.jd.bluedragon.common.dto.send.request.PackageSendCRequest;
+import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.external.gateway.service.DmsDeliveryGatewayService;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -72,7 +72,7 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGat
     }
 
     @Override
-    public JdVerifyResponse newPackageSend(PackageSendCRequest request) {
+    public JdVerifyResponse newPackageSend(SinglePackageSendRequest request) {
         return null;
     }
 }
