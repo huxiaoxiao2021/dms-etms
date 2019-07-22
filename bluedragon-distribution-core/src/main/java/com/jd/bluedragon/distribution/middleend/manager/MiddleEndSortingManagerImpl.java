@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.middleend.manager;
 import com.jd.bluedragon.Constants;
 import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.SortingService;
+import com.jd.ql.shared.services.sorting.api.dto.SortingCancelObject;
 import com.jd.ql.shared.services.sorting.api.dto.SortingCancelObjectType;
 import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
 import com.jd.ql.shared.services.sorting.api.dto.UserEnv;
@@ -48,15 +49,13 @@ public class MiddleEndSortingManagerImpl implements MiddleEndSortingManager {
 
     /**
      * 取消分拣
-     * @param barCode
-     * @param type
-     * @param operateSiteId
+     * @param sortingCancelObject
      * @param operator
      * @param operateTime
      * @return
      */
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWORKER,jKey = "DMS.WORKER.MiddleEndSortingManagerImpl.cancelSorting",mState = {JProEnum.TP,JProEnum.FunctionError})
-    public ApiResult<Void> cancelSorting(String barCode, SortingCancelObjectType type, Integer operateSiteId, UserEnv operator, Date operateTime){
-        return sharedSortingService.cancelSorting(barCode,type,operator,operateTime);
+    public ApiResult<Void> cancelSorting(SortingCancelObject sortingCancelObject, UserEnv operator, Date operateTime){
+        return sharedSortingService.cancelSorting(sortingCancelObject,operator,operateTime);
     }
 }

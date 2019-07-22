@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.manager;
 
 import com.jd.ql.shared.services.sorting.api.ApiResult;
+import com.jd.ql.shared.services.sorting.api.dto.SortingCancelObject;
 import com.jd.ql.shared.services.sorting.api.dto.SortingCancelObjectType;
 import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
 import com.jd.ql.shared.services.sorting.api.dto.UserEnv;
@@ -29,12 +30,10 @@ public interface MiddleEndSortingManager {
 
     /**
      * 取消分拣
-     * @param barCode 扫描码：箱号/运单号/包裹号
-     * @param type 取消类型
-     * @param operateSiteId 操作分拣ID
+     * @param sortingCancelObject 取消分拣对象
      * @param operator 操作人
      * @param operateTime 操作时间
      * @return
      */
-    ApiResult<Void> cancelSorting(String barCode,SortingCancelObjectType type,Integer operateSiteId,UserEnv operator,Date operateTime);
+    ApiResult<Void> cancelSorting(SortingCancelObject sortingCancelObject, UserEnv operator, Date operateTime);
 }

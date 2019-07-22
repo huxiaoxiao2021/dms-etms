@@ -93,8 +93,13 @@ public class MiddleEndSortingServiceImpl extends BaseSortingService implements I
 
             UserEnv operator = buildUserInfo(dmsSorting);
 
+            SortingCancelObject cancelObject = new SortingCancelObject();
+            cancelObject.setCancelObjectCode(barCode);
+            cancelObject.setCancelObjectType(sortingCancelType);
+            cancelObject.setCancelDirection(SortingDirection.getEunmByType(dmsSorting.getType()));
+
             logger.info("中台取消理货接口调用参数:barCode:" + barCode + ",sortingCancelType：" + JSON.toJSONString(sortingCancelType) + ",operateSiteId: " + dmsSorting.getCreateSiteCode() + ",operator:" + JSON.toJSONString(operator) + ",operateTime:" + dmsSorting.getOperateTime());
-            ApiResult<Void> result = middleEndSortingManager.cancelSorting(barCode, sortingCancelType, dmsSorting.getCreateSiteCode(), operator, dmsSorting.getOperateTime());
+            ApiResult<Void> result = middleEndSortingManager.cancelSorting(cancelObject, operator, dmsSorting.getOperateTime());
             logger.info("中台取消理货接口调用结果:" + JSON.toJSONString(result));
 
             if (result.getCode() == ApiResult.OK_CODE) {
