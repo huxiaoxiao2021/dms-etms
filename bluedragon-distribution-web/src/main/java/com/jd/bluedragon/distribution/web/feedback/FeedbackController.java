@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.web.feedback;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.feedback.domain.Feedback;
@@ -7,6 +8,7 @@ import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.fastjson.JSONObject;
+import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,12 +38,14 @@ public class FeedbackController {
 
     private final static String APP_PACKAGE_NAME = "dms.etms";
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/addView")
     public String addView(Model model) {
         model.addAttribute("typeMaps", feedbackService.getFeedbackType(APP_PACKAGE_NAME));
         return "feedback/add";
     }
 
+    @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult add(MultipartHttpServletRequest request) {
