@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jsf.service;
 
+import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -51,4 +52,42 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResult packageSendCheck(DeliveryRequest request);
+
+    /**
+     * 校验包裹或订单是否有称重量方
+     */
+    Boolean weightVolumeValidate(String waybillCode, String packageCode);
+
+    /**
+     * 查询分拣规则
+     * @param ruleType
+     * @param createSiteCode
+     * @return
+     */
+    Rule getSortingRule(Integer ruleType, Integer createSiteCode);
+
+    /**
+     * 根据key获取UCC配置结果
+     * @param configureKey
+     * @return
+     */
+    Boolean getUccConfigurationByKey(String configureKey);
+
+    /**
+     * 根据key获取配置文件配置
+     * @param configureKey
+     * @return
+     */
+    Object getFileConfigurationByKey(String configureKey) ;
+
+    /**
+     * 检查混装箱是否可以通过校验
+     * @param createSiteCode    建包分拣中心编码
+     * @param receiveSiteCode    目的分拣中心编码
+     * @param mixedSiteCode     可混装地区编码
+     * @param transportType     运输类型
+     * @return 通过true ，不通过false
+     */
+    Boolean checkMixedPackageConfig(Integer createSiteCode,Integer receiveSiteCode,Integer mixedSiteCode,Integer transportType,Integer ruleType);
+
 }
