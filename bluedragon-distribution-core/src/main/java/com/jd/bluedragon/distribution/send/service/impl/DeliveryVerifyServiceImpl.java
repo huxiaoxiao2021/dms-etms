@@ -1,18 +1,19 @@
 package com.jd.bluedragon.distribution.send.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
-import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,12 +51,18 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
             }
             Box box = this.boxService.findBoxByCode(request.getBoxCode());
             if (box == null) {
-                response.addInterceptBox(40000, "无该箱号信息，请核实后再操作");
+                JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+                msgBox.setMsg("无该箱号信息，请核实后再操作");
+                msgBox.setType(MsgBoxTypeEnum.INTERCEPT);
+                response.addBox(msgBox);
                 return response;
             }
 
-            if (!box.getTransportType().equals(request.getLastBoxTransportType())) {
-                response.addInterceptBox(40001, "发货箱号运输类型与上一箱不一致");
+            if (request.getLastBoxTransportType() != null && !box.getTransportType().equals(request.getLastBoxTransportType())) {
+                JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+                msgBox.setMsg("发货箱号运输类型与上一箱不一致");
+                msgBox.setType(MsgBoxTypeEnum.INTERCEPT);
+                response.addBox(msgBox);
                 return response;
             }
 
@@ -88,12 +95,18 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
      */
     private boolean check(DeliveryVerifyRequest request, JdVerifyResponse response) {
         if (!BusinessUtil.isSendCode(request.getSendCode())) {
-            response.addInterceptBox(40003, "发货批次号不符合规则");
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("发货批次号不符合规则");
+            msgBox.setType(MsgBoxTypeEnum.INTERCEPT);
+            response.addBox(msgBox);
             return false;
         }
 
         if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
-            response.addInterceptBox(40004, "箱号不符合规则");
+            JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
+            msgBox.setMsg("箱号不符合规则");
+            msgBox.setType(MsgBoxTypeEnum.INTERCEPT);
+            response.addBox(msgBox);
             return false;
         }
         return true;

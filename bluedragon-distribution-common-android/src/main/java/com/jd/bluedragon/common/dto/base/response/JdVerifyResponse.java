@@ -11,6 +11,9 @@ import java.util.List;
  */
 public class JdVerifyResponse<T> {
 
+    /*
+    只是调用验证接口是成功;理论上应该看msgBoxes 是否有返回数据。
+     */
     public static final Integer CODE_SUCCESS = 200;
     public static final String MESSAGE_SUCCESS = "调用";
 

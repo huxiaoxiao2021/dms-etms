@@ -32,18 +32,17 @@ public class DmsDeliveryGatewayServiceImpl implements DmsDeliveryGatewayService 
     private DeliveryVerifyService deliveryVerifyService;
 
     @Override
-    public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
+    public JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request) {
         return deliveryVerifyService.packageSendVerifyForBoxCode(request);
     }
 
     @Override
-    public JdVerifyResponse newPackageSend(SinglePackageSendRequest cRequest) {
+    public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest cRequest) {
         // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         request.setIsForceSend(cRequest.isForceSend());
         request.setIsCancelLastSend(cRequest.isCancelLastSend());
-//        request.setTransporttype(cRequest.gett);todo
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
         request.setBoxCode(cRequest.getBoxCode());
         request.setSendCode(cRequest.getSendCode());
@@ -61,7 +60,7 @@ public class DmsDeliveryGatewayServiceImpl implements DmsDeliveryGatewayService 
         JdVerifyResponse jdVerifyResponse = new JdVerifyResponse();
         jdVerifyResponse.toSuccess();
         if(invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE ){
-            jdVerifyResponse.toError(invokeResult.getMessage());
+            jdVerifyResponse.toFail(invokeResult.getMessage());
             return jdVerifyResponse;
         }
         SendResult sendResult = invokeResult.getData();
@@ -86,7 +85,7 @@ public class DmsDeliveryGatewayServiceImpl implements DmsDeliveryGatewayService 
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
                 msgBox.setCode(sendResult.getKey());
                 msgBox.setMsg(sendResult.getValue());
-                msgBox.setData(sendResult.getReceiveSiteCode());//todo 需要确认 39000 的时候一定有getReceiveSiteCode值
+                msgBox.setData(sendResult.getReceiveSiteCode());
                 jdVerifyResponse.addBox(msgBox);
             }else{
                 jdVerifyResponse.addBox(MsgBoxTypeEnum.CONFIRM,sendResult.getKey(),sendResult.getValue());

@@ -15,7 +15,7 @@ public interface DmsDeliveryGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request);
+    JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request);
 
-    JdVerifyResponse newPackageSend(SinglePackageSendRequest request);
+    JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest request);
 }
