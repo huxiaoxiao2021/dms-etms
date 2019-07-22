@@ -41,7 +41,11 @@ public class FeedbackController {
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping("/addView")
     public String addView(Model model) {
-        model.addAttribute("typeMaps", feedbackService.getFeedbackType(APP_PACKAGE_NAME));
+        try {
+            model.addAttribute("typeMaps", feedbackService.getFeedbackType(APP_PACKAGE_NAME));
+        } catch (Exception e) {
+            logger.error("获取意见反馈类型时发生异常", e);
+        }
         return "feedback/add";
     }
 
