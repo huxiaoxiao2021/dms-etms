@@ -86,7 +86,7 @@ $(function () {
 
     initPageFunc();
 
-    var submitFormData = function (formData, blocker) {
+    var submitFormData = function (formData) {
         $.ajax({
             type: 'POST',
             data: formData,
@@ -101,7 +101,7 @@ $(function () {
                 console.log('XMLHttpRequest:' + XMLHttpRequest);
                 console.log('status:' + status);
                 console.log('errorThrown:' + errorThrown);
-                console.log('involk failded');
+                console.log('invoke failed');
             },
             success: function (res) {
                 if (res != null && res.code == 200) {
@@ -148,7 +148,7 @@ $(function () {
                 var formParams = $.formHelper.serialize('add-form');
                 var formJson = JSON.stringify(formParams);
                 formData.append("noticeRequest", formJson);
-                submitFormData(formData, blocker);
+                submitFormData(formData);
                 $.pageBlocker.close(blocker);
             });
         }

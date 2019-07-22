@@ -16,11 +16,7 @@ import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.SkuSn;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExtPro;
-import com.jd.etms.waybill.dto.BdTraceDto;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.OrderParentChildDto;
-import com.jd.etms.waybill.dto.OrderTraceDto;
-import com.jd.etms.waybill.dto.WChoice;
+import com.jd.etms.waybill.dto.*;
 import com.jd.ql.trace.api.WaybillTraceBusinessQueryApi;
 import com.jd.ql.trace.api.core.APIResultDTO;
 import com.jd.ql.trace.api.domain.BillBusinessTraceAndExtendDTO;
@@ -257,21 +253,23 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         try {
             BaseEntity baseEntity = waybillTraceApi.sendBdTrace(bdTraceDto);
             if (baseEntity != null) {
-                if (baseEntity.getResultCode() != 1) {
+                if (baseEntity.getResultCode() == -1) {
+                    //此种情况为运单数据库或redis异常，系统异常级别，非业务级别
+                    throw new RuntimeException(baseEntity.getMessage());
+                }else if (baseEntity.getResultCode() != 1) {
                     this.logger.warn(JsonHelper.toJson(bdTraceDto));
                     this.logger.warn(bdTraceDto.getWaybillCode());
                     this.logger.warn("分拣数据回传全程跟踪sendBdTrace异常：" + baseEntity.getMessage());
-                    //Profiler.functionError(info);
                     return false;
                 }
             } else {
                 this.logger.warn("分拣数据回传全程跟踪接口sendBdTrace异常" + bdTraceDto.getWaybillCode());
-                //Profiler.functionError(info);
                 return false;
             }
         } catch (Exception e) {
             logger.error("分拣数据回传全程跟踪sendBdTrace异常：" + bdTraceDto.getWaybillCode(), e);
             Profiler.functionError(info);
+            throw new RuntimeException(e.getMessage(),e);
         } finally {
             Profiler.registerInfoEnd(info);
         }
@@ -616,6 +614,13 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BaseEntity<String> getWaybillSignByWaybillCode(String waybillCode){
         return waybillQueryApi.getWaybillSignByWaybillCode(waybillCode);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getSkuPackRelation" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseEntity<SkuPackRelationDto> getSkuPackRelation(String sku) {
+        return waybillQueryApi.getSkuPackRelation(sku);
     }
 
     /**

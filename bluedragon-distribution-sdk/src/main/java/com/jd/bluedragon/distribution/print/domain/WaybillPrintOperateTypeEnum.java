@@ -17,7 +17,10 @@ public enum WaybillPrintOperateTypeEnum {
 
     SITE_MASTER_PACKAGE_REPRINT(100501, "站长工作台：包裹补打"),
     SITE_MASTER_REVERSE_CHANGE_PRINT(100502, "站长工作台：换单打印"),
-    SITE_MASTER_RESCHEDULE_PRINT(100503, "站长工作台：现场预分拣");
+    SITE_MASTER_RESCHEDULE_PRINT(100503, "站长工作台：现场预分拣"),
+    
+    SMS_REVERSE_CHANGE_PRINT(100304, "终端：换单打印"),
+    SMS_REVERSE_CHANGE_REPRINT(100305, "终端：换单补打");
 
 
     private Integer type;//操作类型

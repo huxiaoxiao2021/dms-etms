@@ -358,7 +358,7 @@
     </jsf:consumer>
     <!--报表的接口 唐春青-->
     <jsf:consumer id="reportExternalService" interface="com.jd.ql.dms.report.ReportExternalService"
-                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}">
+                  protocol="jsf" alias="${jsf.reportExternalService.alias}" timeout="${jsf.reportExternalService.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 
     <!-- automatic分拣自动化 -本地ver应用服务器地址信息- 焦文强 -->
@@ -421,5 +421,31 @@
                   protocol="jsf" alias="${jsf.presort.expressTransfer.alias}" timeout="${jsf.presort.expressTransfer.timeout}" check="false" retries="0">
         <jsf:parameter key="token" value="${jsf.presort.expressTransfer.token}" hide="true"/>
     </jsf:consumer>
+    <!-- 转运中台-容器实操接口 -->
+    <jsf:consumer id="containerService" interface="com.jd.ql.shared.services.sorting.api.ContainerService"
+                  protocol="jsf" alias="${jsf.containerService.alias}" timeout="${jsf.containerService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="appCode" value="${jsf.component.container.appName}" hide="true"></jsf:parameter>
+        <jsf:parameter key="authToken" value="${jsf.component.container.token}" hide="true"></jsf:parameter>
+    </jsf:consumer>
 
+    <!-- 转运中台-容器查询接口 -->
+    <jsf:consumer id="containerQueryService" interface="com.jd.ql.shared.services.sorting.api.ContainerQueryService"
+                  protocol="jsf" alias="${jsf.containerQueryService.alias}" timeout="${jsf.containerQueryService.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!-- ECLP获取新的 -->
+    <jsf:consumer id="goodsService" interface="com.jd.eclp.master.goods.service.GoodsService"
+                  alias="${jsf.eclp.goods.alias}"
+                  timeout="${jsf.eclp.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
+    <jsf:consumer id="downstreamGoodsService" interface="com.jd.eclp.master.goods.service.DownstreamGoodsService"
+                  alias="${jsf.eclp.downstream.goods.alias}" timeout="${jsf.eclp.downstream.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
+    <!-- 意见反馈系统 - 意见反馈提交接口 -->
+    <jsf:consumer id="mrdFeedbackRpcService" interface="com.jd.mrd.delivery.rpc.sdk.feedback.MrdFeedbackRpcService"
+                  protocol="jsf" alias="${jsf.mdrFeedback.alias}" timeout="${jsf.mdrFeedback.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
 </beans>
