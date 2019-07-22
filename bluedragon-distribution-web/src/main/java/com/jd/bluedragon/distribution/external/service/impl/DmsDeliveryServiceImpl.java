@@ -67,12 +67,12 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGat
     }
 
     @Override
-    public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
+    public JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request) {
         return deliveryVerifyService.packageSendVerifyForBoxCode(request);
     }
 
     @Override
-    public JdVerifyResponse newPackageSend(SinglePackageSendRequest request) {
+    public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest request) {
         return null;
     }
 }
