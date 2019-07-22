@@ -12,6 +12,9 @@ public class ResponseCodeConstants {
      */
     public enum JdVerifyResponseMsgBox{
         CANCEL_LAST_SEND(4001,"是否取消上次发货"),
+        /*
+        此枚举在ver中定义了
+         */
         SEND_WRONG_SITE(39000,"运单与预分拣站点不一致"),
         ;
         private int code;

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.base.response.ResponseCodeConstants;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
 import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -80,7 +81,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         }
 
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
-            if(sendResult.getInterceptCode() == 39000){
+            if(sendResult.getInterceptCode() == ResponseCodeConstants.JdVerifyResponseMsgBox.SEND_WRONG_SITE.getCode()){
                 JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
                 msgBox.setType(MsgBoxTypeEnum.CONFIRM);
                 msgBox.setCode(sendResult.getKey());
