@@ -1,33 +1,22 @@
 /*****************************************/
-/*通知栏管理*/
+/*意见反馈*/
 /*****************************************/
 $(function () {
     /*****************************************/
     /*变量及方法*/
     /*****************************************/
 
-    var saveInfoUrl = '/notice/add';
+    var saveInfoUrl = '/feedback/add';
 
-    // 5M
-    var fileMaxSize = 5 * 1024 * 1024;
+    // 1M
+    var fileMaxSize = 1 * 1024 * 1024;
 
     /*****************************************/
     /*组件*/
     /*****************************************/
 
     $.combobox.createNew('type-select', {
-        width: '200',
-        placeholder: '请选择通知类型'
-    });
-
-    $.combobox.createNew('level-select', {
-        width: '200',
-        placeholder: '请选择通知级别'
-    });
-
-    $.combobox.createNew('top-display-select', {
-        width: '200',
-        placeholder: '请选择是否置顶'
+        placeholder: '请选择意见反馈类型'
     });
 
     /*表单验证*/
@@ -37,35 +26,21 @@ $(function () {
         submitButtons: 'button[type="submit"]',
         message: '验证不通过',
         fields: {
-            theme: {
-                validators: {
-                    notEmpty: {
-                        message: '主题不能为空！'
-                    },
-                    stringLength: {
-                        max: 200,
-                        message: '主题长度不能超过200个字'
-                    }
-                }
-            },
             type: {
                 validators: {
                     notEmpty: {
-                        message: '通知类型不能为空！'
+                        message: '意见反馈类型不能为空！'
                     }
                 }
             },
-            level: {
+            content: {
                 validators: {
                     notEmpty: {
-                        message: '通知级别不能为空！'
-                    }
-                }
-            },
-            isTopDisplay: {
-                validators: {
-                    notEmpty: {
-                        message: '是否置顶不能为空！'
+                        message: '反馈内容不能为空！'
+                    },
+                    stringLength: {
+                        max: 1000,
+                        message: '反馈内容长度不能超过1000个字！'
                     }
                 }
             }
@@ -78,8 +53,6 @@ $(function () {
     var initPageFunc = function () {
         var blocker = $.pageBlocker.block();
         $.combobox.clearAllSelected('type-select');
-        $.combobox.clearAllSelected('level-select');
-        $.combobox.clearAllSelected('top-display-select');
         $('#add-form').bootstrapValidator('resetForm', true);
         $.pageBlocker.close(blocker);
     };
@@ -97,7 +70,7 @@ $(function () {
             contentType: false,
             processData: false,
             error: function (XMLHttpRequest, status, errorThrown) {
-                $.msg.error("新增通知失败！", "");
+                $.msg.error("提交意见反馈失败！", "");
                 console.log('XMLHttpRequest:' + XMLHttpRequest);
                 console.log('status:' + status);
                 console.log('errorThrown:' + errorThrown);
@@ -105,12 +78,11 @@ $(function () {
             },
             success: function (res) {
                 if (res != null && res.code == 200) {
-                    $.msg.ok('新增信息成功！', '', function () {
+                    $.msg.ok('提交意见反馈信息成功！', '', function () {
                         $('#btn_cancel').click();
-                        parent.$('#btn_query').click();
                     });
                 } else {
-                    $.msg.error("新增通知失败！", res.message);
+                    $.msg.error("提交意见反馈信息失败！", res.message);
                 }
                 return res;
             }
@@ -125,29 +97,43 @@ $(function () {
         /*进行查询参数校验*/
         var flag = $.formValidator.isValid('add-form');
         if (flag == true) {
-            $.msg.confirm('确认新增吗？', function () {
+            $.msg.confirm('确认提交意见反馈吗？', function () {
                 var blocker = $.pageBlocker.block();
                 var formData = new FormData();
-                var files = $('#importFiles')[0].files;
-                if (files.length > 5) {
-                    $.pageBlocker.close(blocker);
-                    $.msg.error("新增失败！", "附件数量不能超过5个");
-                    return;
-                }
-
-                for (var i = 0; i < files.length; i++) {
-                    var file = files[i];
-                    if (file.size > fileMaxSize) {
+                var image1 = $('#image1')[0].files;
+                if (image1.length > 0) {
+                    if (image1[0].size > fileMaxSize) {
                         $.pageBlocker.close(blocker);
-                        $.msg.error("新增失败！", "每个附件大小不能超过5M");
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
                         return;
                     }
-                    formData.append("files", files[i]);
+                    formData.append("images", image1[0]);
                 }
+
+                var image2 = $('#image2')[0].files;
+                if (image2.length > 0) {
+                    if (image2[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        return;
+                    }
+                    formData.append("images", image2[0]);
+                }
+
+                var image3 = $('#image3')[0].files;
+                if (image3.length > 0) {
+                    if (image3[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        return;
+                    }
+                    formData.append("images", image3[0]);
+                }
+
                 /*获取参数*/
                 var formParams = $.formHelper.serialize('add-form');
                 var formJson = JSON.stringify(formParams);
-                formData.append("noticeRequest", formJson);
+                formData.append("feedbackRequest", formJson);
                 submitFormData(formData);
                 $.pageBlocker.close(blocker);
             });
@@ -156,8 +142,8 @@ $(function () {
 
     /*取消*/
     $('#btn_cancel').click(function () {
-        var index = parent.layer.getFrameIndex('addFrame');
-        parent.layer.close(index);
+        //window.history.back(-1);
+        window.history.go(-1);
     });
 
 });
