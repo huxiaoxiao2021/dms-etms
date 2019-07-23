@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * SearCarDto
+ * SealCarDto
  * 封车dto
  * @author jiaowenqiang
  * @date 2019/6/25
  */
-public class SearCarDto implements Serializable {
+public class SealCarDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -81,6 +81,26 @@ public class SearCarDto implements Serializable {
      * 用户姓名
      */
     private String sealUserName;
+
+    @Override
+    public String toString() {
+        return "SealCarDto{" +
+                "sealCarType=" + sealCarType +
+                ", itemSimpleCode='" + itemSimpleCode + '\'' +
+                ", transportCode='" + transportCode + '\'' +
+                ", batchCodes=" + batchCodes +
+                ", vehicleNumber='" + vehicleNumber + '\'' +
+                ", sealCodes=" + sealCodes +
+                ", weight=" + weight +
+                ", volume=" + volume +
+                ", routeLineCode='" + routeLineCode + '\'' +
+                ", sealCarTime='" + sealCarTime + '\'' +
+                ", sealSiteId=" + sealSiteId +
+                ", sealSiteName='" + sealSiteName + '\'' +
+                ", sealUserCode='" + sealUserCode + '\'' +
+                ", sealUserName='" + sealUserName + '\'' +
+                '}';
+    }
 
     public Integer getSealCarType() {
         return sealCarType;

@@ -3,12 +3,12 @@ package com.jd.bluedragon.common.dto.blockcar.request;
 import java.io.Serializable;
 
 /**
- *  SearCarTaskInfoRequest
+ * SealCarTaskInfoRequest
  * 封车任务信息请求
  * @author jiaowenqiang
  * @date 2019/6/25
  */
-public class SearCarTaskInfoRequest implements Serializable {
+public class SealCarTaskInfoRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,7 +33,7 @@ public class SearCarTaskInfoRequest implements Serializable {
 
     @Override
     public String toString() {
-        return "SearCarTaskInfoRequest{" +
+        return "SealCarTaskInfoRequest{" +
                 "vehicleNumber='" + vehicleNumber + '\'' +
                 ", transWorkItemCode='" + transWorkItemCode + '\'' +
                 ", erp='" + erp + '\'' +
