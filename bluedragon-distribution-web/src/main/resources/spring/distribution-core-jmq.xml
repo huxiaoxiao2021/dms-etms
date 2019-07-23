@@ -338,6 +338,11 @@
         <property name="topic" value="${jmq.topic.arAbnormal}"/>
     </bean>
 
+    <!--空铁转陆运 提报外呼异常 发路由和质控 -->
+    <bean id="arTransportModeChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.arAbnormal}"/>
+    </bean>
+
     <!-- ECLP退备件库-->
     <bean id="reverseSendSpareEclpProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="timeout" value="10000"/>
