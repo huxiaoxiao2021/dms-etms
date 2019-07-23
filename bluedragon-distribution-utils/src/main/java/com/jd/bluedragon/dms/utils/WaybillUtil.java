@@ -248,6 +248,34 @@ public class WaybillUtil {
     }
 
     /**
+     * 根据运单号、包裹数量生成所有包裹号
+     * */
+    public static List<String> generateAllPackageCodesByPackNum(String waybillCode,Integer packNum){
+        List<String> list = new ArrayList<String>();
+        if(WaybillUtil.isWaybillCode(waybillCode) && packNum != null && packNum > 0){
+            for(int i = 1; i <= packNum; i++){
+                String packageCode = waybillCode + "-" + i + "-" + packNum + "-";
+                list.add(packageCode);
+            }
+            return list;
+        }
+        return list;
+    }
+
+    /**
+     * 判断是否是QPL单号
+     * */
+    public static boolean isQPLWaybill(String waybillCode){
+        if(StringUtils.isEmpty(waybillCode)){
+            return Boolean.FALSE;
+        }
+        if(waybillCode.startsWith("QPL")){
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+    /**
      * 获取包裹序列号
      */
     public static String getPackageIndex(String packageCode) {

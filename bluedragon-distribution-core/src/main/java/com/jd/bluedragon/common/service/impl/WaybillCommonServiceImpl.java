@@ -15,6 +15,7 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.*;
 
@@ -145,11 +146,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     private static final String DISTRIBUTE_TYPE_PRECISION_COLD = "精准冷藏";
 
     private static final String STORE_TYPE_WMS = "wms";
-
-    /**
-     * 取件完成状态
-     * */
-    private static final Integer PICKUP_FINISHED_STATUS = Integer.valueOf(20);
 
     public Waybill findByWaybillCode(String waybillCode) {
         Waybill waybill = null;
@@ -1217,70 +1213,48 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     /**
      * 修改取件单换单后新单的包裹数
-     * @param waybillCode QPL取件单
+     * @param newWaybillCode 新单号
      * @param packNum 新单包裹数量
      * @return
      */
     @Override
-    public InvokeResult batchUpdatePackageByWaybillCode(String waybillCode, Integer packNum){
-        logger.info(waybillCode + "调用运单接口batchUpdatePackageByWaybillCode,修改运单包裹数量:" + packNum);
+    public InvokeResult batchUpdatePackageByWaybillCode(String newWaybillCode, Integer packNum){
+        logger.info(newWaybillCode + "调用运单接口batchUpdatePackageByWaybillCode,修改运单包裹数量:" + packNum);
         InvokeResult result = new InvokeResult();
         result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 
-        if(StringUtils.isEmpty(waybillCode) || packNum == null || packNum <= 0 || packNum > 99){
+        if(!WaybillUtil.isWaybillCode(newWaybillCode) || packNum == null || packNum <= 0 || packNum > 99){
             logger.error("参数不能为空!");
             result.setMessage(InvokeResult.PARAM_ERROR);
             return result;
         }
-        if(!waybillCode.startsWith("QPL")){
-            logger.error("单号不符合规则!"+waybillCode);
-            result.setMessage("单号不符合规则!");
-            return result;
-        }
 
         try {
-            waybillCode = WaybillUtil.getWaybillCode(waybillCode);
-            String newWaybillCode = null;
-            BaseEntity<PickupTask> baseEntity = getPickupTask(waybillCode);
-            if(baseEntity != null && baseEntity.getData() != null
-                    && !StringUtils.isEmpty(baseEntity.getData().getSurfaceCode()) ){
-                if(PICKUP_FINISHED_STATUS.equals(baseEntity.getData().getStatus())){
-                    newWaybillCode = baseEntity.getData().getSurfaceCode();
-                }else {
-                    logger.error("未操作取件完成无法打印面单!" + waybillCode);
-                    result.setMessage("未操作取件完成无法打印面单!");
-                    return result;
-                }
-            }else{
-                logger.error("通过取件单" + waybillCode + "未获取到新单号!");
-                result.setMessage("没有获取到新的取件单!");
+            //判断是否操作过修改包裹数
+            PopPrint popPrint = popPrintService.findByWaybillCode(newWaybillCode);
+            if(popPrint != null){
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
                 return result;
             }
-            if(!StringUtils.isEmpty(newWaybillCode)){
-                //判断是否操作过修改包裹数
-                PopPrint popPrint = popPrintService.findByWaybillCode(newWaybillCode);
-                if(popPrint != null){
-                    result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                    result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-                    return result;
-                }
-                List<PackageUpdateDto> packageList = new ArrayList<>();
-                Date createTime = new Date();
-                for(int i = 1; i < packNum+1; i++){
-                    PackageUpdateDto dto = new PackageUpdateDto();
-                    dto.setWaybillCode(newWaybillCode);
-                    dto.setPackageBarcode(newWaybillCode + "-" + i + "-" + packNum + "-");
-                    dto.setCreateTime(createTime);
-                    packageList.add(dto);
-                }
-                BaseEntity<Boolean> entity = waybillQueryManager.batchUpdatePackageByWaybillCode(newWaybillCode, packageList);
-                if(entity.getResultCode() == 1){
-                    result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-                    result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-                }else{
-                    logger.error(waybillCode+"修改包裹数失败!"+entity.getMessage());
-                    result.setMessage(waybillCode+"修改包裹数失败!");
-                }
+            List<PackageUpdateDto> packageList = new ArrayList<>();
+            Date createTime = new Date();
+            List<String> list = WaybillUtil.generateAllPackageCodesByPackNum(newWaybillCode, packNum);
+            for(int i = 0; i < list.size(); i++){
+                PackageUpdateDto dto = new PackageUpdateDto();
+                dto.setWaybillCode(newWaybillCode);
+                dto.setPackageBarcode(list.get(i));
+                dto.setCreateTime(createTime);
+                packageList.add(dto);
+            }
+            BaseEntity<Boolean> entity = waybillQueryManager.batchUpdatePackageByWaybillCode(newWaybillCode, packageList);
+            logger.info("修改运单"+ newWaybillCode +"包裹数："+ JsonHelper.toJson(entity));
+            if(entity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode()){
+                result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+                result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+            }else{
+                logger.error("修改"+newWaybillCode+"的包裹数失败!"+entity.getMessage());
+                result.setMessage("修改"+newWaybillCode+"的包裹数失败!");
             }
         }catch (Exception e){
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
