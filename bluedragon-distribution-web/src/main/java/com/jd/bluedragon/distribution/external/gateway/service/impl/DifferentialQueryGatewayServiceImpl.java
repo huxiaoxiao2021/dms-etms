@@ -35,7 +35,9 @@ public class DifferentialQueryGatewayServiceImpl implements DifferentialQueryGat
 
 
         InvokeResult<WaybillNoCollectionResult> result = waybillResource.getWaybillNoCollectionInfo(convert(request));
-        differentialQueryResultDto.setPackageCodeList(result.getData().getPackageCodeList());
+        if (result.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            differentialQueryResultDto.setPackageCodeList(result.getData().getPackageCodeList());
+        }
 
 
         jdCResponse.setCode(result.getCode());
