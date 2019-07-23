@@ -340,7 +340,7 @@
 
     <!--空铁转陆运 提报外呼异常 发路由和质控 -->
     <bean id="arTransportModeChangeProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.arAbnormal}"/>
+        <property name="topic" value="${jmq.topic.ar.transportModeChange}"/>
     </bean>
 
     <!-- ECLP退备件库-->
