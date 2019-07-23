@@ -19,6 +19,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.message.Message;
@@ -86,6 +87,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 	 */
 	@JProfiler(jKey = "DMS.AllianceBusiDeliveryDetailService.allianceBusiDelivery",
 			mState = {JProEnum.TP, JProEnum.FunctionError},jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@BusinessLog(sourceSys = 1,bizType = 1905,operateType = 190501)
 	public BaseEntity<List<AllianceBusiFailDetailDto>> allianceBusiDelivery(AllianceBusiDeliveryDto dto) {
 		logger.debug("加盟商交接环节入参:"+JsonHelper.toJson(dto));
 		//校验入参
@@ -241,6 +243,8 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 		List<AllianceBusiFailDetailDto> failList = result.getData()==null?new ArrayList<AllianceBusiFailDetailDto>():result.getData();
 		Set<String> allianceBusiIds = new HashSet<>();
 		Set<String> waybillCodes = new HashSet<>();
+		//校验失败需要移除的数据
+		List<AllianceBusiDeliveryDetailDto> removeLists = new ArrayList<>();
 		for(AllianceBusiDeliveryDetailDto detailDto : dto.getDatas()){
 			AllianceBusiFailDetailDto failDetailDto = new AllianceBusiFailDetailDto();
 			failDetailDto.setOpeCode(detailDto.getOpeCode());
@@ -256,6 +260,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 				//未获取到加盟商ID
 				failDetailDto.setFailMessage("未获取到加盟商ID");
 				failList.add(failDetailDto);
+				removeLists.add(detailDto);
 				continue;
 			}
 			if(!allianceBusiIds.contains(allianceBusiId)){
@@ -265,6 +270,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 					if(!baseMajorManager.allianceBusiMoneyEnough(allianceBusiId)){
 						failDetailDto.setFailMessage("加盟商预付款余额不足");
 						failList.add(failDetailDto);
+						removeLists.add(detailDto);
 						continue;
 					}
 				}
@@ -274,7 +280,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 		if(failList.size()>0){
 			result.setCode(BaseEntity.CODE_PARAM_ERROR);
 			//剔除余额不足
-			dto.getDatas().removeAll(failList);
+			dto.getDatas().removeAll(removeLists);
 		}
 
 		return result;
