@@ -145,7 +145,7 @@ public class DeliveryVerifyServiceImpl implements DeliveryVerifyService {
         if (!boxReceiveSiteCode.equals(sendCodeReceiveSiteCode)) {
             JdVerifyResponse.MsgBox msgBox = new JdVerifyResponse.MsgBox();
             msgBox.setMsg("箱号的收货站点与发货批次站点不一致，是否继续？");
-            msgBox.setType(MsgBoxTypeEnum.INTERCEPT);
+            msgBox.setType(MsgBoxTypeEnum.CONFIRM);
             response.addBox(msgBox);
 
         }
