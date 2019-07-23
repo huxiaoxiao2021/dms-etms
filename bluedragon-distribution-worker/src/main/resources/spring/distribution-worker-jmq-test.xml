@@ -233,9 +233,5 @@
         <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
     </jmq:consumer>
 
-    <!--auto下发图片信息-->
-    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
-    </jmq:consumer>
 </beans>
 
