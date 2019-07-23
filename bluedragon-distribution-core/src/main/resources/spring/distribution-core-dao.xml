@@ -509,4 +509,14 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 清场 -->
+    <bean id="inventoryTaskDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryTaskDaoImpl"/>
+
+    <bean id="inventoryScanDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryScanDetailDaoImpl"/>
+
+    <bean id="inventoryExceptionDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryExceptionDaoImpl"/>
+
 </beans>

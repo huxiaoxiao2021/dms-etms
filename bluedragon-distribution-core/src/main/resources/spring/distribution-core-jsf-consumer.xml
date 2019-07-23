@@ -448,4 +448,9 @@
                   protocol="jsf" alias="${jsf.mdrFeedback.alias}" timeout="${jsf.mdrFeedback.timeout}"
                   retries="${jsf.retries}">
     </jsf:consumer>
+    <!--报表的盘点相关接口 吴有德-->
+    <jsf:consumer id="inventoryJsfService" interface="com.jd.ql.dms.report.inventory.InventoryJsfService"
+                  protocol="jsf" alias="${jsf.inventoryJsfService.alias}" timeout="${jsf.inventoryJsfService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.inventoryJsfService.token}" hide="true"/>
+    </jsf:consumer>
 </beans>

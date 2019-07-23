@@ -7,13 +7,12 @@ public class WaybillStatus {
     public static final int RESULT_CODE_PARAM_IS_NULL = 10001;
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0;
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;
+    public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0; //正向验货
+    public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;  //正向分拣
     public static final Integer WAYBILL_STATUS_CODE_POP_InFactory = 1150; //驻场验货
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_DELIVERY = 2;
 
-    public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
-    public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40;
+    public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30; //逆向验货
+    public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40; //逆向分拣
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
     public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
 
@@ -34,8 +33,8 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_FC = 150;
     public static final Integer WAYBILL_TRACK_RCD = 160;
     public static final Integer WAYBILL_TRACK_PACKAGE_HALF = 600; //包裹半收完成
-    public static final Integer WAYBILL_TRACK_SH = 400;
-    public static final Integer WAYBILL_TRACK_REVERSE_SH = 500;
+    public static final Integer WAYBILL_TRACK_SH = 400; //正向收货
+    public static final Integer WAYBILL_TRACK_REVERSE_SH = 500; //逆向收货
     
     /**仓储收货驳回**/ 
     public static final Integer WAYBILL_TRACK_BH = 900;
@@ -193,6 +192,11 @@ public class WaybillStatus {
      * 全称跟踪-取消建箱
      */
     public static final Integer WAYBILL_TRACK_SORTING_CANCEL = 13400;
+
+    /**
+     * 全称跟踪-取消发货
+     */
+    public static final Integer WAYBILL_TRACK_SEND_CANCEL = 3800;
 
     private Long id;
 
