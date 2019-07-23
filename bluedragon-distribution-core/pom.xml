@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.2.95</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.98</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
