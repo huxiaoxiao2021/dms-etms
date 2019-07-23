@@ -121,12 +121,12 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             response.setMessage(ArAbnormalResponse.MESSAGE_ERRORDATA);
             return response;
         }
-        if (arAbnormalRequest.getTranspondReason() == null) {
+        if (ArAbnormalReasonEnum.getEnum(arAbnormalRequest.getTranspondReason()) == null) {
             response.setCode(ArAbnormalResponse.CODE_TRANSPONDREASON);
             response.setMessage(ArAbnormalResponse.MESSAGE_TRANSPONDREASON);
             return response;
         }
-        if (arAbnormalRequest.getTranspondType() == null) {
+        if (ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) == null) {
             response.setCode(ArAbnormalResponse.CODE_TRANSPONDTYPE);
             response.setMessage(ArAbnormalResponse.MESSAGE_TRANSPONDTYPE);
             return response;
@@ -183,9 +183,35 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         if (waybillMap != null) {
             // 发送全程跟踪
             this.doSendTrace(arAbnormalRequest, waybillMap);
-            // 发MQ消息
-            this.doSendMQ(arAbnormalRequest, waybillMap);
+            if (isNeedSendMQ(arAbnormalRequest)) {
+                // 发MQ消息
+                this.doSendMQ(arAbnormalRequest, waybillMap);
+            }
         }
+    }
+
+    /**
+     * 新老版本兼容，判断是否需要发送MQ消息
+     * 新版空铁运输方式变更只处理航空转陆运，异常原因只有航空违禁品
+     *
+     * @param request
+     * @return
+     */
+    private boolean isNeedSendMQ(ArAbnormalRequest request) {
+        // 新老版本客户端兼容，老客户端违禁品原因字段为空值，所以不需要发送MQ消息
+        ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
+        if (contrabandReason == null) {
+            return false;
+        }
+        // 第一期只做航空转陆运，其他运输类型不发送MQ消息
+        if (ArTransportChangeModeEnum.getEnum(request.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
+            return false;
+        }
+        // 异常原因只有航空违禁品时，才发送MQ消息
+        if (ArAbnormalReasonEnum.getEnum(request.getTranspondReason()) != ArAbnormalReasonEnum.CONTRABAND_GOODS) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -476,16 +502,18 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
 
         // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setTransformType(transformChangeMode == null ? null : transformChangeMode.getId());
+        dto.setTransformType(transformChangeMode == null ? null : transformChangeMode.getFxmId());
         dto.setWaybillCode(waybill.getWaybillCode());
         // 异常类型 (航空违禁品)
-        dto.setAbnormalType(abnormalReason == null ? null : abnormalReason.getId());
+        dto.setAbnormalType(abnormalReason == null ? null : abnormalReason.getFxmId());
         // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setFirstLevel(transformChangeMode == null ? null : transformChangeMode.getId());
+        dto.setFirstLevelCode(transformChangeMode == null ? null : transformChangeMode.getFxmId());
+        dto.setFirstLevelName(transformChangeMode == null ? null : transformChangeMode.getDesc());
         // 异常类型 (航空违禁品)
-        dto.setSecondLevel(abnormalReason == null ? null : abnormalReason.getId());
+        dto.setSecondLevelCode(abnormalReason == null ? null : abnormalReason.getFxmId());
+        dto.setSecondLevelCode(abnormalReason == null ? null : abnormalReason.getDesc());
         // 违禁品原因
-        dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getId());
+        dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
         dto.setOperatorErp(request.getUserErp());
         dto.setSiteCode(request.getSiteCode());
 

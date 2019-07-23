@@ -11,7 +11,7 @@ public enum ArAbnormalReasonEnum {
     /**
      * 违禁品
      */
-    CONTRABAND_GOODS(10, "违禁品", 10000001),
+    CONTRABAND_GOODS(10, "航空违禁品", "196"),
 
     /**
      * 航班异常
@@ -32,7 +32,7 @@ public enum ArAbnormalReasonEnum {
 
     private String desc;
 
-    private Integer id;
+    private String fxmId;
 
     ArAbnormalReasonEnum() {
     }
@@ -42,10 +42,10 @@ public enum ArAbnormalReasonEnum {
         this.desc = desc;
     }
 
-    ArAbnormalReasonEnum(Integer code, String desc, Integer id) {
+    ArAbnormalReasonEnum(Integer code, String desc, String fxmId) {
         this.code = code;
         this.desc = desc;
-        this.id = id;
+        this.fxmId = fxmId;
     }
 
     public Integer getCode() {
@@ -56,8 +56,8 @@ public enum ArAbnormalReasonEnum {
         return desc;
     }
 
-    public Integer getId() {
-        return id;
+    public String getFxmId() {
+        return fxmId;
     }
 
     public static ArAbnormalReasonEnum getEnum(Integer code) {

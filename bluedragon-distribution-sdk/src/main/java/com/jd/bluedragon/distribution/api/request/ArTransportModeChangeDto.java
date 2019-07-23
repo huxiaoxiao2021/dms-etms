@@ -9,11 +9,6 @@ package com.jd.bluedragon.distribution.api.request;
 public class ArTransportModeChangeDto {
 
     /**
-     * 转发方式 (航空转陆运 或 航空转高铁)
-     */
-    private Integer transformType;
-
-    /**
      * 运单号
      */
     private String waybillCode;
@@ -24,24 +19,39 @@ public class ArTransportModeChangeDto {
     private String packageCode;
 
     /**
+     * 转发方式 (航空转陆运 或 航空转高铁)
+     */
+    private String transformType;
+
+    /**
      * 异常类型 (航空违禁品)
      */
-    private Integer abnormalType;
+    private String abnormalType;
 
     /**
-     * 一级原因 (航空转陆运 或 航空转高铁)
+     * 一级原因FXM编码 (航空转陆运 或 航空转高铁)
      */
-    private Integer firstLevel;
+    private String firstLevelCode;
 
     /**
-     * 二级原因 (航空违禁品)
+     * 一级原因描述 (航空转陆运 或 航空转高铁)
      */
-    private Integer secondLevel;
+    private String firstLevelName;
 
     /**
-     * 三级原因
+     * 二级原因FXM编码 (航空违禁品)
      */
-    private Integer thirdLevel;
+    private String secondLevelCode;
+
+    /**
+     * 二级原因描述 (航空违禁品)
+     */
+    private String secondLevelName;
+
+    /**
+     * 三级原因描述
+     */
+    private String thirdLevel;
 
     /**
      * 提交人ERP
@@ -123,14 +133,6 @@ public class ArTransportModeChangeDto {
      */
     private String consignmentName;
 
-    public Integer getTransformType() {
-        return transformType;
-    }
-
-    public void setTransformType(Integer transformType) {
-        this.transformType = transformType;
-    }
-
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -147,35 +149,59 @@ public class ArTransportModeChangeDto {
         this.packageCode = packageCode;
     }
 
-    public Integer getAbnormalType() {
+    public String getTransformType() {
+        return transformType;
+    }
+
+    public void setTransformType(String transformType) {
+        this.transformType = transformType;
+    }
+
+    public String getAbnormalType() {
         return abnormalType;
     }
 
-    public void setAbnormalType(Integer abnormalType) {
+    public void setAbnormalType(String abnormalType) {
         this.abnormalType = abnormalType;
     }
 
-    public Integer getFirstLevel() {
-        return firstLevel;
+    public String getFirstLevelCode() {
+        return firstLevelCode;
     }
 
-    public void setFirstLevel(Integer firstLevel) {
-        this.firstLevel = firstLevel;
+    public void setFirstLevelCode(String firstLevelCode) {
+        this.firstLevelCode = firstLevelCode;
     }
 
-    public Integer getSecondLevel() {
-        return secondLevel;
+    public String getFirstLevelName() {
+        return firstLevelName;
     }
 
-    public void setSecondLevel(Integer secondLevel) {
-        this.secondLevel = secondLevel;
+    public void setFirstLevelName(String firstLevelName) {
+        this.firstLevelName = firstLevelName;
     }
 
-    public Integer getThirdLevel() {
+    public String getSecondLevelCode() {
+        return secondLevelCode;
+    }
+
+    public void setSecondLevelCode(String secondLevelCode) {
+        this.secondLevelCode = secondLevelCode;
+    }
+
+    public String getSecondLevelName() {
+        return secondLevelName;
+    }
+
+    public void setSecondLevelName(String secondLevelName) {
+        this.secondLevelName = secondLevelName;
+    }
+
+    public String getThirdLevel() {
         return thirdLevel;
     }
 
-    public void setThirdLevel(Integer thirdLevel) {
+    public void setThirdLevel(String thirdLevel) {
         this.thirdLevel = thirdLevel;
     }
 

@@ -11,7 +11,7 @@ public enum ArTransportChangeModeEnum {
     /**
      * 航空转陆运
      */
-    AIR_TO_ROAD_CODE(10, "航空转陆运", 10001),
+    AIR_TO_ROAD_CODE(10, "航空转陆运", "195"),
 
     /**
      * 航空转铁路
@@ -26,7 +26,7 @@ public enum ArTransportChangeModeEnum {
     /**
      * 航空转高铁
      */
-    AIR_TO_HIGH_SPEED_TRAIN_CODE(40, "航空转高铁", 40001),
+    AIR_TO_HIGH_SPEED_TRAIN_CODE(40, "航空转高铁", ""),
 
     /**
      * 航空转普列
@@ -37,7 +37,7 @@ public enum ArTransportChangeModeEnum {
 
     private String desc;
 
-    private Integer id;
+    private String fxmId;
 
     ArTransportChangeModeEnum() {
     }
@@ -47,10 +47,10 @@ public enum ArTransportChangeModeEnum {
         this.desc = desc;
     }
 
-    ArTransportChangeModeEnum(Integer code, String desc, Integer id) {
+    ArTransportChangeModeEnum(Integer code, String desc, String fxmId) {
         this.code = code;
         this.desc = desc;
-        this.id = id;
+        this.fxmId = fxmId;
     }
 
     public Integer getCode() {
@@ -61,8 +61,8 @@ public enum ArTransportChangeModeEnum {
         return desc;
     }
 
-    public Integer getId() {
-        return id;
+    public String getFxmId() {
+        return fxmId;
     }
 
     /**

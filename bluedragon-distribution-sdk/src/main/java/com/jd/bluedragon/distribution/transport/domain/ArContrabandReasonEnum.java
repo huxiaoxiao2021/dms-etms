@@ -10,43 +10,41 @@ public enum ArContrabandReasonEnum {
     /**
      * 液体或膏状
      */
-    LIQUID_OR_PASTE(1, "含液体或膏状", 1001),
+    LIQUID_OR_PASTE(1, "含液体或膏状"),
 
     /**
      * 气体
      */
-    GAS(2, "含气体", 1002),
+    GAS(2, "含气体"),
 
     /**
      * 粉末
      */
-    POWDER(3, "含粉末", 1003),
+    POWDER(3, "含粉末"),
 
     /**
      * 电池
      */
-    BATTERY(4, "含电池", 1004),
+    BATTERY(4, "含电池"),
 
     /**
      * 磁
      */
-    MAGNET(5, "含磁", 1005),
+    MAGNET(5, "含磁"),
 
     /**
      * 危险品
      */
-    DANGEROUS_GOODS(6, "含危险品", 1006),
+    DANGEROUS_GOODS(6, "危险品"),
 
     /**
      * 其他
      */
-    OTHER(7, "其他", 1007);
+    OTHER(7, "其他");
 
     private Integer code;
 
     private String desc;
-
-    private Integer id;
 
     ArContrabandReasonEnum() {
     }
@@ -56,22 +54,12 @@ public enum ArContrabandReasonEnum {
         this.desc = desc;
     }
 
-    ArContrabandReasonEnum(Integer code, String desc, Integer id) {
-        this.code = code;
-        this.desc = desc;
-        this.id = id;
-    }
-
     public Integer getCode() {
         return code;
     }
 
     public String getDesc() {
         return desc;
-    }
-
-    public Integer getId() {
-        return id;
     }
 
     public static ArContrabandReasonEnum getEnum(Integer code) {
