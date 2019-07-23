@@ -34,6 +34,7 @@ public interface DmsDeliveryService {
      * @param request
      * @return
      */
+    @Deprecated
     InvokeResult<SendResult> newPackageSend(PackageSendRequest request);
 
     /**

@@ -9,8 +9,11 @@ import java.util.List;
  * @ClassName JdVerifyResponse
  * @date 2019/6/17
  */
-public class JdVerifyResponse {
+public class JdVerifyResponse<T> {
 
+    /*
+    只是调用验证接口是成功;理论上应该看msgBoxes 是否有返回数据。
+     */
     public static final Integer CODE_SUCCESS = 200;
     public static final String MESSAGE_SUCCESS = "调用";
 
@@ -29,6 +32,8 @@ public class JdVerifyResponse {
      * 状态描述
      */
     private String message;
+
+    private T Data;
 
     /**
      * 消息盒子
@@ -160,6 +165,8 @@ public class JdVerifyResponse {
          */
         private String msg;
 
+        protected Object data;
+
         public MsgBox() {
         }
 
@@ -192,5 +199,21 @@ public class JdVerifyResponse {
         public void setMsg(String msg) {
             this.msg = msg;
         }
+
+        public Object getData() {
+            return data;
+        }
+
+        public void setData(Object data) {
+            this.data = data;
+        }
+    }
+
+    public T getData() {
+        return Data;
+    }
+
+    public void setData(T data) {
+        Data = data;
     }
 }

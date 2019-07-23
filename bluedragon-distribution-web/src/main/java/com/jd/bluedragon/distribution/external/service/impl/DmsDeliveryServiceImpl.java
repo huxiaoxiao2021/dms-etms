@@ -2,7 +2,8 @@ package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.send.request.DeliveryVerifyRequest;
-import com.jd.bluedragon.external.gateway.service.DmsDeliveryGatewayService;
+import com.jd.bluedragon.common.dto.send.request.SinglePackageSendRequest;
+import com.jd.bluedragon.external.gateway.service.SendGatewayService;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
@@ -23,8 +24,9 @@ import java.util.AbstractMap;
  * <p>
  * Created by lixin39 on 2018/11/9.
  */
+@Deprecated
 @Service("dmsDeliveryService")
-public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGatewayService {
+public class DmsDeliveryServiceImpl implements DmsDeliveryService,SendGatewayService {
 
     @Autowired
     @Qualifier("deliveryResource")
@@ -65,7 +67,14 @@ public class DmsDeliveryServiceImpl implements DmsDeliveryService,DmsDeliveryGat
     }
 
     @Override
-    public JdVerifyResponse packageSendVerifyForBoxCode(DeliveryVerifyRequest request) {
+    @Deprecated
+    public JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request) {
         return deliveryVerifyService.packageSendVerifyForBoxCode(request);
+    }
+
+    @Override
+    @Deprecated
+    public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest request) {
+        return null;
     }
 }
