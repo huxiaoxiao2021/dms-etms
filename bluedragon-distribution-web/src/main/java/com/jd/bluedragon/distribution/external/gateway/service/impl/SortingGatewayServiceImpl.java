@@ -5,9 +5,10 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.sorting.request.SortingCancelRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
-import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
 import com.jd.bluedragon.distribution.rest.sorting.SortingResource;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.external.gateway.service.SortingGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -28,7 +29,8 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     private SortingResource sortingResource;
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingCancel", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @BusinessLog(sourceSys = 1,bizType = 2002,operateType = 2003)
+    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingCancel", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse sortingCancel(SortingCancelRequest request) {
         JdCResponse response = new JdCResponse();
         response.toFail("操作失败请联系IT");

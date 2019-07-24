@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -24,6 +27,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     private BoxResource boxResource;
 
     @Override
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.boxValidation",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoxDto> boxValidation(String boxCode, Integer operateType) {
         BoxResponse boxResponse = boxResource.validation(boxCode,operateType);
         JdCResponse<BoxDto> jdResponse = new JdCResponse<>();
@@ -39,6 +43,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.getGroupEffectiveBoxes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<BoxDto>> getGroupEffectiveBoxes(String boxCode){
         InvokeResult<List<String>> invokeResult = boxResource.getAllGroupBoxes(boxCode);
         JdCResponse<List<BoxDto>> jdCResponse = new JdCResponse<>();

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.BatchSendSummary;
 import com.jd.bluedragon.distribution.api.request.GantryDeviceConfigJsfRequest;
@@ -15,6 +16,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -25,7 +28,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by wuzuxiang on 2018/11/7.
@@ -51,6 +58,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
 
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsScannerFrameServiceImpl.dealScannerFrameConsume", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public boolean dealScannerFrameConsume(UploadDataJsfRequest uploadData, GantryDeviceConfigJsfRequest config) {
         boolean result = Boolean.FALSE;
 
@@ -77,6 +85,7 @@ public class DmsScannerFrameServiceImpl implements DmsScannerFrameService{
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.DmsScannerFrameServiceImpl.countSendCode", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public BatchSendSummaryResponse countSendCode(String[] sendCodes, boolean packageNumFlag, boolean volumeFlag) {
         if (sendCodes.length == 0) {
             return new BatchSendSummaryResponse(JdResponse.CODE_OK_NULL,JdResponse.MESSAGE_OK_NULL);

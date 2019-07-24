@@ -1,7 +1,12 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.blockcar.request.*;
+import com.jd.bluedragon.common.dto.blockcar.request.CapacityInfoRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.CheckTransportCodeRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarDto;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarRequest;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarTaskInfoRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,6 +17,9 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -30,6 +38,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     private NewSealVehicleResource newSealVehicleResource;
 
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.cancelSeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse cancelSeal(CancelSealRequest gatewayRequest) {
         cancelSealRequest request = new cancelSealRequest();
         request.setBatchCode(gatewayRequest.getBatchCode());
@@ -51,6 +61,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getTaskInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request) {
 
         JdCResponse<SealCarTaskInfoDto> response = new JdCResponse<>();
@@ -83,6 +94,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 校验运力编码信息,返回运输类型
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getAndCheckTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Integer> getAndCheckTransportCode(CapacityInfoRequest request) {
         JdCResponse<Integer> jdCResponse = new JdCResponse<>();
         NewSealVehicleRequest param = new NewSealVehicleRequest();
@@ -112,6 +124,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 校验任务简码与运力编号是否匹配
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.checkTransportCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse checkTransportCode(CheckTransportCodeRequest request) {
         JdCResponse<Integer> jdCResponse = new JdCResponse<>();
         NewSealVehicleRequest param = new NewSealVehicleRequest();
@@ -131,6 +144,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 检查运力编码和批次号目的地是否一致
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.checkTranCodeAndBatchCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType) {
         JdCResponse jdCResponse = new JdCResponse<>();
 
@@ -153,6 +167,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 封车
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1012)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.sealCar",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse sealCar(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();
         NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
@@ -170,6 +186,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 【传摆封车】&& 按运力封车需 校验车牌号能否创建车次任务
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.verifyVehicleJobByVehicleNumber",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType) {
         JdCResponse jdCResponse = new JdCResponse();
 
@@ -185,6 +202,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 传摆封车
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1013)
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();
 

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
@@ -9,9 +10,12 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
 import com.jd.transboard.api.dto.Board;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +33,13 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
 
     @Autowired
-    BoardCombinationResource boardCombinationResource;
+    private BoardCombinationResource boardCombinationResource;
 
     /**
      * 组板校验
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.validateBoardCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardCheckDto> validateBoardCode(String boardCode) {
 
         JdCResponse<BoardCheckDto> jdCResponse = new JdCResponse<>();
@@ -66,6 +71,8 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 组板
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 2005,operateType = 20051)
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse combinationBoard(CombinationBoardRequest request) {
 
         JdCResponse jdCResponse = new JdCResponse<>();
@@ -93,6 +100,8 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 取消组板
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 2005,operateType = 20052)
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardCancel",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse combinationBoardCancel(CombinationBoardRequest request) {
 
         JdCResponse jdCResponse = new JdCResponse<>();
@@ -108,6 +117,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 根据板号查询板号下的组板明细
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.queryBoardDetail",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardDetailDto> queryBoardDetail(String boardCode) {
 
         JdCResponse<BoardDetailDto> jdCResponse = new JdCResponse<>();
@@ -131,6 +141,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 查询箱子或包裹所属板号
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.queryBoardInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<BoardInfoDto> queryBoardInfo(Integer siteCode, String packageOrBoxCode) {
 
         JdCResponse<BoardInfoDto> jdCResponse = new JdCResponse<>();
