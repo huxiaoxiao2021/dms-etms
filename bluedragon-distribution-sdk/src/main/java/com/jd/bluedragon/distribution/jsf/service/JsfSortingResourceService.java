@@ -68,6 +68,13 @@ public interface JsfSortingResourceService {
     Rule getSortingRule(Integer ruleType, Integer createSiteCode);
 
     /**
+     * 查询某个分拣中心的分拣规则
+     * @param createSiteCode
+     * @return
+     */
+    Map<String, Rule> getSiteSortingRule(Integer createSiteCode);
+
+    /**
      * 根据key获取UCC配置结果
      * @param configureKey
      * @return

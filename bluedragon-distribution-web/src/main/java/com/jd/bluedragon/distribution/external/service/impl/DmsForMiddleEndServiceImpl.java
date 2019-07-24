@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
@@ -22,6 +23,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service("dmsForMiddleEndService")
 public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
@@ -54,7 +57,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.checkJPWaybillIsSent",jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkJPWaybillIsSent",jAppName= Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Boolean> checkJPWaybillIsSent(String waybillCode, String waybillSign){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if(StringUtils.isBlank(waybillCode)){
@@ -78,7 +81,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.DmsExternalServiceImpl.checkBoxIsSent",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkBoxIsSent",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Boolean> checkBoxIsSent(String boxCode) {
         InvokeResult<Boolean> invokeResult = new InvokeResult<Boolean>();
         invokeResult.success();
@@ -108,6 +111,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param waybillCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkScheduleBill",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<TransBillScheduleResponse> checkScheduleBill(String boxCode,String waybillCode){
         InvokeResult<TransBillScheduleResponse> invokeResult = new InvokeResult<TransBillScheduleResponse>();
         invokeResult.success();
@@ -143,6 +147,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param packageCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.weightVolumeValidate",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Boolean> weightVolumeValidate(String waybillCode, String packageCode){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.success();
@@ -163,6 +168,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param createSiteCode
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.getSortingRule",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Rule> getSortingRule(Integer ruleType, Integer createSiteCode){
         InvokeResult<Rule> result = new InvokeResult<Rule>();
         result.success();
@@ -182,10 +188,30 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
     }
 
     /**
+     * 查询某个分拣中心的分拣规则
+     * @param createSiteCode
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.getSiteSortingRule",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
+    public InvokeResult<Map<String, Rule>> getSiteSortingRule(Integer createSiteCode){
+        InvokeResult<Map<String, Rule>> result = new InvokeResult<Map<String, Rule>>();
+        result.success();
+
+        if(createSiteCode == null){
+            result.parameterError("参数错误--createSiteCode为空");
+            return result;
+        }
+
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setData(jsfSortingResourceService.getSiteSortingRule(createSiteCode));
+        return result;
+    }
+    /**
      * 根据key获取UCC配置结果
      * @param configureKey
      * @return
      */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.getUccConfigurationByKey",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Boolean> getUccConfigurationByKey(String configureKey){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.success();
@@ -205,6 +231,8 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param configureKey
      * @return
      */
+
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.getFileConfigurationByKey",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Object> getFileConfigurationByKey(String configureKey){
         InvokeResult<Object> result = new InvokeResult<Object>();
         result.success();
@@ -227,6 +255,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param transportType     运输类型
      * @return 通过true ，不通过false
      */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkMixedPackageConfig",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public InvokeResult<Boolean> checkMixedPackageConfig(Integer createSiteCode,Integer receiveSiteCode,Integer mixedSiteCode,Integer transportType,Integer ruleType){
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.success();
@@ -263,7 +292,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param featureType
      * @return
      */
-    @JProfiler(jKey = "dmsWeb.jsf.dmsver.cancelWaybillJsfService.checkWaybillBlock",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkWaybillBlock",jAppName=Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public BlockResponse checkWaybillBlock(String waybillCode, Integer featureType){
         return cancelWaybillJsfService.checkWaybillBlock(waybillCode, featureType);
@@ -274,9 +303,20 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
      * @param featureType
      * @return
      */
-    @JProfiler(jKey = "dmsWeb.jsf.dmsver.cancelWaybillJsfService.checkPackageBlock",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.checkPackageBlock",jAppName=Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public BlockResponse checkPackageBlock(String packageCode, Integer featureType){
         return cancelWaybillJsfService.checkPackageBlock(packageCode, featureType);
+    }
+
+    /**
+     * 获取运单拦截信息
+     * @param waybillCode
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.dealCancelWaybill",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResponse dealCancelWaybill(String waybillCode){
+        return jsfSortingResourceService.dealCancelWaybill(waybillCode);
     }
 }

@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
+
+import java.util.Map;
 
 public interface DmsForMiddleEndService {
     /**
@@ -46,6 +49,13 @@ public interface DmsForMiddleEndService {
     InvokeResult<Rule> getSortingRule(Integer ruleType, Integer createSiteCode);
 
     /**
+     * 查询某个分拣中心的分拣规则
+     * @param createSiteCode
+     * @return
+     */
+    InvokeResult<Map<String, Rule>> getSiteSortingRule(Integer createSiteCode);
+
+    /**
      * 根据key获取UCC配置结果
      * @param configureKey
      * @return
@@ -83,4 +93,11 @@ public interface DmsForMiddleEndService {
      * @return
      */
     BlockResponse checkPackageBlock(String packageCode, Integer featureType);
+
+    /**
+     * 获取运单拦截信息
+     * @param waybillCode
+     * @return
+     */
+    JdResponse dealCancelWaybill(String waybillCode);
 }
