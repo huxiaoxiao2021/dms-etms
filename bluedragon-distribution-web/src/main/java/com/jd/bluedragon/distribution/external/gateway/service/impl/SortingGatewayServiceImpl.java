@@ -28,7 +28,7 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
     private SortingResource sortingResource;
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingCancel", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.SortingGatewayServiceImpl.sortingCancel", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse sortingCancel(SortingCancelRequest request) {
         JdCResponse response = new JdCResponse();
         response.toFail("操作失败请联系IT");

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.WholeBatchRetransRequest;
 import com.jd.bluedragon.common.dto.send.response.SendCodeSiteDto;
@@ -10,6 +11,8 @@ import com.jd.bluedragon.distribution.rest.batchForward.BatchForwardResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.external.gateway.service.BatchForwardGatewayService;
 import com.jd.etms.sdk.util.DateUtil;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -24,6 +27,7 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
     private BatchForwardResource batchForwardResource;
 
     @Override
+    @JProfiler(jKey = "DMSWEB.BatchForwardGatewayServiceImpl.checkSendCodeAndGetSite",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<SendCodeSiteDto> checkSendCodeAndGetSite(String batchcode, Integer batchcodeFlag) {
         InvokeResult<CreateAndReceiveSiteInfo> invokeResult = batchForwardResource.checkSendCode(batchcode,batchcodeFlag);
         JdCResponse<SendCodeSiteDto> jdCResponse = new JdCResponse<>();
@@ -47,6 +51,7 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.BatchForwardGatewayServiceImpl.batchForwardSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> batchForwardSend(WholeBatchRetransRequest retransRequest) {
         BatchForwardRequest request = new BatchForwardRequest();
         request.setOldSendCode(retransRequest.getOldSendCode());

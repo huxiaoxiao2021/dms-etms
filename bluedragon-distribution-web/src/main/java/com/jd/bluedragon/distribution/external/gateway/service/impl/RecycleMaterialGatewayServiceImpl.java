@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
-import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
 import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResource;
+import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -21,6 +24,7 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     private RecycleMaterialResource recycleMaterialResource;
 
     @Override
+    @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.updateStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> updateStatus(RecycleMaterialRequest request) {
         JSONObject vo = new JSONObject();
         vo.put("materialCode", request.getMaterialCode());

@@ -65,7 +65,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      * 处理批量一车一单发货参数校验
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSendCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSendCheck", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
         JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
@@ -96,7 +96,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      * 执行批量一车一单发货
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdCResponse batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);
