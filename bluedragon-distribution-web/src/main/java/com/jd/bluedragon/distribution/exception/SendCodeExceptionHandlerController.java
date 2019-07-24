@@ -2,10 +2,12 @@ package com.jd.bluedragon.distribution.exception;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.request.SendCodeExceptionRequest;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.exception.service.SendCodeExceptionHandlerService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ExportExcelDownFee;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -14,6 +16,7 @@ import com.jd.ql.dms.report.domain.GoodsPrintDto;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.SendCodeSummaryResponse;
 import com.jd.uim.annotation.Authorization;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
 import java.text.MessageFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <P>
@@ -39,6 +47,10 @@ import java.util.List;
 public class SendCodeExceptionHandlerController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SendCodeExceptionHandlerController.class);
+
+    private static final String EXCEL_TITLE = "上游批次未操作异常单明细";
+
+    private static final String[] ROW_NAMES = new String[]{"包裹号","运单号","箱号","批次号"};
 
     @Autowired
     private SendCodeExceptionHandlerService sendCodeExceptionHandlerService;
@@ -165,4 +177,61 @@ public class SendCodeExceptionHandlerController {
         return result;
     }
 
+    /**
+     * 导出
+     * @return
+     */
+    @Authorization()
+    @RequestMapping(value = "/exportSendCodeDetail")
+    public void exportSendCodeDetail(HttpServletRequest request, HttpServletResponse response){
+        Map paramMap = request.getParameterMap();//获取参数
+        SendCodeExceptionRequest request1 = new SendCodeExceptionRequest();
+        if (paramMap.containsKey("type")) {
+            String[] types = (String[]) paramMap.get("type");
+            request1.setType(Integer.valueOf(types[0]));
+        }
+        if (paramMap.containsKey("sendCodes")) {
+            String[] sendCodesStr = (String[]) paramMap.get("sendCodes");
+            List<String> sendCodes = JsonHelper.fromJson(sendCodesStr[0],List.class);
+            request1.setSendCodes(sendCodes);
+        }
+        LOGGER.debug("SendCodeExceptionHandlerController.toExport-->导出异常批次的明细数据：{}",JsonHelper.toJson(request));
+
+        if (request1.getSendCodes() == null || request1.getType() == 0) {
+            LOGGER.warn("导出异常批次明细数据时提交的参数不正确：{}", JsonHelper.toJson(request));
+            return;
+        }
+
+        ErpUserClient.ErpUser user = ErpUserClient.getCurrUser();
+        if (user == null) {
+            return;
+        }
+
+        BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(user.getUserCode());
+        if (null == staffSiteOrgDto) {
+            LOGGER.warn("用户【{}】未维护基础资料信息",user.getUserCode());
+            return;
+        }
+        request1.setSiteCode(staffSiteOrgDto.getSiteCode());
+
+        try{
+            List<Object[]> rowData = sendCodeExceptionHandlerService.exportSendCodeDetail(request1);
+
+            OutputStream out = response.getOutputStream();
+            HSSFWorkbook workbook = new HSSFWorkbook();
+
+            String fileName = EXCEL_TITLE + DateHelper.formatDate(new Date()) + ".xls";
+            String headStr = "attachment; filename=\"" + new String(fileName.getBytes("gb2312"), "ISO8859-1") + "\"";
+            response.setContentType("octets/stream");
+            response.setContentType("APPLICATION/OCTET-STREAM");
+            response.setHeader("Content-Disposition", headStr);
+
+            ExportExcelDownFee exportUtil = new ExportExcelDownFee(EXCEL_TITLE, ROW_NAMES, rowData);
+            exportUtil.export(workbook, out);
+            workbook.write(out);
+            out.close();
+        }catch (Exception e){
+            LOGGER.error("导出异常批次明细数据失败!{}",JsonHelper.toJson(request),e);
+        }
+    }
 }

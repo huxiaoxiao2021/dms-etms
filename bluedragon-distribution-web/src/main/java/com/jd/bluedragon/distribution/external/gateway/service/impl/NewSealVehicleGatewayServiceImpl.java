@@ -166,6 +166,39 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         return jdCResponse;
     }
 
+    /**
+     * 【传摆封车】&& 按运力封车需 校验车牌号能否创建车次任务
+     */
+    @Override
+    public JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType) {
+        JdCResponse jdCResponse = new JdCResponse();
+
+        NewSealVehicleResponse response = newSealVehicleResource.verifyVehicleJobByVehicleNumber(transportCode, vehicleNumber, sealCarType);
+
+        jdCResponse.setCode(response.getCode());
+        jdCResponse.setMessage(response.getMessage());
+
+        return jdCResponse;
+    }
+
+    /**
+     * 传摆封车
+     */
+    @Override
+    public JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest) {
+        JdCResponse jdCResponse = new JdCResponse();
+
+        NewSealVehicleRequest newSealVehicleRequest = new NewSealVehicleRequest();
+        List<SealCarDto> list = sealCarRequest.getSealCarDtoList();
+        newSealVehicleRequest.setData(convert(list));
+
+        NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.doSealCarWithVehicleJob(newSealVehicleRequest);
+
+        jdCResponse.setCode(newSealVehicleResponse.getCode());
+        jdCResponse.setMessage(newSealVehicleResponse.getMessage());
+
+        return jdCResponse;
+    }
 
     //参数转化
     private List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> convert(List<SealCarDto> list) {

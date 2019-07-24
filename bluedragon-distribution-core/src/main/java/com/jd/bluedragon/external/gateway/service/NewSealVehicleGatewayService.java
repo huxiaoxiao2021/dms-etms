@@ -26,4 +26,8 @@ public interface NewSealVehicleGatewayService {
 
     JdCResponse sealCar(SealCarRequest sealCarRequest);
 
+    JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType);
+
+    JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest);
+
 }
