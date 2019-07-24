@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.batchForward.BatchForwardResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.external.gateway.service.BatchForwardGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -18,6 +19,7 @@ import javax.annotation.Resource;
 import java.util.Objects;
 
 /**
+ * 整批转发
  * @author : xumigen
  * @date : 2019/7/11
  */
@@ -51,6 +53,7 @@ public class BatchForwardGatewayServiceImpl implements BatchForwardGatewayServic
     }
 
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1007)
     @JProfiler(jKey = "DMSWEB.BatchForwardGatewayServiceImpl.batchForwardSend",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> batchForwardSend(WholeBatchRetransRequest retransRequest) {
         BatchForwardRequest request = new BatchForwardRequest();

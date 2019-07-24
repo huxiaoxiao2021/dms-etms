@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +38,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     private NewSealVehicleResource newSealVehicleResource;
 
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 11011,operateType = 1101102)
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.cancelSeal",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse cancelSeal(CancelSealRequest gatewayRequest) {
         cancelSealRequest request = new cancelSealRequest();
@@ -165,6 +167,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 封车
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1012)
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.sealCar",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse sealCar(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();
@@ -199,6 +202,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      * 传摆封车
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 1011,operateType = 1013)
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.doSealCarWithVehicleJob",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse doSealCarWithVehicleJob(SealCarRequest sealCarRequest) {
         JdCResponse jdCResponse = new JdCResponse();

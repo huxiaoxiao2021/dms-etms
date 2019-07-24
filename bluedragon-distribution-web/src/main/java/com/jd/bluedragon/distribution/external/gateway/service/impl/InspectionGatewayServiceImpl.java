@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -24,6 +25,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     private InspectionResource inspectionResource;
 
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 500,operateType = 50011)
     @JProfiler(jKey = "DMSWEB.InspectionGatewayServiceImpl.getStorageCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode) {
         JdCResponse<InspectionResult> jdCResponse = new JdCResponse<>();

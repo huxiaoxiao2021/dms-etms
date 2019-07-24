@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
 import com.jd.transboard.api.dto.Board;
@@ -70,6 +71,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 组板
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 2005,operateType = 20051)
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse combinationBoard(CombinationBoardRequest request) {
 
@@ -98,6 +100,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
      * 取消组板
      */
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 2005,operateType = 20052)
     @JProfiler(jKey = "DMSWEB.SortBoardGatewayServiceImpl.combinationBoardCancel",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse combinationBoardCancel(CombinationBoardRequest request) {
 

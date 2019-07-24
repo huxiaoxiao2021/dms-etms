@@ -9,13 +9,14 @@ import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
@@ -97,6 +98,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
      */
     @Override
     @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.batchSingleSend", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    @BusinessLog(sourceSys = 1,bizType = 100,operateType = 1006)
     public JdCResponse batchSingleSend(BatchSingleSendRequest request) {
 
         PackageSendRequest param = convertToPackageSendRequest(request);

@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.recyclematerial.request.RecycleMaterialRequest;
 import com.jd.bluedragon.distribution.rest.recyclematerial.RecycleMaterialResource;
 import com.jd.bluedragon.external.gateway.service.RecycleMaterialGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.sdk.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
@@ -24,6 +25,7 @@ public class RecycleMaterialGatewayServiceImpl implements RecycleMaterialGateway
     private RecycleMaterialResource recycleMaterialResource;
 
     @Override
+    @BusinessLog(sourceSys = 1,bizType = 2004,operateType = 20041)
     @JProfiler(jKey = "DMSWEB.RecycleMaterialGatewayServiceImpl.updateStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<String> updateStatus(RecycleMaterialRequest request) {
         JSONObject vo = new JSONObject();

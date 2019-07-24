@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryVerifyService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.external.gateway.service.SendGatewayService;
+import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -43,6 +44,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.newPackageSendGoods",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1005)
     public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest cRequest) {
         // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
