@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.domain.AreaNode;
 import com.jd.bluedragon.utils.AreaHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
@@ -521,7 +522,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         if (siteOrgDto != null) {
             dto.setSiteName(siteOrgDto.getSiteName());
             dto.setAreaId(siteOrgDto.getOrgId());
-            dto.setAreaName(AreaHelper.getArea(request.getSiteCode()).getName());
+            AreaNode areaNode = AreaHelper.getArea(siteOrgDto.getOrgId());
+            dto.setAreaName(areaNode == null ? null : areaNode.getName());
         }
         dto.setOperateTime(request.getOperateTime());
         // 青龙业主编码
