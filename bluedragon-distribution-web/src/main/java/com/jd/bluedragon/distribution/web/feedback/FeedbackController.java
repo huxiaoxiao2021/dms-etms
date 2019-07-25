@@ -7,7 +7,7 @@ import com.jd.bluedragon.distribution.feedback.domain.Feedback;
 import com.jd.bluedragon.distribution.feedback.service.FeedbackService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.uim.annotation.Authorization;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
