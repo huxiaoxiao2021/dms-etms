@@ -6,7 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.coo.jdbcp.pool.common.json.Json;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosVehicleJobBusinessWS;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
