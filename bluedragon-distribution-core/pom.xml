@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.86</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.98</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
@@ -162,9 +162,14 @@
 			<version>1.2.23-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.jd.ldop.alpha</groupId>
+			<artifactId>ldop-alpha-waybill-api</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.3-SNAPSHOT</version>
+			<version>1.1.7-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

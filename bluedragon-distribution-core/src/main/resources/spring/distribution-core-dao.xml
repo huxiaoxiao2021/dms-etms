@@ -519,4 +519,9 @@
     <bean id="inventoryExceptionDao" parent="unDivBaseDao"
           class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryExceptionDaoImpl"/>
 
+    <!-- 交接 -->
+    <bean id="allianceBusiDeliveryDetailDao" class="com.jd.bluedragon.distribution.alliance.dao.impl.AllianceBusiDeliveryDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

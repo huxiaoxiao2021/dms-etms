@@ -198,6 +198,16 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_SEND_CANCEL = 3800;
 
+    /**
+     * 全称跟踪-揽收交接
+     */
+    public static final Integer WAYBILL_TRACK_RECEIVE_HANDOVERS = 14300;
+
+    /**
+     * 全称跟踪-派送交接
+     */
+    public static final Integer WAYBILL_TRACK_SEND_HANDOVERS = 14400;
+
     private Long id;
 
     private String sendCode;

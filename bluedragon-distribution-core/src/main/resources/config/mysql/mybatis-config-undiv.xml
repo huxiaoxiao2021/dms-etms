@@ -316,5 +316,8 @@
         <mapper resource="mappers/mysql/inventory/InventoryTaskMapper.xml"/>
 
 
+        <!-- 分拣复重抽检任务统计 -->
+        <mapper resource="mappers/mysql/alliance/AllianceBusiDeliveryDetailMapper.xml"/>
+
     </mappers>
 </configuration>

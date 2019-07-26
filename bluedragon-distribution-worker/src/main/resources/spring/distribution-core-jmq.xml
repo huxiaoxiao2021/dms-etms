@@ -373,4 +373,13 @@
     <bean id="inventoryTaskCompleteProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dms.inventory.task.complete}"/>
     </bean>
+
+    <!--新称重mq消息 区分揽收派送称重类型 -->
+    <bean id="opeWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.opeWeight}"/>
+    </bean>
+    <!--交接称重转发终端和分拣机使用 -->
+    <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
 </beans>

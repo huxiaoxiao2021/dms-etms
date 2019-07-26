@@ -765,6 +765,26 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 
 			/**
+			 * 全程跟踪:揽收交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_RECEIVE_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作揽收交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:配送交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SEND_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作配送交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
 			 * 全程跟踪:转网
 			 */
 			if (null != task.getKeyword2() &&

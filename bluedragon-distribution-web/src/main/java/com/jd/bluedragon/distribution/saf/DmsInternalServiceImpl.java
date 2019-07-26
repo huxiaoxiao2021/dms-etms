@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.saf;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.DmsInterturnManager;
+import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.rest.waybill.PreseparateWaybillResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
@@ -81,6 +83,9 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     @Autowired
     private DmsInterturnManager dmsInterturnManager;
+
+    @Autowired
+    private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getDatadict",mState = JProEnum.TP)
@@ -374,5 +379,27 @@ public class DmsInternalServiceImpl implements DmsInternalService {
             errorResult.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
             return errorResult;
         }
+    }
+
+    /**
+     * 加盟商运单是否已交接
+     * <p>
+     *
+     * @param waybillCode 运单号
+     * @return
+     */
+    @Override
+    public BaseEntity<Boolean> allianceBusiDelivered(String waybillCode) {
+        BaseEntity<Boolean> result = new BaseEntity<Boolean>(BaseEntity.CODE_SUCCESS,BaseEntity.MESSAGE_SUCCESS);
+        try{
+            result.setData(allianceBusiDeliveryDetailService.checkExist(waybillCode));
+        }catch (Exception e){
+            logger.error("加盟商交接交接检查异常,入参:"+ waybillCode,e);
+            result.setData(false);
+            result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+            result.setMessage(BaseEntity.MESSAGE_SERVICE_ERROR);
+        }
+        return result;
+
     }
 }
