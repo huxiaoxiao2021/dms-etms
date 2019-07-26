@@ -100,4 +100,11 @@ public interface DmsForMiddleEndService {
      * @return
      */
     JdResponse dealCancelWaybill(String waybillCode);
+
+    /**
+     * 根据运单号获取路由
+     * @param waybillCode
+     * @return
+     */
+    InvokeResult<String> getRouterByWaybillCode(String waybillCode);
 }

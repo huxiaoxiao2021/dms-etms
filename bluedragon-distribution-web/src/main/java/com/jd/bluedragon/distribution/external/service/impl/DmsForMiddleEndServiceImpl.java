@@ -319,4 +319,23 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
     public JdResponse dealCancelWaybill(String waybillCode){
         return jsfSortingResourceService.dealCancelWaybill(waybillCode);
     }
+
+    /**
+     * 根据运单号获取路由
+     * @param waybillCode
+     * @return
+     */
+    public InvokeResult<String> getRouterByWaybillCode(String waybillCode){
+        InvokeResult<String> result = new InvokeResult<String>();
+        result.success();
+
+        if(StringUtils.isBlank(waybillCode)){
+            result.parameterError("参数错误--waybillCode为空");
+            return result;
+        }
+
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setData(jsfSortingResourceService.getRouterByWaybillCode(waybillCode));
+        return result;
+    }
 }
