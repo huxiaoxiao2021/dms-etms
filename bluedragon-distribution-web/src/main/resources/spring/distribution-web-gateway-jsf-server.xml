@@ -99,4 +99,12 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="sendCodeGateWayService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 加盟商服务 -->
+    <bean id="allianceBusiGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AllianceBusiGatewayServiceImpl"/>
+    <jsf:provider id="jsfallianceBusiGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AllianceBusiGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="allianceBusiGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>
