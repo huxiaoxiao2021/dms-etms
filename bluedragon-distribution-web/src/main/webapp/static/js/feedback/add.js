@@ -1,0 +1,149 @@
+/*****************************************/
+/*意见反馈*/
+/*****************************************/
+$(function () {
+    /*****************************************/
+    /*变量及方法*/
+    /*****************************************/
+
+    var saveInfoUrl = '/feedback/add';
+
+    // 1M
+    var fileMaxSize = 1 * 1024 * 1024;
+
+    /*****************************************/
+    /*组件*/
+    /*****************************************/
+
+    $.combobox.createNew('type-select', {
+        placeholder: '请选择意见反馈类型'
+    });
+
+    /*表单验证*/
+    $.formValidator.createNew('add-form', {
+        excluded: [":disabled"],
+        live: 'enabled',
+        submitButtons: 'button[type="submit"]',
+        message: '验证不通过',
+        fields: {
+            type: {
+                validators: {
+                    notEmpty: {
+                        message: '意见反馈类型不能为空！'
+                    }
+                }
+            },
+            content: {
+                validators: {
+                    notEmpty: {
+                        message: '反馈内容不能为空！'
+                    },
+                    stringLength: {
+                        max: 1000,
+                        message: '反馈内容长度不能超过1000个字！'
+                    }
+                }
+            }
+        }
+    });
+
+    /*****************************************/
+    /*页面初始化*/
+    /*****************************************/
+    var initPageFunc = function () {
+        var blocker = $.pageBlocker.block();
+        $.combobox.clearAllSelected('type-select');
+        $('#add-form').bootstrapValidator('resetForm', true);
+        $.pageBlocker.close(blocker);
+    };
+
+    initPageFunc();
+
+    var submitFormData = function (formData) {
+        $.ajax({
+            type: 'POST',
+            data: formData,
+            url: saveInfoUrl,
+            async: false,
+            cache: false,
+            dataType: 'json',
+            contentType: false,
+            processData: false,
+            error: function (XMLHttpRequest, status, errorThrown) {
+                $.msg.error("提交意见反馈失败！", "");
+                console.log('XMLHttpRequest:' + XMLHttpRequest);
+                console.log('status:' + status);
+                console.log('errorThrown:' + errorThrown);
+                console.log('invoke failed');
+            },
+            success: function (res) {
+                if (res != null && res.code == 200) {
+                    $.msg.ok('提交意见反馈信息成功！', '', function () {
+                        $('#btn_cancel').click();
+                    });
+                } else {
+                    $.msg.error("提交意见反馈信息失败！", res.message);
+                }
+                return res;
+            }
+        });
+    }
+
+    /*****************************************/
+    /*按钮动作*/
+    /*****************************************/
+    /*新增*/
+    $('#btn_add').click(function () {
+        /*进行查询参数校验*/
+        var flag = $.formValidator.isValid('add-form');
+        if (flag == true) {
+            $.msg.confirm('确认提交意见反馈吗？', function () {
+                var blocker = $.pageBlocker.block();
+                var formData = new FormData();
+                var image1 = $('#image1')[0].files;
+                if (image1.length > 0) {
+                    if (image1[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        return;
+                    }
+                    formData.append("images", image1[0]);
+                }
+
+                var image2 = $('#image2')[0].files;
+                if (image2.length > 0) {
+                    if (image2[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        return;
+                    }
+                    formData.append("images", image2[0]);
+                }
+
+                var image3 = $('#image3')[0].files;
+                if (image3.length > 0) {
+                    if (image3[0].size > fileMaxSize) {
+                        $.pageBlocker.close(blocker);
+                        $.msg.error("提交失败！", "每个附件大小不能超过1M");
+                        return;
+                    }
+                    formData.append("images", image3[0]);
+                }
+
+                /*获取参数*/
+                var formParams = $.formHelper.serialize('add-form');
+                var formJson = JSON.stringify(formParams);
+                formData.append("feedbackRequest", formJson);
+                submitFormData(formData);
+                $.pageBlocker.close(blocker);
+            });
+        }
+    });
+
+    /*取消*/
+    $('#btn_cancel').click(function () {
+        //window.history.back(-1);
+        window.history.go(-1);
+    });
+
+});

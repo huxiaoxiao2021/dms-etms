@@ -33,7 +33,7 @@ public interface TaskService {
 
     List<Task> findTasks(Integer type, String ownSign);
 
-    List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds);
+    List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds,String ownSign);
 
     List<Task> findLimitedTasks(Integer type, Integer fetchNum,List<String> queueIds);
 

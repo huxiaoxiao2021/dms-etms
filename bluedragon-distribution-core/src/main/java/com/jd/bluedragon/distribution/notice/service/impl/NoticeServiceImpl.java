@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.notice.service.impl;
 
 import com.jd.bluedragon.distribution.api.request.NoticeRequest;
+import com.jd.bluedragon.distribution.basic.FileUtils;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.notice.dao.NoticeDao;
 import com.jd.bluedragon.distribution.notice.domain.Notice;
@@ -105,7 +106,7 @@ public class NoticeServiceImpl implements NoticeService {
         List<NoticeAttachment> attachments = new ArrayList<>(files.size());
         for (MultipartFile file : files) {
             String fileName = file.getOriginalFilename();
-            String keyName = this.getKeyName(index, this.getFileExtName(fileName));
+            String keyName = this.getKeyName(index, FileUtils.getFileExtName(fileName));
             jssService.uploadFile(bucket, keyName, file.getSize(), file.getInputStream());
             index++;
 
@@ -114,7 +115,7 @@ public class NoticeServiceImpl implements NoticeService {
             attachment.setSize(String.valueOf(file.getSize()));
             attachment.setKeyName(keyName);
             attachment.setFileName(fileName);
-            attachment.setType(this.getFileExtName(fileName));
+            attachment.setType(FileUtils.getFileExtName(fileName));
             attachments.add(attachment);
         }
         noticeAttachmentService.batchAdd(attachments);
@@ -130,19 +131,7 @@ public class NoticeServiceImpl implements NoticeService {
         return String.valueOf(System.currentTimeMillis()) + String.valueOf(random.nextInt(1000) + String.valueOf(index)) + "." + extFileName;
     }
 
-    /**
-     * 根据文件全名获取文件扩展名
-     *
-     * @param fullFileName
-     * @return
-     */
-    private String getFileExtName(String fullFileName) {
-        int index = fullFileName.lastIndexOf(".");
-        if (index == -1) {
-            return null;
-        }
-        return fullFileName.substring(index + 1);
-    }
+
 
     private Notice getNotice(NoticeRequest request, String userErp) {
         Notice notice = new Notice();

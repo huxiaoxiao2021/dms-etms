@@ -122,5 +122,17 @@ public interface WaybillSignConstants {
      */
 	char BACKWARD_TYPE_NO_CHAR_61_0 = '0';
 
+	/**
+	 * 毕业寄
+	 */
+	int POSITION_98 = 98;
+	char CHAR_98_1 = '1';
+	char CHAR_98_2 = '2';
 
+	/**
+	 * 加盟商
+	 * 106等于2代表加盟商运单
+	 */
+	int POSITION_106 = 106;
+	char CHAR_106_2 = '2';
 }

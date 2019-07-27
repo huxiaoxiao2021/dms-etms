@@ -268,4 +268,14 @@
         <property name="desc" value="第三方发货数据推送财务批处理" />
     </bean>
 
+    <bean id="inventoryExceptionTask"
+          class="com.jd.bluedragon.distribution.worker.inventory.InventoryExceptionTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource" />
+        <property name="taskType" value="InventoryExceptionTask" />
+        <property name="managerFactory" ref="managerFactory" />
+        <property name="ownSign" value="${ownSign}" />
+        <property name="desc" value="转运清场盘点异常状态定时处理" />
+    </bean>
+    
 </beans>

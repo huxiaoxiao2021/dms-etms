@@ -34,6 +34,57 @@ public class WeightAndVolumeCheckCondition extends BasePagerCondition {
     private Date reviewStartTime;
     private Date reviewEndTime;
 
+    /** 运单号 */
+    private String waybillCode;
+    /** 扫描条码 */
+    private String waybillOrPackCode;
+    /** 商家名称 */
+    private String busiName;
+    /** 复核人ERP */
+    private String reviewErp;
+    /** 计费人ERP */
+    private String billingErp;
+
+    public String getWaybillOrPackCode() {
+        return waybillOrPackCode;
+    }
+
+    public void setWaybillOrPackCode(String waybillOrPackCode) {
+        this.waybillOrPackCode = waybillOrPackCode;
+    }
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public String getBusiName() {
+        return busiName;
+    }
+
+    public void setBusiName(String busiName) {
+        this.busiName = busiName;
+    }
+
+    public String getReviewErp() {
+        return reviewErp;
+    }
+
+    public void setReviewErp(String reviewErp) {
+        this.reviewErp = reviewErp;
+    }
+
+    public String getBillingErp() {
+        return billingErp;
+    }
+
+    public void setBillingErp(String billingErp) {
+        this.billingErp = billingErp;
+    }
+
     public Long getReviewOrgCode() {
         return reviewOrgCode;
     }

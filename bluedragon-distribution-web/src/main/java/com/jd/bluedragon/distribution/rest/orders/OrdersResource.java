@@ -10,6 +10,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ public class OrdersResource {
 	
 	@GET
 	@Path("/qinglong/orders/details")
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.OrdersResource.getOrdersDetails", mState = JProEnum.TP)
 	public OrderDetailEntityResponse getOrdersDetails(@QueryParam("boxCode") String boxCode,
 			@QueryParam("startTime") String startTime, @QueryParam("endTime") String endTime,
 			@QueryParam("createSiteCode") String createSiteCode,
@@ -89,7 +92,8 @@ public class OrdersResource {
 	
 	@GET
 	@Path("/qinglong/orders")
-	public OrderEntityResponse getOrders(@QueryParam("type") String type,
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.OrdersResource.getOrders", mState = JProEnum.TP)
+    public OrderEntityResponse getOrders(@QueryParam("type") String type,
 			@QueryParam("startTime") String startTime,
 			@QueryParam("createSiteCode") String createSiteCode,
 			@QueryParam("receiveSiteCode") String receiveSiteCode) {
