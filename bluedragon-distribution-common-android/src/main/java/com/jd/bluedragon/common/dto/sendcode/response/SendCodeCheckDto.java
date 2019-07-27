@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.dto.send.response;
+package com.jd.bluedragon.common.dto.sendcode.response;
 
 import java.io.Serializable;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
 public class SendCodeCheckDto  implements Serializable {
     private static final long serialVersionUID = 1L;
     private int key;
-    private String String;
+    private String value;
 
     public int getKey() {
         return key;
@@ -19,11 +19,11 @@ public class SendCodeCheckDto  implements Serializable {
         this.key = key;
     }
 
-    public java.lang.String getString() {
-        return String;
+    public String getValue() {
+        return value;
     }
 
-    public void setString(java.lang.String string) {
-        String = string;
+    public void setValue(String value) {
+        this.value = value;
     }
 }

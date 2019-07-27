@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.send.response.SendCodeCheckDto;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -97,7 +97,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         if(entry != null){
             SendCodeCheckDto dto = new SendCodeCheckDto();
             dto.setKey(entry.getKey());
-            dto.setString(entry.getValue());
+            dto.setValue(entry.getValue());
             jdCResponse.setData(dto);
         }
         jdCResponse.toSucceed(invokeResult.getMessage());

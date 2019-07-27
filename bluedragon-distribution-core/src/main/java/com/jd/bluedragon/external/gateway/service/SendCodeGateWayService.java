@@ -2,7 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.send.response.SendCodeCheckDto;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 
 import java.util.List;
