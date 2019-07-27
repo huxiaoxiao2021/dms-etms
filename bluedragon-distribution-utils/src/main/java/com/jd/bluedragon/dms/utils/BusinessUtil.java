@@ -875,4 +875,17 @@ public class BusinessUtil {
     public static boolean isAllianceBusi(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
     }
+
+    /**
+     * 判断是否是加盟商站点
+     * @param siteType
+     * @param subSiteType
+     * @return
+     */
+    public static boolean isAllianceBusiSite(Integer siteType, Integer subSiteType) {
+        if(siteType == null || subSiteType == null){
+            return Boolean.FALSE;
+        }
+        return siteType == 16 && subSiteType == 88;
+    }
 }

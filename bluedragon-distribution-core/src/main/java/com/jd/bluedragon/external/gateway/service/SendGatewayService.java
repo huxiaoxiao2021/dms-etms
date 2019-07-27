@@ -19,4 +19,5 @@ public interface SendGatewayService {
     JdVerifyResponse packageSendVerifyForBox(DeliveryVerifyRequest request);
 
     JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest request);
+
 }
