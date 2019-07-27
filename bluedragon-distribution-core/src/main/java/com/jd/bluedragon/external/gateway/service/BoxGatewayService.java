@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.box.response.BoxDto;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.List;
  */
 public interface BoxGatewayService {
 
-    JdCResponse<BoxDto> boxValidation(String boxCode, Integer operateType);
+    JdVerifyResponse<BoxDto> boxValidation(String boxCode, Integer operateType);
 
     JdCResponse<List<BoxDto>> getGroupEffectiveBoxes(String boxCode);
 }
