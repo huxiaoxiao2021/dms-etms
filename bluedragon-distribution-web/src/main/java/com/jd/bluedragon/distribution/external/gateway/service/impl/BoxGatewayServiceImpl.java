@@ -53,7 +53,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
             return jdVerifyResponse;
         }
         BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
-        if(BusinessUtil.isAllianceBusiSite(dto.getSiteType(),dto.getSubType())){
+        if(dto != null && BusinessUtil.isAllianceBusiSite(dto.getSiteType(),dto.getSubType())){
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
