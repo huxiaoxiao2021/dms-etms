@@ -32,6 +32,7 @@ public class AllianceBusiGatewayServiceImpl implements AllianceBusiGatewayServic
         }
         //不充足就是需要拦截
         if(!result.getData()){
+            jdVerifyResponse.toSuccess();
             jdVerifyResponse.addInterceptBox(0,result.getMessage());
             return jdVerifyResponse;
         }
