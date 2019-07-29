@@ -771,11 +771,21 @@ public class BusinessUtil {
     }
 
     /**
-     * 判断是否是爱回收订单 sendpay133位=9
-     * @param sendPay
+     * 判断是否是爱回收
+     * 16-1604
+     * @param type
+     * @parm subType
      * @return
      */
-    public static boolean isRecoveryOrder(String sendPay){
-        return isSignChar(sendPay,SendPayConstants.POSITION_133,SendPayConstants.CHAR_133_9);
+    public static Boolean isRecovery(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 1604 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
     }
+
 }
