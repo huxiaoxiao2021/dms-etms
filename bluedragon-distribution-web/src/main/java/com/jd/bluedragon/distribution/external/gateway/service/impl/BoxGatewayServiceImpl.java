@@ -48,11 +48,7 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         BoxDto boxDto = packageBoxDto(boxResponse);
         jdVerifyResponse.setData(boxDto);
         //判断加盟 给页面返回提示类型信息
-        Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(String.valueOf(boxDto.getReceiveSiteCode()));
-        if(receiveSite == null){
-            return jdVerifyResponse;
-        }
-        BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+        BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(boxDto.getReceiveSiteCode()));
         if(dto != null && BusinessUtil.isAllianceBusiSite(dto.getSiteType(),dto.getSubType())){
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
