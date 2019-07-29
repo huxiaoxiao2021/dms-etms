@@ -63,6 +63,23 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
         return jdCResponse;
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.BoxGatewayServiceImpl.getBoxInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<BoxDto> getBoxInfo(String boxCode) {
+        JdCResponse<BoxDto> jdResponse = new JdCResponse<>();
+        BoxResponse boxResponse= boxResource.get(boxCode);
+
+        if(boxResponse.getCode().equals(BoxResponse.CODE_OK)){
+            BoxDto boxDto = packageBoxDto(boxResponse);
+            jdResponse.toSucceed();
+            jdResponse.setData(boxDto);
+        }else{
+            jdResponse.toError(boxResponse.getMessage());
+        }
+
+        return jdResponse;
+    }
+
     /**
      * 封装对象
      * @param boxResponse boxResponse

@@ -14,4 +14,7 @@ public interface BoxGatewayService {
     JdCResponse<BoxDto> boxValidation(String boxCode, Integer operateType);
 
     JdCResponse<List<BoxDto>> getGroupEffectiveBoxes(String boxCode);
+
+    JdCResponse<BoxDto> getBoxInfo(String boxCode);
+
 }
