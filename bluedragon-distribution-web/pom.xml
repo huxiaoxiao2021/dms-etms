@@ -414,6 +414,13 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.business</groupId>
+			<artifactId>ldop-business-api</artifactId>
+			<version>1.0.38-SNAPSHOT</version>
+		</dependency>
+
 	</dependencies>
 	<profiles>
 		<!--测试环境  -->
