@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 
 /**
  * @author : xumigen
@@ -8,5 +9,5 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
  */
 public interface InspectionGatewayService {
 
-    JdCResponse getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
+    JdCResponse<InspectionResultDto> getStorageCode(String packageBarOrWaybillCode, Integer siteCode);
 }

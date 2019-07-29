@@ -16,10 +16,6 @@ public class InspectionResultDto implements Serializable {
     /*PDA验货提示语*/
     private String hintMessage;
 
-    public InspectionResultDto(String storageCode) {
-        this.storageCode = storageCode;
-    }
-
     public String getStorageCode() {
         return storageCode;
     }
