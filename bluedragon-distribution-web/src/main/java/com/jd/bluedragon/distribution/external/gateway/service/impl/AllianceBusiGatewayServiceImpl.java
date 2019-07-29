@@ -33,7 +33,7 @@ public class AllianceBusiGatewayServiceImpl implements AllianceBusiGatewayServic
         //不充足就是需要拦截
         if(!result.getData()){
             jdVerifyResponse.toSuccess();
-            jdVerifyResponse.addInterceptBox(0,result.getMessage());
+            jdVerifyResponse.addInterceptBox(0,"加盟商预付款余额不足，请联系加盟商处理！");
             return jdVerifyResponse;
         }
         jdVerifyResponse.toSuccess(result.getMessage());
