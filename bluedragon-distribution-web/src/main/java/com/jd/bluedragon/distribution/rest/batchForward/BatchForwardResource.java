@@ -52,7 +52,7 @@ public class BatchForwardResource {
         //查询批次下是否有包裹和箱
         Boolean isHaveBox = batchForwardService.isHaveBox(sendCode);
         if(flage == 1 && isHaveBox){
-            result.error("新批次下有箱或包裹，请换批次");
+            result.error("批次下有箱或包裹，请换批次");
             return result;
         }
 
