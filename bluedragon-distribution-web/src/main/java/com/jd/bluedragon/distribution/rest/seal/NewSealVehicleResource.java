@@ -344,6 +344,7 @@ public class NewSealVehicleResource {
      */
     @GET
     @Path("/new/vehicle/seal/verifyVehicleJobByVehicleNumber/{transportCode}/{vehicleNumber}/{sealCarType}")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
     public NewSealVehicleResponse verifyVehicleJobByVehicleNumber(
             @PathParam("transportCode") String transportCode, @PathParam("vehicleNumber") String vehicleNumber, @PathParam("sealCarType") Integer sealCarType) {
         NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);

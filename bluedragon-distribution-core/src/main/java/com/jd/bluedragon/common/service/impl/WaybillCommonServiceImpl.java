@@ -149,6 +149,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      */
     private static final String DISTRIBUTE_TYPE_COLD = "冷藏";
     private static final String DISTRIBUTE_TYPE_COOL = "阴凉";
+    private static final String DISTRIBUTE_TYPE_CONTROL_TEMP = "控温";
     private static final String DISTRIBUTE_TYPE_NORMAL = "常温";
     private static final String DISTRIBUTE_TYPE_FREEZING ="冷冻";
     private static final String DISTRIBUTE_TYPE_PRECISION_COLD = "精准冷藏";
@@ -1228,7 +1229,9 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COLD);
             }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_2)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_COOL);
-            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3,WaybillSignConstants.CHAR_43_4)){
+            }else if(BusinessUtil.isSignChar(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_3)){
+                printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_CONTROL_TEMP);
+            }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_4)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_NORMAL);
             }else if(BusinessUtil.isSignInChars(waybillSign,WaybillSignConstants.POSITION_43,WaybillSignConstants.CHAR_43_5)){
                 printWaybill.setDistributTypeText(DISTRIBUTE_TYPE_FREEZING);

@@ -276,11 +276,14 @@ public class JsonHelper {
      */
     @SuppressWarnings("unchecked")
     public static Map<String, Object> json2MapNormal(String jsonVal) {
+    	if(jsonVal == null){
+    		return null;
+    	}
         try {
             Map<String, Object> maps = JsonHelper.mapper.readValue(jsonVal, Map.class);
             return maps;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("bad json: " + jsonVal,e);
             return null;
         }
     }

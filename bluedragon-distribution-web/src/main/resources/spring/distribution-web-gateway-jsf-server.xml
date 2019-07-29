@@ -91,4 +91,20 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="sendGatewayService" server="dmsjsf">
     </jsf:provider>
+
+    <!-- 批次服务 -->
+    <bean id="sendCodeGateWayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.SendCodeGateWayServiceImpl"/>
+    <jsf:provider id="jsfsendCodeGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.SendCodeGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="sendCodeGateWayService" server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 加盟商服务 -->
+    <bean id="allianceBusiGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AllianceBusiGatewayServiceImpl"/>
+    <jsf:provider id="jsfallianceBusiGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AllianceBusiGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="allianceBusiGatewayService" server="dmsjsf">
+    </jsf:provider>
 </beans>

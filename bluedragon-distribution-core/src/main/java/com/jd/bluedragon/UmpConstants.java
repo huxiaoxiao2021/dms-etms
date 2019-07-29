@@ -20,4 +20,8 @@ public interface UmpConstants {
      * jsf服务端监控key前缀
      */
     String UMP_KEY_JSF_SERVER= UMP_KEY_BASE + "jsf.server.";
+    /**
+	  * 监控key格式化-获取运行环境
+	  */
+    String UMP_KEY_FORMAT_REST_CLIENT_GET_RUNNING_MODE = UMP_KEY_BASE + "rest.client.getRunningMode.%s.%s";
 }
