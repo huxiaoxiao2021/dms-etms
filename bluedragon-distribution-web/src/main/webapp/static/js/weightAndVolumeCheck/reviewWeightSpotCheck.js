@@ -22,8 +22,8 @@ $(function () {
                 uniqueId: "ID", // 每一行的唯一标识，一般为主键列
                 pagination: true, // 是否显示分页（*）
                 pageNumber: 1, // 初始化加载第一页，默认第一页
-                pageSize: 10, // 每页的记录行数（*）
-                pageList: [10, 25, 50, 100], // 可供选择的每页的行数（*）
+                pageSize: 500, // 每页的记录行数（*）
+                pageList: [200, 500], // 可供选择的每页的行数（*）
                 cache: false, // 是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
                 sidePagination: "server", // 分页方式：client客户端分页，server服务端分页（*）
                 striped: true, // 是否显示行间隔色
@@ -179,8 +179,9 @@ $(function () {
 
             //查询
             $('#btn_query').click(function () {
-                if($('#site-group-select').val()==null){
-                    Jd.alert("请选择指定的复核区域!");
+                var days = getDaysByDateString($('#startTime').val(),$('#endTime').val());
+                if(days > 30){
+                    Jd.alert("查询时间不能超过30天，请缩小时间范围!");
                     return;
                 }
                 tableInit().refresh();
@@ -251,7 +252,6 @@ function  getDaysByDateString(dateString1,dateString2) {
     return days;
 }
 
-var initLogin = true;
 function findSite(selectId,siteListUrl,initIdSelectId){
     $(selectId).html("");
     $.ajax({
@@ -279,14 +279,7 @@ function findSite(selectId,siteListUrl,initIdSelectId){
                 allowClear:true,
                 data:result
             });
-            if(initLogin){
-                //第一次登录 初始化登录人分拣中心
-                if($("#loginUserCreateSiteCode").val() != -1){
-                    //登录人大区
-                    $(selectId).val($("#loginUserCreateSiteCode").val()).trigger('change');
-                }
-            }
-            initLogin = false;
+            $(selectId).val(null).trigger('change');
         }
     });
 }

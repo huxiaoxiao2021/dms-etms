@@ -432,4 +432,35 @@
     <jsf:consumer id="containerQueryService" interface="com.jd.ql.shared.services.sorting.api.ContainerQueryService"
                   protocol="jsf" alias="${jsf.containerQueryService.alias}" timeout="${jsf.containerQueryService.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+
+    <!-- ECLP获取新的 -->
+    <jsf:consumer id="goodsService" interface="com.jd.eclp.master.goods.service.GoodsService"
+                  alias="${jsf.eclp.goods.alias}"
+                  timeout="${jsf.eclp.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
+    <jsf:consumer id="downstreamGoodsService" interface="com.jd.eclp.master.goods.service.DownstreamGoodsService"
+                  alias="${jsf.eclp.downstream.goods.alias}" timeout="${jsf.eclp.downstream.goods.timeout}" retries="3" protocol="jsf" check="false">
+    </jsf:consumer>
+
+    <!-- 意见反馈系统 - 意见反馈提交接口 -->
+    <jsf:consumer id="mrdFeedbackRpcService" interface="com.jd.mrd.delivery.rpc.sdk.feedback.MrdFeedbackRpcService"
+                  protocol="jsf" alias="${jsf.mdrFeedback.alias}" timeout="${jsf.mdrFeedback.timeout}"
+                  retries="${jsf.retries}">
+    </jsf:consumer>
+    <!--报表的盘点相关接口 吴有德-->
+    <jsf:consumer id="inventoryJsfService" interface="com.jd.ql.dms.report.inventory.InventoryJsfService"
+                  protocol="jsf" alias="${jsf.inventoryJsfService.alias}" timeout="${jsf.inventoryJsfService.timeout}" retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.inventoryJsfService.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 传摆车次任务 运输系统 蔡长宇  -->
+    <jsf:consumer id="vosVehicleJobBusinessWS" interface="com.jd.etms.vos.ws.VosVehicleJobBusinessWS"
+                  protocol="jsf" alias="${vos.vehicleJobBusiness.jsf.alias}" timeout="${vos.vehicleJobBusiness.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
+
+    <jsf:consumer id="allianceWaybillManagerApi" interface="com.jd.partner.waybill.api.WaybillManagerApi" protocol="jsf"
+                  alias="${jsf.ldop.alpha.waybill.alias}" timeout="${jsf.ldop.alpha.waybill.timeout}" retries="0">
+    </jsf:consumer>
+
 </beans>

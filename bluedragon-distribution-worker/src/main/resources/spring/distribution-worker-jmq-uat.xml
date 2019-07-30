@@ -120,5 +120,10 @@
     <jmq:consumer id="jmq.arAbnormalConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.arAbnormal}" listener="arAbnormalConsumer"/>
     </jmq:consumer>
+
+    <!--盘点任务完成-->
+    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
+    </jmq:consumer>
 </beans>
 

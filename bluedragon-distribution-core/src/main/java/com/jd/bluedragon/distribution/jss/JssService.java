@@ -62,4 +62,13 @@ public interface JssService {
      */
     URI getURI(String bucket, String keyName, int timeout) throws JssStorageException;
 
+    /**
+     * 公有bucket文件URL
+     *
+     * @param bucket
+     * @param keyName
+     * @return
+     */
+    String getPublicBucketUrl(String bucket, String keyName);
+
 }

@@ -4,7 +4,9 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
 
@@ -705,6 +707,32 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是终端
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+        terminalSiteTypeList.add(16);//第三方
+        terminalSiteTypeList.add(101);//B网营业厅
+        terminalSiteTypeList.add(108);//全能营业厅
+
+        return terminalSiteTypeList.contains(siteType);
+    }
+
+    /**
+     * 判断是否是车队
+     * @param siteType
+     * @return
+     */
+    public static boolean isConvey(Integer siteType){
+        return siteType.equals(96);
+    }
+
+
+    /**
      * 是否是营业厅
      * @param waybillSign waybillSign
      * @return true 是，false 不是
@@ -788,4 +816,13 @@ public class BusinessUtil {
         return Boolean.FALSE;
     }
 
+
+    /**
+     * 判断是否是加盟商运单 106=2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllianceBusi(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
+    }
 }

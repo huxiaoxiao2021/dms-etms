@@ -604,6 +604,8 @@ public class Constants {
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
     public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
     public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
+    public static final String DMS_WEB_SORTING_INVENTORYTASK_R="DMS_WEB_SORTING_INVENTORYTASK_R"; //转运清场任务
+    public static final String DMS_WEB_SORTING_INVENTORYEXCEPTION_R="DMS_WEB_SORTING_INVENTORYEXCEPTION_R"; //转运清场异常
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
     public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
     public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
@@ -956,5 +958,10 @@ public class Constants {
      * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
      */
     public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+
+    /**
+     * EMG条码前缀
+     */
+    public static final String EMG_CODE_PREFIX = "EMG";
 
 }
