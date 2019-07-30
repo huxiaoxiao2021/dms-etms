@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.middleend;
+package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
 
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;

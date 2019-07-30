@@ -1,17 +1,22 @@
 package com.jd.bluedragon.core.base;
 
 import com.github.pagehelper.PageInfo;
+import com.jd.bluedragon.Constants;
 import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.SortingQueryService;
 import com.jd.ql.shared.services.sorting.api.dto.Flow;
 import com.jd.ql.shared.services.sorting.api.dto.Sorting;
 import com.jd.ql.shared.services.sorting.api.dto.SortingDirection;
-import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
+
     @Autowired
     private SortingQueryService sortingQueryService;
     /**
@@ -27,9 +32,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param sortingDirection
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryByContainerAndFlow",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<List<Sorting>> queryByContainerAndFlow(String containerCode,Flow flow,SortingDirection sortingDirection){
-        sortingQueryService.queryByContainerAndFlow(tenantCode,containerCode,flow,sortingDirection);
-        return null;
+        return sortingQueryService.queryByContainerAndFlow(tenantCode,containerCode,flow,sortingDirection);
     }
 
     /**
@@ -38,8 +43,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param objectCode
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.existSortingByPackageCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<Boolean> existSortingByPackageCode(Integer operateSiteId,String objectCode){
-        sortingQueryService.existSortingByPackageCode(tenantCode,operateSiteId,objectCode);
+        return sortingQueryService.existSortingByPackageCode(tenantCode,operateSiteId,objectCode);
     }
 
     /**
@@ -48,10 +54,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param containerCode
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryContainerPackNum",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<Integer> queryContainerPackNum(Integer operateSiteId,String containerCode){
-        sortingQueryService.queryContainerPackNum(tenantCode,operateSiteId,containerCode);
-        return null;
-
+        return sortingQueryService.queryContainerPackNum(tenantCode,operateSiteId,containerCode);
     }
 
     /**
@@ -60,10 +65,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param containerCode
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryContainerDescSite",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<Sorting> queryContainerDescSite(Integer operateSiteId,String containerCode){
-        sortingQueryService.queryContainerDescSite(tenantCode,operateSiteId,containerCode);
-
-        return null;
+        return sortingQueryService.queryContainerDescSite(tenantCode,operateSiteId,containerCode);
     }
 
     /**
@@ -75,9 +79,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param pager
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryPackList",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<PageInfo<Sorting>> queryPackList(Integer operateSiteId,String waybillCode,String objectCode,SortingDirection sortingDirection,PageInfo pager){
-        sortingQueryService.queryPackList(tenantCode,operateSiteId,waybillCode,objectCode,sortingDirection,pager);
-        return null;
+        return sortingQueryService.queryPackList(tenantCode,operateSiteId,waybillCode,objectCode,sortingDirection,pager);
     }
 
     /**
@@ -88,9 +92,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param sortingDirection
      * @return
      */
-    public ApiResult<List<SortingObject>> queryBySiteCodeAndPackage(Integer operateSiteId,String waybillCode,String objectCode,SortingDirection sortingDirection){
-        sortingQueryService.queryBySiteCodeAndPackage(tenantCode,operateSiteId,waybillCode,objectCode,sortingDirection);
-        return null;
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryBySiteCodeAndPackage",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ApiResult<List<Sorting>> queryBySiteCodeAndPackage(Integer operateSiteId,String waybillCode,String objectCode,SortingDirection sortingDirection){
+        return sortingQueryService.queryBySiteCodeAndPackage(tenantCode,operateSiteId,waybillCode,objectCode,sortingDirection);
     }
 
     /**
@@ -100,9 +104,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param pager
      * @return
      */
-    public ApiResult<PageInfo<SortingObject>> queryByBatchCode(Integer operateSiteId,String batchCode,PageInfo pager){
-        sortingQueryService.queryByBatchCode(tenantCode,operateSiteId,batchCode,pager);
-        return null;
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryByBatchCode",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ApiResult<PageInfo<Sorting>> queryByBatchCode(Integer operateSiteId,String batchCode,PageInfo pager){
+        return sortingQueryService.queryByBatchCode(tenantCode,operateSiteId,batchCode,pager);
     }
 
     /**
@@ -112,9 +116,9 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param fetchNum
      * @return
      */
-    public ApiResult<List<SortingObject>> queryByContainerCodeAndFetchNum(Integer operateSiteId,String containerCode,Integer fetchNum){
-        sortingQueryService.queryByContainerCodeAndFetchNum(tenantCode,operateSiteId,containerCode,fetchNum);
-        return null;
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryByContainerCodeAndFetchNum",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ApiResult<List<Sorting>> queryByContainerCodeAndFetchNum(Integer operateSiteId,String containerCode,Integer fetchNum){
+        return sortingQueryService.queryByContainerCodeAndFetchNum(tenantCode,operateSiteId,containerCode,fetchNum);
     }
 
 
@@ -125,8 +129,8 @@ public class SharedSortingQueryManagerImpl implements SharedSortingQueryManager{
      * @param pager
      * @return
      */
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.SharedSortingQueryManagerImpl.queryByPage",mState = {JProEnum.TP, JProEnum.FunctionError})
     public ApiResult<PageInfo<Sorting>> queryByPage(Integer operateSiteId,String packageCode,PageInfo pager){
-        sortingQueryService.queryByPage(tenantCode,operateSiteId,packageCode,pager);
-        return null;
+        return sortingQueryService.queryByPage(tenantCode,operateSiteId,packageCode,pager);
     }
 }

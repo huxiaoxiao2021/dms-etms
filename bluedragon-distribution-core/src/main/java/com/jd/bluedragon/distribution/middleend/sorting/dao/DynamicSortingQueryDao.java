@@ -1,15 +1,20 @@
-package com.jd.bluedragon.distribution.middleend;
+package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DynamicSortingQueryDao implements ISortingDao{
+    private final Logger logger = Logger.getLogger(FailoverSortingDao.class);
+
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
@@ -22,20 +27,46 @@ public class DynamicSortingQueryDao implements ISortingDao{
     @Autowired
     private FailoverSortingDao failoverSortingDao;
 
+    @Autowired
+    private SiteService siteService;
 
+    private static final String SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN = "failover.sorting.query.site.open";
+
+    /**
+     * 根据ucc和system_config的配置确定选择哪个dao
+     * @param createSiteCode
+     * @return
+     */
     public ISortingDao selectDao(Integer createSiteCode) {
         String sortingQueryMode = uccPropertyConfiguration.getSortingQueryMode();
+        logger.info("sortingQueryMode:" + sortingQueryMode);
         if("DMS".equals(sortingQueryMode)){
+            logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
             return sortingDao;
         }else if("MIDDLEEND".equals(sortingQueryMode)){
+            logger.info("站点:" + createSiteCode +"使用middleEndSortingDao进行查询");
             return middleEndSortingDao;
         }else if("FAILOVER".equals(sortingQueryMode)){
             //配置列表里有
-
-            return sortingDao;
+            Set<Integer> siteCodeSet = siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_KEY_SORTING_QUERY_OPEN);
+            if(siteCodeSet!=null && siteCodeSet.contains(createSiteCode)){
+                logger.info("站点:" + createSiteCode +"使用failoverSortingDao进行查询");
+                return failoverSortingDao;
+            }else{
+                logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
+                return sortingDao;
+            }
         }
+        logger.info("站点:" + createSiteCode +"使用sortingDao进行查询");
         return  sortingDao;
     }
+
+    /**
+     * 根据箱号查询分拣记录
+     *
+     * @param sorting
+     * @return
+     */
     public List<Sorting> findByBoxCode(Sorting sorting) {
         return selectDao(sorting.getCreateSiteCode()).findByBoxCode(sorting);
     }

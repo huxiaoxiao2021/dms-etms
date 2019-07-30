@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.sorting.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.middleend.ISortingDao;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 import java.util.HashMap;

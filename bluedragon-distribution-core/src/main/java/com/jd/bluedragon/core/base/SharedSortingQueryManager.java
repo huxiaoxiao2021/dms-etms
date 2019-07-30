@@ -5,7 +5,6 @@ import com.jd.ql.shared.services.sorting.api.ApiResult;
 import com.jd.ql.shared.services.sorting.api.dto.Flow;
 import com.jd.ql.shared.services.sorting.api.dto.Sorting;
 import com.jd.ql.shared.services.sorting.api.dto.SortingDirection;
-import com.jd.ql.shared.services.sorting.api.dto.SortingObject;
 
 import java.util.List;
 
@@ -62,7 +61,7 @@ public interface SharedSortingQueryManager {
      * @param sortingDirection
      * @return
      */
-    ApiResult<List<SortingObject>> queryBySiteCodeAndPackage(Integer operateSiteId,String waybillCode,String objectCode,SortingDirection sortingDirection);
+    ApiResult<List<Sorting>> queryBySiteCodeAndPackage(Integer operateSiteId,String waybillCode,String objectCode,SortingDirection sortingDirection);
 
     /**
      * 根据批量发货批次号分页查询所有理货信息
@@ -71,7 +70,7 @@ public interface SharedSortingQueryManager {
      * @param pager
      * @return
      */
-    ApiResult<PageInfo<SortingObject>> queryByBatchCode(Integer operateSiteId,String batchCode,PageInfo pager);
+    ApiResult<PageInfo<Sorting>> queryByBatchCode(Integer operateSiteId,String batchCode,PageInfo pager);
 
     /**
      * 根据容器号查询有限的理货信息
@@ -80,7 +79,7 @@ public interface SharedSortingQueryManager {
      * @param fetchNum
      * @return
      */
-    ApiResult<List<SortingObject>> queryByContainerCodeAndFetchNum(Integer operateSiteId,String containerCode,Integer fetchNum);
+    ApiResult<List<Sorting>> queryByContainerCodeAndFetchNum(Integer operateSiteId,String containerCode,Integer fetchNum);
 
     /**
      * 根据包裹号分页查询理货信息

@@ -2,9 +2,8 @@ package com.jd.bluedragon.distribution.sorting.dao;
 
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
-import com.jd.bluedragon.distribution.middleend.DynamicSortingQueryDao;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +27,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setCreateSiteCode(620);
         parameter.setReceiveSiteCode(748);
         parameter.setCreateTime(new Date());
-        dynamicSortingQueryDao.findOrder(parameter);
+        sortingDao.findOrder(parameter);
     }
 
     @Test
@@ -47,7 +46,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setReceiveSiteCode(540);
         parameter.setCreateTime(new Date());
         parameter.setUpdateTime(new Date());
-        dynamicSortingQueryDao.findOrderDetail(parameter);
+        sortingDao.findOrderDetail(parameter);
     }
 
     @Test
@@ -61,7 +60,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setWaybillCode("Stone");
         parameter.setBoxCode("Mary");
         parameter.setReceiveSiteCode(970);
-        dynamicSortingQueryDao.canCancelFuzzy(parameter);
+        sortingDao.canCancelFuzzy(parameter);
     }
 
     @Test
@@ -124,7 +123,7 @@ public class SortingDaoTest extends AbstractDaoIntegrationTest {
         parameter.setWaybillCode("James");
         parameter.setBoxCode("James");
         parameter.setReceiveSiteCode(910);
-        dynamicSortingQueryDao.canCancel(parameter);
+        sortingDao.canCancel(parameter);
     }
 
     @Test

@@ -32,6 +32,7 @@
 		<property name="migrationDbBackupReplicateEnable" value="${migration.db.backup.replicate.enable}"/>
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
+		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
 	</bean>
 
 	<bean id="propertyConfigProcessor" class="com.jd.coo.ucc.client.plugin.processor.PropertyConfigProcessor"/>
@@ -48,6 +49,7 @@
                 <value>uccPropertyConfiguration.migrationDbBackupReplicateEnable</value>
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
+				<value>uccPropertyConfiguration.sortingQueryMode</value>
 			</list>
 		</property>
 	</bean>
