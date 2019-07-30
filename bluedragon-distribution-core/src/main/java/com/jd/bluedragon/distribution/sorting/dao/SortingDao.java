@@ -1,13 +1,14 @@
 package com.jd.bluedragon.distribution.sorting.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.middleend.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SortingDao extends BaseDao<Sorting> {
+public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
 
     public static final String namespace = SortingDao.class.getName();
 
@@ -17,9 +18,12 @@ public class SortingDao extends BaseDao<Sorting> {
     }
 
     @SuppressWarnings("unchecked")
-    public int existSortingByPackageCode(Sorting sorting) {
+    public Boolean existSortingByPackageCode(Sorting sorting) {
     	Object obj =  this.getSqlSession().selectOne(namespace + ".existSortingByPackageCode", sorting);
-    	return (obj == null) ? 0 : (Integer) obj;
+        if(obj == null){
+            return false;
+        }
+        return  (Integer)obj > 0;
     }
     
     @SuppressWarnings("unchecked")
@@ -51,7 +55,7 @@ public class SortingDao extends BaseDao<Sorting> {
         return this.getSqlSession().selectList(namespace + ".findOrder", sorting);
     }
 
-    public int findPackCount(Integer createSiteCode, String boxCode) {
+    public Integer findPackCount(Integer createSiteCode, String boxCode) {
     	Map<String, Object> paramMap = new HashMap<String, Object>();
     	paramMap.put("createSiteCode", createSiteCode);
     	paramMap.put("boxCode", boxCode);

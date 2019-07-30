@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.rest.sorting;
 
-import IceInternal.Ex;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -13,10 +12,10 @@ import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionEC;
 import com.jd.bluedragon.distribution.inspection.service.InspectionExceptionService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.middleend.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.domain.SortingReturn;
 import com.jd.bluedragon.distribution.sorting.service.SortingReturnService;
@@ -26,7 +25,6 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
@@ -77,7 +75,7 @@ public class SortingResource {
 	private SendMDao sendMDao;
 
 	@Autowired
-	private SortingDao sortingDao;
+	private DynamicSortingQueryDao dynamicSortingQueryDao;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -145,7 +143,7 @@ public class SortingResource {
 						return this.sortingInspected();
 					}
 				}
-				sortingRecords = sortingDao.findByBoxCode(sorting);
+				sortingRecords = dynamicSortingQueryDao.findByBoxCode(sorting);
 				if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
 					logger.warn(request.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
 					return this.packageNumLimit();

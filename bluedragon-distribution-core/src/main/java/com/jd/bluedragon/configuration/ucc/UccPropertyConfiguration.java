@@ -37,6 +37,9 @@ public class UccPropertyConfiguration {
     /** 分拣拆分任务 每页执行的包裹数**/
     private int waybillSplitPageSize;
 
+    /** 分拣查询的模式配置，支持DMS、MIDDLEEND、FAILOVER三个值 **/
+    private String sortingQueryMode;
+
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
     }
@@ -107,5 +110,13 @@ public class UccPropertyConfiguration {
 
     public void setWaybillSplitPageSize(int waybillSplitPageSize) {
         this.waybillSplitPageSize = waybillSplitPageSize;
+    }
+
+    public String getSortingQueryMode() {
+        return sortingQueryMode;
+    }
+
+    public void setSortingQueryMode(String sortingQueryMode) {
+        this.sortingQueryMode = sortingQueryMode;
     }
 }

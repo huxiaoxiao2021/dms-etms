@@ -7,6 +7,7 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -655,6 +656,44 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 	public BaseSiteInfoDto getBaseSiteInfoBySiteId(Integer siteId) {
 		return basicSiteQueryWS.getBaseSiteInfoBySiteId(siteId);
 	}
+
+    @Cache(key = "baseMajorManagerImpl.getDmsCustomSiteBySiteId@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getDmsCustomSiteBySiteId", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public DmsCustomSite getDmsCustomSiteBySiteId(Integer paramInteger) {
+        DmsCustomSite dmsCustomSite = new DmsCustomSite();
+
+        BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(paramInteger);
+        ResponseDTO<BasicTraderInfoDTO> responseDTO = null;
+        if(dtoStaff != null) {
+            dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_SITE);
+        }
+
+        if(dtoStaff == null){
+            dtoStaff = basicPrimaryWS.getBaseStoreByDmsSiteId(paramInteger);
+            if(dtoStaff != null) {
+                dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_WMS);
+            }
+        }
+        if(dtoStaff == null){
+            responseDTO = basicTraderAPI.getBasicTraderById(paramInteger);
+            if(responseDTO != null&& responseDTO.getResult() != null){
+                dtoStaff = getBaseStaffSiteOrgDtoFromTrader(responseDTO.getResult());
+            }
+            if(dtoStaff != null) {
+                dmsCustomSite.setCustomSiteType(DmsCustomSite.CUSTOM_SITE_TYPE_B_ENTERPRISE);
+            }
+        }
+        if(dtoStaff != null) {
+
+            dmsCustomSite.setSiteId(dtoStaff.getSiteCode());
+            dmsCustomSite.setSiteCode(dtoStaff.getDmsSiteCode());
+            dmsCustomSite.setSiteName(dtoStaff.getSiteName());
+            dmsCustomSite.setSiteType(dtoStaff.getSiteType());
+            dmsCustomSite.setSubType(dtoStaff.getSubType());
+        }
+
+        return dmsCustomSite;
+    }
 
     /**
      * 加盟商基础资料中获取 预付款是否充足
