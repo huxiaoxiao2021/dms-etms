@@ -4,9 +4,11 @@ import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 
 import org.apache.commons.lang.StringUtils;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.List;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.AO_SEND_CODE_REG;
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
@@ -740,6 +742,32 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是终端
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+        terminalSiteTypeList.add(16);//第三方
+        terminalSiteTypeList.add(101);//B网营业厅
+        terminalSiteTypeList.add(108);//全能营业厅
+
+        return terminalSiteTypeList.contains(siteType);
+    }
+
+    /**
+     * 判断是否是车队
+     * @param siteType
+     * @return
+     */
+    public static boolean isConvey(Integer siteType){
+        return siteType.equals(96);
+    }
+
+
+    /**
      * 通过批次号获取目的站点
      *
      * @param sendCode 发货批次号
@@ -828,5 +856,36 @@ public class BusinessUtil {
      */
     public static boolean isBMedicine(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
+    }
+
+    /**
+     * 判断是否是毕业寄   waybillSign第98位为1或2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isGraduationExpress(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
+    }
+
+    /**
+     * 判断是否是加盟商运单 106=2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllianceBusi(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
+    }
+
+    /**
+     * 判断是否是加盟商站点
+     * @param siteType
+     * @param subSiteType
+     * @return
+     */
+    public static boolean isAllianceBusiSite(Integer siteType, Integer subSiteType) {
+        if(siteType == null || subSiteType == null){
+            return Boolean.FALSE;
+        }
+        return siteType == 16 && subSiteType == 88;
     }
 }

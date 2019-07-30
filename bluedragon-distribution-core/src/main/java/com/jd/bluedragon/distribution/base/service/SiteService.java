@@ -62,6 +62,11 @@ public interface SiteService {
 	 */
 	Set<Integer> getCRouterAllowedList();
 	/**
+	 * 从sysconfig表里查出来需要通过中台生产箱号的分拣中心列表
+	 * @return
+	 */
+	public Set<Integer> getBoxFromSSCAllowedList();
+	/**
 	 * 根据省id获取分拣中心
 	 * @param provinceId
 	 * @return

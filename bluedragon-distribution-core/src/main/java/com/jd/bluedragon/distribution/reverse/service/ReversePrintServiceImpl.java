@@ -39,6 +39,7 @@ import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -51,6 +52,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 逆向换单打印
@@ -118,6 +120,13 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private ReverseSpareEclp reverseSpareEclp;
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
+
+    private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
+
     /**
      * 处理逆向打印数据
      * 【1：发送全程跟踪 2：写分拣中心操作日志】
@@ -157,11 +166,20 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 原外单添加换单全程跟踪
          * 只有在此单第一次打印的时候才记录 update by liuduo 2018-08-02
          */
-        List<PopPrint> popPrintList = this.popPrintService.findAllByWaybillCode(domain.getNewCode());
-        if(null==popPrintList||popPrintList.size()==0){
+        boolean sendOldWaybillTrace = true;
+        try{
+            //三天校验
+            Boolean isSucdess = cacheService.setNx(EXCHANGE_PRINT_BEGIN_KEY+domain.getNewCode(), "1", 3, TimeUnit.DAYS);
+            if(!isSucdess){
+                //说明非第一次
+                sendOldWaybillTrace = false;
+            }
+        }catch(Exception e){
+            this.logger.error("判断原单需要换单全程跟踪异常"+JsonHelper.toJson(domain), e);
+        }
+        if(sendOldWaybillTrace){
             taskService.add(tTask, true);
         }
-
 
         tTask.setKeyword1(domain.getNewCode());
         if(StringUtils.isBlank(domain.getNewPackageCode())){

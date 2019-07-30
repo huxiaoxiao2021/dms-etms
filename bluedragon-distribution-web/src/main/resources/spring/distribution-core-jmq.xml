@@ -363,4 +363,24 @@
     <bean id="packageRePrintProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.packageRePrintProducer}"/>
     </bean>
+
+    <!-- 包裹状态MQ，提供给分拣报表系统，供清场需求使用 -->
+    <bean id="dmsPackageStatusMQProducer" parent="dmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.package.status}"/>
+    </bean>
+
+    <!--盘点任务完成发送mq消息 -->
+    <bean id="inventoryTaskCompleteProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dms.inventory.task.complete}"/>
+    </bean>
+
+    <!--新称重mq消息 区分揽收派送称重类型 -->
+    <bean id="opeWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.opeWeight}"/>
+    </bean>
+
+    <!--交接称重转发终端和分拣机使用 -->
+    <bean id="handOverWeightProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.handOverWeight}"/>
+    </bean>
 </beans>

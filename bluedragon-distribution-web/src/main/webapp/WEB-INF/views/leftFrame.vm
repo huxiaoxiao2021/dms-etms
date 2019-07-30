@@ -53,7 +53,11 @@
         <dd><a href="#springUrl('/transport/tmsProxy/toIndex')" target="mainFrame">运输委托书打印</a></dd>
         <dd><a href="#springUrl('/goodsPrint/toIndex')" target="mainFrame">托寄物品名打印</a></dd>
         <dd><a href="#springUrl('/reverse/part/reversePartDetail/toIndex')" target="mainFrame">半退明细查询</a></dd>
+        <dd><a href="http://tfc.tms.jd.com/tfc/trans-book-abnormal/index" target="mainFrame">异常签收审批</a></dd>
+
         <dt><a href="#" class="curr">快运中心相关功能</a></dt>
+        <dd><a href="#springUrl('/inventoryTask/toIndex')" target="mainFrame">转运清场任务查询</a></dd>
+		<dd><a href="#springUrl('/inventoryException/toIndex')" target="mainFrame">转运清场异常查询</a></dd>
         <dd><a href="#springUrl('/coldchain/quarantinelicense/index')" target="mainFrame">冷链卡班检疫证票号管理</a></dd>
         <dd><a href="#springUrl('/b2bRouter/index')" target="mainFrame">B网路由配置表</a></dd>
         <dd><a href="#springUrl('/base/dmsStorageArea/toIndex')" target="mainFrame">流向库位配置表</a></dd>

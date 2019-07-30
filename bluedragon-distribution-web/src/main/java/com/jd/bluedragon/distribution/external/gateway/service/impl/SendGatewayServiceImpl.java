@@ -103,4 +103,5 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         jdVerifyResponse.addBox(MsgBoxTypeEnum.INTERCEPT,sendResult.getKey(),sendResult.getValue());
         return jdVerifyResponse;
     }
+
 }
