@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 
 import java.util.Map;
@@ -100,6 +101,14 @@ public interface DmsForMiddleEndService {
      * @return
      */
     JdResponse dealCancelWaybill(String waybillCode);
+
+
+    /**
+     * 获取运单拦截并推送拦截信息
+     * @param pdaOperateRequest
+     * @return
+     */
+    JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest);
 
     /**
      * 根据运单号获取路由

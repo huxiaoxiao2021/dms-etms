@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.Rule;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
@@ -105,4 +106,11 @@ public interface JsfSortingResourceService {
      * @return
      */
     JdResponse dealCancelWaybill(String waybillCode);
+
+    /**
+     * 获取运单拦截并推送拦截信息
+     * @param pdaOperateRequest
+     * @return
+     */
+    JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest);
 }

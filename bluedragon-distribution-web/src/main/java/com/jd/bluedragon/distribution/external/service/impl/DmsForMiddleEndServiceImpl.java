@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.api.response.TransBillScheduleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.external.service.DmsForMiddleEndService;
 import com.jd.bluedragon.distribution.jsf.domain.BlockResponse;
 import com.jd.bluedragon.distribution.jsf.service.CancelWaybillJsfService;
@@ -318,6 +319,17 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService{
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse dealCancelWaybill(String waybillCode){
         return jsfSortingResourceService.dealCancelWaybill(waybillCode);
+    }
+
+    /**
+     * 获取运单拦截并推送拦截信息
+     * @param pdaOperateRequest
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.DmsForMiddleEndServiceImpl.dealCancelWaybillByRequest",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdResponse dealCancelWaybillByRequest(PdaOperateRequest pdaOperateRequest){
+        return jsfSortingResourceService.dealCancelWaybillByRequest(pdaOperateRequest);
     }
 
     /**
