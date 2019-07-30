@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface SendCodeGateWayService {
 
-    JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfo(List<String> sendCodes);
+    JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfoNew(List<String> sendCodes);
 
     /**
      * 判断批次号状态
