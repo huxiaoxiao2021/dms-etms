@@ -45,7 +45,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     private DeliveryResource deliveryResource;
 
     @Override
-    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfoNew(List<String> sendCodes) {
         JdCResponse<List<BatchSendCarInfoDto>> jdCResponse = new JdCResponse<>();
         if(CollectionUtils.isEmpty(sendCodes)){
