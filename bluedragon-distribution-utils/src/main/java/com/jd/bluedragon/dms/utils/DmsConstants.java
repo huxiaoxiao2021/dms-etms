@@ -147,4 +147,9 @@ public class DmsConstants {
      * 滑道号正则表达式
      */
     public static final Pattern PACKAGE_CODE_CROSSCODE_REGEX = Pattern.compile("^\\w+([-,N])([1-9][0-9]{0,5})([-,S])([0-9A-GI-MO-RT-Z]{1,6})([-,H])(\\w{1,8})$");
+
+    /**
+     * 封箱号正则
+     */
+    public static final String  SEAL_BOX_NO="^(\\d{8}|\\d{10})[XZBJH]$";
 }

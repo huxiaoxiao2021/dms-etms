@@ -10,9 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.List;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.AO_SEND_CODE_REG;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_NEW_REG;
-import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
+import static com.jd.bluedragon.dms.utils.DmsConstants.*;
 
 /**
  * @author tangchunqing
@@ -888,4 +886,16 @@ public class BusinessUtil {
         }
         return siteType == 16 && subSiteType == 88;
     }
+
+    /**
+     * 判断是否为正确的封箱号
+     */
+    public static boolean isSealBoxNo(String input){
+        if (StringUtils.isEmpty(input)) {
+            return Boolean.FALSE;
+        }
+
+       return input.matches(SEAL_BOX_NO);
+    }
+
 }
