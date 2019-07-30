@@ -799,6 +799,25 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是爱回收
+     * 16-1604
+     * @param type
+     * @parm subType
+     * @return
+     */
+    public static Boolean isRecovery(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 1604 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+
+    /**
      * 判断是否是加盟商运单 106=2
      * @param waybillSign
      * @return
