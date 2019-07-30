@@ -8,7 +8,7 @@ import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -58,7 +58,7 @@ public class QualityControlResource {
     private QualityControlService qualityControlService;
 
     @Autowired
-    DeliveryService deliveryService;
+    private SortingService sortingService;
 
     @POST
     @Path("/qualitycontrol/exceptioninfo")
@@ -138,6 +138,11 @@ public class QualityControlResource {
         return response;
     }
 
+    /**
+     * 协商再投状态校验
+     * @param request
+     * @return
+     */
     @POST
     @Path("/qualitycontrol/redeliverycheck")
     public InvokeResult<Boolean> redeliveryCheck(RedeliveryCheckRequest request){
@@ -146,7 +151,7 @@ public class QualityControlResource {
         result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
         result.setData(true);
 
-        if(StringUtils.isEmpty(request.getCode()) || request.getCodeType()<1){
+        if(StringUtils.isEmpty(request.getCode()) || null==request.getCodeType() || request.getCodeType()<1){
             logger.error(MessageFormat.format("PDA调用协商再投状态验证接口失败-参数错误[{0}]",JsonHelper.toJson(request)));
             result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
             result.setMessage("请扫描者包裹号、运单号或箱号！");
@@ -164,13 +169,13 @@ public class QualityControlResource {
 
             //如果是箱号
             if (request.getCodeType()==3){
-                waybillCodeList = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(request.getCode(),1000);
+                waybillCodeList = sortingService.getWaybillCodeListByBoxCode(request.getCode());
             }
 
             if(waybillCodeList != null && waybillCodeList.size() > 0){
                 for (String waybillCode :waybillCodeList){
-                    int busID=getBusiId(waybillCode);
-                    if (busID>0){
+                    Integer busID=getBusiId(waybillCode);
+                    if (null != busID){
                         int res=qualityControlService.getRedeliveryState(waybillCode,busID);
                         if (res==0){
                             result.setData(false);
@@ -193,14 +198,14 @@ public class QualityControlResource {
      * @param waybillCode
      * @return
      */
-    private int getBusiId(String waybillCode){
-        int res=0;
+    private Integer getBusiId(String waybillCode){
+        Integer res=null;
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
         if (null != baseEntity
             && Constants.RESULT_SUCCESS == baseEntity.getResultCode()
             && null != baseEntity.getData()
             && null != baseEntity.getData().getWaybill()
-            && null != baseEntity.getData().getWaybill().getBusiId())
+            )
         {
             res = baseEntity.getData().getWaybill().getBusiId();
         }

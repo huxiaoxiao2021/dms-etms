@@ -9,14 +9,14 @@ public class RedeliveryCheckRequest extends JdRequest {
     /**
      * 条码类型 1：包裹 2：运单 3：箱号
      */
-    private int codeType;
+    private Integer codeType;
 
     /**
      * 条码内容
      */
     private String code;
 
-    public int getCodeType() {
+    public Integer getCodeType() {
         return codeType;
     }
 
