@@ -12,6 +12,7 @@ $(function () {
     var modifyInfoPageUrl = '/consumable/waybillConsumableRelation/getModifyPage';
     var addInfoPageUrl = '/consumable/waybillConsumableRelation/getAddPage';
     var checkModify = '/consumable/waybillConsumableRecord/check/canModify';
+    var packUserErpUrl = '/consumable/waybillConsumableRelation/updatePackUserErp';
     /*****************************************/
     /*组件*/
     /*****************************************/
@@ -142,6 +143,10 @@ $(function () {
                 title: '操作人ERP'
             },
             {
+                field: 'packUserErp',
+                title: '打包人ERP'
+            },
+            {
                 field: 'operateTime',
                 title: '操作时间',
                 formatter : function (value, row, index) {
@@ -156,7 +161,7 @@ $(function () {
                 field: 'op',
                 title: '操作',
                 formatter : function (value, row, index) {
-                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改&nbsp;</a>';
+                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改数量&nbsp;</a>';
                 },
                 events: {
                     'click .mdinfo': function(e, value, row, index) {
@@ -168,7 +173,7 @@ $(function () {
                                 $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
                             } else {
                                 if (res.data == false) {
-                                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许修改耗材信息！");
+                                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许修改耗材使用数量！");
                                 }
                                 else {
                                     layer.open({
@@ -193,6 +198,7 @@ $(function () {
                                             var unit = row.unit;
                                             var receiveQuantity = row.receiveQuantity;
                                             var confirmQuantity = row.confirmQuantity;
+                                            var packUserErp = row.packUserErp;
                                             var waybillCode = row.waybillCode;
 
                                             var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
@@ -207,6 +213,7 @@ $(function () {
                                             frameWindow.$('#unit-value-input').val(unit);
                                             frameWindow.$('#receive-value-input').val(receiveQuantity);
                                             frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                            frameWindow.$('#erp-value-input').val(packUserErp);
                                             frameWindow.$('#waybillCode-value-input').val(waybillCode);
                                         }
                                     });
@@ -336,6 +343,48 @@ $(function () {
                     }
                 }
             }, 'json');
+            $.pageBlocker.close(blocker);
+        });
+
+    });
+
+    //
+    $('#btn_update_erp').click(function() {
+        var rows = $('#dataTable').bootstrapTable('getSelections');
+
+        var confirmStatus = $('#confirmStatus-value-input').val()
+        if (confirmStatus == 1) {
+            $.msg.warn($('#waybillCode-value-input').val() + "【已确认】，不允许更新打包人ERP！");
+            return;
+        }
+        if (rows.length < 1) {
+            $.msg.warn("错误，未选中数据");
+            return;
+        }
+        var packUserErp = $('#erp-value-input').val();
+        if (packUserErp == null || packUserErp == '') {
+            $.msg.warn("请录入包装人ERP");
+            return;
+        }
+
+        var params = {packUserErp: packUserErp};
+        $.msg.confirm('是否将这些数据的包装人更新为【' + packUserErp + '】？',function () {
+            var blocker = $.pageBlocker.block();
+
+            var ids = [];
+            for(var i in rows){
+                ids.push(rows[i].id);
+            };
+            params.ids = ids;
+
+            $.ajaxHelper.doPostSync(packUserErpUrl,JSON.stringify(params),function(res){
+                if(res&&res.succeed&&res.data){
+                    $.msg.ok('操作成功！');
+                    tableInit().refresh();
+                }else{
+                    $.msg.error(res.message);
+                }
+            });
             $.pageBlocker.close(blocker);
         });
 

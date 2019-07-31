@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
@@ -8,9 +9,13 @@ import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableExportCol;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ExportExcel;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -45,6 +50,13 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 
 	@Autowired
 	private WaybillConsumableRecordService waybillConsumableRecordService;
+
+	@Autowired
+	private WaybillConsumableRelationService waybillConsumableRelationService;
+
+
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 
 	/**
 	 * 返回主页面
@@ -130,15 +142,34 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 		try {
             LoginUser loginUser = getLoginUser();
             List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>(records.size());
+			StringBuilder noPackUserErpWaybillBuilder = new StringBuilder();
             for (WaybillConsumableRecord data : records){
                 WaybillConsumableRecord record = new WaybillConsumableRecord();
+                String waybillCode = data.getWaybillCode();
+                int count = waybillConsumableRelationService.getNoPackUserErpRecordCount(waybillCode);
+                if (count > 0) {
+                	logger.warn(waybillCode + "相关耗材未完成录入打包人，无法确认！");
+                	if (noPackUserErpWaybillBuilder.length() == 0) {
+						noPackUserErpWaybillBuilder.append(waybillCode);
+					} else {
+						noPackUserErpWaybillBuilder.append(",").append(waybillCode);
+					}
+                	continue;
+				}
                 record.setId(data.getId());
                 record.setConfirmUserName(loginUser.getUserName());
                 record.setConfirmUserErp(loginUser.getUserErp());
                 record.setConfirmTime(new Date());
                 confirmRecords.add(record);
             }
-			rest.setData(waybillConsumableRecordService.confirmByIds(confirmRecords));
+			int successCount = waybillConsumableRecordService.confirmByIds(confirmRecords);
+            if (noPackUserErpWaybillBuilder.length() > 0) {
+            	rest.setCode(JdResponse.CODE_FAIL);
+				rest.setMessage("选中的运单部分未操作成功，未确认成功原因【运单未完成录入打包人ERP】，请录入后再进行确认！");
+			} else {
+				rest.setMessage("成功操作" + successCount + "条！");
+			}
+
 		} catch (IllegalArgumentException e) {
 			logger.error("B网耗材批量确认失败，参数异常："+e.getMessage(),e);
 			rest.toError(e.getMessage());
@@ -157,8 +188,24 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 	@RequestMapping(value = "/listData")
 	public @ResponseBody PagerResult<WaybillConsumableRecord> listData(@RequestBody WaybillConsumableRecordCondition waybillConsumableRecordCondition) {
 		JdResponse<PagerResult<WaybillConsumableRecord>> rest = new JdResponse<PagerResult<WaybillConsumableRecord>>();
-		waybillConsumableRecordCondition.setDmsId(getLoginUser().getSiteCode());
-		rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
+		try {
+			Integer siteCode = getLoginUser().getSiteCode();
+			//如果站点类型非分拣中心，尝试取所属分拣中心
+			if (! Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(getLoginUser().getSiteType())) {
+				BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+				if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null) {
+					siteCode = getLoginUser().getSiteCode();
+				} else {
+					logger.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:"+ getLoginUser().getSiteCode());
+				}
+			}
+			waybillConsumableRecordCondition.setDmsId(siteCode);
+			rest.setData(waybillConsumableRecordService.queryByPagerCondition(waybillConsumableRecordCondition));
+
+		} catch (Exception e) {
+			logger.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息异常，siteCode:"+ getLoginUser().getSiteCode());
+		}
+
 		return rest.getData();
 	}
 
