@@ -194,7 +194,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 			if (! Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(getLoginUser().getSiteType())) {
 				BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
 				if (baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null) {
-					siteCode = getLoginUser().getSiteCode();
+					siteCode = baseStaffSiteOrgDto.getDmsId();
 				} else {
 					logger.warn("调用getBaseSiteInfoBySiteId获取站点所属分拣中心信息为空，siteCode:"+ getLoginUser().getSiteCode());
 				}
