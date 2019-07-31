@@ -59,9 +59,9 @@ public class ReverseSpareResource {
 			sorting.setCreateSiteCode(createSiteCode);
 			sorting.setPackageCode(spareCode);
 			sorting.setType(Constants.BUSSINESS_TYPE_REVERSE);
-			sorting = this.reverseSpareService
-					.querySortingBySpareCode(sorting);
 			if (sorting != null) {
+				sorting = this.reverseSpareService
+						.querySortingBySpareCode(sorting);
 				ReverseSpareRequest request = toReverseSpareRequest(sorting);
 				ReverseSpare reverseSpare = this.reverseSpareService
 						.queryBySpareCode(spareCode);

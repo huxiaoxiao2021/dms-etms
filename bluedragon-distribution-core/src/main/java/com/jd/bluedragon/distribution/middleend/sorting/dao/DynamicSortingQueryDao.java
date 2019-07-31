@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class DynamicSortingQueryDao implements ISortingDao{
-    private final Logger logger = Logger.getLogger(FailoverSortingDao.class);
+    private final Logger logger = Logger.getLogger(DynamicSortingQueryDao.class);
 
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -154,7 +154,7 @@ public class DynamicSortingQueryDao implements ISortingDao{
      * @return
      */
     public List<Sorting> findByPackageCode(Sorting sorting){
-        return selectDao(sorting.getCreateSiteCode()).findByBsendCode(sorting);
+        return selectDao(sorting.getCreateSiteCode()).findByPackageCode(sorting);
     }
 
     /**
