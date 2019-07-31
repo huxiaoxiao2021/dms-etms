@@ -99,6 +99,11 @@
                   alias="${tms.jsf.basic.alias}" serialization="hessian" timeout="${tms.jsf.basic.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
 
+    <!-- 订单 协商再投 刘春和  -->
+    <jsf:consumer id="abnormalOrderApi" interface="com.jd.ldop.business.api.AbnormalOrderApi" protocol="jsf"
+                  alias="${aoa.jsf.alias}" serialization="hessian" timeout="${aoa.jsf.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
+
     <!-- 车辆管理系统 VMS 系统 李胜涛  -->
     <jsf:consumer id="vehicleManagerService" interface="com.jd.etms.vehicle.manager.service.saf.VehicleManagerService"
                   protocol="jsf" alias="${vms.jsf.alias}" serialization="hessian" timeout="${vms.jsf.timeout}" retries="${jsf.retries}">
