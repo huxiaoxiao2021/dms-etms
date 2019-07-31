@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 
 import java.util.List;
 
@@ -197,4 +198,14 @@ public interface DmsInternalService {
      * @return
      */
     InvokeResult<Boolean> dispatchToExpress(Integer siteCode, Integer vendorId, String waybillSign);
+
+
+    /**
+     * 加盟商运单是否已交接
+     * <p>
+     *
+     * @param waybillCode 运单号
+     * @return
+     */
+    BaseEntity<Boolean> allianceBusiDelivered(String waybillCode);
 }

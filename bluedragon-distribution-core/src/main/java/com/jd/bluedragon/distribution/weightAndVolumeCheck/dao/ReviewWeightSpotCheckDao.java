@@ -60,4 +60,12 @@ public class ReviewWeightSpotCheckDao extends BaseDao<SpotCheckInfo> {
     public int insert(SpotCheckInfo spotCheckInfo) {
         return this.getSqlSession().insert(namespace + ".insert", spotCheckInfo);
     }
+
+    /**
+     * 查询所有抽查任务
+     * @return
+     */
+    public List<SpotCheckInfo> queryAllSpotInfo() {
+        return this.getSqlSession().selectList(namespace + ".queryAllSpotInfo");
+    }
 }

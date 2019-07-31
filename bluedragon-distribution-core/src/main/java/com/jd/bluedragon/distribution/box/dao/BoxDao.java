@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.box.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 
-import java.util.List;
-
 public class BoxDao extends BaseDao<Box> {
 
     public static final String namespace = BoxDao.class.getName();
@@ -19,16 +17,6 @@ public class BoxDao extends BaseDao<Box> {
 
     public Box findBoxByBoxCode(Box box) {
         return (Box) super.getSqlSession().selectOne(BoxDao.namespace + ".findBoxByBoxCode", box);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Box> findBoxesBySite(Box box) {
-        return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxesBySite", box);
-    }
-
-    @SuppressWarnings("unchecked")
-    public List<Box> findBoxes(Box box) {
-        return super.getSqlSession().selectList(BoxDao.namespace + ".findBoxes", box);
     }
 
     public Integer updateVolumeByCode(Box box) {

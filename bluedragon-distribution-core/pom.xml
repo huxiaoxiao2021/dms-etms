@@ -21,16 +21,39 @@
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
-		<jmq.version>2.1.4</jmq.version>
-		<etms.waybill.agent.version>4.2-test-SNAPSHOT</etms.waybill.agent.version>
+		<jmq.version>2.2.0</jmq.version>
+		<etms.waybill.agent.version>4.2.98</etms.waybill.agent.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
+			<artifactId>sorting-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
+			<groupId>com.jd.ql.shared.services</groupId>
+			<version>1.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.0.8-SNAPSHOT</version>
+			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
+
+		<dependency>
+            <groupId>com.jd.mrd</groupId>
+            <artifactId>mrd-delivery-rpc-sdk</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
 		<dependency>
 			<groupId>com.jd.rd.unpack</groupId>
 			<artifactId>unpack-jsf</artifactId>
@@ -39,7 +62,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.46</version>
+            <version>1.2.58</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -139,9 +162,14 @@
 			<version>1.2.23-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.jd.ldop.alpha</groupId>
+			<artifactId>ldop-alpha-waybill-api</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.3-SNAPSHOT</version>
+			<version>1.1.7-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -426,7 +454,7 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jsf</artifactId>
-			<version>1.6.5-HOTFIX-T3</version>
+			<version>1.6.6-HOTFIX-T1</version>
 		</dependency>
 
 		<dependency>
@@ -478,12 +506,12 @@
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-jedis</artifactId>
-            <version>1.4.5-SNAPSHOT</version>
+            <version>1.4.7-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.jd.jim.cli</groupId>
             <artifactId>jim-cli-api</artifactId>
-            <version>1.4.5-SNAPSHOT</version>
+            <version>1.4.7-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
@@ -975,11 +1003,23 @@
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-goods-api</artifactId>
+			<version>0.0.2-SNAPSHOT</version>
+		</dependency>
+
 		<!--预分拣-->
 		<dependency>
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
 			<version>2.3.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.business</groupId>
+			<artifactId>ldop-business-api</artifactId>
+			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

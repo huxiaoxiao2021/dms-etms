@@ -14,6 +14,8 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.BaseEntity;
+import com.jd.ql.dms.report.domain.ReviewSpotCheckDto;
+import com.jd.ql.dms.report.domain.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import org.apache.log4j.Logger;
@@ -76,7 +78,7 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         heads.add("信任商家抽查差异率");
         heads.add("总抽查率");
         resList.add(heads);
-        PagerResult<ReviewWeightSpotCheck> result = listData(condition,1);
+        PagerResult<ReviewWeightSpotCheck> result = listData(condition);
         if(result != null && result.getRows() != null && result.getRows().size() > 0){
             List<ReviewWeightSpotCheck> list = result.getRows();
             //表格信息
@@ -99,6 +101,40 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 body.add(reviewWeightSpotCheck.getTotalCheckRate());
                 resList.add(body);
             }
+        }
+        return  resList;
+    }
+
+    /**
+     * 导出抽查任务
+     * @return
+     */
+    @Override
+    public List<List<Object>> exportSpotData() {
+
+        List<List<Object>> resList = new ArrayList<List<Object>>();
+        List<Object> heads = new ArrayList<Object>();
+        //添加表头
+        heads.add("区域编码");
+        heads.add("机构编码");
+        heads.add("机构名称");
+        heads.add("普通应抽查包裹数");
+        heads.add("信任商家应抽查包裹数");
+        heads.add("导入人ERP");
+        heads.add("导入时间");
+        resList.add(heads);
+        List<SpotCheckInfo> list = reviewWeightSpotCheckDao.queryAllSpotInfo();
+        //表格信息
+        for(SpotCheckInfo spotCheckInfo : list){
+            List<Object> body = Lists.newArrayList();
+            body.add(spotCheckInfo.getOrgCode());
+            body.add(spotCheckInfo.getSiteCode());
+            body.add(spotCheckInfo.getSiteName());
+            body.add(spotCheckInfo.getNormalPackageNum());
+            body.add(spotCheckInfo.getTrustPackageNum());
+            body.add(spotCheckInfo.getImportErp());
+            body.add(DateHelper.formatDateTime(spotCheckInfo.getTs()));
+            resList.add(body);
         }
         return  resList;
     }
@@ -142,6 +178,10 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
                 }else{
                     if(!site.getSiteName().equals(spotCheckInfo.getSiteName())){
                         errorString = "第"+ rowIndex +"行机构编码与机构名称不匹配!";
+                        return errorString;
+                    }
+                    if(!site.getOrgId().equals(spotCheckInfo.getOrgCode()) ){
+                        errorString = "第"+ rowIndex +"行区域编码与机构编码不匹配!";
                         return errorString;
                     }
                 }
@@ -301,7 +341,95 @@ public class ReviewWeightSpotCheckServiceImpl implements ReviewWeightSpotCheckSe
         return result;
     }
 
+    /**
+     * 根据条件查询
+     * @param condition
+     * @return
+     */
+    @Override
+    public PagerResult<ReviewWeightSpotCheck> listData(WeightAndVolumeCheckCondition condition) {
 
+        PagerResult<ReviewWeightSpotCheck> result = new PagerResult<>();
+        List<ReviewWeightSpotCheck> list = new ArrayList<>();
+        try {
+            List<SpotCheckInfo> spotCheckInfos = reviewWeightSpotCheckDao.queryByCondition(condition);
+            if(spotCheckInfos.size() == 0){
+                logger.warn("未导入抽查任务!");
+                result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+                result.setTotal(0);
+                return result;
+            }
+            Map<Integer,SpotCheckInfo> map = new HashMap<>();
+            SpotCheckQueryCondition spotCondition = convert2queryCondition(condition,spotCheckInfos,map);
+            BaseEntity<List<ReviewSpotCheckDto>> entity = reportExternalService.getAllBySpotCheckCondition(spotCondition);
+            if(entity == null || entity.getData() == null){
+                result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+                result.setTotal(0);
+                return result;
+            }
+            List<ReviewSpotCheckDto> data = entity.getData();
+            for(ReviewSpotCheckDto dto : data){
+
+                SpotCheckInfo info = map.get(dto.getReviewSiteCode());
+                if(info != null){
+                    ReviewWeightSpotCheck reviewWeightSpotCheck = new ReviewWeightSpotCheck();
+
+                    Integer trustNumOfActual = dto.getTrustPackageNumOfActual();    //信任商家实际抽查包裹数量
+                    Integer normalNumOfActual = dto.getNormalPackageNumOfActual();  //普通商家实际抽查包裹数量
+                    Integer trustNumOfShould = info.getTrustPackageNum();           //信任商家应抽查包裹数
+                    Integer normalNumOfShould = info.getNormalPackageNum();         //普通应抽查包裹数
+                    Integer trustNumOfExcess = dto.getTrustPackageNumOfDiff();      //信任商家超标数
+                    Integer normalNumOfExcess = dto.getNormalPackageNumOfDiff();    //普通商家超标数
+
+                    reviewWeightSpotCheck.setReviewDate(dto.getReviewDate());
+                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = siteService.getSite(dto.getReviewSiteCode());
+                    reviewWeightSpotCheck.setReviewOrgName(baseStaffSiteOrgDto == null?null:baseStaffSiteOrgDto.getOrgName());
+                    reviewWeightSpotCheck.setReviewMechanismType(1);
+                    reviewWeightSpotCheck.setReviewSiteCode(dto.getReviewSiteCode());
+                    reviewWeightSpotCheck.setReviewSiteName(info.getSiteName());
+
+                    reviewWeightSpotCheck.setNormalPackageNum(normalNumOfShould);
+                    reviewWeightSpotCheck.setNormalPackageNumOfActual(normalNumOfActual);
+                    reviewWeightSpotCheck.setNormalCheckRate(normalNumOfShould==null?null:convertPercentage(normalNumOfActual,normalNumOfShould));
+                    reviewWeightSpotCheck.setNormalPackageNumOfDiff(normalNumOfExcess);
+                    reviewWeightSpotCheck.setNormalCheckRateOfDiff(convertPercentage(normalNumOfExcess,normalNumOfActual));
+
+                    reviewWeightSpotCheck.setTrustPackageNum(trustNumOfShould);
+                    reviewWeightSpotCheck.setTrustPackageNumOfActual(trustNumOfActual);
+                    reviewWeightSpotCheck.setTrustCheckRate(trustNumOfShould==null?null:convertPercentage(trustNumOfActual,trustNumOfShould));
+                    reviewWeightSpotCheck.setTrustPackageNumOfDiff(trustNumOfExcess);
+                    reviewWeightSpotCheck.setTrustCheckRateOfDiff(convertPercentage(trustNumOfExcess,trustNumOfActual));
+                    reviewWeightSpotCheck.setTotalCheckRate(convertPercentage((trustNumOfActual+normalNumOfActual),(trustNumOfShould+normalNumOfShould)));
+
+                    list.add(reviewWeightSpotCheck);
+                }
+            }
+
+            result.setRows(list);
+            result.setTotal(list.size());
+
+        }catch (Exception e){
+            logger.error("查询失败!",e);
+            result.setRows(new ArrayList<ReviewWeightSpotCheck>());
+            result.setTotal(0);
+        }
+
+        return result;
+    }
+
+    private SpotCheckQueryCondition convert2queryCondition(WeightAndVolumeCheckCondition weightAndVolumeCheckCondition,
+                                                           List<SpotCheckInfo> spotCheckInfos, Map<Integer, SpotCheckInfo> map) {
+        List<Integer> siteCodes = new ArrayList<>();
+        for(SpotCheckInfo spotCheckInfo : spotCheckInfos){
+            siteCodes.add(spotCheckInfo.getSiteCode());
+            map.put(spotCheckInfo.getSiteCode(),spotCheckInfo);
+        }
+        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
+        condition.setStartTime(weightAndVolumeCheckCondition.getReviewStartTime());
+        condition.setEndTime(weightAndVolumeCheckCondition.getReviewEndTime());
+        condition.setReviewSiteCodes(siteCodes);
+        return condition;
+    }
 
     /**
      * 根据复核日期、站点进行分组

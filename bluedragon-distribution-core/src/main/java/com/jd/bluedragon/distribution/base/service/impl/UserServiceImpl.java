@@ -1,12 +1,25 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig;
+import com.jd.bluedragon.distribution.base.domain.ClientRunningModeConfig.ClientRunningModeConfigItem;
 import com.jd.bluedragon.distribution.base.domain.LoginCheckConfig;
 import com.jd.bluedragon.distribution.base.domain.PdaStaff;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
@@ -23,13 +36,8 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 
 /**
  * 
@@ -62,7 +70,11 @@ public class UserServiceImpl implements UserService{
 	 *  默认版本名称-jsf登录接口
 	 */
 	private static final String JSF_LOGIN_DEFAULT_VERSION_NAME = "Jsf_Login";
-	
+	/**
+	 * 当前应用的环境（prod-全国 pre-华中 uat-UAT test-测试）
+	 */
+	@Value("${app.config.runningMode:prod}")
+	private String runningMode;
 	@Autowired
 	private BaseService baseService;
 	@Autowired
@@ -308,6 +320,7 @@ public class UserServiceImpl implements UserService{
 		        		loginUserResponse.setDmsSiteCode(siteInfo.getDmsId());
 		        		loginUserResponse.setDmsSiteName(siteInfo.getDmsName());
 		        	}
+		        	this.setRunningMode(request, loginUserResponse);
 	        		loginResult.setData(loginUserResponse);
 	        	}else{
 	        		loginResult.toFail("账号"+userErp+"对应的站点"+basestaffDto.getSiteCode()+"无效！");
@@ -316,4 +329,53 @@ public class UserServiceImpl implements UserService{
 		}
 		return loginResult;
 	}
+	/**
+	 * 根据配置设置当前登录人的环境
+	 * @param request
+	 * @param loginUserResponse
+	 */
+	private void setRunningMode(LoginRequest request,LoginUserResponse loginUserResponse){
+		Integer programType = null;
+		String runningMode = null;
+		//获取客户端配置信息
+		if(StringUtils.isNotBlank(request.getClientInfo())){
+			ClientInfo clientInfo = JsonHelper.fromJson(request.getClientInfo(), ClientInfo.class);
+			if(clientInfo != null){
+				programType = clientInfo.getProgramType();
+			}
+		}
+		if(programType != null){
+			//监控
+			CallerInfo callerInfo = ProfilerHelper.registerInfo(String.format(UmpConstants.UMP_KEY_FORMAT_REST_CLIENT_GET_RUNNING_MODE,programType,this.runningMode));
+			Profiler.registerInfoEnd(callerInfo);
+	    	//1、查询客户端环境配置信息
+	    	SysConfig checkConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_CLIENT_RUNNING_MODE_PRE+programType);
+	    	if(checkConfig!=null && StringHelper.isNotEmpty(checkConfig.getConfigContent())){
+	    		ClientRunningModeConfig clientRunningModeConfig = JsonHelper.fromJson(checkConfig.getConfigContent(), ClientRunningModeConfig.class);
+	    		if(clientRunningModeConfig != null){
+	    			runningMode = clientRunningModeConfig.getDefaultRunningMode();
+	    			//2、分别按erp、站点、机构逐级判断是否匹配
+	    			if(clientRunningModeConfig.getConfigItems() != null && !clientRunningModeConfig.getConfigItems().isEmpty()){
+	    				for(ClientRunningModeConfigItem item:clientRunningModeConfig.getConfigItems()){
+	    					if(item.getUserErps() != null && item.getUserErps().contains(loginUserResponse.getErpAccount())){
+	    						runningMode = item.getRunningMode();
+	    						break;
+	    					}
+	    					if(item.getSiteCodes() != null && item.getSiteCodes().contains(loginUserResponse.getSiteCode())){
+	    						runningMode = item.getRunningMode();
+	    						break;
+	    					}
+	    					if(item.getOrgCodes() != null && item.getOrgCodes().contains(loginUserResponse.getOrgId())){
+	    						runningMode = item.getRunningMode();
+	    						break;
+	    					}
+	    				}
+	    			}
+	    		}
+	    	}
+		}
+		if(StringHelper.isNotEmpty(runningMode)){
+			loginUserResponse.setRunningMode(runningMode);
+		}
+	}	
 }

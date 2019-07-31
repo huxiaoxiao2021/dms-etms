@@ -29,11 +29,12 @@ public class TaskDao extends BaseDao<Task> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds) {
+	public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds,String ownSign) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("tableName", Task.getTaskWaybillTableName());
 		request.put("fetchNum", fetchNum);
 		request.put("queueIds",queueIds);
+		request.put("ownSign", ownSign);
 		return super.getSqlSession().selectList(TaskDao.namespace + ".findLimitedTasks", request);
 	}
 

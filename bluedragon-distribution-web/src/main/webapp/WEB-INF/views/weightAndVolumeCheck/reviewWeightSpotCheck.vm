@@ -10,8 +10,8 @@
     <script src="/static/js/weightAndVolumeCheck/reviewWeightSpotCheck.js"></script>
 </head>
 <body>
-<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
-<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
+##<input type="hidden" id="loginUserOrgId" value="$!{orgId}"/>
+##<input type="hidden" id="loginUserCreateSiteCode" value="$!{createSiteCode}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
             <li><a href="#">分拣中心</a></li>
@@ -111,6 +111,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" id="btn_upload">上传</button>
+                <button type="button" class="btn btn-success" id="btn_export_spot">导出</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
 
             </div>

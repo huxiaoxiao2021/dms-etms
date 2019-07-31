@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.arAbnormal;
 
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
+import com.jd.jmq.common.exception.JMQException;
 
 /**
  * @author tangchunqing
@@ -19,5 +20,5 @@ public interface ArAbnormalService {
      * 提报异常逻辑
      * @param arAbnormalRequest
      */
-    public void dealArAbnormal(ArAbnormalRequest arAbnormalRequest);
+    public void dealArAbnormal(ArAbnormalRequest arAbnormalRequest) throws JMQException;
 }
