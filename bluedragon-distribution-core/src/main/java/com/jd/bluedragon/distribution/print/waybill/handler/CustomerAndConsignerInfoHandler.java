@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.WaybillExt;
 import com.jd.fastjson.JSON;
 import org.apache.commons.lang.StringUtils;
