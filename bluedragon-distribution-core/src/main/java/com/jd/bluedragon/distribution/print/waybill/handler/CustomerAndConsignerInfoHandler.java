@@ -39,8 +39,8 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 			logger.error("处理面单收/寄件信息，context为空");
 			return null;
 		}
-		if(context.getResponse() == null){
-			logger.error("处理面单收/寄件信息，context.response为空." + JSON.toJSONString(context));
+		if(context.getBasePrintWaybill() == null){
+			logger.error("处理面单收/寄件信息，context.BasePrintWaybill为空." + JSON.toJSONString(context));
 			return context.getResult();
 		}
 
@@ -53,7 +53,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		if (context.getBigWaybillDto() != null && context.getBigWaybillDto().getWaybill() != null) {
 			waybillSign = context.getBigWaybillDto().getWaybill().getWaybillSign();
 		}
-		hideInfoService.setHideInfo(waybillSign, context.getResponse());
+		hideInfoService.setHideInfo(waybillSign, context.getBasePrintWaybill());
 
 		return context.getResult();
 	}
@@ -73,7 +73,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 			WaybillExt etmsWaybill = context.getBigWaybillDto().getWaybill().getWaybillExt();
 			String sendPay = context.getBigWaybillDto().getWaybill().getSendPay();
 
-			BasePrintWaybill printWaybill = context.getResponse();
+			BasePrintWaybill printWaybill = context.getBasePrintWaybill();
 
 			//国际配送运单替换原收件人地址，姓名，电话
 			if (BusinessUtil.isInternationalWaybill(sendPay) && etmsWaybill != null) {
