@@ -34,13 +34,13 @@ public class SortingServiceFactory {
     public ISortingService getSortingService(Integer createSiteCode) {
         String serviceType = "FAILOVER";
         try {
-            serviceType = uccPropertyConfiguration.getSortingServiceType();
+            serviceType = uccPropertyConfiguration.getSortingServiceMode();
         } catch (Exception e) {
             logger.error("ucc获取分拣serviceType异常.", e);
         }
 
         if(serviceType.equals("FAILOVER")){
-            if (createSiteCode != null && siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN).contains(createSiteCode)) {
+            if (createSiteCode == null || !siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN).contains(createSiteCode)) {
                 serviceType = "DMS";
             }
         }

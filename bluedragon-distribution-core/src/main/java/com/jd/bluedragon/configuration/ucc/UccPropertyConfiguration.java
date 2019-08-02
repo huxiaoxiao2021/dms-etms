@@ -39,7 +39,7 @@ public class UccPropertyConfiguration {
 
 
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
-    private String sortingServiceType;
+    private String sortingServiceMode;
 
     public String getAsynbufferEnabledTaskType() {
         return asynbufferEnabledTaskType;
@@ -113,11 +113,11 @@ public class UccPropertyConfiguration {
         this.waybillSplitPageSize = waybillSplitPageSize;
     }
 
-    public String getSortingServiceType() {
-        return sortingServiceType;
+    public String getSortingServiceMode() {
+        return sortingServiceMode;
     }
 
-    public void setSortingServiceType(String sortingServiceType) {
-        this.sortingServiceType = sortingServiceType;
+    public void setSortingServiceMode(String sortingServiceMode) {
+        this.sortingServiceMode = sortingServiceMode;
     }
 }
