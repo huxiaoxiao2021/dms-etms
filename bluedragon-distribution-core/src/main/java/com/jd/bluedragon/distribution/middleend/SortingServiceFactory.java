@@ -29,7 +29,7 @@ public class SortingServiceFactory {
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "middle.end.sorting.open";
+    private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "failover.sorting.open";
 
     public ISortingService getSortingService(Integer createSiteCode) {
         String serviceType = "FAILOVER";
