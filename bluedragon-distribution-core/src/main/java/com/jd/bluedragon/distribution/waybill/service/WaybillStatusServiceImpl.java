@@ -345,12 +345,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -387,18 +381,12 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
 
 			//包裹补打 客户改址 发全程跟踪 新增节点2400
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {//todo 跟曲华峰确认应该映射到哪个
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
 				//单独发送全程跟踪消息，供其给前台消费
 				waybillQueryManager.sendOrderTrace(tWaybillStatus.getWaybillCode(),
