@@ -1,6 +1,34 @@
 package com.jd.bluedragon.distribution.rest.packageMake;
 
-import java.util.Date;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
+import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
+import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
+import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
+import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -9,34 +37,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.redis.service.RedisManager;
-import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.ModifyOrderInfo;
-import com.jd.bluedragon.distribution.client.domain.ClientOperateRequest;
-import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
-import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
-import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
-import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
-import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
-import com.jd.bluedragon.distribution.print.request.RePrintCallBackRequest;
-import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Date;
 
 /**
  * Created by hujiping on 2018/4/4.
@@ -295,7 +296,7 @@ public class PackageResource {
 
         waybillStatus.setOperateTime(new Date());
         waybillStatus.setOperator(operateName);
-        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE);
+        waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
 
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_POP);

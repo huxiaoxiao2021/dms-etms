@@ -386,7 +386,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 
 			//包裹补打 客户改址 发全程跟踪 新增节点2400
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD))
+                    || task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
 
                 BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(tWaybillStatus);
