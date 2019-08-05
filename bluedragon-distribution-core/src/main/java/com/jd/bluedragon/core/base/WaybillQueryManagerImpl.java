@@ -217,37 +217,6 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     }
 
     @Override
-    public boolean sendOrderTrace(String businessKey, int msgType, String title, String content, String operatorName, Date operateTime) {
-        CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.sendOrderTrace", false, true);
-        try {
-            OrderTraceDto orderTraceDto = new OrderTraceDto();
-            orderTraceDto.setBusinessKey(businessKey);
-            orderTraceDto.setMsgType(msgType);
-            orderTraceDto.setTitle(title);
-            orderTraceDto.setContent(content);
-            orderTraceDto.setOperatorName(operatorName);
-            orderTraceDto.setOperateTime(operateTime == null ? new Date() : operateTime);
-            BaseEntity<Boolean> baseEntity = waybillTraceApi.sendOrderTrace(orderTraceDto);
-            if (baseEntity != null) {
-                if (!baseEntity.getData()) {
-                    this.logger.warn("分拣数据回传全程跟踪sendOrderTrace异常：" + baseEntity.getMessage() + baseEntity.getData());
-                    Profiler.functionError(info);
-                    return false;
-                }
-            } else {
-                this.logger.warn("分拣数据回传全程跟踪接口sendOrderTrace异常");
-                Profiler.functionError(info);
-                return false;
-            }
-        } catch (Exception e) {
-            Profiler.functionError(info);
-        } finally {
-            Profiler.registerInfoEnd(info);
-        }
-        return true;
-    }
-
-    @Override
     @SuppressWarnings("rawtypes")
     public boolean sendBdTrace(BdTraceDto bdTraceDto) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.WaybillQueryManagerImpl.sendBdTrace", false, true);
