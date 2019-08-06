@@ -16,7 +16,7 @@ public interface DmsForMiddleEndService {
      * @param waybillSign
      * @return
      */
-    InvokeResult<Boolean> checkJPWaybillIsSent(String waybillCode, String waybillSign);
+    InvokeResult<Boolean> checkJPWaybillCanSend(String waybillCode, String waybillSign);
 
     /**
      * 判断箱号是否已经发货
@@ -68,7 +68,7 @@ public interface DmsForMiddleEndService {
      * @param configureKey
      * @return
      */
-    InvokeResult<Object> getFileConfigurationByKey(String configureKey);
+    InvokeResult<String> getFileConfigurationByKey(String configureKey);
 
     /**
      * 检查混装箱是否可以通过校验

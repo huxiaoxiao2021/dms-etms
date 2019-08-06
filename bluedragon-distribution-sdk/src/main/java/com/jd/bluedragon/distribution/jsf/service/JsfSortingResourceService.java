@@ -87,7 +87,7 @@ public interface JsfSortingResourceService {
      * @param configureKey
      * @return
      */
-    Object getFileConfigurationByKey(String configureKey) ;
+     String getFileConfigurationByKey(String configureKey) ;
 
     /**
      * 检查混装箱是否可以通过校验

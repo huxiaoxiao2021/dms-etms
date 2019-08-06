@@ -53,14 +53,14 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
 
 
     /**
-     * 校验金鹏订单是否已经发货
+     * 校验金鹏订单是否可发货
      *
      * @param waybillCode
      * @param waybillSign
      * @return
      */
     @Override
-    public InvokeResult<Boolean> checkJPWaybillIsSent(String waybillCode, String waybillSign) {
+    public InvokeResult<Boolean> checkJPWaybillCanSend(String waybillCode, String waybillSign) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         if (StringUtils.isBlank(waybillCode)) {
             result.parameterError("参数错误--运单号为空");
@@ -70,12 +70,12 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
             result.parameterError("参数错误--waybillSign为空");
             return result;
         }
-        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsForMiddleEndServiceImpl.checkJPWaybillIsSent",Constants.UMP_APP_NAME_DMSWEB,false,true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DmsForMiddleEndServiceImpl.checkJPWaybillCanSend",Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
             result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
             result.setData(storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign));
         } catch (Exception e) {
-            logger.error("checkJPWaybillIsSent执行异常.参数waybillCode:" + waybillCode + ",waybillSign:" + waybillSign + ".", e);
+            logger.error("checkJPWaybillCanSend执行异常.参数waybillCode:" + waybillCode + ",waybillSign:" + waybillSign + ".", e);
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
 
@@ -176,7 +176,7 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
         result.success();
 
         if (StringUtils.isBlank(waybillCode) && StringUtils.isBlank(packageCode)) {
-            result.parameterError("参数错误--运单号或者包裹号同时为空");
+            result.parameterError("参数错误--运单号和包裹号同时为空");
             return result;
         }
         CallerInfo info = Profiler.registerInfo("DMSWEB.DmsForMiddleEndServiceImpl.weightVolumeValidate",Constants.UMP_APP_NAME_DMSWEB,false,true);
@@ -297,8 +297,8 @@ public class DmsForMiddleEndServiceImpl implements DmsForMiddleEndService {
      * @return
      */
 
-    public InvokeResult<Object> getFileConfigurationByKey(String configureKey) {
-        InvokeResult<Object> result = new InvokeResult<Object>();
+    public InvokeResult<String> getFileConfigurationByKey(String configureKey) {
+        InvokeResult<String> result = new InvokeResult<String>();
         result.success();
 
         if (StringUtils.isBlank(configureKey)) {
