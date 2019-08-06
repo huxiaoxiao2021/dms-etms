@@ -799,11 +799,39 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否是爱回收
+     * 16-1604
+     * @param type
+     * @parm subType
+     * @return
+     */
+    public static Boolean isRecovery(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 1604 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+
+    /**
      * 判断是否是加盟商运单 106=2
      * @param waybillSign
      * @return
      */
     public static boolean isAllianceBusi(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
+    }
+
+    /**
+     * 判断是否是国际配送运单
+     * Sendpay 第124位等于7时，表示为自营国际配送运单
+     * @param sendPay
+     */
+    public static boolean isInternationalWaybill(String sendPay){
+        return isSignChar(sendPay,SendPayConstants.POSITION_124,SendPayConstants.CHAR_124_7);
     }
 }

@@ -12,4 +12,7 @@ public interface SendPayConstants {
 	 * 默认打标-0
 	 */
 	char CHAR_0 = '0';
+
+	int POSITION_124 = 124;
+	char CHAR_124_7 = '7';
 }

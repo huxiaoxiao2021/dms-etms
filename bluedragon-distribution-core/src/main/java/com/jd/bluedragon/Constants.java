@@ -36,6 +36,7 @@ public class Constants {
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
     public static final String SEPARATOR_COLON = ":";
+    public static final String SEPARATOR_BLANK_SPACE = " ";
 
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
@@ -754,6 +755,10 @@ public class Constants {
      * 三无寄托物核实 上报次数上限
      */
     public static final String SYS_ABNORMAL_UNKNOWN_REPORT_TIMES= "abnormal.unknown.report.times";
+    /**
+     * 三无寄托物核实 上报运单数量限制
+     */
+    public static final String SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX= "abnormal.unknown.report.waybill.max";
     /**
      * 封车批次号缓存前缀
      */
