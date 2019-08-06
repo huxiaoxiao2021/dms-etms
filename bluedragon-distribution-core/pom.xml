@@ -22,7 +22,7 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.86</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.101</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
 		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
 		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
@@ -55,7 +55,7 @@
 			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 
-        <dependency>
+		<dependency>
             <groupId>com.jd.mrd</groupId>
             <artifactId>mrd-delivery-rpc-sdk</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -169,9 +169,14 @@
 			<version>1.2.23-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.jd.ldop.alpha</groupId>
+			<artifactId>ldop-alpha-waybill-api</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.3-SNAPSHOT</version>
+			<version>1.1.7-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1003,6 +1008,12 @@
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
 			<version>2.3.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.business</groupId>
+			<artifactId>ldop-business-api</artifactId>
+			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.framework;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -15,6 +17,8 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
 	
 	protected String keyType;
 
+    protected String ownSigns;
+
 	/**
      * This select will be called by each task manager
      */
@@ -23,7 +27,10 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
         }
-
+        List<String> ownSignList = new ArrayList<>();
+        if(StringUtils.isNotBlank(ownSigns)){
+            ownSignList = Arrays.asList(ownSigns.split(","));
+        }
         List<Task> tasks = new ArrayList<Task>();
         try {
             
@@ -31,7 +38,7 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
 				fetchNum = fetchNum * queueNum / queryCondition.size();
 			}
 
-            List<Task> Tasks = taskService.findSendTasks(this.type, fetchNum, this.keyType,queryCondition);
+            List<Task> Tasks = taskService.findSendTasks(this.type, fetchNum, this.keyType,queryCondition, ownSign, ownSignList);
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;
@@ -47,4 +54,8 @@ public abstract class SendDBSingleScheduler extends DBSingleScheduler {
 	public void setKeyType(String keyType) {
 		this.keyType = keyType;
 	}
+
+    public void setOwnSigns(String ownSigns) {
+        this.ownSigns = ownSigns;
+    }
 }

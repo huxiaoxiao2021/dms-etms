@@ -345,12 +345,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -387,25 +381,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
 
 			//包裹补打 客户改址 发全程跟踪 新增节点2400
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD))
+                    || task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
+
+                BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(tWaybillStatus);
 				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(tWaybillStatus.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_MSG,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
-						tWaybillStatus.getOperator(), null);
+                waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -765,6 +752,26 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			}
 
 			/**
+			 * 全程跟踪:揽收交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_RECEIVE_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作揽收交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:配送交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SEND_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作配送交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
 			 * 全程跟踪:转网
 			 */
 			if (null != task.getKeyword2() &&
@@ -808,7 +815,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		}
 	}
 
-	/**
+    private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {
+        BdTraceDto bdTraceDto2 = new BdTraceDto();
+        bdTraceDto2.setWaybillCode(tWaybillStatus.getWaybillCode());
+        bdTraceDto2.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
+        bdTraceDto2.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD_MSG);
+        bdTraceDto2.setOperatorUserName(tWaybillStatus.getOperator());
+        bdTraceDto2.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        bdTraceDto2.setOperatorTime(new Date());
+        return bdTraceDto2;
+    }
+
+    /**
 	 * 根据箱号获取箱内的包裹信息
 	 * @param boxCode
 	 * @return
