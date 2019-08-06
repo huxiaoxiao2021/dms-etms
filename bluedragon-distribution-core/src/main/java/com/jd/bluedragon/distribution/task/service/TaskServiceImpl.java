@@ -239,10 +239,10 @@ public class TaskServiceImpl implements TaskService {
         return routerDao.findTasks(type, ownSign);
     }
 
-    public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds) {
+    public List<Task> findLimitedTasks(Integer fetchNum,List<String> queueIds,String ownSign) {
         Assert.notNull(fetchNum, "fetchNum must not be null");
         TaskDao routerDao = taskDao;
-        return routerDao.findLimitedTasks(fetchNum,queueIds);
+        return routerDao.findLimitedTasks(fetchNum,queueIds,ownSign);
     }
 
     public List<Task> findLimitedTasks(Integer type, Integer fetchNum,List<String> queueIds) {
@@ -377,11 +377,11 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findTasks(task);
 	}
 
-	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds) {
+	public List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds,String ownSign, List<String> ownSigns) {
 		Assert.notNull(type, "type must not be null");
 		Assert.notNull(fetchNum, "fetchNum must not be null");
 		TaskDao routerDao = taskDao;
-		return routerDao.findSendTasks(type, fetchNum, key,queueIds);
+		return routerDao.findSendTasks(type, fetchNum, key,queueIds, ownSign, ownSigns);
 	}
 
 	public Task findReverseSendTask(String sendCode) {

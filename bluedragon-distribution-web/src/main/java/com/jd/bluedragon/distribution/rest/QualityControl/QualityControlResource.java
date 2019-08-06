@@ -2,13 +2,21 @@ package com.jd.bluedragon.distribution.rest.QualityControl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +31,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -40,6 +50,15 @@ public class QualityControlResource {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private QualityControlService qualityControlService;
+
+    @Autowired
+    private SortingService sortingService;
 
     @POST
     @Path("/qualitycontrol/exceptioninfo")
@@ -118,6 +137,82 @@ public class QualityControlResource {
         response.setMessage(response.MESSAGE_OK);
         return response;
     }
+
+    /**
+     * 协商再投状态校验
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("/qualitycontrol/redeliverycheck")
+    public InvokeResult<Boolean> redeliveryCheck(RedeliveryCheckRequest request){
+        InvokeResult<Boolean> result=new InvokeResult<Boolean>();
+        result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+        result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+        result.setData(true);
+
+        if(StringUtils.isEmpty(request.getCode()) || null==request.getCodeType() || request.getCodeType()<1){
+            logger.error(MessageFormat.format("PDA调用协商再投状态验证接口失败-参数错误[{0}]",JsonHelper.toJson(request)));
+            result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            result.setMessage("请扫描者包裹号、运单号或箱号！");
+            return result;
+        }
+
+        try{
+            List<String> waybillCodeList=new ArrayList<String>();
+
+            //如果是包裹或运单
+            if (request.getCodeType()==1 || request.getCodeType()==2){
+                String waybillCode= WaybillUtil.getWaybillCode(request.getCode());
+                waybillCodeList.add(waybillCode);
+            }
+
+            //如果是箱号
+            if (request.getCodeType()==3){
+                waybillCodeList = sortingService.getWaybillCodeListByBoxCode(request.getCode());
+            }
+
+            if(waybillCodeList != null && waybillCodeList.size() > 0){
+                for (String waybillCode :waybillCodeList){
+                    Integer busID=getBusiId(waybillCode);
+                    if (null != busID){
+                        int res=qualityControlService.getRedeliveryState(waybillCode,busID);
+                        if (res==0){
+                            result.setData(false);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ex) {
+             logger.error("PDA调用协商再投状态验证接口失败，原因 " + ex);
+             result.setCode(InvokeResult.SERVER_ERROR_CODE);
+             result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+           }
+
+        return result;
+    }
+
+    /**
+     * 根据运单号获取商家ID
+     * @param waybillCode
+     * @return
+     */
+    private Integer getBusiId(String waybillCode){
+        Integer res=null;
+        BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, true, false, false, false);
+        if (null != baseEntity
+            && Constants.RESULT_SUCCESS == baseEntity.getResultCode()
+            && null != baseEntity.getData()
+            && null != baseEntity.getData().getWaybill()
+            )
+        {
+            res = baseEntity.getData().getWaybill().getBusiId();
+        }
+
+        return res;
+    }
+
     public void convertThenAddTask(QualityControlRequest request) throws Exception{
 
         Task qcTask = new Task();

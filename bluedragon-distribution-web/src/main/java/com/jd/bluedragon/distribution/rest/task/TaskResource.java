@@ -418,6 +418,9 @@ public class TaskResource {
                     DateHelper.formatDateTimeMs(scannerTime),
                     DateHelper.formatDateTimeMs(scannerTimeAfterCorrect)
             ));
+            if(scannerTimeAfterCorrect.getTime() > System.currentTimeMillis()){
+                return new Date();
+            }
             return scannerTimeAfterCorrect;
         }catch (Exception e){
             logger.error(MessageFormat.format("校准龙门架时间时异常：scannerTime：{0} headerDate：{1}, registerNo:{2}",

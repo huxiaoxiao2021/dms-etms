@@ -932,8 +932,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         //设置特殊需求
         loadSpecialRequirement(target,waybill.getWaybillSign(),waybill);
-        //设置微笑
-        hideInfoService.setHideInfo(waybill.getWaybillSign(),target);
 
         //处理特殊的distributTypeText
         processSpecialDistributTypeText(target,waybill.getWaybillSign());

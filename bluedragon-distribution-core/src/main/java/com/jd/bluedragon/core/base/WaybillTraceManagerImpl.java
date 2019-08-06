@@ -86,4 +86,19 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
         return waybillTraceApi.getPkStateByPCode(packageCode);
     }
 
+    /**
+     * 获取包裹的全程跟踪操作明细
+     * @param packageCode
+     * @return
+     */
+    @Override
+    public BaseEntity<List<PackageState>> getAllOperations(String packageCode) {
+        try {
+            return waybillTraceApi.getAllOperations(packageCode);
+        } catch (Exception e) {
+            logger.error("获取包裹号" + packageCode + "全程跟踪列表失败", e);
+        }
+        return null;
+    }
+
 }

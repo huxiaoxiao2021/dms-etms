@@ -428,7 +428,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     private Integer sendBoardBindingsByWaybill(BoardCombinationRequest request, BoardResponse boardResponse) {
         String waybillCode = request.getBoxOrPackageCode();
         boardResponse.setBoardCode(request.getBoardCode());
-        List<DeliveryPackageD> deliveryPackageDList = this.findWaybillPackList(waybillCode);
+        List<DeliveryPackageD> deliveryPackageDList = this.waybillQueryManager.findWaybillPackList(waybillCode);
 
         if (deliveryPackageDList == null || deliveryPackageDList.isEmpty()) {
             logger.warn("运单号：" + request.getBoxOrPackageCode() + "的包裹数信息不存在！");
@@ -924,31 +924,4 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         return boardMeasureService.persistentData(request);
     }
 
-
-    /*
-     *
-     * 查询运单接口获取包裹列表
-     *
-     * */
-    private List<DeliveryPackageD> findWaybillPackList(String waybillCode) {
-        List<DeliveryPackageD> deliveryPackageDList = null;
-        CallerInfo info = null;
-        try {
-            info = ProfilerHelper.registerInfo("DMSWEB.BoardMeasureService.findWaybillPackList", Constants.UMP_APP_NAME_DMSWEB);
-            WChoice wChoice = new WChoice();
-            wChoice.setQueryPackList(true);
-            BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-            if (baseEntity != null && baseEntity.getData() != null) {
-                deliveryPackageDList = baseEntity.getData().getPackageList();
-            }
-
-        } catch (Exception e) {
-            Profiler.functionError(info);
-            logger.error("运单号【 " + waybillCode + "】调用运单WSS异常：", e);
-        } finally {
-            Profiler.registerInfoEnd(info);
-        }
-
-        return deliveryPackageDList;
-    }
 }

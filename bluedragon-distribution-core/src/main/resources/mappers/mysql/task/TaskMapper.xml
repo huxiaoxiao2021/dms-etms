@@ -83,6 +83,9 @@
             FROM ${tableName}
             WHERE yn = 1 AND execute_count < 5
                 AND  (execute_time < NOW() OR execute_time IS NULL) AND task_status IN (0, 3)  ]]>
+				<if test="ownSign != null">
+					AND own_sign = #{ownSign,jdbcType=VARCHAR}
+				</if>
             <if test="queueIds != null">
 				AND queue_id in
 				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
@@ -219,6 +222,18 @@
 				and create_time <![CDATA[<=]]>
 				timestampadd(minute, -5, now()) 
 			</if>
+            <choose>
+                <when test="key == 4 and ownSigns != null and ownSigns.size > 0 ">
+                    AND own_sign in
+                    <foreach collection="ownSigns" item="ownSign" open="(" close=")" separator=",">
+                        #{ownSign}
+                    </foreach>
+                </when>
+                <otherwise>
+                    AND own_sign =  #{ownSign}
+                </otherwise>
+            </choose>
+
 			<if test="queueIds != null">
 				AND queue_id in
 				<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
