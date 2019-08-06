@@ -132,8 +132,13 @@ public interface SortingService {
      */
     public List<Sorting> findByWaybillCodeOrPackageCode(Integer createSiteCode,String waybillCode, String packageCode);
 
-    /**分页查询分拣任务*/
-    public List<Sorting> findPageSorting(Map<String,Object> params);
+    /**
+     * 根据包裹号查询一条sorting记录
+     * @param packageCode
+     * @param createSiteCode
+     * @return
+     */
+    public Sorting getOneSortingByPackageCode(String packageCode,Integer createSiteCode);
 
     /**
      * 处理任务数据
