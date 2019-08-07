@@ -37,6 +37,10 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private Integer dmsSiteCode;
 	/**
+	 * 青龙业主号
+	 */
+	private String customerCode;
+	/**
 	 * 包裹号/运单号
 	 */
 	private String barCode;
@@ -164,6 +168,19 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setDmsSiteCode(Integer dmsSiteCode) {
 		this.dmsSiteCode = dmsSiteCode;
 	}
+	/**
+	 * @return the customerCode
+	 */
+	public String getCustomerCode() {
+		return customerCode;
+	}
+	/**
+	 * @param customerCode the customerCode to set
+	 */
+	public void setCustomerCode(String customerCode) {
+		this.customerCode = customerCode;
+	}
+
 	/**
 	 * @return the barCode
 	 */

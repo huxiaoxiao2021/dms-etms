@@ -1016,6 +1016,11 @@
 			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.spm</groupId>
+			<artifactId>bwcompany-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 
 	<build>
