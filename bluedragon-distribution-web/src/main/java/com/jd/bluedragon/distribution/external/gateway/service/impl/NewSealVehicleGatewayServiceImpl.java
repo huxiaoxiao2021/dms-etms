@@ -109,14 +109,17 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
         if (routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK)
                 || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR)) {
-            jdCResponse.setCode(JdCResponse.CODE_CONFIRM);
-            jdCResponse.setMessage(routeTypeResponse.getMessage());
-        } else {
-            jdCResponse.setCode(routeTypeResponse.getCode());
-            jdCResponse.setMessage(routeTypeResponse.getMessage());
             jdCResponse.setData(routeTypeResponse.getTransWay());
+            jdCResponse.toConfirm(routeTypeResponse.getMessage());
+            return jdCResponse;
+        }
+        if (routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_OK)){
+            jdCResponse.setData(routeTypeResponse.getTransWay());
+            jdCResponse.toSucceed(routeTypeResponse.getMessage());
+            return jdCResponse;
         }
 
+        jdCResponse.toFail(routeTypeResponse.getMessage());
         return jdCResponse;
     }
 
