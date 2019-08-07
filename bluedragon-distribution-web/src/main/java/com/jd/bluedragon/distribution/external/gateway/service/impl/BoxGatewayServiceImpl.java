@@ -69,8 +69,10 @@ public class BoxGatewayServiceImpl implements BoxGatewayService {
                     boxDtoList.add(packageBoxDto(boxResponse));
                 }
             }
+            jdCResponse.toSucceed();
             jdCResponse.setData(boxDtoList);
             jdCResponse.setMessage(invokeResult.getMessage());
+            return jdCResponse;
         }
         jdCResponse.toError(invokeResult.getMessage());
         return jdCResponse;
