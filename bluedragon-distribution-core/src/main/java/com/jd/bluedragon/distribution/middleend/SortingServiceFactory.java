@@ -29,26 +29,29 @@ public class SortingServiceFactory {
     @Resource
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "failover.sorting.open";
+    private static final String SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN = "failover.sorting.service.site.open";
+    private static final String SORTING_SERVICE_MODE_DMS ="DMS";
+    private static final String SORTING_SERVICE_MODE_MIDDLEEND="MIDDLEEND";
+    private static final String SORTING_SERVICE_MODE_FAILOVER="FAILOVER";
 
     public ISortingService getSortingService(Integer createSiteCode) {
-        String serviceType = "FAILOVER";
+        String serviceMode = SORTING_SERVICE_MODE_DMS;
         try {
-            serviceType = uccPropertyConfiguration.getSortingServiceMode();
+            serviceMode = uccPropertyConfiguration.getSortingServiceMode();
         } catch (Exception e) {
             logger.error("ucc获取分拣serviceType异常.", e);
         }
 
-        if(serviceType.equals("FAILOVER")){
+        if(serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)){
             if (createSiteCode == null || !siteService.getSiteCodesFromSysConfig(SYSTEM_CONFIG_MIDDLE_END_SORTING_OPEN).contains(createSiteCode)) {
-                serviceType = "DMS";
+                serviceMode = SORTING_SERVICE_MODE_DMS;
             }
         }
-        if (serviceType.equals("DMS")) {
+        if (serviceMode.equals(SORTING_SERVICE_MODE_DMS)) {
             return dmsSortingService;
-        } else if (serviceType.equals("MIDDLEEND")) {
+        } else if (serviceMode.equals(SORTING_SERVICE_MODE_MIDDLEEND)) {
             return middleEndSortingService;
-        } else if (serviceType.equals("FAILOVER")) {
+        } else if (serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)) {
             return failOverSortingService;
         }
 
