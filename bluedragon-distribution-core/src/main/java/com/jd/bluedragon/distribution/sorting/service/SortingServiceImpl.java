@@ -1427,13 +1427,13 @@ public class SortingServiceImpl implements SortingService {
 					return SortingResponse.sortingInspected();
 				}
 			}
-			sortingRecords = sortingDao.findByBoxCode(sorting);
+			sortingRecords.addAll(sortingDao.findByBoxCode(sorting));
 			if (sortingRecords != null && sortingRecords.size() > DmsConstants.MAX_NUMBER) {
 				logger.warn(sorting.getPackageCode() + "的包裹数：" + sortingRecords.size() + "，大于两万，已反馈现场提报IT");
 				return SortingResponse.packageNumLimit();
 			}
 		} else {
-			sortingRecords = queryByCode2(sorting);
+			sortingRecords.addAll(queryByCode2(sorting));
 			if (sortingRecords == null || sortingRecords.isEmpty()) {
 				logger.warn("取消分拣--->包裹已经发货");
 				addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL, "包裹已经发货");
