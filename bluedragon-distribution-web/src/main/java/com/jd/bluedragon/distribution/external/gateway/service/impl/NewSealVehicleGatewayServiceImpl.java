@@ -241,7 +241,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             param.setSealSiteId(sc.getSealSiteId());
             param.setSealSiteName(sc.getSealSiteName());
             param.setSealUserCode(sc.getSealUserCode());
-            param.setDesealUserName(sc.getSealUserName());
+            param.setSealUserName(sc.getSealUserName());
             sealCarDtos.add(param);
         }
         return sealCarDtos;
