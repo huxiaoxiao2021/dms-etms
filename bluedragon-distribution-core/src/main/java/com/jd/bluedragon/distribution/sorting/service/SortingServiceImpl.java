@@ -55,6 +55,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
@@ -165,27 +167,6 @@ public class SortingServiceImpl implements SortingService {
 		}
 	}
 
-	@Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
-	public List<Sorting> findSortingPackages(Sorting sorting) {
-		String boxCodes = this.getBoxCodes(sorting);
-		if (StringHelper.isEmpty(boxCodes)) {
-			return Collections.emptyList();
-		}
-
-		sorting.setBoxCodes(boxCodes);
-		return this.sortingDao.findSortingPackages(sorting);
-	}
-
-	private String getBoxCodes(Sorting sorting) {
-		Box box = new Box();
-		box.setType(Box.BOX_TYPE_FORWARD);
-		box.setReceiveSiteCode(sorting.getReceiveSiteCode());
-		box.setStatuses(Box.BOX_STATUS_SORT + Constants.SEPARATOR_COMMA + Box.BOX_STATUS_INSPECT_PROCESSING);
-		List<Box> boxes = this.boxService.findBoxes(box);
-
-		return StringHelper.join(boxes, "getCode", Constants.SEPARATOR_COMMA, Constants.SEPARATOR_APOSTROPHE);
-	}
-
 	public List<Sorting> findByBoxCode(Sorting sorting) {
 		return this.sortingDao.findByBoxCode(sorting);
 	}
@@ -224,6 +205,8 @@ public class SortingServiceImpl implements SortingService {
 				&& this.deliveryService.canCancel2(this.parseSendDetail(sorting));
 		if (result) {
 			this.addOpetationLog(sorting, OperationLog.LOG_TYPE_SORTING_CANCEL);
+			//发送取消建箱全程跟踪，MQ
+			this.sendSortingCancelWaybillTrace(sorting);
 		}
 		return result;
 	}
@@ -1047,6 +1030,7 @@ public class SortingServiceImpl implements SortingService {
 		return pickup;
 	}
 
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.WEB.SortingServiceImpl.findOrderDetail", mState = JProEnum.TP)
 	public List<Sorting> findOrderDetail(Sorting sorting) {
 		return this.sortingDao.findOrderDetail(sorting);
 	}
@@ -1253,7 +1237,7 @@ public class SortingServiceImpl implements SortingService {
 			//判断是否重复分拣, 10秒内如果同操作场地、同目的地、同扫描号码即可判断为重复操作。立刻置失败，转到下一次执行。只使用key存不存在做防重
 			Boolean isSucdess = cacheService.setNx(fingerPrintKey, "1", TASK_1200_EX_TIME_5_S, TimeUnit.SECONDS);
 			if(!isSucdess){//说明有重复任务
-				this.logger.error("1200分拣任务重复："+task.getBody());
+				this.logger.warn("1200分拣任务重复："+task.getBody());
 				return false;
 			}
 		}catch(Exception e){
@@ -1319,4 +1303,49 @@ public class SortingServiceImpl implements SortingService {
             return Collections.EMPTY_LIST;
         }
     }
+
+	/**
+	 * 发送全称跟踪
+	 *
+	 */
+	private void sendSortingCancelWaybillTrace(Sorting sorting) {
+		CallerInfo info = Profiler.registerInfo("DMSWEB.SortingServiceImpl.sendSortingCancelWaybillTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
+		try {
+			String boxCode = sorting.getBoxCode();
+			String packageCode = sorting.getPackageCode();
+			Integer createSiteCode = sorting.getCreateSiteCode();
+
+			WaybillStatus waybillStatus = new WaybillStatus();
+			//设置站点相关属性
+			waybillStatus.setPackageCode(packageCode);
+			waybillStatus.setWaybillCode(sorting.getWaybillCode());
+			waybillStatus.setBoxCode(boxCode);
+			waybillStatus.setCreateSiteCode(createSiteCode);
+			waybillStatus.setOperatorId(sorting.getUpdateUserCode());
+			waybillStatus.setOperator(sorting.getUpdateUser());
+			waybillStatus.setOperateTime(sorting.getOperateTime() == null ? new Date() : sorting.getOperateTime());
+			waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL);
+			waybillStatus.setRemark("取消建箱，箱号：" + boxCode);
+
+			Task task = new Task();
+			task.setTableName(Task.TABLE_NAME_POP);
+			task.setSequenceName(Task.getSequenceName(task.getTableName()));
+			task.setKeyword1(packageCode);
+			task.setKeyword2(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL.toString());
+			task.setCreateSiteCode(createSiteCode);
+			task.setBody(JsonHelper.toJson(waybillStatus));
+			task.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+			task.setOwnSign(BusinessHelper.getOwnSign());
+
+			// 添加到task表
+			taskService.add(task);
+
+		} catch (Exception e) {
+			Profiler.functionError(info);
+			logger.error("取消分拣发送全称跟踪失败.", e);
+		} finally {
+			Profiler.registerInfoEnd(info);
+		}
+	}
+
 }

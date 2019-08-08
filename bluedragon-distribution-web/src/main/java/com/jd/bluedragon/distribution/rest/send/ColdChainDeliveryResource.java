@@ -84,14 +84,10 @@ public class ColdChainDeliveryResource extends DeliveryResource{
             if (JdResponse.CODE_OK.equals(response.getCode())) {
                 coldChainSendService.batchAdd(sendMList, request.get(0).getTransPlanCode());
             }
+            return response;
         } catch (Exception e) {
             logger.error("B网冷链发货时发生异常", e);
             return new DeliveryResponse(DeliveryResponse.CODE_Delivery_ERROR, DeliveryResponse.MESSAGE_Delivery_ERROR);
-        }
-        if (response != null) {
-            return response;
-        } else {
-            return new DeliveryResponse(JdResponse.CODE_NOT_FOUND, JdResponse.MESSAGE_SERVICE_ERROR);
         }
     }
 

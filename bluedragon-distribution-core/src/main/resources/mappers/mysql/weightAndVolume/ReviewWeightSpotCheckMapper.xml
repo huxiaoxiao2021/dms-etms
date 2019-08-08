@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
+
+	<resultMap id="spotCheckInfo" type="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="normal_package_num" property="normalPackageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="trust_package_num" property="trustPackageNum" javaType="java.lang.Integer" jdbcType="BIGINT" />
+		<result column="import_erp" property="importErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="BIGINT" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,org_code,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
+	</sql>
+
+	<sql id="Query_Params_Condition_Sql">
+		<if test="reviewOrgCode != null">
+			and org_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+		<if test="createSiteCode != null">
+			and site_code = #{createSiteCode,jdbcType=BIGINT}
+		</if>
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo">
+		insert into spot_check_info
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="orgCode != null">
+				org_code,
+			</if>
+			<if test="siteCode != null">
+				site_code,
+			</if>
+			<if test="siteName != null">
+				site_name,
+			</if>
+			<if test="normalPackageNum != null">
+				normal_package_num,
+			</if>
+			<if test="trustPackageNum != null">
+				trust_package_num,
+			</if>
+			<if test="importErp != null">
+				import_erp,
+			</if>
+			is_delete,
+			ts
+		</trim>
+		)
+		values
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="orgCode != null">
+				#{orgCode,jdbcType=BIGINT},
+			</if>
+			<if test="siteCode != null">
+				#{siteCode,jdbcType=BIGINT},
+			</if>
+			<if test="siteName != null">
+				#{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="normalPackageNum != null">
+				#{normalPackageNum,jdbcType=BIGINT},
+			</if>
+			<if test="trustPackageNum != null">
+				#{trustPackageNum,jdbcType=BIGINT},
+			</if>
+			<if test="importErp != null">
+				#{importErp,jdbcType=VARCHAR},
+			</if>
+			0,
+			now()
+		</trim>
+		)
+	</insert>
+
+	<select id="queryAllSpotInfo" resultMap="spotCheckInfo">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		spot_check_info
+		where 1=1
+		<include refid="Base_Condition_Sql"/>
+		limit 5000
+	</select>
+
+	<select id="queryBySiteCode" parameterType="Integer" resultMap="spotCheckInfo">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		spot_check_info
+		where 1=1
+		AND site_code = #{siteCode,jdbcType=BIGINT}
+		<include refid="Base_Condition_Sql"/>
+		limit 1
+	</select>
+
+	<select id="queryByCondition" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition" resultMap="spotCheckInfo">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		spot_check_info
+		where 1=1
+		<include refid="Query_Params_Condition_Sql"/>
+
+		<include refid="Base_Condition_Sql"/>
+		limit 5000
+	</select>
+
+	<update id="updateBySiteCode" parameterType="com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckInfo" timeout="3">
+		UPDATE spot_check_info
+		<set>
+			<if test="siteCode != null">
+				site_code = #{siteCode,jdbcType=BIGINT},
+			</if>
+			<if test="siteName != null">
+				site_name = #{siteName,jdbcType=VARCHAR},
+			</if>
+			<if test="normalPackageNum != null">
+				normal_package_num = #{normalPackageNum,jdbcType=BIGINT},
+			</if>
+			<if test="trustPackageNum != null">
+				trust_package_num = #{trustPackageNum,jdbcType=BIGINT},
+			</if>
+			<if test="importErp != null">
+				import_erp = #{importErp,jdbcType=VARCHAR},
+			</if>
+			ts = now()
+		</set>
+		where 1=1
+		AND site_code = #{siteCode,jdbcType=BIGINT}
+		<include refid="Base_Condition_Sql"/>
+	</update>
+
+	<sql id="Base_Condition_Sql" >
+		and is_delete=0
+	</sql>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into spot_check_info
+		(
+			org_code,site_code,site_name,normal_package_num,trust_package_num,import_erp,is_delete,ts
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.orgCode,jdbcType=TINYINT},
+			#{item.siteCode,jdbcType=TINYINT},
+			#{item.siteName,jdbcType=VARCHAR},
+			#{item.normalPackageNum,jdbcType=TINYINT},
+			#{item.trustPackageNum,jdbcType=TINYINT},
+			#{item.importErp,jdbcType=VARCHAR},
+			0,
+			now()
+			)
+		</foreach>
+	</insert>
+
+</mapper>

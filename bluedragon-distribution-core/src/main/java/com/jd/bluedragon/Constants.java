@@ -36,6 +36,7 @@ public class Constants {
     public static final String SEPARATOR_SEMICOLON = ";";
     public static final String SEPARATOR_HYPHEN = "-";
     public static final String SEPARATOR_COLON = ":";
+    public static final String SEPARATOR_BLANK_SPACE = " ";
 
     public static final String PUNCTUATION_OPEN_BRACKET = "[";
     public static final String PUNCTUATION_CLOSE_BRACKET = "]";
@@ -222,6 +223,11 @@ public class Constants {
      * 基础资料默认分拣中心所属类型
      */
     public static final Integer DMS_SITE_TYPE = 64;
+
+    /**
+     * 财务专用
+     */
+    public static final Integer FINANCIAL_SPECIAL_SITE_TYPE = 98;
     
     /**
      * POP订单类型
@@ -597,6 +603,10 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_QUEUE_R="DMS-WEB-PTORDER-QUEUE-R"; //平台排队号查询
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
+    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
+    public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //分拣复重抽检任务统计
+    public static final String DMS_WEB_SORTING_INVENTORYTASK_R="DMS_WEB_SORTING_INVENTORYTASK_R"; //转运清场任务
+    public static final String DMS_WEB_SORTING_INVENTORYEXCEPTION_R="DMS_WEB_SORTING_INVENTORYEXCEPTION_R"; //转运清场异常
     public static final String DMS_WEB_SORTING_CROSSBOX_R ="DMS-WEB-SORTING-CROSSBOX-R"; //跨箱号中转
     public static final String DMS_WEB_SORTING_GLOBALTRADE_R ="DMS-WEB-SORTING-GLOBALTRADE-R"; //全球购
     public static final String DMS_WEB_SORTING_GANTRY_R ="DMS-WEB-SORTING-GANTRY-R"; //龙门架注册
@@ -700,8 +710,26 @@ public class Constants {
      * 配置信息-客户端检查配置sys.config.client.check
      */
     public static final String SYS_CONFIG_LOGIN_CHECK = "sys.config.login.check";
+    /**
+	  * 配置信息-客户端运行环境配置前缀 sys.config.client.runningMode.
+	  */
+    public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";    
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+    /**
+     * 是否启用中台创建箱号开关key
+     */
+    public static final String CREATE_BOX_FROM_SSC_SWITCH = "CREATE_BOX_FROM_SSC_SWITCH";
+
+    /**
+     * 是否启用中台创建箱号开关key
+     */
+    public static final String FIND_BOX_FROM_SSC_SWITCH = "FIND_BOX_FROM_SSC_SWITCH";
+
+    /**
+     * 启用中台创建箱号的场地集合 key
+     */
+    public static final String CREATE_BOX_FROM_SSC_SITE = "CREATE_BOX_FROM_SSC_SITE";
 
     /**
      * 配置信息-一车一单发货 自动取消组板功能开启的分拣中心
@@ -727,6 +755,10 @@ public class Constants {
      * 三无寄托物核实 上报次数上限
      */
     public static final String SYS_ABNORMAL_UNKNOWN_REPORT_TIMES= "abnormal.unknown.report.times";
+    /**
+     * 三无寄托物核实 上报运单数量限制
+     */
+    public static final String SYS_ABNORMAL_UNKNOWN_REPORT_WAYBILL_MAX= "abnormal.unknown.report.waybill.max";
     /**
      * 封车批次号缓存前缀
      */
@@ -926,5 +958,15 @@ public class Constants {
      * 计量单位：cm
      */
     public static final String MEASURE_UNIT_NAME_CM = "cm";
+
+    /**
+     * 数据库箱号最大长度限制，由于无法保证与数据库同步更新，此常量不属于权威定义
+     */
+    public static final int BOX_CODE_DB_COLUMN_LENGTH_LIMIT = 50;
+
+    /**
+     * EMG条码前缀
+     */
+    public static final String EMG_CODE_PREFIX = "EMG";
 
 }

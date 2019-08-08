@@ -12,6 +12,8 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.WChoice;
@@ -61,6 +63,9 @@ public class CenterServiceResource {
 
 	@Autowired
 	private WaybillPackageManager waybillPackageManager;
+
+	@Autowired
+	private JsfSortingResourceService jsfSortingResourceService;
 
 	@GET
 	@Path("/centerService/getBaseSiteBySiteId/")
@@ -176,6 +181,11 @@ public class CenterServiceResource {
 		choice.setQueryWaybillExtend(true);
 		choice.setQueryPickupTask(true);
 		choice.setQueryServiceBillPay(true);
+		choice.setQueryQByNewCode(true);
+		choice.setQueryWaybillFinance(true);
+		choice.setQueryWaybillP(true);
+		choice.setQueryWaybillS(true);
+		choice.setQueryWaybillT(true);
 
 		BaseEntity<BigWaybillDto> result = null;
 		try {
@@ -233,5 +243,17 @@ public class CenterServiceResource {
 			logger.error("中心服务调用运单getDataByChoice出错", e);
 		}
 		return result;
+	}
+
+	/**
+	 * 调用ver的jsf接口，查询运单的路由
+	 * @param waybillCode
+	 * @return
+	 */
+	@GET
+	@Path("/centerService/getRouterByWaybillCode/{waybillCode}")
+	@GZIP
+	public String getRouterByWaybillCode(@PathParam("waybillCode") String waybillCode){
+		return jsfSortingResourceService.getRouterByWaybillCode(waybillCode);
 	}
 }

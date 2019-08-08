@@ -504,4 +504,24 @@
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
 
+    <!-- 分拣复重抽检任务统计 -->
+    <bean id="reviewWeightSpotCheckDao" class="com.jd.bluedragon.distribution.weightAndVolumeCheck.dao.ReviewWeightSpotCheckDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
+    <!-- 清场 -->
+    <bean id="inventoryTaskDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryTaskDaoImpl"/>
+
+    <bean id="inventoryScanDetailDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryScanDetailDaoImpl"/>
+
+    <bean id="inventoryExceptionDao" parent="unDivBaseDao"
+          class="com.jd.bluedragon.distribution.inventory.dao.impl.InventoryExceptionDaoImpl"/>
+
+    <!-- 交接 -->
+    <bean id="allianceBusiDeliveryDetailDao" class="com.jd.bluedragon.distribution.alliance.dao.impl.AllianceBusiDeliveryDetailDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
+
 </beans>

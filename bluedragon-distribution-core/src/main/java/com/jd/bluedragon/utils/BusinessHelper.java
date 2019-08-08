@@ -20,6 +20,8 @@ public class BusinessHelper {
     public static final String PACKAGE_SEPARATOR = "-";
     public static final String PACKAGE_IDENTIFIER_SUM = "S";
     public static final String PACKAGE_IDENTIFIER_NUMBER = "N";
+
+    public static final String TERMINAL_BATCH_CODE_REG = "^R\\d{19}$";//站点批次号正则
     /**
      * hash格式分页存储时，分页大小
      */
@@ -38,6 +40,9 @@ public class BusinessHelper {
      * Y开头的也认为是箱号（上海亚一用）
      */
     public static Boolean isBoxcode(String s) {
+        if (StringHelper.isEmpty(s)) {
+            return false;
+        }
         return BusinessUtil.isBoxcode(s) || s.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX);
     }
 
@@ -178,11 +183,22 @@ public class BusinessHelper {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             //WaybillSign40=2或3时，并且WaybillSign25=2时（只外单快运纯配、外单快运仓配并且运费到付），需校验
             if ((BusinessUtil.isSignChar(waybillSign, 40, '2') || BusinessUtil.isSignChar(waybillSign, 40, '3'))
-                    && BusinessUtil.isSignChar(waybillSign, 25, '2')) {
+                    && BusinessUtil.isSignChar(waybillSign, 25, '2')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
         return true;
+    }
+
+    /**
+     * 逆向不计费运单
+     * @param waybillSign
+     * @return true 不计费，false 计费
+     */
+    private static boolean reverseB2bNoInterceptFreight(String waybillSign){
+        //waybillSign第14位等于D或E，为逆向不计费运单，不用校验运费，不用拦截;(D:原单作废，E:原单拒收因京东原因产生的逆向)
+        return BusinessUtil.isSignInChars(waybillSign,14,'D','E');
     }
 
     /**
@@ -198,7 +214,8 @@ public class BusinessHelper {
             String waybillSign = bigWaybillDto.getWaybill().getWaybillSign();
             //WaybillSign62=1时，并且WaybillSign25=3时（只外单快运纯配、外单快运仓配并且运费寄付），需校验
             if (BusinessUtil.isSignChar(waybillSign, 62, '1')
-                    && BusinessUtil.isSignChar(waybillSign, 25, '3')) {
+                    && BusinessUtil.isSignChar(waybillSign, 25, '3')
+                    && !reverseB2bNoInterceptFreight(waybillSign)) {
                 return NumberHelper.gt0(bigWaybillDto.getWaybill().getFreight());
             }
         }
@@ -348,6 +365,18 @@ public class BusinessHelper {
     }
 
     /**
+     * 判断是否是终端的发货批次号
+     * @param batchCode 终端发货批次号 R1130842623972495360
+     * @return
+     */
+    public static boolean isTerminalBatchCode(String batchCode) {
+        if (StringHelper.isEmpty(batchCode)) {
+            return Boolean.FALSE;
+        }
+        return batchCode.matches(TERMINAL_BATCH_CODE_REG);
+    }
+
+    /**
      * 判断是否满足同城当日达的条件
      * waybill_sign
      * 第55位等于0 （表示非生鲜专送）
@@ -460,6 +489,17 @@ public class BusinessHelper {
     }
 
     /**
+     * c2c 且为到付或寄付，且为正向
+     * waybill_sign第61位为0标记正向
+     */
+    public static boolean isC2cForward(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)){
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 61, '0') && isC2c(waybillSign);
+    }
+
+    /**
      * 判断是否是B网分拣
      * @param siteType
      * @return
@@ -502,5 +542,17 @@ public class BusinessHelper {
         }
         return siteType.equals(new Integer(WMS_SITE_TYPE));
     }
-
+    /**
+     * 判断eclp能否打印,40位为1或者40位为2并且80位为1和2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isEclpCanPrint(String waybillSign) {
+        if (StringUtils.isBlank(waybillSign)) {
+            return false;
+        }
+        return BusinessUtil.isSignChar(waybillSign, 40, '1')
+        		||(BusinessUtil.isSignChar(waybillSign, 40, '2')
+        				&& BusinessUtil.isSignInChars(waybillSign, 80, '1' ,'2'));
+    }
 }

@@ -88,12 +88,12 @@ public class ReverseSendPopMessageServiceImpl implements ReverseSendPopMessageSe
             if (StringUtils.isNotEmpty(messageType)) {
                 popMessage.setMessageType(messageType);
             } else {
-                log.error("【运单号:" + waybillCode + "】是非POP订单");
+                log.warn("【运单号:" + waybillCode + "】是非POP订单");
                 return false;
             }
 
-            popMessage.setOrderId(waybillCode);
-            popMessage.setUuid(waybillCode);
+            popMessage.setOrderId(waybill.getVendorId());
+            popMessage.setUuid(waybill.getVendorId());
             popMessage.setBizType(20);
             popMessage.setBusinessTime(new Date());
 

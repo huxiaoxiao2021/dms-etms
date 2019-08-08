@@ -30,7 +30,14 @@
 	</resultMap>
 	
 	<resultMap id="SendDetailList" type="java.lang.String" />
-	
+
+	<resultMap id="WaybillNoCollectionInfo" type="com.jd.bluedragon.distribution.waybill.domain.WaybillNoCollectionInfo">
+		<result column="waybill_code"  property="waybillCode" />
+		<result column="package_barcode"  property="packageCodeSomeone" />
+		<result column="package_num"  property="packageNum" />
+		<result column="scan_count"  property="scanCount" />
+	</resultMap>
+
   	<insert id="add" parameterType="SendDetail" >
   		<!--<selectKey resultType="long"  keyProperty="sendDId" order="BEFORE" statementType="PREPARED">      
 			<![CDATA[select dms_core_send_d.nextval]]>
@@ -129,7 +136,10 @@
 			excute_count = 0,
 			excute_time = NOW()
 		where
-		    yn = 1 AND box_code in (${boxCode})
+		    yn = 1 AND box_code in
+        <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+            #{item,jdbcType=VARCHAR}
+        </foreach>
 		    AND create_site_code = #{createSiteCode,jdbcType=INTEGER}
 			AND receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
     </update>
@@ -243,15 +253,36 @@
         </if>
 	</select>
 
-	<select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
-		SELECT 
-		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and
-		send_code=#{sendCode,jdbcType=VARCHAR} 
-		<if test = "null!=createSiteCode">
-			and create_site_code=#{createSiteCode,jdbcType=INTEGER}
-		</if>
-	</select>
+    <select id="queryBySiteCodeAndSendCode" parameterType="SendDetail" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d where yn=1 and
+        send_code=#{sendCode,jdbcType=VARCHAR}
+        <if test = "null!=createSiteCode">
+            and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+        </if>
+    </select>
+
+    <sql id="page_Condition_Sql">
+         where yn=1 and
+		send_code=#{sendCode,jdbcType=VARCHAR}
+		and create_site_code=#{createSiteCode,jdbcType=INTEGER}
+    </sql>
+
+    <select id="queryCountBySiteCodeAndSendCode" resultType="Integer">
+        SELECT
+        count(*)
+        FROM send_d
+        <include refid="page_Condition_Sql"/>
+    </select>
+
+    <select id="queryPageBySiteCodeAndSendCode" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="SendDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM send_d
+        <include refid="page_Condition_Sql"/>
+        limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+    </select>
 	
 	<select id="findSendDetails" parameterType="SendDetail" resultMap="SendDetail">
 		SELECT sm.send_code, sd.box_code, sd.package_barcode, sd.package_num, sd.waybill_code,
@@ -487,9 +518,6 @@
 			<if test="packageBarcode!=null">
 				and package_barcode = #{packageBarcode,jdbcType=VARCHAR}
 			</if>
-			<if test="sendCode!=null">
-				and package_barcode in ${sendCode}
-			</if>
 		</where>
     </update>
     
@@ -532,13 +560,6 @@
 		SELECT
 		<include refid="Base_Column_List" />
 		FROM send_d where yn=1 and weight = -1 LIMIT 2000
-	</select>
-
-	<select id="querySendCodesByWaybills" parameterType="SendDetail"
-		resultMap="SendDetail">
-		SELECT 
-		<include refid="Base_Column_List" />
-		FROM send_d where yn=1 and waybill_code in (${waybillCode}) order by update_time
 	</select>
 	
 	<select id="checkSendByPackage" parameterType="SendDetail" resultType="Integer">
@@ -719,8 +740,11 @@
 			<if test="receiveSiteCode!=null">
 				and receive_site_code = #{receiveSiteCode,jdbcType=INTEGER}
 			</if>
-			<if test="boxCode!=null">
-				and box_code in (${boxCode})
+			<if test="boxCodeList !=null ">
+                and box_code in
+                <foreach collection="boxCodeList" item="item" index="index" open="(" separator="," close=")">
+                    #{item,jdbcType=VARCHAR}
+                </foreach>
 			</if>
 			
 		</where>
@@ -893,5 +917,42 @@
 		and send_code = #{sendCode,jdbcType=VARCHAR}
 		and yn = 1
 		and is_cancel = 0
+	</select>
+
+	<select id="getWaybillNoCollectionInfo" parameterType="map" resultMap="WaybillNoCollectionInfo">
+		select count(distinct package_barcode) scan_count, waybill_code, package_num, package_barcode from send_d
+		where
+		yn = 1 and is_cancel = 0
+		<if test="sendCode != null">
+			and send_code = #{sendCode}
+		</if>
+		<if test="boxCode != null">
+			and box_code = #{boxCode}
+		</if>
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		and package_num <![CDATA[>]]> 1 group by waybill_code
+		having scan_count <![CDATA[<]]> package_num
+	</select>
+
+	<select id="getScannedInfoPackageNumMoreThanOne" parameterType="map" resultType="java.lang.String">
+		select package_barcode from send_d
+		where
+		yn = 1 and is_cancel = 0 and package_num <![CDATA[>]]> 1
+		<if test="sendCode != null">
+			and send_code = #{sendCode}
+		</if>
+		<if test="boxCode != null">
+			and box_code = #{boxCode}
+		</if>
+		and create_site_code = #{createSiteCode, jdbcType=INTEGER}
+		<if test="waybillCodeList != null">
+			and waybill_code in
+			<foreach collection="waybillCodeList" item="items" index="index" open="("
+					 close=")" separator=","> #{items,jdbcType=VARCHAR}
+			</foreach>
+		</if>
+		group by package_barcode
+
+
 	</select>
 </mapper>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.tfc.dto.CommonDto;
 import com.jd.tms.tfc.dto.ScheduleCargoSimpleDto;
@@ -7,6 +8,8 @@ import com.jd.tms.tfc.dto.TransPlanScheduleCargoDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
 import com.jd.tms.tfc.ws.TfcQueryWS;
 import com.jd.tms.tfc.ws.TfcSelectWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +37,7 @@ public class TmsTfcWSManagerImpl implements TmsTfcWSManager {
     private TfcSelectWS tfcSelectWS;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "dmsWeb.jsf.tfcSelectWS.getTransPlanScheduleCargoByCondition",mState={JProEnum.TP,JProEnum.FunctionError})
     public List<TransPlanScheduleCargoDto> getTransPlanScheduleCargoByCondition(ScheduleCargoSimpleDto cargoSimpleDto) {
         if (cargoSimpleDto != null) {
             CommonDto<List<TransPlanScheduleCargoDto>> commonDto = tfcSelectWS.getTransPlanScheduleCargoByCondition(cargoSimpleDto);

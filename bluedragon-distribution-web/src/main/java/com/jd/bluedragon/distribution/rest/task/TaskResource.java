@@ -27,6 +27,8 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -130,22 +133,28 @@ public class TaskResource {
                     String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                             + JsonHelper.toJson(reverseSpareMap)
                             + Constants.PUNCTUATION_CLOSE_BRACKET;
-                    logger.warn("[" + request.getType() + "]" + eachJson);
-                    this.taskService.add(
-                            this.taskService.toTask(request, eachJson), true);
+                    this.taskAssemblingAndSave(request, eachJson);
                 }
             } else {
                 String eachJson = Constants.PUNCTUATION_OPEN_BRACKET
                         + JsonHelper.toJson(element)
                         + Constants.PUNCTUATION_CLOSE_BRACKET;
-                logger.warn("[" + request.getType() + "]" + eachJson);
-                this.taskService.add(
-                        this.taskService.toTask(request, eachJson), true);
+                this.taskAssemblingAndSave(request, eachJson);
             }
         }
 
         return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,
                 DateHelper.formatDateTime(new Date()));
+    }
+
+    private void taskAssemblingAndSave(TaskRequest request, String jsonStr) {
+        logger.warn("[" + request.getType() + "]" + jsonStr);
+        Task task = this.taskService.toTask(request, jsonStr);
+        if (task.getBoxCode() != null && task.getBoxCode().length() > Constants.BOX_CODE_DB_COLUMN_LENGTH_LIMIT) {
+            logger.warn("箱号超长，无法插入任务，参数：" + JsonHelper.toJson(task));
+        } else {
+            this.taskService.add(task, true);
+        }
     }
 
     private TaskResponse toTaskResponse(Task task) {
@@ -278,7 +287,7 @@ public class TaskResource {
             taskService.addInspectSortingTaskDirectly(packageDtos);
         } catch (Exception e) {
             Profiler.functionError(info);
-            logger.error("智能分拣线插入交接、分拣任务失败，原因"+JsonHelper.toJson(packageDtos), e);
+            logger.warn("智能分拣线插入交接、分拣任务失败，原因"+JsonHelper.toJson(packageDtos), e);
             return new TaskResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         }finally {
             Profiler.registerInfoEnd(info);
@@ -355,6 +364,8 @@ public class TaskResource {
                 GantryException gantryException = this.convert2GantryException(domain);
                 gantryExceptionService.addGantryException(gantryException);
                 logger.warn("验货时间早于调整后的时间！时间调整数为：" + days.toString() + JsonHelper.toJsonUseGson(domain));
+            }else {
+                scannerTime = correctScannerTimeHeaderDate(scannerTime, date, registerNo);
             }
 
             domain.setScannerTime(scannerTime);
@@ -375,7 +386,49 @@ public class TaskResource {
         }
         return result;
     }
-    
+
+    /**
+     * 根据header 里的date校验龙门架扫描时间
+     * @param scannerTime
+     * @return scannerTime 调整后的操作时间
+     */
+    private Date correctScannerTimeHeaderDate(Date scannerTime, String headerDate, String registerNo){
+        try{
+            //配置校验的场地 为空校验全部场地
+            String correctionRegisterNo = PropertiesHelper.newInstance().getValue("GANTRY_SCANNER_TIME_CORRECTION_REGISTER_NO");
+            //均不校验
+            if(org.apache.commons.lang3.StringUtils.isNotBlank(correctionRegisterNo)){
+                String[] registerNos = correctionRegisterNo.split(",");
+                //不包含直接返回不处理
+                if(!ArrayUtils.contains(registerNos, registerNo)){
+                    return scannerTime;
+                }
+            }
+
+            Date gantryDate = null;
+            gantryDate = DateHelper.parseDateTime(headerDate);
+            if(gantryDate == null){
+                logger.info("headerDate 转 date 失败headerDate:" + headerDate);
+                return scannerTime;
+            }
+            long deviationMillSecond = System.currentTimeMillis() - gantryDate.getTime();
+            int deviationSecond = (int)deviationMillSecond/1000;
+            Date scannerTimeAfterCorrect = DateUtils.addSeconds(scannerTime, deviationSecond);
+            logger.info(MessageFormat.format("registerNo:{0} 扫描时间：{1},校准为:{2}", registerNo,
+                    DateHelper.formatDateTimeMs(scannerTime),
+                    DateHelper.formatDateTimeMs(scannerTimeAfterCorrect)
+            ));
+            if(scannerTimeAfterCorrect.getTime() > System.currentTimeMillis()){
+                return new Date();
+            }
+            return scannerTimeAfterCorrect;
+        }catch (Exception e){
+            logger.error(MessageFormat.format("校准龙门架时间时异常：scannerTime：{0} headerDate：{1}, registerNo:{2}",
+                    DateHelper.formatDateTimeMs(scannerTime), headerDate, registerNo),e);
+        }
+        return scannerTime;
+
+    }
 
     /**
      * 保存自动分拣机发货任务

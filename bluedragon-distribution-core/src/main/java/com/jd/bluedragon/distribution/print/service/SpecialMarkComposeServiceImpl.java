@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.print.service;
 
+import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -106,6 +108,12 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
             waybill.setTransportMode("");
         }
 
+        //waybill_sign第54位等于4 且 第40位等于2或3时显示 【医药】，并且和B互斥--显示医药，则不显示B
+        if(BusinessUtil.isBMedicine(waybill.getWaybillSign()) && BusinessUtil.isSignInChars(waybill.getWaybillSign(),WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2,WaybillSignConstants.CHAR_40_3)){
+            waybill.appendSpecialMark(SPECIAL_MARK_MEDICINE);
+            waybill.dealConflictSpecialMark(SPECIAL_MARK_MEDICINE,CITY_DISTRIBUTION_CHENG);
+        }
+
         //“半”与“航”互斥，且“航”字为大
         waybill.dealConflictSpecialMark(SPECIAL_MARK_AIRTRANSPORT, ALLOW_HALF_ACCEPT);
         //处理标记冲突，安和众
@@ -116,5 +124,25 @@ public class SpecialMarkComposeServiceImpl implements ComposeService {
                 && BusinessUtil.isSignInChars(waybill.getSendPay(),108,'1','2','3')) {
             waybill.appendSpecialMark(SPECIAL_MARK_SOLD_INTO_PACKAGE);
         }
+
+        //处理specialMark1的逻辑
+        specialMark1Handle(waybill);
+    }
+
+    /**
+     * specialMark1的处理逻辑
+     * @param waybill
+     */
+    private void specialMark1Handle(PrintWaybill waybill){
+        String waybillSign = waybill.getWaybillSign();
+        //1.waybill_sign 第89位等于3时，打印 【京仓】;第89位等于4时，打印 【非京仓】
+        if(BusinessUtil.isColdChainWaybill(waybillSign)){
+            if(BusinessUtil.isWareHouseJDWaybill(waybillSign)){
+                waybill.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_JD);
+            }else if(BusinessUtil.isWareHouseNotJDWaybill(waybillSign)){
+                waybill.appendSpecialMark1(SPECIAL_MARK1_WAREHOUSE_NOT_JD);
+            }
+        }
+
     }
 }

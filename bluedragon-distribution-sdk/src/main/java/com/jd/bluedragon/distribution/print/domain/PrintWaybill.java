@@ -72,47 +72,12 @@ public class PrintWaybill extends BasePrintWaybill {
     */
     private String normalText ;
 
-    private Integer purposefulDmsCode;
-
     private String newAddress;
 
     /**
      * 会员级别 V 企
      */
     private String userLevel;
-    /**
-    * 目的分拣中心
-    */
-    
-    private String purposefulDmsName;
-    /**
-    * 原始宠车号
-    */
-    private String originalTabletrolley ;
-
-    /**
-    * 目的宠车号
-    */
-    private String purposefulTableTrolley ;
-
-    /**
-    * 始发道口号
-    */
-    private String originalCrossCode ;
-
-    /**
-    * 目的道口号
-    */
-    private String purposefulCrossCode ;
-
-    /**
-    * 站点名称
-    */
-    private String prepareSiteName ;
-
-    private Integer prepareSiteCode ;
-
-
 
     /**
     * 承诺配送信息
@@ -269,14 +234,6 @@ public class PrintWaybill extends BasePrintWaybill {
         this.newAddress = newAddress;
     }
 
-    public Integer getPurposefulDmsCode() {
-        return purposefulDmsCode;
-    }
-
-    public void setPurposefulDmsCode(Integer purposefulDmsCode) {
-        this.purposefulDmsCode = purposefulDmsCode;
-    }
-
     public Integer getType() {
         return type;
     }
@@ -356,63 +313,6 @@ public class PrintWaybill extends BasePrintWaybill {
     public void setNormalText(String normalText) {
         this.normalText = normalText;
     }
-
-    public String getPurposefulDmsName() {
-        return purposefulDmsName;
-    }
-
-    public void setPurposefulDmsName(String purposefulDmsName) {
-        this.purposefulDmsName = purposefulDmsName;
-    }
-
-    public String getOriginalTabletrolley() {
-        return originalTabletrolley;
-    }
-
-    public void setOriginalTabletrolley(String originalTabletrolley) {
-        this.originalTabletrolley = originalTabletrolley;
-    }
-
-    public String getPurposefulTableTrolley() {
-        return purposefulTableTrolley;
-    }
-
-    public void setPurposefulTableTrolley(String purposefulTableTrolley) {
-        this.purposefulTableTrolley = purposefulTableTrolley;
-    }
-
-    public String getOriginalCrossCode() {
-        return originalCrossCode;
-    }
-
-    public void setOriginalCrossCode(String originalCrossCode) {
-        this.originalCrossCode = originalCrossCode;
-    }
-
-    public String getPurposefulCrossCode() {
-        return purposefulCrossCode;
-    }
-
-    public void setPurposefulCrossCode(String purposefulCrossCode) {
-        this.purposefulCrossCode = purposefulCrossCode;
-    }
-
-    public String getPrepareSiteName() {
-        return prepareSiteName;
-    }
-
-    public void setPrepareSiteName(String prepareSiteName) {
-        this.prepareSiteName = prepareSiteName;
-    }
-
-    public Integer getPrepareSiteCode() {
-        return prepareSiteCode;
-    }
-
-    public void setPrepareSiteCode(Integer prepareSiteCode) {
-        this.prepareSiteCode = prepareSiteCode;
-    }
-
     public String getPromiseText() {
         return promiseText;
     }

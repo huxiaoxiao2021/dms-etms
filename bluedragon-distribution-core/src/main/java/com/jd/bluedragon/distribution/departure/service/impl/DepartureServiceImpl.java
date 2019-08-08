@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DeparturePrintRequest;
 import com.jd.bluedragon.distribution.api.request.DepartureRequest;
@@ -17,7 +18,11 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.departure.dao.DepartureCarDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureSendDao;
 import com.jd.bluedragon.distribution.departure.dao.DepartureTmpDao;
-import com.jd.bluedragon.distribution.departure.domain.*;
+import com.jd.bluedragon.distribution.departure.domain.Departure;
+import com.jd.bluedragon.distribution.departure.domain.DepartureCar;
+import com.jd.bluedragon.distribution.departure.domain.DepartureSend;
+import com.jd.bluedragon.distribution.departure.domain.SendBox;
+import com.jd.bluedragon.distribution.departure.domain.SendMeasure;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.failqueue.dao.TaskFailQueueDao;
 import com.jd.bluedragon.distribution.failqueue.domain.DealData_Departure_3PL;
@@ -30,11 +35,18 @@ import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BigDecimalHelper;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.etms.vos.dto.CommonDto;
@@ -44,6 +56,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.log4j.Logger;
@@ -54,7 +68,15 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.*;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 @Service
@@ -741,7 +763,6 @@ public class DepartureServiceImpl implements DepartureService {
 	public List<SendBox> getSendInfo(String sendCode) {
 		String errMsg = "获得批次[" + sendCode + "]内包裹列表信息失败: ";
 		List<SendBox> result = new ArrayList<SendBox>();
-
 		try {
 			List<SendM> sendMs = sendMDao.selectOneBySendCode(sendCode);
 			if (sendMs == null || sendMs.size() == 0) {
@@ -779,59 +800,50 @@ public class DepartureServiceImpl implements DepartureService {
 		return result;
 	}
 
-	/**
-	 * 批次根据运单号获得交接单号
-	 * 
-	 * @param
-	 *
-	 * @return
-	 */
-	public List<SendCode> getSendCodesByWaybills(List<SendCode> sendCodes) {
-		if (sendCodes == null) {
-			return null;
-		}
-		List<String> waybillCodes = new ArrayList<String>();
-		for (SendCode sendCode : sendCodes) {
-			String waybillCode = sendCode.getBoxCode();
-			if (waybillCode != null) {
-				waybillCodes.add(waybillCode);
-			}
-		}
-		if (waybillCodes.size() == 0) {
-			return sendCodes;
-		}
-		String waybillCodeIn = StringHelper.join(waybillCodes, ",", "(", ")",
-				"'");
-		// 根据运单号获得最后的批次号
-		List<SendDetail> sendDatails = sendDatailDao
-				.querySendCodesByWaybills(waybillCodeIn);
+    @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public PageDto<SendBox> queryPageSendInfoByBatchCode(PageDto<SendBox> pageDto, String batchCode) {
+        PageDto<SendBox> resultPage = new PageDto<>(pageDto.getCurrentPage(),pageDto.getPageSize());
+        List<SendM> sendMs = sendMDao.selectOneBySendCode(batchCode);
+        if (sendMs == null || sendMs.size() == 0) {
+            logger.warn(MessageFormat.format("查询批次信息为空[{0}]",batchCode));
+            return resultPage;
+        }
+        SendM oneSendM = sendMs.get(0);
+        String sendUser = oneSendM.getSendUser();
+        Date sendTime = oneSendM.getOperateTime();
+        Integer createSiteCode = oneSendM.getCreateSiteCode();
+        SendDetailDto queryDetail = new SendDetailDto();
+        queryDetail.setSendCode(batchCode);
+        queryDetail.setCreateSiteCode(createSiteCode);
+        //查询总数
+        Integer count = sendDatailDao.queryCountBySiteCodeAndSendCode(queryDetail);
+        resultPage.setTotalRow(count);
 
-		List<SendCode> results = new ArrayList<SendCode>();
-		Map<String, String> resultMap = new HashMap<String, String>();
-		if (sendDatails != null) {
-			for (SendDetail sendDatail : sendDatails) {
-				resultMap.put(sendDatail.getWaybillCode(),
-						sendDatail.getSendCode());
-			}
-		}
-		for (SendCode sendCode : sendCodes) {
-			String waybillCode = sendCode.getBoxCode();
-			if (resultMap.containsKey(waybillCode)) {
-				SendCode result = new SendCode();
-				result.setBoxCode(waybillCode);
-				result.setSendCode(resultMap.get(waybillCode));
-				results.add(result);
-			} else {
-				SendCode result = new SendCode();
-				result.setBoxCode(waybillCode);
-				result.setSendCode(null);
-				results.add(result);
-			}
-		}
-		return results;
-	}
+        //设置分页参数
+        queryDetail.setOffset(pageDto.getOffset());
+        queryDetail.setLimit(pageDto.getPageSize());
+        List<SendDetail> sendDatails = sendDatailDao.queryPageBySiteCodeAndSendCode(queryDetail);
+        List<SendBox> result = new ArrayList<SendBox>();
+        resultPage.setResult(result);
+        if (sendDatails != null) {
+            for (SendDetail sendDatail : sendDatails) {
+                SendBox sendBoxInfo = new SendBox();
+                sendBoxInfo.setBoxCode(sendDatail.getBoxCode());// 箱号
+                sendBoxInfo.setSendCode(batchCode);// 交接单号
+                sendBoxInfo.setSendTime(sendTime);// 发送时间
+                sendBoxInfo.setSendUser(sendUser);// 司机
+                sendBoxInfo.setWaybillCode(sendDatail.getWaybillCode());// 运单号
+                sendBoxInfo.setPackageBarcode(sendDatail.getPackageBarcode()); // 包裹号
+                result.add(sendBoxInfo);
+            }
+        } else {
+            logger.warn(MessageFormat.format("无法获得发货明细数据sendCode[{0}]createSiteCode[{1}]",batchCode,createSiteCode));
+        }
+        return resultPage;
+    }
 
-	/**
+    /**
 	 * 批次更新包裹重量
 	 */
 	public void batchUpdateSendDMeasure(List<SendDetail> sendDatails) {
@@ -928,13 +940,15 @@ public class DepartureServiceImpl implements DepartureService {
 	 * @see com.jd.bluedragon.distribution.departure.service.DepartureService#sendThirdDepartureInfoToTMS(com.jd.bluedragon.distribution.task.domain.Task)
 	 */
 	@Override
-	public boolean sendThirdDepartureInfoToTMS(Task task) {
+	public boolean sendThirdDepartureInfoToTMS(Task task,boolean isDBModal) {
 
 		logger.info("发车回传全称跟踪信息-----------task.getId()=" + task.getId()+"---"+task.getBody());
 		if (task == null || task.getBoxCode() == null || task.getBody() == null)
 			return true;
 		try {
-			this.taskService.doLock(task);
+			if(isDBModal){
+				this.taskService.doLock(task);
+			}
 			// 运力编码为空的批次不回传10/11
 			List<DepartureSend> sendList = getDepartureSendByCarId(Long
 					.parseLong(task.getBody()));
@@ -1014,16 +1028,27 @@ public class DepartureServiceImpl implements DepartureService {
 						logger.error(
 								"建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!",
 								e);
-						taskService.doError(task);
+						if(isDBModal){
+							taskService.doError(task);
+						}else{
+							throw new MessageException("支线发车三方任务异常",e);
+						}
 					}
 				}
 			}
 
 		} catch (Exception e) {
 			logger.error("建立推送支线发车三方承运商发车到全程跟踪的明细任务(task_waybill)出错!", e);
-			taskService.doError(task);
+			if(isDBModal){
+				taskService.doError(task);
+			}else{
+				throw new MessageException("支线发车三方任务异常",e);
+			}
+
 		}
-		taskService.doDone(task);
+		if(isDBModal){
+			taskService.doDone(task);
+		}
 
 		return true;
 

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.inventory.dao.InventoryScanDetailDao">
+	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.inventory.domain.InventoryScanDetail">
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT"/>
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="package_code" property="packageCode" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="inventory_task_id" property="inventoryTaskId" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="receive_site_code" property="receiveSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="receive_site_name" property="receiveSiteName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="direction_code" property="directionCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="direction_name" property="directionName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="operator_code" property="operatorCode" javaType="java.lang.Integer" jdbcType="INTEGER"/>
+		<result column="operator_name" property="operatorName" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="operator_erp" property="operatorErp" javaType="java.lang.String" jdbcType="VARCHAR"/>
+		<result column="operate_time" property="operateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT"/>
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP"/>
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		waybill_code,package_code,
+        inventory_task_id,
+        create_site_code, create_site_name,
+        receive_site_code, receive_site_name,
+        direction_code, direction_name,
+        operator_code,operator_name,operator_erp,
+        create_time,operate_time,
+        update_time,is_delete
+    </sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryScanDetail">
+		insert into inventory_scan_detail
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="waybillCode != null">
+				waybill_code,
+			</if>
+			<if test="packageCode != null">
+				package_code,
+			</if>
+			<if test="inventoryTaskId != null">
+				inventory_task_id,
+			</if>
+			<if test="createSiteCode != null">
+				create_site_code,
+			</if>
+			<if test="createSiteName != null">
+				create_site_name,
+			</if>
+			<if test="receiveSiteCode != null">
+				receive_site_code,
+			</if>
+			<if test="receiveSiteName != null">
+				receive_site_name,
+			</if>
+			<if test="directionCode != null">
+				direction_code,
+			</if>
+			<if test="directionName != null">
+				direction_name,
+			</if>
+			<if test="operatorCode != null">
+				operator_code,
+			</if>
+			<if test="operatorName != null">
+				operator_name,
+			</if>
+			<if test="operatorErp != null">
+				operator_erp,
+			</if>
+			<if test="operateTime != null">
+				operate_time,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="updateTime != null">
+				update_time,
+			</if>
+			is_delete
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="waybillCode != null">
+				#{waybillCode,jdbcType=VARCHAR},
+			</if>
+			<if test="packageCode != null">
+				#{packageCode,jdbcType=VARCHAR},
+			</if>
+			<if test="inventoryTaskId != null">
+				#{inventoryTaskId,jdbcType=VARCHAR},
+			</if>
+			<if test="createSiteCode != null">
+				#{createSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="createSiteName != null">
+				#{createSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="receiveSiteCode != null">
+				#{receiveSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="receiveSiteName != null">
+				#{receiveSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="directionCode != null">
+				#{directionCode,jdbcType=INTEGER},
+			</if>
+			<if test="directionName != null">
+				#{directionName,jdbcType=VARCHAR},
+			</if>
+			<if test="operatorCode != null">
+				#{operatorCode,jdbcType=INTEGER},
+			</if>
+			<if test="operatorName != null">
+				#{operatorName,jdbcType=VARCHAR},
+			</if>
+			<if test="operatorErp != null">
+				#{operatorErp,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				#{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				#{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			0
+		</trim>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.inventory.domain.InventoryScanDetail">
+		update inventory_scan_detail
+		<set>
+			<if test="receiveSiteCode != null">
+				receive_site_code = #{receiveSiteCode,jdbcType=INTEGER},
+			</if>
+			<if test="receiveSiteName != null">
+				receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+			</if>
+			<if test="directionCode != null">
+				direction_code = #{directionCode,jdbcType=INTEGER},
+			</if>
+			<if test="directionName != null">
+				direction_name = #{directionName,jdbcType=VARCHAR},
+			</if>
+			<if test="operatorCode != null">
+				operator_code = #{operatorCode,jdbcType=INTEGER},
+			</if>
+			<if test="operatorName != null">
+				operator_name = #{operatorName,jdbcType=VARCHAR},
+			</if>
+			<if test="operatorErp != null">
+				operator_erp = #{operatorErp,jdbcType=VARCHAR},
+			</if>
+			<if test="operateTime != null">
+				operate_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="updateTime != null">
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+		</set>
+		where inventory_task_id = #{inventoryTaskId, jdbcType=INTEGER} and package_code = #{packageCode, jdbcType=VARCHAR}
+	</update>
+
+	<select id="getScanDetailByParam" resultMap="BaseResultMap" parameterType="java.util.Map">
+		select
+		<include refid="Base_Column_List"/>
+		from inventory_scan_detail
+		where is_delete = 0
+		<if test="inventoryTaskId != null">
+			and inventory_task_id = #{inventoryTaskId, jdbcType=INTEGER}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode, jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<select id="getScanPackageCodeByParam" resultType="java.lang.String" parameterType="java.util.Map">
+		select package_code
+		from inventory_scan_detail
+		where is_delete = 0
+		<if test="inventoryTaskId != null">
+			and inventory_task_id = #{inventoryTaskId, jdbcType=INTEGER}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode, jdbcType=VARCHAR}
+		</if>
+	</select>
+
+	<select id="getScanCountByParam" resultType="java.lang.Integer" parameterType="java.util.Map">
+		select count(1)
+		from inventory_scan_detail
+		where is_delete = 0
+		<if test="inventoryTaskId != null">
+			and inventory_task_id = #{inventoryTaskId, jdbcType=INTEGER}
+		</if>
+		<if test="waybillCode != null">
+			and waybill_code = #{waybillCode, jdbcType=VARCHAR}
+		</if>
+		<if test="packageCode != null">
+			and package_code = #{packageCode, jdbcType=VARCHAR}
+		</if>
+	</select>
+
+</mapper>

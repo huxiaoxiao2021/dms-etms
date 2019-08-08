@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
@@ -12,6 +14,8 @@ import com.jd.ldop.basic.api.BasicTraderAPI;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
+import com.jd.partner.waybill.api.WaybillManagerApi;
+import com.jd.partner.waybill.api.dto.response.ResultData;
 import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
@@ -21,6 +25,8 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.client.ClientRequest;
@@ -30,6 +36,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.ws.rs.core.MediaType;
+
 import java.util.*;
 
 @Service("baseMajorManager")
@@ -37,7 +44,11 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     private Log logger = LogFactory.getLog(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
-
+    /**
+     * 监控key的前缀
+     */
+    private static final String UMP_KEY_PREFIX = UmpConstants.UMP_KEY_JSF_CLIENT+"basic.";
+    
     @Autowired
     @Qualifier("basicPrimaryWS")
     private BasicPrimaryWS basicPrimaryWS;
@@ -53,6 +64,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("basicPrimaryWSProxy")
     private BasicPrimaryWSProxy basicPrimaryWSProxy;
+
+    @Autowired
+    @Qualifier("allianceWaybillManagerApi")
+    private WaybillManagerApi allianceWaybillManagerApi;
 
     /**
      * 站点ID
@@ -632,5 +647,31 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             }
         }
         return cityAndDmsList;
+    }
+    @Cache(key = "baseMajorManagerImpl.getBaseSiteInfoBySiteId@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
+    @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.getBaseSiteInfoBySiteId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public BaseSiteInfoDto getBaseSiteInfoBySiteId(Integer siteId) {
+		return basicSiteQueryWS.getBaseSiteInfoBySiteId(siteId);
+	}
+
+    /**
+     * 加盟商基础资料中获取 预付款是否充足
+     *
+     * @param allianceBusiId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UMP_KEY_PREFIX + "basicSiteQueryWS.allianceBusiMoneyEnough", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean allianceBusiMoneyEnough(String allianceBusiId) {
+        ResultData resultData = allianceWaybillManagerApi.checkReceiveOrder(allianceBusiId,Constants.UMP_APP_NAME_DMSWEB);
+        if(resultData!=null && ResultData.SUCCESS_CODE.equals(resultData.getResultCode())){
+            return true;
+        }else{
+            logger.info("加盟商预付款返回失败或不充足"+allianceBusiId+"|"+resultData.getResultMsg());
+            return false;
+        }
+
     }
 }

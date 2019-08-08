@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.rest.mergeWaybillCodeReturn;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.domain.MergeWaybillCodeReturnRequest;
 import com.jd.bluedragon.distribution.mergeWaybillCodeReturn.service.MergeWaybillCodeReturnService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.fastjson.JSON;
 import com.jd.ldop.center.api.reverse.dto.WaybillReturnSignatureDTO;
 import com.jd.ql.dms.common.domain.JdResponse;
 import org.apache.commons.logging.Log;

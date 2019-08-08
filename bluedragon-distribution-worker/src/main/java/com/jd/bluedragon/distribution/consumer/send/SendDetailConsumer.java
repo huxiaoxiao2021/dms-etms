@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.message.MessageException;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -23,7 +24,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSON;
+import com.alibaba.fastjson.JSON;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -111,7 +112,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 } else {
                     // 根据发货操作时间判断数据是否有效
                     if (operateTime > Long.valueOf(lastOperateTime)) {
-                        throw new RuntimeException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
+                        throw new MessageException("[dmsWorkSendDetail消费]该任务已被锁定，抛出异常进行重试，MQ message body:" + message.getText());
                     } else {
                         // 无效
                         logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，重复操作，MQ message body:" + message.getText());
@@ -121,7 +122,9 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             } else {
                 logger.warn("[dmsWorkSendDetail消费]无效发货明细消息，包裹号或者操作时间错误，MQ message body:" + message.getText());
             }
-        } catch (Exception e) {
+        }catch (MessageException e){
+            throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
+        }catch (Exception e) {
             logger.error("[dmsWorkSendDetail消费]消费异常" + "，MQ message body:" + message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         } finally {

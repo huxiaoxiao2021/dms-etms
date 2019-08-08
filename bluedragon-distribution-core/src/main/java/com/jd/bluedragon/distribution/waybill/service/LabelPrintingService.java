@@ -45,6 +45,16 @@ public interface LabelPrintingService {
     //自提点标示
     static int ARAYACAK_SIGN = 64;
 
+    String SPECIAL_MARK1_WAREHOUSE_JD = "京仓";
+    String SPECIAL_MARK1_WAREHOUSE_NOT_JD = "非京仓";
+
+    String CITY_DISTRIBUTION_CHENG="B";
+
+    /**
+     * waybill_sign第54位等于4 且 第40位等于2或3
+     */
+    String  SPECIAL_MARK_MEDICINE ="医药";
+
     /**
      * 包裹标签打印核心方法
      * @return

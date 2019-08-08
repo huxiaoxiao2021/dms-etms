@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.receive.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
+import com.jd.common.util.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -219,7 +219,14 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		if(cenConfirmList == null || cenConfirmList.size() < 1){
 			return ;
 		}
+		Set sendInspectionKey = new HashSet();
 		for (CenConfirm cenConfirm:cenConfirmList) {
+			if(StringUtils.isBlank(cenConfirm.getWaybillCode()) || cenConfirm.getCreateSiteCode() == null || cenConfirm.getCreateSiteCode() <=0
+					||sendInspectionKey.contains(cenConfirm.getWaybillCode())){
+				log.warn("没有有效的运单号或者操作站点或已发送，不发送验货消息" + "," + JSON.toJSONString(cenConfirm));
+				continue;
+			}
+			sendInspectionKey.add(cenConfirm.getWaybillCode());
 			InspectionMQBody body = new InspectionMQBody();
 			body.setWaybillCode(cenConfirm.getWaybillCode());
 			body.setInspectionSiteCode(cenConfirm.getCreateSiteCode());

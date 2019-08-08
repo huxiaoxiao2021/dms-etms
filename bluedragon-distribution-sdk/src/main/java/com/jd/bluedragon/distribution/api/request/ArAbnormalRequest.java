@@ -9,36 +9,43 @@ import com.jd.bluedragon.distribution.api.JdRequest;
  */
 public class ArAbnormalRequest extends JdRequest {
 
-    public static final Integer TRANSPONDTYPE10_CODE = 10;
-    public static final String TRANSPONDTYPE10_DESC= "航空转陆运";
-    public static final Integer TRANSPONDTYPE20_CODE = 20;
-    public static final String TRANSPONDTYPE20_DESC= "航空转铁路";
-    public static final Integer TRANSPONDTYPE30_CODE = 30;
-    public static final String TRANSPONDTYPE30_DESC= "铁路转航空";
+    /**
+     * 用户ERP
+     */
+    private String userErp;
 
-    public static final Integer TRANSPONDREASON10_CODE = 10;
-    public static final String TRANSPONDREASON10_DESC= "违禁品";
-    public static final Integer TRANSPONDREASON20_CODE = 20;
-    public static final String TRANSPONDREASON20_DESC= "航班异常";
-    public static final Integer TRANSPONDREASON30_CODE = 30;
-    public static final String TRANSPONDREASON30_DESC= "天气原因";
-    public static final Integer TRANSPONDREASON40_CODE = 40;
-    public static final String TRANSPONDREASON40_DESC= "其他";
-
-    public static final String SEPARATOR_COMMA = " ";
     /**
      * 转发类型  10 航空转陆运 、20 航空转铁路 、30 铁路转航空
      */
-    private  Integer transpondType;
+    private Integer transpondType;
+
     /**
      * 异常原因 10违禁品、20航班异常、30天气原因、40其他
      */
     private Integer transpondReason;
 
     /**
+     * 违禁品原因
+     */
+    private Integer contrabandReason;
+
+    /**
      * 包裹号、运单号、箱号、批次号
      */
     private String packageCode;
+
+    /**
+     * 运输方式变更是否取消发货标识，此标志存在于pda新老版本升级期间，老版本为null,新版本为1;
+     */
+    private Integer cancelType;
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
+    }
 
     public Integer getTranspondType() {
         return transpondType;
@@ -56,11 +63,27 @@ public class ArAbnormalRequest extends JdRequest {
         this.transpondReason = transpondReason;
     }
 
+    public Integer getContrabandReason() {
+        return contrabandReason;
+    }
+
+    public void setContrabandReason(Integer contrabandReason) {
+        this.contrabandReason = contrabandReason;
+    }
+
     public String getPackageCode() {
         return packageCode;
     }
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public Integer getCancelType() {
+        return cancelType;
+    }
+
+    public void setCancelType(Integer cancelType) {
+        this.cancelType = cancelType;
     }
 }

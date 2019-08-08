@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.auto.domain.ScannerFrameBatchSend;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameBatchSendService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.gantry.domain.SendGantryDeviceConfig;
@@ -45,6 +47,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.LongHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
@@ -55,6 +58,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -982,11 +986,13 @@ public class DeliveryResource {
     public String findWaybillStatus(@PathParam("id") String id) {
         String result = null;
         List<SendDetail> sendDetails = new ArrayList<SendDetail>();
-
+        if(!NumberUtils.isDigits(id)){
+            return null;
+        }
         try {
-            List<String> queueId = new ArrayList<String>();
-            queueId.add(id);
-            sendDetails = deliveryService.findWaybillStatus(queueId);
+            List<Long> queueid = new ArrayList<>();
+            queueid.add(LongHelper.strToLongOrNull(id));
+            sendDetails = deliveryService.findWaybillStatus(queueid);
             if (sendDetails != null && !sendDetails.isEmpty()) {
                 this.deliveryService.updateWaybillStatus(sendDetails);
                 result = JsonHelper.toJsonUseGson(sendDetails);
@@ -1371,5 +1377,32 @@ public class DeliveryResource {
         }
 
         return sendMList;
+    }
+
+
+    /**
+     * 老发货校验
+     * @param deliveryRequest
+     * @return
+     */
+    @POST
+    @Path("/delivery/packageSend/check")
+    public DeliveryResponse packageSendCheck(DeliveryRequest deliveryRequest) {
+        DeliveryResponse response = new DeliveryResponse(JdResponse.CODE_OK,JdResponse.MESSAGE_OK);
+
+        try {
+            JdResult result = jsfSortingResourceService.packageSendCheck(deliveryRequest);
+
+            logger.info("调用verjsf进行老发货校验拦截,返回值:" + JSON.toJSONString(result));
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            return response;
+        }catch (Exception e){
+            logger.error("调用ver接口进行老发货验证异常.",e);
+            response.setCode(JdResponse.CODE_NOT_FOUND);
+            response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+        }
+
+        return response;
     }
 }

@@ -222,5 +222,16 @@
     <jmq:consumer id="jmq.performanceAddConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.order.add.flag}" listener="performanceAddConsumer"/>
     </jmq:consumer>
+
+    <!--auto下发图片信息-->
+    <jmq:consumer id="jmq.syncPictureInfoConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.auto.syncPictureInfo}" listener="syncPictureInfoConsumer"/>
+    </jmq:consumer>
+
+    <!--盘点任务完成-->
+    <jmq:consumer id="jmq.inventoryTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.inventory.task.complete}" listener="inventoryTaskCompleteConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

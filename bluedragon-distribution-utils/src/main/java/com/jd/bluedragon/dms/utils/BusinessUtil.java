@@ -1,7 +1,12 @@
 package com.jd.bluedragon.dms.utils;
 
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
+
 import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import static com.jd.bluedragon.dms.utils.DmsConstants.SEND_CODE_REG;
 
@@ -188,13 +193,16 @@ public class BusinessUtil {
     }
 
     /**
-     * 根据waybillSign判断是否B网运单（40位标识为 1、2、3）
+     * 判断是否B网，转网到B+未转网到C并且waybillSign第40位1、2、3、4、5
      *
      * @param waybillSign
      * @return
      */
     public static boolean isB2b(String waybillSign) {
-        return isSignInChars(waybillSign, 40, '1', '2', '3', '4', '5');
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
+        		|| (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5') 
+        				&& !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,
+        						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
 
     /**
@@ -623,4 +631,207 @@ public class BusinessUtil {
         return isSignChar(waybillSign,62,'1') && isSignChar(waybillSign,25,'4');
     }
 
+    /**
+     * 分拣中心和转运中心判断
+     * 1:分拣中心 0:转运中心 -1:都不是
+     * @param subType 站点子类型
+     * @return
+     */
+    public static Integer isSortOrTransport(Integer subType){
+        Integer flage = -1;
+        Integer[] transportSite = new Integer[]{6420,6460,44079};
+        Integer[] notSortSites = new Integer[]{6420,6440,6450,6460,6470,44079};
+        if(Arrays.asList(transportSite).contains(subType)){
+            flage = 0;
+        }else if(!Arrays.asList(notSortSites).contains(subType)){
+            flage = 1;
+        }else{
+            flage = -1;
+        }
+        return flage;
+    }
+
+
+    /**
+     * 判断是否是B网冷链运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isColdChainWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_2);
+    }
+
+    /**
+     * 判断是否是京仓运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isWareHouseJDWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_3);
+    }
+
+    /**
+     * 判断是否是非京仓运单
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isWareHouseNotJDWaybill(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_4);
+    }
+    /**
+     * 判断是否是纯外单 waybill_sign第1位等于 3或6或9或K或Y
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isForeignWaybill(String waybillSign){
+        return isSignInChars(waybillSign,1,'3','6','9','K','Y');
+    }
+
+    /**
+     * 判断是否是纯配运单 waybill_sign第53位等于0或2
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isPureDeliveryWaybill(String waybillSign){
+        return isSignInChars(waybillSign,53,'0', '2');
+    }
+    /**
+     * 判断是否TC，waybillSign第89位为1和2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTc(String waybillSign) {
+    	return isSignInChars(waybillSign,WaybillSignConstants.POSITION_89,
+    			WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2);
+    }
+
+    /**
+     * 判断是否是终端
+     * @param siteType
+     * @return
+     */
+    public static boolean isTerminalSite(Integer siteType){
+        List<Integer> terminalSiteTypeList = new ArrayList<Integer>();
+        terminalSiteTypeList.add(4);//营业部
+        terminalSiteTypeList.add(8);//自提点
+        terminalSiteTypeList.add(16);//第三方
+        terminalSiteTypeList.add(101);//B网营业厅
+        terminalSiteTypeList.add(108);//全能营业厅
+
+        return terminalSiteTypeList.contains(siteType);
+    }
+
+    /**
+     * 判断是否是车队
+     * @param siteType
+     * @return
+     */
+    public static boolean isConvey(Integer siteType){
+        return siteType.equals(96);
+    }
+
+
+    /**
+     * 是否是营业厅
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHall(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.REPLACE_ORDER_POSITION_62,WaybillSignConstants.REPLACE_ORDER_CHAR_62_1);
+    }
+
+    /**
+     * 是否寄付
+     */
+    public static boolean isFreightSend(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.C_COLLECT_FEES_POSITION_25,WaybillSignConstants.C_COLLECT_FEES_CHAR_25_3);
+    }
+
+    /**
+     * 是否正向 （外单）
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isForeignForward(String waybillSign) {
+        return isSignChar(waybillSign,WaybillSignConstants.BACKWARD_TYPE_POSITION_61,WaybillSignConstants.BACKWARD_TYPE_NO_CHAR_61_0);
+    }
+
+    /**
+     * 外单
+     * 是否是 营业厅运单 并且 寄付 并且 是正向单
+     * @param waybillSign waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isBusinessHallFreightSendAndForward(String waybillSign) {
+        return isBusinessHall(waybillSign) && isFreightSend(waybillSign) && isForeignForward(waybillSign);
+    }
+    /**
+     * 根据waybillSign判断是否自营单号,waybill_sign第1位等于 1、4、5、7、8 、A，判断为【自营】运单
+     * @param waybillSign
+     * @return
+     */
+	public static boolean isSelf(String waybillSign) {
+		if(waybillSign!=null){
+			return isSignInChars(waybillSign,WaybillSignConstants.POSITION_1,
+					WaybillSignConstants.CHAR_1_1,WaybillSignConstants.CHAR_1_4,WaybillSignConstants.CHAR_1_5,WaybillSignConstants.CHAR_1_7,WaybillSignConstants.CHAR_1_8,WaybillSignConstants.CHAR_1_A);
+		}
+		return false;
+	}
+
+
+    /**
+     * 判断是否是冷链医药运单   waybillSign第54位为4
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isBMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_54,WaybillSignConstants.CHAR_54_4);
+    }
+
+    /**
+     * 判断是否是毕业寄   waybillSign第98位为1或2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isGraduationExpress(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_98, WaybillSignConstants.CHAR_98_1, WaybillSignConstants.CHAR_98_2);
+    }
+
+    /**
+     * 判断是否是爱回收
+     * 16-1604
+     * @param type
+     * @parm subType
+     * @return
+     */
+    public static Boolean isRecovery(Integer type ,Integer subType) {
+        if (type == null || subType == null) {
+            return Boolean.FALSE;
+        }
+
+        if (16 == type.intValue() && 1604 == subType.intValue()) {
+            return Boolean.TRUE;
+        }
+        return Boolean.FALSE;
+    }
+
+
+    /**
+     * 判断是否是加盟商运单 106=2
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllianceBusi(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_106, WaybillSignConstants.CHAR_106_2);
+    }
+
+    /**
+     * 判断是否是国际配送运单
+     * Sendpay 第124位等于7时，表示为自营国际配送运单
+     * @param sendPay
+     */
+    public static boolean isInternationalWaybill(String sendPay){
+        return isSignChar(sendPay,SendPayConstants.POSITION_124,SendPayConstants.CHAR_124_7);
+    }
 }

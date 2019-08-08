@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.alliance.AllianceBusiDeliveryDto;
+import com.jd.bluedragon.distribution.alliance.AllianceBusiFailDetailDto;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
@@ -59,4 +61,18 @@ public interface DmsExternalService {
      * @return
      */
     ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest);
+
+    /**
+     * 加盟商交接
+     *
+     * 优先判断交接池是否已校验过，如果校验过则不校验加盟商预付款余额
+     * 未校验过则校验加盟商预付款余额是否充足，充足则直接记录称重信息和交接信息
+     * 不充足则返回失败提示调用者
+     * 如果校验池已校验过则直接记录称重信息和交接信息
+     *
+     * @param dto
+     * @return  List<AllianceBusiFailDetailDto> 部分失败列表
+     */
+    BaseEntity<List<AllianceBusiFailDetailDto>> allianceBusiDelivery(AllianceBusiDeliveryDto dto);
+
 }

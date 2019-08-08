@@ -7,9 +7,12 @@ import com.jd.common.util.StringUtils;
 import org.apache.log4j.Logger;
 
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -205,6 +208,26 @@ public class StringHelper {
         }
     }
 
+    /**
+     *把时间格式字符串转为时间类型
+     * @param date 字符串格式的时间
+     * @param format 时间格式 如："yyyy-MM-dd HH:mm:ss"
+     * @return
+     */
+    public static Date getFormatDate(String date, String format) {
+         SimpleDateFormat sdf = new SimpleDateFormat(format);
+         Date d = new Date();
+         try {
+              d = sdf.parse(date);
+             }
+         catch (ParseException e)
+         {
+             e.printStackTrace();
+             StringHelper.logger.error("时间转换失败", e);
+         }
+         return d;
+    }
+
 
 	/**
 	 * 获取文件名扩展后缀
@@ -395,6 +418,13 @@ public class StringHelper {
             in=Integer.valueOf(s.substring(startIndex,startIndex+1));
         }
         return in;
+    }
+
+    public static String longParseString(Long value){
+        if(value == null){
+            return null;
+        }
+        return String.valueOf(value);
     }
 
     /**

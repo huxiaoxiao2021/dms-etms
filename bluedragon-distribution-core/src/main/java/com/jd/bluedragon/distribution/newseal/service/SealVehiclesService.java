@@ -24,6 +24,13 @@ public interface SealVehiclesService extends Service<SealVehicles> {
     boolean updateDeSealBySealDataCode(List<SealVehicles> sealVehicles);
 
     /**
+     * 按照批次号更新数据状态
+     * @param sealVehicles
+     * @return
+     */
+    boolean updateBySealDataCode(List<SealVehicles> sealVehicles);
+
+    /**
      * 根据始发查询当天已使用预封车的运力编码
      * @param createSiteCode
      * @return

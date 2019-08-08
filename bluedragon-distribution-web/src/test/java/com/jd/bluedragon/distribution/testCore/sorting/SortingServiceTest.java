@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.testCore.sorting;
-
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -8,14 +9,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
-import com.jd.bluedragon.distribution.sorting.domain.Sorting;
-import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:/spring/distribution-core-context.xml" })
-@TransactionConfiguration(defaultRollback = true)		//事物测试
+@ContextConfiguration( {"classpath:distribution-web-context-test.xml"})
 public class SortingServiceTest {
 
 	@Autowired SortingService sortingService;
@@ -40,4 +38,5 @@ public class SortingServiceTest {
 		int result = sortingService.add(s);
 		Assert.assertEquals(1,result);
 	}
+
 }

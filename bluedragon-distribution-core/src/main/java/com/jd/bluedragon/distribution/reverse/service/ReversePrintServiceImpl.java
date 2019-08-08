@@ -4,7 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.OBCSManager;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ReceiveManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -20,7 +20,6 @@ import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.packageToMq.service.IPushPackageToMqService;
 import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -30,16 +29,17 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +52,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 逆向换单打印
@@ -117,6 +118,14 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private PopPrintService popPrintService;
     @Autowired
     private ReverseSpareEclp reverseSpareEclp;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService cacheService;
+
+    private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
 
     /**
      * 处理逆向打印数据
@@ -147,6 +156,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         status.setOperateTime(new Date(domain.getOperateUnixTime()));
         status.setOperator(domain.getStaffRealName());
         status.setOperatorId(domain.getStaffId());
+        status.setReturnWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，新运单号"+domain.getNewCode());
         status.setCreateSiteCode(domain.getSiteCode());
         status.setCreateSiteName(domain.getSiteName());
@@ -156,11 +166,20 @@ public class ReversePrintServiceImpl implements ReversePrintService {
          * 原外单添加换单全程跟踪
          * 只有在此单第一次打印的时候才记录 update by liuduo 2018-08-02
          */
-        List<PopPrint> popPrintList = this.popPrintService.findAllByWaybillCode(domain.getNewCode());
-        if(null==popPrintList||popPrintList.size()==0){
+        boolean sendOldWaybillTrace = true;
+        try{
+            //三天校验
+            Boolean isSucdess = cacheService.setNx(EXCHANGE_PRINT_BEGIN_KEY+domain.getNewCode(), "1", 3, TimeUnit.DAYS);
+            if(!isSucdess){
+                //说明非第一次
+                sendOldWaybillTrace = false;
+            }
+        }catch(Exception e){
+            this.logger.error("判断原单需要换单全程跟踪异常"+JsonHelper.toJson(domain), e);
+        }
+        if(sendOldWaybillTrace){
             taskService.add(tTask, true);
         }
-
 
         tTask.setKeyword1(domain.getNewCode());
         if(StringUtils.isBlank(domain.getNewPackageCode())){
@@ -170,6 +189,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }
         status.setWaybillCode(domain.getNewCode());
         status.setRemark("换单打印，原运单号"+domain.getOldCode());
+        status.setReturnWaybillCode(domain.getOldCode());
         tTask.setBody(JsonHelper.toJson(status));
         /**
          * 新外单添加全程跟踪
@@ -307,15 +327,72 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             if(result.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=result.getData()){
                 repeatPrint.setNewWaybillCode(result.getData().getWaybillCode());
                 targetResult.setData(repeatPrint);
+                isHasProductInfoOfPureMatch(targetResult);
                 return targetResult;
             }
 
             if(WaybillUtil.isBusiWaybillCode(oldWaybillCode)){
-                return receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
-            }else{
-                return targetResult;
+                targetResult = receiveManager.queryDeliveryIdByOldDeliveryId1(oldWaybillCode);
+                isHasProductInfoOfPureMatch(targetResult);
             }
+            return targetResult;
         }
+    }
+
+    /**
+     * 纯配外单判断是否有商品信息
+     * @param targetResult
+     * @return
+     */
+    private void isHasProductInfoOfPureMatch(InvokeResult<RepeatPrint> targetResult) {
+        String errorMessage = null;
+        String newWaybillCode = targetResult.getData()==null?null:targetResult.getData().getNewWaybillCode();
+        //1.新单号不存在
+        if(StringHelper.isEmpty(newWaybillCode)){
+            return;
+        }
+        try{
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillExtend(true);
+            wChoice.setQueryGoodList(true);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoiceNoCache(newWaybillCode,wChoice);
+
+            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null){
+
+                com.jd.etms.waybill.domain.Waybill waybill = baseEntity.getData().getWaybill();
+                //2.非纯配外单直接返回
+                if(!StringHelper.isEmpty(waybill.getWaybillSign())
+                        && !BusinessUtil.isPurematch(waybill.getWaybillSign())){
+                    return;
+                }
+                //3.有商品信息直接返回
+                if(baseEntity.getData().getGoodsList() != null
+                        && baseEntity.getData().getGoodsList().size() > 0){
+                    return;
+                }else {
+                    //纯配退备件库的才提示
+                    String spwms_type = PropertiesHelper.newInstance().getValue("spwms_type");
+                    BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
+                    if(orgDto!=null && orgDto.getSiteType().equals(Integer.parseInt(spwms_type))){
+                        errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
+                    }
+                }
+
+            }else{
+                errorMessage = "新单" + newWaybillCode + "无运单信息!";
+            }
+
+        }catch (Exception e){
+            logger.error("通过运单号"+newWaybillCode+"查询运单信息异常!",e);
+            errorMessage = InvokeResult.SERVER_ERROR_MESSAGE;
+        }
+
+        if(!StringHelper.isEmpty(errorMessage)){
+            targetResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+            targetResult.setMessage(errorMessage);
+        }
+
     }
 
     /**

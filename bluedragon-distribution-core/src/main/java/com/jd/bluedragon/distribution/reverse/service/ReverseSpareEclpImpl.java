@@ -269,6 +269,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 } else {
                     logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV2);
+                    return null;
                 }
                 if(WaybillUtil.isECLPByBusiOrderCode(eclpBusiOrderCode)) {
                     //仓配
@@ -298,6 +299,7 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                         }
                     } else {
                         logger.warn("通过:"+eclpBusiOrderCode+"获取原事业部信息为空!");
+                        return null;
                     }
                 }
             }else if(oldWaybill2 == null || oldWaybill2.getData() == null) {
@@ -310,12 +312,15 @@ public class ReverseSpareEclpImpl implements ReverseSpareEclp {
                     inboundOrder.setTargetDeptNo(deptNo);//目的事业部编码
                 }else{
                     logger.warn("组装逆向退备件库运单集合时出现异常数据,理赔接口异常:"+oldWaybillCodeV1);
+                    return null;
                 }
             }else {
                 logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+                return null;
             }
         }else {
             logger.warn("组装逆向退备件库运单集合时出现异常数据，原单不符合规则");
+            return null;
         }
         return inboundOrder;
     }

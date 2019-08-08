@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 
 import java.util.List;
@@ -31,4 +32,18 @@ public interface WaybillTraceManager {
      * @return true表示被拒收，false表示还没有拒收
      */
     boolean isWaybillRejected(String waybillCode);
+
+    /**
+     * 获取包裹的全程跟踪状态
+     * @param packageCode
+     * @return
+     */
+    BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode);
+
+    /**
+     * 获取包裹的全程跟踪操作明细
+     * @param packageCode
+     * @return
+     */
+    BaseEntity<List<PackageState>> getAllOperations(String packageCode);
 }

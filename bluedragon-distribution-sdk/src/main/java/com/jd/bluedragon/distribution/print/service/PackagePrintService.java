@@ -3,10 +3,12 @@ package com.jd.bluedragon.distribution.print.service;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
-import com.jd.bluedragon.distribution.print.request.PackagePrintRequest;
+import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
 
 /**
  * 
@@ -24,9 +26,29 @@ public interface PackagePrintService {
 	 */
 	JdResult<Map<String,Object>> getPrintInfo(JdCommand<String> printRequest);
 	/**
+	 * 不推荐使用，会有内存溢出风险
 	 * 生成包裹打印图片信息接口
 	 * @param printRequest
 	 * @return
 	 */
+	@Deprecated
 	JdResult<List<PrintPackageImage>> generateImage(JdCommand<String> printRequest);
+	/**
+	 * 校验运单是否已操作补打
+	 * @param rePrintRecordRequest
+	 * @return
+	 */
+	JdResult<Boolean> hasReprintAll(JdCommand<RePrintRecordRequest> rePrintRecordRequest);
+	/**
+	 * 校验运单/包裹是否已操作补打
+	 * @param rePrintRecordRequest
+	 * @return
+	 */
+	JdResult<Boolean> hasReprinted(JdCommand<String> rePrintRecordRequest);
+	/**
+	 * 换单打印回调处理
+	 * @param reversePrintAfterRequest
+	 * @return
+	 */
+	JdResult<Boolean> reversePrintAfter(JdCommand<String> reversePrintAfterRequest);
 }

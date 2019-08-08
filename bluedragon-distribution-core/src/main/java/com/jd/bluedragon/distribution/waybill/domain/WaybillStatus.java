@@ -7,13 +7,12 @@ public class WaybillStatus {
     public static final int RESULT_CODE_PARAM_IS_NULL = 10001;
     public static final int RESULT_CODE_REPEAT_TASK = 10003;
 
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0;
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;
+    public static final Integer WAYBILL_STATUS_CODE_FORWARD_INSPECTION = 0; //正向验货
+    public static final Integer WAYBILL_STATUS_CODE_FORWARD_SORTING = 1;  //正向分拣
     public static final Integer WAYBILL_STATUS_CODE_POP_InFactory = 1150; //驻场验货
-    public static final Integer WAYBILL_STATUS_CODE_FORWARD_DELIVERY = 2;
 
-    public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30;
-    public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40;
+    public static final Integer WAYBILL_STATUS_CODE_REVERSE_INSPECTION = 30; //逆向验货
+    public static final Integer WAYBILL_STATUS_CODE_REVERSE_SORTING = 40; //逆向分拣
     public static final Integer WAYBILL_STATUS_CODE_REVERSE_DELIVERY = 50;
     public static final Integer WAYBILL_STATUS_CODE_FORWORD_DELIVERY = 2; //正向发货
 
@@ -34,8 +33,8 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_FC = 150;
     public static final Integer WAYBILL_TRACK_RCD = 160;
     public static final Integer WAYBILL_TRACK_PACKAGE_HALF = 600; //包裹半收完成
-    public static final Integer WAYBILL_TRACK_SH = 400;
-    public static final Integer WAYBILL_TRACK_REVERSE_SH = 500;
+    public static final Integer WAYBILL_TRACK_SH = 400; //正向收货
+    public static final Integer WAYBILL_TRACK_REVERSE_SH = 500; //逆向收货
     
     /**仓储收货驳回**/ 
     public static final Integer WAYBILL_TRACK_BH = 900;
@@ -62,6 +61,10 @@ public class WaybillStatus {
 
     /**配送异常节点全程跟踪类型*/
     public static final Integer WAYBILL_TRACK_QC = 2100;
+
+    /**运单修改补打 全程跟踪类型	*/
+    public static final Integer WAYBILL_TRACK_WAYBILL_BD = 7100;
+    public static final String WAYBILL_TRACK_WAYBILL_BD_MSG = "温馨提示：您的订单因信息修改，正在重新中转";
     /**
      * 空铁转陆运 全程跟踪节点
      */
@@ -80,10 +83,13 @@ public class WaybillStatus {
 
     /**
      * 全程跟踪消息类型mstType-运单修改补打
+     *
+     * 此枚举原先由调用运单sendOrderTrace的时候使用的，切换成sendbdTrace后使用了WAYBILL_TRACK_WAYBILL_BD。
+     * 由于task里历史数据 也有2400的数据，暂时不能删除引用
      **/
     public static final Integer WAYBILL_TRACK_MSGTYPE_UPDATE = 2400;
-    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
-    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "您的订单因信息修改，正在重新中转";
+//    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_MSG = "运单修改补打";
+//    public static final String WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT = "温馨提示：您的订单因信息修改，正在重新中转";
 
     /**
      * 全程跟踪消息类型mstType-运单修改补打
@@ -147,12 +153,18 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_BOARD_COMBINATION_CANCEL = 7600;
 
+    /**
+     * 全称跟踪-转网
+     */
+    public static final Integer WAYBILL_TRACK_WAYBILL_TRANSFER = 13600;
+    public static final String WAYBILL_TRACK_MESSAGE_WAYBILL_TRANSFER_B2C = "已成功转成C网运单";
+
 
     /**
      * POP打印
      */
     public static final Integer WAYBILL_TRACK_POP_PRINT= 1200;
-
+    public static final String WAYBILL_TRACK_POP_PRINT_STATE= "-250";
     /**
      * 妥投 操作码
      */
@@ -183,6 +195,26 @@ public class WaybillStatus {
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_OLD = 8701;
     public static final Integer WAYBILL_STATUS_MERGE_WAYBILLCODE_RETURN_NEW = 8702;
 
+    /**
+     * 全称跟踪-取消建箱
+     */
+    public static final Integer WAYBILL_TRACK_SORTING_CANCEL = 13400;
+
+    /**
+     * 全称跟踪-取消发货
+     */
+    public static final Integer WAYBILL_TRACK_SEND_CANCEL = 3800;
+
+    /**
+     * 全称跟踪-揽收交接
+     */
+    public static final Integer WAYBILL_TRACK_RECEIVE_HANDOVERS = 14300;
+
+    /**
+     * 全称跟踪-派送交接
+     */
+    public static final Integer WAYBILL_TRACK_SEND_HANDOVERS = 14400;
+
     private Long id;
 
     private String sendCode;
@@ -210,6 +242,11 @@ public class WaybillStatus {
 
     private Integer returnFlag;
     private String remark;
+
+    /**
+     * 返单号
+     */
+    private String returnWaybillCode;
 
     public Long getId() {
         return this.id;
@@ -369,5 +406,13 @@ public class WaybillStatus {
 
     public void setReturnFlag(Integer returnFlag) {
         this.returnFlag = returnFlag;
+    }
+
+    public String getReturnWaybillCode() {
+        return returnWaybillCode;
+    }
+
+    public void setReturnWaybillCode(String returnWaybillCode) {
+        this.returnWaybillCode = returnWaybillCode;
     }
 }

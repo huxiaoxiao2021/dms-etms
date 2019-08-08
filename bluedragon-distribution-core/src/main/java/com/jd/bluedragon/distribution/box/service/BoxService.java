@@ -17,16 +17,10 @@ public interface BoxService {
 
     /**重打*/
     Integer reprint(Box box);
-    
-    List<Box> findBoxes(Box box);
 
     Box findBoxByCode(String boxCode);
     
     Box findBoxByBoxCode(Box box);
-
-    List<Box> findBoxesBySite(Box box);
-
-    Integer updateStatusByCodes(Box box);
 
     Integer updateVolumeByCode(Box box);
     /**  
@@ -40,21 +34,13 @@ public interface BoxService {
     Long delboxCodeCache(String boxCode);
 
     /***
-     * 批量更新箱号的状态
-     * @param boxCodes 箱号列表
-     * @param boxStatus 箱号状态
-     * @return
-     */
-    Integer batchUpdateStatus(List<String> boxCodes, Integer boxStatus);
-
-    /***
      * 更新箱号状态的缓存
      * @param boxCode 箱号
      * @param operateSiteCode 操作箱号的单位，用于区分中转发货的箱号状态
      * @param boxStatus 箱号状态
      * @return
      */
-    Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus);
+    Boolean updateBoxStatusRedis(String boxCode, Integer operateSiteCode, Integer boxStatus, String userErp);
 
     /***
      * 获取箱号状态的缓存

@@ -27,6 +27,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.City;
@@ -38,6 +39,9 @@ import com.jd.tms.basic.dto.BasicRailwayTrainDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.ws.BasicQueryWS;
 import com.jd.tms.basic.ws.BasicSyncWS;
+import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -78,7 +82,6 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
 
     @Autowired
     protected TaskService taskService;
-
 
     @Override
     public Dao<ArSendRegister> getDao() {
@@ -215,6 +218,7 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      * @param sendDate
      */
     private void createAirFlightRealTime(String transportName, Date sendDate) {
+        CallerInfo info = Profiler.registerInfo("DMSWEB.jsf.basicSyncWS.createAirFlightRealtime", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             CommonDto<String> commonDto = basicSyncWS.createAirFlightRealtime(transportName, sendDate);
             if (commonDto != null) {
@@ -223,7 +227,10 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
                 }
             }
         } catch (Exception e) {
+            Profiler.functionError(info);
             logger.error("[空铁项目-发货登记]调用TMS-BASIC订阅实时航班JSF接口异常！", e);
+        } finally {
+            Profiler.registerInfoEnd(info);
         }
     }
 
@@ -734,9 +741,17 @@ public class ArSendRegisterServiceImpl extends BaseService<ArSendRegister> imple
      */
     private void sendArSendReportMQ(ArSendRegister arSendRegister, String[] sendCodes){
         try {
+
+            List<Integer> packCounts = new ArrayList<>();
             if(sendCodes.length>0){
                 arSendRegister.setSendCodes(Arrays.asList(sendCodes));
+                //取出每个批次的包裹总数
+                for(String sendCode : sendCodes){
+                    packCounts.add(sendDetailDao.querySendDCountBySendCode(sendCode));
+                }
+                arSendRegister.setPackCounts(packCounts);
             }
+
             arSendReportMQ.send(arSendRegister.getTransCompanyCode(),JsonHelper.toJson(arSendRegister));
         } catch (JMQException e) {
             logger.error("空铁发货登记报表数据发送异常"+arSendRegister.getTransCompanyCode()+e.getMessage(),e);

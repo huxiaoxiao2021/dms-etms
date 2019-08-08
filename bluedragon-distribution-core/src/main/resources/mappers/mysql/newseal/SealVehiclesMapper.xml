@@ -436,6 +436,8 @@
         <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
             #{item,jdbcType=VARCHAR}
         </foreach>
+		and status in (1,2)
+		and is_delete=0
     </select>
 
 	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">

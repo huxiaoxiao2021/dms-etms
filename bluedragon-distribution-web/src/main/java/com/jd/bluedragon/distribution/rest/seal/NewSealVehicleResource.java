@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TmsTfcWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
@@ -337,6 +338,42 @@ public class NewSealVehicleResource {
         return sealVehicleResponse;
     }
 
+
+    /**
+     * 校验车牌号能否封车创建车次任务
+     */
+    @GET
+    @Path("/new/vehicle/seal/verifyVehicleJobByVehicleNumber/{transportCode}/{vehicleNumber}/{sealCarType}")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
+    public NewSealVehicleResponse verifyVehicleJobByVehicleNumber(
+            @PathParam("transportCode") String transportCode, @PathParam("vehicleNumber") String vehicleNumber, @PathParam("sealCarType") Integer sealCarType) {
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            //按运力封车，需要校验车牌号能否生成车次任务
+            if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType)) {
+                CommonDto<String> dto = newsealVehicleService.verifyVehicleJobByVehicleNumber(transportCode,vehicleNumber);
+                if (dto == null) {    //JSF接口返回空
+                    logger.warn("校验车牌号能否封车创建车次任务返回值为空:" + transportCode + "-" + vehicleNumber + "-" + sealCarType);
+                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                    sealVehicleResponse.setMessage("校验车牌号能否封车创建车次任务返回值为空:" + transportCode + "-" + vehicleNumber + "-" + sealCarType);
+                    return sealVehicleResponse;
+                }
+                if (Constants.RESULT_SUCCESS == dto.getCode()) { //JSF接口调用成功
+                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
+                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                }else {
+                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                    sealVehicleResponse.setMessage(dto.getMessage());
+                }
+            }
+        } catch (Exception e) {
+            sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            sealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            this.logger.error("校验车牌号能否封车创建车次任务异常.运力编码:" + transportCode + ",车牌号:" + vehicleNumber, e);
+        }
+        return sealVehicleResponse;
+    }
+
     /**
      * 封车功能
      */
@@ -369,6 +406,69 @@ public class NewSealVehicleResource {
             this.logger.error("NewSealVehicleResource.seal-error", e);
         }
         return sealVehicleResponse;
+    }
+
+    /**
+     * VOS封车业务同时生成车次任务
+     */
+    @POST
+    @Path("/new/vehicle/doSealCarWithVehicleJob")
+    @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1011,operateType = 101102)
+    public NewSealVehicleResponse doSealCarWithVehicleJob(NewSealVehicleRequest request) {
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        try {
+            if (request == null || request.getData() == null) {
+                logger.warn("NewSealVehicleResource doSealCarWithVehicleJob --> 传入参数非法");
+                sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+                sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+                return sealVehicleResponse;
+            }
+
+            sealVehicleResponse = newsealVehicleService.doSealCarWithVehicleJob(request.getData());
+        } catch (Exception e) {
+            this.logger.error("NewSealVehicleResource.doSealCarWithVehicleJob-error", e);
+        }
+        return sealVehicleResponse;
+    }
+
+    /**
+     * 取消封车
+     * @param request
+     * @return
+     */
+  @POST
+  @Path("/new/vehicle/cancelSeal")
+  @BusinessLog(
+    sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,
+    bizType = 11011,
+    operateType = 1101101
+  )
+  public NewSealVehicleResponse cancelSeal(cancelSealRequest request) {
+    NewSealVehicleResponse sealVehicleResponse =
+        new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+    try
+    {
+      if (null == request || StringHelper.isEmpty(request.getBatchCode())) {
+        logger.warn("NewSealVehicleResource cancelSeal --> 传入参数非法");
+        sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+        sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
+        return sealVehicleResponse;
+      }
+
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());//获取批次号目的地
+        //1.批次号是否符合编码规范，不合规范直接返回参数错误
+        if (receiveSiteCode == null) {
+            sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
+            sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
+            return sealVehicleResponse;
+        }
+
+        sealVehicleResponse = newsealVehicleService.cancelSeal(request);
+    }
+    catch (Exception e) {
+      this.logger.error("NewSealVehicleResource.cancelSeal-error", e);
+    }
+      return sealVehicleResponse;
     }
 
     /**
@@ -638,5 +738,4 @@ public class NewSealVehicleResource {
             logger.error("[调用TMS-TFC-JSF接口]根据派车任务明细简码获取派车任务明细时发生异常", e);
         }
     }
-
 }

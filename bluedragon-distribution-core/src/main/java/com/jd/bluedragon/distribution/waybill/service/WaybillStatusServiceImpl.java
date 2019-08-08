@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.RepeatPrint;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -25,10 +26,11 @@ import com.jd.etms.waybill.domain.WaybillParameter;
 import com.jd.etms.waybill.dto.OrderShipsDto;
 import com.jd.etms.waybill.handler.PackageSyncPartParameter;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
-import com.jd.fastjson.JSON;
-import com.jd.fastjson.JSONArray;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,9 +61,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private static final String MERGE_WAYBILL_RETURN_COUNT = "mergeWaybillReturnCount";
 
 	@Autowired
-	private TaskService taskService;
-	
-	@Autowired
 	private WaybillSyncApi waybillSyncApi;
 
 	@Autowired
@@ -84,13 +83,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	@Autowired
 	private StoragePackageMService storagePackageMService;
 
+	@Autowired
+	private PackageStatusService packageStatusService;
+
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
 			return;
 		}
-
-		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(this
-				.parseWaybillSyncParameter(tasks));
+		List<WaybillSyncParameter> parameterList = this.parseWaybillSyncParameter(tasks);
+		logger.info(JSON.toJSONString(parameterList));
+		Map<Long, Result> results = this.waybillSyncApi.batchUpdateWaybillByOperateCode(parameterList);
 
 		if (results == null || results.isEmpty()) {
             if(logger.isInfoEnabled()){
@@ -108,7 +110,11 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                     logger.info(MessageFormat.format("回传运单状态taskId:{0}->resultCode:{1}->resultMessage{2}",taskId,result.getCode(),result.getMessage()));
                 }
 				if (true == result.isFlag()) {
-//					this.taskService.doDone(this.findTask(tasks, taskId, Task.TASK_TYPE_WAYBILL));
+					try{
+						packageStatusService.recordPackageStatus(parameterList,null);
+					}catch (Exception e){
+						logger.error("包裹状态发送MQ消息异常." + JSON.toJSONString(parameterList)+".",e);
+					}
 				} else if (WaybillStatus.RESULT_CODE_PARAM_IS_NULL == result.getCode()
 						|| WaybillStatus.RESULT_CODE_REPEAT_TASK == result.getCode()) {
 					this.logger.error(this.resultToString(taskId, result, "分拣数据回传运单系统"));
@@ -339,12 +345,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已驳回调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHBH_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -381,25 +381,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				this.logger.info("向运单系统回传全程跟踪，已收货调用：" );
 				waybillQueryManager.sendBdTrace(bdTraceDto);
 				this.logger.info("向运单系统回传全程跟踪，已收货调用sendOrderTrace：" );
-				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(bdTraceDto.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_CCSHQR_MSG,
-						bdTraceDto.getOperatorDesp(),
-						bdTraceDto.getOperatorUserName(), null);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
 
 			//包裹补打 客户改址 发全程跟踪 新增节点2400
-			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
+			if (task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD))
+                    || task.getKeyword2().equals(String.valueOf(WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE))) {
 				this.logger.info("向运单系统回传全程跟踪，调用sendOrderTrace：" );
+
+                BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(tWaybillStatus);
 				//单独发送全程跟踪消息，供其给前台消费
-				waybillQueryManager.sendOrderTrace(tWaybillStatus.getWaybillCode(),
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_MSG,
-						WaybillStatus.WAYBILL_TRACK_MSGTYPE_UPDATE_CONTENT,
-						tWaybillStatus.getOperator(), null);
+                waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
 //				this.taskService.doDone(task);
 				task.setYn(0);
 			}
@@ -517,15 +510,10 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                   * @Param: tasks
                  * @return
                  */
-				InvokeResult<RepeatPrint> target=reversePrintService.getNewWaybillCode1(tWaybillStatus.getWaybillCode(),true);
-				if(target.getCode()==InvokeResult.RESULT_SUCCESS_CODE&&null!=target.getData()){
-					String newWaybillCode =target.getData().getNewWaybillCode();
+				if(StringUtils.isNotBlank(tWaybillStatus.getReturnWaybillCode())){
 					Map<String,Object> map=new HashMap<String, Object>();
-					map.put("returnWaybillCode",newWaybillCode);
+					map.put("returnWaybillCode",tWaybillStatus.getReturnWaybillCode());
 					bdTraceDto.setExtendParameter(map);
-				}
-				else{
-					logger.warn("根据旧运单号"+tWaybillStatus.getWaybillCode()+"获取新运单号失败");
 				}
 
                 this.logger.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
@@ -743,6 +731,56 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				}
 				task.setYn(0);
 			}
+
+			/**
+			 * 全程跟踪:取消建箱
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SORTING_CANCEL).equals(task.getKeyword2())) {
+				String packageCode = tWaybillStatus.getPackageCode();
+				String waybillCode = tWaybillStatus.getWaybillCode();
+				//包裹号不为空时发送取消建箱的全程跟踪
+				if (StringHelper.isNotEmpty(packageCode)) {
+					tWaybillStatus.setPackageCode(packageCode);
+					tWaybillStatus.setWaybillCode(waybillCode);
+					toWaybillStatus(tWaybillStatus, bdTraceDto);
+					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+					waybillQueryManager.sendBdTrace(bdTraceDto);
+				} else {
+					logger.error("取消分拣全程跟踪失败，包裹号没空！");
+				}
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:揽收交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_RECEIVE_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作揽收交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:配送交接
+			 */
+			if (task.getKeyword2() != null && String.valueOf(WaybillStatus.WAYBILL_TRACK_SEND_HANDOVERS).equals(task.getKeyword2())) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp("已操作配送交接复核");
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
+
+			/**
+			 * 全程跟踪:转网
+			 */
+			if (null != task.getKeyword2() &&
+					(String.valueOf(WaybillStatus.WAYBILL_TRACK_WAYBILL_TRANSFER).equals(task.getKeyword2()))) {
+				toWaybillStatus(tWaybillStatus, bdTraceDto);
+				bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+				waybillQueryManager.sendBdTrace(bdTraceDto);
+				task.setYn(0);
+			}
 		}
 
 		Map<Long, Result> results = this.waybillSyncApi.batchUpdateStateByCode(this
@@ -777,7 +815,18 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		}
 	}
 
-	/**
+    private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {
+        BdTraceDto bdTraceDto2 = new BdTraceDto();
+        bdTraceDto2.setWaybillCode(tWaybillStatus.getWaybillCode());
+        bdTraceDto2.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
+        bdTraceDto2.setOperatorDesp(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD_MSG);
+        bdTraceDto2.setOperatorUserName(tWaybillStatus.getOperator());
+        bdTraceDto2.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        bdTraceDto2.setOperatorTime(new Date());
+        return bdTraceDto2;
+    }
+
+    /**
 	 * 根据箱号获取箱内的包裹信息
 	 * @param boxCode
 	 * @return

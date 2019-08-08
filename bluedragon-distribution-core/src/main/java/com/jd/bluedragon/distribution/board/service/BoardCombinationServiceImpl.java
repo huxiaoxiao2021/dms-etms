@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.board.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.Pack;
+import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -26,7 +30,11 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.fastjson.JSON;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
+import com.alibaba.fastjson.JSON;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.BoardMeasureService;
@@ -83,6 +91,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     RedisCommonUtil redisCommonUtil;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     private static final Integer STATUS_BOARD_CLOSED = 2;
 
@@ -219,6 +230,8 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardResponse.setBoardCode(request.getBoardCode());
         if (BusinessUtil.isBoxcode(request.getBoxOrPackageCode())) {
             boardResponse.setBoxCode(request.getBoxOrPackageCode());
+        } else if (WaybillUtil.isWaybillCode(request.getBoxOrPackageCode())) {
+            return this.sendBoardBindingsByWaybill(request, boardResponse);
         } else {
             boardResponse.setPackageCode(request.getBoxOrPackageCode());
         }
@@ -368,6 +381,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                         ",站点：" + request.getSiteCode();
                 logger.info(logInfo);
 
+                //原板号缓存-1
+                redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
+                //缓存+1
+                redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
                 addSystemLog(request, logInfo);
                 addOperationLog(request, OperationLog.BOARD_COMBINATITON);
                 return JdResponse.CODE_SUCCESS;
@@ -402,10 +419,181 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     }
 
     /**
+     * 按运单组板操作
+     *
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    private Integer sendBoardBindingsByWaybill(BoardCombinationRequest request, BoardResponse boardResponse) {
+        String waybillCode = request.getBoxOrPackageCode();
+        boardResponse.setBoardCode(request.getBoardCode());
+        List<DeliveryPackageD> deliveryPackageDList = this.waybillQueryManager.findWaybillPackList(waybillCode);
+
+        if (deliveryPackageDList == null || deliveryPackageDList.isEmpty()) {
+            logger.warn("运单号：" + request.getBoxOrPackageCode() + "的包裹数信息不存在！");
+            boardResponse.addStatusInfo(BoardResponse.CODE_WAYBILL_NO_PACKAGE_INFO, BoardResponse.MESSAGE_WAYBILL_NO_PACKAGE_INFO);
+            return JdResponse.CODE_FAIL;
+        }
+        int packageNum = deliveryPackageDList.size();
+
+        String boardCode = request.getBoardCode();
+        String logInfo = "";
+
+        //数量限制校验，每次的数量记录的redis中
+        Integer count = redisCommonUtil.getData(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
+        logger.info("板号：" + boardCode + "已经绑定的包裹/箱号个数为：" + count);
+
+        if (packageNum + count > boardBindingsMaxCount) {
+            logger.warn("运单号：" + request.getBoxOrPackageCode() + "的包裹数为：" + packageNum + "，超过当前板下可容纳包裹数：" + (boardBindingsMaxCount - count));
+            boardResponse.addStatusInfo(BoardResponse.CODE_WAYBILL_PACKAGE_NUM_LIMIT, BoardResponse.MESSAGE_WAYBILL_PACKAGE_NUM_LIMIT);
+            return JdResponse.CODE_FAIL;
+        }
+
+        //按运单调Ver的接口进行组板拦截
+        BoardCombinationJsfResponse response = null;
+        if (! request.getIsForceCombination()) {
+            BoardCombinationRequest checkParam = new BoardCombinationRequest();
+            checkParam.setSiteCode(request.getSiteCode());
+            checkParam.setReceiveSiteCode(request.getReceiveSiteCode());
+            checkParam.setBusinessType(request.getBusinessType());
+            checkParam.setUserCode(request.getUserCode());
+            checkParam.setUserName(request.getUserName());
+            checkParam.setBoxOrPackageCode(waybillCode);
+
+            CallerInfo info1 = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.sendBoardBindings.boardCombinationCheck", false, true);
+            try {
+                response = jsfSortingResourceService.boardCombinationCheck(checkParam);
+                logInfo = "组板校验,板号：" + boardCode + ",运单号：" + waybillCode +
+                        ",IsForceCombination:" + request.getIsForceCombination() +
+                        ",站点：" + request.getSiteCode() + ".校验结果:" + response.getMessage();
+
+                logger.info(logInfo);
+                addSystemLog(request, logInfo);
+            } catch (Exception ex) {
+                Profiler.functionError(info1);
+                logger.error("调用总部VER验证JSF服务失败", ex);
+                throw ex;
+            } finally {
+                Profiler.registerInfoEnd(info1);
+            }
+
+            //如果校验未通过
+            if ( ! response.getCode().equals(200)) {
+                if (response.getCode() >= 39000) {
+                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    return JdResponse.CODE_CONFIRM;
+                } else {
+                    boardResponse.addStatusInfo(response.getCode(), response.getMessage());
+                    return JdResponse.CODE_FAIL;
+                }
+            }
+        }
+
+        //调用TC接口将组板数据推送给TC
+        Response<Integer> tcResponse = null;
+        AddBoardBox addBoardBox = new AddBoardBox();
+        addBoardBox.setBoardCode(request.getBoardCode());
+        addBoardBox.setOperatorErp(request.getUserCode() + "");
+        addBoardBox.setOperatorName(request.getUserName());
+        addBoardBox.setSiteCode(request.getSiteCode());
+        addBoardBox.setSiteName(request.getSiteName());
+        addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+
+        CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoardByWaybill.TCJSF", Constants.UMP_APP_NAME_DMSWEB,false, true);
+
+        for (DeliveryPackageD deliveryPackageD : deliveryPackageDList) {
+            String packageCode = deliveryPackageD.getPackageBarcode();
+            request.setBoxOrPackageCode(packageCode);
+            //查询发货记录判断是否已经发货
+            SendM sendM = new SendM();
+            sendM.setBoxCode(packageCode);
+            sendM.setCreateSiteCode(request.getSiteCode());
+            sendM.setReceiveSiteCode(request.getReceiveSiteCode());
+
+            List<SendM> sendMList = this.selectBySendSiteCode(sendM);
+
+            if (sendMList != null && sendMList.size() > 0) {
+                logInfo = "包裹" + sendMList.get(0).getBoxCode() + "已经在批次" + sendMList.get(0).getSendCode() + "中发货，站点：" + request.getSiteCode();
+                logger.warn(logInfo);
+                addSystemLog(request, logInfo);
+                continue;
+            }
+
+            try {
+                addBoardBox.setBoxCode(packageCode);
+                tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
+            } catch (Exception e) {
+                Profiler.functionError(info);
+                throw e;
+            } finally {
+                Profiler.registerInfoEnd(info);
+            }
+
+            if (tcResponse.getCode() != 200) {
+                //如果返回值的code是500，表示已经组过板，则提示是否转移，如果确定转移，则从原来的板上取消，移动到新板上
+                if (tcResponse.getCode() == 500) {
+                    //确定转移,调用TC的板号转移接口
+                    Response<String> boardMoveResponse = boardMove(request);
+                    if (boardMoveResponse == null) {
+                        logger.warn("按运单组板,转移服务异常,板号：" + boardCode + ", 包裹号：" + request.getBoardCode() + ",站点：" + request.getSiteCode());
+                        continue;
+                    }
+
+                    if (boardMoveResponse.getCode() != 200) {
+                        //重新组板失败
+                        logInfo = "按运单组板转移失败,原板号：" + boardMoveResponse.getData() + ",新板号：" + boardCode + ",包裹号：" + packageCode +
+                                ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
+
+                        logger.warn(logInfo);
+                        boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+                        addSystemLog(request, logInfo);
+
+                        continue;
+                    }
+
+                    logInfo = "按运单组板转移成功.原板号:" + boardMoveResponse.getData() + ",新板号:" + boardCode + ",包裹号：" + packageCode +
+                            ",站点：" + request.getSiteCode();
+                    logger.info(logInfo);
+                    //原板号缓存-1
+                    redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
+                    addSystemLog(request, logInfo);
+                    addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+                } else {
+                    logInfo = "按运单组板失败,板号：" + boardCode + ",包裹号：" + packageCode +
+                            ",站点：" + request.getSiteCode() + ".失败原因:" + tcResponse.getMesseage();
+
+                    logger.warn(logInfo);
+                    boardResponse.addStatusInfo(tcResponse.getCode(), tcResponse.getMesseage());
+                    addSystemLog(request, logInfo);
+                    continue;
+                }
+            }
+
+            logInfo = "按运单组板成功!板号：" + boardCode + ",运单号：" + waybillCode + ",站点：" + request.getSiteCode();
+            //组板成功
+            logger.info(logInfo);
+
+            //缓存+1
+            redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);
+
+            //记录操作日志
+            addSystemLog(request, logInfo);
+
+            addOperationLog(request, OperationLog.BOARD_COMBINATITON);
+
+            //发送全称跟踪
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+        }
+
+        return JdResponse.CODE_SUCCESS;
+    }
+
+    /**
      * 回传板标的发货状态
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.closeBoard", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Boolean> closeBoard(String boardCode) {
         return groupBoardService.closeBoard(boardCode);
     }
@@ -428,7 +616,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoxesByBoardCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<List<String>> getBoxesByBoardCode(String boardCode) {
         return groupBoardService.getBoxesByBoardCode(boardCode);
     }
@@ -441,7 +629,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardCodeByBoxCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode) {
         return groupBoardService.getBoardByBoxCode(boxCode, siteCode);
     }

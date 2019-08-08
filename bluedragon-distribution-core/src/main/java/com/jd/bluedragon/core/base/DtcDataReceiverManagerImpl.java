@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +24,19 @@ public class DtcDataReceiverManagerImpl implements DtcDataReceiverManager {
 	private DataReceiver dtcDataReceiver;
 
 	@Override
-	@JProfiler(jKey = "DMS.BASE.DtcDataReceiverManagerImpl.downStreamHandle", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public com.jd.staig.receiver.rpc.Result downStreamHandle(String target, String methodName, String outboundType,
 			int priority, String messageValue, String messageMd5Value, String source, String outboundNo) {
-		return dtcDataReceiver.downStreamHandle(target, methodName, outboundType, priority, messageValue, messageMd5Value,
-				source, outboundNo);
+		CallerInfo info = Profiler.registerInfo("DMS.BASE.DtcDataReceiverManagerImpl.downStreamHandle", false, true);
+		try {
+			return dtcDataReceiver.downStreamHandle(target, methodName, outboundType, priority, messageValue, messageMd5Value,
+					source, outboundNo);
+		}catch (Exception e){
+			logger.error("调用DTC接口异常",e);
+			Profiler.functionError(info);
+			throw e;
+		}finally {
+			Profiler.registerInfoEnd(info);
+		}
 	}
 	
 	@Override

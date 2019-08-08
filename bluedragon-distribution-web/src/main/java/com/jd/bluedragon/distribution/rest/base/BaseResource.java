@@ -35,6 +35,7 @@ import com.jd.bluedragon.distribution.api.response.BaseDatadict;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.BaseStaffResponse;
 import com.jd.bluedragon.distribution.api.response.DatadictResponse;
+import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.response.SysConfigResponse;
 import com.jd.bluedragon.distribution.api.response.WarehouseResponse;
 import com.jd.bluedragon.distribution.base.domain.BaseSetConfig;
@@ -44,6 +45,7 @@ import com.jd.bluedragon.distribution.base.domain.VtsBaseSetConfig;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.base.service.UserService;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.version.service.ClientConfigService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -295,7 +297,11 @@ public class BaseResource {
 	public BaseResponse login(LoginRequest request) {
 		return userService.dmsClientLogin(request);
 	}
-
+	@POST
+	@Path("/bases/getLoginUser")
+	public JdResult<LoginUserResponse> getLoginUser(LoginRequest request) {
+		return userService.getLoginUser(request);
+	}
 	@GET
 	@Path("/bases/drivers/{orgId}")
 	public List<BaseResponse> getDrivers(@PathParam("orgId") Integer orgId) {
@@ -961,7 +967,8 @@ public class BaseResource {
 					siteCodes.add(perSiteCode);
 					//根据三方-合作站点获取三方-合作站点所属自营站点
 					if(BusinessUtil.isThreePartner(perSite.getSiteType(),perSite.getSubType())
-							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())){
+							|| BusinessUtil.isSchoolyard(perSite.getSiteType(),perSite.getSubType())
+							|| BusinessUtil.isRecovery(perSite.getSiteType(),perSite.getSubType())){
 						Integer PartnerSite =  baseMajorManager.getPartnerSiteBySiteId(perSiteCode);
 						if(PartnerSite!=null){
 							//记录大站
@@ -1534,7 +1541,7 @@ public class BaseResource {
 			}
 		}
 		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
-		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(token, startNode, endNodeCode, predictSendTime, routeProduct);
+		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
 		return commonDto;
 	}
 }
