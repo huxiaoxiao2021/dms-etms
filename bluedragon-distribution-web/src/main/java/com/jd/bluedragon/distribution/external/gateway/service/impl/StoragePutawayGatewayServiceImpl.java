@@ -103,6 +103,8 @@ public class StoragePutawayGatewayServiceImpl implements StoragePutawayGatewaySe
         putawayDTO.setCreateSiteCode(param.getCurrentOperate().getSiteCode());
         putawayDTO.setOperateTime(new Date().getTime());
         putawayDTO.setOperatorErp(param.getErp());
+        putawayDTO.setOperatorId(param.getUser().getUserCode());
+        putawayDTO.setOperatorName(param.getUser().getUserName());
 
         return putawayDTO;
     }
