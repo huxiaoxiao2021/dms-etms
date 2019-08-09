@@ -16,6 +16,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuConstantAccountInfo;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
+import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jboss.resteasy.annotations.GZIP;
@@ -70,6 +74,7 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.dto.SimpleBaseSite;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @Component
 @Path(Constants.REST_URL)
@@ -1543,6 +1548,28 @@ public class BaseResource {
 		logger.info("查路由接口参数为token:"+token+",startNode:"+startNode + "endNode:" +endNodeCode + ",predictSendTime:"+predictSendTime + ",routeProduct:"+routeProduct);
 		CommonDto<RecommendRouteResp> commonDto = routeComputeUtil.queryRecommendRoute(startNode, endNodeCode, predictSendTime, routeProduct);
 		return commonDto;
+	}
+
+
+	@POST
+	@Path("menu/pda/account")
+	public InvokeResult<String> menuPdaAccount(MenuPdaRequest request){
+		InvokeResult<String> result = new InvokeResult<>();
+		logger.info("pda常用菜单统计，请求参数:" + JsonHelper.toJson(request));
+
+		if(StringUtils.isEmpty(request.getSiteCode())|| StringUtils.isEmpty(request.getOperatorErp())){
+			result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+			result.setMessage(InvokeResult.PARAM_ERROR);
+			return result;
+		}
+
+		//根据机构编码及操作人erp查询
+		String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp());
+		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+		result.setData(resultJsonStr);
+
+		return result;
 	}
 }
 
