@@ -1564,10 +1564,17 @@ public class BaseResource {
 		}
 
 		//根据机构编码及操作人erp查询
-		String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp());
-		result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
-		result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
-		result.setData(resultJsonStr);
+		try{
+			String resultJsonStr = baseMajorManager.menuConstantAccount(request.getSiteCode(),request.getOperatorErp());
+			result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
+			result.setMessage(InvokeResult.RESULT_SUCCESS_MESSAGE);
+			result.setData(resultJsonStr);
+		}catch (Exception e){
+			result.setCode(InvokeResult.SERVER_ERROR_CODE);
+			result.setMessage(InvokeResult.SERVER_ERROR_MESSAGE);
+			logger.error("常用功能异常"+JsonHelper.toJson(request),e);
+		}
+
 
 		return result;
 	}
