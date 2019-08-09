@@ -43,9 +43,6 @@ public class AbnormalOrderServiceImpl implements AbnormalOrderService {
 
 	private Logger log = Logger.getLogger(AbnormalOrderServiceImpl.class);
 
-	@Autowired
-	IPushPackageToMqService pushMqService;
-
     @Autowired
     @Qualifier("pushFXMMQ")
     private DefaultJMQProducer pushFXMMQ;

@@ -20,6 +20,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 发往物流网关的接口不要在此类中加方法
+ */
 public interface DmsExternalReadService {
 
 	/**
