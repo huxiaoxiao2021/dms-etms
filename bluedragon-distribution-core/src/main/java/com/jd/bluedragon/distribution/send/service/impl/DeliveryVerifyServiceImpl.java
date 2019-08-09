@@ -23,7 +23,6 @@ import java.util.List;
 
 /**
  * @author lixin39
- * @Description TODO
  * @ClassName DeliveryVerifyServiceImpl
  * @date 2019/6/13
  */

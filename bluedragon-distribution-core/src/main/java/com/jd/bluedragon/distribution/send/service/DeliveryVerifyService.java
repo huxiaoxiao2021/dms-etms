@@ -5,7 +5,6 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 
 /**
  * @author lixin39
- * @Description TODO
  * @ClassName DeliveryVerifyService
  * @date 2019/6/13
  */
