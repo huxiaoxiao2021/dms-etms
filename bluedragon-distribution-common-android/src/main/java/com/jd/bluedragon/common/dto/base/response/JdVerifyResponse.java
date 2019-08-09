@@ -5,7 +5,6 @@ import java.util.List;
 
 /**
  * @author lixin39
- * @Description TODO
  * @ClassName JdVerifyResponse
  * @date 2019/6/17
  */

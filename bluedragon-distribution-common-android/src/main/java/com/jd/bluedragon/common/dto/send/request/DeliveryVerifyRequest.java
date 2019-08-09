@@ -2,7 +2,6 @@ package com.jd.bluedragon.common.dto.send.request;
 
 /**
  * @author lixin39
- * @Description TODO
  * @ClassName DeliveryVerifyRequest
  * @date 2019/6/13
  */

@@ -55,8 +55,8 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         request.setBoxCode(cRequest.getBoxCode());
         request.setSendCode(cRequest.getSendCode());
         request.setTurnoverBoxCode(cRequest.getTurnoverBoxCode());
-//        request.setOpType(0);todo
-//        request.setKey("");todo
+//        request.setOpType(0);
+//        request.setKey("");
         request.setUserCode(cRequest.getUser().getUserCode());
         request.setUserName(cRequest.getUser().getUserName());
         request.setSiteCode(cRequest.getCurrentOperate().getSiteCode());

@@ -2,7 +2,6 @@ package com.jd.bluedragon.common.dto.base.response;
 
 /**
  * @author lixin39
- * @Description TODO
  * @ClassName MsgBoxTypeEnum
  * @date 2019/6/17
  */
