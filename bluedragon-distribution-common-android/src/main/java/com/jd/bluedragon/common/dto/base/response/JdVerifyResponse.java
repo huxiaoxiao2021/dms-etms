@@ -32,7 +32,7 @@ public class JdVerifyResponse<T> {
      */
     private String message;
 
-    private T Data;
+    private T data;
 
     /**
      * 消息盒子
@@ -209,10 +209,10 @@ public class JdVerifyResponse<T> {
     }
 
     public T getData() {
-        return Data;
+        return data;
     }
 
     public void setData(T data) {
-        Data = data;
+        this.data = data;
     }
 }
