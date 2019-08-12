@@ -43,6 +43,7 @@
 	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.external" />
 	<context:component-scan base-package="com.jd.common.authorization"/>
+    <import resource="classpath:spring/distribution-core-redis.xml" />
     <import resource="classpath:spring/mysql/jddl/distribution-core-common-jddl.xml" />
 
     <!-- 扩容Mysql主备配置表 -->
@@ -60,6 +61,7 @@
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 	<import resource="classpath:spring/distribution-core-jmq.xml"/>
 	<import resource="classpath:ql-dms-print-engine.xml"/>
+    <import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
 
 	<!-- ump monitor begin -->
 	<!--  监控注解处理器 -->

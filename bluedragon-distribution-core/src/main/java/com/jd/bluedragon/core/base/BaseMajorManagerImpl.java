@@ -7,6 +7,8 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
+import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
+import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
@@ -68,6 +70,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Autowired
     @Qualifier("allianceWaybillManagerApi")
     private WaybillManagerApi allianceWaybillManagerApi;
+
+    @Autowired
+    @Qualifier("commonUseMenuApi")
+    private CommonUseMenuApi commonUseMenuApi;
 
     /**
      * 站点ID
@@ -674,4 +680,23 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         }
 
     }
+
+    /**
+     * 获取常用功能
+     * @param siteCode
+     * @param erp
+     * @return
+     */
+    @Override
+    public String menuConstantAccount(String siteCode,String erp){
+        MenuPdaRequest request = new MenuPdaRequest();
+        request.setOperatorErp(erp);
+        request.setSiteCode(siteCode);
+        com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult<String> result =  commonUseMenuApi.getMenuConstantAccount(request);
+        if(result!=null && result.getStatusCode() == com.jd.bluedragon.sdk.modules.quarantine.dto.BaseResult.SUCCESS_CODE) {
+            return result.getData();
+        }
+        return StringUtils.EMPTY;
+    }
+
 }
