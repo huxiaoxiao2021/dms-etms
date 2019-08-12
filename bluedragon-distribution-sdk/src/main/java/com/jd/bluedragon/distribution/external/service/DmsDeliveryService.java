@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.send.domain.SendResult;
 import java.util.AbstractMap;
 
 /**
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/5/9.
  */
@@ -33,6 +34,7 @@ public interface DmsDeliveryService {
      * @param request
      * @return
      */
+    @Deprecated
     InvokeResult<SendResult> newPackageSend(PackageSendRequest request);
 
     /**
