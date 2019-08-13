@@ -48,10 +48,13 @@ public class SortingServiceFactory {
             }
         }
         if (serviceMode.equals(SORTING_SERVICE_MODE_DMS)) {
+            logger.info("站点[" + createSiteCode + "]使用DMS模式执行分拣流程");
             return dmsSortingService;
         } else if (serviceMode.equals(SORTING_SERVICE_MODE_MIDDLEEND)) {
+            logger.info("站点[" + createSiteCode + "]使用MIDDLEEND模式执行分拣流程");
             return middleEndSortingService;
         } else if (serviceMode.equals(SORTING_SERVICE_MODE_FAILOVER)) {
+            logger.info("站点[" + createSiteCode + "]使用FAILOVER模式执行分拣流程");
             return failOverSortingService;
         }
 
