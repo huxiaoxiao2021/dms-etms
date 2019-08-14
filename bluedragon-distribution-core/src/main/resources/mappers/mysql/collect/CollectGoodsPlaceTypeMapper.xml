@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.collect.dao.CollectGoodsPlaceTypeDao">
+
+	<resultMap id="CollectGoodsPlaceType" type="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="collect_goods_place_type" property="collectGoodsPlaceType" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="min_pack_num" property="minPackNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="max_pack_num" property="maxPackNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="max_waybill_num" property="maxWaybillNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,collect_goods_place_type,min_pack_num,max_pack_num,max_waybill_num,create_site_code,
+		create_site_name,create_user,update_user,create_time,update_time,
+		is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType">
+		insert into collect_goods_place_type
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					id,
+				</if>
+				<if test="collectGoodsPlaceType != null">
+					collect_goods_place_type,
+				</if>
+				<if test="minPackNum != null">
+					min_pack_num,
+				</if>
+				<if test="maxPackNum != null">
+					max_pack_num,
+				</if>
+				<if test="maxWaybillNum != null">
+					max_waybill_num,
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code,
+				</if>
+				<if test="createSiteName != null">
+					create_site_name,
+				</if>
+				<if test="createUser != null">
+					create_user,
+				</if>
+				<if test="updateUser != null">
+					update_user,
+				</if>
+				<if test="createTime != null">
+					create_time,
+				</if>
+				<if test="updateTime != null">
+					update_time,
+				</if>
+				<if test="isDelete != null">
+					is_delete,
+				</if>
+				<if test="ts != null">
+					ts
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null">
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="collectGoodsPlaceType != null">
+					#{collectGoodsPlaceType,jdbcType=INTEGER},
+				</if>
+				<if test="minPackNum != null">
+					#{minPackNum,jdbcType=INTEGER},
+				</if>
+				<if test="maxPackNum != null">
+					#{maxPackNum,jdbcType=INTEGER},
+				</if>
+				<if test="maxWaybillNum != null">
+					#{maxWaybillNum,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteCode != null">
+					#{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					#{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					#{ts,jdbcType=TIMESTAMP}
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into collect_goods_place_type
+			(
+				collect_goods_place_type,min_pack_num,max_pack_num,max_waybill_num,
+				create_site_code,create_site_name,create_user,update_user,create_time,
+				update_time,is_delete,ts
+			)
+			values
+			<foreach collection="list" item="item" index="index" separator=",">
+				(
+					#{item.collectGoodsPlaceType,jdbcType=INTEGER},
+					#{item.minPackNum,jdbcType=INTEGER},
+					#{item.maxPackNum,jdbcType=INTEGER},
+					#{item.maxWaybillNum,jdbcType=INTEGER},
+					#{item.createSiteCode,jdbcType=INTEGER},
+					#{item.createSiteName,jdbcType=VARCHAR},
+					#{item.createUser,jdbcType=VARCHAR},
+					#{item.updateUser,jdbcType=VARCHAR},
+					#{item.createTime,jdbcType=TIMESTAMP},
+					#{item.updateTime,jdbcType=TIMESTAMP},
+					#{item.isDelete,jdbcType=TINYINT},
+					#{item.ts,jdbcType=TIMESTAMP}
+				)
+			</foreach>
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType">
+		update collect_goods_place_type
+			<set>
+				<if test="collectGoodsPlaceType != null">
+					collect_goods_place_type = #{collectGoodsPlaceType,jdbcType=INTEGER},
+				</if>
+				<if test="minPackNum != null">
+					min_pack_num = #{minPackNum,jdbcType=INTEGER},
+				</if>
+				<if test="maxPackNum != null">
+					max_pack_num = #{maxPackNum,jdbcType=INTEGER},
+				</if>
+				<if test="maxWaybillNum != null">
+					max_waybill_num = #{maxWaybillNum,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteCode != null">
+					create_site_code = #{createSiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="createSiteName != null">
+					create_site_name = #{createSiteName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null">
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null">
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null">
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null">
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null">
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null">
+					ts = #{ts,jdbcType=TIMESTAMP}
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="Long">
+		update collect_goods_place_type
+			set is_delete = 1
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteByIds" parameterType="List">
+		update collect_goods_place_type
+			set is_delete = 1
+		where id in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=BIGINT}
+		</foreach>
+	</update>
+
+	<select id="findById" parameterType="Long" resultMap="CollectGoodsPlaceType">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  collect_goods_place_type 
+		where id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="findByUniqueKey" parameterType="com.jd.bluedragon.distribution.collect.domain.CollectGoodsPlaceType" resultMap="CollectGoodsPlaceType">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  collect_goods_place_type 
+		where id = #{id,jdbcType=BIGINT}
+		  order by ts desc
+		limit 1
+	</select>
+
+	<sql id="Base_Condition_Sql" >
+			and is_delete=0 
+	</sql>
+
+	<select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select 
+		 count(1) as num
+		from 
+		  collect_goods_place_type 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+	</select>
+
+	<select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="CollectGoodsPlaceType">
+		select 
+		 <include refid="Base_Column_List"/>
+		from 
+		  collect_goods_place_type 
+		where 1=1 
+		 <include refid="Base_Condition_Sql"/>
+		 limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+</mapper>
