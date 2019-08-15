@@ -670,7 +670,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
 
         //判断是否为冷链卡班且外仓
-        boolean isColdChainKBAndOuterWare = BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType);
+        boolean isColdChainKBAndOuterWare = BusinessUtil.isColdChainKB(waybill.getWaybillSign(),productType)
+                && BusinessUtil.isSignChar(waybill.getWaybillSign(),WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_4);
 
     	//设置商家id和name
         target.setBusiId(waybill.getBusiId());
