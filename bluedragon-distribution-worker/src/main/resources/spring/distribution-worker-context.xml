@@ -16,6 +16,7 @@
 				<value>classpath:configured/dcam.properties</value>
 				<value>classpath:configured/dms_ip_mapper.properties</value>
 				<value>classpath:configured/jsf.properties</value>
+				<value>classpath:configured/print.properties</value>
 				<value>classpath:configured/mq.properties</value>
 				<value>classpath:configured/order_service_config.properties</value>
 				<value>classpath:configured/popabnormal.properties</value>
