@@ -289,7 +289,7 @@
 		<property name="accessKey" value = "${print.out.config.jss.accessKey}"/>
 		<property name="secretKey" value = "${print.out.config.jss.secretKey}"/>
 		<property name="endpoint" value = "${print.out.config.jss.endpoint}"/>
-		<property name="bucket" value = "${print.out.config.jss.bucket}"/>
+		<property name="bucket" value = "${print.out.config.jss.pdfBucket}"/>
 		<property name="socketTimeout" value = "${print.out.config.jss.socketTimeout}"/>
 	</bean>
 	<bean id="pdfOutJssClientConfig" class="com.jcloud.jss.client.ClientConfig">

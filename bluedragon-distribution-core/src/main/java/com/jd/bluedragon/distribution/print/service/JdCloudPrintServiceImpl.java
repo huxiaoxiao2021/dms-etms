@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.print.service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,10 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
     @Value("${print.out.config.localPdfTempPath}")
     private String localPdfTempPath;
     /**
+     * 用于存储临时目录检查变量
+     */
+    private boolean localPdfTempPathExist = false;
+    /**
      * 使用云打印开关
      */
     private boolean useJdCloudPrint = false;
@@ -92,6 +97,9 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
         JdCloudPrintOutputConfig jdCloudPrintOutputConfig = new JdCloudPrintOutputConfig();
         jdCloudPrintOutputConfig.setOss(pdfPrintOssConfig);
         jdCloudPrintOutputConfig.setPath(DateHelper.formatDate(printDate, PDF_OUT_PATH_DATE_FOMART));
+        List<JdCloudPrintOutputConfig> outputConfig = new ArrayList<JdCloudPrintOutputConfig>();
+        outputConfig.add(jdCloudPrintOutputConfig);
+        jdCloudPrintRequest.setOutputConfig(outputConfig);
         return jdCloudPrintRequest;
 	}
 	/**
@@ -140,14 +148,29 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		logger.info("开始生成pdf,req:"+ JsonHelper.toJson(jdCloudPrintRequest));
 		try {
 			String pdfFileName = jdCloudPrintRequest.getOrderNum()+"-"+System.currentTimeMillis()+".pdf";
+			String jssPdfPath = jdCloudPrintRequest.getOutputConfig().get(0).getPath()+"/"+pdfFileName;
+			if(!localPdfTempPathExist){
+				checkAndCreateTempPath();
+			}
 			File pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
 			OutputStream outputStream = new FileOutputStream(pdfFile);
-			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, null, null, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
-			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jdCloudPrintRequest.getOutputConfig().get(0).getPath()+"/"+pdfFileName).entity(pdfFile).resumableUpload();
+			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
+			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
+			pdfFile.deleteOnExit();
+			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
+			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
+			List<String> outputMsg = new ArrayList<String>();
+			outputMsg.add(jssPdfPath);
+			printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());
+			printResponse.setOutputMsg(outputMsg);
+			printResponses.add(printResponse);
+			printResult.setData(printResponses);
+			printResult.toSuccess();
 		} catch (Throwable e) {
+			logger.error("本地生成pdf失败！", e);
 			printResult.toError("生成pdf失败！");
 		}
-		logger.info("生成pdf结束,resp:"+ JsonHelper.toJson(""));
+		logger.info("生成pdf结束,resp:"+ JsonHelper.toJson(printResult));
 		return printResult;
 	}
 	/**
@@ -171,6 +194,18 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 		}
 		checkResult.toSuccess();
 		return checkResult;
+	}
+	/**
+	 * 检查并创建临时目录
+	 */
+	private synchronized void checkAndCreateTempPath(){
+		if(!localPdfTempPathExist){
+			File pdfPath = new File(localPdfTempPath);
+			if(!pdfPath.exists()){
+				pdfPath.mkdirs();
+			}
+			localPdfTempPathExist = true;
+		}
 	}
 	/**
 	 * @return the useJdCloudPrint
