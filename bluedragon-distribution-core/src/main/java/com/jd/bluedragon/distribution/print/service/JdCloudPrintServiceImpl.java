@@ -161,6 +161,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
 			List<String> outputMsg = new ArrayList<String>();
 			outputMsg.add(jssPdfPath);
+			printResponse.setStatus(JdCloudPrintResponse.STATUS_SUC);
 			printResponse.setOutputType(jdCloudPrintRequest.getOutputConfig().get(0).getType());
 			printResponse.setOutputMsg(outputMsg);
 			printResponses.add(printResponse);

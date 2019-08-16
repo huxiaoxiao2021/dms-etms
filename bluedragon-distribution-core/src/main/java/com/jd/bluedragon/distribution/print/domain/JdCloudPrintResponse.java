@@ -18,6 +18,10 @@ public class JdCloudPrintResponse implements Serializable {
 	 */
 	public static final Integer STATUS_SUC = 0;
 	/**
+	 * 失败标识码
+	 */
+	public static final Integer STATUS_FAIL = 1;
+	/**
 	 * 与后文outputConfig中的输出配置相对应，0(File，输出到本地文件)，1(Printer，输出到打印机)，2(OSS，输出到对象存储)
 	 */
 	private Integer outputType;
@@ -28,7 +32,7 @@ public class JdCloudPrintResponse implements Serializable {
 	/**
 	 * 状态 0-成功 | 1-失败
 	 */
-	private Integer status;
+	private Integer status = STATUS_SUC;
 	/**
 	 * 错误码
 	 */
