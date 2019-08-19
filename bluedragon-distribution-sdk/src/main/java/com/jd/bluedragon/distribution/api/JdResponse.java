@@ -64,6 +64,12 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_SITE_SIGNRE_ERROR = 20009;
     public static final String MESSAGE_SITE_SIGNRE_ERROR = "此运单要求签单返回，只能分配至自营站点!";
 
+    public static final Integer CODE_FEATHER_LETTER_ERROR = 20010;
+    public static final String MESSAGE_FEATHER_LETTER_ERROR = "此单为鸡毛信运单请输入设备号或取消鸡毛信复选框！";
+
+    public static final Integer CODE_FEATHER_LETTER_DISABLE_ERROR = 20011;
+    public static final String MESSAGE_FEATHER_LETTER_DISABLE_ERROR = "鸡毛信设备不可用，请确认！";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 

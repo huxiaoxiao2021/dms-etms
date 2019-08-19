@@ -29,7 +29,7 @@
 				<entry key="100103"  value-ref="basicPrint"/>
 				<entry key="100104"  value-ref="basicPrint"/>
 				<entry key="100105"  value-ref="basicPrint"/>
-				<entry key="100106"  value-ref="basicPrint"/>
+				<entry key="100106"  value-ref="stationPrint"/>
 				<entry key="100107"  value-ref="sitePlatePrint"/>
 				<entry key="100108"  value-ref="basicPrint"/>
 				<entry key="100109"  value-ref="basicPrint"/>
@@ -84,6 +84,25 @@
 			</list>
 		</property>
 	</bean>
+
+    <!-- 包裹标签打印-驻场打印 -->
+    <bean id="stationPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
+        <property name="handlers">
+            <list>
+                <ref bean="basicWaybillPrintHandler"/>
+                <ref bean="featherLetterHandler"/>
+                <ref bean="c2cInterceptHandler"/>
+                <ref bean="interceptWaybillHandler"/>
+                <ref bean="specialMarkWaybillHandler"/>
+                <ref bean="specialTextWaybillHandler"/>
+                <ref bean="promiseWaybillHandler"/>
+                <ref bean="customerAndConsignerInfoHandler"/>
+                <ref bean="specialFieldHandler"/>
+                <ref bean="remarkFieldHandler"/>
+                <ref bean="templateSelectorWaybillHandler"/>
+            </list>
+        </property>
+    </bean>
 	<!-- 包裹标签打印-平台打印 -->
 	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">

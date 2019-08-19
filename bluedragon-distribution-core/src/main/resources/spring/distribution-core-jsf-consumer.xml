@@ -472,4 +472,8 @@
                   alias="${common.use.menu.jsf.alias}" timeout="${common.use.menu.jsf.timeout}" retries="0">
     </jsf:consumer>
 
+    <jsf:consumer id="iotQueryWS" interface="com.jd.tms.iot.ws.IotQueryWS" protocol="jsf"
+                  alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
+    </jsf:consumer>
+
 </beans>

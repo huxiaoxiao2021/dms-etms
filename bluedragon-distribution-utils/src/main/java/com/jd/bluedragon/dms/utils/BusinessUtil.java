@@ -926,4 +926,13 @@ public class BusinessUtil {
        return input.matches(SEAL_BOX_NO);
     }
 
+
+    /**
+     * 是否是鸡毛信运单
+     * @param waybillSign
+     * @return true 是，false 不是
+     */
+    public static boolean isFeatherLetter(String waybillSign){
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_92, WaybillSignConstants.CHAR_92_2,WaybillSignConstants.CHAR_92_3);
+    }
 }
