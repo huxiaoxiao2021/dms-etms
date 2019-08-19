@@ -1,17 +1,9 @@
 package com.jd.bluedragon.distribution.popInspection.service.impl;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.base.IotServiceWSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionPOPRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
@@ -26,6 +18,16 @@ import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author zhaohc 
@@ -51,7 +53,13 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 	@Autowired
 	private PopQueueService popQueueService;
 
-	@Override
+	@Autowired
+	private IotServiceWSManager iotServiceWSManager;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
+    @Override
 	public boolean execute(Task task) {
 		if (task == null) {
 			return Boolean.FALSE;
@@ -67,98 +75,108 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 				return false;
 			}
 			// 处理数据
-			if (BusinessHelper.checkIntNumRange(popRequests.length)) {
-				for (InspectionPOPRequest popRequest : popRequests) {
+			if (!BusinessHelper.checkIntNumRange(popRequests.length)) {
+                this.logger.error("PopInspectionServiceImpl 任务task ID: 【" + task.getId()
+                        + "】，主体数组长度大于限定值");
+                return false;
+            }
+            InspectionPOPRequest firstRequest = popRequests[0];
+            waybillQueryManager.getWaybillByWaybillCode(firstRequest)//todo 哪个是运单号
+            if(){
 
-					try {
-						if (Constants.POP_QUEUE_EXPRESS.equals(popRequest
-								.getQueueType())) {
-							this.logger.info("PopInspectionServiceImpl 托寄处理开始");
-							this.popSigninService.insert(popRequest);
-						} else {
-							if (StringUtils.isBlank(popRequest.getBoxCodeNew())) {
-								this.logger.info("操作人Code："
-										+ popRequest.getUserCode()
-										+ "， 操作人SiteCode："
-										+ popRequest.getSiteCode()
-										+ ", 操作BusinessType"
-										+ popRequest.getBusinessType()
-										+ ", 参数非法");
-								continue;
-							}
+            }
+			if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
 
-							Inspection ip = new Inspection();
-							ip.setWaybillCode(popRequest.getBoxCodeNew());
-							if (StringUtils.isBlank(popRequest.getPackageBarcode())) {
-								ip.setPackageBarcode(popRequest.getBoxCodeNew());
-							} else {
-								ip.setPackageBarcode(popRequest.getPackageBarcode());
-							}
-							ip.setThirdWaybillCode(popRequest.getBoxCode());
-							ip.setInspectionType(popRequest.getBusinessType());
-							ip.setCreateUserCode(popRequest.getUserCode());
-							ip.setCreateUser(popRequest.getUserName());
-							ip.setCreateTime(new Date()); //修改为创建时间 2016年3月16日10:42:53
-							ip.setCreateSiteCode(popRequest.getSiteCode());
+            }else{
+                iotServiceWSManager.bindDeviceWaybill(firstRequest)
+            }
 
-							ip.setUpdateTime(ip.getCreateTime());
-							ip.setUpdateUser(ip.getCreateUser());
-							ip.setUpdateUserCode(ip.getCreateUserCode());
+            for (InspectionPOPRequest popRequest : popRequests) {
 
-							ip.setPopSupId(popRequest.getPopSupId());
-							ip.setPopSupName(popRequest.getPopSupName());
-							ip.setQuantity(popRequest.getQuantity());
-							ip.setCrossCode(popRequest.getCrossCode());
-							ip.setWaybillType(popRequest.getType());
-							if(StringHelper.isNotEmpty(popRequest.getQueueNo()) && popRequest.getQueueNo().length() > Constants.QUEUE_NO_LEGNTH){
-								ip.setQueueNo("OverLengthQueueNo");
-								logger.error("POP收货：QueueNo字段超长，异常值为： " + popRequest.getQueueNo());
-							}else {
-								ip.setQueueNo(popRequest.getQueueNo());
-							}
-							ip.setPopReceiveType(popRequest.getQueueType());
-                            //新增 opTime  2016年3月16日10:43:10
-                            ip.setOperateTime(DateHelper.getSeverTime(popRequest.getOperateTime()));
-							if (Constants.POP_QUEUE_DRIVER.equals(popRequest
-									.getQueueType())) {
-								if (StringUtils.isNotBlank(popRequest
-										.getQueueNo())) {
-									try {
-										PopQueue popQueue = this.popQueueService
-												.getPopQueueByQueueNo(popRequest
-														.getQueueNo());
-										if (popQueue != null) {
-											ip.setDriverCode(popQueue
-													.getExpressCode());
-											ip.setDriverName(popQueue
-													.getExpressName());
-										}
-									} catch (Exception e) {
-										this.logger.error(
-												"处理POP收货数据 根据排队号查询排队信息 异常：", e);
-									}
-								}
-							}
-							
-							ip.setBusiId(popRequest.getBusiId());
-							ip.setBusiName(popRequest.getBusiName());
-							
-							if (Waybill.isPopWaybillType(ip.getWaybillType())) {
-								ip.setBusiId(popRequest.getPopSupId());
-								ip.setBusiName(popRequest.getPopSupName());
-							}
-							
-							inspectionPOPs.add(ip);
-						}
-					} catch (Exception e) {
-						this.logger.error("处理POP收货数据异常：", e);
-					}
-				}
-			} else {
-				this.logger.error("PopInspectionServiceImpl 任务task ID: 【" + task.getId()
-						+ "】，主体数组长度大于限定值");
-				return false;
-			}
+                try {
+                    if (Constants.POP_QUEUE_EXPRESS.equals(popRequest
+                            .getQueueType())) {
+                        this.logger.info("PopInspectionServiceImpl 托寄处理开始");
+                        this.popSigninService.insert(popRequest);
+                    } else {
+                        if (StringUtils.isBlank(popRequest.getBoxCodeNew())) {
+                            this.logger.info("操作人Code："
+                                    + popRequest.getUserCode()
+                                    + "， 操作人SiteCode："
+                                    + popRequest.getSiteCode()
+                                    + ", 操作BusinessType"
+                                    + popRequest.getBusinessType()
+                                    + ", 参数非法");
+                            continue;
+                        }
+
+                        Inspection ip = new Inspection();
+                        ip.setWaybillCode(popRequest.getBoxCodeNew());
+                        if (StringUtils.isBlank(popRequest.getPackageBarcode())) {
+                            ip.setPackageBarcode(popRequest.getBoxCodeNew());
+                        } else {
+                            ip.setPackageBarcode(popRequest.getPackageBarcode());
+                        }
+                        ip.setThirdWaybillCode(popRequest.getBoxCode());
+                        ip.setInspectionType(popRequest.getBusinessType());
+                        ip.setCreateUserCode(popRequest.getUserCode());
+                        ip.setCreateUser(popRequest.getUserName());
+                        ip.setCreateTime(new Date()); //修改为创建时间 2016年3月16日10:42:53
+                        ip.setCreateSiteCode(popRequest.getSiteCode());
+
+                        ip.setUpdateTime(ip.getCreateTime());
+                        ip.setUpdateUser(ip.getCreateUser());
+                        ip.setUpdateUserCode(ip.getCreateUserCode());
+
+                        ip.setPopSupId(popRequest.getPopSupId());
+                        ip.setPopSupName(popRequest.getPopSupName());
+                        ip.setQuantity(popRequest.getQuantity());
+                        ip.setCrossCode(popRequest.getCrossCode());
+                        ip.setWaybillType(popRequest.getType());
+                        if(StringHelper.isNotEmpty(popRequest.getQueueNo()) && popRequest.getQueueNo().length() > Constants.QUEUE_NO_LEGNTH){
+                            ip.setQueueNo("OverLengthQueueNo");
+                            logger.error("POP收货：QueueNo字段超长，异常值为： " + popRequest.getQueueNo());
+                        }else {
+                            ip.setQueueNo(popRequest.getQueueNo());
+                        }
+                        ip.setPopReceiveType(popRequest.getQueueType());
+                        //新增 opTime  2016年3月16日10:43:10
+                        ip.setOperateTime(DateHelper.getSeverTime(popRequest.getOperateTime()));
+                        if (Constants.POP_QUEUE_DRIVER.equals(popRequest
+                                .getQueueType())) {
+                            if (StringUtils.isNotBlank(popRequest
+                                    .getQueueNo())) {
+                                try {
+                                    PopQueue popQueue = this.popQueueService
+                                            .getPopQueueByQueueNo(popRequest
+                                                    .getQueueNo());
+                                    if (popQueue != null) {
+                                        ip.setDriverCode(popQueue
+                                                .getExpressCode());
+                                        ip.setDriverName(popQueue
+                                                .getExpressName());
+                                    }
+                                } catch (Exception e) {
+                                    this.logger.error(
+                                            "处理POP收货数据 根据排队号查询排队信息 异常：", e);
+                                }
+                            }
+                        }
+
+                        ip.setBusiId(popRequest.getBusiId());
+                        ip.setBusiName(popRequest.getBusiName());
+
+                        if (Waybill.isPopWaybillType(ip.getWaybillType())) {
+                            ip.setBusiId(popRequest.getPopSupId());
+                            ip.setBusiName(popRequest.getPopSupName());
+                        }
+
+                        inspectionPOPs.add(ip);
+                    }
+                } catch (Exception e) {
+                    this.logger.error("处理POP收货数据异常：", e);
+                }
+            }
 
 		} catch (Exception e) {
 			this.logger.error("PopInspectionServiceImpl 任务task ID: " + task.getId()

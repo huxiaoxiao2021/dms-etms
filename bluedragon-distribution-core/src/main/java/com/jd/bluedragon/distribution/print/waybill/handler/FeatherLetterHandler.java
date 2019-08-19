@@ -3,7 +3,7 @@ package com.jd.bluedragon.distribution.print.waybill.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
-import com.jd.bluedragon.core.base.IotQueryWSManager;
+import com.jd.bluedragon.core.base.IotServiceWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
@@ -37,7 +37,7 @@ public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResul
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
-    private IotQueryWSManager iotQueryWSManager;
+    private IotServiceWSManager iotServiceWSManager;
 
     @Override
     public InterceptResult<String> handle(WaybillPrintContext context) {
@@ -58,7 +58,7 @@ public class FeatherLetterHandler implements Handler<WaybillPrintContext,JdResul
             result.toFail(JdResponse.CODE_FEATHER_LETTER_ERROR, JdResponse.MESSAGE_FEATHER_LETTER_ERROR);
             return result;
         }
-        Boolean isEnable = iotQueryWSManager.isDeviceCodeEnable(request.getFeatherLetterDeviceNo());
+        Boolean isEnable = iotServiceWSManager.isDeviceCodeEnable(request.getFeatherLetterDeviceNo());
         if(Objects.equals(isEnable,Boolean.FALSE)){
             result.toFail(JdResponse.CODE_FEATHER_LETTER_DISABLE_ERROR, JdResponse.MESSAGE_FEATHER_LETTER_DISABLE_ERROR);
             return result;
