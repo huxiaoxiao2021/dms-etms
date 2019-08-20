@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
 import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
@@ -13,7 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -44,4 +47,33 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
 		return waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
 	}
+
+	@Override
+	public int updatePackUserErpByWaybillCode(List<String> waybillCodeList, String packUserErp, LoginUser loginUser) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("waybillCodeList", waybillCodeList);
+		params.put("packUserErp", packUserErp);
+		params.put("operateUserCode", loginUser.getStaffNo().toString());
+		params.put("operateUserErp", loginUser.getUserErp());
+		params.put("updateTime", new Date());
+		params.put("operateTime", new Date());
+		return waybillConsumableRelationDao.updatePackUserErpByWaybillCode(params);
+	}
+
+	@Override
+	public int updatePackUserErpById(List<Long> ids, String packUserErp, LoginUser loginUser) {
+		Map<String, Object> params = new HashMap<>();
+		params.put("ids", ids);
+		params.put("packUserErp", packUserErp);
+		params.put("operateUserCode", loginUser.getStaffNo().toString());
+		params.put("operateUserErp", loginUser.getUserErp());
+		params.put("updateTime", new Date());
+		params.put("operateTime", new Date());
+		return waybillConsumableRelationDao.updatePackUserErpById(params);
+	}
+
+    @Override
+    public int getNoPackUserErpRecordCount(String waybillCode) {
+        return waybillConsumableRelationDao.getNoPackUserErpRecordCount(waybillCode);
+    }
 }
