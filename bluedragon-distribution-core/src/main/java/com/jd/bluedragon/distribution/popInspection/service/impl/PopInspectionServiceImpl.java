@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.popInspection.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.IotServiceWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionPOPRequest;
@@ -13,13 +14,16 @@ import com.jd.bluedragon.distribution.popPrint.service.PopQueueService;
 import com.jd.bluedragon.distribution.popPrint.service.PopSigninService;
 import com.jd.bluedragon.distribution.popReveice.service.TaskPopRecieveCountService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,7 +43,7 @@ import java.util.Set;
 @Service("popInspectionService")
 public class PopInspectionServiceImpl implements PopInspectionService {
 	
-	private final Logger logger = Logger.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private InspectionService inspectionService;
@@ -58,6 +62,9 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
 	public boolean execute(Task task) {
@@ -80,17 +87,7 @@ public class PopInspectionServiceImpl implements PopInspectionService {
                         + "】，主体数组长度大于限定值");
                 return false;
             }
-            InspectionPOPRequest firstRequest = popRequests[0];
-            waybillQueryManager.getWaybillByWaybillCode(firstRequest)//todo 哪个是运单号
-            if(){
-
-            }
-			if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
-
-            }else{
-                iotServiceWSManager.bindDeviceWaybill(firstRequest)
-            }
-
+            handleFeatherLetter(popRequests[0]);
             for (InspectionPOPRequest popRequest : popRequests) {
 
                 try {
@@ -216,4 +213,31 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 		return true;
 	}
 
+    /**
+     * 鸡毛信运单处理
+     * @param firstRequest 驻场打印数据
+     */
+    private void handleFeatherLetter(InspectionPOPRequest firstRequest) {
+        com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(firstRequest.getBoxCodeNew());//todo 哪个是运单号
+        if(waybill == null){
+            return;
+        }
+        if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
+            return;
+        }
+        if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
+            //todo 取消鸡毛信
+            return;
+        }
+        if(StringUtils.isEmpty(firstRequest.getFeatherLetterDeviceNo())){
+            logger.info("鸡毛信运单设备号为空waybillCode[{}]",firstRequest.getBoxCodeNew());
+            return;
+        }
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(firstRequest.getUserCode());
+        if(baseStaffSiteOrgDto == null){
+            logger.info("获取员工信息为空waybillCode[{}]userCode[{}]",firstRequest.getBoxCodeNew(),firstRequest.getUserCode());
+            return;
+        }
+        iotServiceWSManager.bindDeviceWaybill(firstRequest.getFeatherLetterDeviceNo(),firstRequest.getBoxCodeNew(),baseStaffSiteOrgDto.getAccountNumber());
+    }
 }

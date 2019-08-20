@@ -169,7 +169,9 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<Waybill> getWaybillByWaybillCode(String waybillCode);
 
-	/**
+    Waybill getWaybillByWayCode(String waybillCode);
+
+    /**
 	 * 根据运单号查询运单sn码和69码
 	 *
 	 * @param waybillCode
