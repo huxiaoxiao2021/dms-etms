@@ -41,7 +41,7 @@ public interface TaskService {
 
     List<Task> findSpecifiedTasks(Integer type, Integer fetchNum, String ownSign,List<String> queueIds);
 
-    List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds);
+    List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds,String ownSign, List<String> ownSigns);
 
     List<Task> findTasksByFingerprint(Task task);
 

@@ -473,7 +473,7 @@ public class AllianceBusiDeliveryDetailServiceImpl extends BaseService<AllianceB
 				return baseEntity.getData().getWaybill().getWaybillExt().getPartnerId();
 			}
 		}else{
-			logger.error("获取加盟商ID失败"+waybillCode+"|"+JsonHelper.toJson(baseEntity));
+			logger.warn("获取加盟商ID失败"+waybillCode+"|"+JsonHelper.toJson(baseEntity));
 		}
 		return null;
 	}
