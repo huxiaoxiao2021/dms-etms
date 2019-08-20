@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.IotServiceWSManager;
+import com.jd.bluedragon.core.base.LdopWaybillUpdateManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.request.InspectionPOPRequest;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
@@ -65,6 +66,9 @@ public class PopInspectionServiceImpl implements PopInspectionService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private LdopWaybillUpdateManager ldopWaybillUpdateManager;
 
     @Override
 	public boolean execute(Task task) {
@@ -218,26 +222,28 @@ public class PopInspectionServiceImpl implements PopInspectionService {
      * @param firstRequest 驻场打印数据
      */
     private void handleFeatherLetter(InspectionPOPRequest firstRequest) {
-        com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(firstRequest.getBoxCodeNew());//todo 哪个是运单号
+        String waybillCode = firstRequest.getBoxCodeNew();//todo 哪个是运单号
+        com.jd.etms.waybill.domain.Waybill  waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
         if(waybill == null){
+            logger.info("鸡毛信运单处理-查询运单信息为空waybillCode[{}]",waybillCode);
             return;
         }
         if(!BusinessUtil.isFeatherLetter(waybill.getWaybillSign())){
             return;
         }
         if(Objects.equals(firstRequest.getCancelFeatherLetter(),Boolean.TRUE)){
-            //todo 取消鸡毛信
+            ldopWaybillUpdateManager.cancelFeatherLetterByWaybillCode(waybillCode);
             return;
         }
         if(StringUtils.isEmpty(firstRequest.getFeatherLetterDeviceNo())){
-            logger.info("鸡毛信运单设备号为空waybillCode[{}]",firstRequest.getBoxCodeNew());
+            logger.info("鸡毛信运单处理-设备号为空waybillCode[{}]",waybillCode);
             return;
         }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByStaffId(firstRequest.getUserCode());
         if(baseStaffSiteOrgDto == null){
-            logger.info("获取员工信息为空waybillCode[{}]userCode[{}]",firstRequest.getBoxCodeNew(),firstRequest.getUserCode());
+            logger.info("鸡毛信运单处理-获取员工信息为空waybillCode[{}]userCode[{}]",waybillCode,firstRequest.getUserCode());
             return;
         }
-        iotServiceWSManager.bindDeviceWaybill(firstRequest.getFeatherLetterDeviceNo(),firstRequest.getBoxCodeNew(),baseStaffSiteOrgDto.getAccountNumber());
+        iotServiceWSManager.bindDeviceWaybill(firstRequest.getFeatherLetterDeviceNo(),waybillCode,baseStaffSiteOrgDto.getAccountNumber());
     }
 }

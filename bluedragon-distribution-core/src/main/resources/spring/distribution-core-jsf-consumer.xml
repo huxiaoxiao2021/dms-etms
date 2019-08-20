@@ -314,6 +314,10 @@
     <jsf:consumer id="waybillReverseApi" interface="com.jd.ldop.center.api.reverse.WaybillReverseApi"
                   protocol="jsf" alias="${jsf.waybillReverseApi.alias}" timeout="${jsf.waybillReverseApi.timeout}" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 外单 修改运单信息接口-->
+    <jsf:consumer id="waybillUpdateApi" interface="com.jd.ldop.center.api.update.WaybillUpdateApi"
+                  protocol="jsf" alias="${jsf.waybillUpdateApi.alias}" timeout="${jsf.waybillUpdateApi.timeout}" retries="${jsf.retries}">
+    </jsf:consumer>
     <!-- 外单签单返回合单接口-->
     <jsf:consumer id="waybillReturnSignatureApi" interface="com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi"
                   protocol="jsf" alias="${jsf.WaybillReturnSignatureApi.alias}" timeout="${jsf.WaybillReturnSignatureApi.timeout}" retries="${jsf.retries}">
@@ -473,6 +477,10 @@
     </jsf:consumer>
 
     <jsf:consumer id="iotQueryWS" interface="com.jd.tms.iot.ws.IotQueryWS" protocol="jsf"
+                  alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
+    </jsf:consumer>
+
+    <jsf:consumer id="iotDeviceWS" interface="com.jd.tms.iot.ws.IotDeviceWS" protocol="jsf"
                   alias="${jsf.iot.alias}" timeout="${jsf.iot.timeout}" retries="0">
     </jsf:consumer>
 
