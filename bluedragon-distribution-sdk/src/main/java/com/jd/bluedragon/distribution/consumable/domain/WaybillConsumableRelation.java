@@ -36,6 +36,9 @@ public class WaybillConsumableRelation extends DbEntity {
 	 /** 操作时间 */
 	private Date operateTime;
 
+	/** 打包人erp */
+	private String packUserErp;
+
 	/**
 	 * The set method for waybillCode.
 	 * @param waybillCode
@@ -148,5 +151,11 @@ public class WaybillConsumableRelation extends DbEntity {
 		return this.operateTime;
 	}
 
+	public String getPackUserErp() {
+		return packUserErp;
+	}
 
+	public void setPackUserErp(String packUserErp) {
+		this.packUserErp = packUserErp;
+	}
 }

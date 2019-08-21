@@ -25,6 +25,7 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Goods;
@@ -184,7 +185,16 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         if (waybillMap != null) {
             // 发送全程跟踪
             this.doSendTrace(arAbnormalRequest, waybillMap);
-            if (isNeedSendMQ(arAbnormalRequest)) {
+            // 判断是否为新客户端请求
+            if (isNewClientRequest(arAbnormalRequest)) {
+                // 异常原因只有航空违禁品时，才发送MQ消息
+                if (ArAbnormalReasonEnum.getEnum(arAbnormalRequest.getTranspondReason()) != ArAbnormalReasonEnum.CONTRABAND_GOODS) {
+                    return;
+                }
+                // 第一期只做航空转陆运，其他运输类型不发送MQ消息
+                if (ArTransportChangeModeEnum.getEnum(arAbnormalRequest.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
+                    return;
+                }
                 // 发MQ消息
                 this.doSendMQ(arAbnormalRequest, waybillMap);
             }
@@ -198,18 +208,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      * @param request
      * @return
      */
-    private boolean isNeedSendMQ(ArAbnormalRequest request) {
+    private boolean isNewClientRequest(ArAbnormalRequest request) {
         // 新老版本客户端兼容，老客户端违禁品原因字段为空值，所以不需要发送MQ消息
         ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
         if (contrabandReason == null) {
-            return false;
-        }
-        // 第一期只做航空转陆运，其他运输类型不发送MQ消息
-        if (ArTransportChangeModeEnum.getEnum(request.getTranspondType()) != ArTransportChangeModeEnum.AIR_TO_ROAD_CODE) {
-            return false;
-        }
-        // 异常原因只有航空违禁品时，才发送MQ消息
-        if (ArAbnormalReasonEnum.getEnum(request.getTranspondReason()) != ArAbnormalReasonEnum.CONTRABAND_GOODS) {
             return false;
         }
         return true;
@@ -286,7 +288,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
      */
     private Map<String, List<String>> getWaybillMapByWaybillCode(String waybillCode) {
         BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCode(waybillCode);
-        if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+        if (baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
             List<DeliveryPackageD> packageDList = baseEntity.getData();
             if (packageDList.size() > 0) {
                 Map<String, List<String>> resultMap = new HashMap<>(1);
@@ -382,12 +384,19 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     private String getOperatorDesc(ArAbnormalRequest arAbnormalRequest) {
         StringBuilder desc = new StringBuilder();
-        desc.append(getTransportChangeDesc(arAbnormalRequest.getTranspondType()));
-        desc.append(Constants.SEPARATOR_BLANK_SPACE);
-        desc.append(getAbnormalReasonDesc(arAbnormalRequest.getTranspondReason()));
-        desc.append(Constants.PUNCTUATION_OPEN_BRACKET_SMALL);
-        desc.append(getContrabandReasonDesc(arAbnormalRequest.getContrabandReason()));
-        desc.append(Constants.PUNCTUATION_CLOSE_BRACKET_SMALL);
+        // 新旧版本客户端兼容问题
+        if (isNewClientRequest(arAbnormalRequest)) {
+            desc.append(getTransportChangeDesc(arAbnormalRequest.getTranspondType()));
+            desc.append(Constants.SEPARATOR_BLANK_SPACE);
+            desc.append(getAbnormalReasonDesc(arAbnormalRequest.getTranspondReason()));
+            desc.append(Constants.PUNCTUATION_OPEN_BRACKET_SMALL);
+            desc.append(getContrabandReasonDesc(arAbnormalRequest.getContrabandReason()));
+            desc.append(Constants.PUNCTUATION_CLOSE_BRACKET_SMALL);
+        } else {
+            desc.append(getAbnormalReasonDesc(arAbnormalRequest.getTranspondReason()));
+            desc.append(Constants.SEPARATOR_BLANK_SPACE);
+            desc.append(getTransportChangeDesc(arAbnormalRequest.getTranspondType()));
+        }
         return desc.toString();
     }
 
@@ -473,14 +482,26 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         List<Message> messages = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
-            if (bigWaybillDto.getWaybill() != null) {
-                Waybill waybill = bigWaybillDto.getWaybill();
-                if (BusinessUtil.isSignY(waybill.getWaybillSign(), 31)) {
-                    messages.addAll(this.assembleTransportModeChangeMQ(request, bigWaybillDto, entry.getValue()));
+            if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
+                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())) {
+                    messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
+            } else {
+                this.addErrorBusinessLog(request, "根据运单号：" + entry.getKey() + "获取运单信息为空");
             }
         }
         arTransportModeChangeProducer.batchSend(messages);
+    }
+
+    /**
+     * 根据waybillSign判断是否需要发消息
+     * 【航】字标的运单， waybill_sign第31位等于1 才发消息
+     *
+     * @param waybillSign
+     * @return
+     */
+    private boolean isNeedSendMQ(String waybillSign) {
+        return BusinessUtil.isSignY(waybillSign, 31);
     }
 
     private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {
@@ -489,13 +510,21 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         choice.setQueryGoodList(true);
         choice.setQueryWaybillExtend(true);
         BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, choice);
-        if (baseEntity.getResultCode() == 1 && baseEntity.getData() != null) {
+        if (baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
             return baseEntity.getData();
         }
         return null;
     }
 
-    private List<Message> assembleTransportModeChangeMQ(ArAbnormalRequest request, BigWaybillDto bigWaybillDto, List<String> packageCodeList) {
+    /**
+     * 组装MQ消息体List
+     *
+     * @param request
+     * @param bigWaybillDto
+     * @param packageCodeList
+     * @return
+     */
+    private List<Message> assembleMessageList(ArAbnormalRequest request, BigWaybillDto bigWaybillDto, List<String> packageCodeList) {
         Waybill waybill = bigWaybillDto.getWaybill();
         ArTransportModeChangeDto dto = new ArTransportModeChangeDto();
         ArTransportChangeModeEnum transformChangeMode = ArTransportChangeModeEnum.getEnum(request.getTranspondType());
@@ -503,18 +532,18 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         ArContrabandReasonEnum contrabandReason = ArContrabandReasonEnum.getEnum(request.getContrabandReason());
 
         // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setTransformType(transformChangeMode == null ? null : transformChangeMode.getFxmId());
+        dto.setTransformType(transformChangeMode.getFxmId());
         dto.setWaybillCode(waybill.getWaybillCode());
         // 异常类型 (航空违禁品)
-        dto.setAbnormalType(abnormalReason == null ? null : abnormalReason.getFxmId());
+        dto.setAbnormalType(abnormalReason.getFxmId());
         // 转发方式 (航空转陆运 或 航空转高铁)
-        dto.setFirstLevelCode(transformChangeMode == null ? null : transformChangeMode.getFxmId());
-        dto.setFirstLevelName(transformChangeMode == null ? null : transformChangeMode.getDesc());
+        dto.setFirstLevelCode(transformChangeMode.getFxmId());
+        dto.setFirstLevelName(transformChangeMode.getDesc());
         // 异常类型 (航空违禁品)
-        dto.setSecondLevelCode(abnormalReason == null ? null : abnormalReason.getFxmId());
-        dto.setSecondLevelCode(abnormalReason == null ? null : abnormalReason.getDesc());
+        dto.setSecondLevelCode(abnormalReason.getFxmId());
+        dto.setSecondLevelName(abnormalReason.getDesc());
         // 违禁品原因
-        dto.setThirdLevel(contrabandReason == null ? null : contrabandReason.getDesc());
+        dto.setThirdLevel(contrabandReason.getDesc());
         dto.setOperatorErp(request.getUserErp());
         dto.setSiteCode(request.getSiteCode());
 

@@ -1,7 +1,7 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.fastjson.JSONObject;
-import com.jd.fastjson.TypeReference;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.jd.mrd.delivery.rpc.sdk.dto.RpcResultDto;
 import com.jd.mrd.delivery.rpc.sdk.feedback.MrdFeedbackRpcService;
 import com.jd.mrd.delivery.rpc.sdk.feedback.dto.UserFeedbackContent;

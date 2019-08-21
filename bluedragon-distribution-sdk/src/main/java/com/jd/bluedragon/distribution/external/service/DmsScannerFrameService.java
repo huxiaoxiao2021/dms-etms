@@ -6,7 +6,7 @@ import com.jd.bluedragon.distribution.api.response.BatchSendSummaryResponse;
 
 /**
  * 龙门架分拣机发货的核心逻辑的处理接口 以及 批次号的统计查询接口
- *
+ * 发往物流网关的接口不要在此类中加方法
  * dealScannerFrameConsume
  * countSendCode
  *

@@ -126,4 +126,19 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	BaseSiteInfoDto getBaseSiteInfoBySiteId(Integer siteId);
+
+	/**
+	 * 加盟商基础资料中获取 预付款是否充足
+	 * @param allianceBusiId
+	 * @return
+	 */
+	boolean allianceBusiMoneyEnough(String allianceBusiId);
+
+	/**
+	 * 获取常用功能菜单
+	 * @param siteCode
+	 * @param erp
+	 * @return
+	 */
+	String menuConstantAccount(String siteCode,String erp);
 }

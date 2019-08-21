@@ -17,6 +17,9 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
     /** 确认数量 */
     private Double confirmQuantity;
 
+    /** 包装人ERP */
+    private String packUserErp;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -47,5 +50,13 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
 
     public void setConfirmQuantity(Double confirmQuantity) {
         this.confirmQuantity = confirmQuantity;
+    }
+
+    public String getPackUserErp() {
+        return packUserErp;
+    }
+
+    public void setPackUserErp(String packUserErp) {
+        this.packUserErp = packUserErp;
     }
 }

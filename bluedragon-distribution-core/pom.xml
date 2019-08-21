@@ -22,7 +22,14 @@
 		<slf4j.version>1.6.4</slf4j.version>
 		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.2.0</jmq.version>
-		<etms.waybill.agent.version>4.2.86</etms.waybill.agent.version>
+		<etms.waybill.agent.version>4.2.101</etms.waybill.agent.version>
+		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
+		<configure-client.version>1.0.0-SNAPSHOT</configure-client.version>
+		<configure-utils.version>1.0.0-SNAPSHOT</configure-utils.version>
+		<groovy-all.version>2.4.4</groovy-all.version>
+		<jdbcp-pool.version>2.0.1-SNAPSHOT</jdbcp-pool.version>
+		<nv-websocket.version>2.3</nv-websocket.version>
+		<kryo.version>4.0.0</kryo.version>
 	</properties>
 
 	<dependencies>
@@ -48,7 +55,7 @@
 			<version>1.1.1-SNAPSHOT</version>
 		</dependency>
 
-        <dependency>
+		<dependency>
             <groupId>com.jd.mrd</groupId>
             <artifactId>mrd-delivery-rpc-sdk</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -162,9 +169,14 @@
 			<version>1.2.23-SNAPSHOT</version>
 		</dependency>
 		<dependency>
+			<groupId>com.jd.ldop.alpha</groupId>
+			<artifactId>ldop-alpha-waybill-api</artifactId>
+			<version>1.2.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.1.3-SNAPSHOT</version>
+			<version>1.1.8-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -178,7 +190,11 @@
 			<artifactId>bluedragon-distribution-saf</artifactId>
 			<version>1.0.2</version>
 		</dependency>
-
+        <dependency>
+            <groupId>com.jd.bluedragon</groupId>
+            <artifactId>bluedragon-distribution-common-android</artifactId>
+            <version>1.0.4-SNAPSHOT</version>
+        </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
 			<artifactId>etms-waybill-agent</artifactId>
@@ -906,7 +922,6 @@
 		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>jddl-client-all</artifactId>
-			<version>1.1.6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>nv-websocket-client</artifactId>
@@ -917,49 +932,37 @@
 					<artifactId>jdbcp-pool</artifactId>
 				</exclusion>
 			</exclusions>
+			<version>${jddl-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.neovisionaries</groupId>
 			<artifactId>nv-websocket-client</artifactId>
-			<version>2.3</version>
+			<version>${nv-websocket.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.configure</groupId>
 			<artifactId>configure-client</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
+			<version>${configure-client.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.configure</groupId>
 			<artifactId>configure-utils</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jd.coo.jdbcp</groupId>
-			<artifactId>jdbcp-pool</artifactId>
-			<version>1.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.esotericsoftware</groupId>
-			<artifactId>kryo</artifactId>
-			<version>4.0.0</version>
+			<version>${configure-utils.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.groovy</groupId>
 			<artifactId>groovy-all</artifactId>
-			<version>2.4.8</version>
+			<version>${groovy-all.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.coo.jdbcp</groupId>
+			<artifactId>jdbcp-pool</artifactId>
+			<version>${jdbcp-pool.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.esotericsoftware</groupId>
+			<artifactId>kryo</artifactId>
+			<version>${kryo.version}</version>
 		</dependency>
 
 		<dependency>
@@ -970,7 +973,7 @@
         <dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>business-sdk</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
 
 		<!--JMQ-Split组件  -->
@@ -1009,6 +1012,12 @@
 			<groupId>com.jd.etms.preseparate</groupId>
 			<artifactId>preseparate-saf-client</artifactId>
 			<version>2.3.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.ldop.business</groupId>
+			<artifactId>ldop-business-api</artifactId>
+			<version>1.0.38-SNAPSHOT</version>
 		</dependency>
 
 	</dependencies>

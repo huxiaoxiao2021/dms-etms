@@ -2,10 +2,7 @@ package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.etms.vos.dto.CommonDto;
-import com.jd.etms.vos.dto.PageDto;
-import com.jd.etms.vos.dto.SealCarDto;
-import com.jd.etms.vos.dto.SealCarInAreaDto;
+import com.jd.etms.vos.dto.*;
 import com.jd.etms.vts.dto.VtsTransportResourceDto;
 import com.jd.tms.tfc.dto.TransBookBillQueryDto;
 import com.jd.tms.tfc.dto.TransWorkItemDto;
@@ -27,6 +24,13 @@ public interface NewSealVehicleService {
      * @return
      */
     public CommonDto<String> seal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars) throws Exception;
+
+    /**
+     * VOS封车业务同时生成车次任务
+     * @param sealCars
+     * @return
+     */
+    NewSealVehicleResponse doSealCarWithVehicleJob(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
     /**
      * 取消封车
@@ -76,6 +80,15 @@ public interface NewSealVehicleService {
      * @return
      */
     public boolean checkSendIsExist(String sendCode);
+
+
+    /**
+     * 校验车牌号能否生成车次任务
+     * @param transportCode 运力编码
+     * @param vehicleNumber 车牌号
+     * @return
+     */
+    CommonDto<String> verifyVehicleJobByVehicleNumber(String transportCode,String vehicleNumber);
 
     /**
      * 离线封车

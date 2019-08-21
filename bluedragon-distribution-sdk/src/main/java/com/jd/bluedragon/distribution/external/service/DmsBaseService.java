@@ -1,13 +1,14 @@
 package com.jd.bluedragon.distribution.external.service;
 
-import java.util.List;
-
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 
+import java.util.List;
+
 /**
+ * 发往物流网关的接口不要在此类中加方法
  * <p>
  * Created by lixin39 on 2018/5/9.
  */

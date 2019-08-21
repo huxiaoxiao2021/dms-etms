@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -39,6 +42,8 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	@Autowired
 	private WaybillConsumableRecordService waybillConsumableRecordService;
 
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	/**
 	 * 返回主页面
 	 * @return
@@ -70,6 +75,14 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody WaybillConsumableRelation waybillConsumableRelation) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
+			String packUserErp = waybillConsumableRelation.getPackUserErp();
+			//验证ERP是否存在
+			BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(packUserErp);
+			if (userOrgInfo == null){
+				rest.toError("【" + packUserErp + "】不存在与青龙基础资料中，请核实后录入！");
+				return rest;
+			}
+
 			Date date = new Date();
 			waybillConsumableRelation.setUpdateTime(date);
 			waybillConsumableRelation.setOperateTime(date);
@@ -135,5 +148,37 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	@RequestMapping("/getAddPage")
 	public String getAddPage() {
 		return "consumable/waybillConsumableDetailAdd";
+	}
+
+	/**
+	 * 批量更新包装人Erp
+	 * @param
+	 * @return
+	 */
+	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
+	@RequestMapping(value = "/updatePackUserErp")
+	public @ResponseBody JdResponse<Integer> updatePackUserErp(@RequestBody WaybillConsumablePackUserRequest waybillConsumablePackUserRequest) {
+		JdResponse<Integer> result = new JdResponse<>();
+		try {
+			String packUserErp = waybillConsumablePackUserRequest.getPackUserErp();
+			//验证ERP是否存在
+			BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(packUserErp);
+			if (userOrgInfo == null){
+				result.toError("【" + packUserErp + "】不存在与青龙基础资料中，请核实后录入！");
+				return result;
+			}
+			Integer count = 0;
+			if (waybillConsumablePackUserRequest.getIds() != null) {
+				count = waybillConsumableRelationService.updatePackUserErpById(waybillConsumablePackUserRequest.getIds(), packUserErp, this.getLoginUser());
+			} else if (waybillConsumablePackUserRequest.getWaybillCodeList() != null) {
+				count = waybillConsumableRelationService.updatePackUserErpByWaybillCode(waybillConsumablePackUserRequest.getWaybillCodeList(), packUserErp, this.getLoginUser());
+
+			}
+			result.setData(count);
+		} catch (Exception e) {
+			logger.error("fail to updatePackUserErp！"+ e.getMessage(), e);
+			result.toError("更新失败，服务异常！");
+		}
+		return result;
 	}
 }
