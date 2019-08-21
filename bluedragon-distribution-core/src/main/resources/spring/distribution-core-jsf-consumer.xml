@@ -357,6 +357,11 @@
     <jsf:consumer id="handoverBillResource" interface="com.jd.jp.assemble.sdk.HandoverBillResource"
                   protocol="jsf" alias="${jsf.handoverBill.alias}" timeout="${jsf.handoverBill.timeout}" check="false" retries="${jsf.retries}">
     </jsf:consumer>
+    <!-- 加履系统 查询接口 李杰 -->
+    <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
+                  alias="${jsf.HandoverBillProvider.alias}" retries="${jsf.retries}"
+                  timeout="${jsf.HandoverBillProvider.timeout}" check="false" protocol="jsf">
+    </jsf:consumer>
     <!-- automatic分拣自动化 -储位相关- 焦文强 -->
     <jsf:consumer id="storageComponentJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.storagecomponent.StorageComponentJsfService"
                   protocol="jsf" alias="${jsf.storageComponent.alias}" timeout="${jsf.storageComponent.timeout}" retries="${jsf.retries}">
