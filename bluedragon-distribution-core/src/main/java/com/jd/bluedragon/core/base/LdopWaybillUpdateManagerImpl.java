@@ -1,10 +1,13 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.center.api.ResponseDTO;
 import com.jd.ldop.center.api.enums.RelievedSendEnum;
 import com.jd.ldop.center.api.update.WaybillUpdateApi;
 import com.jd.ldop.center.api.update.dto.WaybillUpdateBeforePickupDTO;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,7 @@ public class LdopWaybillUpdateManagerImpl implements LdopWaybillUpdateManager{
     private WaybillUpdateApi waybillUpdateApi;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.LdopWaybillUpdateManagerImpl.cancelFeatherLetterByWaybillCode",mState = {JProEnum.TP, JProEnum.FunctionError})
     public void cancelFeatherLetterByWaybillCode(String waybillCode) {
         WaybillUpdateBeforePickupDTO pickupDTO = new WaybillUpdateBeforePickupDTO();
         pickupDTO.setWaybillCode(waybillCode);

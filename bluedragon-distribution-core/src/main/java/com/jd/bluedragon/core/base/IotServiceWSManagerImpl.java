@@ -66,10 +66,11 @@ public class IotServiceWSManagerImpl implements IotServiceWSManager {
         bindDeviceDto.setBindValue(waybillCode);
         bindDeviceDto.setBindType(IotDeviceBindTypeEnum.WAYBILL.getKey());
         bindDeviceDto.setErp(erp);
-//        bindDeviceDto.setSystemCode();todo 系统来源编号（找bjqiujian申请）
+        bindDeviceDto.setSystemCode(11111);
 
 
         CommonDto commonDto = iotDeviceWS.bindDevice(bindDeviceDto);
+        logger.info("鸡毛信运单处理-调用iot绑定鸡毛信设备bindDeviceDto[{}]",JsonHelper.toJson(bindDeviceDto));
         if(commonDto == null || commonDto.getCode() != 1){
             logger.info("调用iot绑定鸡毛信设备接口返回失败commonDto[{}]deviceNo[{}]waybillCode[{}]",new String[]{JsonHelper.toJson(commonDto),deviceNo,waybillCode});
             return Boolean.FALSE;
